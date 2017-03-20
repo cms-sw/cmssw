@@ -16,8 +16,6 @@ from DataFormats.FWLite import Handle, Events
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
 events = Events("file:test.root")
-# BXVector<l1t::HGCalCluster>           "hgcalTriggerPrimitiveDigiProducer"   "HGCalTriggerSimClusterBestChoice"   "DIGI" 
-#clusters, clusterLabel = Handle("BXVector<l1t::HGCalCluster>"), "hgcalTriggerPrimitiveDigiProducer:HGCalTriggerSimClusterBestChoice"
 clusters, clusterLabel = Handle("l1t::HGCalClusterBxCollection"), "hgcalTriggerPrimitiveDigiProducer:HGCalTriggerSimClusterBestChoice"
 genParticles, genParticlesLabel = Handle("vector<reco::GenParticle>"),"genParticles"
 
@@ -58,7 +56,6 @@ def deltaR(eta1,phi1,eta2,phi2):
 for iev,event in enumerate(events):
 	if verbose: 
 	   print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
-	   #if iev > 10: break
 
 	event.getByLabel(clusterLabel, clusters)
 	event.getByLabel(genParticlesLabel,genParticles)
@@ -71,9 +68,6 @@ for iev,event in enumerate(events):
 	if verbose: print "-> BX=0"
 	if verbose: print "-> clusters=",clusters,"\n","product=",clusters.product()
 
-	#print "what's saved in clusters?"
-	#for bx in clusters.product():
-	#	print "bx=",bx
 	print "--------------------------------" 
 	print "GP SIZE=",genParticles.product().size()
 	for gp in genParticles.product():
@@ -88,7 +82,6 @@ for iev,event in enumerate(events):
 		if vector == None: 
 			print "   cluster product is none"
 			continue
-		#print "   pt=",vector.pt(),"eta=",vector.eta(),"phi=",vector.phi()
 		hEta.Fill(vector.eta() ) 
 		if vector.eta() <8:
 			hE.Fill(vector.energy() ) 
@@ -134,15 +127,6 @@ c2.cd(3)
 hSPP.Draw("HIST")
 c2.cd(4)
 hSRR.Draw("HIST")
-
-#c3=ROOT.TCanvas("c3","c3")
-#c3.Divide(2,2)
-#c3.cd(1)
-#hLE.Draw("HIST")
-#c3.cd(2)
-#hED.Draw("HIST")
-#c3.cd(3)
-#hSEP.Draw("HIST")
 
 c4=ROOT.TCanvas("c4","c4")
 c4.Divide(2,2)

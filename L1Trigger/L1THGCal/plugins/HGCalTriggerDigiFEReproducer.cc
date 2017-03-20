@@ -50,8 +50,6 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
     codec_->unSetDataPayload();
 
     produces<l1t::HGCFETriggerDigiCollection>();
-    //setup BE processor it's in the constructor
-    //backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
     // register backend processor products
     backEndProcessor_->setProduces(*this);
 }
