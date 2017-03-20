@@ -42,14 +42,14 @@
 #endif
 
 #include "Eigen/Dense"
-typedef Eigen::Matrix<double, 5, 1> Vector5d;
-typedef Eigen::Matrix<double, 2, 3> Matrix23d;
-typedef Eigen::Matrix<double, 2, 5> Matrix25d;
-typedef Eigen::Matrix<double, 2, 7> Matrix27d;
-typedef Eigen::Matrix<double, 3, 2> Matrix32d;
-typedef Eigen::Matrix<double, 5, 5> Matrix5d;
 
 namespace gbl {
+  typedef Eigen::Matrix<double, 5, 1> Vector5d;
+  typedef Eigen::Matrix<double, 2, 3> Matrix23d;
+  typedef Eigen::Matrix<double, 2, 5> Matrix25d;
+  typedef Eigen::Matrix<double, 2, 7> Matrix27d;
+  typedef Eigen::Matrix<double, 3, 2> Matrix32d;
+  typedef Eigen::Matrix<double, 5, 5> Matrix5d;
 
   /// Point on trajectory
   /**
