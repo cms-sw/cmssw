@@ -14,7 +14,8 @@ from TkAlExceptions import AllInOneError
 
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
-                  cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"]):
+                  cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"],
+                  magneticfield = None):
         self.__name = datasetName
         self.__origName = datasetName
         self.__dasLimit = dasLimit
@@ -74,8 +75,16 @@ class Dataset(object):
         if self.__predefined and self.__official:
             self.__name = "Dataset" + self.__name.replace("/","_")
 
+        if magneticfield is not None:
+            try:
+                magneticfield = float(magneticfield)
+            except ValueError:
+                raise AllInOneError("Bad magneticfield {} which can't be converted to float".format(magneticfield))
+        self.__inputMagneticField = magneticfield
+
         self.__dataType = self.__getDataType()
         self.__magneticField = self.__getMagneticField()
+
 
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
@@ -200,9 +209,12 @@ class Dataset(object):
                 raise AllInOneError(msg)
 
         else:
-            runlist = self.__getRunList()
-            self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
-            self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
+            if self.__inputMagneticField is not None:
+                pass  #never need self.__firstusedrun or self.__lastusedrun
+            else:
+                runlist = self.__getRunList()
+                self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
+                self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
 
         return lumiSecExtend
 
@@ -415,6 +427,14 @@ class Dataset(object):
                                if f.startswith("MagneticField_") and f.endswith("_cff.py") ]
         Bfieldlist.sort( key = lambda Bfield: -len(Bfield) ) #Put it in order of decreasing length, so that searching in the name gives the longer match
 
+        if self.__inputMagneticField is not None:
+            if self.__inputMagneticField == 3.8:
+                return "MagneticField"
+            elif self.__inputMagneticField == 0:
+                return "MagneticField_0T"
+            else:
+                raise ValueError("Unknown input magnetic field {}".format(self.__inputMagneticField))
+
         if self.__predefined:
             with open(self.__filename) as f:
                 datatype = None
@@ -484,6 +504,8 @@ class Dataset(object):
         """
         if self.__dataType == "mc" and self.__magneticField == "MagneticField":
             return 3.8                                        #For 3.8T MC the default MagneticField is used
+        if self.__inputMagneticField is not None:
+            return self.__inputMagneticField
         if "T" in self.__magneticField:
             Bfield = self.__magneticField.split("T")[0].replace("MagneticField_","")
             try:

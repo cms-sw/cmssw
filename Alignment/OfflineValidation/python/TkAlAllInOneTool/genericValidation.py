@@ -250,6 +250,7 @@ class GenericValidationData(GenericValidation):
                 "end": "",
                 "JSON": ""
                }
+    optionals = {"magneticfield"}
     
     def __init__(self, valName, alignment, config):
         """
@@ -285,10 +286,11 @@ class GenericValidationData(GenericValidation):
                        "This is allowed, but make sure it's not a mistake") % self.general["dataset"]
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw] = {False: None, True: None}
 
+        Bfield = self.general.get("magneticfield", None)
         if globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] is None:
             dataset = Dataset(
                 self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst,
-                cmssw = self.cmssw, cmsswrelease = self.cmsswreleasebase )
+                cmssw = self.cmssw, cmsswrelease = self.cmsswreleasebase, magneticfield = Bfield)
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] = dataset
             if tryPredefinedFirst and not dataset.predefined():                              #No point finding the data twice in that case
                 globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][False] = dataset
