@@ -155,7 +155,7 @@ namespace gbl {
           }
         }
 
-      for (unsigned int i = 0; i < 5; ++i) // curvature, offset derivatives
+      for (size_t i = 0; i < labDer.size(); ++i) // curvature, offset derivatives
         {
           if (labDer[i] and matDer(iRow, i)) {
             moreParameters.push_back(labDer[i]);
@@ -181,7 +181,7 @@ namespace gbl {
             theNumLocal++;
           }
         }
-      for (unsigned int i = 0; i < 5; ++i) // curvature, offset derivatives
+      for (size_t i = 0; i < labDer.size(); ++i) // curvature, offset derivatives
         {
           if (labDer[i] and matDer(iRow, i)) {
             theParameters[theNumLocal] = labDer[i];
@@ -224,7 +224,7 @@ namespace gbl {
           }
         }
 
-      for (unsigned int i = 0; i < 7; ++i) // curvature, offset derivatives
+      for (size_t i = 0; i < labDer.size(); ++i) // curvature, offset derivatives
         {
           if (labDer[i] and matDer(iRow, i)) {
             moreParameters.push_back(labDer[i]);
@@ -233,7 +233,7 @@ namespace gbl {
         }
     } else {
       // simple (static) data block
-      for (unsigned int i = 0; i < 7; ++i) // curvature, offset derivatives
+      for (size_t i = 0; i < labDer.size(); ++i) // curvature, offset derivatives
         {
           if (labDer[i] and matDer(iRow, i)) {
             theParameters[theNumLocal] = labDer[i];
