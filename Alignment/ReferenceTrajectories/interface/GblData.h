@@ -43,72 +43,72 @@ typedef Eigen::Matrix<double, 2, 7> Matrix27d;
 //! Namespace for the general broken lines package
 namespace gbl {
 
-enum dataBlockType {
-	None, InternalMeasurement, InternalKink, ExternalSeed, ExternalMeasurement
-};
+  enum dataBlockType {
+    None, InternalMeasurement, InternalKink, ExternalSeed, ExternalMeasurement
+  };
 
-/// Data (block) for independent scalar measurement
-/**
- * Data (block) containing value, precision and derivatives for measurements, kinks and seeds.
- * Created from attributes of GblPoints, used to construct linear equation system for track fit.
- */
-class GblData {
-public:
-	GblData(unsigned int aLabel, dataBlockType aType, double aMeas,
-			double aPrec, unsigned int aTraj = 0, unsigned int aPoint = 0);
-	GblData(const GblData&) = default;
-	GblData& operator=(const GblData&) = default;
-	GblData(GblData&&) = default;
-	GblData& operator=(GblData&&) = default;
-	virtual ~GblData();
-	template <typename LocalDerivative, typename TrafoDerivative>
-	void addDerivatives(unsigned int iRow,
-			const std::array<unsigned int, 5>& labDer, const Matrix5d &matDer,
-			unsigned int iOff,
-			const Eigen::MatrixBase<LocalDerivative>& derLocal,
-			unsigned int nLocal,
-			const Eigen::MatrixBase<TrafoDerivative>& derTrans);
-	template <typename TrafoDerivative>
-	void addDerivatives(unsigned int iRow,
-			const std::array<unsigned int, 7>& labDer, const Matrix27d &matDer,
-			unsigned int nLocal,
-			const Eigen::MatrixBase<TrafoDerivative>& derTrans);
-	void addDerivatives(const std::vector<unsigned int> &index,
-			const std::vector<double> &derivatives);
+  /// Data (block) for independent scalar measurement
+  /**
+   * Data (block) containing value, precision and derivatives for measurements, kinks and seeds.
+   * Created from attributes of GblPoints, used to construct linear equation system for track fit.
+   */
+  class GblData {
+  public:
+    GblData(unsigned int aLabel, dataBlockType aType, double aMeas,
+            double aPrec, unsigned int aTraj = 0, unsigned int aPoint = 0);
+    GblData(const GblData&) = default;
+    GblData& operator=(const GblData&) = default;
+    GblData(GblData&&) = default;
+    GblData& operator=(GblData&&) = default;
+    virtual ~GblData();
+    template <typename LocalDerivative, typename TrafoDerivative>
+    void addDerivatives(unsigned int iRow,
+                        const std::array<unsigned int, 5>& labDer, const Matrix5d &matDer,
+                        unsigned int iOff,
+                        const Eigen::MatrixBase<LocalDerivative>& derLocal,
+                        unsigned int nLocal,
+                        const Eigen::MatrixBase<TrafoDerivative>& derTrans);
+                        template <typename TrafoDerivative>
+                        void addDerivatives(unsigned int iRow,
+                                            const std::array<unsigned int, 7>& labDer, const Matrix27d &matDer,
+                                            unsigned int nLocal,
+                                            const Eigen::MatrixBase<TrafoDerivative>& derTrans);
+    void addDerivatives(const std::vector<unsigned int> &index,
+                        const std::vector<double> &derivatives);
 
-	void setPrediction(const VVector &aVector);
-	double setDownWeighting(unsigned int aMethod);
-	double getChi2() const;
-	void printData() const;
-	unsigned int getLabel() const;
-	dataBlockType getType() const;
-	unsigned int getNumSimple() const;
-	void getLocalData(double &aValue, double &aWeight, unsigned int &numLocal,
-			unsigned int* &indLocal, double* &derLocal);
-	void getAllData(double &aValue, double &aErr, unsigned int &numLocal,
-			unsigned int* &indLocal, double* &derLocal, unsigned int &aTraj,
-			unsigned int &aPoint, unsigned int &aRow);
-	void getResidual(double &aResidual, double &aVariance, double &aDownWeight,
-			unsigned int &numLocal, unsigned int* &indLocal, double* &derLocal);
+    void setPrediction(const VVector &aVector);
+    double setDownWeighting(unsigned int aMethod);
+    double getChi2() const;
+    void printData() const;
+    unsigned int getLabel() const;
+    dataBlockType getType() const;
+    unsigned int getNumSimple() const;
+    void getLocalData(double &aValue, double &aWeight, unsigned int &numLocal,
+                      unsigned int* &indLocal, double* &derLocal);
+    void getAllData(double &aValue, double &aErr, unsigned int &numLocal,
+                    unsigned int* &indLocal, double* &derLocal, unsigned int &aTraj,
+                    unsigned int &aPoint, unsigned int &aRow);
+    void getResidual(double &aResidual, double &aVariance, double &aDownWeight,
+                     unsigned int &numLocal, unsigned int* &indLocal, double* &derLocal);
 
-private:
-	unsigned int theLabel; ///< Label (of corresponding point)
-	unsigned int theRow; ///< Row number (of measurement)
-	dataBlockType theType; ///< Type (None, InternalMeasurement, InternalKink, ExternalSeed, ExternalMeasurement)
-	double theValue; ///< Value (residual)
-	double thePrecision; ///< Precision (1/sigma**2)
-	unsigned int theTrajectory; ///< Trajectory number
-	unsigned int thePoint; ///< Point number (on trajectory)
-	double theDownWeight; ///< Down-weighting factor (0-1)
-	double thePrediction; ///< Prediction from fit
-	// standard local parameters (curvature, offsets), fixed size
-	unsigned int theNumLocal; ///< Number of (non zero) local derivatives (max 7 for kinks)
-	unsigned int theParameters[7]; ///< List of parameters (with non zero derivatives)
-	double theDerivatives[7]; ///< List of derivatives for fit
-	// more local parameters, dynamic size
-	std::vector<unsigned int> moreParameters; ///< List of fit parameters (with non zero derivatives)
-	std::vector<double> moreDerivatives; ///< List of derivatives for fit
-};
+  private:
+    unsigned int theLabel; ///< Label (of corresponding point)
+    unsigned int theRow; ///< Row number (of measurement)
+    dataBlockType theType; ///< Type (None, InternalMeasurement, InternalKink, ExternalSeed, ExternalMeasurement)
+    double theValue; ///< Value (residual)
+    double thePrecision; ///< Precision (1/sigma**2)
+    unsigned int theTrajectory; ///< Trajectory number
+    unsigned int thePoint; ///< Point number (on trajectory)
+    double theDownWeight; ///< Down-weighting factor (0-1)
+    double thePrediction; ///< Prediction from fit
+    // standard local parameters (curvature, offsets), fixed size
+    unsigned int theNumLocal; ///< Number of (non zero) local derivatives (max 7 for kinks)
+    unsigned int theParameters[7]; ///< List of parameters (with non zero derivatives)
+    double theDerivatives[7]; ///< List of derivatives for fit
+    // more local parameters, dynamic size
+    std::vector<unsigned int> moreParameters; ///< List of fit parameters (with non zero derivatives)
+    std::vector<double> moreDerivatives; ///< List of derivatives for fit
+  };
 
 
   /// Add derivatives from measurement.
