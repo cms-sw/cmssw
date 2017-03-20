@@ -48,14 +48,14 @@
 ++++++ finished: global begin run for module: label = 'TriggerResults' id = 1
 ++++ finished: global begin run 1 : time = 1000000
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
-++++++ starting: begin run for module: stream = 0 label = 'one' id = 2
-++++++ finished: begin run for module: stream = 0 label = 'one' id = 2
-++++++ starting: begin run for module: stream = 0 label = 'getOne' id = 3
-++++++ finished: begin run for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: begin run for module: stream = 0 label = 'two' id = 4
 ++++++ finished: begin run for module: stream = 0 label = 'two' id = 4
+++++++ starting: begin run for module: stream = 0 label = 'getOne' id = 3
+++++++ finished: begin run for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: begin run for module: stream = 0 label = 'getTwo' id = 5
 ++++++ finished: begin run for module: stream = 0 label = 'getTwo' id = 5
+++++++ starting: begin run for module: stream = 0 label = 'one' id = 2
+++++++ finished: begin run for module: stream = 0 label = 'one' id = 2
 ++++ finished: begin run: stream = 0 run = 1 time = 1000000
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -72,14 +72,14 @@
 ++++++ finished: global begin lumi for module: label = 'TriggerResults' id = 1
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
-++++++ starting: begin lumi for module: stream = 0 label = 'one' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'one' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'getOne' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: begin lumi for module: stream = 0 label = 'two' id = 4
 ++++++ finished: begin lumi for module: stream = 0 label = 'two' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'getOne' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: begin lumi for module: stream = 0 label = 'getTwo' id = 5
 ++++++ finished: begin lumi for module: stream = 0 label = 'getTwo' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'one' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'one' id = 2
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
 ++++ starting: source event
 ++++ finished: source event
