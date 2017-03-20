@@ -32,6 +32,7 @@
 
 #include<iostream>
 #include<vector>
+#include <array>
 #include<math.h>
 #include "Alignment/ReferenceTrajectories/interface/VMatrix.h"
 
@@ -58,14 +59,14 @@ public:
 	virtual ~GblData();
 	template <typename LocalDerivative, typename TrafoDerivative>
 	void addDerivatives(unsigned int iRow,
-			const std::vector<unsigned int> &labDer, const Matrix5d &matDer,
+			const std::array<unsigned int, 5>& labDer, const Matrix5d &matDer,
 			unsigned int iOff,
 			const Eigen::MatrixBase<LocalDerivative>& derLocal,
 			unsigned int nLocal,
 			const Eigen::MatrixBase<TrafoDerivative>& derTrans);
 	template <typename TrafoDerivative>
 	void addDerivatives(unsigned int iRow,
-			const std::vector<unsigned int> &labDer, const Matrix27d &matDer,
+			const std::array<unsigned int, 7>& labDer, const Matrix27d &matDer,
 			unsigned int nLocal,
 			const Eigen::MatrixBase<TrafoDerivative>& derTrans);
 	void addDerivatives(const std::vector<unsigned int> &index,
@@ -119,7 +120,7 @@ private:
    */
   template <typename LocalDerivative, typename TrafoDerivative>
   void GblData::addDerivatives(unsigned int iRow,
-                               const std::vector<unsigned int> &labDer,
+                               const std::array<unsigned int, 5>& labDer,
                                const Matrix5d &matDer,
                                unsigned int iOff,
                                const Eigen::MatrixBase<LocalDerivative>& derLocal,
@@ -198,7 +199,7 @@ private:
    */
   template <typename TrafoDerivative>
   void GblData::addDerivatives(unsigned int iRow,
-                               const std::vector<unsigned int> &labDer,
+                               const std::array<unsigned int, 7>& labDer,
                                const Matrix27d &matDer,
                                unsigned int extOff,
                                const Eigen::MatrixBase<TrafoDerivative>& extDer)
