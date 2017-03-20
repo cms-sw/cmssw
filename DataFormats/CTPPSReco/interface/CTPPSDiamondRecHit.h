@@ -24,7 +24,7 @@ class CTPPSDiamondRecHit
     CTPPSDiamondRecHit( float x, float x_width, float y, float y_width, float t, float tot, int oot_idx, const HPTDCErrorFlags& hptdc_err, const bool mh ) :
       x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ),
       t_( t ), tot_( tot ),
-      ts_index_( oot_idx ), hptdc_err_( hptdc_err ), mh_(mh)
+      ts_index_( oot_idx ), hptdc_err_( hptdc_err ), mh_( mh )
     {}
 
     inline void setX( const float& x ) { x_ = x; }

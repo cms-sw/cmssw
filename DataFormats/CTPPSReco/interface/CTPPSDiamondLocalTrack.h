@@ -22,7 +22,7 @@ class CTPPSDiamondLocalTrack
       chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
     CTPPSDiamondLocalTrack( const math::XYZPoint pos0, const math::XYZPoint pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
       pos0_( pos0 ), pos0_sigma_( pos0_sigma ),
-      chi_squared_( chisq ), valid_( true ),
+      chi_squared_( chisq ), valid_( false ),
       t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
@@ -55,7 +55,7 @@ class CTPPSDiamondLocalTrack
     
     //--- temporal set'ters
 
-    inline void setT( const float t) { t_ = t; }
+    inline void setT( const float t ) { t_ = t; }
     inline void setTSigma( const float t_sigma ) { t_sigma_ = t_sigma; }
     
     inline void setOOTIndex( const int i ) { ts_index_ = i; }
