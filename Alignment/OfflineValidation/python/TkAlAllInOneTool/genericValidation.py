@@ -596,7 +596,11 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
         else:
             columnwidths = [max(len(entry) for entry in [_.name(latex)] + _.values(latex)) for _ in summaryitems]
 
-        row = " ".join("{{:{}}}".format(width) for width in columnwidths)
+        if latex:
+            join = " & "
+        else:
+            join = " "
+        row = join.join("{{:{}}}".format(width) for width in columnwidths)
 
         if transpose:
             rows = [row.format(*[_.name(latex)]+_.values(latex)) for _ in summaryitems]
@@ -606,7 +610,16 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
             for i in range(size):
                 rows.append(row.format(*(_.value(i, latex) for _ in summaryitems)))
 
-        return "\n".join(rows)
+        if latex:
+            join = " \\\\\n"
+        else:
+            join = "\n"
+        result = join.join(rows)
+        if latex:
+            result = (r"\begin{{tabular}}{{{}}}".format("|" + "|".join("c"*(len(columnwidths))) + "|") + "\n"
+                         + result + "\n"
+                         + r"\end{tabular}")
+        return result
 
     @classmethod
     def printsummaryitems(cls, *args, **kwargs):

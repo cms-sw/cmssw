@@ -844,7 +844,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	    legend << "#Delta#mu = " << deltamu << unit;
 	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
 
-            if (!plotLayers && layer==0) {
+            if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && !plotLayers && layer==0) {
               vdeltamean.push_back(deltamu);
             }
 	  }
@@ -936,24 +936,36 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     delete plotinfo.h2;
 
     if (vmean.size()) {
-      summaryfile << "   mu_" << subdet << "\t"
-                  << "latexname=$\\mu_\\text{" << subdet << "}$\t"
+      summaryfile << "   mu_" << subdet;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$\\mu_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";
       for (auto mu : vmean) summaryfile << "\t" << mu;
       summaryfile << "\n";
     }
     if (vrms.size()) {
-      summaryfile << "sigma_" << subdet << "\t"
-                  << "latexname=$\\sigma_\\text{" << subdet << "}$\t"
+      summaryfile << "sigma_" << subdet;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$\\sigma_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";
       for (auto sigma : vrms) summaryfile << "\t" << sigma;
       summaryfile << "\n";
     }
     if (vdeltamean.size()) {
-      summaryfile << "  dmu_" << subdet << "\t"
-                  << "latexname=$\\Delta\\mu_\\text{" << subdet << "}$\t"
+      summaryfile << "  dmu_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$\\Delta\\mu_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";
       for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
@@ -1563,7 +1575,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
       legend << ", ";
   }
 
-  if (/*!plotinfo.plotLayers && */layer==0 && direction==0) {
+  if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
     vmean.push_back(mean);
     vrms.push_back(rms);
   }
@@ -1580,7 +1592,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
     if ((showModules_ || showUnderOverFlow_) && !twolines_)
       legend << ", ";
 
-    if (/*!plotinfo.plotLayers && */layer==0 && direction==0) {
+    if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
       vdeltamean.push_back(deltamu);
     }
   }
