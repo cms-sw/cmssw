@@ -154,7 +154,7 @@ void TrackingMaterialPlotter::draw( void )
   radlen->Draw("colz");
   radlen->Draw("same axis y+");
   radlen->SaveAs("radlen.root");
-  canvas->SaveAs("radlenBW.png");
+  canvas->SaveAs("radlen.png");
   // Replicate RainBow palette, with White in the first white_slots
   // positions
   int white_slots = 1;
