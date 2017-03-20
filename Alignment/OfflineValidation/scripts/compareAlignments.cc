@@ -75,7 +75,7 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
             theColors.push_back(atoi(formatedLegendEntry->At(1)->GetName()));
 
             if(formatedLegendEntry->GetEntries() > 2)
-              theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName()));
+              theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName())%100);
             else
               theStyles.push_back( formatCounter );
           }else{
