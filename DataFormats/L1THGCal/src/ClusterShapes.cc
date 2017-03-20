@@ -13,33 +13,33 @@ ClusterShapes ClusterShapes::operator+(const ClusterShapes& x)
 
 void ClusterShapes::operator +=(const ClusterShapes &x){
 
-	sum_e += x.sum_e;
-	sum_e2 += x.sum_e2;
-	sum_logE += x.sum_logE;
-	n += x.n;
+	sum_e_ += x.sum_e_;
+	sum_e2_ += x.sum_e2_;
+	sum_logE_ += x.sum_logE_;
+	n_ += x.n_;
 
-    sum_w += x.sum_w;
+    sum_w_ += x.sum_w_;
 
-    emax = (emax> x.emax) ? emax: x.emax;
+    emax_ = (emax_> x.emax_) ? emax_: x.emax_;
 
     // mid-point
-    sum_eta += x.sum_eta;
-    sum_phi_0 += x.sum_phi_0; //
-    sum_phi_1 += x.sum_phi_1; //
-    sum_r   += x.sum_r;
+    sum_eta_ += x.sum_eta_;
+    sum_phi_0_ += x.sum_phi_0_; //
+    sum_phi_1_ += x.sum_phi_1_; //
+    sum_r_   += x.sum_r_;
 
     // square
-    sum_eta2 += x.sum_eta2;
-    sum_phi2_0 += x.sum_phi2_0;
-    sum_phi2_1 += x.sum_phi2_1;
-    sum_r2 += x.sum_r2;
+    sum_eta2_ += x.sum_eta2_;
+    sum_phi2_0_ += x.sum_phi2_0_;
+    sum_phi2_1_ += x.sum_phi2_1_;
+    sum_r2_ += x.sum_r2_;
 
     // off diagonal
-    sum_eta_r     += x.sum_eta_r    ;
-    sum_r_phi_0   += x.sum_r_phi_0  ;
-    sum_r_phi_1   += x.sum_r_phi_1  ;
-    sum_eta_phi_0 += x.sum_eta_phi_0;
-    sum_eta_phi_1 += x.sum_eta_phi_1;
+    sum_eta_r_     += x.sum_eta_r_    ;
+    sum_r_phi_0_   += x.sum_r_phi_0_  ;
+    sum_r_phi_1_   += x.sum_r_phi_1_  ;
+    sum_eta_phi_0_ += x.sum_eta_phi_0_;
+    sum_eta_phi_1_ += x.sum_eta_phi_1_;
 
 }
 
@@ -47,100 +47,86 @@ void ClusterShapes::operator +=(const ClusterShapes &x){
 // -------------- CLUSTER SHAPES ---------------
 void ClusterShapes::Init(float e ,float eta, float phi, float r){
     if (e<=0 )  return;
-    sum_e = e;
-    sum_e2 = e*e;
-    sum_logE = std::log(e);
+    sum_e_ = e;
+    sum_e2_ = e*e;
+    sum_logE_ = std::log(e);
 
     float w = e;
 
-    n=1;
+    n_=1;
     
-    sum_w = w;
+    sum_w_ = w;
 
-    sum_phi_0 = w *( phi );
-    sum_phi_1 = w* (phi + M_PI);
-    sum_r = w * r;
-    sum_eta = w * eta;
+    sum_phi_0_ = w *( phi );
+    sum_phi_1_ = w* (phi + M_PI);
+    sum_r_ = w * r;
+    sum_eta_ = w * eta;
 
     //--
-    sum_r2     += w * (r*r);
-    sum_eta2   += w * (eta*eta);
-    sum_phi2_0 += w * (phi*phi);
-    sum_phi2_1 += w * (phi+M_PI)*(phi+M_PI);
+    sum_r2_     += w * (r*r);
+    sum_eta2_   += w * (eta*eta);
+    sum_phi2_0_ += w * (phi*phi);
+    sum_phi2_1_ += w * (phi+M_PI)*(phi+M_PI);
 
     // -- off diagonal
-    sum_eta_r += w * (r*eta);
-    sum_r_phi_0 += w* (r *phi);
-    sum_r_phi_1 += w* r *(phi + M_PI);
-    sum_eta_phi_0 += w* (eta *phi);
-    sum_eta_phi_1 += w* eta * (phi+M_PI);
+    sum_eta_r_ += w * (r*eta);
+    sum_r_phi_0_ += w* (r *phi);
+    sum_r_phi_1_ += w* r *(phi + M_PI);
+    sum_eta_phi_0_ += w* (eta *phi);
+    sum_eta_phi_1_ += w* eta * (phi+M_PI);
 
 }
 // ------
-float ClusterShapes::Eta()const { return sum_eta/sum_w;}
-float ClusterShapes::R() const { return sum_r/sum_w;}
+float ClusterShapes::Eta()const { return sum_eta_/sum_w_;}
+float ClusterShapes::R() const { return sum_r_/sum_w_;}
 
-float ClusterShapes::SigmaEtaEta()const {return  sum_eta2/sum_w - Eta()*Eta();} 
+float ClusterShapes::SigmaEtaEta()const {return  sum_eta2_/sum_w_ - Eta()*Eta();} 
 
-float ClusterShapes::SigmaRR()const { return sum_r2/sum_w - R() *R();}
+float ClusterShapes::SigmaRR()const { return sum_r2_/sum_w_ - R() *R();}
 
 
 float ClusterShapes::SigmaPhiPhi()const { 
-    float phi_0 = (sum_phi_0 / sum_w);
-    float phi_1 = (sum_phi_1 / sum_w);
-    float spp_0 = sum_phi2_0 / sum_w  - phi_0*phi_0;
-    float spp_1 = sum_phi2_1 / sum_w  - phi_1*phi_1;
+    float phi_0 = (sum_phi_0_ / sum_w_);
+    float phi_1 = (sum_phi_1_ / sum_w_);
+    float spp_0 = sum_phi2_0_ / sum_w_  - phi_0*phi_0;
+    float spp_1 = sum_phi2_1_ / sum_w_  - phi_1*phi_1;
 
     if  (spp_0 < spp_1 )
     {
-        float phi = phi_0;
-        isPhi0=true;
-        while (phi < - M_PI) phi += 2*M_PI;
-        while (phi >   M_PI) phi -= 2*M_PI;
+        isPhi0_=true;
         return spp_0;
     }
     else 
     {
-        float phi = phi_1 ;
-        isPhi0=false;
-        while (phi < - M_PI) phi += 2*M_PI;
-        while (phi >   M_PI) phi -= 2*M_PI;
+        isPhi0_=false;
         return spp_1;
     }
 }
 
 float ClusterShapes::Phi()const {
     SigmaPhiPhi(); //update phi
-    if (isPhi0) return (sum_phi_0 / sum_w);
-    else return (sum_phi_1 / sum_w);
+    if (isPhi0_) return (sum_phi_0_ / sum_w_);
+    else return (sum_phi_1_ / sum_w_);
 }
 
 
 // off - diagonal
-float ClusterShapes::SigmaEtaR() const { return -(sum_eta_r / sum_w - Eta() *R()) ;}
+float ClusterShapes::SigmaEtaR() const { return -(sum_eta_r_ / sum_w_ - Eta() *R()) ;}
 
 float ClusterShapes::SigmaEtaPhi()const {
     SigmaPhiPhi() ; // decide which phi use, update phi
 
-    if (isPhi0)
-        return -(sum_eta_phi_0 /sum_w - Eta()*(sum_phi_0 / sum_w));
+    if (isPhi0_)
+        return -(sum_eta_phi_0_ /sum_w_ - Eta()*(sum_phi_0_ / sum_w_));
     else
-        return -(sum_eta_phi_1 / sum_w - Eta()*(sum_phi_1 / sum_w));
+        return -(sum_eta_phi_1_ / sum_w_ - Eta()*(sum_phi_1_ / sum_w_));
 }
 
 float ClusterShapes::SigmaRPhi()const {
     SigmaPhiPhi() ; // decide which phi use, update phi
-    if (isPhi0)
-        return -(sum_r_phi_0 / sum_w - R() *(sum_phi_0 / sum_w));
+    if (isPhi0_)
+        return -(sum_r_phi_0_ / sum_w_ - R() *(sum_phi_0_ / sum_w_));
     else
-        return -(sum_r_phi_1 / sum_w - R() * (sum_phi_1 / sum_w));
+        return -(sum_r_phi_1_ / sum_w_ - R() * (sum_phi_1_ / sum_w_));
 }
 
-// -----------------------------------
-// Local Variables:
-// mode:c++
-// indent-tabs-mode:nil
-// tab-width:4
-// c-basic-offset:4
-// End:
-// vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
