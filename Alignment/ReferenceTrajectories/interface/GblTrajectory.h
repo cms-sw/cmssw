@@ -145,10 +145,10 @@ private:
 
 	std::pair<std::vector<unsigned int>, Eigen::MatrixXd> getJacobian(
 			int aSignedLabel) const;
-	void getFitToLocalJacobian(std::vector<unsigned int> &anIndex,
+	void getFitToLocalJacobian(std::array<unsigned int, 5>& anIndex,
 			Matrix5d &aJacobian, const GblPoint &aPoint, unsigned int measDim,
 			unsigned int nJacobian = 1) const;
-	void getFitToKinkJacobian(std::vector<unsigned int> &anIndex,
+	void getFitToKinkJacobian(std::array<unsigned int, 7>& anIndex,
 			Matrix27d &aJacobian, const GblPoint &aPoint) const;
 	void construct();
 	void defineOffsets();

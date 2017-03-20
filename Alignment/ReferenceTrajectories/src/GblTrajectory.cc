@@ -544,7 +544,7 @@ std::pair<std::vector<unsigned int>, MatrixXd> GblTrajectory::getJacobian(
 		}
 	}
 	const GblPoint aPoint = thePoints[aTrajectory][aLabel - firstLabel];
-	std::vector<unsigned int> labDer(5);
+	std::array<unsigned int, 5> labDer;
 	Matrix5d matDer;
 	getFitToLocalJacobian(labDer, matDer, aPoint, 5, nJacobian);
 
@@ -577,7 +577,7 @@ std::pair<std::vector<unsigned int>, MatrixXd> GblTrajectory::getJacobian(
  * (<=2: calculate only offset part, >2: complete matrix)
  * \param [in] nJacobian Direction (0: to previous offset, 1: to next offset)
  */
-void GblTrajectory::getFitToLocalJacobian(std::vector<unsigned int> &anIndex,
+void GblTrajectory::getFitToLocalJacobian(std::array<unsigned int, 5>& anIndex,
 		Matrix5d &aJacobian, const GblPoint &aPoint, unsigned int measDim,
 		unsigned int nJacobian) const {
 
@@ -672,7 +672,7 @@ void GblTrajectory::getFitToLocalJacobian(std::vector<unsigned int> &anIndex,
  * \param [out] aJacobian Corresponding transformation matrix
  * \param [in] aPoint Point to use
  */
-void GblTrajectory::getFitToKinkJacobian(std::vector<unsigned int> &anIndex,
+void GblTrajectory::getFitToKinkJacobian(std::array<unsigned int, 7>& anIndex,
 		Matrix27d &aJacobian, const GblPoint &aPoint) const {
 
 	unsigned int nDim = theDimension.size();
@@ -1012,7 +1012,7 @@ void GblTrajectory::prepare() {
 	scatDataIndex.resize(numAllPoints + 1);
 	unsigned int nData = 0;
 	std::vector<MatrixXd> innerTransDer;
-	std::vector<std::vector<unsigned int> > innerTransLab;
+	std::vector<std::array<unsigned int, 5> > innerTransLab;
 	// composed trajectory ?
 	if (numInnerTrans > 0) {
 		//std::cout << "composed trajectory" << std::endl;
@@ -1020,7 +1020,7 @@ void GblTrajectory::prepare() {
 			// innermost point
 			GblPoint* innerPoint = &thePoints[iTraj].front();
 			// transformation fit to local track parameters
-			std::vector<unsigned int> firstLabels(5);
+			std::array<unsigned int, 5> firstLabels;
 			Matrix5d matFitToLocal, matLocalToFit;
 			getFitToLocalJacobian(firstLabels, matFitToLocal, *innerPoint, 5);
 			// transformation local track to fit parameters
@@ -1049,7 +1049,7 @@ void GblTrajectory::prepare() {
 				itPoint->getMeasurement(matP, aMeas, aPrec);
 				double minPrecision = itPoint->getMeasPrecMin();
 				unsigned int iOff = 5 - measDim; // first active component
-				std::vector<unsigned int> labDer(5);
+				std::array<unsigned int, 5> labDer;
 				Matrix5d matDer, matPDer;
 				unsigned int nJacobian =
 						(itPoint < thePoints[iTraj].end() - 1) ? 1 : 0; // last point needs backward propagation
@@ -1120,7 +1120,7 @@ void GblTrajectory::prepare() {
 			if (itPoint->hasScatterer()) {
 				itPoint->getScatterer(matT, aMeas, aPrec);
 				MatrixXd transDer;
-				std::vector<unsigned int> labDer(7);
+				std::array<unsigned int, 7> labDer;
 				Matrix27d matDer, matTDer;
 				getFitToKinkJacobian(labDer, matDer, *itPoint);
 				matTDer = matT * matDer;
