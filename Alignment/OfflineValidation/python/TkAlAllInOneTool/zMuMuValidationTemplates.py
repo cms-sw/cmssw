@@ -236,7 +236,7 @@ rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*

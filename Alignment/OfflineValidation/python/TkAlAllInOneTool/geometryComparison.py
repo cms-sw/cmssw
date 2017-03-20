@@ -221,7 +221,7 @@ class GeometryComparison(GenericValidation):
                         " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]]\n"
+                       ("if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]]\n"
                         "then\n"
                         "    rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name
                         +"_ArrowPlots\n"
