@@ -112,4 +112,3 @@ bool HGCalCluster::operator<(const HGCalCluster& cl) const
     return (mipPt() < cl.mipPt());
 
 }
-
