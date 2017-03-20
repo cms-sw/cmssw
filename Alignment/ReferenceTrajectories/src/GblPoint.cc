@@ -178,69 +178,6 @@ void GblPoint::addMeasurement(const TVectorD &aResiduals,
 }
 #endif
 
-/// Add a measurement to a point.
-/**
- * Add measurement (in meas. system) with diagonal or arbitrary precision (inverse covariance) matrix.
- * Will be diagonalized.
- * ((up to) 2D: position, 4D: slope+position, 5D: curvature+slope+position)
- * \param [in] aProjection Projection from local to measurement system
- * \param [in] aResiduals Measurement residuals
- * \param [in] aPrecision Measurement precision (vector (with diagonal) or (full) matrix)
- * \param [in] minPrecision Minimal precision to accept measurement
- */
-void GblPoint::addMeasurement(const MatrixXd &aProjection,
-		const VectorXd &aResiduals, const MatrixXd &aPrecision,
-		double minPrecision) {
-	measDim = aResiduals.rows();
-	measPrecMin = minPrecision;
-	if (aPrecision.cols() > 1) {
-		// arbitrary precision matrix
-		SelfAdjointEigenSolver<MatrixXd> measEigen(aPrecision);
-		measTransformation = measEigen.eigenvectors();
-		measTransformation.transposeInPlace();
-		transFlag = true;
-		measResiduals.tail(measDim) = measTransformation * aResiduals;
-		measPrecision.tail(measDim) = measEigen.eigenvalues();
-		measProjection.bottomRightCorner(measDim, measDim) = measTransformation
-				* aProjection;
-	} else {
-		// diagonal precision matrix
-		measResiduals.tail(measDim) = aResiduals;
-		measPrecision.tail(measDim) = aPrecision;
-		measProjection.bottomRightCorner(measDim, measDim) = aProjection;
-	}
-}
-
-/// Add a measurement to a point.
-/**
- * Add measurement in local system with diagonal or arbitrary precision (inverse covariance) matrix.
- * Will be diagonalized.
- * ((up to) 2D: position, 4D: slope+position, 5D: curvature+slope+position)
- * \param [in] aResiduals Measurement residuals
- * \param [in] aPrecision Measurement precision (vector (with diagonal) or (full) matrix)
- * \param [in] minPrecision Minimal precision to accept measurement
- */
-void GblPoint::addMeasurement(const VectorXd &aResiduals,
-		const MatrixXd &aPrecision, double minPrecision) {
-	measDim = aResiduals.rows();
-	measPrecMin = minPrecision;
-	if (aPrecision.cols() > 1) {
-		// arbitrary precision matrix
-		SelfAdjointEigenSolver<MatrixXd> measEigen(aPrecision);
-		measTransformation = measEigen.eigenvectors();
-		measTransformation.transposeInPlace();
-		transFlag = true;
-		measResiduals.tail(measDim) = measTransformation * aResiduals;
-		measPrecision.tail(measDim) = measEigen.eigenvalues();
-		measProjection.bottomRightCorner(measDim, measDim) = measTransformation;
-	} else {
-		// diagonal precision matrix
-		measResiduals.tail(measDim) = aResiduals;
-		measPrecision.tail(measDim) = aPrecision;
-		measProjection.setIdentity();
-	}
-}
-
 /// Check for measurement at a point.
 /**
  * Get dimension of measurement (0 = none).
@@ -356,20 +293,11 @@ void GblPoint::addScatterer(const TVectorD &aResiduals,
  * \param [in] aPrecision Scatterer precision (vector (with diagonal) or (full) matrix)
  */
 void GblPoint::addScatterer(const Vector2d &aResiduals,
-		const MatrixXd &aPrecision) {
+		const Vector2d& aPrecision) {
 	scatFlag = true;
-	if (aPrecision.cols() > 1) {
-		// arbitrary precision matrix
-		SelfAdjointEigenSolver<Matrix2d> scatEigen(aPrecision);
-		scatTransformation = scatEigen.eigenvectors();
-		scatTransformation.transposeInPlace();
-		scatResiduals = scatTransformation * aResiduals;
-		scatPrecision = scatEigen.eigenvalues();
-	} else {
-		scatResiduals = aResiduals;
-		scatPrecision = aPrecision;
-		scatTransformation.setIdentity();
-	}
+	scatResiduals = aResiduals;
+	scatPrecision = aPrecision;
+	scatTransformation.setIdentity();
 }
 
 /// Check for scatterer at a point.
@@ -427,22 +355,6 @@ void GblPoint::addLocals(const TMatrixD &aDerivatives) {
 }
 #endif
 
-/// Add local derivatives to a point.
-/**
- * Point needs to have a measurement.
- * \param [in] aDerivatives Local derivatives (matrix)
- */
-void GblPoint::addLocals(const MatrixXd &aDerivatives) {
-	if (measDim) {
-		localDerivatives.resize(aDerivatives.rows(), aDerivatives.cols());
-		if (transFlag) {
-			localDerivatives = measTransformation * aDerivatives;
-		} else {
-			localDerivatives = aDerivatives;
-		}
-	}
-}
-
 /// Retrieve number of local derivatives from a point.
 unsigned int GblPoint::getNumLocals() const {
 	return localDerivatives.cols();
@@ -481,26 +393,6 @@ void GblPoint::addGlobals(const std::vector<int> &aLabels,
 	}
 }
 #endif
-
-/// Add global derivatives to a point.
-/**
- * Point needs to have a measurement.
- * \param [in] aLabels Global derivatives labels
- * \param [in] aDerivatives Global derivatives (matrix)
- */
-void GblPoint::addGlobals(const std::vector<int> &aLabels,
-		const MatrixXd &aDerivatives) {
-	if (measDim) {
-		globalLabels = aLabels;
-		globalDerivatives.resize(aDerivatives.rows(), aDerivatives.cols());
-		if (transFlag) {
-			globalDerivatives = measTransformation * aDerivatives;
-		} else {
-			globalDerivatives = aDerivatives;
-		}
-
-	}
-}
 
 /// Retrieve number of global derivatives from a point.
 unsigned int GblPoint::getNumGlobals() const {
