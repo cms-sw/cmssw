@@ -992,8 +992,8 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     if(mta1 != NULL) {
       mtb1 = (TDirectoryFile*) mta1->Get("GlobalTrackVariables");
       if(mtb1 != NULL) {
-        normchi = (TCanvas*) mtb1->Get("h_normchi2");
-	chiprob = (TCanvas*) mtb1->Get("h_chi2Prob");
+        normchi = dynamic_cast<TCanvas*>(mtb1->Get("h_normchi2"));
+        chiprob = dynamic_cast<TCanvas*>(mtb1->Get("h_chi2Prob"));
         if (normchi != NULL && chiprob != NULL) {
           errorflag = kFALSE;
         }
@@ -1005,6 +1005,37 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     std::cout << "PlotAlignmentValidation::plotChi2: Can't find data from given file,"
               << " no chi^2-plots produced" << std::endl;
     return;
+  }
+
+  TLegend *legend = 0;
+  for (auto primitive : *normchi->GetListOfPrimitives()) {
+    legend = dynamic_cast<TLegend*>(primitive);
+    if (legend) break;
+  }
+  if (legend) {
+    openSummaryFile();
+    summaryfile << "ntracks";
+    for (auto alignment : sourceList) {
+      summaryfile << "\t";
+      TString title = alignment->getName();
+      int color = alignment->getLineColor();
+      int style = alignment->getLineStyle();
+      cout << color << " " << style << " " << title << endl;
+      for (auto entry : *legend->GetListOfPrimitives()) {
+        TLegendEntry *legendentry = dynamic_cast<TLegendEntry*>(entry);
+        assert(legendentry);
+        TH1 *h = dynamic_cast<TH1*>(legendentry->GetObject());
+        if (!h) continue;
+        cout << h->GetLineColor() << " " << h->GetLineStyle() << " " << legendentry->GetLabel() << endl;
+        if (legendentry->GetLabel() == title && h->GetLineColor() == color && h->GetLineStyle() == style) {
+          cout << "found it" << endl;
+          summaryfile << h->GetEntries();
+          break;
+        }
+      }
+      cout << endl;
+    }
+    summaryfile << "\n";
   }
 
   chiprob->Draw();
