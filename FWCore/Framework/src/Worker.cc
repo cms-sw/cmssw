@@ -127,17 +127,7 @@ private:
       imcc = imcc->moduleCallingContext();
     }
     std::ostringstream ost;
-    if (iIsEvent) {
-      ost << "Calling event method";
-    }
-    else {
-      // It should be impossible to get here, because
-      // this function only gets called when the IgnoreCompletely
-      // exception behavior is active, which can only be true
-      // for events.
-      ost << "Calling unknown function";
-    }
-    ost << " for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
+    ost << "Calling method for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
     ex.addContext(ost.str());
     
     if (imcc->type() == ParentContext::Type::kPlaceInPath) {
@@ -147,7 +137,7 @@ private:
       ex.addContext(ost.str());
     }
     ost.str("");
-    ost << "Processing ";
+    ost << "Processing Event ";
     ost << iID;
     ex.addContext(ost.str());
   }
