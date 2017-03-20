@@ -200,8 +200,7 @@ namespace gbl {
     measPrecMin = minPrecision;
     // arbitrary precision matrix
     Eigen::SelfAdjointEigenSolver<typename Precision::PlainObject> measEigen{aPrecision};
-    measTransformation = measEigen.eigenvectors();
-    measTransformation.transposeInPlace();
+    measTransformation = measEigen.eigenvectors().transpose();
     transFlag = true;
     measResiduals.tail(measDim) = measTransformation * aResiduals;
     measPrecision.tail(measDim) = measEigen.eigenvalues();
