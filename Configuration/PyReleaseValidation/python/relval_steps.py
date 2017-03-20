@@ -1508,7 +1508,7 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 
 
 #MC
-steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                    '--filetype':'DQM',
