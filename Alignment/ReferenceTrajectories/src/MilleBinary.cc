@@ -38,7 +38,7 @@ namespace gbl {
    * \param [in] doublePrec Flag for storage as double values
    * \param [in] aSize Buffer size
    */
-  MilleBinary::MilleBinary(const std::string fileName, bool doublePrec,
+  MilleBinary::MilleBinary(const std::string& fileName, bool doublePrec,
                            unsigned int aSize) :
     binaryFile(fileName.c_str(), std::ios::binary | std::ios::out), intBuffer(),
     floatBuffer(), doubleBuffer(), doublePrecision(doublePrec)
