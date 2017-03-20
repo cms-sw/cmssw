@@ -24,48 +24,50 @@
 
 /**
  * \brief Class performing smart reconstruction for CTPPS Diamond Detectors.
+ * \date Jan 2017
 **/
-
 class CTPPSDiamondTrackRecognition
 {
   public:
     CTPPSDiamondTrackRecognition( const edm::ParameterSet& );
-
     ~CTPPSDiamondTrackRecognition();
 
+    /// Reset the list of hits
     void clear();
 
+    /// Feed a new hit to the tracks recognition algorithm
     void addHit( const CTPPSDiamondRecHit recHit );
 
-    int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack> &tracks );
+    /// Produce a collection of tracks for the current station, given its hits collection
+    int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks );
 
   private:
     struct HitParameters {
+      HitParameters( const float center, const float width ) :
+        center( center ), width( width ) {}
       float center;
       float width;
-      HitParameters( const float center, const float width) : center(center), width(width) {};
     };
     typedef std::vector<HitParameters> HitParametersVector;
     typedef std::map<int,HitParametersVector> HitParametersVectorMap;
 
+    /// Default hit function accounting for the pad spatial efficiency
     static const std::string pixelEfficiencyDefaultFunction_;
+
     const float threshold_;
     const float thresholdFromMaximum_;
     const float resolution_;
     const float sigma_;
     const float startFromX_;
     const float stopAtX_;
-    std::string pixelEfficiencyFunction_;
 
-    float yPosition;
-    float yWidth;
-    int nameCounter;
+    float yPosition_;
+    float yWidth_;
 
-    /// Functions for pad efficiency
+    /// Function for pad efficiency
     TF1 hit_f_;
     HitParametersVectorMap hitParametersVectorMap_;
     std::map<int,int> mhMap_;
 };
 
 #endif
-
