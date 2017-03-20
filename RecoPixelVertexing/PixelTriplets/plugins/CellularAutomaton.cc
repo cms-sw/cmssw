@@ -3,11 +3,11 @@
 void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *>& hitDoublets, const TrackingRegion& region,
 		const float thetaCut, const float phiCut, const float hardPtCut)
 {
-  int tsize=0;
-  for ( auto hd :  hitDoublets) tsize+=hd->size();
-  allCells.reserve(tsize);
-  allStatus.resize(tsize);
-  unsigned int cellId = 0;
+        int tsize=0;
+        for ( auto hd :  hitDoublets) tsize+=hd->size();
+        allCells.reserve(tsize);
+        allStatus.resize(tsize);
+        unsigned int cellId = 0;
 	float ptmin = region.ptMin();
 	float region_origin_x = region.origin().x();
 	float region_origin_y = region.origin().y();
@@ -58,8 +58,7 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
 				currentLayerPairRef.theFoundCells[1] = cellId+numberOfDoublets;
 				for (unsigned int i = 0; i < numberOfDoublets; ++i)
 				{
-				  allCells.emplace_back(
-							doubletLayerPairId, i, cellId,
+				  allCells.emplace_back(doubletLayerPairId, i,
 							doubletLayerPairId->innerHitId(i),
 							doubletLayerPairId->outerHitId(i));
 				  
@@ -166,12 +165,12 @@ void CellularAutomaton::findNtuplets(
 void CellularAutomaton::findTriplets(const std::vector<const HitDoublets*>& hitDoublets,std::vector<CACell::CAntuplet>& foundTriplets, const TrackingRegion& region,
 		const float thetaCut, const float phiCut, const float hardPtCut)
 {
-  int tsize=0;
-  for ( auto hd :  hitDoublets) tsize+=hd->size();
-  allCells.reserve(tsize);
-  allStatus.resize(tsize);
+        int tsize=0;
+        for ( auto hd :  hitDoublets) tsize+=hd->size();
+        allCells.reserve(tsize);
+        allStatus.resize(tsize);
 
-  unsigned int cellId = 0;
+        unsigned int cellId = 0;
 	float ptmin = region.ptMin();
 	float region_origin_x = region.origin().x();
 	float region_origin_y = region.origin().y();
@@ -222,8 +221,7 @@ void CellularAutomaton::findTriplets(const std::vector<const HitDoublets*>& hitD
 				currentLayerPairRef.theFoundCells[1] = cellId+numberOfDoublets;
 				for (unsigned int i = 0; i < numberOfDoublets; ++i)
 				{
-				  allCells.emplace_back(
-							doubletLayerPairId, i, cellId,
+				  allCells.emplace_back(doubletLayerPairId, i,
 							doubletLayerPairId->innerHitId(i),
 							doubletLayerPairId->outerHitId(i));
 				  
