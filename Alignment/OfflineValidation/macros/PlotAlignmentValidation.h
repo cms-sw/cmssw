@@ -27,6 +27,7 @@
 class TkOfflineVariables {
 public:
   TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName="", int color=1, int style=1);
+  ~TkOfflineVariables();
   int getLineColor(){ return lineColor; }
   int getLineStyle(){ return lineStyle; }
   std::string getName(){ return legendName; }
@@ -74,6 +75,10 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
     std::cout<<"no directory named "<<baseDir.c_str()<<std::endl;
     assert(false);
   }
+}
+
+TkOfflineVariables::~TkOfflineVariables() {
+  delete file;
 }
 
 class PlotAlignmentValidation {

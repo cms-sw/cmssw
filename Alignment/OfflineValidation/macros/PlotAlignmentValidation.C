@@ -1027,7 +1027,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   chiprob->Write();
   fi3.Close();
 
-  fi1->Close();
+  delete fi1;
 
 }
 
