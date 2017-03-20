@@ -1284,16 +1284,14 @@ void TKinFitter::printMatrix(const TMatrixD &matrix, const TString& name) {
     log << "\n"
 	 << "     |";
     for (Int_t iCol = iSheet; iCol < nCols; iCol++) {
-      if (iCol < iSheet+colsPerSheet) log << std::setw(8) << iCol << "    |";
-      log << "\n"
-	   << topbar << " \n";
-    }
+      if (iCol < iSheet+colsPerSheet) log << std::setw(8) << iCol << "    |";}
+    log << "\n" 
+	 << topbar << " \n";
     for(Int_t iRow = 0; iRow < nRows; iRow++) {
       log << std::setw(4) << iRow << " |";
       for (Int_t iCol = iSheet; iCol < nCols; iCol++) {
-          if (iCol < iSheet+colsPerSheet ) log << std::setw(12) << matrix(iRow, iCol) << " ";
-          log << "\n";
-      }
+          if (iCol < iSheet+colsPerSheet ) log << std::setw(12) << matrix(iRow, iCol) << " "; }
+      log << "\n";
     }
   }
 
