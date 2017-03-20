@@ -6,7 +6,7 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
   int tsize=0;
   for ( auto hd :  hitDoublets) tsize+=hd->size();
   allCells.reserve(tsize);
-
+  allStatus.resize(tsize);
   unsigned int cellId = 0;
 	float ptmin = region.ptMin();
 	float region_origin_x = region.origin().x();
@@ -109,7 +109,7 @@ void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
 		{
 		  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
 			{
-				allCells[i].evolve(allCells);
+			  allCells[i].evolve(i,allStatus);
 			}
 		}
 
@@ -117,7 +117,7 @@ void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
 		{
 		  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
 			{
-			  allCells[i].updateState();
+			  allStatus[i].updateState();
 			}
 		}
 
@@ -133,12 +133,12 @@ void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
 		  auto foundCells = theLayerGraph.theLayerPairs[rootLayerPair].theFoundCells;
 		  for (auto i =foundCells[0]; i<foundCells[1]; ++i)
 			{
-			  auto & cell =  allCells[i];
-			  cell.evolve(allCells);
+			  auto & cell =  allStatus[i];
+			  allCells[i].evolve(i,allStatus);
 			  cell.updateState();
 			  if (cell.isRootCell(minHitsPerNtuplet - 2))
 			    {
-			      theRootCells.push_back(&cell);
+			      theRootCells.push_back(i);
 			    }
 			}
 		}
@@ -153,11 +153,11 @@ void CellularAutomaton::findNtuplets(
 	CACell::CAntuple tmpNtuplet;
 	tmpNtuplet.reserve(minHitsPerNtuplet);
 
-	for (CACell* root_cell : theRootCells)
+	for (auto root_cell : theRootCells)
 	{
-		tmpNtuplet.clear();
-		tmpNtuplet.push_back(root_cell-&allCells.front());
-		root_cell->findNtuplets(allCells,foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+	  tmpNtuplet.clear();
+	  tmpNtuplet.push_back(root_cell);
+	  allCells[root_cell].findNtuplets(allCells,foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
 	}
 
 }
@@ -169,6 +169,7 @@ void CellularAutomaton::findTriplets(const std::vector<const HitDoublets*>& hitD
   int tsize=0;
   for ( auto hd :  hitDoublets) tsize+=hd->size();
   allCells.reserve(tsize);
+  allStatus.resize(tsize);
 
   unsigned int cellId = 0;
 	float ptmin = region.ptMin();
