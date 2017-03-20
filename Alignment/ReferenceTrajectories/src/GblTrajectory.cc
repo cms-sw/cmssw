@@ -1031,143 +1031,153 @@ void GblTrajectory::prepare() {
 			innerTransLab.push_back(firstLabels);
 		}
 	}
-	// measurements
-	Matrix5d matP;
-	// loop over trajectories
+	Matrix5d matP;		// measurements
 	std::vector<GblPoint>::iterator itPoint;
-	for (unsigned int iTraj = 0; iTraj < numTrajectories; ++iTraj) {
-		for (itPoint = thePoints[iTraj].begin();
-				itPoint < thePoints[iTraj].end(); ++itPoint) {
-			Vector5d aMeas, aPrec;
-			unsigned int nLabel = itPoint->getLabel();
-			unsigned int measDim = itPoint->hasMeasurement();
-			if (measDim) {
-				const MatrixXd localDer = itPoint->getLocalDerivatives();
-				maxNumGlobals = std::max(maxNumGlobals,
-						itPoint->getNumGlobals());
-				MatrixXd transDer;
-				itPoint->getMeasurement(matP, aMeas, aPrec);
-				double minPrecision = itPoint->getMeasPrecMin();
-				unsigned int iOff = 5 - measDim; // first active component
-				std::array<unsigned int, 5> labDer;
-				Matrix5d matDer, matPDer;
-				unsigned int nJacobian =
-						(itPoint < thePoints[iTraj].end() - 1) ? 1 : 0; // last point needs backward propagation
-				getFitToLocalJacobian(labDer, matDer, *itPoint, measDim,
-						nJacobian);
-				if (measDim > 2) {
-					matPDer = matP * matDer;
-				} else { // 'shortcut' for position measurements
-					matPDer.block<2, 5>(3, 0) = matP.block<2, 2>(3, 3)
-							* matDer.block<2, 5>(3, 0);
-				}
+        // limit the scope of proDer:
+        {
+          // transform for external parameters
+          Eigen::Matrix<double, Eigen::Dynamic, 5,
+                        Eigen::ColMajor /* default */, 5, 5> proDer;
+          // loop over trajectories
+          for (unsigned int iTraj = 0; iTraj < numTrajectories; ++iTraj) {
+            for (itPoint = thePoints[iTraj].begin();
+                 itPoint < thePoints[iTraj].end(); ++itPoint) {
+              Vector5d aMeas, aPrec;
+              unsigned int nLabel = itPoint->getLabel();
+              unsigned int measDim = itPoint->hasMeasurement();
+              if (measDim) {
+                const MatrixXd localDer = itPoint->getLocalDerivatives();
+                maxNumGlobals = std::max(maxNumGlobals,
+                                         itPoint->getNumGlobals());
+                MatrixXd transDer;
+                itPoint->getMeasurement(matP, aMeas, aPrec);
+                double minPrecision = itPoint->getMeasPrecMin();
+                unsigned int iOff = 5 - measDim; // first active component
+                std::array<unsigned int, 5> labDer;
+                Matrix5d matDer, matPDer;
+                unsigned int nJacobian =
+                  (itPoint < thePoints[iTraj].end() - 1) ? 1 : 0; // last point needs backward propagation
+                getFitToLocalJacobian(labDer, matDer, *itPoint, measDim,
+                                      nJacobian);
+                if (measDim > 2) {
+                  matPDer = matP * matDer;
+                } else { // 'shortcut' for position measurements
+                  matPDer.block<2, 5>(3, 0) = matP.block<2, 2>(3, 3)
+                    * matDer.block<2, 5>(3, 0);
+                }
 
-				if (numInnerTrans > 0) {
-					// transform for external parameters
-					MatrixXd proDer(measDim, 5);
-					// match parameters
-					unsigned int ifirst = 0;
-					unsigned int ilabel = 0;
-					while (ilabel < 5) {
-						if (labDer[ilabel] > 0) {
-							while (innerTransLab[iTraj][ifirst]
-									!= labDer[ilabel] and ifirst < 5) {
-								++ifirst;
-							}
-							if (ifirst >= 5) {
-								labDer[ilabel] -= 2 * nDim * (iTraj + 1); // adjust label
-							} else {
-								// match
-								labDer[ilabel] = 0; // mark as related to external parameters
-								for (unsigned int k = iOff; k < 5; ++k) {
-									proDer(k - iOff, ifirst) = matPDer(k,
-											ilabel);
-								}
-							}
-						}
-						++ilabel;
-					}
-					transDer.resize(measDim, numCurvature);
-					transDer = proDer * innerTransDer[iTraj];
-				}
-				for (unsigned int i = iOff; i < 5; ++i) {
-					if (aPrec(i) > minPrecision) {
-						GblData aData(nLabel, InternalMeasurement, aMeas(i),
-								aPrec(i), iTraj,
-								itPoint - thePoints[iTraj].begin());
-						aData.addDerivatives(i, labDer, matPDer, iOff, localDer,
-								numLocals, transDer);
-						theData.emplace_back(std::move(aData));
-						nData++;
-					}
-				}
+                if (numInnerTrans > 0) {
+                  // transform for external parameters
+                  proDer.resize(measDim, Eigen::NoChange);
+                  // match parameters
+                  unsigned int ifirst = 0;
+                  unsigned int ilabel = 0;
+                  while (ilabel < 5) {
+                    if (labDer[ilabel] > 0) {
+                      while (innerTransLab[iTraj][ifirst]
+                             != labDer[ilabel] and ifirst < 5) {
+                        ++ifirst;
+                      }
+                      if (ifirst >= 5) {
+                        labDer[ilabel] -= 2 * nDim * (iTraj + 1); // adjust label
+                      } else {
+                        // match
+                        labDer[ilabel] = 0; // mark as related to external parameters
+                        for (unsigned int k = iOff; k < 5; ++k) {
+                          proDer(k - iOff, ifirst) = matPDer(k,
+                                                             ilabel);
+                        }
+                      }
+                    }
+                    ++ilabel;
+                  }
+                  transDer.resize(measDim, numCurvature);
+                  transDer = proDer * innerTransDer[iTraj];
+                }
+                for (unsigned int i = iOff; i < 5; ++i) {
+                  if (aPrec(i) > minPrecision) {
+                    GblData aData(nLabel, InternalMeasurement, aMeas(i),
+                                  aPrec(i), iTraj,
+                                  itPoint - thePoints[iTraj].begin());
+                    aData.addDerivatives(i, labDer, matPDer, iOff, localDer,
+                                         numLocals, transDer);
+                    theData.emplace_back(aData);
+                    nData++;
+                  }
+                }
 
-			}
-			measDataIndex[nLabel] = nData;
-		}
-	}
+              }
+              measDataIndex[nLabel] = nData;
+            }
+          }
+        } // end of scope for proDer
 
-	// pseudo measurements from kinks
-	Matrix2d matT;
-	scatDataIndex[0] = nData;
-	scatDataIndex[1] = nData;
-	// loop over trajectories
-	for (unsigned int iTraj = 0; iTraj < numTrajectories; ++iTraj) {
-		for (itPoint = thePoints[iTraj].begin() + 1;
-				itPoint < thePoints[iTraj].end() - 1; ++itPoint) {
-			Vector2d aMeas, aPrec;
-			unsigned int nLabel = itPoint->getLabel();
-			if (itPoint->hasScatterer()) {
-				itPoint->getScatterer(matT, aMeas, aPrec);
-				MatrixXd transDer;
-				std::array<unsigned int, 7> labDer;
-				Matrix27d matDer, matTDer;
-				getFitToKinkJacobian(labDer, matDer, *itPoint);
-				matTDer = matT * matDer;
-				if (numInnerTrans > 0) {
-					// transform for external parameters
-					MatrixXd proDer(nDim, 5);
-					// match parameters
-					unsigned int ifirst = 0;
-					unsigned int ilabel = 0;
-					while (ilabel < 7) {
-						if (labDer[ilabel] > 0) {
-							while (innerTransLab[iTraj][ifirst]
-									!= labDer[ilabel] and ifirst < 5) {
-								++ifirst;
-							}
-							if (ifirst >= 5) {
-								labDer[ilabel] -= 2 * nDim * (iTraj + 1); // adjust label
-							} else {
-								// match
-								labDer[ilabel] = 0; // mark as related to external parameters
-								for (unsigned int k = 0; k < nDim; ++k) {
-									proDer(k, ifirst) = matTDer(k, ilabel);
-								}
-							}
-						}
-						++ilabel;
-					}
-					transDer.resize(nDim, numCurvature);
-					transDer = proDer * innerTransDer[iTraj];
-				}
-				for (unsigned int i = 0; i < nDim; ++i) {
-					unsigned int iDim = theDimension[i];
-					if (aPrec(iDim) > 0.) {
-						GblData aData(nLabel, InternalKink, aMeas(iDim),
-								aPrec(iDim), iTraj,
-								itPoint - thePoints[iTraj].begin());
-						aData.addDerivatives(iDim, labDer, matTDer, numLocals,
-								transDer);
-						theData.emplace_back(std::move(aData));
-						nData++;
-					}
-				}
-			}
-			scatDataIndex[nLabel] = nData;
-		}
-		scatDataIndex[thePoints[iTraj].back().getLabel()] = nData;
-	}
+        Matrix2d matT;		// measurements
+        // limit the scope of proDer:
+        {
+          // transform for external parameters
+          Eigen::Matrix<double, Eigen::Dynamic, 5,
+                        Eigen::ColMajor /* default */, 5, 5> proDer;
+          scatDataIndex[0] = nData;
+          scatDataIndex[1] = nData;
+          // loop over trajectories
+          for (unsigned int iTraj = 0; iTraj < numTrajectories; ++iTraj) {
+            for (itPoint = thePoints[iTraj].begin() + 1;
+                 itPoint < thePoints[iTraj].end() - 1; ++itPoint) {
+              Vector2d aMeas, aPrec;
+              unsigned int nLabel = itPoint->getLabel();
+              if (itPoint->hasScatterer()) {
+                itPoint->getScatterer(matT, aMeas, aPrec);
+                MatrixXd transDer;
+                std::array<unsigned int, 7> labDer;
+                Matrix27d matDer, matTDer;
+                getFitToKinkJacobian(labDer, matDer, *itPoint);
+                matTDer = matT * matDer;
+                if (numInnerTrans > 0) {
+                  // transform for external parameters
+                  proDer.resize(nDim, Eigen::NoChange);
+                  // match parameters
+                  unsigned int ifirst = 0;
+                  unsigned int ilabel = 0;
+                  while (ilabel < 7) {
+                    if (labDer[ilabel] > 0) {
+                      while (innerTransLab[iTraj][ifirst]
+                             != labDer[ilabel] and ifirst < 5) {
+                        ++ifirst;
+                      }
+                      if (ifirst >= 5) {
+                        labDer[ilabel] -= 2 * nDim * (iTraj + 1); // adjust label
+                      } else {
+                        // match
+                        labDer[ilabel] = 0; // mark as related to external parameters
+                        for (unsigned int k = 0; k < nDim; ++k) {
+                          proDer(k, ifirst) = matTDer(k, ilabel);
+                        }
+                      }
+                    }
+                    ++ilabel;
+                  }
+                  transDer.resize(nDim, numCurvature);
+                  transDer = proDer * innerTransDer[iTraj];
+                }
+                for (unsigned int i = 0; i < nDim; ++i) {
+                  unsigned int iDim = theDimension[i];
+                  if (aPrec(iDim) > 0.) {
+                    GblData aData(nLabel, InternalKink, aMeas(iDim),
+                                  aPrec(iDim), iTraj,
+                                  itPoint - thePoints[iTraj].begin());
+                    aData.addDerivatives(iDim, labDer, matTDer, numLocals,
+                                         transDer);
+                    theData.emplace_back(aData);
+                    nData++;
+                  }
+                }
+              }
+              scatDataIndex[nLabel] = nData;
+            }
+            scatDataIndex[thePoints[iTraj].back().getLabel()] = nData;
+          }
+        }
 
 	// external seed
 	if (externalPoint > 0) {
