@@ -623,9 +623,8 @@ namespace edm {
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        ex.addContext("Calling produce method for module TriggerResultInserter");
         std::ostringstream ost;
-        ost << "Processing " << ep.id();
+        ost << "Processing Event " << ep.id();
         ex.addContext(ost.str());
         iExcept = std::current_exception();
       }
