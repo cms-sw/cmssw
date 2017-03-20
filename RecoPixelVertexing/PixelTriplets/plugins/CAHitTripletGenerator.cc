@@ -273,7 +273,7 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
                         caHardPtCut);
 
-
+	auto & allCells = ca.getAllCells();
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
@@ -290,9 +290,9 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 			++tripletId)
 	{
 
-		OrderedHitTriplet tmpTriplet(foundTriplets[tripletId][0]->getInnerHit(),
-				foundTriplets[tripletId][0]->getOuterHit(),
-				foundTriplets[tripletId][1]->getOuterHit());
+		OrderedHitTriplet tmpTriplet(allCells[foundTriplets[tripletId][0]].getInnerHit(),
+				allCells[foundTriplets[tripletId][0]].getOuterHit(),
+				allCells[foundTriplets[tripletId][1]].getOuterHit());
 
 		auto isBarrel = [](const unsigned id) -> bool
 		{
@@ -300,13 +300,13 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 		};
 		for (unsigned int i = 0; i < 2; ++i)
 		{
-			auto const& ahit = foundTriplets[tripletId][i]->getInnerHit();
+			auto const& ahit = allCells[foundTriplets[tripletId][i]].getInnerHit();
 			gps[i] = ahit->globalPosition();
 			ges[i] = ahit->globalPositionError();
 			barrels[i] = isBarrel(ahit->geographicalId().subdetId());
 		}
 
-		auto const& ahit = foundTriplets[tripletId][1]->getOuterHit();
+		auto const& ahit = allCells[foundTriplets[tripletId][1]].getOuterHit();
 		gps[2] = ahit->globalPosition();
 		ges[2] = ahit->globalPositionError();
 		barrels[2] = isBarrel(ahit->geographicalId().subdetId());
@@ -381,6 +381,8 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 
 	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
 			caHardPtCut);
+	
+	auto & allCells = ca.getAllCells();
 
 	unsigned int numberOfFoundTriplets = foundTriplets.size();
 
@@ -398,9 +400,9 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 			++tripletId)
 	{
 
-		OrderedHitTriplet tmpTriplet(foundTriplets[tripletId][0]->getInnerHit(),
-				foundTriplets[tripletId][0]->getOuterHit(),
-				foundTriplets[tripletId][1]->getOuterHit());
+		OrderedHitTriplet tmpTriplet(allCells[foundTriplets[tripletId][0]].getInnerHit(),
+					     allCells[foundTriplets[tripletId][0]].getOuterHit(),
+					     allCells[foundTriplets[tripletId][1]].getOuterHit());
 
 		auto isBarrel = [](const unsigned id) -> bool
 		{
@@ -408,13 +410,13 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 		};
 		for (unsigned int i = 0; i < 2; ++i)
 		{
-			auto const& ahit = foundTriplets[tripletId][i]->getInnerHit();
+			auto const& ahit = allCells[foundTriplets[tripletId][i]].getInnerHit();
 			gps[i] = ahit->globalPosition();
 			ges[i] = ahit->globalPositionError();
 			barrels[i] = isBarrel(ahit->geographicalId().subdetId());
 		}
 
-		auto const& ahit = foundTriplets[tripletId][1]->getOuterHit();
+		auto const& ahit = allCells[foundTriplets[tripletId][1]].getOuterHit();
 		gps[2] = ahit->globalPosition();
 		ges[2] = ahit->globalPositionError();
 		barrels[2] = isBarrel(ahit->geographicalId().subdetId());

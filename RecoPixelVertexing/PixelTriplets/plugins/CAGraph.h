@@ -31,7 +31,7 @@ struct CALayer
 
 	std::vector<int> theOuterLayers;
 	std::vector<int> theInnerLayers;
-	std::vector< std::vector<CACell*> >  isOuterHitOfCell;
+	std::vector< std::vector<unsigned int> >  isOuterHitOfCell;
 
 
 private:
@@ -58,7 +58,7 @@ struct CALayerPair
 	}
 
 	std::array<int, 2> theLayers;
-	std::vector<CACell> theFoundCells;
+	std::array<unsigned int, 2> theFoundCells;
 
 };
 
