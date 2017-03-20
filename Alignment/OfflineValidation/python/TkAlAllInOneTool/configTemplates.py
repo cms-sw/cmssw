@@ -68,7 +68,7 @@ do
     fi
 done
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
@@ -114,7 +114,7 @@ do
 done
 
 #cleanup
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rm -rf .oO[workdir]Oo.
 fi
@@ -136,7 +136,7 @@ eval `scramv1 ru -sh`
 rfmkdir -p .oO[datadir]Oo.
 rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     mkdir -p .oO[workdir]Oo.
     cd .oO[workdir]Oo.
