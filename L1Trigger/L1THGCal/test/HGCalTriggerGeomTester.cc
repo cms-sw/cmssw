@@ -422,8 +422,8 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
 void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase::es_info& info)
 /*****************************************************************/
 {
-   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
-   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
+    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
+    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
 
     // Loop over cells
     std::cout<<"Filling cells tree\n";
