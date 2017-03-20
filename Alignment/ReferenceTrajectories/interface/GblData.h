@@ -37,11 +37,11 @@
 #include "Alignment/ReferenceTrajectories/interface/VMatrix.h"
 
 #include "Eigen/Core"
-typedef Eigen::Matrix<double, 5, 5> Matrix5d;
-typedef Eigen::Matrix<double, 2, 7> Matrix27d;
 
 //! Namespace for the general broken lines package
 namespace gbl {
+  typedef Eigen::Matrix<double, 5, 5> Matrix5d;
+  typedef Eigen::Matrix<double, 2, 7> Matrix27d;
 
   enum dataBlockType {
     None, InternalMeasurement, InternalKink, ExternalSeed, ExternalMeasurement
