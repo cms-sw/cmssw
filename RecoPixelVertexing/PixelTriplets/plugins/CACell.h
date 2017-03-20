@@ -10,16 +10,39 @@
 #include <cmath>
 #include <array>
 
+class CACellStatus {
+
+public:
+  
+  unsigned char getCAState() const {
+    return theCAState;
+  }
+  
+  // if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
+  void updateState() {
+    theCAState += hasSameStateNeighbors;
+  }
+  
+  bool isRootCell(const unsigned int minimumCAState) const {
+    return (theCAState >= minimumCAState);
+  }
+  
+ public:
+  unsigned char theCAState=0;
+  unsigned char hasSameStateNeighbors=0;
+  
+};
+
 class CACell {
 public:
   using Hit = RecHitsSortedInPhi::Hit;
   using CAntuple = std::vector<unsigned int>;
   using CAntuplet = std::vector<unsigned int>;
   using CAColl = std::vector<CACell>;
+  using CAStatusColl = std::vector<CACellStatus>;
   
   
   CACell(const HitDoublets* doublets, int doubletId, const unsigned int cellId, const int innerHitId, const int outerHitId) :
-    theCAState(0),hasSameStateNeighbors(0),
     theDoublets(doublets), theDoubletId(doubletId)
     ,theInnerR(doublets->rv(doubletId, HitDoublets::inner)) //, theOuterR(doublets->rv(doubletId, HitDoublets::outer))
     ,theInnerZ(doublets->z(doubletId, HitDoublets::inner)) // , theOuterZ(doublets->z(doubletId, HitDoublets::outer)) 
@@ -80,16 +103,16 @@ public:
     return theDoublets->phi(theDoubletId, HitDoublets::outer);
   }
   
-  void evolve(CAColl& allCells) {
+  void evolve(unsigned int me, CAStatusColl& allStatus) {
     
-    hasSameStateNeighbors = 0;
-    unsigned int numberOfNeighbors = theOuterNeighbors.size();
+    allStatus[me].hasSameStateNeighbors = 0;
+    auto mystate = allStatus[me].theCAState;
     
-    for (unsigned int i = 0; i < numberOfNeighbors; ++i) {
+    for (auto oc : theOuterNeighbors ) {
       
-      if (allCells[theOuterNeighbors[i]].getCAState() == theCAState) {
+      if (allStatus[oc].getCAState() == mystate) {
 	
-	hasSameStateNeighbors = 1;
+	allStatus[me].hasSameStateNeighbors = 1;
 	
 	break;
       }
@@ -243,18 +266,6 @@ public:
     
   }
   
-  unsigned int getCAState() const {
-    return theCAState;
-  }
-  
-  // if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
-  void updateState() {
-    theCAState += hasSameStateNeighbors;
-  }
-  
-  bool isRootCell(const unsigned int minimumCAState) const {
-    return (theCAState >= minimumCAState);
-  }
   
   // trying to free the track building process from hardcoded layers, leaving the visit of the graph
   // based on the neighborhood connections between cells.
@@ -292,12 +303,8 @@ public:
   
   
 private:
-  unsigned char theCAState;
-  unsigned char hasSameStateNeighbors;
   
   CAntuple theOuterNeighbors;
-
-  // CAntuple theInnerNeighbors;
   
   const HitDoublets* theDoublets;  
   const int theDoubletId;

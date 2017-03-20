@@ -26,8 +26,9 @@ public:
   
 private:
   std::vector<CACell> allCells;
+  std::vector<CACellStatus> allStatus;
   CAGraph theLayerGraph;
-  std::vector<CACell*> theRootCells;
+  std::vector<unsigned int> theRootCells;
   std::vector<std::vector<CACell*> > theNtuplets;
   
 };
