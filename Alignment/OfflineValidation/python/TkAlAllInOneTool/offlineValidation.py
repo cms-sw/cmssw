@@ -1,12 +1,12 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots
+from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap, addIndex
 from TkAlExceptions import AllInOneError
 
 
-class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots):
+class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary):
     configBaseName = "TkAlOfflineValidation"
     scriptBaseName = "TkAlOfflineValidation"
     crabCfgBaseName = "TkAlOfflineValidation"
