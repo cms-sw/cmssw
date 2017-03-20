@@ -131,7 +131,7 @@ private :
   bool showUnderOverFlow_;
   bool twolines_;
   bool bigtext_;
-  const static TString summaryfilename = "OfflineValidationSummary.txt";
+  const static TString summaryfilename;
   ofstream summaryfile;
   bool openedsummaryfile = false;
 

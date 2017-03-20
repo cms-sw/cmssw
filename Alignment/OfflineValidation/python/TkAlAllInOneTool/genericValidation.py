@@ -519,7 +519,7 @@ class ValidationWithPlots(GenericValidation):
         with open(filename, 'w') as f:
             f.write(plottingscript)
 
-class ValidationWithPlotsSummary(ValidationWithPlots):
+class ValidationWithPlotsSummaryBase(ValidationWithPlots):
     class SummaryItem(object):
         def __init__(self, name, values, format=None, latexname=None, latexformat=None):
             """
@@ -545,14 +545,17 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
             else:
                 return self.__name
 
-        def format(self, latex=False):
+        def format(self, value, latex=False):
             if latex:
-                return self.__latexformat
+                fmt = self.__latexformat
             else:
-                return self.__format
+                fmt = self.__format
+            if re.match(".*[{][^}]*[fg][}].*", fmt):
+                value = float(value)
+            return fmt.format(value)
 
         def values(self, latex=False):
-            result = [self.format(latex).format(v) for v in self.__values]
+            result = [self.format(v, latex=latex) for v in self.__values]
             return result
 
         def value(self, i, latex):
@@ -582,9 +585,9 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
 
         if not summaryitems:
             raise AllInOneError("No summary items!")
-        size = len({_.values for _ in summaryitems})
+        size = {len(_.values(latex)) for _ in summaryitems}
         if size != 1:
-            raise AllInOneError("Some summary items have different numbers of values\n{}".format(size)
+            raise AllInOneError("Some summary items have different numbers of values\n{}".format(size))
         size = size.pop()
 
         if transpose:
@@ -609,11 +612,11 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
     def printsummaryitems(cls, *args, **kwargs):
         print cls.summaryitemsstring(*args, **kwargs)
     @classmethod
-    def writesummaryitems(cls, filename, *args, **kwargs)
+    def writesummaryitems(cls, filename, *args, **kwargs):
         with open(filename, "w") as f:
             f.write(cls.summaryitemsstring(*args, **kwargs)+"\n")
 
-class ValidationWithPlotsSummary_SimpleTxtFile(ValidationWithPlotsSummary):
+class ValidationWithPlotsSummary(ValidationWithPlotsSummaryBase):
     @classmethod
     def getsummaryitems(cls, folder):
         result = []
@@ -621,7 +624,7 @@ class ValidationWithPlotsSummary_SimpleTxtFile(ValidationWithPlotsSummary):
             for line in f:
                 split = line.split("\t")
                 kwargs = {}
-                for thing in split:
+                for thing in split[:]:
                     if thing.startswith("format="):
                         kwargs["format"] = thing.replace("format=", "", 1)
                         split.remove(thing)
@@ -629,12 +632,13 @@ class ValidationWithPlotsSummary_SimpleTxtFile(ValidationWithPlotsSummary):
                         kwargs["latexname"] = thing.replace("latexname=", "", 1)
                         split.remove(thing)
                     if thing.startswith("latexformat="):
-                        kwargs["latexformat"] = getattr(cls, thing.replace("latexformat=", "", 1))
+                        kwargs["latexformat"] = thing.replace("latexformat=", "", 1)
                         split.remove(thing)
 
                 name = split[0]
                 values = split[1:]
-                result.append(self.SummaryItem(name, values, **kwargs))
+                result.append(cls.SummaryItem(name, values, **kwargs))
+        return result
 
 class ValidationWithComparison(GenericValidation):
     @classmethod

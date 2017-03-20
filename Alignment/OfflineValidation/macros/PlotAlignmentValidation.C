@@ -89,7 +89,7 @@ void PlotAlignmentValidation::openSummaryFile()
     for (auto vars : sourceList) {
       summaryfile << "\t" << vars->getName();
     }
-    summaryfile << "\n";
+    summaryfile << "\tformat={}\n";
   }
 }
 
@@ -844,7 +844,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	    legend << "#Delta#mu = " << deltamu << unit;
 	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
 
-            if (!plotLayers && layer==0 && direction==0) {
+            if (!plotLayers && layer==0) {
               vdeltamean.push_back(deltamu);
             }
 	  }
@@ -889,16 +889,17 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     else if (variable=="rmsNormX") plotName << "rmsNR_";
     else if (variable=="rmsNormY") plotName << "rmsNYR_";
 
+    TString subdet;
     switch (i) {
-      case 1: plotName << "BPIX"; break;
-      case 2: plotName << "FPIX"; break;
-      case 3: plotName << "TIB"; break;
-      case 4: plotName << "TID"; break;
-      case 5: plotName << "TOB"; break;
-      case 6: plotName << "TEC"; break;
+      case 1: subdet = "BPIX"; break;
+      case 2: subdet = "FPIX"; break;
+      case 3: subdet = "TIB"; break;
+      case 4: subdet = "TID"; break;
+      case 5: subdet = "TOB"; break;
+      case 6: subdet = "TEC"; break;
     }
 
-    TString summaryrowname = plotName.str();
+    plotName << subdet;
 
     if (plotPlain && !plotSplits) { plotName << "_plain"; }
     else if (!plotPlain && plotSplits) { plotName << "_split"; }
@@ -935,26 +936,26 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     delete plotinfo.h2;
 
     if (vmean.size()) {
-      summaryfile << "#mu_{" << summaryrowname << "}\t"
-                  << "latexname=$\\mu_\\text{" << summaryrowname << "}$\t"
-                  << "format={} um\t"
-                  << "latexformat=${} \mu m$";
+      summaryfile << "#mu_{" << subdet << "}\t"
+                  << "latexname=$\\mu_\\text{" << subdet << "}$\t"
+                  << "format={:.3g} um\t"
+                  << "latexformat=${:.3g} \\mu m$";
       for (auto mu : vmean) summaryfile << "\t" << mu;
       summaryfile << "\n";
     }
     if (vrms.size()) {
-      summaryfile << "#sigma_{" << summaryrowname << "}\t"
-                  << "latexname=$\\sigma_\\text{" << summaryrowname << "}$\t"
-                  << "format={} um\t"
-                  << "latexformat=${} \mu m$";
+      summaryfile << "#sigma_{" << subdet << "}\t"
+                  << "latexname=$\\sigma_\\text{" << subdet << "}$\t"
+                  << "format={:.3g} um\t"
+                  << "latexformat=${:.3g} \\mu m$";
       for (auto sigma : vrms) summaryfile << "\t" << sigma;
       summaryfile << "\n";
     }
     if (vdeltamean.size()) {
-      summaryfile << "#Delta#mu_{" << summaryrowname << "}\t"
-                  << "latexname=$\\Delta\\mu_\\text{" << summaryrowname << "}$\t"
-                  << "format={} um\t"
-                  << "latexformat=${} \mu m$";
+      summaryfile << "#Delta#mu_{" << subdet << "}\t"
+                  << "latexname=$\\Delta\\mu_\\text{" << subdet << "}$\t"
+                  << "format={:.3g} um\t"
+                  << "latexformat=${:.3g} \\mu m$";
       for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
       summaryfile << "\n";
     }
@@ -1562,7 +1563,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
       legend << ", ";
   }
 
-  if (!plotLayers && layer==0 && direction==0) {
+  if (/*!plotinfo.plotLayers && */layer==0 && direction==0) {
     vmean.push_back(mean);
     vrms.push_back(rms);
   }
@@ -1579,7 +1580,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
     if ((showModules_ || showUnderOverFlow_) && !twolines_)
       legend << ", ";
 
-    if (!plotLayers && plotLayerN==0 && direction==0) {
+    if (/*!plotinfo.plotLayers && */layer==0 && direction==0) {
       vdeltamean.push_back(deltamu);
     }
   }
@@ -1675,3 +1676,5 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   // Make some room for the legend
   hs->SetMaximum(hs->GetMaximum("nostack PE")*1.3);
 }
+
+const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary.txt";
