@@ -56,6 +56,10 @@ class GblData {
 public:
 	GblData(unsigned int aLabel, dataBlockType aType, double aMeas,
 			double aPrec, unsigned int aTraj = 0, unsigned int aPoint = 0);
+	GblData(const GblData&) = default;
+	GblData& operator=(const GblData&) = default;
+	GblData(GblData&&) = default;
+	GblData& operator=(GblData&&) = default;
 	virtual ~GblData();
 	template <typename LocalDerivative, typename TrafoDerivative>
 	void addDerivatives(unsigned int iRow,

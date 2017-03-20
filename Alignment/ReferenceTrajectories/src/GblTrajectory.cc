@@ -162,7 +162,7 @@ GblTrajectory::GblTrajectory(const std::vector<GblPoint> &aPointList,
 	if (flagU2dir)
 		theDimension.push_back(1);
 	// simple (single) trajectory
-	thePoints.push_back(aPointList);
+	thePoints.emplace_back(std::move(aPointList));
 	numPoints.push_back(numAllPoints);
 	construct(); // construct trajectory
 }
@@ -225,7 +225,7 @@ GblTrajectory::GblTrajectory(const std::vector<GblPoint> &aPointList,
 		}
 	}
 	// simple (single) trajectory
-	thePoints.push_back(aPointList);
+	thePoints.emplace_back(std::move(aPointList));
 	numPoints.push_back(numAllPoints);
 	construct(); // construct trajectory
 }
@@ -243,7 +243,7 @@ GblTrajectory::GblTrajectory(
 				0), thePoints(), theData(), measDataIndex(), scatDataIndex(), externalSeed(), innerTransformations(), externalDerivatives(), externalMeasurements(), externalPrecisions() {
 
 	for (unsigned int iTraj = 0; iTraj < aPointsAndTransList.size(); ++iTraj) {
-		thePoints.push_back(aPointsAndTransList[iTraj].first);
+		thePoints.emplace_back(std::move(aPointsAndTransList[iTraj].first));
 		numPoints.push_back(thePoints.back().size());
 		numAllPoints += numPoints.back();
 		// convert from ROOT
@@ -255,7 +255,7 @@ GblTrajectory::GblTrajectory(
 				aTrans(i, j) = aPointsAndTransList[iTraj].second(i, j);
 			}
 		}
-		innerTransformations.push_back(aTrans);
+		innerTransformations.emplace_back(std::move(aTrans));
 	}
 	theDimension.push_back(0);
 	theDimension.push_back(1);
@@ -294,7 +294,7 @@ GblTrajectory::GblTrajectory(
 		}
 	}
 	for (unsigned int iTraj = 0; iTraj < aPointsAndTransList.size(); ++iTraj) {
-		thePoints.push_back(aPointsAndTransList[iTraj].first);
+		thePoints.emplace_back(std::move(aPointsAndTransList[iTraj].first));
 		numPoints.push_back(thePoints.back().size());
 		numAllPoints += numPoints.back();
 		// convert from ROOT
@@ -306,7 +306,7 @@ GblTrajectory::GblTrajectory(
 				aTrans(i, j) = aPointsAndTransList[iTraj].second(i, j);
 			}
 		}
-		innerTransformations.push_back(aTrans);
+		innerTransformations.emplace_back(std::move(aTrans));
 	}
 	theDimension.push_back(0);
 	theDimension.push_back(1);
@@ -1026,8 +1026,8 @@ void GblTrajectory::prepare() {
 			// transformation local track to fit parameters
 			matLocalToFit = matFitToLocal.inverse();
 			// transformation external to fit parameters at inner (first) point
-			innerTransDer.push_back(
-					matLocalToFit * innerTransformations[iTraj]);
+			innerTransDer.emplace_back(std::move(
+					matLocalToFit * innerTransformations[iTraj]));
 			innerTransLab.push_back(firstLabels);
 		}
 	}
@@ -1097,7 +1097,7 @@ void GblTrajectory::prepare() {
 								itPoint - thePoints[iTraj].begin());
 						aData.addDerivatives(i, labDer, matPDer, iOff, localDer,
 								numLocals, transDer);
-						theData.push_back(aData);
+						theData.emplace_back(std::move(aData));
 						nData++;
 					}
 				}
@@ -1159,7 +1159,7 @@ void GblTrajectory::prepare() {
 								itPoint - thePoints[iTraj].begin());
 						aData.addDerivatives(iDim, labDer, matTDer, numLocals,
 								transDer);
-						theData.push_back(aData);
+						theData.emplace_back(std::move(aData));
 						nData++;
 					}
 				}
@@ -1187,7 +1187,7 @@ void GblTrajectory::prepare() {
 				GblData aData(externalPoint, ExternalSeed, 0., valEigen(i));
 				aData.addDerivatives(externalSeedIndex,
 						externalSeedDerivatives);
-				theData.push_back(aData);
+				theData.emplace_back(std::move(aData));
 				nData++;
 			}
 		}
@@ -1206,7 +1206,7 @@ void GblTrajectory::prepare() {
 			GblData aData(1U, ExternalMeasurement, externalMeasurements(iExt),
 					externalPrecisions(iExt));
 			aData.addDerivatives(index, derivatives);
-			theData.push_back(aData);
+			theData.emplace_back(std::move(aData));
 			nData++;
 		}
 	}
