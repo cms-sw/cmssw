@@ -56,6 +56,10 @@ namespace edm {
     static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
       a->postPathEventSignal_(*pathContext->streamContext(), *pathContext, status);
     }
+    
+    static const char* transitionName() {
+      return "Event";
+    }
   };
 
   template <>
@@ -92,6 +96,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global begin Run";
+    }
   };
 
   template <>
@@ -127,6 +134,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "stream begin Run";
+    }
   };
 
   template <>
@@ -161,6 +171,9 @@ namespace edm {
     }
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
+    }
+    static const char* transitionName() {
+      return "stream end Run";
     }
   };
 
@@ -198,6 +211,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global end Run";
+    }
   };
 
   template <>
@@ -234,6 +250,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global begin LuminosityBlock";
+    }
   };
 
   template <>
@@ -268,6 +287,9 @@ namespace edm {
     }
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
+    }
+    static const char* transitionName() {
+      return "stream begin LuminosityBlock";
     }
   };
 
@@ -306,6 +328,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "end stream LuminosityBlock";
+    }
   };
 
   template <>
@@ -341,6 +366,9 @@ namespace edm {
     }
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() {
+      return "end global LuminosityBlock";
     }
   };
 }
