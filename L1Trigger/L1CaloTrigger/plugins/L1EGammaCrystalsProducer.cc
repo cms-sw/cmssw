@@ -63,8 +63,9 @@ Implementation:
 // ECAL TPs
 #include "SimCalorimetry/EcalEBTrigPrimProducers/plugins/EcalEBTrigPrimProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveDigi.h"
-// HCAL TPs stick with RecHits for now because the calo geometry helper is not ready for HCAL
-//#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+
+// HCAL TPs
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
 // Adding boost to read json files for tower mapping
 #include "boost/property_tree/ptree.hpp"
@@ -90,7 +91,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
       //edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEEToken_;
       edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
-      //edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
+      edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
       boost::property_tree::ptree towerMap;
       bool useTowerMap;
       std::string towerMapName;
@@ -155,7 +156,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
    //ecalRecHitEEToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEE"))),
    hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
-   //hcalTPToken_(consumes< edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP")))
+   hcalTPToken_(consumes< edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP"))),
    useTowerMap(iConfig.getUntrackedParameter<bool>("useTowerMap", false)),
    towerMapName(iConfig.getUntrackedParameter<std::string>("towerMapName", "defaultMap.json"))
 
@@ -275,6 +276,32 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    //         ehit.energy = hit.energy();
    //         ehit.isEndcapHit = true;
    //         ecalhits.push_back(ehit);
+   //      }
+   //   }
+   //}
+
+   //if (!useRecHits) {
+   //   std::cout << "Incorporating Hcal TPs under development at the moment" << std::endl;
+   //   edm::Handle< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
+   //   iEvent.getByToken(hcalTPToken_,hbhecoll);
+   //   for (auto& hit : *hbhecoll.product())
+   //   {
+   //      std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
+
+
+   //      // SOI_compressedEt() Compressed ET, integer representing increments of 500 MeV
+   //      // Cut requires 500 MeV TP
+   //      if ( hit.SOI_compressedEt() > 0 ) // SOI_compressedEt() Compressed ET for the "Sample of Interest"
+   //        // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
+   //      {
+   //         auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
+   //         SimpleCaloHit hhit;
+   //         hhit.id = hit.id();
+   //         hhit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
+   //         float et = hit.SOI_compressedEt() / 2.;
+   //         hhit.energy = et / sin(hhit.position.theta());
+   //         //std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
+   //         hcalhits.push_back(hhit);
    //      }
    //   }
    //}
@@ -586,7 +613,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // and thinks 0. is H/E
       float hcalEnergy = 0.;
       float hovere;
-      if (useRecHits) {
+      if (hcalhits.size() > 0) {
         for(const auto& hit : hcalhits)
         {
            if ( fabs(hit.deta(centerhit)) < 0.15 && fabs(hit.dphi(centerhit)) < 0.15 )
