@@ -49,7 +49,7 @@ validationNoHLT = cms.Sequence(
                                *globalhitsanalyze
                                *globalrechitsanalyze
                                *globalValidation)
-
+validationNoHLT.remove(condDataValidation) # foca d'ovatta !
 validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
 
@@ -88,7 +88,6 @@ for _entry in [hltvalidation_preprod]:
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validation_preprod,_validation_preprod_fastsim)
 
-validation.remove(condDataValidation)
 validation_prodNoHLT = cms.Sequence(
              genvalid_all
             )
