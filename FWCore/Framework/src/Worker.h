@@ -39,6 +39,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -94,6 +95,14 @@ namespace edm {
                      StreamID stream,
                      ParentContext const& parentContext,
                      typename T::Context const* context);
+
+    template <typename T>
+    void doWorkNoPrefetchingAsync(WaitingTask* task,
+                                  typename T::MyPrincipal const&,
+                                  EventSetup const& c,
+                                  StreamID stream,
+                                  ParentContext const& parentContext,
+                                  typename T::Context const* context);
 
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
@@ -670,6 +679,56 @@ namespace edm {
   }
 
   template <typename T>
+  void Worker::doWorkNoPrefetchingAsync(WaitingTask* task,
+                           typename T::MyPrincipal const& principal,
+                           EventSetup const& es,
+                           StreamID streamID,
+                           ParentContext const& parentContext,
+                           typename T::Context const* context) {
+    waitingTasks_.add(task);
+    bool expected = false;
+    if(workStarted_.compare_exchange_strong(expected,true)) {
+      auto serviceToken = ServiceRegistry::instance().presentToken();
+      
+      auto toDo =[this, &principal, &es, streamID,parentContext,context, serviceToken]()
+      {
+        try {
+          //Need to make the services available
+          ServiceRegistry::Operate guard(serviceToken);
+          convertException::wrap([&]() {
+            
+            this->runModule<T>(principal,
+                                 es,
+                                 streamID,
+                                 parentContext,
+                                 context);
+          });
+        } catch( cms::Exception& iException) {
+          TransitionIDValue<typename T::MyPrincipal> idValue(principal);
+          if(shouldRethrowException(iException, parentContext, T::isEvent_, idValue)) {
+            assert(not this->cached_exception_);
+            std::ostringstream iost;
+            iost<<"Calling method for module ";
+            iost<<this->description().moduleName() << "/'"
+            << this->description().moduleLabel() << "'";
+            iException.addContext(iost.str());
+            setException<T::isEvent_>(std::current_exception());
+            this->waitingTasks_.doneWaiting(this->cached_exception_);
+            return;
+          }
+        }
+        this->waitingTasks_.doneWaiting(nullptr);
+      };
+      if(auto queue = this->serializeRunModule()) {
+        queue->push( toDo);
+      } else {
+        auto task = make_functor_task( tbb::task::allocate_root(), toDo);
+        tbb::task::spawn(*task);
+      }
+    }
+  }
+
+  template <typename T>
   bool Worker::doWork(typename T::MyPrincipal const& ep,
                       EventSetup const& es,
                       StreamID streamID,
@@ -767,6 +826,12 @@ namespace edm {
       TransitionIDValue<typename T::MyPrincipal> idValue(ep);
       if(shouldRethrowException(ex, parentContext, T::isEvent_, idValue)) {
         assert(not cached_exception_);
+        std::ostringstream iost;
+        iost<<"Calling method for module ";
+        iost<<description().moduleName() << "/'"
+        << description().moduleLabel() << "'";
+        ex.addContext(iost.str());
+
         setException<T::isEvent_>(std::current_exception());
         waitingTasks_.doneWaiting(cached_exception_);
         std::rethrow_exception(cached_exception_);
