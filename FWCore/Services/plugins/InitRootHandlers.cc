@@ -878,7 +878,7 @@ namespace edm {
 
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
-      if (imt) ROOT::EnableImplicitMT(4);
+      if (imt) ROOT::EnableImplicitMT();
     }
 
     InitRootHandlers::~InitRootHandlers () {
