@@ -127,7 +127,8 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
     cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
     cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
-    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber))
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('ResidualsMean'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.),TopModules=cms.untracked.bool(True))
     )
 )
 

@@ -50,4 +50,3 @@ subprocess.out = cms.OutputModule("PoolOutputModule",
     )
 )
 subprocess.o = cms.EndPath(subprocess.test * subprocess.out)
-

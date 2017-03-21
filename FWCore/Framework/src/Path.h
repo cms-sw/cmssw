@@ -62,6 +62,13 @@ namespace edm {
     void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
                               StreamID const&, typename T::Context const*);
 
+    template <typename T>
+    void runAllModulesAsync(WaitingTask*,
+                            typename T::MyPrincipal const&,
+                            EventSetup  const&,
+                            StreamID const&,
+                            typename T::Context const*);
+
     void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&, StreamID const&, StreamContext const*);
     
     int bitPosition() const { return bitpos_; }
@@ -170,6 +177,17 @@ namespace edm {
       hlt::HLTState const& state_;
       PathContext const* pathContext_;
     };
+  }
+
+  template <typename T>
+  void Path::runAllModulesAsync(WaitingTask* task,
+                          typename T::MyPrincipal const& p,
+                          EventSetup  const& es,
+                          StreamID const& streamID,
+                                typename T::Context const* context) {
+    for(auto& worker: workers_) {
+      worker.runWorkerAsync<T>(task,p,es,streamID,context);
+    }
   }
 
   template <typename T>

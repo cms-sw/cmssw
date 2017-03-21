@@ -38,23 +38,23 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '90X_dataRun2_HLTHI_frozen_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '90X_upgrade2017_design_IdealBS_v18',
+    'phase1_2017_design'       :  '90X_upgrade2017_design_IdealBS_v19',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '90X_upgrade2017_realistic_v18',
+    'phase1_2017_realistic'    : '90X_upgrade2017_realistic_v20',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '90X_upgrade2017cosmics_realistic_deco_v16',
+    'phase1_2017_cosmics'      : '90X_upgrade2017cosmics_realistic_deco_v18',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '90X_upgrade2017cosmics_realistic_peak_v17',
+    'phase1_2017_cosmics_peak' : '90X_upgrade2017cosmics_realistic_peak_v19',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '90X_upgrade2018_design_IdealBS_v14',
+    'phase1_2018_design'       : '90X_upgrade2018_design_IdealBS_v15',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '90X_upgrade2018_realistic_v15',
+    'phase1_2018_realistic'    : '90X_upgrade2018_realistic_v17',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '90X_upgrade2018cosmics_realistic_deco_v15',
+    'phase1_2018_cosmics'      :   '90X_upgrade2018cosmics_realistic_deco_v17',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '90X_upgrade2023_realistic_v8'
+    'phase2_realistic'         : '90X_upgrade2023_realistic_v9'
 }
 
 aliases = {

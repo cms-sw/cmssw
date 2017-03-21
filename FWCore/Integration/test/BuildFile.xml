@@ -53,6 +53,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationDropOnInput">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestDropOnInput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestSubProcess">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SubProcess.sh"/>
     <use   name="FWCore/Utilities"/>

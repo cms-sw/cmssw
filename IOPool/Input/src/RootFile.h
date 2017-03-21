@@ -227,7 +227,7 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     std::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const;
+    void markBranchToBeDropped(bool dropDescendants, BranchDescription const& branch, std::set<BranchID>& branchesToDrop, std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType);
     void readParentageTree(InputType inputType);
     void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType); // backward compatibility
