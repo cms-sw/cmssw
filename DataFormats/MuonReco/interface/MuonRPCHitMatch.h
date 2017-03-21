@@ -4,13 +4,14 @@
 #include <cmath>
 
 namespace reco {
-   class MuonRPCHitMatch {
+  class MuonRPCHitMatch {
       public:
          float x;              // X position of the matched segment
          unsigned int mask;    // arbitration mask
          int bx;               // bunch crossing
-
-	 MuonRPCHitMatch():x(0),mask(0),bx(0){}
+	 float y;              // y coordinate for iRPCs
+	 float time;           // precise time for iRPCs
+  MuonRPCHitMatch():x(0),mask(0),bx(0),y(0),time(0){}
    };
 }
 
