@@ -31,12 +31,11 @@ caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalor
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
 caloStage2Params.egShapeIdType              = cms.string("compressed")
 caloStage2Params.egShapeIdVersion           = cms.uint32(0)
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
-
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")#Not used any more in the current emulator version, merged with calibration LUT
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
 #caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.07.29.txt")
-caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.08.08.txt") # new SK Sep '16
+caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsolationLUT_v17.02.18.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
@@ -46,8 +45,7 @@ caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
 caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation window in firmware goes up to abs(ieta)=32 for now
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
-caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v16.03.14.txt")
-
+caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v17.02.18_shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
 
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
@@ -57,9 +55,9 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                    = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
-caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
-caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_NewLayer1Calibration_SK1616_EmuOldFormat_v11.0.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v8.0.0.txt")
+caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v8.0.0.txt")
+caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_2017_Layer1Calibration_FW_v11.0.0.txt")
 caloStage2Params.tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 
@@ -71,9 +69,10 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 
 # Calibration options
 # function6PtParams22EtaBins or None
-#caloStage2Params.jetCalibrationType    = cms.string("None")
-#caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("LUT")
+# caloStage2Params.jetCalibrationType    = cms.string("None")
+# caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
+caloStage2Params.jetCalibrationType = cms.string("functionErf11PtParams16EtaBins")
+# caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
@@ -107,7 +106,40 @@ jetCalibParamsVector.extend([
         1,0,1,0,1,1,1.37830172245,1024,
         1,0,1,0,1,1,1.36123039014,1024
 ])
-caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
+# this vector corresponds to "function8PtParams22EtaBins"
+# caloStage2Params.jetCalibrationParams  = jetCalibParamsVector  
+
+
+# vector with 11 parameters for each eta bin
+# each eta bin represented by a new line, starting at first eta bin
+# the first seven parameters of a line are the 7 parameters for the correction function
+# the next four parameters are:
+# 1. the function value at the minimum pt of fit
+# 2. the minimum pt of the fit
+# 3. the function value at the maximum pt of the fit
+# 4. the maximum pt of the fit
+jetCalibParamsVector16 = cms.vdouble()
+jetCalibParamsVector16.extend([ 
+        1.2931, -1.398e+06, 6.09656e-08, 0.725755, -5.38716e-07, -3.40806, 1.31608, 2.08678, 19.587, 1.09283, 649.338, 
+        1.31069, -1.46535e+06, 6.40139e-08, 0.903274, -5.38967e-07, -3.5372, 1.31318, 2.15636, 18.4244, 1.1101, 633.54, 
+        1.29052, -1.23346e+06, 4.89144e-08, 0.754995, -6.997e-07, -2.71405, 1.223, 2.22599, 18.2578, 1.15074, 663.791, 
+        1.19118, -748138, 2.46431e-09, -0.315317, -1.59196e-06, -1.74636, 1.01454, 2.22705, 25.0086, 1.18948, 646.903, 
+        1.09348, -1.18135e+06, -6.02111e-09, -1.0158, -1.40543e-06, -1.39134, 0.792196, 2.12615, 28.6461, 1.13239, 574.203, 
+        1.17443, -1.33589e+06, 7.75662e-08, 1.46473, -6.47983e-07, -3.13498, 1.17014, 2.04336, 23.6199, 1.03805, 437.174, 
+        1.16636, -1.21175e+06, 6.18082e-08, 1.41557, -7.8438e-07, -2.09711, 1.05929, 2.0897, 21.5368, 1.05125, 630.619, 
+        1.13949, -1.09162e+06, 5.5306e-08, 1.09139, -7.67904e-07, -1.93963, 1.13944, 2.05669, 17.394, 1.02673, 644.078, 
+        1.12711, -1.08492e+06, 4.71761e-08, 0.873853, -8.86642e-07, -1.535, 1.00765, 2.07833, 18.748, 1.02498, 613.047, 
+        0.3138, -456006, -3.49199e-06, 2.96106, -1.05403e-05, -0.307267, 0.491321, 1.74198, 22.5035, 1.06579, 276.679, 
+        0.247104, -696099, -4.05576e-06, 3.80007, -1.61256e-05, -0.124935, -0.244893, 1.60903, 27.9737, 1.06, 277.597, 
+        10.8027, -3.95478e+08, -2.38679e-09, 12.2808, -5.8088e-09, -0.579212, 0.950056, 1.50119, 30.322, 1.0339, 291.417, 
+        -7.94334, -1.17259e+08, -1.23506e-10, 385.018, -7.00971e-08, 0.000459177, 34.9532, 1.16265, 61.5647, 0.926645, 209.196, 
+        7.11338, -3.55228e+08, -1.14879e-09, 47.1441, -3.60311e-08, 0.0853058, 2.26173, 1.03403, 48.9575, 0.846677, 111.796, 
+        7.18481, -3.9883e+08, -1.14597e-09, 47.9492, -3.80535e-08, 0.0267988, 2.70412, 1.01369, 34.0642, 0.835839, 113.372, 
+        7.27504, -4.83419e+08, -1.14447e-09, 46.0531, -3.71605e-08, 0.0158836, 3.53306, 1.11904, 30.5118, 0.856453, 80.149,   
+])
+# this vector corresponds to "functionErf11PtParams16EtaBins"
+caloStage2Params.jetCalibrationParams  = jetCalibParamsVector16
+
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
 caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_eta.txt")
