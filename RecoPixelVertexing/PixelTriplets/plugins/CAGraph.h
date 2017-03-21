@@ -4,9 +4,6 @@
 #include <vector>
 #include <array>
 #include <string>
-#include <queue>
-#include <functional>
-#include "CACell.h"
 
 struct CALayer
 {
@@ -58,8 +55,7 @@ struct CALayerPair
 	}
 
 	std::array<int, 2> theLayers;
-	std::array<unsigned int, 2> theFoundCells;
-
+	std::array<unsigned int, 2> theFoundCells= {{0,0}};
 };
 
 struct CAGraph
@@ -67,7 +63,6 @@ struct CAGraph
 	std::vector<CALayer> theLayers;
 	std::vector<CALayerPair> theLayerPairs;
 	std::vector<int> theRootLayers;
-
 };
 
 #endif /* CAGRAPH_H_ */

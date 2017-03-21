@@ -1,12 +1,14 @@
 #include "CellularAutomaton.h"
 
+#include<queue>
+
+
 void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *>& hitDoublets, const TrackingRegion& region,
 		const float thetaCut, const float phiCut, const float hardPtCut)
 {
         int tsize=0;
         for ( auto hd :  hitDoublets) tsize+=hd->size();
         allCells.reserve(tsize);
-        allStatus.resize(tsize);
         unsigned int cellId = 0;
 	float ptmin = region.ptMin();
 	float region_origin_x = region.origin().x();
@@ -99,50 +101,53 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
 
 void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
 {
-	unsigned int numberOfIterations = minHitsPerNtuplet - 2;
-	// keeping the last iteration for later
-	for (unsigned int iteration = 0; iteration < numberOfIterations - 1;
-			++iteration)
+  allStatus.resize(allCells.size());
+  
+  
+  unsigned int numberOfIterations = minHitsPerNtuplet - 2;
+  // keeping the last iteration for later
+  for (unsigned int iteration = 0; iteration < numberOfIterations - 1;
+       ++iteration)
+    {
+      for (auto& layerPair : theLayerGraph.theLayerPairs)
 	{
-		for (auto& layerPair : theLayerGraph.theLayerPairs)
-		{
-		  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
-			{
-			  allCells[i].evolve(i,allStatus);
-			}
-		}
-
-		for (auto& layerPair : theLayerGraph.theLayerPairs)
-		{
-		  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
-			{
-			  allStatus[i].updateState();
-			}
-		}
-
+	  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
+	    {
+	      allCells[i].evolve(i,allStatus);
+	    }
 	}
-
-	//last iteration
-
-
-	for(int rootLayerId : theLayerGraph.theRootLayers)
+      
+      for (auto& layerPair : theLayerGraph.theLayerPairs)
 	{
-		for(int rootLayerPair: theLayerGraph.theLayers[rootLayerId].theOuterLayerPairs)
-		{
-		  auto foundCells = theLayerGraph.theLayerPairs[rootLayerPair].theFoundCells;
-		  for (auto i =foundCells[0]; i<foundCells[1]; ++i)
-			{
-			  auto & cell =  allStatus[i];
-			  allCells[i].evolve(i,allStatus);
-			  cell.updateState();
-			  if (cell.isRootCell(minHitsPerNtuplet - 2))
-			    {
-			      theRootCells.push_back(i);
-			    }
-			}
-		}
+	  for (auto i =layerPair.theFoundCells[0]; i<layerPair.theFoundCells[1]; ++i)
+	    {
+	      allStatus[i].updateState();
+	    }
 	}
+      
+    }
 
+  //last iteration
+  
+  
+  for(int rootLayerId : theLayerGraph.theRootLayers)
+    {
+      for(int rootLayerPair: theLayerGraph.theLayers[rootLayerId].theOuterLayerPairs)
+	{
+	  auto foundCells = theLayerGraph.theLayerPairs[rootLayerPair].theFoundCells;
+	  for (auto i =foundCells[0]; i<foundCells[1]; ++i)
+	    {
+	      auto & cell =  allStatus[i];
+	      allCells[i].evolve(i,allStatus);
+	      cell.updateState();
+	      if (cell.isRootCell(minHitsPerNtuplet - 2))
+		{
+		  theRootCells.push_back(i);
+		}
+	    }
+	}
+    }
+  
 }
 
 void CellularAutomaton::findNtuplets(
@@ -168,7 +173,6 @@ void CellularAutomaton::findTriplets(const std::vector<const HitDoublets*>& hitD
         int tsize=0;
         for ( auto hd :  hitDoublets) tsize+=hd->size();
         allCells.reserve(tsize);
-        allStatus.resize(tsize);
 
         unsigned int cellId = 0;
 	float ptmin = region.ptMin();
