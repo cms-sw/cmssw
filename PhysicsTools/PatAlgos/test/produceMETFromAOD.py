@@ -1,7 +1,5 @@
-from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
+from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process, patAlgosToolsTask
 
-# Set the process options -- Display summary at the end, enable unscheduled execution
-process.options.allowUnscheduled = cms.untracked.bool(True)
 process.options.wantSummary = cms.untracked.bool(False) 
 
 # How many events to process
@@ -69,6 +67,7 @@ if not useHFCandidates:
                                      src=cms.InputTag("packedPFCandidates"),
                                      cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
                                      )
+    patAlgosToolsTask.add(process.noHFCands)
 
 #jets are rebuilt from those candidates by the tools, no need to do anything else
 ### =================================================================================
@@ -76,7 +75,11 @@ if not useHFCandidates:
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff")
+patAlgosToolsTask.add(process.makePatJetsTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi")
+patAlgosToolsTask.add(process.selectedPatJets)
+
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 runMETCorrectionsAndUncertainties(process,

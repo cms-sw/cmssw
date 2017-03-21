@@ -88,48 +88,50 @@ muPFMeanDRIsoValuePU04PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
 muPFSumDRIsoValuePU04PAT = _m.muPFSumDRIsoValuePU04PFBRECO.clone()
 muPFSumDRIsoValuePU04PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
 
-muonPFIsolationValuesPATSequence = (
-    muPFIsoValueCharged03PAT+
-    muPFMeanDRIsoValueCharged03PAT+
-    muPFSumDRIsoValueCharged03PAT+
-    muPFIsoValueChargedAll03PAT+
-    muPFMeanDRIsoValueChargedAll03PAT+
-    muPFSumDRIsoValueChargedAll03PAT+
-    muPFIsoValueGamma03PAT+
-    muPFMeanDRIsoValueGamma03PAT+
-    muPFSumDRIsoValueGamma03PAT+
-    muPFIsoValueNeutral03PAT+
-    muPFMeanDRIsoValueNeutral03PAT+
-    muPFSumDRIsoValueNeutral03PAT+
-    muPFIsoValueGammaHighThreshold03PAT+
-    muPFMeanDRIsoValueGammaHighThreshold03PAT+
-    muPFSumDRIsoValueGammaHighThreshold03PAT+
-    muPFIsoValueNeutralHighThreshold03PAT+
-    muPFMeanDRIsoValueNeutralHighThreshold03PAT+
-    muPFSumDRIsoValueNeutralHighThreshold03PAT+
-    muPFIsoValuePU03PAT+
-    muPFMeanDRIsoValuePU03PAT+
-    muPFSumDRIsoValuePU03PAT+
+muonPFIsolationValuesPATTask = cms.Task(
+    muPFIsoValueCharged03PAT,
+    muPFMeanDRIsoValueCharged03PAT,
+    muPFSumDRIsoValueCharged03PAT,
+    muPFIsoValueChargedAll03PAT,
+    muPFMeanDRIsoValueChargedAll03PAT,
+    muPFSumDRIsoValueChargedAll03PAT,
+    muPFIsoValueGamma03PAT,
+    muPFMeanDRIsoValueGamma03PAT,
+    muPFSumDRIsoValueGamma03PAT,
+    muPFIsoValueNeutral03PAT,
+    muPFMeanDRIsoValueNeutral03PAT,
+    muPFSumDRIsoValueNeutral03PAT,
+    muPFIsoValueGammaHighThreshold03PAT,
+    muPFMeanDRIsoValueGammaHighThreshold03PAT,
+    muPFSumDRIsoValueGammaHighThreshold03PAT,
+    muPFIsoValueNeutralHighThreshold03PAT,
+    muPFMeanDRIsoValueNeutralHighThreshold03PAT,
+    muPFSumDRIsoValueNeutralHighThreshold03PAT,
+    muPFIsoValuePU03PAT,
+    muPFMeanDRIsoValuePU03PAT,
+    muPFSumDRIsoValuePU03PAT,
     ##############################
-    muPFIsoValueCharged04PAT+
-    muPFMeanDRIsoValueCharged04PAT+
-    muPFSumDRIsoValueCharged04PAT+
-    muPFIsoValueChargedAll04PAT+
-    muPFMeanDRIsoValueChargedAll04PAT+
-    muPFSumDRIsoValueChargedAll04PAT+
-    muPFIsoValueGamma04PAT+
-    muPFMeanDRIsoValueGamma04PAT+
-    muPFSumDRIsoValueGamma04PAT+
-    muPFIsoValueNeutral04PAT+
-    muPFMeanDRIsoValueNeutral04PAT+
-    muPFSumDRIsoValueNeutral04PAT+
-    muPFIsoValueGammaHighThreshold04PAT+
-    muPFMeanDRIsoValueGammaHighThreshold04PAT+
-    muPFSumDRIsoValueGammaHighThreshold04PAT+
-    muPFIsoValueNeutralHighThreshold04PAT+
-    muPFMeanDRIsoValueNeutralHighThreshold04PAT+
-    muPFSumDRIsoValueNeutralHighThreshold04PAT+
-    muPFIsoValuePU04PAT+
-    muPFMeanDRIsoValuePU04PAT+
+    muPFIsoValueCharged04PAT,
+    muPFMeanDRIsoValueCharged04PAT,
+    muPFSumDRIsoValueCharged04PAT,
+    muPFIsoValueChargedAll04PAT,
+    muPFMeanDRIsoValueChargedAll04PAT,
+    muPFSumDRIsoValueChargedAll04PAT,
+    muPFIsoValueGamma04PAT,
+    muPFMeanDRIsoValueGamma04PAT,
+    muPFSumDRIsoValueGamma04PAT,
+    muPFIsoValueNeutral04PAT,
+    muPFMeanDRIsoValueNeutral04PAT,
+    muPFSumDRIsoValueNeutral04PAT,
+    muPFIsoValueGammaHighThreshold04PAT,
+    muPFMeanDRIsoValueGammaHighThreshold04PAT,
+    muPFSumDRIsoValueGammaHighThreshold04PAT,
+    muPFIsoValueNeutralHighThreshold04PAT,
+    muPFMeanDRIsoValueNeutralHighThreshold04PAT,
+    muPFSumDRIsoValueNeutralHighThreshold04PAT,
+    muPFIsoValuePU04PAT,
+    muPFMeanDRIsoValuePU04PAT,
     muPFSumDRIsoValuePU04PAT
     )
+
+muonPFIsolationValuesPATSequence = cms.Sequence(muonPFIsolationValuesPATTask)

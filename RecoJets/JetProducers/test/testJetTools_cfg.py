@@ -1,3 +1,11 @@
+# As of 1 Feb 2017:
+# This configuration is already broken. Probably it
+# was broken when a tagAlgo option was removed from
+# RecoJets/JetProducers/plugins/CATopJetProducer.cc.
+# For this reason, it was not converted to use Tasks.
+# If that problem is ever fixed, it will also need to
+# be migrated to use Tasks.
+
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## switch to uncheduled mode
