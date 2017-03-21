@@ -18,7 +18,7 @@
   <Constant name="dzS06B"       value="9.7625*cm"/>
   <Constant name="dzS07B"       value="9.7625*cm"/>
   <Constant name="dzS08B"       value="9.7625*cm"/>
-  <Constant name="dzGap1"       value="0.1000*mm"/>
+  <Constant name="dzGap1"       value="0.2500*mm"/>
   <Constant name="dzGap2"       value="17.750*mm"/>
   <Constant name="dzInF"        value="([dzS01F]+[dzS02F]+[dzS03F]+[dzS04F]+[dzS05F]+[dzS06F]+[dzS07F]+[dzS08F]+4*[dzGap1]+3*[dzGap2])"/>
   <Constant name="dzInB"        value="([dzS01B]+[dzS02B]+[dzS03B]+[dzS04B]+[dzS05B]+[dzS06B]+[dzS07B]+[dzS08B]+4*[dzGap1]+3*[dzGap2])"/>
