@@ -24,9 +24,7 @@ class ESDigiToRaw : public edm::stream::EDProducer<> {
   ESDigiToRaw(const edm::ParameterSet& ps);
   virtual ~ESDigiToRaw();
   
-  void beginJob() ;
   void produce(edm::Event& e, const edm::EventSetup& es) override;
-  void endJob() ;
 
   typedef uint32_t Word32;
   typedef uint64_t Word64;
