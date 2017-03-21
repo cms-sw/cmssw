@@ -215,7 +215,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('addToPatDefaultSequence',addToPatDefaultSequence),
         self.setParameter('jetSelection',jetSelection),
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
+        self.setParameter('reclusterJets',reclusterJets),
         self.setParameter('reapplyJEC',reapplyJEC),
+        self.setParameter('CHS',CHS),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
@@ -997,6 +999,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         return shiftedMetProducers
 
+
 #========================================================================================
     def copyCentralMETProducer(self, process, shiftedCollModules, identifier, metModName, varType, postfix):
         
@@ -1413,19 +1416,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCHS=None
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
+                setattr(process,"pfNoPileUpJME"+postfix,pfCHS)
+                pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
             else:
-                setattr( process, "tmpPFCandCollPtr", cms.EDProducer("PFCandidateFwdPtrProducer",
+                setattr( process, "tmpPFCandCollPtr"+postfix, cms.EDProducer("PFCandidateFwdPtrProducer",
                                                                      src = pfCandCollection ) )
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix )
-                getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr")
-                pfCHS = getattr(process, "pfNoPileUpJME").clone( bottomCollection = cms.InputTag("tmpPFCandCollPtr") )
-            
-            if not hasattr(process, "pfCHS"+postfix):
-                setattr(process,"pfCHS"+postfix,pfCHS)
-                patMetModuleSequence += getattr(process, "pfCHS"+postfix)
-            pfCandColl = cms.InputTag("pfCHS"+postfix)
-                   
+                getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
+                setattr(process, "pfNoPileUpJME"+postfix,
+                        getattr(process, "pfNoPileUpJME"+postfix).clone( 
+                        bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) )
+                        )
+                pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
@@ -1482,7 +1485,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
             addMETCollection(process,
                              labelName = "patCaloMet",
-                             metSource = "metrawCalo"+postfix if not self._parameters["Puppi"].value else "metrawCalo" 
+                             metSource = "metrawCalo"
                              )
             getattr(process,"patCaloMet").addGenMET = False
 
