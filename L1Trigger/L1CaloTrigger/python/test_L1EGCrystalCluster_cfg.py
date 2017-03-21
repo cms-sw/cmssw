@@ -15,10 +15,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-    # In DAS see: file dataset=/RelValZEE_14/CMSSW_9_0_0_pre2-90X_upgrade2023_realistic_v1_2023D4-v1/GEN-SIM-DIGI-RAW
-   #fileNames = cms.untracked.vstring('file:root://cmsxrootd.fnal.gov///store/relval/CMSSW_8_1_0_pre11/RelValSingleElectronPt35Extended/GEN-SIM-DIGI-RAW/PU25ns_81X_mcRun2_asymptotic_v5_2023D1PU140-v1/00000/0ADFD7B5-4277-E611-8E89-0025905A6132.root')
-   #fileNames = cms.untracked.vstring('file:root://cmsxrootd.fnal.gov///store/relval/CMSSW_9_0_0_pre2/RelValZEE_14/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v1_2023D4-v1/10000/48F2EE36-04C2-E611-AD16-0CC47A7C360E.root')
-   #fileNames = cms.untracked.vstring('file:/data/truggles/step2_ZEE_PU200_10ev_FEVTDEBUGHLT_customHigherPtTrackParticles-RERUN_L1T_TTAssociator_EcalEBtp_HGCtp.root')
+   # Set to do test run on official Phase-2 L1T Ntuples
    fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/PhaseIIFall16DR82-820_backport_L1TMC_v1.2.2/step2_ZEE_PU200_100ev_FEVTDEBUGHLT_customHigherPtTrackParticles.root')
 )
 
@@ -30,8 +27,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # Choose a 2023 geometry!
-process.load('Configuration.Geometry.GeometryExtended2023D7Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff') # Geom used by L1Trig, doesn't have Ecal EndCap, breaks CaloGeomHelper
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff') # Geom preferred by Phase-2 L1Trig
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
 

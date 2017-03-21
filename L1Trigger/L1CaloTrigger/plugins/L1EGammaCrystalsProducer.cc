@@ -42,7 +42,6 @@ Implementation:
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
 //#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1EGCrystalCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -82,7 +81,6 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       bool cluster_passes_electronWP98(float &cluster_pt, float &iso, float &e2x5, float &e5x5) const;
       bool cluster_passes_photonWP90(float &cluster_pt, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
 
-      CaloGeometryHelper geometryHelper;
       double EtminForStore;
       bool debug;
       bool useECalEndcap;
@@ -92,6 +90,13 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       //edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEEToken_;
       edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
+
+      edm::ESHandle<CaloGeometry> caloGeometry_;
+      const CaloSubdetectorGeometry * ebGeometry;
+      //const CaloSubdetectorGeometry * eeGeometry; // unused a.t.m.
+      const CaloSubdetectorGeometry * hbGeometry;
+      //const CaloSubdetectorGeometry * heGeometry; // unused a.t.m.
+
       boost::property_tree::ptree towerMap;
       bool useTowerMap;
       std::string towerMapName;
@@ -173,23 +178,11 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
 
 void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if ( geometryHelper.getEcalBarrelGeometry() == nullptr )
-   {
-      edm::ESHandle<CaloTopology> theCaloTopology;
-      iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-      edm::ESHandle<CaloGeometry> pG;
-      iSetup.get<CaloGeometryRecord>().get(pG);
-      double bField000 = 4.;
-      if ( !pG.isValid() || !theCaloTopology.isValid() ) { std::cout << "Bad times" << std::endl;
-        return;}
-      else {
-      geometryHelper.setupGeometry(*pG);
-      geometryHelper.setupTopology(*theCaloTopology);
-      std::cout << "Pre-Initialize Geometry Helper" << std::endl;
-      geometryHelper.initialize(bField000);
-      std::cout << "Post-Initialize Geometry Helper" << std::endl;
-      }
-   }
+
+   // Get calo geometry info split by subdetector
+   iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
+   ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+   hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
    
    std::vector<SimpleCaloHit> ecalhits;
    std::vector<SimpleCaloHit> hcalhits;
@@ -211,7 +204,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             float et = hit.encodedEt()/8.; // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
             if (et < 0.5) continue; // keep the 500 MeV ET Cut
 
-            auto cell = geometryHelper.getEcalBarrelGeometry()->getGeometry(hit.id());
+            auto cell = ebGeometry->getGeometry(hit.id());
             SimpleCaloHit ehit;
             ehit.id = hit.id();
             // So, apparently there are (at least) two competing basic vector classes being tossed around in
@@ -294,7 +287,13 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    //      if ( hit.SOI_compressedEt() > 0 ) // SOI_compressedEt() Compressed ET for the "Sample of Interest"
    //        // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
    //      {
-   //         auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
+   //         std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
+   //         //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
+   //         //for ( auto vHitID : validHbIds ) {
+   //         auto cell = hbGeometry->getGeometry(hit.id());
+   //         std::cout << "Hit ID: " << hit.id() << std::endl;
+   //         std::cout << "HCAL Geo: " << hbGeometry << std::endl;
+   //         std::cout << "Hit x, y, z: " << cell->getPosition().x() << ", " << cell->getPosition().y() << ", " << cell->getPosition().z() << std::endl;
    //         SimpleCaloHit hhit;
    //         hhit.id = hit.id();
    //         hhit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
