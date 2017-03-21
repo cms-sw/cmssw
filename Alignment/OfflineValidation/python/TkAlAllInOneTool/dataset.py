@@ -15,10 +15,11 @@ from TkAlExceptions import AllInOneError
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
                   cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"],
-                  magneticfield = None):
+                  magneticfield = None, dasinstance = None):
         self.__name = datasetName
         self.__origName = datasetName
         self.__dasLimit = dasLimit
+        self.__dasinstance = dasinstance
         self.__fileList = None
         self.__fileInfoList = None
         self.__runList = None
@@ -223,6 +224,8 @@ class Dataset(object):
             files = ""
         else:
             splitFileList = list( self.__chunks( self.fileList(firstRun=firstRun, lastRun=lastRun, forcerunselection=forcerunselection), 255 ) )
+            if not splitFileList:
+                raise AllInOneError("No files found for dataset {}.  Check the spelling, or maybe specify another das instance?".format(self.__name))
             fileStr = [ "',\n'".join( files ) for files in splitFileList ]
             fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
                         for files in fileStr ]
@@ -395,8 +398,8 @@ class Dataset(object):
                         return datatype
                 return "unknown"
 
-        dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
-                          'dataset.name'%( self.__name ) )
+        dasQuery_type = ( 'dataset dataset=%s instance=%s | grep dataset.datatype,'
+                          'dataset.name'%( self.__name, self.__dasinstance ) )
         data = self.__getData( dasQuery_type )
 
         try:
@@ -409,7 +412,7 @@ class Dataset(object):
             return "unknown"
 
     def __getParentDataset( self ):
-        dasQuery = "parent dataset=" + self.__name
+        dasQuery = "parent dataset=" + self.__name + " instance="+self.__dasinstance
         data = self.__getData( dasQuery )
         try:
             return self.__findInJson(data, ["parent", "name"])
@@ -466,8 +469,10 @@ class Dataset(object):
         if self.__dataType == "data":
             return "MagneticField"
 
-        dasQuery_B = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
-        data = self.__getData( dasQuery_B )                               #it seems to be there for the newer (7X) MC samples, except cosmics
+        #try to find the magnetic field from DAS
+        #it seems to be there for the newer (7X) MC samples, except cosmics
+        dasQuery_B = ('dataset dataset=%s instance=%s'%(self.__name, self.__dasinstance))
+        data = self.__getData( dasQuery_B )
 
         try:
             Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
@@ -522,7 +527,7 @@ class Dataset(object):
                         return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
-            dasQuery = ('run = %s'%run)                         #for data
+            dasQuery = ('run=%s instance=%s'%(run, self.__dasinstance))                         #for data
             data = self.__getData(dasQuery)
             try:
                 return self.__findInJson(data, ["run","bfield"])
@@ -580,9 +585,9 @@ class Dataset(object):
             searchdataset = self.parentDataset()
         else:
             searchdataset = self.__name
-        dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
+        dasQuery_files = ( 'file dataset=%s instance=%s | grep file.name, file.nevents, '
                            'file.creation_time, '
-                           'file.modification_time'%( searchdataset ) )
+                           'file.modification_time'%( searchdataset, self.__dasinstance ) )
         print "Requesting file information for '%s' from DAS..."%( searchdataset ),
         sys.stdout.flush()
         data = self.__getData( dasQuery_files, dasLimit )
@@ -623,8 +628,8 @@ class Dataset(object):
     def __getRunList( self ):
         if self.__runList:
             return self.__runList
-        dasQuery_runs = ( 'run dataset=%s | grep run.run_number,'
-                          'run.creation_time'%( self.__name ) )
+        dasQuery_runs = ( 'run dataset=%s instance=%s | grep run.run_number,'
+                          'run.creation_time'%( self.__name, self.__dasinstance ) )
         print "Requesting run information for '%s' from DAS..."%( self.__name ),
         sys.stdout.flush()
         data = self.__getData( dasQuery_runs )
@@ -667,7 +672,7 @@ class Dataset(object):
             for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months after begin
                 firstdate = lastdate
                 lastdate = self.__dateString(self.__datetime(firstdate) + datetime.timedelta(delta))
-                dasQuery_begin = "run date between[%s,%s]" % (firstdate, lastdate)
+                dasQuery_begin = "run date between[%s,%s] instance=%s" % (firstdate, lastdate, self.__dasinstance)
                 begindata = self.__getData(dasQuery_begin)
                 if len(begindata) > 0:
                     begindata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
@@ -690,7 +695,7 @@ class Dataset(object):
             for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months before end
                 lastdate = firstdate
                 firstdate = self.__dateString(self.__datetime(lastdate) - datetime.timedelta(delta))
-                dasQuery_end = "run date between[%s,%s]" % (firstdate, lastdate)
+                dasQuery_end = "run date between[%s,%s] instance=%s" % (firstdate, lastdate, self.__dasinstance)
                 enddata = self.__getData(dasQuery_end)
                 if len(enddata) > 0:
                     enddata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
