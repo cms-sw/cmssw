@@ -50,6 +50,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         void checkConsistency(const HGCalTriggerGeometryBase::es_info& );
         void setTreeModuleSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
+        void setTreeTriggerCellNeighborSize(const size_t n);
 
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;
@@ -85,6 +86,13 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         float triggerCellX_      ;
         float triggerCellY_      ;
         float triggerCellZ_      ;
+        int triggerCellNeighbor_N_;
+        std::shared_ptr<int>   triggerCellNeighbor_id_    ;
+        std::shared_ptr<int>   triggerCellNeighbor_zside_ ;
+        std::shared_ptr<int>   triggerCellNeighbor_subdet_;
+        std::shared_ptr<int>   triggerCellNeighbor_layer_ ;
+        std::shared_ptr<int>   triggerCellNeighbor_wafer_;
+        std::shared_ptr<int>   triggerCellNeighbor_cell_  ;
         int   triggerCellCell_N_ ;
         std::shared_ptr<int>   triggerCellCell_id_    ;
         std::shared_ptr<int>   triggerCellCell_zside_ ;
@@ -165,10 +173,23 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
     treeTriggerCells_->Branch("x"              , &triggerCellX_             , "x/F");
     treeTriggerCells_->Branch("y"              , &triggerCellY_             , "y/F");
     treeTriggerCells_->Branch("z"              , &triggerCellZ_             , "z/F");
+    treeTriggerCells_->Branch("neighbor_n"     , &triggerCellNeighbor_N_    , "neighbor_n/I");
+    triggerCellNeighbor_id_ .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_zside_ .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_subdet_ .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_layer_ .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_wafer_ .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_cell_  .reset(new int[1],   array_deleter<int>());
+    treeTriggerCells_->Branch("neighbor_id", triggerCellNeighbor_id_.get(), "neighbor_id[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_zside", triggerCellNeighbor_zside_.get()  , "neighbor_zside[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_subdet", triggerCellNeighbor_subdet_.get() , "neighbor_subdet[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_layer", triggerCellNeighbor_layer_.get()  , "neighbor_layer[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_wafer", triggerCellNeighbor_wafer_.get()  , "neighbor_wafer[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_cell", triggerCellNeighbor_cell_.get()   , "neighbor_cell[neighbor_n]/I");
     treeTriggerCells_->Branch("c_n"            , &triggerCellCell_N_        , "c_n/I");
     triggerCellCell_id_    .reset(new int[1],   array_deleter<int>());
     triggerCellCell_zside_ .reset(new int[1],   array_deleter<int>());
-    triggerCellCell_subdet_ .reset(new int[0],   array_deleter<int>());
+    triggerCellCell_subdet_ .reset(new int[1],   array_deleter<int>());
     triggerCellCell_layer_ .reset(new int[1],   array_deleter<int>());
     triggerCellCell_wafer_ .reset(new int[1],   array_deleter<int>());
     triggerCellCell_cell_  .reset(new int[1],   array_deleter<int>());
@@ -371,6 +392,29 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             }
         }
     }
+
+    std::cout<<"Checking trigger cell neighbor consistency\n";
+    // Loop over trigger cells
+    for( const auto& triggercell_cells : triggercells_to_cells )
+    {
+        unsigned triggercell_id(triggercell_cells.first);
+        const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(triggercell_id);
+        for(const auto neighbor : neighbors)
+        {
+           const auto neighbors_of_neighbor = triggerGeometry_->getNeighborsFromTriggerCell(neighbor);
+           // check if the original cell is included in the neigbors of neighbor
+           if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
+           {
+              std::cout<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id) << "\n";
+              std::cout<<" But the opposite is not true\n";
+              std::cout<<" List of neighbors of neighbor = \n";
+              for(const auto neighbor_of_neighbor : neighbors_of_neighbor)
+              {
+                  std::cout<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
+              }
+           }
+        }
+    }
 }
 
 
@@ -378,8 +422,8 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
 void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase::es_info& info)
 /*****************************************************************/
 {
-   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
-   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
+    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
+    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
 
     // Loop over cells
     std::cout<<"Filling cells tree\n";
@@ -516,6 +560,22 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             triggerCellCell_z_     .get()[ic] = position.z();
             ic++;
         }
+        // Get neighbors
+        const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(id.rawId());
+        triggerCellNeighbor_N_ = neighbors.size();
+        setTreeTriggerCellNeighborSize(triggerCellNeighbor_N_);
+        size_t in = 0;
+        for(const auto neighbor : neighbors)
+        {
+            HGCalDetId nId(neighbor);
+            triggerCellNeighbor_id_.get()[in] = neighbor;
+            triggerCellNeighbor_zside_ .get()[in] = nId.zside();
+            triggerCellNeighbor_subdet_.get()[in] = nId.subdetId();
+            triggerCellNeighbor_layer_ .get()[in] = nId.layer();
+            triggerCellNeighbor_wafer_ .get()[in] = nId.wafer();
+            triggerCellNeighbor_cell_  .get()[in] = nId.cell();
+            in++;
+        }
         //
         treeTriggerCells_->Fill();
         // fill modules
@@ -622,6 +682,25 @@ void HGCalTriggerGeomTester::setTreeTriggerCellSize(const size_t n)
     treeTriggerCells_->GetBranch("c_z")      ->SetAddress(triggerCellCell_z_     .get());
 }
 
+
+
+/*****************************************************************/
+void HGCalTriggerGeomTester::setTreeTriggerCellNeighborSize(const size_t n) 
+/*****************************************************************/
+{
+    triggerCellNeighbor_id_.reset(new int[n],array_deleter<int>());
+    triggerCellNeighbor_zside_ .reset(new int[n],   array_deleter<int>());
+    triggerCellNeighbor_subdet_.reset(new int[n],   array_deleter<int>());
+    triggerCellNeighbor_layer_ .reset(new int[n],   array_deleter<int>());
+    triggerCellNeighbor_wafer_ .reset(new int[n],   array_deleter<int>());
+    triggerCellNeighbor_cell_  .reset(new int[n],   array_deleter<int>());
+    treeTriggerCells_->GetBranch("neighbor_id")->SetAddress(triggerCellNeighbor_id_.get());
+    treeTriggerCells_->GetBranch("neighbor_zside")  ->SetAddress(triggerCellNeighbor_zside_ .get());
+    treeTriggerCells_->GetBranch("neighbor_subdet") ->SetAddress(triggerCellNeighbor_subdet_.get());
+    treeTriggerCells_->GetBranch("neighbor_layer")  ->SetAddress(triggerCellNeighbor_layer_ .get());
+    treeTriggerCells_->GetBranch("neighbor_wafer")  ->SetAddress(triggerCellNeighbor_wafer_ .get());
+    treeTriggerCells_->GetBranch("neighbor_cell")   ->SetAddress(triggerCellNeighbor_cell_  .get());
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalTriggerGeomTester);
