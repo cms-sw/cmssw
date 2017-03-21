@@ -213,13 +213,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         # 'Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml',         # Phase-1 Muon
         'Geometry/MuonCommonData/data/mf/2023/v1/mf.xml',        # Phase-2 Muon
         'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',      # Phase-2 Muon
-        'Geometry/MuonCommonData/data/gemf.xml',      # Phase-2 Muon
-        'Geometry/MuonCommonData/data/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
-        'Geometry/MuonCommonData/data/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/gemf.xml',      # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/csc/2015/v1/csc.xml',
         # 'Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml',     # Phase-1 Muon
         'Geometry/MuonCommonData/data/mfshield/2023/v1/mfshield.xml',  # Phase-2 Muon
-        'Geometry/MuonCommonData/data/TDR_BaseLine/me0.xml',   # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/me0.xml',   # Phase-2 Muon
         # --- Muon ------------------------------------------------------------
 
         'Geometry/ForwardCommonData/data/forward.xml',
@@ -253,18 +253,18 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
 
         # --- Muon ------------------------------------------------------------
         # 'Geometry/MuonCommonData/data/muonNumbering/2015/v1/muonNumbering.xml',    # Phase-1 Muon
-        'Geometry/MuonCommonData/data/muonNumbering.xml', # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/muonNumbering.xml', # Phase-2 Muon
         # 'Geometry/MuonSimData/data/muonSens.xml',               # Phase-1 Muon
-        'Geometry/MuonSimData/data/muonSens.xml',         # Phase-2 Muon
+        'Geometry/MuonSimData/data/PhaseII/muonSens.xml',         # Phase-2 Muon
         'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
         'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
         # 'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',       # Phase-1 Muon
-        'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml', # Phase-2 Muon                   
+        'Geometry/RPCGeometryBuilder/data/PhaseII/RPCSpecs.xml', # Phase-2 Muon                   
         'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter.xml',   # Phase-2 Muon
         'Geometry/GEMGeometryBuilder/data/v5/GEMSpecs.xml',      # Phase-2 Muon
         # 'Geometry/MuonSimData/data/muonProdCuts.xml',          # Phase-1 Muon
-        'Geometry/MuonSimData/data/muonProdCuts.xml',    # Phase-2 Muon
+        'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',    # Phase-2 Muon
         # --- Muon ------------------------------------------------------------
 
         'Geometry/ForwardCommonData/data/brmsens.xml',
