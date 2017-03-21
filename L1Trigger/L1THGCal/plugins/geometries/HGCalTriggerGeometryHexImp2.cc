@@ -38,8 +38,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
     private:
         edm::FileInPath l1tCellsMapping_;
-        edm::FileInPath l1tCellNeighborMapping_;
-        edm::FileInPath l1tWaferNeighborMapping_;
+        edm::FileInPath l1tCellNeighborsMapping_;
+        edm::FileInPath l1tWaferNeighborsMapping_;
         edm::FileInPath l1tModulesMapping_;
 
         es_info es_info_;
@@ -81,8 +81,8 @@ HGCalTriggerGeometryHexImp2::
 HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
-    l1tCellNeighborMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborMapping")),
-    l1tWaferNeighborMapping_(conf.getParameter<edm::FileInPath>("L1TWaferNeighborMapping")),
+    l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
+    l1tWaferNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TWaferNeighborsMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 {
 }
@@ -105,8 +105,6 @@ void
 HGCalTriggerGeometryHexImp2::
 initialize(const es_info& esInfo)
 {
-    edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: There is no neighbor information.\n";
     es_info_ = esInfo;
     fillMaps(esInfo);
     fillNeighborMaps(esInfo);
@@ -549,9 +547,9 @@ HGCalTriggerGeometryHexImp2::
 fillNeighborMaps(const es_info& esInfo)
 {
     // Fill trigger neighbor map
-    std::ifstream l1tCellNeighborMappingStream(l1tCellNeighborMapping_.fullPath());
-    if(!l1tCellNeighborMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborMapping file\n";
-    for(std::array<char,512> buffer; l1tCellNeighborMappingStream.getline(&buffer[0], 512); )
+    std::ifstream l1tCellNeighborsMappingStream(l1tCellNeighborsMapping_.fullPath());
+    if(!l1tCellNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborsMapping file\n";
+    for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
     {
         std::string line(&buffer[0]);
         // Extract keys consisting of the wafer configuration
@@ -566,7 +564,7 @@ fillNeighborMaps(const es_info& esInfo)
         if(key_tokens.size()!=1)
         {
             throw cms::Exception("BadGeometry")
-                << "Syntax error in the L1TCellNeighborMapping:\n"
+                << "Syntax error in the L1TCellNeighborsMapping:\n"
                 << "  Cannot find the trigger cell key in line:\n"
                 << "  '"<<&buffer[0]<<"'\n";
         }
@@ -592,7 +590,7 @@ fillNeighborMaps(const es_info& esInfo)
         if(neighbors_tokens.size()==0)
         {
             throw cms::Exception("BadGeometry")
-                << "Syntax error in the L1TCellNeighborMapping:\n"
+                << "Syntax error in the L1TCellNeighborsMapping:\n"
                 << "  Cannot find any neighbor in line:\n"
                 << "  '"<<&buffer[0]<<"'\n";
         }
@@ -607,13 +605,13 @@ fillNeighborMaps(const es_info& esInfo)
             itr_insert.first->second.emplace(neighbor_wafer, neighbor_cell);
         }
     }
-    if(!l1tCellNeighborMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborMapping'\n";
-    l1tCellNeighborMappingStream.close();
+    if(!l1tCellNeighborsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborsMapping'\n";
+    l1tCellNeighborsMappingStream.close();
 
     // Fill wafer neighbor map
-    std::ifstream l1tWaferNeighborMappingStream(l1tWaferNeighborMapping_.fullPath());
-    if(!l1tWaferNeighborMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TWaferNeighborMapping file\n";
-    for(std::array<char,512> buffer; l1tWaferNeighborMappingStream.getline(&buffer[0], 512); )
+    std::ifstream l1tWaferNeighborsMappingStream(l1tWaferNeighborsMapping_.fullPath());
+    if(!l1tWaferNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TWaferNeighborsMapping file\n";
+    for(std::array<char,512> buffer; l1tWaferNeighborsMappingStream.getline(&buffer[0], 512); )
     {
         std::string line(&buffer[0]);
         // split line using spaces as delimiter
@@ -624,7 +622,7 @@ fillNeighborMaps(const es_info& esInfo)
         if(tokens.size()!=8)
         {
             throw cms::Exception("BadGeometry")
-                << "Syntax error in the L1TWaferNeighborMapping in line:\n"
+                << "Syntax error in the L1TWaferNeighborsMapping in line:\n"
                 << "  '"<<&buffer[0]<<"'\n"
                 << "  A line should be composed of 8 integers separated by spaces:\n"
                 << "  subdet waferid neighbor1 neighbor2 neighbor3 neighbor4 neighbor5 neighbor6\n";
@@ -643,7 +641,7 @@ fillNeighborMaps(const es_info& esInfo)
                 break;
             default:
                 throw cms::Exception("BadGeometry")
-                    << "Unknown subdet " << subdet << " in L1TWaferNeighborMapping:\n"
+                    << "Unknown subdet " << subdet << " in L1TWaferNeighborsMapping:\n"
                     << "  '"<<&buffer[0]<<"'\n";
         };
         auto wafer_itr = wafer_neighbors->emplace(wafer, std::vector<short>());
