@@ -138,4 +138,10 @@ def parsestyle(style):
     except (AttributeError, ValueError):
         pass
 
-    raise AllInOneError("style has to be an integer, a ROOT constant (kDashed, kStar, ...)!")
+    raise AllInOneError("style has to be an integer or a ROOT constant (kDashed, kStar, ...)!")
+
+def recursivesubclasses(cls):
+    result = [cls]
+    for subclass in cls.__subclasses__():
+        result += cls.__subclasses__()
+    return result

@@ -24,6 +24,7 @@ import stat
 import math
 import time
 from Alignment.OfflineValidation.TkAlAllInOneTool.presentationTemplates import *
+from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation import OfflineValidation
 
 subdetectors = ["BPIX", "FPIX", "TIB", "TOB", "TID", "TEC"]
 
@@ -102,6 +103,15 @@ def writeSubsection(identifier, title, validations):
         script = subsectionTemplate.replace('[title]', title)+script
     return script
 
+def writeSummarySection(validations):
+    script = ''
+    for validation in validations:
+        script += (summaryTemplate.replace('[title]', "Summary")
+                                  .replace('[summary]', OfflineValidation.summaryitemsstring(folder=validation.path, latex=True))
+                                  .replace("tabular", "longtable"))
+    if script != '':
+        script = subsectionTemplate.replace('[title]', "Summary")+script
+    return script
 
 # Write a page containing plots of given type.
 # Arguments: identifier: regular expression to get the wanted plots
@@ -188,6 +198,8 @@ def main():
     frames += writeSubsection('DrmsNY*R.*plain.eps$', 'DRnR', validations)
     # Surface Shapes
     frames += writeSubsection('SurfaceShape', 'Surface Shape', validations)
+    # Summary
+    frames += writeSummarySection(validations)
     # Additional plots
     #frames += writePageReg('YourRegExp', 'PageTitle', validations)
 
