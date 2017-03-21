@@ -20,7 +20,6 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -31,9 +30,13 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 process.load("TopQuarkAnalysis.Examples.TopElecAnalyzer_cfi")
 
@@ -43,5 +46,4 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path
-process.p1 = cms.Path(process.analyzeElec)
-
+process.p1 = cms.Path(process.analyzeElec, process.task)
