@@ -6,7 +6,6 @@ import argparse
 import datetime
 import getpass
 import logging
-import netrc
 import os
 import re
 import sys
@@ -18,11 +17,13 @@ import time
 import pwd
 import socket
 
+import calendar
 import sqlalchemy
 
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
 
+from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # -------------------------------------------------------------------------------------------------------
 
 # TODO: Diffs may look better in the -/+ mode, instead the 2 columns mode.
@@ -622,14 +623,11 @@ def _inserted_before(_IOV,timestamp):
 
     return _IOV.insertion_time <= _parse_timestamp(timestamp)
 
-
 def _high(n):
     return int(n) >> 32
 
-
 def _low(n):
     return int(n) & 0xffffffff
-
 
 def _convertTimeType(since):
     #try:
@@ -638,7 +636,6 @@ def _convertTimeType(since):
     #    return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
     # looks like the format of the lower part of the encoding is broken. Better ignore it...
     return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = 0))
-
 
 def _since_filter(time_type):
     '''Returns a filter function for the given time type that returns
@@ -663,6 +660,186 @@ def _since_filter(time_type):
 
     return lambda since: since
 
+def _get_hlt_fcsr( session, timeType ):
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    lastRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).scalar()
+    fcsr = lastRun+1
+    ret = _convert_time( session, timeType, fcsr )
+    if timeType == 'Run':
+        logging.info('Found fcsr for hlt: %s' %fcsr)
+    else:
+        logging.info('Found fcsr for hlt: %s ( %s as %s type )' %(fcsr,ret,timeType))
+    return ret
+
+def _get_prompt_fcsr( session, timeType ):
+    tier0timeout = 5
+    tier0retries = 3 
+    tier0retryPeriod = 5
+    tier0proxy = None
+    try:
+        t0DataSvc = Tier0Handler( tier0Url,
+                                  tier0timeout, tier0retries, tier0retryPeriod,
+                                  tier0proxy, False )
+        try:
+            fcsr = t0DataSvc.getFirstSafeRun()
+        except ValueError, e:
+            self.logdebug('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
+            # We got an answer but it is invalid. So far this usually means
+            # "None" which is not JSON, when the Tier0 is stopped.
+            raise Exception('invalid firstConditionSafeRun from Tier-0')
+        except Tier0Error:
+            # Impossible to get anything from the server after retries,
+            # i.e. unreachable, so no data.
+            raise Exception('Tier-0 is unreachable, i.e. no firstConditionSafeRun')
+    except Exception, e:
+        raise Exception('Error setting up Tier-0 data service: %s' %str(e))
+    ret = _convert_time( session, timeType, fcsr )
+    if timeType == 'Run':
+        logging.info('Found Tier0 fcsr for prompt: %s' %fcsr)
+    else:
+        logging.info('Found Tier0 fcsr for prompt: %s ( %s as %s type )' %(fcsr,ret,timeType))
+    return ret
+
+def _get_last_frozen_since( session, tagName, fcsr=None ):
+    IOV = session.get_dbtype(conddb.IOV)
+    query = session.query(sqlalchemy.func.max(IOV.since)).filter(IOV.tag_name == tagName )
+    if fcsr is not None:
+        query = query.filter(IOV.since<fcsr)
+    res = query.scalar()
+    logging.debug('Last frozen since in destination tag is %s' %res)
+    return res
+
+def _convert_time( session, toTimeType, runNumber ):
+    if toTimeType == 'Run':
+        return runNumber
+    elif toTimeType == 'Lumi':
+        lumiId = runNumber<<32|0x1
+        logging.debug('Run %s encoded in lumi id %s' %(runNumber,lumiId))
+        return lumiId
+    elif toTimeType == 'Time':
+        start, stop = runToTime( session, runNumber )
+        logging.debug('Run %s coverted in time (start) %s' %(runNumber,start))
+        timest = calendar.timegm( start.utctimetuple() ) << 32
+        return timest
+    else:
+        raise Exception('Cannot convert to runs to time type %s' %toTimeType)
+
+class hlt_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        session = conddb.getSessionOnMasterDB( session1, session2 )
+        self.fcsr = _get_hlt_fcsr( session, timeType  ) 
+        self.lastFrozenSince = _get_last_frozen_since( session2, destTag, self.fcsr ) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        late_iovs = []
+        for since in sorted(iovs.keys(),reverse=True):
+            if since >= self.fcsr:
+                new_iovs[since] = iovs[since]
+            else:
+                if self.lastFrozenSince is None or since > self.lastFrozenSince:
+                    if self.fcsr not in new_iovs.keys():
+                        new_iovs[self.fcsr] = iovs[since]
+                    else:
+                        late_iovs.append(since)
+                else:
+                    late_iovs.append(since)
+        nlate = len(late_iovs)
+        if nlate>0:
+            logging.warning('%s IOV(s) with since less than the hlt FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
+        return new_iovs
+
+class prompt_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        session = conddb.getSessionOnMasterDB( session1, session2 )
+        self.fcsr = _get_prompt_fcsr( session, timeType ) 
+        self.lastFrozenSince = _get_last_frozen_since( session2, destTag, self.fcsr ) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        late_iovs = []
+        for since in sorted(iovs.keys(),reverse=True):
+            if since >= self.fcsr:
+                new_iovs[since] = iovs[since]
+            else:
+                if self.lastFrozenSince is None or since > self.lastFrozenSince:
+                    if self.fcsr not in new_iovs.keys():
+                        new_iovs[self.fcsr] = iovs[since]
+                    else:
+                        late_iovs.append(since)
+                else:
+                    late_iovs.append(since)
+        nlate = len(late_iovs)
+        if nlate>0:
+            logging.warning('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
+        return new_iovs
+
+class pcl_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        session = conddb.getSessionOnMasterDB( session1, session2 )
+        self.fcsr = _get_prompt_fcsr(session, timeType) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        late_iovs = []
+        for since in sorted(iovs.keys(),reverse=True):
+            if since >= self.fcsr:
+                new_iovs[since] = iovs[since]
+            else:
+                late_iovs.append(since)
+        nlate = len(late_iovs)
+        if nlate>0:
+            logging.warning('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
+        return new_iovs
+         
+class mc_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        self.lastFrozenSince = _get_last_frozen_since( session2, destTag ) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        niovs = len(iovs)
+        if self.lastFrozenSince is None:
+            if 1 not in iovs.keys():
+                raise Exception( 'Could not find an iov with since 1 in the source tag.')
+            new_iovs[1] = iovs[1]
+            if niovs>1:
+                logging.warning('%s IOV(s) with since greater than the expected mc since=1 will be discarded.' %(niovs-1))
+        else:
+            if niovs>0:
+                logging.warning('%s The destination tag is frozen - no iov can be altered.' %niovs)
+        return new_iovs
+
+class offline_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        self.lastFrozenSince = _get_last_frozen_since( session2, destTag ) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        late_iovs = []
+        for since in sorted(iovs.keys(),reverse=True):
+            if self.lastFrozenSince is None or since > self.lastFrozenSince:
+                new_iovs[since] = iovs[since]
+            else:
+                late_iovs.append(since)
+        nlate = len(late_iovs)
+        if nlate>0:
+            logging.warning('%s IOV(s) with since less than the last since in the destination tag (%s) have been discarded.' %(nlate,self.lastFrozenSince) ) 
+        return new_iovs
+
+class no_synchro_policy( object ):
+    def __init__(self, session1=None, session2=None, timeType=None, destTag=None):
+        pass
+    
+    def validate( self, iovs ):
+        return iovs
+
+_synchro_map = { 'hlt': hlt_synchro_policy, 'express': hlt_synchro_policy, 'prompt': prompt_synchro_policy, 'pcl':pcl_synchro_policy, 
+                 'mc': mc_synchro_policy, 'offline': offline_synchro_policy, 'any':no_synchro_policy, 'validation':no_synchro_policy }
+def _get_synchro_policy( synchronization ):
+    if synchronization not in _synchro_map.keys():
+        raise Exception('Cannot handle synchronization %s' %synchronization)
+    return _synchro_map[synchronization]
 
 def listTags_(args):
     connection = connect(args)
@@ -905,7 +1082,7 @@ def diff(args):
     if not (is_tag1 and is_tag2) and not (is_global_tag1 and is_global_tag2):
         raise Exception('There are no tag or global tag pairs named %s and %s in the database(s).' % (args.first, args.second))
 
-def convertRunToTimes( fromRun, toRun ):
+def convertRunToTimes( session, fromRun, toRun ):
 
     fromTime = None
     fromLumi = None
@@ -913,11 +1090,11 @@ def convertRunToTimes( fromRun, toRun ):
     toLumi = None
     # the time we get may be a bit delayed (7-10 sec according to Salvatore) 
     if not fromRun is None:
-        startTime1, stopTime1 = runToTime( fromRun )
+        startTime1, stopTime1 = runToTime( session, fromRun )
         fromTime =  startTime1-15.
         fromLumi = fromRun<<32|0x1
     if not toRun is None:
-        startTime2, stopTime2 = runToTime( toRun )
+        startTime2, stopTime2 = runToTime( session, toRun )
         toTime = stopTime2+15.
         toLumi = toRun<<32|0x1
 
@@ -939,22 +1116,13 @@ def convertRunToTimes( fromRun, toRun ):
 
     return timeMap
 
-def runToTime(runNr):
+def runToTime(session, runNr):
 
-    connStr = conddb._getCMSFrontierSQLAlchemyConnectionString('PromptProd', 'CMS_CONDITIONS')
-    url = conddb.make_url( connStr, True )
-    connection = conddb.connect(url)
-    session = connection.session()
-
-    IOV = session.get_dbtype(conddb.IOV)
-
-    startIOV = session.query(IOV.insertion_time).filter(IOV.tag_name == 'runinfo_start_31X_hlt', IOV.since == runNr).all()
-    stopIOV  = session.query(IOV.insertion_time).filter(IOV.tag_name == 'runinfo_31X_hlt', IOV.since == runNr).all()
-
-    startTime = time.mktime( startIOV[0][0].timetuple() )
-    stopTime  = time.mktime( stopIOV [0][0].timetuple() )
-
-    return startTime, stopTime
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    bestRun = session.query(RunInfo.run_number,RunInfo.start_time, RunInfo.end_time).filter(RunInfo.run_number >= runNr).first()
+    if bestRun is None:
+        raise Exception('Run %s has not been found in the database.'%runNr)
+    return bestRun[1],bestRun[2]
 
 def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
     # run parameters
@@ -1013,11 +1181,13 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     destExists = False
     destPayloadType = None
     destTimeType = None
+    destSynchro = None
     for t in query:
         destExists = True
         t = _rawdict(t)
         destPayloadType = t['object_type']
         destTimeType = t['time_type']
+        destSynchro = t['synchronization']
 
     if destExists:
         logging.warning('Destination tag "%s" already exists.' %second )
@@ -1030,10 +1200,10 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
         if not args.yes and raw_input().lower() not in ['y', 'yes']:
             raise Exception('Aborted by the user.')
-        session2.merge(Tag2(name=second,modification_time=copyTime))
     else:
         session2.add(Tag2(**tag))
-        #session2.flush()
+        destSynchro = tag['synchronization']
+        destTimeType = tag['time_type']
         note = args.note 
         if note is None or note=='' or note==' ':
             note = '-'
@@ -1074,8 +1244,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
         for iov in query:
             iov = _rawdict(iov)
-            #iov['tag_name'] = second
-
+ 
             # In the first IOV of the tag we need to use the starting point given
             # by the user, instead of the one coming from the source tag; unless
             # the starting point was before any IOV: in such case, up to the first
@@ -1084,17 +1253,28 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             # the primary key is (since, insertion_time).
             if prev_iov is not None and iov['since'] == prev_iov:
                 iov['since'] = fromIOV
-                first_iov = False
-
             since = iov['since']
-        
+ 
             if since not in iovs.keys():
             # updating the insertion time to the execution time. 
             # Because of that, for a given since, only the most recent will be added.
                 iovs[since] = iov['payload_hash']
-                hashes.add( iov['payload_hash'] )
             else:
                 logging.warning('Skipping older iov with since %s...', since)
+        sourceIovSize = len(iovs)
+        logging.info('Selected %s source iov(s)' %sourceIovSize)
+        if args.synchronize:
+            # synchronize lower boundary when required
+            logging.info('Destination tag synchronization is %s' %destSynchro)
+            policy_type = _get_synchro_policy( destSynchro )
+            synchro_policy = policy_type( session1, session2, destTimeType, second )
+            iovs = synchro_policy.validate( iovs )
+
+         # making the list of the payloads to export...         
+        for since in iovs.keys():
+            hashes.add( iovs[since] )
+           
+        logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
     else:
         query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
         lastIov = None
@@ -1107,14 +1287,18 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                 if lastIov != since:
                     iovs[since] = iov['payload_hash']
                     hashes.add( iov['payload_hash'] )
-                    break 
-    logging.info('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
+                    break
+    logfun = logging.info 
+    if len(iovs)==0:
+        logfun = logging.warning
+    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
     # Copy the payloads referenced in the selected iovs
     np = 0
     for h in hashes:
         if _copy_payload( args, copyTime, session1, session2, h ):
             np += 1
-    logging.info('%s payload(s) copied.',np)
+    if not np==0:
+        logging.info('%s payload(s) copied.',np)
     # Calculate if extra iovs are needed - for the override mode ( they will have already their payloads copied )                        
     extraiovs = {}
     if args.override:
@@ -1137,20 +1321,23 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                     if newSince < since:
                         extraiovs[since] = iovs[newSince]
                         break
-    # Copy the set of IOVs collected        
-    niovs = 0
-    for k,v in iovs.items():
-        logging.debug('Copying IOV %s -> %s...', k, v)
-        session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
-        niovs += 1
+
+    # re-assemble the 2 iov set
     if len(extraiovs):
         logging.info('Adding %s extra iovs for overriding the existing ones with the payloads from the new iovs...' %len(extraiovs))
     if args.override and len(extraiovs)==0:
         logging.info('No extra iovs required for overriding the existing ones with the new ones.')
     for k,v in extraiovs.items():
+        iovs[k] = extraiovs[k]
+    
+    # Copy the set of IOVs collected        
+    session2.merge(Tag2(name=second,modification_time=copyTime))
+    niovs = 0
+    for k,v in iovs.items():
         logging.debug('Copying IOV %s -> %s...', k, v)
         session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
         niovs += 1
+
     return niovs
 
 def copy(args):
@@ -1180,20 +1367,23 @@ def copy(args):
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
         if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override or snapshot.')
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.synchronize:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, synchronize  or snapshot.')
+        if args.synchronize:
+            if args.override:
+                raise Exception('Overiding copy is not supported with the synchronization.')
 
         niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
 
-        _confirm_changes(args)
-        note = args.note
-        if args.force and args.note is None:
-            note = _get_user_note(args,'Force edit mode require an editing note to be provided: ')
-        if note is None or note=='' or note==' ':
-            note = '-'
-        _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
-        
-        session2.commit()
+        if niovs!=0:
+            _confirm_changes(args)
+            note = args.note
+            if args.force and args.note is None:
+                note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
+            if note is None or note=='' or note==' ':
+                note = '-'
+            _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
+            session2.commit()
 
 
     elif args.type == 'gt':
@@ -1201,7 +1391,8 @@ def copy(args):
             args.second = args.first
 
         # 'from' is a keyword!
-	timeMap = convertRunToTimes(getattr(args, 'from'), args.to)
+        session = getSessionOnMasterDB( session1, session2 )
+	timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
 
         logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
 
@@ -1385,6 +1576,8 @@ def edit(args):
                         description,synchronization,endOfValidity = editMatch.groups()
                         if synchronization not in tuple(conddb.Synchronization):
                             raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
+                        if int(endOfValidity)< -1:
+                            raise Exception('Invalid End Of Validity set: "%s"' %endOfValidity ) 
                     else:
                         raise Exception('Each line must contain the Description, Synchronization and End Of Validity fields in the required format.')
 
@@ -1809,6 +2002,7 @@ def main():
     parser_copy.add_argument('--override','-o', action='store_true', help='Override the existing iovs for the interval covered by the new iovs.') 
     parser_copy.add_argument('--snapshot','-s', help="Timestamp of the snapshot to consider for the source iovs. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
+    parser_copy.add_argument('--synchronize',action='store_true',help='For tags, set the destination iovs according to the destination tag synchronization. No effect for other object type copy') 
     parser_copy.set_defaults(func=copy)
 
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
