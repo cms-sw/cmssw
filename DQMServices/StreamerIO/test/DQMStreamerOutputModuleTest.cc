@@ -20,10 +20,10 @@
 
 namespace edm {
 
-class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
+class DQMStreamerOutputModuleTest : public edm::StreamerOutputModuleBase {
  public:
-  explicit DQMStreamerOutputModule(edm::ParameterSet const& ps);
-  virtual ~DQMStreamerOutputModule();
+  explicit DQMStreamerOutputModuleTest(edm::ParameterSet const& ps);
+  virtual ~DQMStreamerOutputModuleTest();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
@@ -57,7 +57,7 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
   mutable boost::shared_ptr<InitMsgView> init_message_cache_;
 };  //end-of-class-def
 
-DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
+DQMStreamerOutputModuleTest::DQMStreamerOutputModuleTest(edm::ParameterSet const& ps)
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::StreamerOutputModuleBase(ps),
       streamLabel_(ps.getUntrackedParameter<std::string>("streamLabel")),
@@ -67,7 +67,7 @@ DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
       currentLumi_(0),
       currentRun_(0) {
 
-  edm::LogInfo("DQMStreamerOutputModule") << "Writing .dat files to "
+  edm::LogInfo("DQMStreamerOutputModuleTest") << "Writing .dat files to "
                                           << runInputDir_;
 
   if (!boost::filesystem::is_directory(runInputDir_)) {
@@ -76,26 +76,26 @@ DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
   }
 }
 
-DQMStreamerOutputModule::~DQMStreamerOutputModule() {}
+DQMStreamerOutputModuleTest::~DQMStreamerOutputModuleTest() {}
 
-void DQMStreamerOutputModule::doOutputHeader(InitMsgBuilder const& i) {
+void DQMStreamerOutputModuleTest::doOutputHeader(InitMsgBuilder const& i) {
 
   init_message_cache_.reset(new InitMsgView(i.startAddress()));
 }
 
-void DQMStreamerOutputModule::doOutputEvent(EventMsgBuilder const& msg) {
+void DQMStreamerOutputModuleTest::doOutputEvent(EventMsgBuilder const& msg) {
 
   ++processed_;
 
   EventMsgView eview(msg.startAddress());
   stream_writer_events_->write(eview);
-  // You can't use msg in DQMStreamerOutputModule after this point
+  // You can't use msg in DQMStreamerOutputModuleTest after this point
 }
 
-void DQMStreamerOutputModule::beginLuminosityBlock(
+void DQMStreamerOutputModuleTest::beginLuminosityBlock(
     edm::LuminosityBlockForOutput const& ls) {
 
-  std::cout << "DQMStreamerOutputModule : begin lumi." << std::endl;
+  std::cout << "DQMStreamerOutputModuleTest : begin lumi." << std::endl;
 
   if (flagLumiRemap_) {
     currentLumi_++;
@@ -113,7 +113,7 @@ void DQMStreamerOutputModule::beginLuminosityBlock(
   p = p.parent_path();
 
   if (!boost::filesystem::is_directory(p)) {
-    std::cout << "DQMStreamerOutputModule : creating run directory: " << p
+    std::cout << "DQMStreamerOutputModuleTest : creating run directory: " << p
               << std::endl;
     boost::filesystem::create_directories(p);
   }
@@ -121,23 +121,23 @@ void DQMStreamerOutputModule::beginLuminosityBlock(
   stream_writer_events_.reset(new StreamerOutputFile(path));
   eventsFile_ = path;
 
-  std::cout << "DQMStreamerOutputModule : writing init message." << std::endl;
+  std::cout << "DQMStreamerOutputModuleTest : writing init message." << std::endl;
   stream_writer_events_->write(*init_message_cache_);
 
   processed_ = 0;
 }
 
-void DQMStreamerOutputModule::endLuminosityBlock(
+void DQMStreamerOutputModuleTest::endLuminosityBlock(
     edm::LuminosityBlockForOutput const& ls) {
 
-  std::cout << "DQMStreamerOutputModule : end lumi " << std::endl;
+  std::cout << "DQMStreamerOutputModuleTest : end lumi " << std::endl;
   stream_writer_events_.reset();
 
   // output jsn file
   std::string path =
       str(boost::format("%s/run%06d/run%06d_ls%04d%s.jsn") % runInputDir_ %
           currentRun_ % currentRun_ % currentLumi_ % streamLabel_);
-  std::cout << "DQMStreamerOutputModule : writing json: " << path << std::endl;
+  std::cout << "DQMStreamerOutputModuleTest : writing json: " << path << std::endl;
 
   using namespace boost::property_tree;
   ptree pt;
@@ -162,16 +162,16 @@ void DQMStreamerOutputModule::endLuminosityBlock(
   file.close();
 }
 
-void DQMStreamerOutputModule::start() {}
+void DQMStreamerOutputModuleTest::start() {}
 
-void DQMStreamerOutputModule::stop() {
-  std::cout << "DQMStreamerOutputModule : end run" << std::endl;
+void DQMStreamerOutputModuleTest::stop() {
+  std::cout << "DQMStreamerOutputModuleTest : end run" << std::endl;
   stream_writer_events_.reset();
 
   // output jsn file
   std::string path = str(boost::format("%s/run%06d/run%06d_ls%04d_EoR.jsn") %
                          runInputDir_ % currentRun_ % currentRun_ % 0);
-  std::cout << "DQMStreamerOutputModule : writing json: " << path << std::endl;
+  std::cout << "DQMStreamerOutputModuleTest : writing json: " << path << std::endl;
 
   using namespace boost::property_tree;
   ptree pt;
@@ -198,7 +198,7 @@ void DQMStreamerOutputModule::stop() {
   file.close();
 }
 
-void DQMStreamerOutputModule::fillDescriptions(
+void DQMStreamerOutputModuleTest::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   edm::StreamerOutputModuleBase::fillDescription(desc);
@@ -218,5 +218,5 @@ void DQMStreamerOutputModule::fillDescriptions(
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 
-typedef edm::DQMStreamerOutputModule DQMStreamerOutputModule;
-DEFINE_FWK_MODULE(DQMStreamerOutputModule);
+typedef edm::DQMStreamerOutputModuleTest DQMStreamerOutputModuleTest;
+DEFINE_FWK_MODULE(DQMStreamerOutputModuleTest);

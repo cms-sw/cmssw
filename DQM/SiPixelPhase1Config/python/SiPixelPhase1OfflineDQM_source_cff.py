@@ -16,6 +16,8 @@ from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
 from DQM.SiPixelPhase1TrackEfficiency.SiPixelPhase1TrackEfficiency_cfi import *
 # FED/RAW Data
 from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
+#Summary maps
+from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 
 PerModule.enabled = False
@@ -27,7 +29,6 @@ siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1RawDataAnalyzer
                                             + SiPixelPhase1TrackResidualsAnalyzer
                                             + SiPixelPhase1TrackClustersAnalyzer
                                             + SiPixelPhase1TrackEfficiencyAnalyzer
-                                            + SiPixelPhase1RawDataAnalyzer
                                             )
 
 siPixelPhase1OfflineDQM_source_cosmics = siPixelPhase1OfflineDQM_source.copyAndExclude([

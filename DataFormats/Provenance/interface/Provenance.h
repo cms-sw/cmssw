@@ -58,6 +58,18 @@ namespace edm {
     ReleaseVersion releaseVersion() const {return stable().releaseVersion();}
     std::set<std::string> const& branchAliases() const {return stable().branchAliases();}
 
+    // Usually branchID() and originalBranchID() return exactly the same result.
+    // The return values can differ only in cases where an EDAlias is involved.
+    // For example, if you "get" a product and then get the Provenance object
+    // available through the Handle, you will find that branchID() and originalBranchID()
+    // will return different values if and only if an EDAlias was used to specify
+    // the desired product and in a previous process the EDAlias was kept and
+    // the original branch name was dropped. In that case, branchID() returns
+    // the BranchID of the EDAlias and originalBranchID() returns the BranchID
+    // of the branch name that was dropped. One reason the original BranchID can
+    // be useful is that Parentage information is stored using the original BranchIDs.
+    BranchID const& originalBranchID() const {return stable().originalBranchID();}
+
     void write(std::ostream& os) const;
 
     void setStore(ProductProvenanceRetriever const* store) {store_ = store;}

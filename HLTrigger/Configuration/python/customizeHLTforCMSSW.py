@@ -42,11 +42,19 @@ def customiseFor17771(process):
             producer.trackAlgoPriorityOrder = cms.string("hltTrackAlgoPriorityOrder")
     return process
 
+# Add optional SeedStopReason to CkfTrackCandidateMaker
+def customiseFor17792(process):
+    for producer in producers_by_type(process, "CkfTrackCandidateMaker"):
+        if not hasattr(producer, "produceSeedStopReasons"):
+            producer.produceSeedStopReasons = cms.bool(False)
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor17771(process)
+    process = customiseFor17792(process)
     process = customiseFor17794(process)
 
     return process

@@ -26,8 +26,8 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
-                                             hcalOfflineHarvesting *
-                                             HcalDQMOfflinePostProcessor *
+                                             #hcalOfflineHarvesting *
+                                             HcalDQMOfflinePostProcessor * 
                                              dqmFEDIntegrityClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
@@ -129,7 +129,8 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
 
-DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
+#DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
+DQMHarvestHcal = cms.Sequence()
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 

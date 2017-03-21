@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/GRun/V9 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/GRun/V11 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "HLTGRun" )
+process = cms.Process( "HLTGRun2016" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V9')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V11')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -3281,39 +3281,12 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
-  trackPseudoSelection = cms.PSet( 
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    ptMin = cms.double( 0.0 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    normChi2Max = cms.double( 99999.9 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip2dSigMin = cms.double( 2.0 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
-    'CombinedSVPseudoVertex',
-    'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   correctVertexMass = cms.bool( True ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
   trackSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
     totalHitsMin = cms.uint32( 0 ),
@@ -3332,54 +3305,44 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
     sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
+  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
+    'CombinedSVPseudoVertex',
+    'CombinedSVNoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  charmCut = cms.double( 1.5 ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackPseudoSelection = cms.PSet( 
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    ptMin = cms.double( 0.0 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( 2.0 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 )
+  ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
   trackFlip = cms.bool( False )
 )
 process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
-  trackPseudoSelection = cms.PSet( 
-    max_pT_dRcut = cms.double( 0.1 ),
-    b_dR = cms.double( 0.6263 ),
-    min_pT = cms.double( 120.0 ),
-    b_pT = cms.double( 0.3684 ),
-    ptMin = cms.double( 0.0 ),
-    max_pT_trackPTcut = cms.double( 3.0 ),
-    max_pT = cms.double( 500.0 ),
-    useVariableJTA = cms.bool( False ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    normChi2Max = cms.double( 99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 ),
-    a_dR = cms.double( -0.001053 ),
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    a_pT = cms.double( 0.005263 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    min_pT_dRcut = cms.double( 0.5 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip2dSigMin = cms.double( 2.0 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
-    'CombinedSVIVFV2PseudoVertex',
-    'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   correctVertexMass = cms.bool( True ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
   trackSelection = cms.PSet( 
     max_pT_dRcut = cms.double( 0.1 ),
     b_dR = cms.double( 0.6263 ),
@@ -3407,6 +3370,43 @@ process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexE
     pixelHitsMin = cms.uint32( 0 ),
     sip3dSigMin = cms.double( -99999.9 ),
     sip2dSigMin = cms.double( -99999.9 )
+  ),
+  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
+    'CombinedSVIVFV2PseudoVertex',
+    'CombinedSVIVFV2NoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  charmCut = cms.double( 1.5 ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackPseudoSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( 2.0 )
   ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
@@ -5657,6 +5657,7 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_12 = cms.vdouble( 0.183, 0.054, -0.087, 0.028, 0.002, 0.0 ),
     DT_14 = cms.vdouble( 0.359, 0.052, -0.107, 0.072, -0.004, 0.0 ),
     CSC_13_3_scale = cms.vdouble( -1.701268, 0.0 ),
+    DT_24_2_scale = cms.vdouble( -6.63094, 0.0 ),
     CSC_23 = cms.vdouble( -0.081, 0.113, -0.029, 0.015, 0.008, 0.0 ),
     CSC_24 = cms.vdouble( 0.004, 0.021, -0.002, 0.053, 0.0, 0.0 ),
     OL_2222 = cms.vdouble( 0.107, 0.0, 0.0, 0.04, 0.0, 0.0 ),
@@ -5671,14 +5672,14 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     SME_22_0_scale = cms.vdouble( -3.457901, 0.0 ),
     DT_24_1_scale = cms.vdouble( -7.490909, 0.0 ),
     OL_1232_0_scale = cms.vdouble( -5.964634, 0.0 ),
-    SMB_32 = cms.vdouble( 0.67, -0.327, 0.0, 0.22, 0.0, 0.0 ),
+    DT_23_1_scale = cms.vdouble( -5.320346, 0.0 ),
     SME_13_0_scale = cms.vdouble( 0.104905, 0.0 ),
     SMB_22_0_scale = cms.vdouble( 1.346681, 0.0 ),
     CSC_12_1_scale = cms.vdouble( -6.434242, 0.0 ),
     DT_34 = cms.vdouble( 0.044, 0.004, -0.013, 0.029, 0.003, 0.0 ),
     SME_32 = cms.vdouble( -0.901, 1.333, -0.47, 0.41, 0.073, 0.0 ),
     SME_31 = cms.vdouble( -1.594, 1.482, -0.317, 0.487, 0.097, 0.0 ),
-    SMB_32_0_scale = cms.vdouble( -3.054156, 0.0 ),
+    CSC_13_2_scale = cms.vdouble( -6.077936, 0.0 ),
     crackEtas = cms.vdouble( 0.2, 1.6, 1.7 ),
     SME_11_0_scale = cms.vdouble( 1.325085, 0.0 ),
     SMB_20_0_scale = cms.vdouble( 1.486168, 0.0 ),
@@ -5697,7 +5698,7 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_34_1_scale = cms.vdouble( -13.783765, 0.0 ),
     CSC_34_1_scale = cms.vdouble( -11.520507, 0.0 ),
     OL_2213_0_scale = cms.vdouble( -7.239789, 0.0 ),
-    CSC_13_2_scale = cms.vdouble( -6.077936, 0.0 ),
+    SMB_32_0_scale = cms.vdouble( -3.054156, 0.0 ),
     CSC_12_3_scale = cms.vdouble( -1.63622, 0.0 ),
     deltaEtaCrackSearchWindow = cms.double( 0.25 ),
     SME_21_0_scale = cms.vdouble( -0.040862, 0.0 ),
@@ -5705,7 +5706,7 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
     SMB_10_0_scale = cms.vdouble( 2.448566, 0.0 ),
     EnableDTMeasurement = cms.bool( True ),
-    DT_24_2_scale = cms.vdouble( -6.63094, 0.0 ),
+    CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
     CSC_23_2_scale = cms.vdouble( -6.079917, 0.0 ),
     scaleDT = cms.bool( True ),
     DT_12_2_scale = cms.vdouble( -3.518165, 0.0 ),
@@ -5715,7 +5716,7 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     CSC_02 = cms.vdouble( 0.612, -0.207, 0.0, 0.067, -0.001, 0.0 ),
     CSC_03 = cms.vdouble( 0.787, -0.338, 0.029, 0.101, -0.008, 0.0 ),
     CSC_01 = cms.vdouble( 0.166, 0.0, 0.0, 0.031, 0.0, 0.0 ),
-    DT_23_1_scale = cms.vdouble( -5.320346, 0.0 ),
+    SMB_32 = cms.vdouble( 0.67, -0.327, 0.0, 0.22, 0.0, 0.0 ),
     SMB_30 = cms.vdouble( 0.505, -0.022, 0.0, 0.215, 0.0, 0.0 ),
     SMB_31 = cms.vdouble( 0.549, -0.145, 0.0, 0.207, 0.0, 0.0 ),
     crackWindow = cms.double( 0.04 ),
@@ -5728,11 +5729,10 @@ process.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     DT_14_1_scale = cms.vdouble( -5.644816, 0.0 ),
     beamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     SMB_11_0_scale = cms.vdouble( 2.56363, 0.0 ),
-    CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
-    CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
+    EnableCSCMeasurement = cms.bool( True ),
     CSC_14 = cms.vdouble( 0.606, -0.181, -0.002, 0.111, -0.003, 0.0 ),
     OL_2222_0_scale = cms.vdouble( -7.667231, 0.0 ),
-    EnableCSCMeasurement = cms.bool( True ),
+    CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
     CSC_12 = cms.vdouble( -0.161, 0.254, -0.047, 0.042, -0.007, 0.0 )
 )
 process.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
@@ -15971,13 +15971,14 @@ process.hltAK4PFJetsReg = cms.EDProducer( "FastjetJetProducer",
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
 process.hltTauPFJets08RegionReg = cms.EDProducer( "RecoTauJetRegionProducer",
-    pfCandAssocMapSrc = cms.InputTag( "" ),
     src = cms.InputTag( "hltAK4PFJetsReg" ),
     deltaR = cms.double( 0.8 ),
+    pfCandAssocMapSrc = cms.InputTag( "" ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    minJetPt = cms.double( -1.0 ),
     pfCandSrc = cms.InputTag( "hltParticleFlowReg" )
 )
 process.hltTauPFJetsRecoTauChargedHadronsReg = cms.EDProducer( "PFRecoTauChargedHadronProducer",
-    outputSelection = cms.string( "pt > 0.5" ),
     ranking = cms.VPSet( 
       cms.PSet(  selectionFailValue = cms.double( 1000.0 ),
         plugin = cms.string( "PFRecoTauChargedHadronStringQuality" ),
@@ -15986,6 +15987,10 @@ process.hltTauPFJetsRecoTauChargedHadronsReg = cms.EDProducer( "PFRecoTauCharged
         selectionPassFunction = cms.string( "-pt" )
       )
     ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    outputSelection = cms.string( "pt > 0.5" ),
+    minJetPt = cms.double( -1.0 ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsReg" ),
     builders = cms.VPSet( 
       cms.PSet(  minBlockElementMatchesNeutralHadron = cms.int32( 2 ),
         dRmergeNeutralHadronWrtNeutralHadron = cms.double( 0.01 ),
@@ -16032,12 +16037,10 @@ process.hltTauPFJetsRecoTauChargedHadronsReg = cms.EDProducer( "PFRecoTauCharged
         chargedHadronCandidatesParticleIds = cms.vint32( 1, 2, 3 ),
         minMergeNeutralHadronEt = cms.double( 0.0 )
       )
-    ),
-    jetRegionSrc = cms.InputTag( "hltTauPFJets08RegionReg" ),
-    jetSrc = cms.InputTag( "hltAK4PFJetsReg" )
+    )
 )
 process.hltPFTauPiZerosReg = cms.EDProducer( "RecoTauPiZeroProducer",
-    outputSelection = cms.string( "pt > 0" ),
+    massHypothesis = cms.double( 0.136 ),
     ranking = cms.VPSet( 
       cms.PSet(  selectionFailValue = cms.double( 1000.0 ),
         plugin = cms.string( "RecoTauPiZeroStringQuality" ),
@@ -16046,6 +16049,10 @@ process.hltPFTauPiZerosReg = cms.EDProducer( "RecoTauPiZeroProducer",
         selectionPassFunction = cms.string( "abs(mass() - 0.13579)" )
       )
     ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    outputSelection = cms.string( "pt > 0" ),
+    minJetPt = cms.double( -1.0 ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsReg" ),
     builders = cms.VPSet( 
       cms.PSet(  minGammaEtStripSeed = cms.double( 0.5 ),
         applyElecTrackQcuts = cms.bool( False ),
@@ -16076,9 +16083,7 @@ process.hltPFTauPiZerosReg = cms.EDProducer( "RecoTauPiZeroProducer",
         minGammaEtStripAdd = cms.double( 0.0 ),
         name = cms.string( "s" )
       )
-    ),
-    massHypothesis = cms.double( 0.136 ),
-    jetSrc = cms.InputTag( "hltAK4PFJetsReg" )
+    )
 )
 process.hltPFTausSansRefReg = cms.EDProducer( "RecoTauProducer",
     piZeroSrc = cms.InputTag( "hltPFTauPiZerosReg" ),
@@ -17005,13 +17010,14 @@ process.hltAK4PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
     useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
 process.hltTauPFJets08Region = cms.EDProducer( "RecoTauJetRegionProducer",
-    pfCandAssocMapSrc = cms.InputTag( "" ),
     src = cms.InputTag( "hltAK4PFJetsForTaus" ),
     deltaR = cms.double( 0.8 ),
+    pfCandAssocMapSrc = cms.InputTag( "" ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    minJetPt = cms.double( -1.0 ),
     pfCandSrc = cms.InputTag( "hltParticleFlowForTaus" )
 )
 process.hltTauPFJetsRecoTauChargedHadrons = cms.EDProducer( "PFRecoTauChargedHadronProducer",
-    outputSelection = cms.string( "pt > 0.5" ),
     ranking = cms.VPSet( 
       cms.PSet(  selectionFailValue = cms.double( 1000.0 ),
         plugin = cms.string( "PFRecoTauChargedHadronStringQuality" ),
@@ -17020,6 +17026,10 @@ process.hltTauPFJetsRecoTauChargedHadrons = cms.EDProducer( "PFRecoTauChargedHad
         selectionPassFunction = cms.string( "-pt" )
       )
     ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    outputSelection = cms.string( "pt > 0.5" ),
+    minJetPt = cms.double( -1.0 ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" ),
     builders = cms.VPSet( 
       cms.PSet(  minBlockElementMatchesNeutralHadron = cms.int32( 2 ),
         dRmergeNeutralHadronWrtNeutralHadron = cms.double( 0.01 ),
@@ -17066,12 +17076,10 @@ process.hltTauPFJetsRecoTauChargedHadrons = cms.EDProducer( "PFRecoTauChargedHad
         chargedHadronCandidatesParticleIds = cms.vint32( 1, 2, 3 ),
         minMergeNeutralHadronEt = cms.double( 0.0 )
       )
-    ),
-    jetRegionSrc = cms.InputTag( "hltTauPFJets08Region" ),
-    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" )
+    )
 )
 process.hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
-    outputSelection = cms.string( "pt > 0" ),
+    massHypothesis = cms.double( 0.136 ),
     ranking = cms.VPSet( 
       cms.PSet(  selectionFailValue = cms.double( 1000.0 ),
         plugin = cms.string( "RecoTauPiZeroStringQuality" ),
@@ -17080,6 +17088,10 @@ process.hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
         selectionPassFunction = cms.string( "abs(mass() - 0.13579)" )
       )
     ),
+    maxJetAbsEta = cms.double( 99.0 ),
+    outputSelection = cms.string( "pt > 0" ),
+    minJetPt = cms.double( -1.0 ),
+    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" ),
     builders = cms.VPSet( 
       cms.PSet(  minGammaEtStripSeed = cms.double( 0.5 ),
         applyElecTrackQcuts = cms.bool( False ),
@@ -17110,9 +17122,7 @@ process.hltPFTauPiZeros = cms.EDProducer( "RecoTauPiZeroProducer",
         minGammaEtStripAdd = cms.double( 0.0 ),
         name = cms.string( "s" )
       )
-    ),
-    massHypothesis = cms.double( 0.136 ),
-    jetSrc = cms.InputTag( "hltAK4PFJetsForTaus" )
+    )
 )
 process.hltPFTausSansRef = cms.EDProducer( "RecoTauProducer",
     piZeroSrc = cms.InputTag( "hltPFTauPiZeros" ),
@@ -61135,9 +61145,9 @@ process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     clustershapecollectionEE = cms.string( "islandEndcapShape" ),
     clustershapecollectionEB = cms.string( "islandBarrelShape" ),
     VerbosityLevel = cms.string( "ERROR" ),
-    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    IslandBarrelSeedThr = cms.double( 0.5 ),
     endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
-    IslandBarrelSeedThr = cms.double( 0.5 )
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" )
 )
 process.hltHiIslandSuperClustersHI = cms.EDProducer( "HiSuperClusterProducer",
     barrelSuperclusterCollection = cms.string( "islandBarrelSuperClustersHI" ),
@@ -65770,10 +65780,12 @@ process.hltScoutingPFPacker = cms.EDProducer( "HLTScoutingPFProducer",
     pfCandidatePtCut = cms.double( 0.6 )
 )
 process.hltScoutingMuonPacker = cms.EDProducer( "HLTScoutingMuonProducer",
+    minVtxProbCut = cms.double( 0.001 ),
     HcalPFClusterIsoMap = cms.InputTag( "hltMuonHcalPFClusterIsoForMuons" ),
     EcalPFClusterIsoMap = cms.InputTag( "hltMuonEcalPFClusterIsoForMuons" ),
     ChargedCandidates = cms.InputTag( "hltL3MuonCandidates" ),
     muonPtCut = cms.double( 3.0 ),
+    displacedvertexCollection = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMu3NoVtx" ),
     Tracks = cms.InputTag( "hltL3Muons" ),
     muonEtaCut = cms.double( 2.4 ),
     TrackIsoMap = cms.InputTag( 'hltMuonTkRelIsolationCut0p09Map','combinedRelativeIsoDeposits' )
@@ -68448,35 +68460,35 @@ process.source = cms.Source( "PoolSource",
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreExpressCosmicsOutputSmart' in process.__dict__:
-    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreExpressOutputSmart' in process.__dict__:
-    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreDQMForHIOutputSmart' in process.__dict__:
-    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreDQMForPPOutputSmart' in process.__dict__:
-    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltPreHLTMONOutputSmart' in process.__dict__:
-    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
 
 if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-    process.hltDQMHLTScalers.processname                      = 'HLTGRun'
+    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLTGRun2016' )
+    process.hltDQMHLTScalers.processname                      = 'HLTGRun2016'
 
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname              = 'HLTGRun'
+    process.hltDQML1SeedLogicScalers.processname              = 'HLTGRun2016'
 
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
@@ -68506,7 +68518,7 @@ if 'MessageLogger' in process.__dict__:
 
 # add specific customizations
 _customInfo = {}
-_customInfo['menuType'  ]= "GRun"
+_customInfo['menuType'  ]= "GRun2016"
 _customInfo['globalTags']= {}
 _customInfo['globalTags'][True ] = "auto:run2_hlt_GRun2016"
 _customInfo['globalTags'][False] = "auto:run2_mc_GRun2016"
@@ -68518,10 +68530,10 @@ _customInfo['globalTag' ]= "auto:run2_hlt_GRun2016"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_GRun2016_DATA.root']
 _customInfo['realData'  ]=  True
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
-process = customizeHLTforAll(process,"GRun",_customInfo)
+process = customizeHLTforAll(process,"GRun2016",_customInfo)
 
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process,"GRun")
+process = customizeHLTforCMSSW(process,"GRun2016")
 
 # Eras-based customisations
 from HLTrigger.Configuration.Eras import modifyHLTforEras

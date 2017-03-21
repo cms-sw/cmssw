@@ -619,10 +619,14 @@ uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int
   if (numberingFromDDD) {
     //get the ID's as eta, phi, depth, ... indices
     HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
-    modifyDepth(tmp);
-    //get the ID
-    if (numberingScheme) id = numberingScheme->getUnitID(tmp);
+    id = setDetUnitId(tmp);
   }
+  return id;
+}
+
+uint32_t HCalSD::setDetUnitId (HcalNumberingFromDDD::HcalID& tmp) { 
+  modifyDepth(tmp);
+  uint32_t id = (numberingScheme) ? numberingScheme->getUnitID(tmp) : 0;
   return id;
 }
 
@@ -936,8 +940,7 @@ void HCalSD::getHitPMT (G4Step * aStep) {
     if (numberingFromDDD) {
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det,etaR,phi,
 								  depth,1);
-      modifyDepth(tmp);
-      if (numberingScheme) unitID = numberingScheme->getUnitID(tmp);
+      unitID = setDetUnitId(tmp);
     }
     currentID.setID(unitID, time, primaryID, 1);
 
@@ -1002,8 +1005,7 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
     uint32_t unitID = 0;
     if (numberingFromDDD) {
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det,etaR,phi,depth,1);
-      modifyDepth(tmp);
-      if (numberingScheme) unitID = numberingScheme->getUnitID(tmp);
+      unitID = setDetUnitId(tmp);
     }
     if (type) currentID.setID(unitID, time, primaryID, 3);
     else      currentID.setID(unitID, time, primaryID, 2);
@@ -1161,6 +1163,7 @@ void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
       }
     }
   } else if ((id.subdet == 1 || id.subdet ==2) && testNumber) {
-    id.depth = depth_;
+    if (depth_ == 0) id.depth = 1;
+    else             id.depth = 2;
   }
 }
