@@ -661,8 +661,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       LogTrace("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
       int ats(0);  	  //This counter counts the number of simTracks that are "associated" to recoTracks
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
-      unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut
-      unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
 
       //loop over already-selected TPs for tracking efficiency
       for(size_t i=0; i<selected_tPCeff.size(); ++i) {
@@ -783,9 +781,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
-          sts++;
-          if(matchedTrackPointer)
-            asts++;
           if(doSummaryPlots_) {
             if(dRtpSelectorNoPtCut(tp)) {
               h_simul_coll_allPt[ww]->Fill(www);
