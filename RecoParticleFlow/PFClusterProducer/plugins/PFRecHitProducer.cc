@@ -55,13 +55,18 @@ void
 
    out->reserve(localRA1.upper());
    cleaned->reserve(localRA2.upper());
-   for( const auto& creator : creators_ ) {
-     if (!init_) { // should go in beginRun
+
+   if (!init_) { // should go in beginRun
+     for( const auto& creator : creators_ ) {
        creator->init(iSetup);
-       init_ = true;
      }
+     init_ = true;
+   }
+
+   for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
+
    if (out->capacity()>2*out->size()) out->shrink_to_fit();
    if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
    localRA1.update(out->size());

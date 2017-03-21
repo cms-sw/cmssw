@@ -27,21 +27,13 @@
 
 class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
 
-  const int maxNrTowers_=2448;
-  const int maxTowerEtaIndex_=17;
-
  public:  
   PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
       srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-      SREtaSize_ = iConfig.getUntrackedParameter<int> ("SREtaSize",1);
-      SRPhiSize_ = iConfig.getUntrackedParameter<int> ("SRPhiSize",1);
-      crystalsinTT_.resize(maxNrTowers_);
-      TTHighInterest_.resize(maxNrTowers_,0);
-      theTTDetIds_.resize(maxNrTowers_);
-      neighboringTTs_.resize(maxNrTowers_);
+      triggerTowerMap_ = 0;
     }
     
     void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -72,13 +64,13 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
   
 	// find rechit geometry
 	if(!thisCell) {
-          throw cms::Exception("ECALCellNotInGeometry")
-	    << "Detid: "<< detid.rawId()<<" not found in geometry";
+	  edm::LogError("PFEcalBarrelRecHitCreator")
+	    <<"warning detid "<<detid.rawId()
+	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
 
-	out->emplace_back(thisCell, detid.rawId(),PFLayer::ECAL_BARREL,
-			   energy); 
+	out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy); 
 
         auto & rh = out->back();
 	
@@ -106,125 +98,34 @@ class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
 
     void init(const edm::EventSetup &es) {
 
-      edm::ESHandle<CaloGeometry> pG;
-      es.get<CaloGeometryRecord>().get(pG);   
-
-      edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
-      es.get<IdealGeometryRecord>().get(hetm);
-      eTTmap_ = &(*hetm);
-  
-      const EcalBarrelGeometry * myEcalBarrelGeometry = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-      const std::vector<DetId>& vec(myEcalBarrelGeometry->getValidDetIds(DetId::Ecal,EcalBarrel));
-      unsigned size=vec.size();    
-      for(unsigned ic=0; ic<size; ++ic) 
-        {
-          EBDetId myDetId(vec[ic]);
-          int crystalHashedIndex=myDetId.hashedIndex();
-          // save the Trigger tower DetIds
-          EcalTrigTowerDetId towid= eTTmap_->towerOf(EBDetId(vec[ic]));
-          int TThashedindex=towid.hashedIndex();      
-          theTTDetIds_[TThashedindex]=towid;                  
-          crystalsinTT_[TThashedindex].push_back(crystalHashedIndex);
-        }
-      unsigned nTTs=theTTDetIds_.size();
-
-      // now loop on each TT and save its neighbors. 
-
-      for(unsigned iTT=0;iTT<nTTs;++iTT)
-        {
-          int ietaPivot=theTTDetIds_[iTT].ieta();
-          int iphiPivot=theTTDetIds_[iTT].iphi();
-          int TThashedIndex=theTTDetIds_[iTT].hashedIndex();
-          int ietamin=std::max(ietaPivot-SREtaSize_,-maxTowerEtaIndex_);
-          if(ietamin==0) ietamin=-1;
-          int ietamax=std::min(ietaPivot+SREtaSize_,maxTowerEtaIndex_);
-          if(ietamax==0) ietamax=1;
-          int iphimin=iphiPivot-SRPhiSize_;
-          int iphimax=iphiPivot+SRPhiSize_;
-          for(int ieta=ietamin;ieta<=ietamax;)
-            {
-              int iz=(ieta>0)? 1 : -1; 
-              for(int iphi=iphimin;iphi<=iphimax;)
-                {
-                  int riphi=iphi;
-                  if(riphi<1) riphi+=72;
-                  else if(riphi>72) riphi-=72;
-                  EcalTrigTowerDetId neighborTTDetId(iz,EcalBarrel,abs(ieta),riphi);
-                  if(ieta!=ietaPivot||riphi!=iphiPivot)
-                    {
-                      neighboringTTs_[TThashedIndex].push_back(neighborTTDetId.hashedIndex());
-                    }
-                  ++iphi;
-
-                }
-              ++ieta;
-              if(ieta==0) ieta=1;
-            }
-        }
+      edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
+      es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+      triggerTowerMap_ = hTriggerTowerMap.product();
 
     }
       
 
  protected:
 
-
     bool isHighInterest(const EBDetId& detid) {
-
-      EcalTrigTowerDetId towid = detid.tower();
-      int tthi = towid.hashedIndex();
-
-      if(TTHighInterest_[tthi]!=0) return (TTHighInterest_[tthi]>0);
-
-      TTHighInterest_[tthi] = srFullReadOut(towid) ? 1:-1;
-
-      // if high interest, can leave ; otherwise look at the neighbours
-      if( TTHighInterest_[tthi]==1) {
-        theTTofHighInterest_.push_back(tthi);
-        return true;
-      }
-
-      // now look if a neighboring TT is of high interest
-      const std::vector<int> & tts(neighboringTTs_[tthi]);
-      // a tower is of high interest if it or one of its neighbour is above the SR threshold
-      unsigned size=tts.size();
       bool result=false;
-      for(unsigned itt=0;itt<size&&!result;++itt) {
-        towid = theTTDetIds_[tts[itt]];
-        if(srFullReadOut(towid)) result=true;
-      }
-
-      TTHighInterest_[tthi]=(result)? 1:-1;
-      theTTofHighInterest_.push_back(tthi);
+      EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+      if(srf==srFlagHandle_->end()) return false;
+      else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
       return result;
     }
 
-    bool srFullReadOut(EcalTrigTowerDetId& towid) {
-      EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(towid);
-      if(srf == srFlagHandle_->end()) return false;
-      return ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);  
+    EcalTrigTowerDetId readOutUnitOf(const EBDetId& detid) const{
+      return triggerTowerMap_->towerOf(detid);
     }
 
     edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
     edm::EDGetTokenT<EBSrFlagCollection> srFlagToken_;
 
-    const EcalTrigTowerConstituentsMap* eTTmap_;  
-    // Array of the DetIds
-    std::vector<EcalTrigTowerDetId> theTTDetIds_;
-    // neighboring TT DetIds
-    std::vector<std::vector<int> > neighboringTTs_;
-    // the crystals in a given TT 
-    std::vector<std::vector<int> > crystalsinTT_;
-    // the towers which have been looked at 
-    std::vector<int> theTTofHighInterest_;
-    // the status of the towers. A tower is of high interest if it or one of its neighbour is above the threshold
-    std::vector<int> TTHighInterest_;
-
+    // ECAL trigger tower mapping
+    const EcalTrigTowerConstituentsMap * triggerTowerMap_;
     // selective readout flags collection
     edm::Handle<EBSrFlagCollection> srFlagHandle_;
-
-    // selective readout threshold
-    int SREtaSize_;
-    int SRPhiSize_;
 
 };
 
