@@ -99,6 +99,7 @@ private:
 
   int nLumiAnalysed_;
 
+  bool IsLumiGoodDcs_;
   int nGoodDcsLumi_;
   float MinAcceptableDcsDetFrac_ = 0.90;
   float MaxAcceptableBadDcsLumi_ = 2;

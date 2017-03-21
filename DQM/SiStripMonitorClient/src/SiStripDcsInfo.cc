@@ -145,7 +145,7 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
-  nLumiAnalysed_++;   
+  nLumiAnalysed_++;
 }
 
 //
@@ -170,7 +170,6 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup); 
-  fillStatus();
   addBadModules();
 } 
 //
@@ -292,17 +291,19 @@ void SiStripDcsInfo::fillStatus(){
         << " Faulty ones " << faulty_subdet;
       total_det += total_subdet;
       faulty_det += faulty_subdet;
-
-      for (std::vector<uint32_t>::iterator ifaulty = it->second.FaultyDetectors.begin(); ifaulty != it->second.FaultyDetectors.end(); ifaulty++) {
-        uint32_t detId_faulty = (*ifaulty);
-        it->second.NLumiDetectorIsFaulty[detId_faulty]++;
-      }
     }
     if (nFEDConnected_ == 0 || total_det == 0) fraction = -1.0;
     else fraction = 1 - faulty_det/total_det;
     DcsFraction_->Reset();
     DcsFraction_->Fill(fraction);
-    if(fraction > MinAcceptableDcsDetFrac_) nGoodDcsLumi_++;
+    IsLumiGoodDcs_ = fraction > MinAcceptableDcsDetFrac_;
+    if(IsLumiGoodDcs_) nGoodDcsLumi_++;
+    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+      for (std::vector<uint32_t>::iterator ifaulty = it->second.FaultyDetectors.begin(); ifaulty != it->second.FaultyDetectors.end(); ifaulty++) {
+        uint32_t detId_faulty = (*ifaulty);
+        if(IsLumiGoodDcs_) it->second.NLumiDetectorIsFaulty[detId_faulty]++;
+      }
+    }
   } 
 }
 //
@@ -339,7 +340,7 @@ void SiStripDcsInfo::addBadModules() {
         ilumibad != lumiCountBadModules.end(); ilumibad++) {
       uint32_t ibad = (*ilumibad).first;
       uint32_t nBadLumi = (*ilumibad).second;
-      if(nBadLumi < MaxAcceptableBadDcsLumi_) continue;
+      if(nBadLumi <= MaxAcceptableBadDcsLumi_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     
                                       "BadModuleList";      
