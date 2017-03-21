@@ -122,9 +122,9 @@ GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  {
           //GEMDetId chambid = ((*gemLayerIdIt).first).chamberId();
           int id = ((*gemLayerIdIt).first).chamberId().rawId();
-   //       std::cout<<"GEM det ID = "<<id<<std::endl; 
+          //std::cout<<"GEM det ID = "<<id<<std::endl; 
           if(std::find(m_maskedGEMIDs.begin(),m_maskedGEMIDs.end(),id) == m_maskedGEMIDs.end()){
-     //         std::cout<<"Selected GEM det ID = "<<id<<std::endl;
+            //  std::cout<<"Selected GEM det ID = "<<id<<std::endl;
               filteredDigis->put((*gemLayerIdIt).second,(*gemLayerIdIt).first);
           }
       }
