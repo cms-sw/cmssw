@@ -242,6 +242,10 @@ class ValidationJob:
     def getValidation( self ):
         return self.validation
 
+    @property
+    def needsproxy(self):
+        return self.validation.needsproxy and not self.__preexisting and not self.__commandLineOptions.dryRun
+
 
 ####################--- Functions ---############################
 def createMergeScript( path, validations ):
@@ -374,7 +378,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    
+
     options.config = [ os.path.abspath( iniFile ) for iniFile in \
                        options.config.split( "," ) ]
     config = BetterConfigParser()
@@ -466,6 +470,15 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
     config.write( backupConfigFile )
 
+    #copy proxy, if there is one
+    try:
+        proxyexists = int(getCommandOutput2("voms-proxy-info --timeleft")) > 10
+    except RuntimeError:
+        proxyexists = False
+
+    if proxyexists:
+        shutil.copyfile(getCommandOutput2("voms-proxy-info --path").strip(), os.path.join(outPath, ".user_proxy"))
+
     validations = []
     for validation in config.items("validation"):
         alignmentList = [validation[1]]
@@ -474,6 +487,9 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         validations.extend(validationsToAdd)
     jobs = [ ValidationJob( validation, config, options) \
                  for validation in validations ]
+    for job in jobs:
+        if job.needsproxy and not proxyexists:
+            raise AllInOneError("At least one job needs a grid proxy, please init one.")
     map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 

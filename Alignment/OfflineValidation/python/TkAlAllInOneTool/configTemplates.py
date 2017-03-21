@@ -53,6 +53,7 @@ export LSFWORKDIR=`pwd -P`
 echo LSF working directory is $LSFWORKDIR
 source /afs/cern.ch/cms/caf/setup.sh
 eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
