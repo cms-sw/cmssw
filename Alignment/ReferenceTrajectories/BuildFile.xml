@@ -17,7 +17,6 @@
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackPropagation/RungeKutta"/>
 <use   name="eigen"/>
-<flags CPPDEFINES="GBL_EIGEN_SUPPORT_ROOT" />
 <export>
   <lib   name="1"/>
 </export>
