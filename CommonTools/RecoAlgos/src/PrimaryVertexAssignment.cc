@@ -4,13 +4,15 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 std::pair<int,PrimaryVertexAssignment::Quality>
 PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::TrackRef& trackRef,
                                    const reco::Track* track,
+                                   float time, 
+                                   float timeReso, // <0 if timing not available for this object
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 
@@ -27,24 +29,46 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
         }        
       index++;
   }
-
-
+  
   if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::UsedInFit);
 
-    double dzmin = 1e99;
-    int vtxIdMinDz = -1;
+  bool useTime = useTiming_;
+  if (edm::isNotFinite(time) || timeReso<1e-6) {
+    useTime = false;
+    time = 0.;
+    timeReso = -1.;
+  }
+    
+    double distmin = std::numeric_limits<double>::max();
+    double dzmin = std::numeric_limits<double>::max();
+    double dtmin = std::numeric_limits<double>::max();
+    int vtxIdMinDist = -1;
     for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv) {
       double dz = std::abs(track->dz(iv->position()));
-      if(dz<dzmin) {
+      double dt = std::abs(time-iv->t());
+      
+      double dist = dz;
+      
+      if (useTime) {
+        double dzsig = dz/track->dzError();
+        double dtsig = dt/timeReso;
+                
+        dist = dzsig*dzsig + dtsig*dtsig;
+      }
+      if(dist<distmin) {
+        distmin = dist;
         dzmin = dz;
-        vtxIdMinDz = iv-vertices.begin();
+        dtmin = dt;
+        vtxIdMinDist = iv-vertices.begin();
       }
    }
+      
   // first use "closest in Z" with tight cuts (targetting primary particles)
-    if(vtxIdMinDz>=0 and (dzmin < maxDzForPrimaryAssignment_ or dzmin/track->dzError() < maxDzSigForPrimaryAssignment_ ))
+    if(vtxIdMinDist>=0 and (dzmin < maxDzForPrimaryAssignment_ or dzmin/track->dzError() < maxDzSigForPrimaryAssignment_ ) and (!useTime or dtmin/timeReso < maxDtSigForPrimaryAssignment_))
     {
-        iVertex=vtxIdMinDz;
+        iVertex=vtxIdMinDist;
     }
+    
   if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::PrimaryDz);
 
   // if track not assigned yet, it could be a b-decay secondary , use jet axis dist criterion
@@ -93,14 +117,14 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
 
   // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
   //  we still point it to the closest in Z, but flag it as possible orphan-primary
-  if(std::abs(track->dxy(vertices[0].position()))<maxDxyForNotReconstructedPrimary_ && std::abs(track->dxy(vertices[0].position())/track->dxyError())<maxDxySigForNotReconstructedPrimary_)
-     return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::NotReconstructedPrimary);
+  if(vertices.size() && std::abs(track->dxy(vertices[0].position()))<maxDxyForNotReconstructedPrimary_ && std::abs(track->dxy(vertices[0].position())/track->dxyError())<maxDxySigForNotReconstructedPrimary_)
+     return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDist,PrimaryVertexAssignment::NotReconstructedPrimary);
  
   //FIXME: here we could better handle V0s and NucInt
 
   // all other tracks could be non-B secondaries and we just attach them with closest Z
-  if(vtxIdMinDz>=0)
-     return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDz,PrimaryVertexAssignment::OtherDz);
+  if(vtxIdMinDist>=0)
+     return std::pair<int,PrimaryVertexAssignment::Quality>(vtxIdMinDist,PrimaryVertexAssignment::OtherDz);
   //If for some reason even the dz failed (when?) we consider the track not assigned
   return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
 }

@@ -55,3 +55,8 @@ phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_eeBadScFilter, cms.Path() )
 
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith( Flag_trkPOG_manystripclus53X, cms.Path() )
+phase2_common.toReplaceWith( Flag_trkPOG_toomanystripclus53X, cms.Path() )
+phase2_common.toReplaceWith( Flag_trkPOGFilters, cms.Path(~logErrorTooManyClusters) )

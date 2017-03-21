@@ -2023,10 +2023,46 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     // build the refined supercluster from those clusters left in the cand
     refinedscs_.push_back(buildRefinedSuperCluster(RO));
 
-    // forward the time from the seed cluster
-    if (!RO.ecalclusters.empty()) {
-        auto const & seedPFClust = *RO.ecalclusters.front().first->clusterRef();
-        cand.setTime( seedPFClust.time(), seedPFClust.timeError() );
+    //*TODO* cluster time is not reliable at the moment, so only use track timing
+    if (false) {
+      // forward the time from the seed cluster
+      if (!RO.ecalclusters.empty()) {
+          auto const & seedPFClust = *RO.ecalclusters.front().first->clusterRef();
+          // do I have a GSF track too?
+          float time = seedPFClust.time(), timeErr = seedPFClust.timeError();
+          float trkTime = 0, trkTimeErr = -1;
+          if (RO.primaryGSFs.size() && RO.primaryGSFs[0].first->isTimeValid()) {
+              trkTime = RO.primaryGSFs[0].first->time();
+              trkTimeErr = RO.primaryGSFs[0].first->timeError();
+          } else if (RO.primaryKFs.size() && RO.primaryKFs[0].first->isTimeValid()) {
+              trkTime = RO.primaryKFs[0].first->time();
+              trkTimeErr = RO.primaryKFs[0].first->timeError();
+          }
+          if (trkTimeErr >= 0) {
+              if (trkTimeErr > 0 && timeErr > 0) { // weighted average (double precision)
+                  double newErr2 = (1.0/(timeErr*timeErr) + 1.0/(trkTimeErr*trkTimeErr));
+                  time = (double(time/(timeErr*timeErr)) + double(trkTime/(trkTimeErr*trkTimeErr)))/newErr2;
+                  timeErr = std::sqrt(float(newErr2));
+              } else { // FIXME: should find something smarter
+                  time = 0.5*(time + trkTime);
+                  timeErr = std::max(time,trkTime);
+              }
+          }
+          cand.setTime( time, timeErr );
+      }
+    }
+    else {
+        float trkTime = 0, trkTimeErr = -1;
+        if (RO.primaryGSFs.size() && RO.primaryGSFs[0].first->isTimeValid()) {
+            trkTime = RO.primaryGSFs[0].first->time();
+            trkTimeErr = RO.primaryGSFs[0].first->timeError();
+        } else if (RO.primaryKFs.size() && RO.primaryKFs[0].first->isTimeValid()) {
+            trkTime = RO.primaryKFs[0].first->time();
+            trkTimeErr = RO.primaryKFs[0].first->timeError();
+        }
+        if (trkTimeErr >= 0) {
+          cand.setTime( trkTime, trkTimeErr );
+        }
     }
     
     const reco::SuperCluster& the_sc = refinedscs_.back();
