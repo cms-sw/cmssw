@@ -178,6 +178,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
    ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
    hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+   //for ( const auto& detId : hbGeometry->getValidDetIds() ) {
+   //  std::cout << "valid hcal: " << detId() << " : subD: " << detId.subdetId() << std::endl;
+   //}
    
    std::vector<SimpleCaloHit> ecalhits;
    std::vector<SimpleCaloHit> hcalhits;
@@ -244,37 +247,43 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       //}
    } // Done loading Rec Hits
 
-   //if (!useRecHits) {
-   //   std::cout << "Incorporating Hcal TPs under development at the moment" << std::endl;
-   //   edm::Handle< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
-   //   iEvent.getByToken(hcalTPToken_,hbhecoll);
-   //   for (auto& hit : *hbhecoll.product())
-   //   {
-   //      std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
+   if (!useRecHits) {
 
+      //std::cout << "Incorporating Hcal TPs under development at the moment" << std::endl;
+      edm::Handle< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
+      iEvent.getByToken(hcalTPToken_,hbhecoll);
+      for (auto& hit : *hbhecoll.product())
+      {
 
-   //      // SOI_compressedEt() Compressed ET, integer representing increments of 500 MeV
-   //      // Cut requires 500 MeV TP
-   //      if ( hit.SOI_compressedEt() > 0 ) // SOI_compressedEt() Compressed ET for the "Sample of Interest"
-   //        // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
-   //      {
-   //         std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
-   //         //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
-   //         //for ( auto vHitID : validHbIds ) {
-   //         auto cell = hbGeometry->getGeometry(hit.id());
-   //         std::cout << "Hit ID: " << hit.id() << std::endl;
-   //         std::cout << "HCAL Geo: " << hbGeometry << std::endl;
-   //         std::cout << "Hit x, y, z: " << cell->getPosition().x() << ", " << cell->getPosition().y() << ", " << cell->getPosition().z() << std::endl;
-   //         SimpleCaloHit hhit;
-   //         hhit.id = hit.id();
-   //         hhit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-   //         float et = hit.SOI_compressedEt() / 2.;
-   //         hhit.energy = et / sin(hhit.position.theta());
-   //         //std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
-   //         hcalhits.push_back(hhit);
-   //      }
-   //   }
-   //}
+         // SOI_compressedEt() Compressed ET, integer representing increments of 500 MeV
+         // Cut requires 500 MeV TP
+         if ( hit.SOI_compressedEt() > 0 ) // SOI_compressedEt() Compressed ET for the "Sample of Interest"
+           // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
+         {
+            //std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
+            //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
+            //std::cout << "Hit ID: " << hit.id() << std::endl;
+
+            // Check if the detId is in the current geometry setup
+            // so that L1EG doesn't crash
+            if (!hbGeometry->present( hit.id()) ) {
+              //std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+              continue;
+            }
+
+            auto cell = hbGeometry->getGeometry(hit.id());
+            //std::cout << "HCAL Geo: " << hbGeometry << std::endl;
+            //std::cout << "Hit x, y, z: " << cell->getPosition().x() << ", " << cell->getPosition().y() << ", " << cell->getPosition().z() << std::endl;
+            SimpleCaloHit hhit;
+            hhit.id = hit.id();
+            hhit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
+            float et = hit.SOI_compressedEt() / 2.;
+            hhit.energy = et / sin(hhit.position.theta());
+            //std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
+            hcalhits.push_back(hhit);
+         }
+      }
+   }
 
    if (useRecHits) {
       std::cout << "HCAL Rec Hits is not supported by L1T" << std::endl;
