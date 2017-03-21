@@ -76,9 +76,9 @@ if phase2_muon.isChosen():
             averageEfficiency = cms.double(0.95),
             Nbxing = cms.int32(9),
             timeJitter = cms.double(1.0),
-            IRPC_time_resolution = cms.double(0.1),
-            IRPC_electronics_jitter = cms.double(0.025),
-            sigmaY = cms.double(1.), #math.sqrt((0.025)*(0.025)+(0.025)*(0.025))*0.66*299792458*1e+2*1e-9 = 0.7
+            IRPC_time_resolution = cms.double(1),# resolution of 1 ns
+            IRPC_electronics_jitter = cms.double(0.1),# resolution of 100 ps
+            sigmaY = cms.double(2.), # resolution of 2 cm
             do_Y_coordinate = cms.bool(True)
             ),       
                                      digiIRPCModel = cms.string('RPCSimModelTiming')
