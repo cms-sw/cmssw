@@ -35,6 +35,7 @@ class GenericValidation(object):
                 "cmssw":        os.environ['CMSSW_BASE'],
                 "parallelJobs": "1",
                 "jobid":        "",
+                "needsproxy":   "0",
                }
     needpackages = {"Alignment/OfflineValidation"}
     optionals = {"jobmode"}
@@ -55,6 +56,7 @@ class GenericValidation(object):
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
         self.NJobs = int(self.general["parallelJobs"])
+        self.needsproxy = bool(int(self.general["needsproxy"]))
 
         # limit maximum number of parallel jobs to 40
         # (each output file is approximately 20MB)
