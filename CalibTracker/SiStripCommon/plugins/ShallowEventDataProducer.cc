@@ -1,6 +1,7 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"      );
@@ -56,9 +57,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle< LumiScalersCollection > lumiScalers;
   float instLumi_=0; float PU_=0;
   iEvent.getByToken(scalerToken_, lumiScalers); 
-  if (lumiScalers->begin() != lumiScalers->end()) {
-    instLumi_ = lumiScalers->begin()->instantLumi();
-    PU_       = lumiScalers->begin()->pileup();
+  if(lumiScalers.isValid()){
+    if (lumiScalers->begin() != lumiScalers->end()) {
+      instLumi_ = lumiScalers->begin()->instantLumi();
+      PU_       = lumiScalers->begin()->pileup();
+    }
+  } else {
+    edm::LogInfo("ShallowEventDataProducer") 
+      << "LumiScalers collection not found in the event; will write dummy values";
   }
   
   auto instLumi = std::make_unique<float>(instLumi_);
