@@ -132,7 +132,7 @@ namespace {
 		g.theLayers[i].theInnerLayerPairs.clear();
 		g.theLayers[i].theOuterLayers.clear();
 		g.theLayers[i].theOuterLayerPairs.clear();
-
+		for (auto & v : g.theLayers[i].isOuterHitOfCell) v.clear();
 	}
 
   }
@@ -374,7 +374,7 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 
 void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
                                         OrderedHitTriplets & result,
-                                        std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
+                                        std::vector<const HitDoublets *>& hitDoublets, CAGraph& g,
                                         const edm::EventSetup& es) {
 	std::vector<CACell::CAntuplet> foundTriplets;
 	CellularAutomaton ca(g);

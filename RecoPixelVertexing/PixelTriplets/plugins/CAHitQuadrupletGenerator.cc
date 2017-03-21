@@ -138,7 +138,7 @@ namespace {
 		g.theLayers[i].theInnerLayerPairs.clear();
 		g.theLayers[i].theOuterLayers.clear();
 		g.theLayers[i].theOuterLayerPairs.clear();
-
+		for (auto & v : g.theLayers[i].isOuterHitOfCell) v.clear();
 	}
 
   }
@@ -443,7 +443,7 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
 void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
                                               OrderedHitSeeds & result,
-                                              std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
+                                              std::vector<const HitDoublets *>& hitDoublets, CAGraph& g,
                                               const edm::EventSetup& es) {
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHand;

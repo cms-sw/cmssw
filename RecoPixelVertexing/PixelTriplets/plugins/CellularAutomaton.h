@@ -8,7 +8,7 @@
 class CellularAutomaton
 {
 public:
-  CellularAutomaton(const CAGraph& graph)
+  CellularAutomaton(CAGraph& graph)
     : theLayerGraph(graph)
   {
     
@@ -25,9 +25,11 @@ public:
 		    const float thetaCut, const float phiCut, const float hardPtCut);
   
 private:
+  CAGraph & theLayerGraph;
+
   std::vector<CACell> allCells;
   std::vector<CACellStatus> allStatus;
-  CAGraph theLayerGraph;
+
   std::vector<unsigned int> theRootCells;
   std::vector<std::vector<CACell*> > theNtuplets;
   
