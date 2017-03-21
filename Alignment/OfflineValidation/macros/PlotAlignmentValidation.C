@@ -1020,20 +1020,16 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
       TString title = alignment->getName();
       int color = alignment->getLineColor();
       int style = alignment->getLineStyle();
-      cout << color << " " << style << " " << title << endl;
       for (auto entry : *legend->GetListOfPrimitives()) {
         TLegendEntry *legendentry = dynamic_cast<TLegendEntry*>(entry);
         assert(legendentry);
         TH1 *h = dynamic_cast<TH1*>(legendentry->GetObject());
         if (!h) continue;
-        cout << h->GetLineColor() << " " << h->GetLineStyle() << " " << legendentry->GetLabel() << endl;
         if (legendentry->GetLabel() == title && h->GetLineColor() == color && h->GetLineStyle() == style) {
-          cout << "found it" << endl;
           summaryfile << h->GetEntries();
           break;
         }
       }
-      cout << endl;
     }
     summaryfile << "\n";
   }
