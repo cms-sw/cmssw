@@ -110,8 +110,8 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
   const int   rzBinsR = (int) (     maxR * resolution);
 
   std::vector<double> max;
-  max.push_back( 0.02 );
-  max.push_back( 0.00004 );
+  max.push_back( 0.08 );
+  max.push_back( 0.00016 );
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
   TColor::InitializeColors();
@@ -155,6 +155,24 @@ void TrackingMaterialPlotter::draw( void )
   radlen->Draw("same axis y+");
   radlen->SaveAs("radlen.root");
   canvas->SaveAs("radlen.png");
+  // Replicate RainBow palette, with White in the first white_slots
+  // positions
+  int white_slots = 1;
+  int MyPalette[100];
+  double stops[9] = { 0.0000, 0.1250, 0.2500, 0.3750, 0.5000, 0.6250, 0.7500, 0.8750, 1.0000};
+  double red[9]   = { 0./255.,   5./255.,  15./255.,  35./255., 102./255., 196./255., 208./255., 199./255., 110./255.};
+  double green[9] = { 0./255.,  48./255., 124./255., 192./255., 206./255., 226./255.,  97./255.,  16./255.,   0./255.};
+  double blue[9]  = { 99./255., 142./255., 198./255., 201./255.,  90./255.,  22./255.,  13./255.,   8./255.,   2./255.};
+  int palette_index = TColor::CreateGradientColorTable(9, stops, red, green, blue, 100 - white_slots);
+  for (int i=0; i<white_slots; i++) MyPalette[i] = kWhite;
+  for (int i=0; i<100-white_slots; i++) MyPalette[i + white_slots] = palette_index + i;
+  canvas->Clear();
+  gStyle->SetNumberContours( 100 );
+  gStyle->SetPalette(100, MyPalette); // ROOT Rainbow color palette
+  radlen->Draw("colz");
+  radlen->Draw("same axis y+");
+  canvas->SaveAs("radlenColor.png");
+
   delete canvas;
 
   XHistogram::Histogram* dedx = m_tracker.get(1);
@@ -167,6 +185,12 @@ void TrackingMaterialPlotter::draw( void )
   dedx->Draw("same axis y+");
   dedx->SaveAs("dedx.root");
   canvas->SaveAs("dedx.png");
+  canvas->Clear();
+  gStyle->SetNumberContours( 100 );
+  gStyle->SetPalette(100, MyPalette); // ROOT Rainbow color palette
+  dedx->Draw("colz");
+  dedx->Draw("same axis y+");
+  canvas->SaveAs("dedxColor.png");
   delete canvas;
 
   XHistogram::ColorMap* colormap = m_tracker.colormap();
