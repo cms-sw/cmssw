@@ -37,7 +37,6 @@ kt4PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 kt6PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 ic5PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 
-ak7JPTL1OffsetCorrector  = ak4CaloL1OffsetCorrector.clone()
 
 # L1 (fastjet) Correctors
 ak7CaloL1FastjetCorrector = ak4CaloL1FastjetCorrector.clone()
@@ -67,14 +66,15 @@ kt4PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 kt6PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 ic5PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 
-ak7JPTL1FastjetCorrector  = ak4JPTL1FastjetCorrector.clone()
-
 # SPECIAL L1JPTOffset
 ak7L1JPTOffsetCorrector = ak4L1JPTOffsetCorrector.clone( offsetService = 'ak7CaloL1OffsetCorrector' )
 ak7L1JPTOffsetCorrectorChain = cms.Sequence(
     ak7CaloL1OffsetCorrector * ak7L1JPTOffsetCorrector
 )
-
+ak7L1JPTFastjetCorrector = ak4L1JPTFastjetCorrector.clone( offsetService = 'ak7CaloL1FastjetCorrector' )
+ak7L1JPTFastjetCorrectorChain = cms.Sequence(
+    ak7CaloL1FastjetCorrector * ak7L1JPTOffsetCorrector
+)
 # L2 (relative eta-conformity) Correctors
 ak7CaloL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK7Calo' )
 ak7JPTL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK7JPT' )
@@ -476,10 +476,10 @@ ic5PFL1L2L3CorrectorChain = cms.Sequence(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3Corrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    correctors = cms.VInputTag('ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
     )
 ak7JPTL1L2L3CorrectorChain = cms.Sequence(
-    ak7JPTL1OffsetCorrector * ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTL1L2L3Corrector
+    ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTL1L2L3Corrector
 )
 
 # L2L3Residual CORRECTORS
@@ -847,10 +847,10 @@ ic5PFL1L2L3ResidualCorrectorChain = cms.Sequence(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3ResidualCorrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
+    correctors = cms.VInputTag('ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
     )
 ak7JPTL1L2L3ResidualCorrectorChain = cms.Sequence(
-    ak7JPTL1OffsetCorrector * ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTResidualCorrector * ak7JPTL1L2L3ResidualCorrector
+    ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTResidualCorrector * ak7JPTL1L2L3ResidualCorrector
 )
 
 # L1FastL2L3 CORRECTORS
@@ -906,6 +906,18 @@ ak4TrackL1FastL2L3Corrector.correctors.insert(0,'ak4CaloL1FastjetCorrector')
 ak4TrackL1FastL2L3CorrectorChain = cms.Sequence(
     ak4CaloL1FastjetCorrector * ak4TrackL2RelativeCorrector * ak4TrackL3AbsoluteCorrector * ak4TrackL1FastL2L3Corrector
 )
+
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
+ak7JPTL1FastL2L3Corrector = cms.EDProducer(
+    'ChainedJetCorrectorProducer',
+    correctors = cms.VInputTag('ak7CaloL1FastjetCorrector','ak7L1JPTFastjetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    )
+ak7JPTL1FastL2L3Corrector.correctors.insert(0,'ak7CaloL1FastjetCorrector')
+ak7JPTL1FastL2L3CorrectorChain = cms.Sequence(
+    ak7CaloL1FastjetCorrector * ak7L1JPTFastjetCorrector * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTL1FastL2L3Corrector
+)
+
 
 # L1FastL2L3Residual CORRECTORS
 ak7CaloL1FastL2L3ResidualCorrector = cms.EDProducer(
@@ -1091,10 +1103,11 @@ ic5PFL1FastL2L3ResidualCorrectorChain = cms.Sequence(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1FastL2L3ResidualCorrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1FastjetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
+    correctors = cms.VInputTag('ak7CaloL1FastjetCorrector','ak7L1JPTFastjetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
     )
+ak7JPTL1FastL2L3Corrector.correctors.insert(0,'ak7CaloL1FastjetCorrector')
 ak7JPTL1FastL2L3ResidualCorrectorChain = cms.Sequence(
-    ak7JPTL1FastjetCorrector * ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTResidualCorrector *  ak7JPTL1FastL2L3ResidualCorrector
+    ak7CaloL1FastjetCorrector * ak7L1JPTFastjetCorrector * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTResidualCorrector * ak7JPTL1FastL2L3ResidualCorrector
 )
 
 # L2L3L6 CORRECTORS
