@@ -1,14 +1,15 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreator_h
-#define RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreator_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFEcalBarrelRecHitCreator_h
+#define RecoParticleFlow_PFClusterProducer_PFEcalBarrelRecHitCreator_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -21,51 +22,55 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFEcalRecHitCreator :  public  PFRecHitCreatorBase {
+class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
 
  public:  
-  PFEcalRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+  PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+      srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
+      triggerTowerMap_ = 0;
     }
-
+    
     void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       beginEvent(iEvent,iSetup);
-
+      
       edm::Handle<EcalRecHitCollection> recHitHandle;
 
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
+      iEvent.getByToken(srFlagToken_,srFlagHandle_);
+
       // get the ecal geometry
       const CaloSubdetectorGeometry *gTmp = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
+	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const EcalBarrelGeometry *ecalGeo =dynamic_cast< const EcalBarrelGeometry* > (gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
 	const DetId& detid = erh.detid();
 	auto energy = erh.energy();
 	auto time = erh.time();
+        bool hi = isHighInterest(detid);
 
 	const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFEcalRecHitCreator")
+	  edm::LogError("PFEcalBarrelRecHitCreator")
 	    <<"warning detid "<<detid.rawId()
 	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
 
-	out->emplace_back(thisCell, detid.rawId(),Layer,
-			   energy); 
+	out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy); 
 
         auto & rh = out->back();
 	
@@ -74,7 +79,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}
@@ -91,16 +96,37 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       }
     }
 
+    void init(const edm::EventSetup &es) {
 
+      edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
+      es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+      triggerTowerMap_ = hTriggerTowerMap.product();
+
+    }
+      
 
  protected:
-  edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
 
+    bool isHighInterest(const EBDetId& detid) {
+      bool result=false;
+      EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+      if(srf==srFlagHandle_->end()) return false;
+      else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
+      return result;
+    }
+
+    EcalTrigTowerDetId readOutUnitOf(const EBDetId& detid) const{
+      return triggerTowerMap_->towerOf(detid);
+    }
+
+    edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
+    edm::EDGetTokenT<EBSrFlagCollection> srFlagToken_;
+
+    // ECAL trigger tower mapping
+    const EcalTrigTowerConstituentsMap * triggerTowerMap_;
+    // selective readout flags collection
+    edm::Handle<EBSrFlagCollection> srFlagHandle_;
 
 };
-
-
-typedef PFEcalRecHitCreator<EcalBarrelGeometry,PFLayer::ECAL_BARREL,EcalBarrel> PFEBRecHitCreator;
-typedef PFEcalRecHitCreator<EcalEndcapGeometry,PFLayer::ECAL_ENDCAP,EcalEndcap> PFEERecHitCreator;
 
 #endif
