@@ -18,9 +18,6 @@
 <library   file="L1TriggerScalerPopConAnalyzer.cc" name="CondToolsL1TriggerScalerPopConAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="L1TriggerScalerPopConAnalyzer.cc" name="CondToolsL1TriggerScalerPopConAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="FillInfoESAnalyzer.cc" name="CondToolsFillInfoESAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
