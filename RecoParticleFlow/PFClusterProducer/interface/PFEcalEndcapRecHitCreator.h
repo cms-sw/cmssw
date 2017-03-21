@@ -17,6 +17,8 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
@@ -24,27 +26,15 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-
 class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
-
-  const int maxNrTowersEE_=1440;
-  const int maxNrTowersEB_=2448;
-  const int maxNrSCs_=633;
-  const int maxIndexSC_=158;
 
  public:  
   PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-      srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
-
-      towerOf_.resize(EEDetId::kSizeForDenseIndexing);
-      theTTDetIds_.resize(maxNrTowersEE_);
-      SCofTT_.resize(maxNrTowersEE_);
-      SCHighInterest_.resize(maxNrSCs_,0);
-      TTofSC_.resize(maxNrSCs_);
-      CrystalsinSC_.resize(maxNrSCs_);
+      srFlagToken_ = iC.consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
+      elecMap_ = 0;
     }
 
     void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -69,19 +59,20 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 	const DetId& detid = erh.detid();
 	auto energy = erh.energy();
 	auto time = erh.time();
-        bool hi = isHighInterest(detid);
 
+        bool hi = isHighInterest(detid);
+        
 	const CaloCellGeometry * thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
-          throw cms::Exception("ECALCellNotInGeometry")
-	    << "Detid: "<< detid.rawId()<<" not found in geometry";
+	  edm::LogError("PFEcalEndcapRecHitCreator")
+	    <<"warning detid "<<detid.rawId()
+	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
 
-	out->emplace_back(thisCell, detid.rawId(),PFLayer::ECAL_ENDCAP,
-			   energy); 
+	out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_ENDCAP, energy); 
 
         auto & rh = out->back();
 	
@@ -108,50 +99,10 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
     }
 
     void init(const edm::EventSetup &es) {
-
-      edm::ESHandle<CaloGeometry> pG;
-      es.get<CaloGeometryRecord>().get(pG);   
-
-      edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
-      es.get<IdealGeometryRecord>().get(hetm);
-      eTTmap_ = &(*hetm);
-  
-      const EcalEndcapGeometry * myEcalEndcapGeometry = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-      const std::vector<DetId>& vec(myEcalEndcapGeometry->getValidDetIds(DetId::Ecal,EcalEndcap));
-      unsigned size=vec.size();
-      for(unsigned ic=0; ic<size; ++ic) 
-        {
-          EEDetId myDetId(vec[ic]);
-          int cellhashedindex=myDetId.hashedIndex();
-          // a bit of trigger tower and SuperCrystals algebra
-          // first get the trigger tower 
-          EcalTrigTowerDetId towid1= eTTmap_->towerOf(vec[ic]);
-          int tthashedindex=TThashedIndexforEE(towid1);
-          towerOf_[cellhashedindex]=tthashedindex;
-
-          // get the SC of the cell
-          int schi=SChashedIndex(EEDetId(vec[ic]));
-          if(schi<0) EEDetId myID(vec[ic]);
       
-          theTTDetIds_[tthashedindex]=towid1;
-
-          // check if this SC is already in the list of the corresponding TT
-          std::vector<int>::const_iterator itcheck=find(SCofTT_[tthashedindex].begin(),
-                                                        SCofTT_[tthashedindex].end(),
-                                                        schi);
-          if(itcheck==SCofTT_[tthashedindex].end())
-            SCofTT_[tthashedindex].push_back(schi);
-      
-          // check if this crystal is already in the list of crystals per sc
-          itcheck=find(CrystalsinSC_[schi].begin(),CrystalsinSC_[schi].end(),cellhashedindex);
-          if(itcheck==CrystalsinSC_[schi].end())
-            CrystalsinSC_[schi].push_back(cellhashedindex);
-
-          // check if the TT is already in the list of sc
-          itcheck=find(TTofSC_[schi].begin(),TTofSC_[schi].end(),tthashedindex);
-          if(itcheck==TTofSC_[schi].end())
-            TTofSC_[schi].push_back(tthashedindex);
-        }
+      edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+      es.get< EcalMappingRcd >().get(ecalmapping);
+      elecMap_ = ecalmapping.product();
 
     }
 
@@ -159,70 +110,32 @@ class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
 
 
     bool isHighInterest(const EEDetId& detid) {
-
-      int schi=SChashedIndex(detid);
-      // check if it has already been treated or not
-      // 0 <=> not treated
-      // 1 <=> high interest
-      // -1 <=> low interest
-      if(SCHighInterest_[schi]!=0) return (SCHighInterest_[schi]>0);
-
-      // now look if a TT contributing is of high interest
-      const std::vector<int> & tts(TTofSC_[schi]);
-      unsigned size=tts.size();
       bool result=false;
-      for(unsigned itt=0;itt<size&&!result;++itt)
-        {
-          EcalTrigTowerDetId towid = theTTDetIds_[tts[itt]];
-          if(srFullReadOut(towid)) result=true;
-        }
-      SCHighInterest_[schi]=(result)? 1:-1;
-      theFiredSC_.push_back(schi);
+      EESrFlagCollection::const_iterator srf = srFlagHandle_->find(readOutUnitOf(detid));
+      if(srf==srFlagHandle_->end()) return false;
+      else result = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
       return result;
     }
 
-    bool srFullReadOut(EcalTrigTowerDetId& towid) {
-      EBSrFlagCollection::const_iterator srf = srFlagHandle_->find(towid);
-      if(srf == srFlagHandle_->end()) return false;
-      return ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);  
+    EcalScDetId readOutUnitOf(const EEDetId& detid) const{
+      const EcalElectronicsId& EcalElecId = elecMap_->getElectronicsId(detid);
+      int iDCC= EcalElecId.dccId();
+      int iDccChan = EcalElecId.towerId();
+      const bool ignoreSingle = true;
+      const std::vector<EcalScDetId> id = elecMap_->getEcalScDetId(iDCC, iDccChan, ignoreSingle);
+      return id.size()>0?id[0]:EcalScDetId();
     }
 
+
     edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
-    edm::EDGetTokenT<EBSrFlagCollection> srFlagToken_;
+    edm::EDGetTokenT<EESrFlagCollection> srFlagToken_;
 
     const EcalTrigTowerConstituentsMap* eTTmap_;  
 
-    // arraws for the selective readout emulation
-    // fast EEDetId -> TT hashedindex conversion
-    std::vector<int>  towerOf_;
-    // vector of the original DetId if needed
-    std::vector<EcalTrigTowerDetId> theTTDetIds_;
-    // list of SC "contained" in a TT.
-    std::vector<std::vector<int> > SCofTT_;
-    // list of TT of a given sc
-    std::vector<std::vector<int> > TTofSC_;
-    // status of each SC 
-    std::vector<int> SCHighInterest_;
-    // list of fired SC
-    std::vector<int> theFiredSC_;
-    // the list of fired TT
-    std::vector<int> theFiredTTs_;
-    // the cells in each SC
-    std::vector<std::vector<int> > CrystalsinSC_;
-
+    // Ecal electronics/geometrical mapping
+    const EcalElectronicsMapping* elecMap_;
     // selective readout flags collection
-    edm::Handle<EBSrFlagCollection> srFlagHandle_;
-
- private:
-    // there are 2448 TT in the barrel. 
-    inline int TThashedIndexforEE(int originalhi) const {return originalhi-maxNrTowersEB_;}
-    inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-maxNrTowersEB_;}
-    // the number of the SuperCrystals goes from 1 to 316 (with some holes) in each EE
-    // z should -1 or 1 
-    inline int SChashedIndex(int SC,int z) const {return SC+(z+1)*maxIndexSC_;}
-    inline int SChashedIndex(const EEDetId& detid) const {
-      return detid.isc()+(detid.zside()+1)*maxIndexSC_;
-    }
+    edm::Handle<EESrFlagCollection> srFlagHandle_;
 
 };
 
