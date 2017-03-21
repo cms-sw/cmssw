@@ -171,11 +171,8 @@ def filesFromDASQuery(query,option="",s=None):
 	return (prim,sec)
 
 def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
-	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-	for s in aProcess.paths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
-	for s in aProcess.endpaths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
+    from PhysicsTools.PatAlgos.tools.helpers import massReplaceInputTag
+    massReplaceInputTag(aProcess, oldT, newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
@@ -247,7 +244,6 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
-        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -262,6 +258,7 @@ class ConfigBuilder(object):
         self.additionalOutputs = {}
 
         self.productionFilterSequence = None
+        self.labelsToAssociate=[]
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
 	self.excludedPaths=[]
@@ -314,18 +311,14 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile,unsch=0):
+    def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-	if unsch==0:
-		self.imports.append(includeFile)
-		self.process.load(includeFile)
-		return sys.modules[includeFile]
-	else:
-		self.importsUnsch.append(includeFile)
-		return 0#sys.modules[includeFile]
+        self.imports.append(includeFile)
+        self.process.load(includeFile)
+        return sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -342,9 +335,6 @@ class ConfigBuilder(object):
             else:
                     self.process.options = cms.untracked.PSet( )
 
-	    if self._options.runUnscheduled:
-		    self.process.options.allowUnscheduled=cms.untracked.bool(True)
-		    
             self.addedObjects.append(("","options"))
 
             if self._options.lazy_download:
@@ -1180,11 +1170,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF,unsch)
+                    l=self.loadAndRemember(defaultCFF)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
+                    l=self.loadAndRemember(sequence.split('.')[0])
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1654,10 +1644,11 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-	self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
-	if not self._options.runUnscheduled:	
-		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        self.prepare_PATFILTER(self)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.labelsToAssociate.append('patTask')
+        if not self._options.runUnscheduled:
+               raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
             self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
@@ -2156,6 +2147,15 @@ class ConfigBuilder(object):
 
 	self.pythonCfgCode += result
 
+        for labelToAssociate in self.labelsToAssociate:
+                self.process.schedule.associate(getattr(self.process, labelToAssociate))
+                self.pythonCfgCode += 'process.schedule.associate(process.' + labelToAssociate + ')\n'
+
+        from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+        associatePatAlgosToolsTask(self.process)
+        self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
+        self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
+
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
 		self.pythonCfgCode +="#Setup FWK for multithreaded\n"
@@ -2196,18 +2196,6 @@ class ConfigBuilder(object):
 
 		from FWCore.ParameterSet.Utilities import convertToUnscheduled
 		self.process=convertToUnscheduled(self.process)
-
-		#now add the unscheduled stuff
-		for module in self.importsUnsch:
-			self.process.load(module)
-			self.pythonCfgCode += ("process.load('"+module+"')\n")
-
-		#and clean the unscheduled stuff	
-		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
-		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
-
-		from FWCore.ParameterSet.Utilities import cleanUnscheduled
-		self.process=cleanUnscheduled(self.process)
 
 		self.pythonCfgCode += self.addCustomise(1)
 
