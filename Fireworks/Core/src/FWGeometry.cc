@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-FWGeometry::FWGeometry( void )
+FWGeometry::FWGeometry( void ):m_producerVersion(0)
 {}
 
 FWGeometry::~FWGeometry( void )
@@ -37,7 +37,7 @@ FWGeometry::findFile( const char* fileName )
        {
            TObjString* path = (TObjString*)tokens->At( i );
            searchPath += ":";
-           searchPath += path->GetString();
+           searchPath += static_cast<const char *>(path->GetString());
            if (gSystem->Getenv("CMSSW_VERSION"))
                searchPath += "/Fireworks/Geometry/data/";
        }
@@ -127,7 +127,8 @@ FWGeometry::loadMap( const char* fileName )
    m_versionInfo.productionTag  = static_cast<TNamed*>(file->Get( "tag" ));
    m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
    m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
-  
+
+   
    TString path = file->GetPath();
    if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
 
@@ -136,6 +137,11 @@ FWGeometry::loadMap( const char* fileName )
    else 
       fwLog( fwlog::kInfo ) << Form("Load %s from %s\n",  tree->GetName(), path.Data());  
 
+
+   TNamed* producerInfo = static_cast<TNamed*>(file->Get( "PRODUCER_VERSION" ));
+   if (producerInfo) {
+      m_producerVersion = atoi(producerInfo->GetTitle());
+   }
    file->Close();
 }
 

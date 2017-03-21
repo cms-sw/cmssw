@@ -30,19 +30,31 @@ public:
   
   
   struct DigiMEs{
-    MonitorElement* NumberOfDigis;
+    MonitorElement* NumberOfDigisPerDet;
+    MonitorElement* DigiOccupancyP;
+    MonitorElement* DigiOccupancyS;
     MonitorElement* PositionOfDigis;
-    MonitorElement* NumberOfClusters;
+    MonitorElement* ChargeOfDigis;
+    MonitorElement* TotalNumberOfDigisPerLayer;
+    MonitorElement* NumberOfHitDetectorsPerLayer;
+    MonitorElement* NumberOfClustersPerDet;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
-    MonitorElement* FractionOfOTBits;
+    MonitorElement* FractionOfOvTBits;
+    MonitorElement* FractionOfOvTBitsVsEta;
+    MonitorElement* EtaOccupancyProfP;
+    MonitorElement* EtaOccupancyProfS;
+    unsigned int nDigiPerLayer; 
+    unsigned int nHitDetsPerLayer; 
   };
 
   MonitorElement* XYPositionMap;
   MonitorElement* RZPositionMap;
+  MonitorElement* XYOccupancyMap;
+  MonitorElement* RZOccupancyMap;
 
 private:
-  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool iflag); 
+  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo); 
   void fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
   void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
 

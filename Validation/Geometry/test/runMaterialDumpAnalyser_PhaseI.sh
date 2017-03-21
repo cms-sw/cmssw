@@ -36,10 +36,10 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
 --conditions auto:phase1_2017_realistic \
 -n ${events} \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
---geometry Extended2017NewFPix  \
+--geometry Extended2017  \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
@@ -58,10 +58,11 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
 -s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake \
 --conditions auto:phase1_2017_realistic \
 -n -1 \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---geometry Extended2017NewFPix \
+--geometry Extended2017 \
+--nThreads 6 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
 --python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.log 2>&1
@@ -79,14 +80,14 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 -s RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM \
 --conditions auto:phase1_2017_realistic \
 -n -1 \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---geometry Extended2017NewFPix \
+--geometry Extended2017 \
+--nThreads 6 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
---python_filename SingleMuPt10_step2_RECO_DQM_PhaseI.py \
---customise Validation/Geometry/customiseForDumpMaterialAnalyser.customiseForMaterialAnalyser > SingleMuPt10_step3_RECO_DQM_PhaseI.log 2>&1
+--python_filename SingleMuPt10_step2_RECO_DQM_PhaseI.py  > SingleMuPt10_step3_RECO_DQM_PhaseI.log 2>&1
 
     if [ $? -ne 0 ]; then
       echo "Error executing the RECO step, aborting."
@@ -101,10 +102,10 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM  \
 --conditions auto:phase1_2017_realistic \
 -n -1   \
---era Run2_2017_NewFPix  \
+--era Run2_2017  \
 --scenario pp  \
 --filetype DQM  \
---geometry Extended2017NewFPix  \
+--geometry Extended2017  \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseI_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseI.py > SingleMuPt10_step4_HARVESTING_PhaseI.log 2>&1
@@ -123,7 +124,7 @@ if checkFile single_neutrino_random.root ; then
     echo "Error generating single neutrino gun, aborting."
     exit 1
   fi
-  if [! -e Images ]; then
+  if [ ! -e Images ]; then
     mkdir Images
   fi
 fi
@@ -132,7 +133,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=2017NewFPix label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=phaseI label=$t >& /dev/null &
   fi
 done
 
@@ -140,7 +141,7 @@ waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
-for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
+for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   root -b -q "MaterialBudget.C(\"${t}\")"
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
@@ -148,4 +149,4 @@ for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC Tk
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")'
+root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1

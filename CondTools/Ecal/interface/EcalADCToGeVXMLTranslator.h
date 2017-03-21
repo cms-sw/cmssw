@@ -10,8 +10,6 @@
 #ifndef __EcalADCToGeVXMLTranslator_h_
 #define __EcalADCToGeVXMLTranslator_h_
 
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
 
@@ -29,7 +27,8 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const EcalADCToGeVConstant& record);
-
+private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalADCToGeVConstant& record);
 };

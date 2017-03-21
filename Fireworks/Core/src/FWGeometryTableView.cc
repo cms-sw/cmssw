@@ -87,7 +87,7 @@ public:
 
   }
 
-   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const override 
+   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const override 
    {
       oOptions.clear();
       m_list.clear();
@@ -105,14 +105,14 @@ public:
     unsigned int part_size = part.size();
       std::string h = "";
   // int cnt = 0;  
-    oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(*m_list.begin())), h));
+    oOptions.push_back(std::make_pair(std::make_shared<std::string>(*m_list.begin()), h));
     std::vector<const char*>::iterator startIt = m_list.begin();  startIt++;
     for (std::vector<const char*>::iterator i = startIt; i!=m_list.end(); ++i)
       {
     //      std::cout << *i << " " << cnt++ << std::endl;
       if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size ) == 0)
          {
-        oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i))),&((*i)[part_size]) ));
+        oOptions.push_back(std::make_pair(std::make_shared<std::string>((*i)),&((*i)[part_size]) ));
          }
       }
    }
@@ -183,7 +183,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
       m_filterType.addEntry(kFilterShapeName,      "ShapeName");
       m_filterType.addEntry(kFilterShapeClassName, "ShapeClassName");
 
-      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)&m_filterType) );
+      std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)&m_filterType) );
       ptr->attach((FWParameterBase*)&m_filterType, this);
 
       TGFrame* pframe = ptr->build(hp, false);

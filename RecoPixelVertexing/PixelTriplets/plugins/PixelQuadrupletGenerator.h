@@ -21,14 +21,24 @@ class PixelQuadrupletGenerator : public HitQuadrupletGeneratorFromTripletAndLaye
 typedef CombinedHitQuadrupletGenerator::LayerCacheType       LayerCacheType;
 
 public:
+  PixelQuadrupletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): PixelQuadrupletGenerator(cfg, iC) {}
   PixelQuadrupletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~PixelQuadrupletGenerator();
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   virtual void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
                                const edm::Event & ev, const edm::EventSetup& es,
                                const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers) override;
+
+  void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
+                       const edm::Event& ev, const edm::EventSetup& es,
+                       OrderedHitTriplets::const_iterator tripletsBegin,
+                       OrderedHitTriplets::const_iterator tripletsEnd,
+                       const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers,
+                       LayerCacheType& layerCache);
 
 private:
   std::unique_ptr<SeedComparitor> theComparitor;
@@ -38,6 +48,8 @@ private:
     QuantityDependsPtEval(float v1, float v2, float c1, float c2):
       value1_(v1), value2_(v2), curvature1_(c1), curvature2_(c2)
     {}
+
+    static void fillDescriptions(edm::ParameterSetDescription& desc);
 
     float value(float curvature) const {
       if(value1_ == value2_) // not enabled

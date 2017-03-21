@@ -22,7 +22,6 @@ fNMVABins(0)
 EGammaMvaEleEstimatorCSA14::~EGammaMvaEleEstimatorCSA14()
 {
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
     if (fTMVAReader[i]) delete fTMVAReader[i];
   }
 }
@@ -49,7 +48,6 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
   //clean up first
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
     if (fTMVAReader[i]) delete fTMVAReader[i];
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
   }
   fTMVAReader.clear();
   fTMVAMethod.clear();

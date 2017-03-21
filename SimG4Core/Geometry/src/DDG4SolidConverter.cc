@@ -363,14 +363,14 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
   else {
     x = pt.x2(); // tubs radius
   }
-  double openingAngle = 2.*asin(x/abs(r));
+  double openingAngle = 2.*asin(x/std::abs(r));
   //trap = new G4Trd(solid.name().name(), 
   double displacement=0;
   double startPhi=0;
   /* calculate the displacement of the tubs w.r.t. to the trap,
      determine the opening angle of the tubs */
   double delta = sqrt(r*r-x*x);
-  if (r < 0 && abs(r) >= x) {
+  if (r < 0 && std::abs(r) >= x) {
     intersec = true; // intersection solid
     h = pt.y1() < pt.y2() ? pt.y2() : pt.y1(); // tubs half height
     h += h/20.; // enlarge a bit - for subtraction solid
@@ -383,7 +383,7 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
       startPhi = 90.*deg - openingAngle/2.;
     }
   }
-  else if ( r > 0 && abs(r) >= x )
+  else if ( r > 0 && std::abs(r) >= x )
     {
       if (atMinusZ) {
         displacement = - pt.halfZ() + delta;
@@ -408,7 +408,7 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
   trap = new G4Trd(name, pt.x1(), pt.x2(), pt.y1(), pt.y2(), pt.halfZ());
   tubs = new G4Tubs(name, 
 		    0., // rMin
-		    abs(r), // rMax
+		    std::abs(r), // rMax
 		    h, // half height
 		    startPhi, // start angle
 		    openingAngle);
@@ -429,7 +429,7 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
       delete tubs;
       tubs = new G4Tubs(name, 
       sqrt(r*r-x*x), // rMin-approximation!
-      abs(r), // rMax
+      std::abs(r), // rMax
       h, // half height
       startPhi, // start angle
       openingAngle);
@@ -503,9 +503,9 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & solid) {
   // center point of the box
   double xBox;
   if (!cutInside) {
-    xBox = r+boxY/sin(abs(alpha));
+    xBox = r+boxY/sin(std::abs(alpha));
   } else {
-    xBox = -(boxY/sin(abs(alpha))-r);
+    xBox = -(boxY/sin(std::abs(alpha))-r);
   }
 
   G4ThreeVector trans(xBox,0.,0.);

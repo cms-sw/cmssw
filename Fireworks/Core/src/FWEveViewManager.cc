@@ -241,7 +241,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       // 2.
       // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
       
-      boost::shared_ptr<FWProxyBuilderBase> pB(builder);
+      std::shared_ptr<FWProxyBuilderBase> pB(builder);
       builder->setItem(iItem);
       iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
       iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
@@ -310,7 +310,7 @@ FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName
       }
    }
 
-   boost::shared_ptr<FWEveView> view;
+   std::shared_ptr<FWEveView> view;
    switch(type)
    {
       case FWViewType::k3D:
@@ -338,12 +338,12 @@ FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName
          break;
    }
 
-   m_views[type].push_back(boost::shared_ptr<FWEveView> (view));
+   m_views[type].push_back(std::shared_ptr<FWEveView> (view));
    return finishViewCreate(m_views[type].back());
 }
 
 FWEveView*
-FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
+FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view)
 {
    // printf("new view %s added \n", view->typeName().c_str());
    gEve->DisableRedraw();
@@ -804,11 +804,11 @@ FWEveViewManager::supportedTypesAndRepresentations() const
          info.classType(name, isSimple);
          if(isSimple) 
          {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
+            returnValue.add(std::make_shared<FWSimpleRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
          }
          else
          {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
+            returnValue.add(std::make_shared<FWEDProductRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
          }
       }
    }

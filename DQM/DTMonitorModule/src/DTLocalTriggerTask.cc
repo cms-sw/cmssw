@@ -140,13 +140,13 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	      DTChamberId dtChId(wh,stat,sect);
 	      if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
 
-		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual_In"+(*trigSrcIt));
 		if (detailedAnalysis) {
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhibend"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad_In"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhibend_In"+(*trigSrcIt));
 		}
-		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_Flag1stvsQual_In"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BestQual_In"+(*trigSrcIt));
 		if (stat!=4 && doTMTheta){
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsBX"+(*trigSrcIt));
               bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsBX"+(*trigSrcIt));
@@ -559,11 +559,11 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
       innerME.find("TM_QualvsPhirad"+trigsrc)->second->Fill(x,phcode);          // SM Qual vs radial angle Phi view
     }
     else {
-      innerME.find("TM_BXvsQual"+trigsrc)->second->Fill(phcode,phbx-phi1st);    // SM BX vs Qual Phi view (1st tracks)
-      innerME.find("TM_Flag1stvsQual"+trigsrc)->second->Fill(phcode,phi1st);    // SM Qual 1st/2nd track flag Phi view
+      innerME.find("TM_BXvsQual_In"+trigsrc)->second->Fill(phcode,phbx-phi1st);    // SM BX vs Qual Phi view (1st tracks)
+      innerME.find("TM_Flag1stvsQual_In"+trigsrc)->second->Fill(phcode,phi1st);    // SM Qual 1st/2nd track flag Phi view
       if (detailedAnalysis) {
-	innerME.find("TM_QualvsPhirad"+trigsrc)->second->Fill(x,phcode);          // SM Qual vs radial angle Phi view
-	innerME.find("TM_QualvsPhibend"+trigsrc)->second->Fill(angle,phcode);     // SM Qual vs bending Phi view
+	innerME.find("TM_QualvsPhirad_In"+trigsrc)->second->Fill(x,phcode);          // SM Qual vs radial angle Phi view
+	innerME.find("TM_QualvsPhibend_In"+trigsrc)->second->Fill(angle,phcode);     // SM Qual vs bending Phi view
       }
     }
 

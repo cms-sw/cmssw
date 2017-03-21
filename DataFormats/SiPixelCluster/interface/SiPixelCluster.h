@@ -68,7 +68,7 @@ public:
   typedef std::pair<PixelDigiIter,PixelDigiIter>   PixelDigiRange;
   
   
-  static constexpr unsigned int MAXSPAN=127;
+  static constexpr unsigned int MAXSPAN=255;
   static constexpr unsigned int MAXPOS=2047;
   
   /** Construct from a range of digis that form a cluster and from 

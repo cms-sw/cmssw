@@ -69,7 +69,7 @@ private:
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
   MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_;
   MonitorElement *mePhiHit_, *mePhiHitb_, *meEnergyHit_, *meTimeHit_, *meTimeWHit_;
-  MonitorElement *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_;
+  MonitorElement *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_, *meHFDepHitw_;
   MonitorElement *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;
   MonitorElement *meHBPhiHit_, *meHEPhiHit_, *meHOPhiHit_, *meHFPhiHit_;
   MonitorElement *meHBEneHit_, *meHEEneHit_, *meHOEneHit_, *meHFEneHit_;

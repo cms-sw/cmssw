@@ -3,7 +3,7 @@
 
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
+#include "G4EmParameters.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -17,6 +17,7 @@
 #include "G4CoulombScattering.hh"
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
+#include "G4UrbanMscModel.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -68,12 +69,19 @@
 
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
+#include "G4RegionStore.hh"
+#include "G4Region.hh"
 
 #include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver) :
   G4VPhysicsConstructor("CMSEmStandardXS_opt1"), verbose(ver) {
-  G4LossTableManager::Instance();
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
 }
 
@@ -157,6 +165,11 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100*MeV;
 
+  G4Region* aRegion = 
+    G4RegionStore::GetInstance()->GetRegion("HcalRegion",false);
+  G4Region* bRegion = 
+    G4RegionStore::GetInstance()->GetRegion("HGCalRegion",false);
+
   aParticleIterator->reset();
   while( (*aParticleIterator)() ){
     G4ParticleDefinition* particle = aParticleIterator->value();
@@ -179,12 +192,17 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      UrbanMscModel93* msc1 = new UrbanMscModel93();
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      G4UrbanMscModel* msc3 = new G4UrbanMscModel();
+      msc3->SetLocked(true);
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
+      msc3->SetHighEnergyLimit(highEnergyLimit);
       msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
+      msc->AddEmModel(-1, msc3, aRegion);
+      if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -205,12 +223,17 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      UrbanMscModel93* msc1 = new UrbanMscModel93();
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      G4UrbanMscModel* msc3 = new G4UrbanMscModel();
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
+      msc3->SetHighEnergyLimit(highEnergyLimit);
+      msc3->SetLocked(true);
       msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
+      msc->AddEmModel(-1, msc3, aRegion);
+      if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -337,8 +360,4 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(CLHEP::pi);
-  opt.SetApplyCuts(true);
 }

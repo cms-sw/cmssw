@@ -23,7 +23,6 @@ protected:
   virtual bool shouldKeep(const HFDataFrame& digi) const;
   virtual bool shouldKeep(const QIE10DataFrame& digi) const;
   virtual bool shouldKeep(const QIE11DataFrame& digi) const;
-  virtual bool shouldKeep(const HcalUpgradeDataFrame& digi) const;
 private:
   bool usingDBvalues; 
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;

@@ -20,6 +20,10 @@
 
  <Constant name="ZCylinder"      value="[AnchorZ]"/>
 
+ <Constant name="FlexCableDiskRmin" value="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]"/>
+ <Constant name="FlexCableDiskRmax" value="165.*mm"/>
+ <Constant name="FlexCableDiskHalfThickness" value="0.15*mm"/>
+
 </ConstantsSection>
 
 <SolidSection label="pixfwd.xml">
@@ -41,6 +45,7 @@
  <ZSection z="-[RootMidZ1]"   rMin="[cms:TrackBeamR11]" rMax="[RootRadius]"/>
  <ZSection z="-[RootStartZ]"  rMin="[cms:TrackBeamR1]"  rMax="[RootRadius]"/>
  </Polycone>
+  
 </SolidSection>
  
 <LogicalPartSection label="pixfwd.xml">
@@ -52,6 +57,7 @@
   <rSolid name="PixelForwardZminus"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
+
 </LogicalPartSection>
 
 <!-- Position disks inside root -->
@@ -90,7 +96,6 @@
     <rChild name="pixfwdDisks:PixelForwardDiskZminus"/>
     <Translation x="0." y="0." z="-[AnchorZ]-[Disk3Z]" />
   </PosPart>
-
 
   <PosPart copyNumber="1">
     <rParent name="pixfwd:PixelForwardZplus"/>

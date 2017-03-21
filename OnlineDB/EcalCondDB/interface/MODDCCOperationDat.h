@@ -22,18 +22,18 @@ class MODDCCOperationDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MODDCCOperationDat* item, MODRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MODDCCOperationDat >* data, MODRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
 
 
   void fetchData(std::map< EcalLogicID, MODDCCOperationDat >* fillMap, MODRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   std::string m_word;

@@ -33,7 +33,7 @@
 //
 FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
    const TClass* iType,
-   boost::shared_ptr<TVirtualCollectionProxy> iProxy,
+   std::shared_ptr<TVirtualCollectionProxy> iProxy,
    size_t iOffset)
    : m_type(iType),
      m_colProxy(iProxy),

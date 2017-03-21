@@ -23,7 +23,7 @@
 #include <vector>
 
 typedef TrajectoryStateOnSurface TrackParamConstraint;
-typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<TrackParamConstraint> > > TrackParamConstraintAssociationCollection;
+typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, std::vector<TrajectoryStateOnSurface> > > TrackParamConstraintAssociationCollection;
 typedef TrackParamConstraintAssociationCollection::value_type TrackParamConstraintAssociation;
 typedef edm::Ref<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRef;
 typedef edm::RefProd<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRefProd;
@@ -31,8 +31,8 @@ typedef edm::RefVector<TrackParamConstraintAssociationCollection> TrackParamCons
 
 namespace TrackingTools_TrajectoryState {
   struct dictionary {
-    std::vector<TrackParamConstraint> jjj2;
-    edm::Wrapper<std::vector<TrackParamConstraint> > jjj3;
+    std::vector<TrajectoryStateOnSurface> jjj2;
+    edm::Wrapper<std::vector<TrajectoryStateOnSurface> > jjj3;
   
     TrackParamConstraintAssociationCollection iii1;
     edm::Wrapper<TrackParamConstraintAssociationCollection> iii2;

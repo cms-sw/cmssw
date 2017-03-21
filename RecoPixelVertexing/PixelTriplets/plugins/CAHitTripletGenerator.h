@@ -9,6 +9,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "CAGraph.h"
 
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -16,32 +17,52 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
+
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 class TrackingRegion;
 class SeedingLayerSetsHits;
 
 namespace edm {
     class Event;
-}
-namespace edm {
     class EventSetup;
+    class ParameterSetDescription;
 }
 
 class CAHitTripletGenerator : public HitTripletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
+    static constexpr unsigned int minLayers = 3;
+    typedef OrderedHitSeeds ResultType;
 public:
 
-    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitTripletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits=true);
 
     virtual ~CAHitTripletGenerator();
+
+    static void fillDescriptions(edm::ParameterSetDescription& desc);
+    static const char *fillDescriptionsLabel() { return "caHitTriplet"; }
+
+    void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
     /// from base class
     virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
+    void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
+                     std::vector<OrderedHitSeeds>& result,
+                     const edm::EventSetup& es,
+                     const SeedingLayerSetsHits& layers);
 
 private:
+    // actual work
+    void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets& result,
+                     std::vector<const HitDoublets *>& hitDoublets,
+                     const CAGraph& g,
+                     const edm::EventSetup& es);
+
     edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
     LayerCacheType theLayerCache;

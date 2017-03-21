@@ -14,6 +14,7 @@ from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
+from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -31,9 +32,9 @@ hltassociation = cms.Sequence(
     +hltMultiPVValidation
     +egammaSelectors
     +ExoticaValidationProdSeq
+    +hltMultiTrackValidationGsfTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(hltassociation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
@@ -50,7 +51,6 @@ hltvalidation = cms.Sequence(
     +SMPValidationSequence
     +hltbtagValidationSequence
     )
-phase1Pixel.toReplaceWith(hltvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now
@@ -59,6 +59,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     hltassociation.remove(hltMultiTrackValidation)
     hltassociation.remove(hltMultiPVValidation)
+    hltassociation.remove(hltMultiTrackValidationGsfTracks)
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal

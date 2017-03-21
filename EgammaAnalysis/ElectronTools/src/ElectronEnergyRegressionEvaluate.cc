@@ -309,7 +309,7 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergy(const reco::G
               ele->trackMomentumError(),
               ele->correctedEcalEnergyError(),
               ele->classification(),     
-              fmin(fabs(ele->deltaEtaSuperClusterTrackAtVtx()), 0.6),
+              fmin(std::abs(ele->deltaEtaSuperClusterTrackAtVtx()), 0.6),
               ele->deltaPhiSuperClusterTrackAtVtx(),
               ele->deltaEtaSeedClusterTrackAtCalo(),
               ele->deltaPhiSeedClusterTrackAtCalo(),
@@ -584,7 +584,7 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergyUncertainty(co
               ele->trackMomentumError(),
               ele->correctedEcalEnergyError(),
               ele->classification(),     
-              fmin(fabs(ele->deltaEtaSuperClusterTrackAtVtx()), 0.6),
+              fmin(std::abs(ele->deltaEtaSuperClusterTrackAtVtx()), 0.6),
               ele->deltaPhiSuperClusterTrackAtVtx(),
               ele->deltaEtaSeedClusterTrackAtCalo(),
               ele->deltaPhiSeedClusterTrackAtCalo(),
@@ -653,8 +653,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
     assert(forestCorrection_ee);
 
   // Now applying regression according to version and (endcap/barrel)
-  float *vals = (fabs(scEta) <= 1.479) ? new float[38] : new float[31];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[38] : new float[31];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -689,7 +689,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
     vals[31] = IPhiSeed;
     vals[32] = ((int) IEtaSeed)%5;
     vals[33] = ((int) IPhiSeed)%2;
-    vals[34] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[34] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[35] = ((int) IPhiSeed)%20;
     vals[36] = EtaCrySeed;
     vals[37] = PhiCrySeed;
@@ -733,7 +733,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
   Int_t BinIndex = -1;
 
   if (fVersionType == kNoTrkVar) {
-    if (fabs(scEta) <= 1.479) { 
+    if (std::abs(scEta) <= 1.479) { 
       regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals); 
       BinIndex = 0;
     }
@@ -745,7 +745,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
 
   //print debug
   if (printDebug) {    
-    if ( fabs(scEta) <= 1.479) {
+    if ( std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 38; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -816,8 +816,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVar(
   }
 
   // Now applying regression according to version and (endcap/barrel)
-  float *vals = (fabs(scEta) <= 1.479) ? new float[38] : new float[31];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[38] : new float[31];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -852,7 +852,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVar(
     vals[31] = IPhiSeed;
     vals[32] = ((int) IEtaSeed)%5;
     vals[33] = ((int) IPhiSeed)%2;
-    vals[34] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[34] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[35] = ((int) IPhiSeed)%20;
     vals[36] = EtaCrySeed;
     vals[37] = PhiCrySeed;
@@ -896,7 +896,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVar(
   Int_t BinIndex = -1;
 
   if (fVersionType == kNoTrkVar) {
-    if (fabs(scEta) <= 1.479) { 
+    if (std::abs(scEta) <= 1.479) { 
       regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals); 
       BinIndex = 0;
     }
@@ -908,7 +908,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVar(
 
   //print debug
   if (printDebug) {    
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 38; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -983,8 +983,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVarV1(
   }
 
   // Now applying regression according to version and (endcap/barrel)
-  float *vals = (fabs(scEta) <= 1.479) ? new float[39] : new float[32];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[39] : new float[32];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1020,7 +1020,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVarV1(
     vals[32] = IPhiSeed;
     vals[33] = ((int) IEtaSeed)%5;
     vals[34] = ((int) IPhiSeed)%2;
-    vals[35] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[35] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[36] = ((int) IPhiSeed)%20;
     vals[37] = EtaCrySeed;
     vals[38] = PhiCrySeed;
@@ -1065,7 +1065,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVarV1(
   Int_t BinIndex = -1;
 
   if (fVersionType == kNoTrkVarV1) {
-    if (fabs(scEta) <= 1.479) { 
+    if (std::abs(scEta) <= 1.479) { 
       regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals); 
       BinIndex = 0;
     }
@@ -1077,7 +1077,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVarV1(
 
   //print debug
   if (printDebug) {    
-    if ( fabs(scEta) <= 1.479) {
+    if ( std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -1149,8 +1149,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVarV1(
   }
 
   // Now applying regression according to version and (endcap/barrel)
-  float *vals = (fabs(scEta) <= 1.479) ? new float[39] : new float[32];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[39] : new float[32];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1186,7 +1186,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVarV1(
     vals[32] = IPhiSeed;
     vals[33] = ((int) IEtaSeed)%5;
     vals[34] = ((int) IPhiSeed)%2;
-    vals[35] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[35] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[36] = ((int) IPhiSeed)%20;
     vals[37] = EtaCrySeed;
     vals[38] = PhiCrySeed;
@@ -1231,7 +1231,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVarV1(
   Int_t BinIndex = -1;
 
   if (fVersionType == kNoTrkVarV1) {
-    if (fabs(scEta) <= 1.479) { 
+    if (std::abs(scEta) <= 1.479) { 
       regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals); 
       BinIndex = 0;
     }
@@ -1243,7 +1243,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVarV1(
 
   //print debug
   if (printDebug) {    
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -1320,8 +1320,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVar(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVar);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[43] : new float[36];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[43] : new float[36];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1361,7 +1361,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVar(
     vals[36] = IPhiSeed;
     vals[37] = ((int) IEtaSeed)%5;
     vals[38] = ((int) IPhiSeed)%2;
-    vals[39] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[39] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[40] = ((int) IPhiSeed)%20;
     vals[41] = EtaCrySeed;
     vals[42] = PhiCrySeed;
@@ -1410,7 +1410,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVar(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVar) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
   }
 
@@ -1493,8 +1493,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVar(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVar);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[43] : new float[36];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[43] : new float[36];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1534,7 +1534,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVar(
     vals[36] = IPhiSeed;
     vals[37] = ((int) IEtaSeed)%5;
     vals[38] = ((int) IPhiSeed)%2;
-    vals[39] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[39] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[40] = ((int) IPhiSeed)%20;
     vals[41] = EtaCrySeed;
     vals[42] = PhiCrySeed;
@@ -1583,7 +1583,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVar(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVar) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
   }
 
@@ -1666,8 +1666,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVarV1);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[46] : new float[39];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[46] : new float[39];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1710,7 +1710,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(
     vals[39] = IPhiSeed;
     vals[40] = ((int) IEtaSeed)%5;
     vals[41] = ((int) IPhiSeed)%2;
-    vals[42] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[42] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[43] = ((int) IPhiSeed)%20;
     vals[44] = EtaCrySeed;
     vals[45] = PhiCrySeed;
@@ -1762,14 +1762,14 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV1) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
   }
 
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -1845,8 +1845,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVarV1);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[46] : new float[39];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[46] : new float[39];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -1889,7 +1889,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(
     vals[39] = IPhiSeed;
     vals[40] = ((int) IEtaSeed)%5;
     vals[41] = ((int) IPhiSeed)%2;
-    vals[42] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[42] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[43] = ((int) IPhiSeed)%20;
     vals[44] = EtaCrySeed;
     vals[45] = PhiCrySeed;
@@ -1941,13 +1941,13 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV1) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
   }
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -2029,8 +2029,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(std::vector
   double EcalEnergyError  = inputvars[40];
   int    Classification  = inputvars[41]; 
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[46] : new float[39];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[46] : new float[39];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -2073,7 +2073,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(std::vector
     vals[39] = IPhiSeed;
     vals[40] = ((int) IEtaSeed)%5;
     vals[41] = ((int) IPhiSeed)%2;
-    vals[42] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[42] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[43] = ((int) IPhiSeed)%20;
     vals[44] = EtaCrySeed;
     vals[45] = PhiCrySeed;
@@ -2125,14 +2125,14 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(std::vector
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV1) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
   }
 
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -2213,8 +2213,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(std::
   int    Classification  = inputvars[41]; 
 
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[46] : new float[39];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[46] : new float[39];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -2257,7 +2257,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(std::
     vals[39] = IPhiSeed;
     vals[40] = ((int) IEtaSeed)%5;
     vals[41] = ((int) IPhiSeed)%2;
-    vals[42] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[42] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[43] = ((int) IPhiSeed)%20;
     vals[44] = EtaCrySeed;
     vals[45] = PhiCrySeed;
@@ -2309,13 +2309,13 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(std::
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV1) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
   }
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -2398,8 +2398,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVarV2);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[53] : new float[46];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[53] : new float[46];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -2449,7 +2449,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(
     vals[46] = IPhiSeed;
     vals[47] = ((int) IEtaSeed)%5;
     vals[48] = ((int) IPhiSeed)%2;
-    vals[49] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[49] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[50] = ((int) IPhiSeed)%20;
     vals[51] = EtaCrySeed;
     vals[52] = PhiCrySeed;
@@ -2508,14 +2508,14 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV2) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
   }
 
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -2598,8 +2598,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(
   // Checking if fVersionType is correct
   assert(fVersionType == kWithTrkVarV2);
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[53] : new float[46];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[53] : new float[46];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -2649,7 +2649,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(
     vals[46] = IPhiSeed;
     vals[47] = ((int) IEtaSeed)%5;
     vals[48] = ((int) IPhiSeed)%2;
-    vals[49] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[49] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[50] = ((int) IPhiSeed)%20;
     vals[51] = EtaCrySeed;
     vals[52] = PhiCrySeed;
@@ -2708,13 +2708,13 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV2) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
   }
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -2802,8 +2802,8 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(std::vector
   double KFTrackNLayers  = inputvars[47];
   double ElectronEnergyOverPout  = inputvars[48];
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[53] : new float[46];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[53] : new float[46];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -2853,7 +2853,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(std::vector
     vals[46] = IPhiSeed;
     vals[47] = ((int) IEtaSeed)%5;
     vals[48] = ((int) IPhiSeed)%2;
-    vals[49] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[49] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[50] = ((int) IPhiSeed)%20;
     vals[51] = EtaCrySeed;
     vals[52] = PhiCrySeed;
@@ -2912,14 +2912,14 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(std::vector
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV2) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
   }
 
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -3006,8 +3006,8 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(std::
   double KFTrackNLayers  = inputvars[47];
   double ElectronEnergyOverPout  = inputvars[48];
 
-  float *vals = (fabs(scEta) <= 1.479) ? new float[53] : new float[46];
-  if (fabs(scEta) <= 1.479) {		// Barrel
+  float *vals = (std::abs(scEta) <= 1.479) ? new float[53] : new float[46];
+  if (std::abs(scEta) <= 1.479) {		// Barrel
     vals[0]  = SCRawEnergy;
     vals[1]  = scEta;
     vals[2]  = scPhi;
@@ -3057,7 +3057,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(std::
     vals[46] = IPhiSeed;
     vals[47] = ((int) IEtaSeed)%5;
     vals[48] = ((int) IPhiSeed)%2;
-    vals[49] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[49] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[50] = ((int) IPhiSeed)%20;
     vals[51] = EtaCrySeed;
     vals[52] = PhiCrySeed;
@@ -3116,13 +3116,13 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(std::
   double regressionResult = 0;
 
   if (fVersionType == kWithTrkVarV2) {
-    if (fabs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
+    if (std::abs(scEta) <= 1.479) regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals);
     else regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
   }
 
   //print debug
   if (printDebug) {
-    if (fabs(scEta) <= 1.479) {
+    if (std::abs(scEta) <= 1.479) {
       std::cout << "Barrel :";
       for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
@@ -3284,7 +3284,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithSubClusters(
     vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
     vals[53] = IEtaSeed;
     vals[54] = ((int) IEtaSeed)%5;
-    vals[55] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[55] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[56] = IPhiSeed;
     vals[57] = ((int) IPhiSeed)%2;
     vals[58] = ((int) IPhiSeed)%20;
@@ -3537,7 +3537,7 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithSubClusters(
     vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
     vals[53] = IEtaSeed;
     vals[54] = ((int) IEtaSeed)%5;
-    vals[55] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[55] = (std::abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (std::abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*std::abs(IEtaSeed)/IEtaSeed))%20);
     vals[56] = IPhiSeed;
     vals[57] = ((int) IPhiSeed)%2;
     vals[58] = ((int) IPhiSeed)%20;

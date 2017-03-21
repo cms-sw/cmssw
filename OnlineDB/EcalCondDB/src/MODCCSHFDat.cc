@@ -59,7 +59,7 @@ void MODCCSHFDat::setFile(std::string x) {
 }
 
 void MODCCSHFDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -79,7 +79,7 @@ void MODCCSHFDat::prepareWrite()
 
 
 void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODRunIOV* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -140,7 +140,7 @@ void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODR
 
 
 void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -183,7 +183,7 @@ void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRu
 }
 
 void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data, MODRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -256,7 +256,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 
 
 void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob_size )
- throw (std::runtime_error)
+ noexcept(false)
 {
 
   try{
@@ -328,7 +328,7 @@ void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob
 
 
 unsigned char* MODCCSHFDat::readClob (oracle::occi::Clob &clob, int size)
-  throw (std::runtime_error)
+  noexcept(false)
 {
 
   try{

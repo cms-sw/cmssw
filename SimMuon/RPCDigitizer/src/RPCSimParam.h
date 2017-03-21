@@ -31,7 +31,7 @@ class RPCSimParam : public RPCSim
                      CLHEP::HepRandomEngine*) override;
 
  private:
-  void init(){};
+  void init() override{};
  private:
   double aveEff;
   double aveCls;

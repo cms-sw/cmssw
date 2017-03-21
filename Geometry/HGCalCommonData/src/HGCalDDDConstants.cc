@@ -7,7 +7,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 constexpr double k_horizontalShift = 1.0;
 constexpr double k_ScaleFromDDD = 0.1;
@@ -16,18 +16,19 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string name) : hgpar_(hp) {
   mode_ = HGCalGeometryMode( hgpar_->mode_ );
   if (mode_ == HGCalGeometryMode::Square) {
-    rmax_ = 0;
-    
-    for( int simreco = 0; simreco < 2; ++simreco ) {
+    rmax_    = 0;
+    modHalf_ = sectors()*layers(true);
+    for (int simreco = 0; simreco < 2; ++simreco ) {
       tot_layers_[simreco] = layersInit((bool)simreco);
     }
 
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
-			      << " with " << layers(false) << ":" <<layers(true)
-			      << " layers, " << sectors() << " sectors and "
+			      << " with " << layers(false) << ":" 
+			      << layers(true) << " layers, " << sectors() 
+			      << " sectors " << 2*modHalf_ << " modules and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "HGCalDDDConstants initialized for " << name << " with " 
 	      << layers(false) << ":" << layers(true) << " layers, " 
 	      << sectors() << " sectors and maximum of " << maxCells(false)
@@ -36,28 +37,36 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
   } else {
     rmax_     = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
     hexside_  = 2.0 * rmax_ * tan30deg_;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "rmax_ " << rmax_ << ":" << hexside_ << " CellSize " 
 	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[0] << ":" 
 	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[1] << std::endl;
 #endif
-    // init maps and constants    
-    for( int simreco = 0; simreco < 2; ++simreco ) {
+    // init maps and constants
+    modHalf_ = 0;
+    for (int simreco = 0; simreco < 2; ++simreco) {
       tot_layers_[simreco] = layersInit((bool)simreco);
       max_modules_layer_[simreco].resize(tot_layers_[simreco]+1);
-      for( unsigned int layer = 1; layer <= tot_layers_[simreco]; ++layer ) {
-        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);        
+      for (unsigned int layer=1; layer <= tot_layers_[simreco]; ++layer) {
+	max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);
+	if (simreco == 1) {
+	  modHalf_ += max_modules_layer_[simreco][layer];
+#ifdef EDM_ML_DEBUG
+	  std::cout << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules\n";
+#endif
+	}
       }
     }
     tot_wafers_ = wafers();
     
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
-			      << " with " << layers(false) << ":" <<layers(true)
-			      << " layers, " << wafers() << " wafers and "
+			      << " with " << layers(false) << ":" 
+			      << layers(true) << " layers, " << wafers() 
+			      << " wafers, " << 2*modHalf_ << " wafers and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
     
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "HGCalDDDConstants initialized for " << name << " with " 
 	      << layers(false) << ":" << layers(true) << " layers, " 
 	      << wafers() << " wafers and " << "maximum of " << maxCells(false)
@@ -249,8 +258,6 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 	       (cell >=0 && cell <= cellmax));
   } else {
     int32_t copyNumber = hgpar_->waferCopy_[mod];
-    
-    
     ok = ((lay > 0 && lay <= (int)(layers(reco))));
     if( ok ) {
       const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
@@ -258,19 +265,47 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
       auto moditr = the_modules.find(copyNumber);
       ok = (moditr != the_modules.end());
       if (ok) {
-        cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
-          (int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
-        ok = (cell >=0 && cell <=  cellmax);
+	if (moditr->second >= 0) {
+	  cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
+	    (int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
+	  ok = (cell >=0 && cell <=  cellmax);
+	} else {
+	  ok = isValidCell(lay_idx, mod, cell);
+	}
       }
     }
   }
     
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
 		     << (lay > 0 && (lay <= (int)(layers(reco)))) << " Module "
 		     << mod << ":" << (mod > 0 && mod <= modmax) << " Cell "
 		     << cell << ":" << (cell >=0 && cell <= cellmax)
 		     << ":" << maxCells(reco) << std::endl; 
+#endif
+  return ok;
+}
+
+bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
+
+  // Calculate the position of the cell
+  double x = hgpar_->waferPosX_[wafer];
+  double y = hgpar_->waferPosY_[wafer];
+  if (hgpar_->waferTypeT_[wafer] == 1) {
+    x     += hgpar_->cellFineX_[cell];
+    y     += hgpar_->cellFineY_[cell];
+  } else {
+    x     += hgpar_->cellCoarseX_[cell];
+    y     += hgpar_->cellCoarseY_[cell];
+  }
+  double rr = sqrt(x*x+y*y);
+  bool   ok = ((rr >= hgpar_->rMinLayHex_[lay-1]) &
+	       (rr <= hgpar_->rMaxLayHex_[lay-1]));
+#ifdef EDM_ML_DEBUG
+  std::cout << "Input " << lay << ":" << wafer << ":" << cell << " Position "
+	    << x << ":" << y << ":" << rr << " Compare Limits " 
+	    << hgpar_->rMinLayHex_[lay-1] << ":" << hgpar_->rMaxLayHex_[lay-1]
+	    << " Flag " << ok << std::endl;
 #endif
   return ok;
 }
@@ -514,6 +549,18 @@ int HGCalDDDConstants::numberCellsHexagon(int wafer) const {
   return ncell;
 }
 
+std::pair<int,int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
+  int row(0), col(0);
+  if (wafer < (int)(hgpar_->waferCopy_.size())) {
+    int copy = hgpar_->waferCopy_[wafer];
+    col      = copy%100;
+    if ((copy/10000)%10 != 0)  col = -col;
+    row      = (copy/100)%100;
+    if ((copy/100000)%10 != 0) row = -row;
+  }
+  return std::pair<int,int>(row,col);
+}
+
 std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 						bool half) const {
   
@@ -539,7 +586,7 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
     float b     = 2*h*bl/(tl-bl);
     for (int iky=0; iky<ky; ++iky)
       kx += floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "simToReco: input " << cell << ":" << lay << ":" << half
 	      << " kxy " << kxy.first << ":" << kxy.second << " output "
 	      << kx << ":" << depth << " cell factor=" 
@@ -599,7 +646,7 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
       icell  = cellHex(xx, yy, 0.5*k_ScaleFromDDD*hgpar_->cellSize_[1],
 		       hgpar_->cellCoarseX_, hgpar_->cellCoarseY_);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Position " << x << ":" << y << " Wafer " << wafer << ":" 
 	    << size_ << " XX " << xx << ":" << yy << " Cell " << icell 
 	    << " Type " << celltyp << std::endl;
@@ -702,12 +749,28 @@ void HGCalDDDConstants::getParameterSquare(int lay, int subSec, bool reco,
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
 
-  const double rr   = 2*rmax_*tan30deg_;
+  const double rr     = 2*rmax_*tan30deg_;
   const double waferX = hgpar_->waferPosX_[wafer];
   const double waferY = hgpar_->waferPosY_[wafer];
-  const double rpos = std::sqrt(waferX*waferX+waferY*waferY);
-  const bool   in   = (rpos-rr >= hgpar_->rMinLayHex_[lay] && 
-                       rpos+rr <= hgpar_->rMaxLayHex_[lay]);
+  double       xc[6], yc[6];
+  xc[0] = waferX+rmax_; yc[0] = waferY-0.5*rr;
+  xc[1] = waferX+rmax_; yc[1] = waferY+0.5*rr;
+  xc[2] = waferX;       yc[2] = waferY+rr;
+  xc[3] = waferX-rmax_; yc[3] = waferY+0.5*rr;
+  xc[4] = waferX+rmax_; yc[4] = waferY-0.5*rr;
+  xc[5] = waferX;       yc[5] = waferY-rr;
+  bool cornerOne(false), cornerAll(true);
+  for (int k=0; k<6; ++k) {
+    double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+    if ((rpos >= hgpar_->rMinLayHex_[lay]) && 
+	(rpos <= hgpar_->rMaxLayHex_[lay])) cornerOne = true;
+    else                                    cornerAll = false;
+  }
+  bool   in(false);
+  if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) 
+    in = cornerAll;
+  else if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull))
+    in = cornerOne;
   return in;
 }
 

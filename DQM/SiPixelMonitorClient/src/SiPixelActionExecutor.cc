@@ -1656,6 +1656,31 @@ void SiPixelActionExecutor::normaliseAvDigiOcc(DQMStore::IBooker & iBooker, DQMS
 
 //=============================================================================================================
 
+void SiPixelActionExecutor::normaliseAvDigiOccVsLumi(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, int lumisec){
+
+  iGetter.cd();
+
+  MonitorElement* avgfedDigiOccvsLumi = iGetter.get("Pixel/avgfedDigiOccvsLumi");
+
+  float totalDigisBPIX = 0.; 
+  float totalDigisFPIX = 0.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) totalDigisBPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
+    else        totalDigisFPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
+  }  
+  float averageBPIXOcc = totalDigisBPIX/32.;
+  float averageFPIXOcc = totalDigisFPIX/8.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageBPIXOcc);
+    else        avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageFPIXOcc);
+  }
+
+  iGetter.setCurrentFolder(iBooker.pwd());
+
+}
+
+//=============================================================================================================
+
 void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isUpgrade){
   // Barrel
   iBooker.cd();

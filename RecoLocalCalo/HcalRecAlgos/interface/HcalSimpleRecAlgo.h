@@ -4,7 +4,6 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -69,11 +68,9 @@ public:
 
 
   HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HBHERecHit reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstructQIE10(const QIE10DataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstructHFUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
@@ -85,13 +82,13 @@ public:
   }
 
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		       double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,
+		       double iTS4Min, const std::vector<double> & iTS4Max, double iPulseJitter,
 		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
 		       double iPedMean,double iPedSig, double iPedSigSiPM,
 		       double iNoise,double iNoiseSiPM,
 		       double iTMin, double iTMax,
-		       double its4Chi2, int iFitTimes);
-  void setMeth3Params(float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
+		       const std::vector<double> & its4Chi2, int iFitTimes);
+  void setMeth3Params(bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
                
 private:
   bool correctForTimeslew_;

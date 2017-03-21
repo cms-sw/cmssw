@@ -1,4 +1,3 @@
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,13 +54,141 @@ TrackerValidationVariables::TrackerValidationVariables(const edm::ParameterSet& 
                                                        edm::ConsumesCollector && iC)
 {
   trajCollectionToken_ = iC.consumes<std::vector<Trajectory> >(edm::InputTag(config.getParameter<std::string>("trajectoryInput")));
-  trajTracksToken_ = iC.consumes<TrajTrackAssociationCollection>(config.getParameter<edm::InputTag>("Tracks"));
+  tracksToken_ = iC.consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("Tracks"));
 }
 
 TrackerValidationVariables::~TrackerValidationVariables()
 {
 
 }
+
+void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, std::vector<AVHitStruct> & v_avhitout) {
+
+    auto const & trajParams = track.extra()->trajParams();
+    auto const & residuals = track.extra()->residuals();
+
+    assert(trajParams.size()==track.recHitsSize());
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto hit = *(hb+h);
+      if(!hit->isValid()) continue;
+
+      AVHitStruct hitStruct;
+      const DetId & hit_detId = hit->geographicalId();
+      auto IntRawDetID = hit_detId.rawId();
+      auto IntSubDetID = hit_detId.subdetId();
+
+      if(IntSubDetID == 0) continue;
+
+      auto lPTrk = trajParams[h].position();   // update state
+      auto lVTrk = trajParams[h].direction();
+
+      auto gtrkdirup= hit->surface()->toGlobal(lVTrk);
+
+      hitStruct.rawDetId = IntRawDetID;
+      hitStruct.phi = gtrkdirup.phi();  // direction, not position
+      hitStruct.eta = gtrkdirup.eta();  // same
+
+
+      hitStruct.localAlpha = std::atan2(lVTrk.x(), lVTrk.z()); // wrt. normal tg(alpha)=x/z
+      hitStruct.localBeta  = std::atan2(lVTrk.y(), lVTrk.z()); // wrt. normal tg(beta)= y/z
+
+      hitStruct.resX = residuals.residualX(h);
+      hitStruct.resY = residuals.residualY(h);
+      hitStruct.resErrX = hitStruct.resX/residuals.pullX(h);  // for backward compatibility....
+      hitStruct.resErrY = hitStruct.resY/residuals.pullY(h);
+
+      // hitStruct.localX = lPhit.x();
+      // hitStruct.localY = lPhit.y();
+      // EM: use predictions for local coordinates
+      hitStruct.localX = lPTrk.x();
+      hitStruct.localY = lPTrk.y();
+
+      // now calculate residuals taking global orientation of modules and radial topology in TID/TEC into account
+      float resXprime(999.F), resYprime(999.F);
+      float resXatTrkY(999.F);
+      float resXprimeErr(999.F), resYprimeErr(999.F);
+
+      if(hit->detUnit()){ // is it a single physical module?
+        float uOrientation(-999.F), vOrientation(-999.F);
+        float resXTopol(999.F), resYTopol(999.F);
+        float resXatTrkYTopol(999.F);
+
+        const Surface& surface = hit->detUnit()->surface();
+        const BoundPlane& boundplane = hit->detUnit()->surface();
+        const Bounds& bound = boundplane.bounds();
+
+        float length = 0;
+        float width = 0;
+
+        LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
+        GlobalPoint gPModule    = surface.toGlobal(lPModule),
+                    gUDirection = surface.toGlobal(lUDirection),
+                    gVDirection = surface.toGlobal(lVDirection);
+
+        if (IntSubDetID == PixelSubdetector::PixelBarrel ||
+          IntSubDetID == PixelSubdetector::PixelEndcap ||
+          IntSubDetID == StripSubdetector::TIB ||
+          IntSubDetID == StripSubdetector::TOB) {
+
+          if (IntSubDetID == PixelSubdetector::PixelEndcap) {
+            uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
+            vOrientation = deltaPhi(gVDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
+          } else {
+            uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
+            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;  
+          }
+
+          resXTopol = hitStruct.resX;
+          resXatTrkYTopol = hitStruct.resX;
+          resYTopol = hitStruct.resY;
+          resXprimeErr = hitStruct.resErrX;
+          resYprimeErr = hitStruct.resErrY;
+
+          const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+          if (rectangularBound!=NULL) {
+            hitStruct.inside = rectangularBound->inside(lPTrk);
+            length = rectangularBound->length();
+            width = rectangularBound->width();
+            hitStruct.localXnorm = 2*hitStruct.localX/width;
+            hitStruct.localYnorm = 2*hitStruct.localY/length;
+        } else {
+          throw cms::Exception("Geometry Error")
+            << "[TrackerValidationVariables] Cannot cast bounds to RectangularPlaneBounds as expected for TPE";
+        }
+    
+      } else if (IntSubDetID == StripSubdetector::TID ||
+                 IntSubDetID == StripSubdetector::TEC) {
+        // not possible to compute precisely as with Trajectory
+      } else {
+	edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
+						      << "No valid tracker subdetector " << IntSubDetID;
+	continue;
+      }  
+      
+      resXprime = resXTopol*uOrientation;
+      resXatTrkY = resXatTrkYTopol;
+      resYprime = resYTopol*vOrientation;
+      
+    } else { // not a detUnit, so must be a virtual 2D-Module
+      // FIXME: at present only for det units residuals are calculated and filled in the hitStruct
+      // But in principle this method should also be useable for the gluedDets (2D modules in TIB, TID, TOB, TEC)
+      // In this case, only orientation should be taken into account for primeResiduals, but not the radial topology
+      // At present, default values (999.F) are given out
+    }
+    
+    hitStruct.resXprime = resXprime;
+    hitStruct.resXatTrkY = resXatTrkY;
+    hitStruct.resYprime = resYprime;
+    hitStruct.resXprimeErr = resXprimeErr;
+    hitStruct.resYprimeErr = resYprimeErr;
+    
+    
+    v_avhitout.push_back(hitStruct);
+
+   }
+}
+
 
 void
 TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std::vector<AVHitStruct> & v_avhitout)
@@ -326,47 +453,55 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   edm::ESHandle<MagneticField> magneticField;
   eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
-  event.getByToken(trajTracksToken_, TrajTracksMap);
-  LogDebug("TrackerValidationVariables") << "TrajTrack collection size " << TrajTracksMap->size();
+  edm::Handle<reco::TrackCollection> tracksH;
+  event.getByToken(tracksToken_, tracksH);
+  if(!tracksH.isValid()) return;
+  auto const & tracks = *tracksH;
+  auto ntrk = tracks.size();
+  LogDebug("TrackerValidationVariables") << "Track collection size " << ntrk;
   
-  const Trajectory* trajectory;
-  const reco::Track* track;
-  
-  for ( TrajTrackAssociationCollection::const_iterator iPair = TrajTracksMap->begin();
-	iPair != TrajTracksMap->end();
-	++iPair) {
+
+  edm::Handle<std::vector<Trajectory>> trajsH;
+  event.getByToken(trajCollectionToken_, trajsH);
+  bool yesTraj = trajsH.isValid();
+  std::vector<Trajectory> const * trajs = nullptr;
+  if (yesTraj) trajs = &(*trajsH);
+  if (yesTraj) assert (trajs->size()==tracks.size());
+
+  Trajectory const * trajectory =  nullptr;
+  for (unsigned int i=0; i<ntrk; ++i) {
+    auto const & track = tracks[i];  
+    if (yesTraj) trajectory = &(*trajs)[i];
     
-    trajectory = &(*(*iPair).key);
-    track = &(*(*iPair).val);
-    
-    if (!trackFilter(*track)) continue;
+    if (!trackFilter(track)) continue;
     
     AVTrackStruct trackStruct;
     
-    trackStruct.p = track->p();
-    trackStruct.pt = track->pt();
-    trackStruct.ptError = track->ptError();
-    trackStruct.px = track->px();
-    trackStruct.py = track->py();
-    trackStruct.pz = track->pz();
-    trackStruct.eta = track->eta();
-    trackStruct.phi = track->phi();
-    trackStruct.chi2 = track->chi2();
-    trackStruct.chi2Prob= TMath::Prob(track->chi2(),track->ndof());
-    trackStruct.normchi2 = track->normalizedChi2();
-    GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
+    trackStruct.p = track.p();
+    trackStruct.pt = track.pt();
+    trackStruct.ptError = track.ptError();
+    trackStruct.px = track.px();
+    trackStruct.py = track.py();
+    trackStruct.pz = track.pz();
+    trackStruct.eta = track.eta();
+    trackStruct.phi = track.phi();
+    trackStruct.chi2 = track.chi2();
+    trackStruct.chi2Prob= TMath::Prob(track.chi2(),track.ndof());
+    trackStruct.normchi2 = track.normalizedChi2();
+    GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
     double theLocalMagFieldInInverseGeV = magneticField->inInverseGeV(gPoint).z();
-    trackStruct.kappa = -track->charge()*theLocalMagFieldInInverseGeV/track->pt();
-    trackStruct.charge = track->charge();
-    trackStruct.d0 = track->d0();
-    trackStruct.dz = track->dz();
-    trackStruct.numberOfValidHits = track->numberOfValidHits();
-    trackStruct.numberOfLostHits = track->numberOfLostHits();
-    
-    fillHitQuantities(trajectory, trackStruct.hits);
+    trackStruct.kappa = -track.charge()*theLocalMagFieldInInverseGeV/track.pt();
+    trackStruct.charge = track.charge();
+    trackStruct.d0 = track.d0();
+    trackStruct.dz = track.dz();
+    trackStruct.numberOfValidHits = track.numberOfValidHits();
+    trackStruct.numberOfLostHits = track.numberOfLostHits();
+    if (trajectory)
+      fillHitQuantities(trajectory, trackStruct.hits);
+    else fillHitQuantities(track, trackStruct.hits);
     
     v_avtrackout.push_back(trackStruct);
   }
 }
+
 

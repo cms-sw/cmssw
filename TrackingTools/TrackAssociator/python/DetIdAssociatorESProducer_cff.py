@@ -13,7 +13,8 @@ hcalDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     ComponentName = cms.string('HcalDetIdAssociator'),
     etaBinSize = cms.double(0.087),
     nEta = cms.int32(70),
-    nPhi = cms.int32(72)
+    nPhi = cms.int32(72),
+    hcalRegion = cms.int32(2)
 )
 
 hoDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
@@ -49,6 +50,7 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( muonDetIdAssociator, includeGEM = True )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( muonDetIdAssociator, includeME0 = True )
+phase2_muon.toModify( hcalDetIdAssociator, hcalRegion = 1 )
 
 preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     ComponentName = cms.string('PreshowerDetIdAssociator'),
@@ -56,5 +58,3 @@ preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     nEta = cms.int32(60),
     nPhi = cms.int32(30)
 )
-
-

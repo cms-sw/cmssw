@@ -62,7 +62,7 @@ public:
      */
     std::future<IOSize> handle(void * into, IOSize size, IOOffset off)
     {
-        std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr(new XrdAdaptor::ClientRequest(*this, into, size, off));
+        auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, into, size, off);
         return handle(c_ptr);
     }
 

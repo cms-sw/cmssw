@@ -22,7 +22,7 @@
  FLAVOUR:
   - for non-muons: 0
   - for primary muons: 13
-  - for non primary muons: flavour of the mother: abs(pdgId) of heaviest quark, or 15 for tau
+  - for non primary muons: flavour of the mother: std::abs(pdgId) of heaviest quark, or 15 for tau
 
 */
 //
@@ -318,7 +318,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                     // in this case, we might want to know the heaviest mom flavour
                     for (reco::GenParticleRef nMom = genMom;
-                         nMom.isNonnull() && abs(nMom->pdgId()) >= 100; // stop when we're no longer looking at hadrons or mesons
+                         nMom.isNonnull() && std::abs(nMom->pdgId()) >= 100; // stop when we're no longer looking at hadrons or mesons
                          nMom = nMom->numberOfMothers() > 0 ? nMom->motherRef() : reco::GenParticleRef()) {
                         int flav = flavour(nMom->pdgId());
                         if (hmomFlav[i] < flav) hmomFlav[i] = flav;
@@ -390,16 +390,16 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             else if (momFlav[i] == 5) ext[i] = 8; // b->mu
             else if (momFlav[i] == 4) ext[i] = (hmomFlav[i] == 5 ? 7 : 6); // b->c->mu and c->mu
             else if (momStatus[i] != -1) { // primary light particle
-                int id = abs(momPdgId[i]);
+                int id = std::abs(momPdgId[i]);
                 if (id != /*pi+*/211 && id != /*K+*/321 && id != 130 /*K0L*/)  ext[i] = 5; // other light particle, possibly short-lived
-                else if (prodRho[i] < decayRho_ && abs(prodZ[i]) < decayAbsZ_) ext[i] = 4; // decay a la ppMuX (primary pi/K within a cylinder)
+                else if (prodRho[i] < decayRho_ && std::abs(prodZ[i]) < decayAbsZ_) ext[i] = 4; // decay a la ppMuX (primary pi/K within a cylinder)
                 else                                                           ext[i] = 3; // late decay that wouldn't be in ppMuX
             } else ext[i] = 2; // decay of non-primary particle, would not be in ppMuX
             if (isGhost) ext[i] = -ext[i];
 
-            if (linkToGenParticles_ && abs(ext[i]) >= 2) {
+            if (linkToGenParticles_ && std::abs(ext[i]) >= 2) {
                 // Link to the genParticle if possible, but not decays in flight (in ppMuX they're in GEN block, but they have wrong parameters)
-                if (!tp->genParticles().empty() && abs(ext[i]) >= 5) {
+                if (!tp->genParticles().empty() && std::abs(ext[i]) >= 5) {
                     if (genParticles.id() != tp->genParticles().id()) {
                         throw cms::Exception("Configuration") << "Product ID mismatch between the genParticle collection (" << genParticles_ << ", id " << genParticles.id() << ") and the references in the TrackingParticles (id " << tp->genParticles().id() << ")\n";
                     }
@@ -465,7 +465,7 @@ MuonMCClassifier::writeValueMap(edm::Event &iEvent,
 
 int
 MuonMCClassifier::flavour(int pdgId) const {
-    int flav = abs(pdgId);
+    int flav = std::abs(pdgId);
     // for quarks, leptons and bosons except gluons, take their pdgId
     // muons and taus have themselves as flavour
     if (flav <= 37 && flav != 21) return flav;

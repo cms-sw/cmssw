@@ -344,11 +344,17 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
   {
     // First match simply against the file system path.  We don't
     // touch the file system until the path prefix matches.
+    // When we have a path prefix match, check the file system if
+    //   we don't have a best match candidate yet, OR
+    //   this match is longer (more specific) than the previous best OR
+    //   this match is the same length and the previous best isn't local
+    // The final condition handles cases such as '/' that can appear twice
+    // in the file system list, once as 'rootfs' and once as local fs.
     size_t fslen = strlen(fs_[i]->dir);
     if (! strncmp(fs_[i]->dir, path, fslen)
 	&& ((fslen == 1 && fs_[i]->dir[0] == '/')
 	    || len == fslen || path[fslen] == '/')
-	&& (! best || fslen > bestlen))
+	&& (! best || fslen > bestlen || (fslen == bestlen && !best->local)))
     {
       // Get the file system device and file system ids.
       if (statFSInfo(fs_[i]) < 0)

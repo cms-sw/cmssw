@@ -69,9 +69,9 @@ private:
 	/* 
 	 * The usual EDAnalyzer methods
 	 */
-	virtual void beginJob();
+	virtual void beginJob() override;
 	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-	virtual void endJob();
+	virtual void endJob() override;
 
 	/*
 	 * Called for each particle in the event to fill the tree and

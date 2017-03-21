@@ -111,22 +111,22 @@ CmsShowMainBase::setupViewManagers()
 {
    guiManager()->updateStatus("Setting up view manager...");
 
-   boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
+   std::shared_ptr<FWViewManagerBase> eveViewManager = std::make_shared<FWEveViewManager>(guiManager());
    eveViewManager->setContext(m_contextPtr);
    viewManager()->add(eveViewManager);
 
-   boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
+   auto tableViewManager = std::make_shared<FWTableViewManager>(guiManager());
    configurationManager()->add(std::string("Tables"), tableViewManager.get());
    viewManager()->add(tableViewManager);
    eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
 
-   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
+   auto triggerTableViewManager = std::make_shared<FWTriggerTableViewManager>(guiManager());
    configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
    configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
-   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager(),  m_simGeometryFilename));
+   auto geoTableViewManager = std::make_shared<FWGeometryTableViewManager>(guiManager(),  m_simGeometryFilename);
    geoTableViewManager->setContext(m_contextPtr);
    viewManager()->add(geoTableViewManager);
 

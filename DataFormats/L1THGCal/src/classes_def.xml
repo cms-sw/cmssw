@@ -24,4 +24,9 @@
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
+  <class name="l1t::HGCalTriggerCell" />
+  <class name="std::vector<l1t::HGCalTriggerCell>" />
+  <class name="l1t::HGCalTriggerCellBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
+
 </lcgdict>

@@ -28,9 +28,9 @@ class CandidateTriggerObjectProducer : public edm::EDProducer {
 
  private:
   virtual void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
-  virtual void beginJob() {} ;
+  virtual void beginJob() override {} ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() {} ;
+  virtual void endJob() override {} ;
 
   /// module config parameters
   edm::InputTag triggerResultsTag_;

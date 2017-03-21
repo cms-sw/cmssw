@@ -34,7 +34,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     virtual void updateCollectors();
     
     void display(std::ostream & o); 
-    
+    using DCCDataBlockPrototype::unpack; 
     int unpack(const uint64_t** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID);
 
     unsigned int getLength(){return blockLength_; }

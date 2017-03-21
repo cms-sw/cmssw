@@ -12,6 +12,7 @@ import signal
 import cPickle
 import difflib
 import argparse
+import functools
 import subprocess
 import multiprocessing
 import Utilities.General.cmssw_das_client as cmssw_das_client
@@ -45,14 +46,15 @@ class FileListCreator(object):
         - `args`: command line arguments
         """
 
+        self._parser = self._define_parser()
+        self._args = self._parser.parse_args(argv)
+
         if not check_proxy():
             print_msg(
                 "Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
             sys.exit(1)
 
         self._dataset_regex = re.compile(r"^/([^/]+)/([^/]+)/([^/]+)$")
-        parser = self._define_parser()
-        self._args = parser.parse_args(argv)
         self._validate_input()
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
@@ -159,24 +161,29 @@ class FileListCreator(object):
     def _validate_input(self):
         """Validate command line arguments."""
 
-        if self._args.events:
-            if self._args.tracks or self._args.rate:
-                msg = ("-n/--events-for-alignment must not be used with "
-                       "--tracks-for-alignment or --track-rate")
-                parser.error(msg)
-            print_msg("Requested {0:d} events for alignment."
-                      .format(self._args.events))
-        else:
-            if not (self._args.tracks and self._args.rate):
+        if self._args.events is None:
+            if (self._args.tracks is None) and (self._args.rate is None):
+                msg = ("either -n/--events-for-alignment or both of "
+                       "--tracks-for-alignment and --track-rate are required")
+                self._parser.error(msg)
+            if (((self._args.tracks is not None) and (self._args.rate is None)) or
+                ((self._args.rate is not None)and (self._args.tracks is None))):
                 msg = ("--tracks-for-alignment and --track-rate must be used "
                        "together")
-                parser.error(msg)
+                self._parser.error(msg)
             self._args.events = int(math.ceil(self._args.tracks /
                                               self._args.rate))
             print_msg("Requested {0:d} tracks with {1:.2f} tracks/event "
                       "-> {2:d} events for alignment."
                       .format(self._args.tracks, self._args.rate,
                               self._args.events))
+        else:
+            if (self._args.tracks is not None) or (self._args.rate is not None):
+                msg = ("-n/--events-for-alignment must not be used with "
+                       "--tracks-for-alignment or --track-rate")
+                self._parser.error(msg)
+            print_msg("Requested {0:d} events for alignment."
+                      .format(self._args.events))
 
         for dataset in self._args.datasets:
             if not re.match(self._dataset_regex, dataset):
@@ -239,7 +246,7 @@ class FileListCreator(object):
         - `file_name`: name of a dataset file
         """
 
-        if not container.has_key(key):
+        if key not in container:
             container[key] = {"events": 0,
                               "files": []}
         container[key]["events"] += self._file_info[file_name]
@@ -256,7 +263,7 @@ class FileListCreator(object):
         - `event_count`: number of events in `file_name`
         """
 
-        if not container.has_key(key): return
+        if key not in container: return
         try:
             index = container[key]["files"].index(file_name)
         except ValueError:      # file not found
@@ -273,19 +280,9 @@ class FileListCreator(object):
             (self._events_in_dataset,
              self._files,
              self._file_info) = self._cache.get()
+            if self._args.random: random.shuffle(self._files)
             return
 
-        self._events_in_dataset = 0
-        self._files = []
-        for dataset in self._datasets:
-            print_msg("Requesting information for dataset '{0:s}'."
-                      .format(dataset))
-            self._events_in_dataset += get_events_per_dataset(dataset)
-            self._files.extend(get_files(dataset))
-        if self._args.random: random.shuffle(self._files)
-
-        result = print_msg("Counting events in {0:d} dataset files. This may "
-                           "take several minutes...".format(len(self._files)))
         # workaround to deal with KeyboardInterrupts in the worker processes:
         # - ignore interrupt signals in workers (see initializer)
         # - use a timeout of size sys.maxint to avoid a bug in multiprocessing
@@ -296,12 +293,28 @@ class FileListCreator(object):
         pool = multiprocessing.Pool(
             processes = number_of_processes,
             initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
-        count = pool.map_async(get_events_per_file, self._files).get(sys.maxint)
-        self._file_info = dict(zip(self._files, count))
+
+        print_msg("Requesting information for the following dataset(s):")
+        for d in self._datasets: print_msg("\t"+d)
+        print_msg("This may take a while...")
+
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxint)
+        self._events_in_dataset = sum(result)
+
+        get_file_info = functools.partial(_get_properties,
+                                          properties = ["name", "nevents"],
+                                          filters = ["nevents > 0"],
+                                          entity = "dataset",
+                                          sub_entity = "file")
+        result = pool.map_async(get_file_info, self._datasets).get(sys.maxint)
+        self._file_info = {}
+        for item in result: self._file_info.update(dict(item))
+        self._files = sorted(self._file_info.keys())
 
         # write information to cache
         self._cache.set(self._events_in_dataset, self._files, self._file_info)
         self._cache.dump()
+        if self._args.random: random.shuffle(self._files)
 
 
     def _create_file_lists(self):
@@ -424,60 +437,66 @@ class FileListCreator(object):
     def _write_file_lists(self):
         """Write file lists to disk."""
 
-        self._create_alignment_file_list(self._formatted_dataset+".txt",
-                                         self._files_alignment)
+        self._create_dataset_txt(self._formatted_dataset, self._files_alignment)
+        self._create_dataset_cff(
+            "_".join(["Alignment", self._formatted_dataset]),
+            self._files_alignment)
 
-        self._create_validation_dataset("_".join(["Dataset",
-                                                  self._formatted_dataset,
-                                                  "cff.py"]),
-                                        self._files_validation)
+        self._create_dataset_cff(
+            "_".join(["Validation", self._formatted_dataset]),
+            self._files_validation)
 
         for iov in sorted(self._iovs):
             iov_str = "since{0:d}".format(iov)
-            self._create_alignment_file_list(
-                "_".join([self._formatted_dataset, iov_str])+".txt",
+            self._create_dataset_txt(
+                "_".join([self._formatted_dataset, iov_str]),
                 self._iov_info_alignment[iov]["files"])
+            self._create_dataset_cff(
+                "_".join(["Alignment", self._formatted_dataset, iov_str]),
+                self._iov_info_validation[iov]["files"])
 
             if (self._iov_info_validation[iov]["events"]
                 < self._args.minimum_events_validation):
                 continue
-            self._create_validation_dataset(
-                "_".join(["Dataset", self._formatted_dataset, iov_str, "cff.py"]),
+            self._create_dataset_cff(
+                "_".join(["Validation", self._formatted_dataset, iov_str]),
                 self._iov_info_validation[iov]["files"])
 
         for run in sorted(self._run_info):
             if (self._run_info[run]["events"]
                 < self._args.minimum_events_validation):
                 continue
-            self._create_validation_dataset(
-                "_".join(["Dataset", self._formatted_dataset, str(run), "cff.py"]),
+            self._create_dataset_cff(
+                "_".join(["Validation", self._formatted_dataset, str(run)]),
                 self._run_info[run]["files"])
 
 
 
-    def _create_alignment_file_list(self, name, file_list):
+    def _create_dataset_txt(self, name, file_list):
         """Write alignment file list to disk.
 
         Arguments:
         - `name`: name of the file list
-        - `file_list`: list of files to written to `name`
+        - `file_list`: list of files to write to `name`
         """
 
-        print_msg("Creating MillePede file list: "+name)
+        name += ".txt"
+        print_msg("Creating datset file list: "+name)
         with open(os.path.join(self._formatted_dataset, name), "w") as f:
             f.write("\n".join(file_list))
 
 
-    def _create_validation_dataset(self, name, file_list):
+    def _create_dataset_cff(self, name, file_list):
         """
-        Create configuration fragment to define a dataset for validation.
+        Create configuration fragment to define a dataset.
 
         Arguments:
         - `name`: name of the configuration fragment
-        - `file_list`: list of files to written to `name`
+        - `file_list`: list of files to write to `name`
         """
 
-        print_msg("Creating validation dataset configuration fragment: "+name)
+        name = "_".join(["Dataset",name, "cff.py"])
+        print_msg("Creating dataset configuration fragment: "+name)
 
         file_list_str = ""
         for sub_list in get_chunks(file_list, 255):
@@ -605,19 +624,38 @@ class _DasCache(object):
 
 
 ################################################################################
-def das_client(query):
+def das_client(query, check_key = None):
     """
     Submit `query` to DAS client and handle possible errors.
     Further treatment of the output might be necessary.
 
     Arguments:
     - `query`: DAS query
+    - `check_key`: optional key to be checked for; retriggers query if needed
     """
-    for _ in xrange(3):         # maximum of 3 tries
+
+    error = True
+    for i in xrange(5):         # maximum of 5 tries
         das_data = cmssw_das_client.get_data(query, limit = 0)
-        if das_data["status"] != "error": break
+
+        if das_data["status"] == "ok":
+            if das_data["nresults"] == 0 or check_key is None:
+                error = False
+                break
+
+            result_count = 0
+            for d in find_key(das_data["data"], check_key):
+                result_count += len(d)
+            if result_count == 0:
+                das_data["status"] = "error"
+                das_data["reason"] = ("DAS did not return required data.")
+                continue
+            else:
+                error = False
+                break
+
     if das_data["status"] == "error":
-        print_msg("DAS query '{}' failed 3 times. "
+        print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
         print das_data["reason"]
         sys.exit(1)
@@ -633,7 +671,7 @@ def find_key(collection, key):
     """
 
     for item in collection:
-        if item.has_key(key):
+        if key in item:
             return item[key]
     print collection
     raise KeyError(key)
@@ -668,7 +706,7 @@ def guess_run(file_name):
     try:
         return int("".join(file_name.split("/")[-4:-2]))
     except ValueError:
-        return sys.maxint
+        return sys.maxsize
 
 
 def get_files(dataset_name):
@@ -678,8 +716,9 @@ def get_files(dataset_name):
     - `dataset_name`: name of the dataset
     """
 
-    data = das_client("file dataset={0:s} | grep file.name, file.nevents > 0"
-                      .format(dataset_name))
+    data = das_client(("file dataset={0:s} system=dbs3 | "+
+                       "grep file.name, file.nevents > 0").format(dataset_name),
+                      "file")
     return [find_key(f["file"], "name") for f in data]
 
 
@@ -690,8 +729,8 @@ def get_datasets(dataset_pattern):
     - `dataset_pattern`: pattern of dataset names
     """
 
-    data = das_client("dataset dataset={0:s} | grep dataset.name"
-                      .format(dataset_pattern))
+    data = das_client("dataset dataset={0:s} system=dbs3 | grep dataset.name"
+                      .format(dataset_pattern), "dataset")
     return [find_key(f["dataset"], "name") for f in data]
 
 
@@ -723,8 +762,33 @@ def _get_events(entity, name):
     - `name`: name of entity
     """
 
-    data = das_client("{0:s}={1:s} | grep {0:s}.nevents".format(entity, name))
+    data = das_client("{0:s}={1:s} system=dbs3 | grep {0:s}.nevents"
+                      .format(entity, name), entity)
     return int(find_key(find_key(data, entity), "nevents"))
+
+
+def _get_properties(name, entity, properties, filters, sub_entity = None):
+    """Retrieve `properties` from `entity` called `name`.
+
+    Arguments:
+    - `name`: name of entity
+    - `entity`: type of entity
+    - `properties`: list of property names
+    - `filters`: list of filters on properties
+    - `sub_entity`: type of entity from which to extract the properties;
+                    defaults to `entity`
+    """
+
+    if sub_entity is None: sub_entity = entity
+    props = ["{0:s}.{1:s}".format(sub_entity,prop.split()[0])
+             for prop in properties]
+    conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
+                  for filt in filters]
+
+    data = das_client("{0:s} {1:s}={2:s} system=dbs3 | grep {3:s}"
+                      .format(sub_entity, entity, name,
+                              ", ".join(props+conditions)), sub_entity)
+    return [[find_key(f[sub_entity], prop) for prop in properties] for f in data]
 
 
 def get_chunks(long_list, chunk_size):

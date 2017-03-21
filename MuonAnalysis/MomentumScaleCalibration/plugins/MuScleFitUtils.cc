@@ -380,7 +380,7 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
             //   std::cout << "Error: ResMass["<<ires<<"] = " << ResMass[ires] << std::endl;
             //   exit(1);
             // }
-            double deltaMass = fabs(mcomb-ResMass[ires])/ResMass[ires];
+            double deltaMass = std::abs(mcomb-ResMass[ires])/ResMass[ires];
             if (deltaMass<minDeltaMass){
               bestMassMuons = std::make_pair((*Muon1), (*Muon2));
               minDeltaMass = deltaMass;
@@ -638,7 +638,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // ----------
   bool didit = false;
   for (int ires=0; ires<6; ires++) {
-    if (!didit && resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires]) {
+    if (!didit && resfind[ires]>0 && std::abs(mass-ResMass[ires])<ResHalfWidth[ires]) {
       if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
 	counter_resprob++;
 	LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
@@ -980,10 +980,10 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
         //                     backgroundHandler->resMass( useBackgroundWindow, 0 ),
         //                     windowFactors.first, windowFactors.second )
         && checkMassWindow( mass, windowBorders.first, windowBorders.second )
-        // && fabs(rapidity)<2.4
+        // && std::abs(rapidity)<2.4
         ) {
 
-      int iY = (int)(fabs(rapidity)*10.);
+      int iY = (int)(std::abs(rapidity)*10.);
       if( iY > 23 ) iY = 23;
 
       if (MuScleFitUtils::debug>1) std::cout << "massProb:resFound = 0, rapidity bin =" << iY << std::endl;
@@ -1567,7 +1567,7 @@ void MuScleFitUtils::minimizeLikelihood()
       if (errp!=0) {
 	parerr[3*ipar] = errp;
       } else {
-	parerr[3*ipar] = (((errh)>(fabs(errl)))?(errh):(fabs(errl)));
+	parerr[3*ipar] = (((errh)>(std::abs(errl)))?(errh):(std::abs(errl)));
       }
       parerr[3*ipar+1] = errl;
       parerr[3*ipar+2] = errh;
@@ -2194,7 +2194,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const 
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
   for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
     //Chose muons
-    if (fabs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type())==13) {
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
@@ -2232,7 +2232,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const 
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
        part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
+    if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {
       bool fromRes = false;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
 	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
@@ -2270,7 +2270,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const 
   //Loop on generated particles
   if( debug>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (fabs(part->pdgId())==13 && part->status()==1) {
+    if (std::abs(part->pdgId())==13 && part->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug>0 ) {

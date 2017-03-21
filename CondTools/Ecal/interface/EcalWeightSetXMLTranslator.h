@@ -10,14 +10,10 @@
 #ifndef __EcalWeightSetXMLTranslator_h_
 #define __EcalWeightSetXMLTranslator_h_
 
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <xercesc/dom/DOMNode.hpp>
-#include <xercesc/dom/DOMElement.hpp>
 #include <string>
-
 
 class EcalWeightSetXMLTranslator {
 
@@ -33,23 +29,14 @@ public:
 		       const EcalCondHeader& header, 
 		       const EcalWeightSet& record);
   
+private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalWeightSet&  record);  
-
-
-private:
   
   static void write10x10(xercesc::DOMElement* node,const EcalWeightSet& record);
   static void write3x10(xercesc::DOMElement* node,const EcalWeightSet& record);
  
 };
 
-
-
 #endif // __EcalWeightSetXMLTranslator_h_
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd ..; scram b"
-// End:

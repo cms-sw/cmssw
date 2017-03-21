@@ -80,7 +80,7 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
   strStream <<"#<header> V1 "<<totalInWidth<<" "<<outWidth<<" </header> "<<std::endl;
 
   ///Fill payload string  
-  const std::vector<GoldenPattern *> & aGPs = readPatterns(aConfig);
+  auto const & aGPs = readPatterns(aConfig);
 
   unsigned int in = 0;
   int out = 0;
@@ -150,7 +150,7 @@ unsigned int XMLConfigReader::getPatternsVersion() const{
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
+std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
 
   aGPs.clear();
   
@@ -184,20 +184,20 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
       aNode = doc->getElementsByTagName(xmlGP)->item(iItem);
       aGPElement = static_cast<DOMElement *>(aNode);
       
-      GoldenPattern *aGP;
+      std::unique_ptr<GoldenPattern> aGP;
       for(unsigned int index = 1;index<5;++index){
 	///Patterns XML format backward compatibility. Can use both packed by 4, or by 1 XML files.      
 	if(aGPElement->getAttributeNode(xmliPt[index-1])) {
 	  aGP = buildGP(aGPElement, aConfig, index, iGPNumber);
 	  if(aGP){	  
-	    aGPs.push_back(aGP);
+	    aGPs.emplace_back(std::move(aGP));
 	    iGPNumber++;
 	  }
 	}
 	else{
 	  aGP = buildGP(aGPElement, aConfig);
 	  if(aGP){
-	    aGPs.push_back(aGP);
+	    aGPs.emplace_back(std::move(aGP));
 	    iGPNumber++;
 	  }
 	  break;
@@ -222,7 +222,7 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
+std::unique_ptr<GoldenPattern> XMLConfigReader::buildGP(DOMElement* aGPElement,
 					 const L1TMuonOverlapParams & aConfig,
 					 unsigned int index,
 					 unsigned int aGPNumber){
@@ -268,7 +268,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
     pdf3D.assign(aConfig.nLayers(),pdf2D);
 
     Key aKey(iEta,iPt,iCharge, aGPNumber);
-    GoldenPattern *aGP = new GoldenPattern(aKey,0);
+    auto aGP = std::make_unique<GoldenPattern>(aKey,static_cast<const OMTFConfiguration*>(nullptr));
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
     return aGP;
@@ -307,7 +307,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   }
 
   Key aKey(iEta,iPt,iCharge, aGPNumber);
-  GoldenPattern *aGP = new GoldenPattern(aKey,0);
+  auto aGP = std::make_unique<GoldenPattern>(aKey,static_cast<const OMTFConfiguration*>(nullptr));
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
 

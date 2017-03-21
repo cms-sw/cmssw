@@ -30,12 +30,12 @@ class MonitorElement;
 class EwkMuDQM : public DQMEDAnalyzer {
  public:
   EwkMuDQM(const edm::ParameterSet&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
 

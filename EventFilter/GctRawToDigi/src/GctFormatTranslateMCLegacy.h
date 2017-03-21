@@ -88,7 +88,7 @@ protected:
   virtual uint32_t generateRawHeader(const uint32_t blockId,
                                      const uint32_t nSamples,
                                      const uint32_t bxId,
-                                     const uint32_t eventId) const;
+                                     const uint32_t eventId) const override;
 
 
 private:

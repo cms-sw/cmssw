@@ -48,7 +48,7 @@ protected:
   MonitorElement* bookHisto1D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning binning);
   MonitorElement* bookHisto2D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning);
   MonitorElement* bookProfile(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning);
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup);
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
 

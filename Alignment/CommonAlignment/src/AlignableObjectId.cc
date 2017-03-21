@@ -1,277 +1,287 @@
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+
 #include <algorithm>
 
-using namespace align;
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
+struct AlignableObjectId::entry {
+  align::StructureType type;
+  const char* name;
+};
 
 namespace {
-  struct entry {
-    StructureType type; 
-    const char* name;
+
+  static constexpr AlignableObjectId::entry entries_RunI[] {
+    {align::invalid         , "invalid"},
+    {align::AlignableDetUnit, "DetUnit"},
+    {align::AlignableDet    , "Det"},
+
+    {align::TPBModule      , "TPBModule"},
+    {align::TPBLadder      , "TPBLadder"},
+    {align::TPBLayer       , "TPBLayer"},
+    {align::TPBHalfBarrel  , "TPBHalfBarrel"},
+    {align::TPBBarrel      , "TPBBarrel"},
+
+    {align::TPEModule      , "TPEModule"},
+    {align::TPEPanel       , "TPEPanel"},
+    {align::TPEBlade       , "TPEBlade"},
+    {align::TPEHalfDisk    , "TPEHalfDisk"},
+    {align::TPEHalfCylinder, "TPEHalfCylinder"},
+    {align::TPEEndcap      , "TPEEndcap"},
+
+    {align::TIBModule      , "TIBModule"},
+    {align::TIBString      , "TIBString"},
+    {align::TIBSurface     , "TIBSurface"},
+    {align::TIBHalfShell   , "TIBHalfShell"},
+    {align::TIBLayer       , "TIBLayer"},
+    {align::TIBHalfBarrel  , "TIBHalfBarrel"},
+    {align::TIBBarrel      , "TIBBarrel"},
+
+    {align::TIDModule      , "TIDModule"},
+    {align::TIDSide        , "TIDSide"},
+    {align::TIDRing        , "TIDRing"},
+    {align::TIDDisk        , "TIDDisk"},
+    {align::TIDEndcap      , "TIDEndcap"},
+
+    {align::TOBModule      , "TOBModule"},
+    {align::TOBRod         , "TOBRod"},
+    {align::TOBLayer       , "TOBLayer"},
+    {align::TOBHalfBarrel  , "TOBHalfBarrel"},
+    {align::TOBBarrel      , "TOBBarrel"},
+
+    {align::TECModule      , "TECModule"},
+    {align::TECRing        , "TECRing"},
+    {align::TECPetal       , "TECPetal"},
+    {align::TECSide        , "TECSide"},
+    {align::TECDisk        , "TECDisk"},
+    {align::TECEndcap      , "TECEndcap"},
+
+    {align::Pixel          , "Pixel"},
+    {align::Strip          , "Strip"},
+    {align::Tracker        , "Tracker"},
+
+    {align:: AlignableDTBarrel    ,  "DTBarrel"},
+    {align:: AlignableDTWheel     ,  "DTWheel"},
+    {align:: AlignableDTStation   ,  "DTStation"},
+    {align:: AlignableDTChamber   ,  "DTChamber"},
+    {align:: AlignableDTSuperLayer,  "DTSuperLayer"},
+    {align:: AlignableDTLayer     ,  "DTLayer"},
+    {align:: AlignableCSCEndcap   ,  "CSCEndcap"},
+    {align:: AlignableCSCStation  ,  "CSCStation"},
+    {align:: AlignableCSCRing     ,  "CSCRing"},
+    {align:: AlignableCSCChamber  ,  "CSCChamber"},
+    {align:: AlignableCSCLayer    ,  "CSCLayer"},
+    {align:: AlignableMuon        ,  "Muon"},
+
+    {align::BeamSpot, "BeamSpot"},
+    {align::notfound, 0}
   };
 
-  entry entries_RunI[] {
-    { invalid         , "invalid"},
-    { AlignableDetUnit, "DetUnit"},
-    { AlignableDet    , "Det"},
+  static constexpr AlignableObjectId::entry entries_PhaseI[] {
+    {align::invalid         , "invalid"},
+    {align::AlignableDetUnit, "DetUnit"},
+    {align::AlignableDet    , "Det"},
 
-    {TPBModule      , "TPBModule"},
-    {TPBLadder      , "TPBLadder"},
-    {TPBLayer       , "TPBLayer"},
-    {TPBHalfBarrel  , "TPBHalfBarrel"},
-    {TPBBarrel      , "TPBBarrel"},
+    {align::TPBModule      , "P1PXBModule"},
+    {align::TPBLadder      , "P1PXBLadder"},
+    {align::TPBLayer       , "P1PXBLayer"},
+    {align::TPBHalfBarrel  , "P1PXBHalfBarrel"},
+    {align::TPBBarrel      , "P1PXBBarrel"},
 
-    {TPEModule      , "TPEModule"},
-    {TPEPanel       , "TPEPanel"},
-    {TPEBlade       , "TPEBlade"},
-    {TPEHalfDisk    , "TPEHalfDisk"},
-    {TPEHalfCylinder, "TPEHalfCylinder"},
-    {TPEEndcap      , "TPEEndcap"},
+    {align::TPEModule      , "P1PXECModule"},
+    {align::TPEPanel       , "P1PXECPanel"},
+    {align::TPEBlade       , "P1PXECBlade"},
+    {align::TPEHalfDisk    , "P1PXECHalfDisk"},
+    {align::TPEHalfCylinder, "P1PXECHalfCylinder"},
+    {align::TPEEndcap      , "P1PXECEndcap"},
 
-    {TIBModule      , "TIBModule"},
-    {TIBString      , "TIBString"},
-    {TIBSurface     , "TIBSurface"},
-    {TIBHalfShell   , "TIBHalfShell"},
-    {TIBLayer       , "TIBLayer"},
-    {TIBHalfBarrel  , "TIBHalfBarrel"},
-    {TIBBarrel      , "TIBBarrel"},
+    {align::TIBModule      , "TIBModule"},
+    {align::TIBString      , "TIBString"},
+    {align::TIBSurface     , "TIBSurface"},
+    {align::TIBHalfShell   , "TIBHalfShell"},
+    {align::TIBLayer       , "TIBLayer"},
+    {align::TIBHalfBarrel  , "TIBHalfBarrel"},
+    {align::TIBBarrel      , "TIBBarrel"},
 
-    {TIDModule      , "TIDModule"},
-    {TIDSide        , "TIDSide"},
-    {TIDRing        , "TIDRing"},
-    {TIDDisk        , "TIDDisk"},
-    {TIDEndcap      , "TIDEndcap"},
+    {align::TIDModule      , "TIDModule"},
+    {align::TIDSide        , "TIDSide"},
+    {align::TIDRing        , "TIDRing"},
+    {align::TIDDisk        , "TIDDisk"},
+    {align::TIDEndcap      , "TIDEndcap"},
 
-    {TOBModule      , "TOBModule"},
-    {TOBRod         , "TOBRod"},
-    {TOBLayer       , "TOBLayer"},
-    {TOBHalfBarrel  , "TOBHalfBarrel"},
-    {TOBBarrel      , "TOBBarrel"},
+    {align::TOBModule      , "TOBModule"},
+    {align::TOBRod         , "TOBRod"},
+    {align::TOBLayer       , "TOBLayer"},
+    {align::TOBHalfBarrel  , "TOBHalfBarrel"},
+    {align::TOBBarrel      , "TOBBarrel"},
 
-    {TECModule      , "TECModule"},
-    {TECRing        , "TECRing"},
-    {TECPetal       , "TECPetal"},
-    {TECSide        , "TECSide"},
-    {TECDisk        , "TECDisk"},
-    {TECEndcap      , "TECEndcap"},
+    {align::TECModule      , "TECModule"},
+    {align::TECRing        , "TECRing"},
+    {align::TECPetal       , "TECPetal"},
+    {align::TECSide        , "TECSide"},
+    {align::TECDisk        , "TECDisk"},
+    {align::TECEndcap      , "TECEndcap"},
 
-    {Pixel          , "Pixel"},
-    {Strip          , "Strip"},
-    {Tracker        , "Tracker"},
+    {align::Pixel          , "Pixel"},
+    {align::Strip          , "Strip"},
+    {align::Tracker        , "Tracker"},
 
-    { AlignableDTBarrel    ,  "DTBarrel"},
-    { AlignableDTWheel     ,  "DTWheel"},
-    { AlignableDTStation   ,  "DTStation"},
-    { AlignableDTChamber   ,  "DTChamber"},
-    { AlignableDTSuperLayer,  "DTSuperLayer"},
-    { AlignableDTLayer     ,  "DTLayer"},
-    { AlignableCSCEndcap   ,  "CSCEndcap"},
-    { AlignableCSCStation  ,  "CSCStation"},
-    { AlignableCSCRing     ,  "CSCRing"},
-    { AlignableCSCChamber  ,  "CSCChamber"},
-    { AlignableCSCLayer    ,  "CSCLayer"},
-    { AlignableMuon        ,  "Muon"},
+    {align::AlignableDTBarrel    ,  "DTBarrel"},
+    {align::AlignableDTWheel     ,  "DTWheel"},
+    {align::AlignableDTStation   ,  "DTStation"},
+    {align::AlignableDTChamber   ,  "DTChamber"},
+    {align::AlignableDTSuperLayer,  "DTSuperLayer"},
+    {align::AlignableDTLayer     ,  "DTLayer"},
+    {align::AlignableCSCEndcap   ,  "CSCEndcap"},
+    {align::AlignableCSCStation  ,  "CSCStation"},
+    {align::AlignableCSCRing     ,  "CSCRing"},
+    {align::AlignableCSCChamber  ,  "CSCChamber"},
+    {align::AlignableCSCLayer    ,  "CSCLayer"},
+    {align::AlignableMuon        ,  "Muon"},
 
-    { BeamSpot, "BeamSpot"},
-    {notfound, 0}
+    {align::BeamSpot, "BeamSpot"},
+    {align::notfound, 0}
   };
 
-  entry entries_PhaseI[] {
-    { invalid         , "invalid"},
-    { AlignableDetUnit, "DetUnit"},
-    { AlignableDet    , "Det"},
+  static constexpr AlignableObjectId::entry entries_PhaseII[] {
+    {align::invalid         , "invalid"},
+    {align::AlignableDetUnit, "DetUnit"},
+    {align::AlignableDet    , "Det"},
 
-    {TPBModule      , "P1PXBModule"},
-    {TPBLadder      , "P1PXBLadder"},
-    {TPBLayer       , "P1PXBLayer"},
-    {TPBHalfBarrel  , "P1PXBHalfBarrel"},
-    {TPBBarrel      , "P1PXBBarrel"},
+    {align::TPBModule      , "P1PXBModule"},
+    {align::TPBLadder      , "P1PXBLadder"},
+    {align::TPBLayer       , "P1PXBLayer"},
+    {align::TPBHalfBarrel  , "P1PXBHalfBarrel"},
+    {align::TPBBarrel      , "P1PXBBarrel"},
 
-    {TPEModule      , "P1PXECModule"},
-    {TPEPanel       , "P1PXECPanel"},
-    {TPEBlade       , "P1PXECBlade"},
-    {TPEHalfDisk    , "P1PXECHalfDisk"},
-    {TPEHalfCylinder, "P1PXECHalfCylinder"},
-    {TPEEndcap      , "P1PXECEndcap"},
-
-    {TIBModule      , "TIBModule"},
-    {TIBString      , "TIBString"},
-    {TIBSurface     , "TIBSurface"},
-    {TIBHalfShell   , "TIBHalfShell"},
-    {TIBLayer       , "TIBLayer"},
-    {TIBHalfBarrel  , "TIBHalfBarrel"},
-    {TIBBarrel      , "TIBBarrel"},
-
-    {TIDModule      , "TIDModule"},
-    {TIDSide        , "TIDSide"},
-    {TIDRing        , "TIDRing"},
-    {TIDDisk        , "TIDDisk"},
-    {TIDEndcap      , "TIDEndcap"},
-
-    {TOBModule      , "TOBModule"},
-    {TOBRod         , "TOBRod"},
-    {TOBLayer       , "TOBLayer"},
-    {TOBHalfBarrel  , "TOBHalfBarrel"},
-    {TOBBarrel      , "TOBBarrel"},
-
-    {TECModule      , "TECModule"},
-    {TECRing        , "TECRing"},
-    {TECPetal       , "TECPetal"},
-    {TECSide        , "TECSide"},
-    {TECDisk        , "TECDisk"},
-    {TECEndcap      , "TECEndcap"},
-
-    {Pixel          , "Pixel"},
-    {Strip          , "Strip"},
-    {Tracker        , "Tracker"},
-
-    { AlignableDTBarrel    ,  "DTBarrel"},
-    { AlignableDTWheel     ,  "DTWheel"},
-    { AlignableDTStation   ,  "DTStation"},
-    { AlignableDTChamber   ,  "DTChamber"},
-    { AlignableDTSuperLayer,  "DTSuperLayer"},
-    { AlignableDTLayer     ,  "DTLayer"},
-    { AlignableCSCEndcap   ,  "CSCEndcap"},
-    { AlignableCSCStation  ,  "CSCStation"},
-    { AlignableCSCRing     ,  "CSCRing"},
-    { AlignableCSCChamber  ,  "CSCChamber"},
-    { AlignableCSCLayer    ,  "CSCLayer"},
-    { AlignableMuon        ,  "Muon"},
-
-    { BeamSpot, "BeamSpot"},
-    {notfound, 0}
-  };
-
-  entry entries_PhaseII[] {
-    { invalid         , "invalid"},
-    { AlignableDetUnit, "DetUnit"},
-    { AlignableDet    , "Det"},
-
-    {TPBModule      , "P1PXBModule"},
-    {TPBLadder      , "P1PXBLadder"},
-    {TPBLayer       , "P1PXBLayer"},
-    {TPBHalfBarrel  , "P1PXBHalfBarrel"},
-    {TPBBarrel      , "P1PXBBarrel"},
-
-    {TPEModule      , "P2PXECModule"},
-    {TPEPanel       , "P2PXECPanel"},
-    {TPEBlade       , "P2PXECBlade"},
-    {TPEHalfDisk    , "P2PXECHalfDisk"},
-    {TPEHalfCylinder, "P2PXECHalfCylinder"},
-    {TPEEndcap      , "P2PXECEndcap"},
+    {align::TPEModule      , "P2PXECModule"},
+    {align::TPEPanel       , "P2PXECPanel"},
+    {align::TPEBlade       , "P2PXECBlade"},
+    {align::TPEHalfDisk    , "P2PXECHalfDisk"},
+    {align::TPEHalfCylinder, "P2PXECHalfCylinder"},
+    {align::TPEEndcap      , "P2PXECEndcap"},
 
     // TIB doesn't exit in PhaseII
-    {TIBModule      , "TIBModule-INVALID"},
-    {TIBString      , "TIBString-INVALID"},
-    {TIBSurface     , "TIBSurface-INVALID"},
-    {TIBHalfShell   , "TIBHalfShell-INVALID"},
-    {TIBLayer       , "TIBLayer-INVALID"},
-    {TIBHalfBarrel  , "TIBHalfBarrel-INVALID"},
-    {TIBBarrel      , "TIBBarrel-INVALID"},
+    {align::TIBModule      , "TIBModule-INVALID"},
+    {align::TIBString      , "TIBString-INVALID"},
+    {align::TIBSurface     , "TIBSurface-INVALID"},
+    {align::TIBHalfShell   , "TIBHalfShell-INVALID"},
+    {align::TIBLayer       , "TIBLayer-INVALID"},
+    {align::TIBHalfBarrel  , "TIBHalfBarrel-INVALID"},
+    {align::TIBBarrel      , "TIBBarrel-INVALID"},
 
-    {TIDModule      , "P2OTECModule"},
-    {TIDSide        , "P2OTECSide"},
-    {TIDRing        , "P2OTECRing"},
-    {TIDDisk        , "P2OTECDisk"},
-    {TIDEndcap      , "P2OTECEndcap"},
+    {align::TIDModule      , "P2OTECModule"},
+    {align::TIDSide        , "P2OTECSide"},
+    {align::TIDRing        , "P2OTECRing"},
+    {align::TIDDisk        , "P2OTECDisk"},
+    {align::TIDEndcap      , "P2OTECEndcap"},
 
-    {TOBModule      , "P2OTBModule"},
-    {TOBRod         , "P2OTBRod"},
-    {TOBLayer       , "P2OTBLayer"},
-    {TOBHalfBarrel  , "P2OTBHalfBarrel"},
-    {TOBBarrel      , "P2OTBBarrel"},
+    {align::TOBModule      , "P2OTBModule"},
+    {align::TOBRod         , "P2OTBRod"},
+    {align::TOBLayer       , "P2OTBLayer"},
+    {align::TOBHalfBarrel  , "P2OTBHalfBarrel"},
+    {align::TOBBarrel      , "P2OTBBarrel"},
 
     // TEC doesn't exit in PhaseII
-    {TECModule      , "TECModule-INVALID"},
-    {TECRing        , "TECRing-INVALID"},
-    {TECPetal       , "TECPetal-INVALID"},
-    {TECSide        , "TECSide-INVALID"},
-    {TECDisk        , "TECDisk-INVALID"},
-    {TECEndcap      , "TECEndcap-INVALID"},
+    {align::TECModule      , "TECModule-INVALID"},
+    {align::TECRing        , "TECRing-INVALID"},
+    {align::TECPetal       , "TECPetal-INVALID"},
+    {align::TECSide        , "TECSide-INVALID"},
+    {align::TECDisk        , "TECDisk-INVALID"},
+    {align::TECEndcap      , "TECEndcap-INVALID"},
 
-    {Pixel          , "Pixel"},
-    {Strip          , "Strip"},
-    {Tracker        , "Tracker"},
+    {align::Pixel          , "Pixel"},
+    {align::Strip          , "Strip"},
+    {align::Tracker        , "Tracker"},
 
-    { AlignableDTBarrel    ,  "DTBarrel"},
-    { AlignableDTWheel     ,  "DTWheel"},
-    { AlignableDTStation   ,  "DTStation"},
-    { AlignableDTChamber   ,  "DTChamber"},
-    { AlignableDTSuperLayer,  "DTSuperLayer"},
-    { AlignableDTLayer     ,  "DTLayer"},
-    { AlignableCSCEndcap   ,  "CSCEndcap"},
-    { AlignableCSCStation  ,  "CSCStation"},
-    { AlignableCSCRing     ,  "CSCRing"},
-    { AlignableCSCChamber  ,  "CSCChamber"},
-    { AlignableCSCLayer    ,  "CSCLayer"},
-    { AlignableMuon        ,  "Muon"},
+    {align::AlignableDTBarrel    ,  "DTBarrel"},
+    {align::AlignableDTWheel     ,  "DTWheel"},
+    {align::AlignableDTStation   ,  "DTStation"},
+    {align::AlignableDTChamber   ,  "DTChamber"},
+    {align::AlignableDTSuperLayer,  "DTSuperLayer"},
+    {align::AlignableDTLayer     ,  "DTLayer"},
+    {align::AlignableCSCEndcap   ,  "CSCEndcap"},
+    {align::AlignableCSCStation  ,  "CSCStation"},
+    {align::AlignableCSCRing     ,  "CSCRing"},
+    {align::AlignableCSCChamber  ,  "CSCChamber"},
+    {align::AlignableCSCLayer    ,  "CSCLayer"},
+    {align::AlignableMuon        ,  "Muon"},
 
-    { BeamSpot, "BeamSpot"},
-    {notfound, 0}
+    {align::BeamSpot, "BeamSpot"},
+    {align::notfound, 0}
   };
-
-  // This pointer points per default to the structure-names of RunI geometry
-  // version. If an upgraded geometry is loaded, one can reset the pointer with
-  // help of the isPhaseIGeometry() below.
-  entry* entries = entries_RunI;
-
 
 
   constexpr bool same(char const *x, char const *y) {
     return !*x && !*y ? true : (*x == *y && same(x+1, y+1));
   }
-  
-  constexpr char const *objectIdToString(StructureType type,  entry const *entries) {
+
+  constexpr char const *objectIdToString(align::StructureType type,
+                                         AlignableObjectId::entry const *entries) {
     return !entries->name ?  0 :
             entries->type == type ? entries->name :
                                     objectIdToString(type, entries+1);
   }
 
-  constexpr enum StructureType stringToObjectId(char const *name,  entry const *entries) {
-    return !entries->name             ? invalid :
+  constexpr enum align::StructureType stringToObjectId(char const *name,
+                                                       AlignableObjectId::entry const *entries) {
+    return !entries->name             ? align::invalid :
             same(entries->name, name) ? entries->type :
                                         stringToObjectId(name, entries+1);
   }
 }
 
 
+//_____________________________________________________________________________
+AlignableObjectId
+::AlignableObjectId(AlignableObjectId::Geometry geometry) :
+  geometry_(geometry)
+{
+  switch (geometry) {
+  case AlignableObjectId::Geometry::RunI:    entries_ = entries_RunI;    break;
+  case AlignableObjectId::Geometry::PhaseI:  entries_ = entries_PhaseI;  break;
+  case AlignableObjectId::Geometry::PhaseII: entries_ = entries_PhaseII; break;
+  case AlignableObjectId::Geometry::General: entries_ = entries_RunI;    break;
+  case AlignableObjectId::Geometry::Unspecified: entries_ = nullptr;     break;
+  }
+  if (!entries_) {
+    throw cms::Exception("LogicError")
+      << "@SUB=AlignableObjectId::ctor\n"
+      << "trying to create AlignableObjectId with unspecified geometry";
+  }
+}
+
 
 //_____________________________________________________________________________
-void AlignableObjectId
-::isRunIGeometry() {
-  entries = entries_RunI;
+AlignableObjectId
+::AlignableObjectId(const TrackerGeometry* tracker,
+                    const DTGeometry* muonDt,
+                    const CSCGeometry* muonCsc) :
+  AlignableObjectId(commonGeometry(trackerGeometry(tracker),
+                                   muonGeometry(muonDt, muonCsc)))
+{
 }
 
 //_____________________________________________________________________________
-void AlignableObjectId
-::isPhaseIGeometry() {
-  entries = entries_PhaseI;
-}
-
-//_____________________________________________________________________________
-void AlignableObjectId
-::isPhaseIIGeometry() {
-  entries = entries_PhaseII;
-}
-
-//_____________________________________________________________________________
-StructureType
-AlignableObjectId::nameToType( const std::string &name)
+align::StructureType
+AlignableObjectId::nameToType( const std::string &name) const
 {
   return stringToId(name.c_str());
 }
 
 //_____________________________________________________________________________
-std::string AlignableObjectId::typeToName( StructureType type )
+std::string AlignableObjectId::typeToName(align::StructureType type) const
 {
   return idToString(type);
 }
 
 //_____________________________________________________________________________
-const char *AlignableObjectId::idToString(align::StructureType type)
+const char *AlignableObjectId::idToString(align::StructureType type) const
 {
-  const char *result = objectIdToString(type, entries);
+  const char *result = objectIdToString(type, entries_);
 
   if (result == 0)
   {
@@ -283,9 +293,9 @@ const char *AlignableObjectId::idToString(align::StructureType type)
 }
 
 //_____________________________________________________________________________
-align::StructureType AlignableObjectId::stringToId(const char *name)
+align::StructureType AlignableObjectId::stringToId(const char *name) const
 {
-  StructureType result = stringToObjectId(name, entries);
+  auto result = stringToObjectId(name, entries_);
   if (result == -1)
   {
     throw cms::Exception("AlignableObjectIdError")
@@ -293,4 +303,62 @@ align::StructureType AlignableObjectId::stringToId(const char *name)
   }
 
   return result;
+}
+
+//______________________________________________________________________________
+AlignableObjectId::Geometry AlignableObjectId
+::trackerGeometry(const TrackerGeometry* geometry) {
+  if (geometry->isThere(GeomDetEnumerators::P2PXEC)) {
+    // use structure-type <-> name translation for PhaseII geometry
+    return Geometry::PhaseII;
+
+  } else if (geometry->isThere(GeomDetEnumerators::P1PXEC)) {
+    // use structure-type <-> name translation for PhaseI geometry
+    return Geometry::PhaseI;
+
+  } else if (geometry->isThere(GeomDetEnumerators::PixelEndcap)) {
+    // use structure-type <-> name translation for RunI geometry
+    return Geometry::RunI;
+
+  } else {
+    throw cms::Exception("AlignableObjectIdError")
+      << "@SUB=AlignableObjectId::trackerGeometry\n"
+      << "unknown version of TrackerGeometry";
+  }
+}
+
+AlignableObjectId::Geometry AlignableObjectId
+::muonGeometry(const DTGeometry*, const CSCGeometry*) {
+  // muon alignment structure types are identical for all kinds of geometries
+  return Geometry::General;
+}
+
+AlignableObjectId::Geometry AlignableObjectId
+::commonGeometry(Geometry first, Geometry second) {
+  if (first == Geometry::General) return second;
+  if (second == Geometry::General) return first;
+  if (first == second) return first;
+
+  throw cms::Exception("AlignableObjectIdError")
+    << "@SUB=AlignableObjectId::commonGeometry\n"
+    << "impossible to find common geometry because the two geometries are "
+    << "different and none of them is 'General'";
+}
+
+AlignableObjectId AlignableObjectId
+::commonObjectIdProvider(const AlignableObjectId& first,
+                         const AlignableObjectId& second) {
+  return AlignableObjectId{commonGeometry(first.geometry(), second.geometry())};
+}
+
+AlignableObjectId AlignableObjectId
+::commonObjectIdProvider(const AlignableTracker* tracker,
+                         const AlignableMuon* muon) {
+  auto trackerGeometry = (tracker ?
+                          tracker->objectIdProvider().geometry() :
+                          AlignableObjectId::Geometry::General);
+  auto muonGeometry = (muon ?
+                       muon->objectIdProvider().geometry() :
+                       AlignableObjectId::Geometry::General);
+  return AlignableObjectId::commonGeometry(trackerGeometry, muonGeometry);
 }

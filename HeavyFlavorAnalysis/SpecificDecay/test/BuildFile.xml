@@ -1,0 +1,11 @@
+<use   name="root"/>
+<use   name="HeavyFlavorAnalysis/RecoDecay"/>
+<use   name="HeavyFlavorAnalysis/SpecificDecay"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<library   file="stubs/*.cc" name="HeavyFlavorAnalysisSpecificDecayTest">
+  <flags   EDM_PLUGIN="1"/>
+</library>

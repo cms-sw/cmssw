@@ -3,9 +3,9 @@
 <ConstantsSection label="escon.xml" eval="true">
   <Constant name="ESFrontZ"            value="2990*mm"/>
   <Constant name="ESRearZ"             value="3170*mm"/>
-  <Constant name="ESMidZ"              value="([ESFrontZ]+115.6*mm)"/>
-  <Constant name="R_MIN"               value="295*mm"/>
-  <Constant name="R_MAX"               value="1421.5*mm"/>
+  <Constant name="ESMidZ"              value="3045*mm"/>
+  <Constant name="R_MIN"               value="317*mm"/>
+  <Constant name="R_MAX"               value="1510*mm"/>
   <Constant name="P1"                  value="0.0*cm"/>
   <!-- Constants for preshower front and rear window -->
   <Constant name="Front_window_Z"      value="([ESFrontZ]+[P1])"/>

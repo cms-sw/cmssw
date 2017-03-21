@@ -32,6 +32,10 @@ _xsection(-1.)
     if (!pset.exists("GenEventInfoCollection")){
       throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the GenEventInfoProduct collection from which the weight has to be taken " ; 
     }
+    _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
+    _useLHEweights          = pset.getParameter<bool>("useLHEweights");
+    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
+    
     _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
     _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
     _useLHEweights          = pset.getParameter<bool>("useLHEweights");
@@ -69,11 +73,16 @@ void RivetAnalyzer::beginJob(){
   //set the environment, very ugly but rivet is monolithic when it comes to paths
   char * cmsswbase    = getenv("CMSSW_BASE");
   char * cmsswrelease = getenv("CMSSW_RELEASE_BASE");
-  std::string rivetref, rivetinfo;
-  rivetref = "RIVET_REF_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
-  rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
-  putenv(strdup(rivetref.c_str()));
-  putenv(strdup(rivetinfo.c_str()));
+  if ( !getenv("RIVET_REF_PATH") )
+  {
+    const std::string rivetref = "RIVET_REF_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
+    putenv(strdup(rivetref.c_str()));
+  }
+  if ( !getenv("RIVET_INFO_PATH") )
+  {
+    const std::string rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
+    putenv(strdup(rivetinfo.c_str()));
+  }
 }
 
 void RivetAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){

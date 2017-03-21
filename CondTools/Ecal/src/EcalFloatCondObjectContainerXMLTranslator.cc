@@ -6,11 +6,10 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
-
 
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
@@ -156,20 +155,17 @@ std::string
 EcalFloatCondObjectContainerXMLTranslator::dumpXML(       
 				  const EcalCondHeader&   header,
 				  const EcalFloatCondObjectContainer& record){
-    
 
-
-  
   cms::concurrency::xercesInitialize();
-  
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, fromNative(EcalFloatCondObjectContainer_tag).c_str(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(EcalFloatCondObjectContainer_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root, header);
@@ -211,10 +207,12 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
   } // loop on EE cells
   
   
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();
+  
+  cms::concurrency::xercesTerminate();
 
   return dump;
 }
@@ -226,7 +224,12 @@ EcalFloatCondObjectContainerXMLTranslator::writeXML(const std::string& filename,
 					       const EcalCondHeader&   header,
 					       const EcalFloatCondObjectContainer& record){
 
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }

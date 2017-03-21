@@ -44,18 +44,18 @@ public:
   ~CkfTrajectoryBuilder() {}
 
   /// trajectories building starting from a seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
+  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;
   /// trajectories building starting from a seed
-  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const;
+  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const override;
 
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const;
+				    const TrajectoryFilter*) const override;
   
   
   void  rebuildTrajectories(TempTrajectory const& startingTraj, const TrajectorySeed&,
-			    TrajectoryContainer& result) const {}
+			    TrajectoryContainer& result) const override {}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;

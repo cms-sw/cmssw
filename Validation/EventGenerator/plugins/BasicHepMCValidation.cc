@@ -164,7 +164,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  HepMC::GenEvent const *myGenEvent = evt->GetEvent();
 
   double weight = wmanager_.weight(iEvent);
 
@@ -174,7 +174,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   genVrtxNumber->Fill(log10(myGenEvent->vertices_size()),weight);
 
   ///Bjorken variable from PDF
-  HepMC::PdfInfo *pdf = myGenEvent->pdf_info();    
+  HepMC::PdfInfo const *pdf = myGenEvent->pdf_info();    
   if(pdf){
     bjorken = ((pdf->x1())/((pdf->x1())+(pdf->x2())));
   }
@@ -186,7 +186,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   for(HepMC::GenEvent::vertex_const_iterator vrtxIt = vrtxBegin; vrtxIt!=vrtxEnd; ++vrtxIt)
     {
       ///Vertices
-      HepMC::GenVertex *vrtx = *vrtxIt;
+      HepMC::GenVertex const *vrtx = *vrtxIt;
       outVrtxPtclNumber->Fill(vrtx->particles_out_size(),weight); //std::cout << "all " << vrtx->particles_out_size() << '\n';
 
       if(nvtx==0){
@@ -199,7 +199,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       outVrtxStablePtclNum = 0;
       for(HepMC::GenVertex::particles_out_const_iterator vrtxPtclIt = vrtxPtclBegin; vrtxPtclIt != vrtxPtclEnd; ++vrtxPtclIt)
         {
-          HepMC::GenParticle *vrtxPtcl = *vrtxPtclIt;
+          HepMC::GenParticle const *vrtxPtcl = *vrtxPtclIt;
           if (vrtxPtcl->status() == 1){
             ++outVrtxStablePtclNum; //std::cout << "stable " << outVrtxStablePtclNum << '\n';
           }
@@ -215,7 +215,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     {
     
       ///Particles
-      HepMC::GenParticle *ptcl = *ptclIt;
+      HepMC::GenParticle const *ptcl = *ptclIt;
       int Id = ptcl->pdg_id(); // std::cout << Id << '\n'; 
       float Log_p = log10( ptcl->momentum().rho() );
       double charge = 999.;	// for the charge it's needed a HepPDT method
@@ -286,5 +286,5 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   //
   partonNumber->Fill(partonNum,weight);
   for(unsigned int i=0;i<particles.size();i++){particles.at(i).FillCount(weight);};
-  delete myGenEvent;
+
 }//analyze

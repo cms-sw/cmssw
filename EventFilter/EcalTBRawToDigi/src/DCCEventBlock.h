@@ -36,6 +36,7 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		DCCTBSRPBlock               * srpBlock();
 		DCCTBTrailerBlock           * trailerBlock();
 		std::vector< DCCTBTowerBlock * >   towerBlocksById(uint32_t towerId);
+		using DCCTBBlockPrototype::compare;
 		std::pair<bool,std::string> compare(DCCTBEventBlock * );
 
 		bool eventHasErrors();

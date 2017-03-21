@@ -62,7 +62,9 @@ namespace edm {
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility
     {
-      assert(tree_);
+      if(not tree_) {
+        throw cms::Exception("WrongFileFormat")<< "The ROOT file does not contain a TTree named "<<BranchTypeToProductTreeName(branchType)<<"\n This is either not an edm ROOT file or is one that has been corrupted.";
+      }
       // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
       // TODO: On newer merged files, we should be able to get this from the cluster iterator.
       long treeAutoFlush = (tree_ ? tree_->GetAutoFlush() : 0);
@@ -113,8 +115,13 @@ namespace edm {
   }
 
   DelayedReader*
-  RootTree::rootDelayedReader() const {
+  RootTree::resetAndGetRootDelayedReader() const {
     rootDelayedReader_->reset();
+    return rootDelayedReader_.get();
+  }
+
+  DelayedReader*
+  RootTree::rootDelayedReader() const {
     return rootDelayedReader_.get();
   }  
 

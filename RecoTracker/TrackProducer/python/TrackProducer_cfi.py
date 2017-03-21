@@ -9,7 +9,7 @@ TrackProducer = cms.EDProducer("TrackProducer",
     Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
     useHitsSplitting = cms.bool(False),
     alias = cms.untracked.string('ctfWithMaterialTracks'),
-    TrajectoryInEvent = cms.bool(True),
+    TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
@@ -26,6 +26,10 @@ TrackProducer = cms.EDProducer("TrackProducer",
     MeasurementTracker = cms.string(''),
     MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
+
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(TrackProducer, TTRHBuilder = 'WithTrackAngle') # FIXME
 
 # This customization will be removed once we get the templates for
 # phase2 pixel

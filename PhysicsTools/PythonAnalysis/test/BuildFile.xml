@@ -1,0 +1,8 @@
+<use name="histogrammar"/>
+<use name="py2-matplotlib"/>
+<use name="py2-root_numpy"/>
+<use name="py2-pandas"/>
+<use name="py2-pippkgs"/>
+<use name="rootpy"/>
+
+<test name="runtestPythonAnalysis" command="runtests.sh"/>

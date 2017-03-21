@@ -113,15 +113,15 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     xerr_endcap_def_=0.0020;
     yerr_endcap_= {0.00210};
     yerr_endcap_def_=0.00075;
-  } else { // isUpgrade=true, funny case
-    xerr_barrel_ln_= {0.00114,0.00104,0.00214};
-    xerr_barrel_ln_def_=0.00425;
-    yerr_barrel_ln_= {0.00299,0.00203,0.0023,0.00237,0.00233,0.00243,0.00232,0.00259,0.00176};
-    yerr_barrel_ln_def_=0.00245;
-    xerr_endcap_= {0.00151,0.000813,0.00221};
-    xerr_endcap_def_=0.00218;
-    yerr_endcap_= {0.00261,0.00107,0.00264};
-    yerr_endcap_def_=0.00357;
+  } else { // isUpgrade=true    
+    xerr_barrel_ln_= {0.00025, 0.00030, 0.00035, 0.00035};
+    xerr_barrel_ln_def_=0.00035;
+    yerr_barrel_ln_= {0.00210, 0.00115, 0.00125};
+    yerr_barrel_ln_def_=0.00125;
+    xerr_endcap_= {0.00072, 0.00025};
+    xerr_endcap_def_=0.00060;
+    yerr_endcap_= {0.00289, 0.00025};
+    yerr_endcap_def_=0.00180;
     
     if ( conf.exists("SmallPitch") && conf.getParameter<bool>("SmallPitch")) {
       xerr_barrel_l1_= {0.00104, 0.000691, 0.00122};
@@ -129,10 +129,10 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       yerr_barrel_l1_= {0.00199,0.00136,0.0015,0.00153,0.00152,0.00171,0.00154,0.00157,0.00154};
       yerr_barrel_l1_def_=0.00164;
     } else {
-      xerr_barrel_l1_= {0.00114,0.00104,0.00214};
-      xerr_barrel_l1_def_=0.00425;
-      yerr_barrel_l1_= {0.00299,0.00203,0.0023,0.00237,0.00233,0.00243,0.00232,0.00259,0.00176};
-      yerr_barrel_l1_def_=0.00245;
+      xerr_barrel_l1_= {0.00025, 0.00030, 0.00035, 0.00035};
+      xerr_barrel_l1_def_=0.00035;
+      yerr_barrel_l1_= {0.00210, 0.00115, 0.00125};
+      yerr_barrel_l1_def_=0.00125;
     }
   } // if isUpgrade
 
@@ -602,7 +602,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
   bool bigInY = theDetParam.theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
 
   if(localPrint) {
-   cout<<" endge clus "<<xerr<<" "<<yerr<<endl;  //dk
+   cout<<" edge clus "<<xerr<<" "<<yerr<<endl;  //dk
    if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
    if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
    cout<<" before if "<<UseErrorsFromTemplates_<<" "<<theClusterParam.qBin_<<endl;

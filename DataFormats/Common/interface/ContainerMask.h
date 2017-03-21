@@ -41,8 +41,10 @@ namespace edm {
 
       // ---------- const member functions ---------------------
      	bool mask(unsigned int iIndex) const {
-         assert(iIndex<m_mask.size());
-         return m_mask[iIndex];
+          if(iIndex<m_mask.size()) {
+            return m_mask[iIndex];
+          }
+          return false;
      	}
      	bool mask(const typename ContainerMaskTraits<T>::value_type *);
      	void applyOrTo( std::vector<bool>&) const;
@@ -73,7 +75,7 @@ namespace edm {
    template<typename T>
    ContainerMask<T>::ContainerMask(const edm::RefProd<T>& iProd, const std::vector<bool>& iMask):
    m_prod(iProd), m_mask(iMask) {
-      assert(iMask.size() == ContainerMaskTraits<T>::size(m_prod.product()));
+      assert(iMask.size() <= ContainerMaskTraits<T>::size(m_prod.product()));
    }
    
    

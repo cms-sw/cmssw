@@ -36,7 +36,7 @@ void L1TCSCTFClient::initialize(){
 
 }
 
-void L1TCSCTFClient::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
+void L1TCSCTFClient::dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
 }
 
 //--------------------------------------------------------

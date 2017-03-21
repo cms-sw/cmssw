@@ -39,7 +39,7 @@ MODDCCDetailsDat::~MODDCCDetailsDat()
 
 
 void MODDCCDetailsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -59,7 +59,7 @@ void MODDCCDetailsDat::prepareWrite()
 
 
 void MODDCCDetailsDat::writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* item, MODRunIOV* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -95,7 +95,7 @@ void MODDCCDetailsDat::writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* 
 
 
 void MODDCCDetailsDat::fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fillMap, MODRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -149,7 +149,7 @@ void MODDCCDetailsDat::fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fill
 }
 
 void MODDCCDetailsDat::writeArrayDB(const std::map< EcalLogicID, MODDCCDetailsDat >* data, MODRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

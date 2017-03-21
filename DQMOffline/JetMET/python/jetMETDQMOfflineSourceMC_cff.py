@@ -83,7 +83,7 @@ caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = cms.InputTag("
 pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
 pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
 
-jetMETDQMOfflineSource = cms.Sequence(goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
+jetMETDQMOfflineSource = cms.Sequence(cms.ignore(goodOfflinePrimaryVerticesDQM)*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*

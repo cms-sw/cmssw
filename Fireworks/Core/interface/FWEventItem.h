@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sigc++/connection.h>
 
 // user include files
@@ -75,7 +75,7 @@ public:
 
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
-               boost::shared_ptr<FWItemAccessorBase> iAccessor,
+               std::shared_ptr<FWItemAccessorBase> iAccessor,
                const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
    virtual ~FWEventItem();
 
@@ -231,7 +231,7 @@ private:
    std::string m_name;
    const TClass* m_type;
    std::string m_purpose;
-   boost::shared_ptr<FWItemAccessorBase> m_accessor;
+   std::shared_ptr<FWItemAccessorBase> m_accessor;
    FWDisplayProperties m_displayProperties;
    int m_layer;
    mutable std::vector<ModelInfo> m_itemInfos;

@@ -36,7 +36,7 @@ MonPNLed2Dat::~MonPNLed2Dat()
 
 
 void MonPNLed2Dat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -54,7 +54,7 @@ void MonPNLed2Dat::prepareWrite()
 
 
 void MonPNLed2Dat::writeDB(const EcalLogicID* ecid, const MonPNLed2Dat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -88,7 +88,7 @@ void MonPNLed2Dat::writeDB(const EcalLogicID* ecid, const MonPNLed2Dat* item, Mo
 
 
 void MonPNLed2Dat::fetchData(std::map< EcalLogicID, MonPNLed2Dat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -138,7 +138,7 @@ void MonPNLed2Dat::fetchData(std::map< EcalLogicID, MonPNLed2Dat >* fillMap, Mon
 }
 
 void MonPNLed2Dat::writeArrayDB(const std::map< EcalLogicID, MonPNLed2Dat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

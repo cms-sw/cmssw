@@ -9,6 +9,8 @@ pixelLessStepClusters = _cfg.clusterRemoverForIter("PixelLessStep")
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(pixelLessStepClusters, _cfg.clusterRemoverForIter("PixelLessStep", _eraName, _postfix))
 
+
+
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
@@ -98,33 +100,48 @@ trackingLowPU.toModify(pixelLessStepSeedLayers,
     MTEC = None,
 )
 
-# SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-#OrderedHitsFactory
-pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
-pixelLessStepSeeds.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
-import RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi
-pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi.MultiHitGeneratorFromChi2.clone()
-#SeedCreator
-pixelLessStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-#RegionFactory
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.4
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0
-#SeedComparitor
-import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
-pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
-	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
-        doStripShapeCut = cms.bool(False),
-	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
-	)
-import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi
-pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
-    ComponentName = cms.string('CombinedSeedComparitor'),
+# TrackingRegion
+from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
+pixelLessStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
+    ptMin = 0.4,
+    originHalfLength = 12.0,
+    originRadius = 1.0
+))
+trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
+    ptMin = 0.7,
+    originHalfLength = 10.0,
+    originRadius = 2.0,
+))
+
+
+# seeding
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+pixelLessStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
+    ComponentName = 'pixelLessStepClusterShapeHitFilter',
+    doStripShapeCut = cms.bool(False),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
+)
+
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+pixelLessStepHitDoublets = _hitPairEDProducer.clone(
+    seedingLayers = "pixelLessStepSeedLayers",
+    trackingRegions = "pixelLessStepTrackingRegions",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
+)
+from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
+pixelLessStepHitTriplets = _multiHitFromChi2EDProducer.clone(
+    doublets = "pixelLessStepHitDoublets",
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "pixelLessStepHitTriplets",
+    SeedComparitorPSet = dict(
+        ComponentName = 'CombinedSeedComparitor',
         mode = cms.string("and"),
         comparitors = cms.VPSet(
-            cms.PSet(
+            cms.PSet(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
                 ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
                 FilterAtHelixStage = cms.bool(True),
                 FilterPixelHits = cms.bool(False),
@@ -132,26 +149,22 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
                 ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
                 ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
             ), 
-            RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+            _StripSubClusterShapeSeedFilter.clone()
         )
     )
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-trackingLowPU.toReplaceWith(pixelLessStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
-    OrderedHitsFactoryPSet = dict(SeedingLayers = 'pixelLessStepSeedLayers'),
-    RegionFactoryPSet = dict(RegionPSet = dict(
-        ptMin = 0.7,
-        originHalfLength = 10.0,
-        originRadius = 2.0,
-    )),
-    SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+)
+trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
+trackingLowPU.toModify(pixelLessStepSeeds,
+    seedingHitSets = "pixelLessStepHitDoublets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
     )
-))
+)
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -237,6 +250,17 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     qualityCuts = [-0.4,0.0,0.4],
+))
+trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     qualityCuts = [-0.4,0.0,0.4],
+))
+
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
@@ -286,14 +310,17 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     vertices = cms.InputTag("pixelVertices")#end of vpset
 ) #end of clone
 
-
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepSeedLayers*
+                             pixelLessStepTrackingRegions*
+                             pixelLessStepHitDoublets*
+                             pixelLessStepHitTriplets*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*
                              pixelLessStepTracks*
                              pixelLessStepClassifier1*pixelLessStepClassifier2*
                              pixelLessStep)
-_PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepClassifier1, pixelLessStepClassifier2])
+_PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
 _PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
 trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)
+

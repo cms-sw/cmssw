@@ -565,7 +565,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent,
 				       << " hit enery is  = "  << t_HitEnergies->at(lll);
 	    }
 	  }
-	  if (t_p>20.0 && t_eMipDR<2.0 && t_hmaxNearP<2.0) {
+	  if (t_p>20.0 && t_eMipDR<2.0 && t_hmaxNearP<10.0) {
 	    tree->Fill();
 	  }
 	}

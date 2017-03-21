@@ -37,9 +37,9 @@ class MatchedProbeMaker : public edm::EDProducer
       ~MatchedProbeMaker();
       
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_candidateSource;

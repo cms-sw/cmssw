@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="CaloSamples" ClassVersion="3">
+   <version ClassVersion="3" checksum="4242646275"/>
+  </class>
+  <class name="std::vector<CaloSamples>"/>
+  <class name="edm::Wrapper<std::vector<CaloSamples> >" splitLevel="0"/>
+</lcgdict>

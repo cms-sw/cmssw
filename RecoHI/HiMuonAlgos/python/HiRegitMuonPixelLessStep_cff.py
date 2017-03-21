@@ -4,15 +4,25 @@ import FWCore.ParameterSet.Config as cms
 ################################### 5th step: large impact parameter tracking using TIB/TID/TEC stereo layer seeding
 
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons","UpdatedAtVtx")
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaPhi      = 0.2
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaEta      = 0.1
+# Are the following values set to the same in every iteration? If yes,
+# why not making the change in HITrackingRegionProducer_cfi directly
+# once for all?
+hiRegitMuPixelLessStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
+    MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
+    MuonTrackingRegionBuilder = dict(
+        vertexCollection = "hiSelectedVertex",
+        UseVertex     = True,
+        Phi_fixed     = True,
+        Eta_fixed     = True,
+        # Ok, the following ones are specific to PixelLessStep
+        DeltaPhi      = 0.2,
+        DeltaEta      = 0.1,
+        Pt_min        = 2.0,
+        DeltaR        = 0.2, # default = 0.2
+        DeltaZ        = 0.2, # this give you the length
+        Rescale_Dz    = 4., # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+    )
+)
 
 ###################################
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
@@ -37,14 +47,17 @@ hiRegitMuPixelLessStepSeedLayers.MTEC.skipClusters = cms.InputTag('hiRegitMuPixe
 
 
 # seeding
-hiRegitMuPixelLessStepSeeds     = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.clone()
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuPixelLessStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 2.0
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.2 # this give you the length 
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuPixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuPixelLessStepSeedLayers'
+hiRegitMuPixelLessStepHitDoublets = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepHitDoublets.clone(
+    seedingLayers = "hiRegitMuPixelLessStepSeedLayers",
+    trackingRegions = "hiRegitMuPixelLessStepTrackingRegions",
+    clusterCheck = "hiRegitMuClusterCheck",
+)
+hiRegitMuPixelLessStepHitTriplets = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepHitTriplets.clone(
+    doublets = "hiRegitMuPixelLessStepHitDoublets"
+)
+hiRegitMuPixelLessStepSeeds     = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.clone(
+    seedingHitSets = "hiRegitMuPixelLessStepHitTriplets"
+)
 
 
 # building: feed the new-named seeds
@@ -107,6 +120,9 @@ hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
 
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
                                         hiRegitMuPixelLessStepSeedLayers*
+                                        hiRegitMuPixelLessStepTrackingRegions*
+                                        hiRegitMuPixelLessStepHitDoublets*
+                                        hiRegitMuPixelLessStepHitTriplets*
                                         hiRegitMuPixelLessStepSeeds*
                                         hiRegitMuPixelLessStepTrackCandidates*
                                         hiRegitMuPixelLessStepTracks*

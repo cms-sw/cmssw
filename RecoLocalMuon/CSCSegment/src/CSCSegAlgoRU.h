@@ -55,7 +55,11 @@ public:
     typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
     typedef std::vector<const CSCRecHit2D*>::const_iterator ChamberHitContainerCIt;
 
-    // We need to be able to flag a hit as 'used' and so need a container of bool's. 
+    // We need to be able to flag a hit as 'used' and so need a container
+    // of bool's. Naively, this would be vector<bool>... but AVOID that since it's
+    // non-standard i.e. packed-bit implementation which is not a standard STL container. 
+    // We don't need what it offers and it could lead to unexpected trouble in the future.
+
     typedef std::vector<bool> BoolContainer;
     
     /// Constructor
@@ -101,7 +105,7 @@ private:
     /**
      * Flag hits on segment as used
      */
-    void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
+    void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber,BoolContainer& used) const;
 	
     /// Utility functions 	
     bool addHit(const CSCRecHit2D* hit, int layer);
@@ -132,8 +136,8 @@ private:
     LocalVector theDirection;
     float uz, vz;
     float windowScale;
-    int chi2D_iadd=1;
-    int strip_iadd=1;	
+    int chi2D_iadd;
+    int strip_iadd;	
     bool doCollisions;
     float dRMax ;
     float dPhiMax;
@@ -146,7 +150,8 @@ private:
     int minLayersApart;
     bool debugInfo;
 
-    std::unique_ptr<CSCSegFit> sfit_;
+        std::unique_ptr<CSCSegFit> sfit_;
+	//CSCSegFit* sfit_;
 
 };
 

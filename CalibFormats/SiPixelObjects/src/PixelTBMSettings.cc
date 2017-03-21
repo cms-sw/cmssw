@@ -318,11 +318,11 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
 std::ostream& pos::operator<<(std::ostream& s, const PixelTBMSettings& tbm){
 
-    s << "Module          :"<<tbm.rocid_.rocname() <<std::endl; 
-    s << "analogInputBias :"<<tbm.analogInputBias_<<std::endl;
-    s << "analogOutputBias:"<<tbm.analogOutputBias_<<std::endl;
-    s << "analogOutputGain:"<<tbm.analogOutputGain_<<std::endl;
-    if (tbm.singlemode_){
+    s << "Module          :"<<tbm.getROCName().rocname() <<std::endl; 
+    s << "analogInputBias :"<<tbm.getAnalogInputBias()<<std::endl;
+    s << "analogOutputBias:"<<tbm.getAnalogOutputBias()<<std::endl;
+    s << "analogOutputGain:"<<tbm.getAnalogOutputGain()<<std::endl;
+    if (tbm.getMode()){
       s << "mode            :Singlemode"<<std::endl;
     }
     else{

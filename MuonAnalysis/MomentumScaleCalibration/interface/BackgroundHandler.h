@@ -100,7 +100,7 @@ private:
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const std::vector<int> & identifiers,
                          const std::vector<double> & leftWindowBorders,
-                         const std::vector<double> & rightWindowBorders ) const throw(cms::Exception);
+                         const std::vector<double> & rightWindowBorders ) const noexcept(false);
 
   // Correspondence between regions and halfWidths used:
   // - for the Upsilons region we use the Upsilon

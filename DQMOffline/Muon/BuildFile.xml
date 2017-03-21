@@ -12,6 +12,7 @@
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/DTRecHit"/>
 <use   name="DataFormats/RPCDigi"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="CondFormats/DTObjects"/>
 <use   name="CondFormats/CSCObjects"/>
 <use   name="CondFormats/DataRecord"/>

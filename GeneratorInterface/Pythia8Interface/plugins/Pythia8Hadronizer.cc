@@ -30,6 +30,9 @@ using namespace Pythia8;
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+// Resonance scale hook
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
@@ -125,6 +128,9 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     std::auto_ptr<PowhegHooks> fEmissionVetoHook;
     std::auto_ptr<EmissionVetoHook1> fEmissionVetoHook1;
     
+    // Resonance scale hook
+    std::auto_ptr<PowhegResHook> fPowhegResHook;
+    
     //resonance decay filter hook
     std::auto_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
  
@@ -149,8 +155,6 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     int nISRveto;
     int nFSRveto;
     
-    std::vector<std::string> fSortedWeightKeys;
-
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -345,6 +349,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMultiUserHook->addHook(fEmissionVetoHook.get());
   }
   
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
+  }
+  
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
   bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
@@ -422,28 +433,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     }
 
   }
-  
-  //keep track of lhe weights
-  //*FIXME* Sort them numerically since pythia does not preserve the original order
-  //This will fail if weight names are not parseable as integers/
-  //To be improved with future pythia release
-  fSortedWeightKeys.clear();
-  if (fMasterGen->info.initrwgt) {
-    fSortedWeightKeys.reserve(fMasterGen->info.initrwgt->weights.size());
-    
-    std::vector<std::pair<int,std::string> > fWeightKeysTmp;
-    fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
-    
-    for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
-      fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
-    }
-    
-    std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
-    
-    for (const auto &wgt : fWeightKeysTmp) {
-      fSortedWeightKeys.push_back(wgt.second);
-    }
-  }
 
   return (status&&status1);
 }
@@ -477,6 +466,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMultiUserHook->addHook(fEmissionVetoHook.get());
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   //adapted from main89.cc in pythia8 examples
@@ -663,11 +659,26 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   }
   
   //fill additional weights for systematic uncertainties
-  //this is a hack because pythia does not currently provide ordered access to the weights
-  //*FIXME* to be improved with future pythia version
-  for (const string &key : fSortedWeightKeys) {
-    double wgt = (*fMasterGen->info.weights_detailed)[key];
-    event()->weights().push_back(wgt);
+  if (fMasterGen->info.getWeightsDetailedSize() > 0) {
+    for (const string &key : fMasterGen->info.initrwgt->weightsKeys) {
+      double wgt = (*fMasterGen->info.weights_detailed)[key];
+      event()->weights().push_back(wgt);
+    }
+  }
+  else if (fMasterGen->info.getWeightsCompressedSize() > 0) {
+    for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
+      double wgt = fMasterGen->info.getWeightsCompressedValue(i);
+      event()->weights().push_back(wgt);
+    }
+  }
+
+  // fill shower weights 
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      double wgt = fMasterGen->info.weight(i);
+      event()->weights().push_back(wgt);
+    }
   }
 
   return true;
@@ -845,35 +856,43 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   for (const std::string &key : fMasterGen->info.headerKeys()) {
     genLumiInfoHeader->lheHeaders().emplace_back(key,fMasterGen->info.header(key));
   }
-  
+
+  //check, if it is not only nominal weight
+  int weights_number = fMasterGen->info.nWeights();
+  if (fMasterGen->info.initrwgt) weights_number += fMasterGen->info.initrwgt->weightsKeys.size();
+  if(weights_number > 1){
+    genLumiInfoHeader->weightNames().reserve(weights_number + 1);
+    genLumiInfoHeader->weightNames().push_back("nominal");
+  }
+
   //fill weight names
-  //*FIXME* to be improved with future pythia version to avoid need
-  //for re-sorting weights
-  //Note that weight group names are not available in all cases currently
-  //due to an issue in the weightgroup handling in pythia
-  genLumiInfoHeader->weightNames().reserve(fSortedWeightKeys.size() + 1);
-  genLumiInfoHeader->weightNames().push_back("nominal");
-  for (const std::string &key : fSortedWeightKeys) {
-    std::string weightgroupname;
-    for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
-      if (wgtgrp.second.weights.count(key)) {
-        if (!wgtgrp.first.empty()) {
+  if (fMasterGen->info.initrwgt) {
+    for (const std::string &key : fMasterGen->info.initrwgt->weightsKeys) {
+      std::string weightgroupname;
+      for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
+        const auto &wgtgrpwgt = wgtgrp.second.weights.find(key);
+        if (wgtgrpwgt != wgtgrp.second.weights.end()) {
           weightgroupname = wgtgrp.first;
         }
-        else if (wgtgrp.second.attributes.count("type")) {
-          weightgroupname = wgtgrp.second.attributes.find("type")->second;
-        }
-        break;
       }
+      
+      std::ostringstream weightname;
+      weightname << "LHE, id = " << key << ", ";
+      if (!weightgroupname.empty()) {
+        weightname << "group = " << weightgroupname << ", ";
+      }
+      weightname<< fMasterGen->info.initrwgt->weights[key].contents;
+      genLumiInfoHeader->weightNames().push_back(weightname.str());    
     }
-    
-    std::ostringstream weightname;
-    weightname << "LHE, id = " << key << ", ";
-    if (!weightgroupname.empty()) {
-      weightname << weightgroupname << ", ";
+  }
+
+  //fill shower labels
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  // http://home.thep.lu.se/~torbjorn/doxygen/classPythia8_1_1Info.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      genLumiInfoHeader->weightNames().push_back( fMasterGen->info.weightLabel(i) );
     }
-    weightname<< fMasterGen->info.initrwgt->weights[key].contents;
-    genLumiInfoHeader->weightNames().push_back(weightname.str());
   }
 
   return genLumiInfoHeader;

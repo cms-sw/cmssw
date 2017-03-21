@@ -40,7 +40,7 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   /// Destructor
   ~MuonKinVsEtaAnalyzer();
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
@@ -54,7 +54,7 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   std::string metname;
 
   //Vertex requirements
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   
@@ -157,5 +157,6 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> chi2HighPtTrack;
   std::vector<MonitorElement*> chi2probHighPtTrack;
 
+  std::string theFolder;
 };
 #endif

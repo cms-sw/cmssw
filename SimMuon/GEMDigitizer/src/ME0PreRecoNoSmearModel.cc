@@ -27,7 +27,7 @@ ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
     float t = hit.timeOfFlight();
     int pdgid=hit.particleType();
      // please keep hit time always 0 for this model
-    ME0DigiPreReco digi(x,y,ex,ey,corr,t,pdgid);
+    ME0DigiPreReco digi(x,y,ex,ey,corr,t,pdgid,1);
     digi_.insert(digi);
   }
 }

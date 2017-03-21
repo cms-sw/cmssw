@@ -188,12 +188,12 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
     local_exp_list(gvertices._ei_cache, gvertices._ei, nv);
     
     gtracks._Z_sum[itrack] = kernel_add_Z(gvertices);
-    
+    if (edm::isNotFinite(gtracks._Z_sum[itrack])) gtracks._Z_sum[itrack] = 0.0;
     // used in the next major loop to follow
     if (!useRho0)
       sumpi += gtracks._pi[itrack];
     
-    if (gtracks._Z_sum[itrack] > 0) {
+    if (gtracks._Z_sum[itrack] > 1.e-100) {
       kernel_calc_normalization(itrack, gtracks, gvertices);
     }
   }

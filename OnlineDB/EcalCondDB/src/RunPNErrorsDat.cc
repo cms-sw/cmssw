@@ -28,7 +28,7 @@ RunPNErrorsDat::~RunPNErrorsDat()
 
 
 void RunPNErrorsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void RunPNErrorsDat::prepareWrite()
 
 
 void RunPNErrorsDat::writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -71,7 +71,7 @@ void RunPNErrorsDat::writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item
 
 
 void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

@@ -227,7 +227,6 @@ void CosmicClusterAlgo::makeCluster(
    double energy = 0;
    double energySecond = 0.;//JHaupt 4-27-08 Added for the second crystal stream
    double energyMax = 0.;//JHaupt 4-27-08 Added for the max crystal stream
-   double chi2   = 0;
    DetId detFir;
    DetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
@@ -277,7 +276,6 @@ void CosmicClusterAlgo::makeCluster(
          // energy fraction = 1
          current_v25Sup.push_back( std::pair<DetId, float>( hit_p.id(), 1.) );
          energy += hit_p.energy(); //Keep the fully corrected energy 
-         chi2 += 0;
       }     
    }
    
@@ -287,7 +285,6 @@ void CosmicClusterAlgo::makeCluster(
    //don't write empty clusters
    if (energy == 0 && position == Point(0,0,0)) return;
 
-   chi2 /= energy;
    if (verbosity < pINFO)
    { 
       std::cout << "JH******** NEW CLUSTER ********" << std::endl;

@@ -19,6 +19,9 @@ simHitTPAssocProducer = cms.EDProducer("SimHitTPAssociationProducer",
   trackingParticleSrc = cms.InputTag('mix', 'MergedTrackTruth')
 )
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(simHitTPAssocProducer, simHitSrc = ["g4SimHits:TrackerHitsPixelBarrelLowTof", "g4SimHits:TrackerHitsPixelEndcapLowTof"])
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     simHitTPAssocProducer.simHitSrc = cms.VInputTag(cms.InputTag('famosSimHits','TrackerHits'),

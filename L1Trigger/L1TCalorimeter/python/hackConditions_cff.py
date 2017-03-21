@@ -6,6 +6,9 @@
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_HI_specific_cff import run2_HI_specific
+#from Configuration.Eras.Era_Run2_2016_pA_cff import Run2_2016_pA
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+
 
 #
 # Legacy Trigger:  No Hacks Needed
@@ -34,11 +37,12 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
-    
-    # from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis    
-    
-    from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *    
+    if pA_2016.isChosen():
+        print "L1TCalorimeter Conditions configured for Stage-2 (2016 pA) trigger. "
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi import *    
+    else:
+        print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_cfi import *    
     
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #

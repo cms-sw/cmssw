@@ -88,7 +88,7 @@ public:
   }
 
  // FIXME a prototype:  final inplementaiton may differ
-  virtual void setHitCloner(TkCloner const * hc) {  theHitCloner =	hc;}
+  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner =	hc;}
 
 
 private:

@@ -3,5 +3,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondTools/L1Trigger"/>
 <use   name="L1Trigger/L1TMuon"/>
+<use   name="L1Trigger/L1TMuonEndCap"/>
+<use   name="L1Trigger/L1TCalorimeter"/>
 <flags   EDM_PLUGIN="1"/>
 

@@ -5,6 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -20,15 +21,9 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
-
-
-
-
 int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename, 
 					     EcalCondHeader& header,
 					     EcalChannelStatus& record){
-
-
 
   cms::concurrency::xercesInitialize();
 
@@ -73,86 +68,73 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
 
   delete parser;
   cms::concurrency::xercesTerminate();
-  return 0;
-  
-  
+  return 0; 
 }
+
+int
+EcalChannelStatusXMLTranslator::writeXML(const std::string& filename, 
+					 const EcalCondHeader& header,
+					 const EcalChannelStatus& record) {
+  cms::concurrency::xercesInitialize();
+
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
+  return 0;
+}
+
+
+std::string
+EcalChannelStatusXMLTranslator::dumpXML(const EcalCondHeader& header,
+					const EcalChannelStatus& record) {
+
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
   
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
 
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = 
+    impl->createDocument( 0, cms::xerces::uStr(ChannelStatus_tag.c_str()).ptr(), doctype );
+    
+  DOMElement* root = doc->getDocumentElement();
+ 
+  xuti::writeHeader(root,header);
 
+  for(int cellid = EBDetId::MIN_HASH;
+      cellid < EBDetId::kSizeForDenseIndexing;
+      ++cellid) {
 
+    uint32_t rawid = EBDetId::unhashIndex(cellid);
 
-  int EcalChannelStatusXMLTranslator::writeXML(const std::string& filename, 
-					       const EcalCondHeader& header,
-					       const EcalChannelStatus& record){
-    std::fstream fs(filename.c_str(),ios::out);
-    fs<< dumpXML(header,record);
-    return 0;
+    if(!record[rawid].getStatusCode()) continue;
+    
+    DOMElement* cellnode = writeCell(root,rawid);	  
+    
+    WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());	  	  	  
   }
 
+  for(int cellid = 0;
+      cellid < EEDetId::kSizeForDenseIndexing;
+      ++cellid) {
+	  
+    if(!EEDetId::validHashIndex(cellid)) continue;
+	  
+    uint32_t rawid = EEDetId::unhashIndex(cellid); 
 
-std::string EcalChannelStatusXMLTranslator::dumpXML(
-					     const EcalCondHeader& header,
-			                     const EcalChannelStatus& record){
- 
+    if(!record[rawid].getStatusCode()) continue;
 
-   cms::concurrency::xercesInitialize();
-
-   unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
-  
-   DOMLSSerializer* writer = impl->createLSSerializer();
-   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
-     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-
-    DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-    DOMDocument *    doc = 
-         impl->createDocument( 0, fromNative(ChannelStatus_tag).c_str(), doctype );
+    DOMElement* cellnode = writeCell(root,rawid);
+    WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());  
+  }
     
-    DOMElement* root = doc->getDocumentElement();
- 
-    xuti::writeHeader(root,header);
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
+  doc->release();
+  doctype->release();
+  writer->release();
 
-    for(int cellid = EBDetId::MIN_HASH;
-	cellid < EBDetId::kSizeForDenseIndexing;
-	++cellid)
-      {
-
-	uint32_t rawid = EBDetId::unhashIndex(cellid);
-
-	if(!record[rawid].getStatusCode()) continue;
-      
-
-	DOMElement* cellnode = writeCell(root,rawid);	  
-
-	WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());
-
-	  	  	  
-      }
-
-
-
-   
-    for(int cellid = 0;
-	cellid < EEDetId::kSizeForDenseIndexing;
-	++cellid)
-      {
-	  
-	if(!EEDetId::validHashIndex(cellid)) continue;
-	  
-	uint32_t rawid = EEDetId::unhashIndex(cellid); 
-
-	if(!record[rawid].getStatusCode()) continue;
-
-	DOMElement* cellnode = writeCell(root,rawid);
-	WriteNodeWithValue(cellnode,ChannelStatusCode_tag,record[rawid].getStatusCode());
-	  
-      }
-    
-    std::string dump = toNative(writer->writeToString( root )); 
-    doc->release();
-    doctype->release();
-    writer->release();
-    //   cms::concurrency::xercesTerminate();
-
-    return dump;
+  return dump;
 }

@@ -19,11 +19,6 @@ pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorZTT
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(pfTauRunDQMValidation, pfTauRunDQMValidation.copyAndExclude([ # FIXME
-    TauValNumeratorAndDenominatorRealData,          # Excessive printouts because 2017 doesn't have HLT yet
-    TauValNumeratorAndDenominatorRealElectronsData, # Excessive printouts because 2017 doesn't have HLT yet
-    TauValNumeratorAndDenominatorRealMuonsData,     # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 produceDenoms = cms.Sequence(
     produceDenominatorQCD+

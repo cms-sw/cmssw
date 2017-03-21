@@ -16,9 +16,7 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
-from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(detachedTripletStepSeedLayers,
-    layerList = [
+_phase1LayerList = [
         'BPix1+BPix2+BPix3',
         'BPix2+BPix3+BPix4',
 #        'BPix1+BPix3+BPix4', # has "hole", not tested
@@ -33,29 +31,61 @@ trackingPhase1.toModify(detachedTripletStepSeedLayers,
 #        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',  # has "hole", not tested
 #        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'  # has "hole", not tested
     ]
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(detachedTripletStepSeedLayers, layerList=_phase1LayerList)
+
+# TrackingRegion
+from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
+detachedTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
+    ptMin = 0.3,
+    originHalfLength = 15.0,
+    originRadius = 1.5
+))
+trackingPhase1.toModify(detachedTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.25))
+
+# seeding
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+detachedTripletStepHitDoublets = _hitPairEDProducer.clone(
+    seedingLayers = "detachedTripletStepSeedLayers",
+    trackingRegions = "detachedTripletStepTrackingRegions",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
 )
-
-# SEEDS
-from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
-PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-detachedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'detachedTripletStepSeedLayers'
-detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-detachedTripletStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
-detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
-
-detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+detachedTripletStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
+    doublets = "detachedTripletStepHitDoublets",
+    produceSeedingHitSets = True,
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+detachedTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "detachedTripletStepHitTriplets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
         FilterAtHelixStage = cms.bool(False),
         FilterPixelHits = cms.bool(True),
         FilterStripHits = cms.bool(False),
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
-    )
+    ),
+)
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+trackingPhase1.toModify(detachedTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
+trackingPhase1.toReplaceWith(detachedTripletStepHitTriplets, _caHitTripletEDProducer.clone(
+    doublets = "detachedTripletStepHitDoublets",
+    extraHitRPhitolerance = detachedTripletStepHitTriplets.extraHitRPhitolerance,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 300 , value2 = 10,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.001,
+    CAPhiCut = 0,
+    CAHardPtCut = 0.2,
+))
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -163,6 +193,15 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
+trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1',
+     qualityCuts = [-0.2,0.3,0.8],
+))
+trackingPhase1QuadProp.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1',
+     qualityCuts = [-0.2,0.3,0.8],
+))
+
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
@@ -262,6 +301,9 @@ trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors
 
 DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
                                    detachedTripletStepSeedLayers*
+                                   detachedTripletStepTrackingRegions*
+                                   detachedTripletStepHitDoublets*
+                                   detachedTripletStepHitTriplets*
                                    detachedTripletStepSeeds*
                                    detachedTripletStepTrackCandidates*
                                    detachedTripletStepTracks*

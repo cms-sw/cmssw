@@ -134,6 +134,9 @@ class PedeSteererWeakModeConstraints {
 
   const std::string steerFile_; // the name of the PedeSteerer steering file
 
+  const AlignableObjectId alignableObjectId_;
+
+
   enum SystematicDeformations {
     kUnknown = 0,
     kTwist,

@@ -30,3 +30,12 @@ void HcalCalibrationWidthsSet::setCalibrationWidths(DetId fId, const HcalCalibra
 void HcalCalibrationWidthsSet::clear() {
   mItems.clear();
 }
+
+std::vector<DetId> HcalCalibrationWidthsSet::getAllChannels() const {
+  std::vector<DetId> channels;
+  channels.reserve(mItems.size());
+  for(const auto& tmp : mItems){
+    channels.push_back(tmp.second.id);
+  }
+  return channels;
+}

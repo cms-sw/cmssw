@@ -53,7 +53,6 @@ namespace {
         StaticRandomEngineSetUnset(edm::StreamID const&);
         explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
         ~StaticRandomEngineSetUnset();
-        CLHEP::HepRandomEngine* getEngine() const;
     private:
         CLHEP::HepRandomEngine* m_currentEngine;
         CLHEP::HepRandomEngine* m_previousEngine;
@@ -94,7 +93,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   produces<edm::PSimHitContainer>("PLTHits");
   produces<edm::PSimHitContainer>("BCM1FHits");
   produces<edm::PSimHitContainer>("BHMHits");
-  produces<edm::PSimHitContainer>("FastTimerHits");
+  produces<edm::PSimHitContainer>("FastTimerHitsBarrel");
+  produces<edm::PSimHitContainer>("FastTimerHitsEndcap");
 
   produces<edm::PCaloHitContainer>("EcalHitsEB");
   produces<edm::PCaloHitContainer>("EcalHitsEE");
@@ -254,11 +254,6 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
 {
   G4Random::setTheEngine(m_previousEngine);
-}
-
-CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const 
-{ 
-  return m_currentEngine; 
 }
 
 DEFINE_FWK_MODULE(OscarProducer);

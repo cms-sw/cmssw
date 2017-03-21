@@ -1,4 +1,7 @@
 <lcgdict>
+
+<!-- strips objects -->
+
   <class name="TotemRPCluster" ClassVersion="2">
     <version ClassVersion="2" checksum="386147628"/>
   </class>
@@ -37,4 +40,20 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
+
+<!-- diamonds objects -->
+
+  <class name="CTPPSDiamondRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2377257106"/>
+  </class>
+  <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
+  <class name="std::vector<CTPPSDiamondRecHit>"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondRecHit> >"/>
+  <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
+
 </lcgdict>

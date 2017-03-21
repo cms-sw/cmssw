@@ -20,6 +20,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cut = ps.getUntrackedParameter<double>("cut", 50.0);
 	_ped = ps.getUntrackedParameter<int>("ped", 4);
 	_laserType = ps.getUntrackedParameter<int32_t>("laserType", -1);
+	_eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker &ib,
 	edm::Run const& r, edm::EventSetup const& es)
@@ -44,36 +45,36 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cShapeCut_EChannel.initialize(_name,
 		"ShapeCut", hcaldqm::hashfunctions::fEChannel,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000),0);
 	_cShapeCut.initialize(_name,
 		"ShapeCut", 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000),0);
 	_cTDCvsADC.initialize(_name, "TDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cTDC.initialize(_name, "TDC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cADC.initialize(_name, "ADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	for (unsigned int j=0; j<10; j++)
 	{
 		_cTDCvsADC_EChannel[j].initialize(_name,
 			"TDCvsADC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cADC_EChannel[j].initialize(_name,
 			"ADC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cTDC_EChannel[j].initialize(_name,
 			"TDC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
 	_cShapeCut_EChannel.book(ib, _emap, _filter_C36, _subsystem);
@@ -143,7 +144,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 
 /* virtual */ bool QIE11Task::_isApplicable(edm::Event const& e)
 {
-  if (_ptype!=fOnline || _laserType < 0)
+  if (_ptype!=fOnline || (_laserType < 0 && _eventType < 0))
     return true;
   else
     {
@@ -153,13 +154,14 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	return false;
 
       //      event type check first
-      uint8_t eventType = cumn->eventType();
-      if (eventType!=constants::EVENTTYPE_LASER)
-	return false;
+      int eventType = cumn->eventType();
+      if (eventType==_eventType)
+	return true;
 
       //      check if this analysis task is of the right laser type
       int laserType = cumn->valueUserWord(0);
-      if (laserType==_laserType) return true;
+      if (laserType==_laserType)
+	return true;
     }
 
   return false;

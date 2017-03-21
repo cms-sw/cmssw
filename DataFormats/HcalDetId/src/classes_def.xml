@@ -9,9 +9,10 @@
    <version ClassVersion="12" checksum="1604420376"/>
    <version ClassVersion="11" checksum="1604420376"/>
    <version ClassVersion="10" checksum="193306378"/>
-   <ioread sourceClass = "HcalDetId" version="[-11]" targetClass="HcalDetId" source="uint32_t DetId::id_;" target="DetId::id_">
+   <ioread sourceClass = "HcalDetId" version="[-11]" targetClass="HcalDetId" source="" target="">
     <![CDATA[
-      newFromOld(onfile.rawId());
+      HcalDetId tmp(HcalDetId::newForm(newObj->rawId()));
+      *newObj=tmp;
     ]]>
    </ioread>
   </class>

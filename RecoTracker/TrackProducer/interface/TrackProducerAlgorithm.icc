@@ -90,7 +90,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 template <class T> void
 TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 					const MagneticField * theMF,
-					const TrackCollection& theTCollection,
+					const TrackView& theTCollection,
 					const TrajectoryFitter * theFitter,
 					const Propagator * thePropagator,
 					const TransientTrackingRecHitBuilder* gbuilder,
@@ -101,7 +101,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
   const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
   assert(builder);
   int cont = 0;
-  for (typename TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
+  for (auto i=theTCollection.begin(); i!=theTCollection.end();i++)
     {
       try{
 	const T * theT = &(*i);

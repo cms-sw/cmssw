@@ -57,7 +57,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         bool is_Simhit_comp_;
         edm::EDGetToken SimHits_inputee_, SimHits_inputfh_, SimHits_inputbh_;
         //
-        std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
         HGCalTriggerGeometryBase::es_info info_;
@@ -105,12 +105,6 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
   // SimHits_inputbh_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("bhSimHits")))
 /*****************************************************************/
 {
-    //setup geometry 
-    const edm::ParameterSet& geometryConfig = conf.getParameterSet("TriggerGeometry");
-    const std::string& trigGeomName = geometryConfig.getParameter<std::string>("TriggerGeometryName");
-    HGCalTriggerGeometryBase* geometry = HGCalTriggerGeometryFactory::get()->create(trigGeomName,geometryConfig);
-    triggerGeometry_.reset(geometry);
-
     //setup FE codec
     const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
     codec_.reset( new HGCalBestChoiceCodecImpl(feCodecConfig) );
@@ -165,7 +159,8 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
                                           const edm::EventSetup& es)
 /*****************************************************************/
 {
-    triggerGeometry_->reset();
+    es.get<IdealGeometryRecord>().get(triggerGeometry_);
+
     const std::string& ee_sd_name = triggerGeometry_->eeSDName();
     const std::string& fh_sd_name = triggerGeometry_->fhSDName();
     const std::string& bh_sd_name = triggerGeometry_->bhSDName();
@@ -175,9 +170,8 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
     es.get<IdealGeometryRecord>().get(ee_sd_name,info_.topo_ee);
     es.get<IdealGeometryRecord>().get(fh_sd_name,info_.topo_fh);
     es.get<IdealGeometryRecord>().get(bh_sd_name,info_.topo_bh);
-    triggerGeometry_->initialize(info_);
 
- }
+}
 
 /*****************************************************************/
 void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e, 

@@ -38,6 +38,7 @@
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
@@ -109,13 +110,16 @@ private:
     std::string subdet_;
     std::string zside_;
     std::string dirName_;
-    std::string inputLabel_;
+//    std::string inputLabel_;
     edm::InputTag inputTag_;
+    edm::InputTag QIE10inputTag_;
+    edm::InputTag QIE11inputTag_;
     edm::InputTag emulTPsTag_;
     edm::InputTag dataTPsTag_;
     std::string mode_;
     std::string mc_;
     int noise_;
+    bool testNumber_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 

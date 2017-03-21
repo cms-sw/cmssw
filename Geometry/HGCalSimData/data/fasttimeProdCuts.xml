@@ -3,6 +3,7 @@
 
 <SpecParSection label="regions.xml" eval="true">
   <SpecPar name="fasttime">
+    <PartSelector path="//FastTimeBarrelCylinder"/>
     <PartSelector path="//SF"/>
     <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>

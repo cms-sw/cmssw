@@ -11,21 +11,12 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonPixelTrackFitter.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonSeedsMerger.h"
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonRegionProducer.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -46,15 +37,13 @@ template <class T> T sqr( T t) {return t*t;}
 
 
 TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg),theRegionProducer(0),theHitGenerator(0),theFitter(0),theMerger(0)
+  : theConfig(cfg),theHitGenerator(0),theMerger(0)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
 
   edm::ConsumesCollector iC = consumesCollector();
-  edm::ParameterSet filterPSet = theConfig.getParameter<edm::ParameterSet>("FilterPSet");
-  std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter.reset(PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC));
+  theFilterToken = consumes<PixelTrackFilter>(cfg.getParameter<edm::InputTag>("Filter"));
 
   edm::ParameterSet hitsfactoryPSet =
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -62,32 +51,20 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
   theSourceToken=iC.consumes<L1MuonParticleCollection>(theSourceTag);
+
+  theRegionProducer = std::make_unique<L1MuonRegionProducer>(theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet"));
+  theFitter = std::make_unique<L1MuonPixelTrackFitter>(cfg.getParameter<edm::ParameterSet>("FitterPSet"));
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
 {
   delete theMerger;
-  delete theFitter;
   delete theHitGenerator;
-  delete theRegionProducer;
 }
 
 void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
 {
-  edm::ParameterSet regfactoryPSet = theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  TrackingRegionProducer * p =
-    TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
-  theRegionProducer = dynamic_cast<L1MuonRegionProducer* >(p);
-
-  edm::ParameterSet fitterPSet = theConfig.getParameter<edm::ParameterSet>("FitterPSet");
-  std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
-  PixelFitter * f = PixelFitterFactory::get()->create( fitterName, fitterPSet);
-  theFitter = dynamic_cast<L1MuonPixelTrackFitter* >(f);
-
   edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
-  std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
-//  theMerger = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
   theMerger = new L1MuonSeedsMerger(cleanerPSet);
 }
 
@@ -98,6 +75,10 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   edm::Handle<L1MuonParticleCollection> l1muon;
   ev.getByToken(theSourceToken, l1muon);
+
+  edm::Handle<PixelTrackFilter> hfilter;
+  ev.getByToken(theFilterToken, hfilter);
+  const PixelTrackFilter& filter = *hfilter;
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 
@@ -114,7 +95,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     theFitter->setL1Constraint(muon);
 
     typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
-    Regions regions = theRegionProducer->regions(ev,es);
+    Regions regions = theRegionProducer->regions();
     for (Regions::const_iterator ir=regions.begin(); ir != regions.end(); ++ir) {
 
       L1MuonSeedsMerger::TracksAndHits tracks;
@@ -132,7 +113,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
         reco::Track* track = theFitter->run(es, trh, region);
         if (!track) continue;
 
-        if (!(*theFilter)(track) ) { delete track; continue; }
+        if (!filter(track, trh) ) { delete track; continue; }
         tracks.push_back(L1MuonSeedsMerger::TrackAndHits(track, hits));
       }
   

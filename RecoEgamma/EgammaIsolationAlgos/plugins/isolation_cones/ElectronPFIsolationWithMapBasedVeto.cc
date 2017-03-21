@@ -71,7 +71,8 @@ public:
   ElectronPFIsolationWithMapBasedVeto(const edm::ParameterSet& c) :
     citk::IsolationConeDefinitionBase(c),
     _isolateAgainst(c.getParameter<std::string>("isolateAgainst")), //isolate against either h+, h0 or gamma
-    _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")){} //quality flags to be used for association with the vertex configurable, the vertex can be chosen
+    _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")), //quality flags to be used for association with the vertex configurable, the vertex can be chosen
+    _particleBasedIsolation(c.getParameter<edm::InputTag>("particleBasedIsolation")){} // particle based isolation map (used for footprint removal)
         
   ElectronPFIsolationWithMapBasedVeto(const ElectronPFIsolationWithMapBasedVeto&) = delete;
   ElectronPFIsolationWithMapBasedVeto& operator=(const ElectronPFIsolationWithMapBasedVeto&) =delete;
@@ -84,16 +85,16 @@ public:
  edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationMap;			 
  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken_;
  
- virtual void getEventInfo(const edm::Event& iEvent)
+ virtual void getEventInfo(const edm::Event& iEvent) override
   {
       iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap); 
   };			 
   
   
   //As far as I understand now, the object particleBasedIsolationMap should be fixed, so we don't configure the name
-  void setConsumes(edm::ConsumesCollector iC)
+  void setConsumes(edm::ConsumesCollector iC) override
   {
-      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolation", "gedGsfElectrons"));
+      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(_particleBasedIsolation);
   }
 
   //! Destructor
@@ -103,6 +104,7 @@ public:
 private:    
   const std::string _isolateAgainst, _vertexCollection;
   const std::vector<unsigned> _miniAODVertexCodes;
+  const edm::InputTag _particleBasedIsolation;
 
   
 };

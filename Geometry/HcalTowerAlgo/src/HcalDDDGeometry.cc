@@ -111,13 +111,13 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 	  //  1        1         1         2
 	  //  ------------------------------
 	  //  72       36        36        1
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset()+
+	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset()+
 				     0.5*hcalCells_[i].phiBinWidth())/
 				    hcalCells_[i].phiBinWidth());
 	  if (phibin == 0) phibin = hcalCells_[i].nPhiBins();
 	  phibin = phibin*4 - 1; 
 	} else {
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset())/
+	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset())/
 				    hcalCells_[i].phiBinWidth()) + 1;
 	  // convert to the convention of numbering 1,3,5, in 36 phi bins
 	  phibin = (phibin-1)*(hcalCells_[i].unitPhi()) + 1;

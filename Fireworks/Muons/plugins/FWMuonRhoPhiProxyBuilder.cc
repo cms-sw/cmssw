@@ -17,7 +17,7 @@ public:
    FWMuonRhoPhiProxyBuilder( void ) {}
    virtual ~FWMuonRhoPhiProxyBuilder( void ) {}
 
-   virtual void setItem(const FWEventItem* iItem);
+   virtual void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 

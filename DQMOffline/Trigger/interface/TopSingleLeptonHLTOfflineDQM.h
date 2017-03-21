@@ -238,8 +238,8 @@ class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
     };
 
     /// do this during the event loop
-    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
     void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:

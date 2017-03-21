@@ -61,6 +61,8 @@
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+
 #include <map>
 
 namespace DataFormats_ParticleFlowReco {
@@ -68,6 +70,10 @@ namespace DataFormats_ParticleFlowReco {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
+
+    reco::HGCalMultiCluster dummy_hgcmc;
+    std::vector<reco::HGCalMultiCluster> dummy_vhgcmc;
+    edm::Wrapper<std::vector<reco::HGCalMultiCluster> > dummy_wvhgcmc;
 
     reco::PFCluster::EEtoPSAssociation sceepsassoc;
     edm::Wrapper<reco::PFCluster::EEtoPSAssociation> wsceepsassoc;    

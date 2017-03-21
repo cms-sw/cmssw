@@ -14,11 +14,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,0.0), //"generic" set of conditions
+: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,{0.0}), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
-  useHFUpgrade_(false), testHFQIE10_(false)
+  useHFUpgrade_(false), testHFQIE10_(false), testHEPlan1_(false)
 {
 }
 
@@ -29,8 +29,9 @@ const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId
     else return theDefaultParameters_;
   }
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap){
-    if(useHEUpgrade_ && setHEUpgrade_) return theHEUpgradeParameters_;
-    else if(!useHEUpgrade_ && setHE_) return theHEParameters_;
+    bool b_isHEPlan1 = testHEPlan1_ ? isHEPlan1(fId) : false;
+    if((useHEUpgrade_ || b_isHEPlan1) && setHEUpgrade_) return theHEUpgradeParameters_;
+    else if(!useHEUpgrade_ && !b_isHEPlan1 && setHE_) return theHEParameters_;
     else return theDefaultParameters_;
   }
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward){
@@ -60,8 +61,8 @@ const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId){
     else index = 1;
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
     HcalDetId hid(fId);
-    if (hid.depth() == 1) index = 0;
-    else if (hid.depth() == 2) index = 1;
+    if (hid.depth() % 2 == 1) index = 0; //depths 1,3
+    else if (hid.depth() % 2 == 0) index = 1; //depths 2,4
   }
   return index;
 }
@@ -556,6 +557,15 @@ int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* to
     }
 }
 
+bool HcalDbHardcode::isHEPlan1(HcalGenericDetId fId){
+  if(fId.isHcalDetId()){
+    HcalDetId hid(fId);
+    //special mixed case for HE 2017
+    if(hid.zside()==1 && (hid.iphi()==63 || hid.iphi()==64 || hid.iphi()==65 || hid.iphi()==66)) return true;
+  }
+  return false;
+}
+
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo) {
   // SiPMParameter defined for each DetId the following quantities:
   //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
@@ -563,19 +573,38 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
-  double theDC = getParameters(fId).darkCurrent();
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel && useHBUpgrade_) {
-    HcalDetId hid(fId);
-    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) theType = HcalHBHamamatsu2;
-    else theType = HcalHBHamamatsu1;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap && useHEUpgrade_) {
-    HcalDetId hid(fId);
-    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) theType = HcalHEHamamatsu2;
-    else theType = HcalHEHamamatsu1;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter && useHOUpgrade_) {
-    theType = HcalHOHamamatsu;
+  double theDC = getParameters(fId).darkCurrent(0);
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
+    if(useHBUpgrade_) {
+      HcalDetId hid(fId);
+      int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+      if(nLayersInDepth > 4) {
+        theType = HcalHBHamamatsu2;
+        theDC = getParameters(fId).darkCurrent(1);
+      }
+      else {
+        theType = HcalHBHamamatsu1;
+        theDC = getParameters(fId).darkCurrent(0);
+      }
+    }
+    else theType = HcalHPD;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+    if(useHEUpgrade_ || (testHEPlan1_ && isHEPlan1(fId))) {
+      HcalDetId hid(fId);
+      int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+      if(nLayersInDepth > 4) {
+        theType = HcalHEHamamatsu2;
+        theDC = getParameters(fId).darkCurrent(1);
+      }
+      else {
+        theType = HcalHEHamamatsu1;
+        theDC = getParameters(fId).darkCurrent(0);
+      }
+    }
+    else theType = HcalHPD;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    if(useHOUpgrade_) theType = HcalHOHamamatsu;
+    else theType = HcalHPD;
   }
   
   return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
@@ -585,7 +614,7 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
-  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1
+  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
   for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
     auto& ps = theSiPMCharacteristics_[ip];
     sipm.loadObject(ip+1,

@@ -1,7 +1,7 @@
 #include "Validation/HcalHits/interface/SimHitsValidationHcal.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #define DebugLog
 
@@ -62,21 +62,21 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   iEtaHOMax = iEtaMax;
 
   //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
-  float ieta_min_HB = -iEtaHBMax - 1.5;
-  float ieta_max_HB = iEtaHBMax + 1.5;
-  int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
+  //float ieta_min_HB = -iEtaHBMax - 1.5;
+  //float ieta_max_HB = iEtaHBMax + 1.5;
+  //int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
 
-  float ieta_min_HE = -iEtaHEMax - 1.5;
-  float ieta_max_HE = iEtaHEMax + 1.5;
-  int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
+  //float ieta_min_HE = -iEtaHEMax - 1.5;
+  //float ieta_max_HE = iEtaHEMax + 1.5;
+  //int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
 
-  float ieta_min_HF = -iEtaHFMax - 1.5;
-  float ieta_max_HF = iEtaHFMax + 1.5;
-  int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
+  //float ieta_min_HF = -iEtaHFMax - 1.5;
+  //float ieta_max_HF = iEtaHFMax + 1.5;
+  //int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
 
-  float ieta_min_HO = -iEtaHOMax - 1.5;
-  float ieta_max_HO = iEtaHOMax + 1.5;
-  int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
+  //float ieta_min_HO = -iEtaHOMax - 1.5;
+  //float ieta_max_HO = iEtaHOMax + 1.5;
+  //int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
 
 #ifdef DebugLog
   edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:"<< maxDepthHB_ 
@@ -171,30 +171,9 @@ void SimHitsValidationHcal::analyze(const edm::Event& e,
 #endif
     if (testNumber_) {
       for (unsigned int i=0; i<caloHits.size(); ++i) {
-	unsigned int id_ = caloHits[i].id();
-	int subdet, z, depth0, eta0, phi0, lay;
-	HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth0, eta0, phi0, lay);
-	int sign = (z==0) ? (-1):(1);
-#ifdef DebugLog
-	edm::LogInfo("HitsValidationHcal") << "Hit[" << i 
-					   << "] subdet|z|depth|eta|phi|lay " 
-					   << subdet << "|" << z << "|" 
-					   << depth0 << "|" << eta0 << "|" 
-					   << phi0 << "|" << lay;
-#endif
-	HcalDDDRecConstants::HcalID id = hcons->getHCID(subdet, eta0, phi0, lay, depth0);
-	
-	HcalDetId hid;
-	if (subdet==int(HcalBarrel)) {
-	  hid = HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        
-	} else if (subdet==int(HcalEndcap)) {
-	  hid = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
-	} else if (subdet==int(HcalOuter)) {
-	  hid = HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth);    
-	} else if (subdet==int(HcalForward)) {
-	  hid = HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
-	}
-	caloHits[i].setID(hid.rawId());
+        unsigned int id_ = caloHits[i].id();
+        HcalDetId hid = HcalHitRelabeller::relabel(id_,hcons);
+        caloHits[i].setID(hid.rawId());
 #ifdef DebugLog
 	edm::LogInfo("HitsValidationHcal") << "Hit[" << i << "] " << hid;
 #endif

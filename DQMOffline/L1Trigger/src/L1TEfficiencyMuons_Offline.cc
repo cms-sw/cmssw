@@ -207,8 +207,8 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
     getProbeMuons(trigResults,trigEvent); // CB add flag to run on orthogonal datasets (no T&P)
     getMuonGmtPairs(gmtCands);
 
-    MuonCollection::const_iterator muonIt  = muons->begin();
-    MuonCollection::const_iterator muonEnd = muons->end();
+//    MuonCollection::const_iterator muonIt  = muons->begin();
+//    MuonCollection::const_iterator muonEnd = muons->end();
 
     vector<l1t::Muon> gmtContainer;// = gmtCands->getRecord(0).getGMTCands();                       
 
@@ -216,8 +216,8 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
         gmtContainer.push_back(*mu);
     }
 
-    vector<l1t::Muon>::const_iterator gmtIt = gmtContainer.begin();
-    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
+//    vector<l1t::Muon>::const_iterator gmtIt = gmtContainer.begin();
+//    vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();
 
     if (m_verbose) cout << "[L1TEfficiencyMuons_Offline:] Computing efficiencies" << endl;
 
@@ -462,7 +462,7 @@ void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & tri
     m_ProbeMuons.clear();
 
     vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
-    vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
+//    vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
     vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
 
     for (; probeCandIt!=tightMuonsEnd; ++probeCandIt) {

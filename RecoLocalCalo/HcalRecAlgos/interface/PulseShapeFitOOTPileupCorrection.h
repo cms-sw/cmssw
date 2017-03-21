@@ -50,6 +50,8 @@ namespace FitterFuncs{
      void setpsFitslew (double *slew  ){ for(int i=0; i<HcalConst::maxSamples; ++i) {psFit_slew [i] = slew [i]; } }
      double sigmaHPDQIE8(double ifC);
      double sigmaSiPMQIE10(double ifC);
+     double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
+     void setinvertpedSig2(double x) { invertpedSig2_ = x; }
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
@@ -107,14 +109,15 @@ public:
 	       float& chi2) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		     double iTS4Min, std::vector<double> iTS4Max,
+		     double iTS4Min, const std::vector<double> & iTS4Max,
 		     double iPulseJitter,
 		     double iTimeMean, double iTimeSigHPD, double iTimeSigSiPM,
 		     double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 		     double iNoiseHPD, double iNoiseSiPM,
 		     double iTMin, double iTMax,
-		     double its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
+    const HcalPulseShapes::Shape* currentPulseShape_=NULL;
     void setChi2Term( bool isHPD );
 
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD);
@@ -133,12 +136,13 @@ private:
     int fitTimes_;
 
     std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
-    ROOT::Math::Functor *spfunctor_;
-    ROOT::Math::Functor *dpfunctor_;
-    ROOT::Math::Functor *tpfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> spfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> dpfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> tpfunctor_;
     int TSMin_;
     int TSMax_;
-    double ts4Chi2_;
+    mutable double ts4Chi2_;
+    std::vector<double> vts4Chi2_;
     bool pedestalConstraint_;
     bool timeConstraint_;
     bool addPulseJitter_;
@@ -161,6 +165,7 @@ private:
     double noiseSiPM_;
     HcalTimeSlew::BiasSetting slewFlavor_;    
 
+    bool isCurrentChannelHPD_;
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h

@@ -29,18 +29,18 @@ class MonPedestalsOnlineDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonPedestalsOnlineDat* item, MonRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonPedestalsOnlineDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
 
 
   void fetchData(std::map< EcalLogicID, MonPedestalsOnlineDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_adcMeanG12;

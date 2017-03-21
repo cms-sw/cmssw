@@ -27,7 +27,7 @@ public:
 
   ~GEMSimpleModel();
 
-  void setup();
+  void setup() override;
 
   void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
 

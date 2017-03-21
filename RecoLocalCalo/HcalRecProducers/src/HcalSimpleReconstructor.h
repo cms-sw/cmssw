@@ -35,16 +35,12 @@ class HcalTopology;
 
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c, const edm::EDGetTokenT<DIGICOLL> &tok);
-      void processUpgrade(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
 
-      edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUp_;
-      edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUp_;
-      edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
       edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HFDigiCollection> tok_hf_;
       edm::EDGetTokenT<HODigiCollection> tok_ho_;
@@ -57,9 +53,6 @@ class HcalTopology;
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
-      bool upgradeHBHE_;
-      bool upgradeHF_;
-      bool HFQIE10_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       HcalTopology *theTopology;

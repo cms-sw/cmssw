@@ -43,7 +43,7 @@ public:
 
       virtual void getThinnedProducts(edm::ProductID const& pid,
                                       std::vector<edm::WrapperBase const*>& foundContainers,
-                                      std::vector<unsigned int>& keys) const {
+                                      std::vector<unsigned int>& keys) const override {
         event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
@@ -69,8 +69,8 @@ private:
 // constructors and destructor
 //
   MultiChainEvent::MultiChainEvent(std::vector<std::string> const& iFileNames1,
-				   std::vector<std::string> const& iFileNames2,
-				   bool useSecFileMapSorted)
+                                   std::vector<std::string> const& iFileNames2,
+                                   bool useSecFileMapSorted)
 {
   event1_ = std::make_shared<ChainEvent>(iFileNames1);
   event2_ = std::make_shared<ChainEvent>(iFileNames2);
@@ -123,28 +123,28 @@ private:
     bool foundAny = false;
 
     for(event2_->toBegin();
-	 ! event2_->atEnd();
-	 ++(*event2_)) {
+         ! event2_->atEnd();
+         ++(*event2_)) {
       // if we have a new file, cache the "first"
       if (lastFile != event2_->getTFile()) {
 
-	// if this is not the first file, we have an entry.
-	// Add it to the list.
-	if (!firstFile) {
-	  foundAny = true;
-	  event_id_range toAdd = eventRange.first;
-	  secFileMapSorted_[ toAdd ] = eventRange.second;
-	}
-	// always add the "first" event id to the cached event range
-	eventRange.first.first = event2_->event()->id();
-	lastFile = event2_->getTFile();
+        // if this is not the first file, we have an entry.
+        // Add it to the list.
+        if (!firstFile) {
+          foundAny = true;
+          event_id_range toAdd = eventRange.first;
+          secFileMapSorted_[ toAdd ] = eventRange.second;
+        }
+        // always add the "first" event id to the cached event range
+        eventRange.first.first = event2_->event()->id();
+        lastFile = event2_->getTFile();
       }
       // otherwise, cache the "second" event id in the cached event range.
       // Upon the discovery of a new file, this will be used as the
       // "last" event id in the cached event range.
       else {
-	eventRange.first.second = event2_->event()->id();
-	eventRange.second = event2_->eventIndex();
+        eventRange.first.second = event2_->event()->id();
+        eventRange.second = event2_->eventIndex();
       }
       firstFile = false;
     }
@@ -156,17 +156,17 @@ private:
     }
 //     std::cout << "Dumping run range to event id list:" << std::endl;
 //     for (sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
-// 	    mEnd = secFileMapSorted_.end(),
-// 	    mit = mBegin;
-// 	  mit != mEnd; ++mit) {
+//          mEnd = secFileMapSorted_.end(),
+//          mit = mBegin;
+//        mit != mEnd; ++mit) {
 //       char buff[1000];
 //       event2_->to(mit->second);
 //       sprintf(buff, "[%10d,%10d - %10d,%10d] ---> %10d",
-// 	      mit->first.first.run(),
-// 	      mit->first.first.event(),
-// 	      mit->first.second.run(),
-// 	      mit->first.second.event(),
-// 	      mit->second);
+//            mit->first.first.run(),
+//            mit->first.first.event(),
+//            mit->first.second.run(),
+//            mit->first.second.event(),
+//            mit->second);
 //       std::cout << buff << std::endl;
 //     }
   }

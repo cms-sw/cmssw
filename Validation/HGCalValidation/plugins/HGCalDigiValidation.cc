@@ -52,6 +52,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
   verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
   SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx",5)) {
+  ifHCAL_   = iConfig.getParameter<bool>("ifHCAL");
   auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
   if( nameDetector_ == "HGCalEESensitive" ) {
     digiSource_    = consumes<HGCEEDigiCollection>(temp);
@@ -59,8 +60,8 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
               nameDetector_ == "HGCalHEScintillatorSensitive" ) {
     digiSource_    = consumes<HGCHEDigiCollection>(temp);
   } else if ( nameDetector_ == "HCal" ) {
-    digiSource_    = 
-      consumes<edm::SortedCollection<HcalUpgradeDataFrame> >(temp);
+    if (ifHCAL_) digiSource_ = consumes<QIE11DigiCollection>(temp);
+    else         digiSource_ = consumes<HGCBHDigiCollection>(temp);
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -143,9 +144,34 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     } else {
       edm::LogWarning("HGCalValidation") << "HGCHEDigiCollection handle does not exist !!!";
     }
+  } else if ((nameDetector_ == "HCal") && (!ifHCAL_)) {
+    //HGCalBH
+    edm::Handle<HGCBHDigiCollection> theHGCBHDigiContainers;
+    iEvent.getByToken(digiSource_, theHGCBHDigiContainers);
+    if (theHGCBHDigiContainers.isValid()) {
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theHGCBHDigiContainers->size()
+					<< " element(s)";
+      
+      for (HGCBHDigiCollection::const_iterator it =theHGCBHDigiContainers->begin();
+	   it !=theHGCBHDigiContainers->end(); ++it) {
+	ntot++; nused++;
+	HcalDetId  detId     = (it->id());
+	int        layer     = detId.depth();
+	HGCSample  hgcSample = it->sample(SampleIndx_);
+	uint16_t   gain      = hgcSample.toa();
+	uint16_t   adc       = hgcSample.data();
+	double     charge    = adc*gain;
+	digiValidation(detId, geom1, layer, adc, charge);
+      }
+      fillDigiInfo();
+    } else {
+      edm::LogWarning("HGCalValidation") << "HGCBHDigiCollection handle does not exist !!!";
+    }
   } else if (nameDetector_ == "HCal") {
     //HE
-    edm::Handle<edm::SortedCollection<HcalUpgradeDataFrame> >  theHEDigiContainers;
+    edm::Handle<QIE11DigiCollection>  theHEDigiContainers;
     iEvent.getByToken(digiSource_, theHEDigiContainers);
     if (theHEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -155,9 +181,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
       edm::ESHandle<HcalDbService> conditions;
       iSetup.get<HcalDbRecord > ().get(conditions);
 
-      for (edm::SortedCollection<HcalUpgradeDataFrame>::const_iterator it =theHEDigiContainers->begin();
+      for (QIE11DigiCollection::const_iterator it =theHEDigiContainers->begin();
 	   it !=theHEDigiContainers->end(); ++it) {
-	HcalDetId detId  = (it->id());
+	QIE11DataFrame df(*it);
+	HcalDetId detId  = (df.id());
 	ntot++;
 	if (detId.subdet() == HcalEndcap) {
 	  nused++;
@@ -166,10 +193,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	  const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
 	  HcalCoderDb coder(*channelCoder, *shape);
 	  CaloSamples tool;
-	  coder.adc2fC(*it, tool);
+	  coder.adc2fC(df, tool);
 	  int       layer  = detId.depth();
-	  uint16_t  adc    = (*it)[SampleIndx_].adc();
-	  int       capid  = (*it)[SampleIndx_].capid();
+	  uint16_t  adc    = (df)[SampleIndx_].adc();
+	  int       capid  = (df)[SampleIndx_].capid();
 	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
 	  digiValidation(detId, geom1, layer, adc, charge);
 	}

@@ -55,8 +55,10 @@ namespace cms {
   private:
     std::vector<float> pT_Hats_;
     std::vector<float> z_posns_;
+    std::vector<float> t_posns_;
     edm::InputTag Mtag_;
     edm::InputTag fallbackMtag_;
+    bool saveVtxTimes_;
 
   };
 }

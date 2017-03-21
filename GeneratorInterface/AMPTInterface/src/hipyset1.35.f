@@ -186,7 +186,8 @@ C...Identify any indices.
         READ(CHIND,'(I8)') J    
         LNAM=LIND+1 
       ENDIF 
-    
+C...cms initialize variable
+      CHOLD=' '
 C...Check that indices allowed and save old value.  
       IERR=1    
       IF(CHBIT(LNAM:LNAM).NE.'=') GOTO 190  
@@ -7163,6 +7164,8 @@ C...Find resonances (explicit or implicit in cross-section).
 cms.. reinitializing to avoid compiler warning
       TAUR2=PMAS(KFR2,1)**2/VINT(2)
       GAMR2=PMAS(KFR2,1)*PMAS(KFR2,2)/VINT(2)
+      TAUR1=0.
+      GAMR1=0.
       IF(ISTSB.EQ.1.OR.ISTSB.EQ.3) THEN 
         KFR1=KFPR(ISUB,1)   
       ELSEIF(ISUB.GE.71.AND.ISUB.LE.77) THEN    
@@ -10251,7 +10254,9 @@ C...Relative distribution of energy for particle into jet plus particle.
       IF(SHR.LE.SQRT(PMS(1))+SQRT(PMS(2))) GOTO 140 
       N=I   
     
-C...Reconstruct kinematics of remnants. 
+C...Reconstruct kinematics of remnants.
+C...cms initialize variable
+      PZ=0. 
       DO 200 JT=1,2 
       IF(JT.EQ.ILEP) GOTO 200   
       PE=0.5*(SHR+(PMS(JT)-PMS(3-JT))/SHR)  

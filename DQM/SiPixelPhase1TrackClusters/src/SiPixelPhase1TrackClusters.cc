@@ -26,7 +26,7 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   SiPixelPhase1Base(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
-  trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
+  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 }
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -37,15 +37,13 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   assert(tracker.isValid());
   
   //get the map
-  edm::Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByToken( trackAssociationToken_, ttac);
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByToken( tracksToken_, tracks);
   
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   iEvent.getByToken( clustersToken_, clusterColl );
   
-  TrajectoryStateCombiner tsoscomb;
-
   // we need to store some per-cluster data. Instead of a map, we use a vector,
   // exploiting the fact that all custers live in the DetSetVector and we can 
   // use the same indices to refer to them.
@@ -53,20 +51,19 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   std::vector<bool>  ontrack    (clusterColl->data().size(), false);
   std::vector<float> corr_charge(clusterColl->data().size(), -1.0f);
 
-  for (auto& item : *ttac) {
-    auto trajectory_ref = item.key;
-    reco::TrackRef track_ref = item.val;
+  for (auto const & track : *tracks) {
 
     bool isBpixtrack = false, isFpixtrack = false, crossesPixVol=false;
 
     // find out whether track crosses pixel fiducial volume (for cosmic tracks)
-    double d0 = track_ref->d0(), dz = track_ref->dz(); 
+    double d0 = track.d0(), dz = track.dz(); 
     if(std::abs(d0)<15 && std::abs(dz)<50) crossesPixVol = true;
 
-    for (auto& measurement : trajectory_ref->measurements()) {
-      // check if things are all valid
-      if (!measurement.updatedState().isValid()) continue;
-      auto hit = measurement.recHit();
+    auto const & trajParams = track.extra()->trajParams();
+    assert(trajParams.size()==track.recHitsSize());
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto hit = *(hb+h);
       if (!hit->isValid()) continue;
       DetId id = hit->geographicalId();
 
@@ -77,19 +74,15 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
-
+        
       // get the cluster
       auto clust = pixhit->cluster();
       if (clust.isNull()) continue; 
       ontrack[clust.key()] = true; // mark cluster as ontrack
 
-      // compute trajectory parameters at hit
-      TrajectoryStateOnSurface tsos = tsoscomb(measurement.forwardPredictedState(), 
-                                               measurement.backwardPredictedState());
-      if (!tsos.isValid()) continue;
 
       // correct charge for track impact angle
-      LocalTrajectoryParameters ltp = tsos.localParameters();
+      auto const & ltp = trajParams[h];
       LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
      
       float clust_alpha = atan2(localDir.z(), localDir.x());
@@ -150,8 +143,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     }
   }
 
-  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting();
-  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting();
+  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);

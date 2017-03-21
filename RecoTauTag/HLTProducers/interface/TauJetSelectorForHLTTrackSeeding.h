@@ -32,9 +32,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob()  override;
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  virtual void endJob() ;
+  virtual void endJob()  override;
       
   // ----------member data ---------------------------
 

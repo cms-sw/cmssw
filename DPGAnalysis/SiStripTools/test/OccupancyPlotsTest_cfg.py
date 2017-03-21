@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.StandardSequences.Eras import eras
+from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 
-process = cms.Process("OccupancyPlotsTest",eras.Run2_2016)
+process = cms.Process("OccupancyPlotsTest")
 
 #prepare options
 
@@ -14,36 +14,31 @@ options.register ('globalTag',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
-
-options.register ('HLTprocess',
-                  "HLT",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,          # string, int, or float
-                  "HLTProcess")
-
-options.register ('triggerPath',
-                  "HLT_L1SingleMu*",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,          # string, int, or float
-                  "list of HLT paths")
-
-options.register ('trackCollection',
-                  "cosmictrackfinderP5",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,          # string, int, or float
-                  "Track collection to use")
-
 options.register ('fromRAW',
                   "0",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "=1 if from RAW")
-
-options.register ('onCosmics',
+options.register ('withTracks',
                   "0",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.int,          # string, int, or float
-                  "=1 to run cosmics reco sequences")
+                  "=1 if analysis of on-track clusters has to be done")
+options.register ('HLTprocess',
+                  "HLT",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "HLTProcess")
+options.register ('triggerPath',
+                  "HLT_*",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "list of HLT paths")
+options.register ('trackCollection',
+                  "generalTracks",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Track collection to use")
 
 
 options.parseArguments()
@@ -62,9 +57,9 @@ process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","Dupl
                                                     "SubDetectorGeometricDetType","BuildingGeomDetUnits","LookingForFirstStrip",
                                                     "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-#process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
-process.MessageLogger.cout.threshold = cms.untracked.string("ERROR")
-process.MessageLogger.debugModules = cms.untracked.vstring("")
+process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+#process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
+#process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
@@ -126,51 +121,62 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
-#"/store/express/Run2016D/ExpressCosmics/FEVT/Express-v2/000/276/641/00000/BAC45D4C-9D47-E611-A175-02163E01424B.root"),
 #                    skipBadFiles = cms.untracked.bool(True),
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
 # HLT Selection ------------------------------------------------------------
 process.load("HLTrigger.HLTfilters.triggerResultsFilter_cfi")
-process.triggerResultsFilter.triggerConditions = cms.vstring("*")
-process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults","", "HLT" )
+process.triggerResultsFilter.triggerConditions = cms.vstring(options.triggerPath)
+process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults", "", options.HLTprocess )
 process.triggerResultsFilter.l1tResults = cms.InputTag( "" )
 process.triggerResultsFilter.throw = cms.bool(False)
 
 process.seqHLTSelection = cms.Sequence(process.triggerResultsFilter)
-#if options.triggerPath=="*":
-#    process.seqHLTSelection = cms.Sequence()
+if options.triggerPath=="*":
+    process.seqHLTSelection = cms.Sequence()
 
+
+#--------------------------------------
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.seqRECO = cms.Sequence()
 
 if options.fromRAW == 1:
     process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-    process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-    process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-    process.load("Configuration.StandardSequences.L1Reco_cff")  
-    if options.onCosmics == 1:
-        process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-        process.load('Configuration.EventContent.EventContentCosmics_cff')
-        process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco + process.reconstructionCosmics)
-    else:
-        process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
-        process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco + process.reconstruction)
-
-   
-   # process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco
-   #                                + process.siStripDigis + process.siStripZeroSuppression + process.siStripClusters
-   #                                + process.siPixelDigis + process.siPixelClusters )
+    process.load("Configuration.StandardSequences.L1Reco_cff")
+    process.siPixelClusters = process.siPixelClustersPreSplitting.clone()
+    process.seqRECO = cms.Sequence(process.scalersRawToDigi +
+                                   process.siStripDigis + process.siStripZeroSuppression + process.siStripClusters
+                                   + process.siPixelDigis + process.siPixelClusters )
 
 
-#--------------------------------------
+#
+
+process.froml1abcHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
+                                      l1ABCCollection=cms.InputTag("scalersRawToDigi")
+                                      )
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
+process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")
+process.eventtimedistribution.historyProduct = cms.InputTag("froml1abcHEs")
+
+process.seqEventHistoryReco = cms.Sequence(process.froml1abcHEs + process.APVPhases)
+process.seqEventHistory = cms.Sequence(process.eventtimedistribution)
+
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_cff import *
 from DPGAnalysis.SiStripTools.occupancyplotsselections_simplified_cff import *
 
 process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siStripClusters"),
-                                        wantedSubDets = cms.VPSet()
+                                        wantedSubDets = cms.VPSet(
+        cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK")),
+        cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TIB")),
+        cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TID")),
+        cms.PSet(detSelection = cms.uint32(5),detLabel = cms.string("TOB")),
+        cms.PSet(detSelection = cms.uint32(6),detLabel = cms.string("TEC"))
+        )
                                         )
 process.ssclusmultprod.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
 process.ssclusmultprodontrack=process.ssclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
@@ -185,7 +191,11 @@ process.ssclusoccuprodontrack=process.ssclusoccuprod.clone(clusterdigiCollection
 
 process.spclusmultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
-                                        wantedSubDets = cms.VPSet()
+                                        wantedSubDets = cms.VPSet(
+        cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel")),
+        cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("BPIX")),
+        cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("FPIX"))
+        )
                                         )
 process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
@@ -199,25 +209,38 @@ process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.seqMultProd = cms.Sequence(process.ssclusmultprod + process.ssclusoccuprod +
-                                   process.spclusmultprod + process.spclusoccuprod +
-                                   process.ssclusmultprodontrack + process.ssclusoccuprodontrack +
-                                   process.spclusmultprodontrack + process.spclusoccuprodontrack )
+                                   process.spclusmultprod + process.spclusoccuprod)
+
+if options.withTracks == 1:
+    process.seqMultProd = cms.Sequence(process.ssclusmultprod + process.ssclusoccuprod +
+                                       process.spclusmultprod + process.spclusoccuprod +
+                                       process.ssclusmultprodontrack + process.ssclusoccuprodontrack +
+                                       process.spclusmultprodontrack + process.spclusoccuprodontrack )
+
+
+process.load("DPGAnalysis.SiStripTools.ssclusmultinvestigator_cfi")
+process.ssclusmultinvestigator.multiplicityMap=cms.InputTag("ssclusmultprod")
+process.ssclusmultinvestigator.scaleFactor=cms.untracked.int32(1)
+process.load("DPGAnalysis.SiStripTools.spclusmultinvestigator_cfi")
+process.spclusmultinvestigator.multiplicityMap=cms.InputTag("spclusmultprod")
+process.spclusmultinvestigator.scaleFactor=cms.untracked.int32(10)
+
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
-process.occupancyplots.wantedSubDets = process.ssclusmultprod.wantedSubDets
+process.occupancyplots.wantedSubDets = process.ssclusoccuprod.wantedSubDets
 
 process.occupancyplotsontrack = process.occupancyplots.clone()
-process.occupancyplotsontrack.wantedSubDets = process.ssclusmultprodontrack.wantedSubDets
+process.occupancyplotsontrack.wantedSubDets = process.ssclusoccuprodontrack.wantedSubDets
 process.occupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("ssclusmultprodontrack"))
 process.occupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("ssclusoccuprodontrack"))
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
-process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
+process.pixeloccupancyplots.wantedSubDets = process.spclusoccuprod.wantedSubDets
 process.pixeloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"))
 process.pixeloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"))
 
 process.pixeloccupancyplotsontrack = process.occupancyplots.clone()
-process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusmultprodontrack.wantedSubDets
+process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusoccuprodontrack.wantedSubDets
 process.pixeloccupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodontrack"))
 process.pixeloccupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodontrack"))
 
@@ -264,33 +287,50 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHisto=cms.untracked.bool(Fa
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.bool(False)
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
 
-process.seqAnalyzers = cms.Sequence(
-    #process.bxlumianalyzer + 
-    process.goodVertices + process.primaryvertexanalyzer +
-    process.occupancyplots +     process.occupancyplotsontrack + 
-    process.pixeloccupancyplots +     process.pixeloccupancyplotsontrack + 
-    process.alloccupancyplots +     process.alloccupancyplotsontrack) 
-#    process.layersoccupancyplots +    process.layersoccupancyplotsontrack) 
-
-#-------------------------------------------------------------------------------------------
-
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-
-process.AlignmentTrackSelector.src=cms.InputTag(options.trackCollection)
-
-process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seqMultProd)
-
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
 process.trackcount.trackCollection = cms.InputTag(options.trackCollection)
 
 process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 process.duplicaterechits.trackCollection = cms.InputTag(options.trackCollection)
 
-#----GlobaTag ------------------------
+process.seqAnalyzers = cms.Sequence(
+    process.seqEventHistory +
+    process.spclusmultinvestigator + process.ssclusmultinvestigator +
+    process.occupancyplots +
+    process.pixeloccupancyplots +
+    process.alloccupancyplots)
+
+if options.withTracks == 1:
+    process.seqAnalyzers = cms.Sequence(
+        process.seqEventHistory +
+        #process.bxlumianalyzer + 
+        process.primaryvertexanalyzer +
+        process.spclusmultinvestigator + process.ssclusmultinvestigator +
+        process.occupancyplots +     process.occupancyplotsontrack + 
+        process.pixeloccupancyplots +     process.pixeloccupancyplotsontrack + 
+        process.alloccupancyplots +     process.alloccupancyplotsontrack +
+        process.trackcount 
+        # + process.duplicaterechits
+) 
+
+#-------------------------------------------------------------------------------------------
+
+process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
+
+process.seqProducers = cms.Sequence(process.seqEventHistoryReco + process.seqMultProd)
+
+if options.withTracks == 1:
+    process.seqProducers = cms.Sequence(process.seqEventHistoryReco + 
+                                        process.AlignmentTrackSelector + 
+                                        process.goodVertices +
+                                        process.seqMultProd)
+
+#----GlobalTag ------------------------
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 #    cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
@@ -307,21 +347,15 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('OccupancyPlotsTest_'+options.tag+'.root')
                                    )
 
-if options.fromRAW == 1:
-    process.p0 = cms.Path(
-    process.seqRECO +    
-    process.seqHLTSelection +
-    process.seqProducers +
-    process.seqAnalyzers +
-    process.trackcount +
-    process.duplicaterechits 
-    )
+cloneProcessingSnippet(process,process.seqAnalyzers,"All")
 
-else:
-    process.p0 = cms.Path(    
-    process.seqHLTSelection +
+process.p0 = cms.Path(
+    process.seqRECO +
     process.seqProducers +
-    process.seqAnalyzers +
-    process.trackcount +
-    process.duplicaterechits 
-    )
+    process.seqAnalyzersAll +
+    process.seqHLTSelection +
+    process.seqAnalyzers
+)
+
+
+#print process.dumpPython()

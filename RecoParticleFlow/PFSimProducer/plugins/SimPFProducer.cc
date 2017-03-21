@@ -62,11 +62,14 @@ public:
 private:
   // parameters
   const double superClusterThreshold_, neutralEMThreshold_, neutralHADThreshold_;
+  const bool useTiming_;
   
   // inputs
   const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> srcGsfTrackTime_, srcGsfTrackTimeError_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
   const edm::EDGetTokenT<SimClusterCollection> simClustersTruth_;
   const edm::EDGetTokenT<CaloParticleCollection> caloParticles_;
@@ -91,9 +94,14 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   superClusterThreshold_( conf.getParameter<double>("superClusterThreshold") ),
   neutralEMThreshold_( conf.getParameter<double>("neutralEMThreshold") ),
   neutralHADThreshold_( conf.getParameter<double>("neutralHADThreshold") ),
+  useTiming_(conf.existsAs<edm::InputTag>("trackTimeValueMap")),
   pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
   gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
+  srcTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+  srcTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+  srcGsfTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+  srcGsfTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
   trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
   simClustersTruth_(consumes<SimClusterCollection>( conf.getParameter<edm::InputTag>("simClusterTruthSrc") ) ),
   caloParticles_(consumes<CaloParticleCollection>( conf.getParameter<edm::InputTag>("caloParticlesSrc") ) ),
@@ -128,7 +136,16 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   edm::Handle<edm::View<reco::Track> > TrackCollectionH;
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
-  
+ 
+  // get timing, if enabled
+  edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, gsfTrackTimeH, gsfTrackTimeErrH;
+  if (useTiming_) {
+    evt.getByToken(srcTrackTime_, trackTimeH);
+    evt.getByToken(srcTrackTimeError_, trackTimeErrH);
+    evt.getByToken(srcGsfTrackTime_, gsfTrackTimeH);
+    evt.getByToken(srcGsfTrackTimeError_, gsfTrackTimeErrH);
+  }
+ 
   //get tracking particle collections
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   evt.getByToken(trackingParticles_, TPCollectionH);
@@ -260,6 +277,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     auto& candidate = candidates->back();
 
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
+    if (useTiming_) candidate.setTime( (*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef] );
     
     // bind to cluster if there is one and try to gather conversions, etc
     for( const auto& match : matches ) {      
@@ -324,6 +342,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	candidates->emplace_back(0, clu_p4, part_type);
 	auto& candidate = candidates->back();
 	candidate.addElementInBlock(blref,elem.index());
+        candidate.setTime(ref->time(), ref->timeError());
       }
     }
   }

@@ -13,7 +13,7 @@ class LimitTrackAlgo:
         self._algos = algos
         self._includePtCut = includePtCut
     def __call__(self, algo, quality):
-        if algo not in self._algos:
+        if self._algos is not None and algo not in self._algos:
             return False
         if not self._includePtCut and "Pt09" in quality:
             return False
@@ -36,14 +36,11 @@ def main(opts):
         plotting.verbose = True
 
     val = SimpleValidation([sample], opts.outputDir)
-    kwargs = {}
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
 
-    kwargs_tracking = {}
-    kwargs_tracking.update(kwargs)
-    if opts.limit_tracking_algo is not None:
-        limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo, includePtCut=opts.ptcut)
-        kwargs_tracking["limitSubFoldersOnlyTo"] = {
+    limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo, includePtCut=opts.ptcut)
+    kwargs_tracking = {
+        "limitSubFoldersOnlyTo": {
             "": limitProcessing,
             "allTPEffic": limitProcessing,
             "fromPV": limitProcessing,
@@ -51,6 +48,7 @@ def main(opts):
             "seeding": limitProcessing,
             "building": limitProcessing,
         }
+    }
     if opts.limit_relval:
         ignore = lambda a,q: False
         kwargs_tracking["limitSubFoldersOnlyTo"] = {
@@ -68,7 +66,7 @@ def main(opts):
         trk.append(trackingPlots.plotterExt)
         other.append(vertexPlots.plotterExt)
     val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
-    val.doPlots(other, plotterDrawArgs=drawArgs, **kwargs)
+    val.doPlots(other, plotterDrawArgs=drawArgs)
     print
     if opts.no_html:
         print "Plots created into directory '%s'." % opts.outputDir
@@ -95,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit-relval", action="store_true",
                         help="Limit set of plots to those in release validation (almost). (default: all plots in the DQM files; conflicts with --limit-tracking-algo)")
     parser.add_argument("--ptcut", action="store_true",
-                        help="Include plots with pT > 0.9 GeV cut")
+                        help="Include plots with pT > 0.9 GeV cut (with --limit-relval, does not have any effect)")
     parser.add_argument("--extended", action="store_true",
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--no-html", action="store_true",
@@ -133,5 +131,8 @@ if __name__ == "__main__":
         if opts.limit_relval:
             parser.error("--limit-tracking-algo and --limit-relval conflict with each other")
         opts.limit_tracking_algo = opts.limit_tracking_algo.split(",")
+
+    if opts.limit_relval and opts.ptcut:
+        print "With --limit-relval enabled, --ptcut option does not have any effect"
 
     main(opts)

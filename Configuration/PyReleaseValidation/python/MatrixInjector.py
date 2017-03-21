@@ -3,6 +3,7 @@ import json
 import os
 import copy
 import multiprocessing
+import time
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -51,6 +52,10 @@ class MatrixInjector(object):
         self.keep = opt.keep
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
+        self.batchName = ''
+        self.batchTime = str(int(time.time()))
+        if(opt.batchName):
+            self.batchName = '__'+opt.batchName+'-'+self.batchTime
 
         #wagemt stuff
         if not self.wmagent:
@@ -92,11 +97,10 @@ class MatrixInjector(object):
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
-            "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
+            "Campaign": os.getenv('CMSSW_VERSION'),           # = AcquisitionEra, will be reset later to the one of first task, will both be the CMSSW_VERSION
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
-            "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
             "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
@@ -109,7 +113,8 @@ class MatrixInjector(object):
             "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 0.1
+            "TimePerEvent" : 0.1,
+            "PrepID": os.getenv('CMSSW_VERSION')
             }
 
         self.defaultHarvest={
@@ -195,12 +200,14 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
             wmsplit['RECODR2_2016reHLT_skimMuonEG']=5
             wmsplit['RECODR2_2016reHLT_skimJetHT']=5
+            wmsplit['RECODR2_2016reHLT_skimMET']=5
             wmsplit['RECODR2_2016reHLT_skimSinglePh']=5
             wmsplit['RECODR2_2016reHLT_skimMuOnia']=5
             wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=5
             wmsplit['HLTDR2_50ns']=1
@@ -350,6 +357,9 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
 
+                            if (self.batchName):
+                                chainDict['nowmTasklist'][-1]['Campaign'] = chainDict['nowmTasklist'][-1]['AcquisitionEra']+self.batchName
+
                             # specify different ProcessingString for double miniAOD dataset
                             if ('DBLMINIAODMCUP15NODQM' in step): 
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=chainDict['nowmTasklist'][-1]['ProcessingString']+'_miniAOD' 
@@ -369,7 +379,12 @@ class MatrixInjector(object):
                     if processStrPrefix or thisLabel:
                         chainDict['RequestString']+='_'+processStrPrefix+thisLabel
 
-                        
+### PrepID
+                    chainDict['PrepID'] = chainDict['CMSSWVersion']+'__'+self.batchTime+'-'+s[1].split('+')[0]
+                    if(self.batchName):
+                        chainDict['PrepID'] = chainDict['CMSSWVersion']+self.batchName+'-'+s[1].split('+')[0]
+                        if( 'HIN' in self.batchName ):
+                            chainDict['SubRequestType'] = "HIRelVal"
                         
             #wrap up for this one
             import pprint
@@ -398,12 +413,30 @@ class MatrixInjector(object):
                                     #t_input['DQMConfigCacheID']=t_second['ConfigCacheID']
                                 break
 
-            ## there is in fact only one acquisition era
-            #if len(set(chainDict['AcquisitionEra'].values()))==1:
-            #    print "setting only one acq"
+            # agreed changes for wm injection:
+            # - Campaign: *optional* string during creation. It will default to AcqEra value if possible.  
+            #             Otherwise it will be empty.
+            # - AcquisitionEra: *mandatory* string at request level during creation. *optional* string
+            #                   at task level during creation. "optional" during assignment.
+            # - ProcessingString: *mandatory* string at request level during creation. *optional* string
+            #                     at task level during creation. "optional" during assignment.
+            # - ProcessingVersion: *optional* during creation (default 1). *optional* during assignment.
+            # 
+            # Which requires following changes here:
+            #  - reset Global AcuisitionEra, ProcessingString to be the one in the first task
+            #  - and also Campaign to be always the same as the AcquisitionEra
+
             if acqEra:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
+                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0] 
+                chainDict['ProcessingString'] = chainDict['ProcessingString'].values()[0]
+            else:
+                chainDict['AcquisitionEra'] = chainDict['nowmTasklist'][0]['AcquisitionEra']
+                chainDict['ProcessingString'] = chainDict['nowmTasklist'][0]['ProcessingString']
                 
+#####  batch name appended to Campaign name
+#            chainDict['Campaign'] = chainDict['AcquisitionEra']
+            chainDict['Campaign'] = chainDict['AcquisitionEra']+self.batchName
+               
             ## clean things up now
             itask=0
             if self.keep:
@@ -468,14 +501,14 @@ class MatrixInjector(object):
                     #upload
                     couchID=self.uploadConf(d[it]['ConfigCacheID'],
                                             str(n)+d[it]['TaskName'],
-                                            d['CouchURL']
+                                            d['ConfigCacheURL']
                                             )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
-                                            d['CouchURL']
+                                            d['ConfigCacheURL']
                                             )
                     print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
                     d['DQMConfigCacheID']=couchID

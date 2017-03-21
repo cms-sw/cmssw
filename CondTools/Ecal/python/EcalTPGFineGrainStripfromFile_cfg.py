@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+#process.load("CondCore.DBCommon.CondDB_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 #
 # Choose the output database
 #
-process.CondDBCommon.connect = 'sqlite_file:EcalTPGFineGrainStrip.db'
+process.CondDB.connect = 'sqlite_file:EcalTPGFineGrainStrip.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -20,25 +21,14 @@ process.source = cms.Source("EmptyIOVSource",
   interval = cms.uint64(1)
 )
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-  process.CondDBCommon,
-  timetype = cms.untracked.string('runnumber'),
-  toGet = cms.VPSet(
-    cms.PSet(
-      record = cms.string('EcalTPGFineGrainStripEERcd'),
-      tag = cms.string('EcalTPGFineGrainStrip_test')
-    )
-  )
- )
-
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDBCommon,
+  process.CondDB,
   logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
   timetype = cms.untracked.string('runnumber'),
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalTPGFineGrainStripEERcd'),
-      tag = cms.string('EcalTPGFineGrainStrip_test')
+      tag = cms.string('EcalTPGFineGrainStripEE_test_10GeV')
     )
   )
 )
@@ -46,7 +36,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainStripfromFile",
   record = cms.string('EcalTPGFineGrainStripEERcd'),
   Source = cms.PSet(
-    debug = cms.bool(True),
+    FileName = cms.string('/afs/cern.ch/cms/CAF/CMSCOMM/COMM_ECAL/azabi/TPG_beamv6_trans_spikekill_FGEE_10GEV_LUT.txt')
   )
 )
 

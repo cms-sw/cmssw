@@ -6,11 +6,18 @@ import FWCore.ParameterSet.Config as cms
 
 from  RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import Chi2MeasurementEstimator as _Chi2MeasurementEstimator
+duplicateDisplaceTrackCandidatesChi2Est = _Chi2MeasurementEstimator.clone(
+    ComponentName = "duplicateDisplacedTrackCandidatesChi2Est",
+    MaxChi2 = 100,
+)
+
 #for displaced global muons                                      
 duplicateDisplacedTrackCandidates = DuplicateTrackMerger.clone(
     source=cms.InputTag("preDuplicateMergingDisplacedTracks"),
     useInnermostState  = cms.bool(True),
-    ttrhBuilderName    = cms.string("WithAngleAndTemplate")
+    ttrhBuilderName    = cms.string("WithAngleAndTemplate"),
+    chi2EstimatorName = "duplicateDisplacedTrackCandidatesChi2Est"
     )
 #for displaced global muons
 mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
@@ -46,6 +53,10 @@ displacedTracksSequence = cms.Sequence(
     duplicateDisplacedTrackClassifier*
     displacedTracks
     )
+
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
 
 # This customization will be removed once we get the templates for
 # phase2 pixel

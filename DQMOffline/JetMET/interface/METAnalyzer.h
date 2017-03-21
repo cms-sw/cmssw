@@ -108,13 +108,13 @@ class METAnalyzer : public DQMEDAnalyzer{
   //void bookMonitorElement(std::string, bool);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
   void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>,std::vector<bool>);
@@ -528,27 +528,12 @@ class METAnalyzer : public DQMEDAnalyzer{
   */
   double ptMinCand_;
 
-  // Smallest raw HCAL energy linked to the track
-  double hcalMin_;
-  MonitorElement* mProfileIsoPFChHad_HadPtCentral;
-  MonitorElement* mProfileIsoPFChHad_HadPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_EMPtCentral;
-  MonitorElement* mProfileIsoPFChHad_EMPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackPt;
-
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackOccupancy;
 
   //PFcandidate maps
-  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,ptPFCand_,multiplicityPFCand_;
-  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
-  std::vector<MonitorElement* > occupancyPFCand_puppiNolepWeight_,ptPFCand_puppiNolepWeight_;
-  std::vector<std::string> occupancyPFCand_name_puppiNolepWeight_,ptPFCand_name_puppiNolepWeight_;
+  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_;
+  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
-  std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
+  std::vector<int> typePFCand_,  countsPFCand_, etaNBinsPFCand_;
 
   MonitorElement* meMETPhiChargedHadronsBarrel;
   MonitorElement* meMETPhiChargedHadronsEndcapPlus;
@@ -604,8 +589,6 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meZJets_u_perp_ZPt_290;
 
   std::map< std::string,MonitorElement* >map_dijet_MEs;
-  std::vector<unsigned int> nCh;
-  std::vector<unsigned int> nEv;
 
   bool isCaloMet_;
   bool isPFMet_;

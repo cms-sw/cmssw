@@ -50,6 +50,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   template <typename T> class OutputModuleCommunicatorT;
   
@@ -221,6 +222,8 @@ namespace edm {
       virtual bool shouldWeCloseFile() const {return false;}
       
       virtual void write(EventForOutput const&) = 0;
+      virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
       virtual void beginJob(){}
       virtual void endJob(){}
       virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;

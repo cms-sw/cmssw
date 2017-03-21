@@ -5,13 +5,14 @@
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
-using namespace std;
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+using namespace std;
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -407,19 +408,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType ebSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = barrelHits->begin();
-	 hitItr != barrelHits->end();
-	 ++hitItr) {
+    for ( auto const & iHit : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id());
+      EBDetId ebid = EBDetId(iHit.id());
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr->energy();
+      ebSimMap[crystid] += iHit.energy();
     }
   }  
 
@@ -484,19 +480,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType eeSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = endcapHits->begin();
-	 hitItr != endcapHits->end();
-	 ++hitItr) {
-      
-      EEDetId eeid = EEDetId(hitItr->id());
+    for ( auto const & iHit:  endcapHits ) {
+     
+      EEDetId eeid = EEDetId(iHit.id());
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr->energy();
+      eeSimMap[crystid] += iHit.energy();
     }
   }    
 
@@ -552,19 +543,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType esSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = preshowerHits->begin();
-	 hitItr != preshowerHits->end();
-	 ++hitItr) {
+    for ( auto const & iHit : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id());
+      ESDetId esid = ESDetId(iHit.id());
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
+      esSimMap[crystid] += iHit.energy();
     }
   }
 
@@ -684,6 +670,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+    const CaloGeometry* geo = geometry.product();
     
     int iHB = 0;
     int iHE = 0; 
@@ -697,9 +684,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalBrl) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHBEnergy ) {
 	    maxHBEnergy = jhbhe->energy();
 	    maxHBPhi = fPhi;
@@ -709,9 +698,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       
 	if (cell.subdet() == sdHcalEC) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHEEnergy ) {
 	    maxHEEnergy = jhbhe->energy();
 	    maxHEPhi = fPhi;
@@ -728,9 +719,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHB;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHBPhi - fPhi;
 	  if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
@@ -744,9 +737,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHE;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHEPhi - fPhi;
 	  if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
@@ -1343,12 +1338,11 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
     validXFrame = false;
   }
   if (validXFrame) {
-    MixCollection<PSimHit> simHits(cf.product());
+    const MixCollection<PSimHit>  simHits(cf.product());
     
     // arrange the hits by detUnit
-    for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-	hitItr != simHits.end(); ++hitItr) {
-      theMap[hitItr->detUnitId()].push_back(*hitItr);
+    for ( auto const & iHit : simHits ) {
+      theMap[iHit.detUnitId()].push_back(iHit);
     }  
   }
 

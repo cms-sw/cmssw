@@ -14,11 +14,10 @@
 
 namespace cond {
   template<class T, class R>
-  class BTransitionAnalyzer: public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+  class BTransitionAnalyzer: public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     BTransitionAnalyzer( const edm::ParameterSet& pset ):
       m_currentThreshold( pset.getUntrackedParameter<double>( "currentThreshold", 18000. ) ) {
-      usesResource( "PoolDBOutputService" );
     }
 #ifdef __INTEL_COMPILER
     virtual ~BTransitionAnalyzer() = default;

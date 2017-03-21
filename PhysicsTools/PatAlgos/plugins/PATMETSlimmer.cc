@@ -117,8 +117,8 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
         case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "");   break;
         case pat::MET::JetEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetEnUp");   break;
         case pat::MET::JetEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetEnDown"); break;
-        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResUp":"");   break;
-        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResDown":""); break;
+        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetResUp");   break;
+        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetResDown"); break;
         case pat::MET::MuonEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnUp");   break;
         case pat::MET::MuonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnDown"); break;
         case pat::MET::ElectronEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnUp");   break;

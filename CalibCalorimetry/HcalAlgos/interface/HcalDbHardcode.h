@@ -62,6 +62,7 @@ class HcalDbHardcode {
     void useHOUpgrade(bool b) { useHOUpgrade_ = b; }
     void useHFUpgrade(bool b) { useHFUpgrade_ = b; }
     void testHFQIE10(bool b) { testHFQIE10_ = b; }
+    void testHEPlan1(bool b) { testHEPlan1_ = b; }
     void setSiPMCharacteristics(std::vector<edm::ParameterSet> vps) { theSiPMCharacteristics_ = vps; }
     void setKillHE(bool b) { killHE_ = b; } 
     
@@ -91,15 +92,16 @@ class HcalDbHardcode {
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
     HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
     void makeHardcodeTPParameters (HcalTPParameters& tppar);
+    int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
+    bool isHEPlan1(HcalGenericDetId fId);
     
   private:
-    int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
     //member variables
     HcalHardcodeParameters theDefaultParameters_;
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;
     HcalHardcodeParameters theHBUpgradeParameters_, theHEUpgradeParameters_, theHFUpgradeParameters_;
     bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_, killHE_;
-    bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_;
+    bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_, testHEPlan1_;
     std::vector<edm::ParameterSet> theSiPMCharacteristics_;
     std::map<std::pair<int,int>,int> theLayersInDepths_;
 };

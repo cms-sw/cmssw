@@ -5,6 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -17,6 +18,9 @@ public:
     muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
     DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
     NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
+    useTiming_(conf.existsAs<edm::InputTag>("timeValueMap")),
+    srcTime_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+    srcTimeError_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
     useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
     cleanBadConvBrems_(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     debug_(conf.getUntrackedParameter<bool>("debug",false)) {
@@ -37,6 +41,8 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> muons_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
+  const bool useTiming_;
+  edm::EDGetTokenT<edm::ValueMap<float>> srcTime_, srcTimeError_;
   const bool useIterTracking_,cleanBadConvBrems_,debug_;
 
   std::unique_ptr<PFMuonAlgo> pfmu_;
@@ -58,6 +64,11 @@ importToBlock( const edm::Event& e,
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;
+  edm::Handle<edm::ValueMap<float>> timeH, timeErrH;
+  if (useTiming_) {
+    e.getByToken(srcTime_, timeH);
+    e.getByToken(srcTimeError_, timeErrH);
+  }
   // remove converted brems with bad pT resolution if requested
   // this reproduces the old behavior of PFBlockAlgo
   if( cleanBadConvBrems_ ) {
@@ -138,6 +149,9 @@ importToBlock( const edm::Event& e,
 		  << " pt " << pftrackref->trackRef()->p() << std::endl; 
       }
       if( muId != -1 ) trkElem->setMuonRef(muonref);
+      if ( useTiming_ ) {
+        trkElem->setTime( (*timeH)[pftrackref->trackRef()], (*timeErrH)[pftrackref->trackRef()] );
+      }
       elems.emplace_back(trkElem);
     }
   }

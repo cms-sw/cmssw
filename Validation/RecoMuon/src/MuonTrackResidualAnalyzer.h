@@ -58,11 +58,11 @@ public:
   
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun() ;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 

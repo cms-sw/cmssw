@@ -55,10 +55,10 @@ class QcdUeDQM : public DQMEDAnalyzer {
  public:
   QcdUeDQM(const edm::ParameterSet &parameters);
   virtual ~QcdUeDQM();
-  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
  private:
   bool isHltConfigSuccessful_;  // to prevent processing in case of problems

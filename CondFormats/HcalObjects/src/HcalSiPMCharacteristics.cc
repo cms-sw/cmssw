@@ -44,7 +44,7 @@ const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByTyp
   std::vector<const HcalSiPMCharacteristics::PrecisionItem*>::const_iterator item;
 
   sortByType();
-  auto ptr = (*mPItemsByType.load(std::memory_order_acquire));
+  auto const& ptr = (*mPItemsByType.load(std::memory_order_acquire));
   item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessByType());
   if (item == ptr.end() || (*item)->type_ != type)
     //    throw cms::Exception ("Conditions not found") << "Unavailable SiPMCharacteristics for type " << type;
@@ -73,6 +73,10 @@ bool HcalSiPMCharacteristics::loadObject(int type, int pixels, float parLin1,
 						  parLin2,parLin3,crossTalk,
 						  auxi1,auxi2);
     mPItems.push_back(target);
+    if (mPItemsByType) {
+      delete mPItemsByType.load();
+      mPItemsByType = nullptr;
+    }
     return true;
   }
 }

@@ -41,7 +41,7 @@ class SimWatcherMaker : public SimWatcherMakerBase
 			std::shared_ptr<SimProducer>& oProd
 	 ) const
       {
-	std::shared_ptr<T> returnValue(new T(p));
+	auto returnValue = std::make_shared<T>(p);
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 	oWatcher = returnValue;
 

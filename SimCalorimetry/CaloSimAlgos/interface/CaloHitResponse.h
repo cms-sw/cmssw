@@ -58,7 +58,7 @@ public:
   virtual void finalizeHits(CLHEP::HepRandomEngine*) {}
 
   /// Complete cell digitization.
-  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*);
+  virtual void run(const MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*);
 
   /// process a single SimHit
   virtual void add(const PCaloHit & hit, CLHEP::HepRandomEngine*);
@@ -117,6 +117,14 @@ public:
     return(bunchCrossing >= theMinBunch && bunchCrossing <= theMaxBunch);
   }
 
+  void setStorePrecise(bool sp) {
+    storePrecise = sp;
+  }
+
+  void setIgnoreGeantTime(bool gt) {
+    ignoreTime = gt;
+  }
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
@@ -134,7 +142,8 @@ protected:
   int theMaxBunch;
 
   double thePhaseShift_;
-
+  bool storePrecise;
+  bool ignoreTime;
 };
 
 #endif

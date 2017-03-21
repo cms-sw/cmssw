@@ -39,10 +39,10 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
   explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~RecoTrackAccumulator();
   
-  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
   
  private:

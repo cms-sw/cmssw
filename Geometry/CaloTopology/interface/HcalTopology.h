@@ -25,7 +25,7 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology(const HcalDDDRecConstants* hcons);
+  HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePosition=false);
   HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::TriggerMode_2009);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
@@ -54,6 +54,10 @@ public:
   bool validHcal(const HcalDetId& id) const;
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
   bool validHT(const HcalTrigTowerDetId& id) const;
+  /** Is this a valid cell in context of Plan1 */
+  bool validHcal(const HcalDetId& id, const unsigned int flag) const;
+  /** Flag=0 for unmerged Id's; =1 for for merged Id's; =2 for either */
+
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
@@ -98,7 +102,8 @@ public:
 
   /// finds the number of depth bins and which is the number to start with
   void depthBinInformation(HcalSubdetector subdet, int etaRing,
-                           int & nDepthBins, int & startingBin) const;
+			   int iphi, int zside, int & nDepthBins,
+			   int & startingBin) const;
 
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
@@ -110,13 +115,19 @@ public:
 
   /// for each of the ~17 depth segments, specify which readout bin they belong to
   /// if the ring is not found, the first one with a lower ring will be returned.
-  void getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const;
-  void setDepthSegmentation(unsigned ring, const std::vector<int> & readoutDepths);
+  void getDepthSegmentation(const unsigned ring, 
+			    std::vector<int> & readoutDepths,
+			    const bool flag=false) const;
+  void setDepthSegmentation(const unsigned ring, 
+			    const std::vector<int> & readoutDepths,
+			    const bool flag);
   /// returns the boundaries of the depth segmentation, so that the first
   /// result is the first segment, and the second result is the first one
   /// of the next segment.  Used for calculating physical bounds.
-  std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
-
+  std::pair<int, int> segmentBoundaries(const unsigned ring,
+					const unsigned depth,
+					const bool flag=false) const;
+  int getPhiZOne(std::vector<std::pair<int,int> >& phiz) const {return hcons_->getPhiZOne(phiz);}
 
   unsigned int getHBSize() const {return HBSize_;}
   unsigned int getHESize() const {return HESize_;}
@@ -148,6 +159,16 @@ public:
   bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
+  bool  withSpecialRBXHBHE() const {return hcons_->withSpecialRBXHBHE();}
+  HcalDetId mergedDepthDetId(const HcalDetId& id) const {return hcons_->mergedDepthDetId(id); }
+  bool  getMergePositionFlag() const {return mergePosition_;}
+  void  unmergeDepthDetId(const HcalDetId& id,
+			  std::vector<HcalDetId>& ids) const {
+    hcons_->unmergeDepthDetId(id, ids);
+  }
+  // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
+  HcalDetId idFront(const HcalDetId& id) const {return hcons_->idFront(id);}
+  HcalDetId idBack (const HcalDetId& id) const {return hcons_->idBack(id);}
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
@@ -162,6 +183,7 @@ private:
   bool isExcluded(const HcalDetId& id) const;
 
   const HcalDDDRecConstants *hcons_;
+  bool                       mergePosition_;
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
@@ -200,6 +222,7 @@ private:
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;
   SegmentationMap depthSegmentation_;
+  SegmentationMap depthSegmentationOne_;
 
   enum { kHBhalf = 1296 ,
 	 kHEhalf = 1296 ,

@@ -2,6 +2,8 @@
 #include <strstream>
 
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
+#include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams & p) : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p))
 {
@@ -122,12 +124,12 @@ void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx, const siz
 }
 
 
-void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const std::string& processorId)
+void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const std::string& processorId)
 {
   std::string procId = processorId;
   // if the procId is an empty string use the one from the TrigSystem (the uGMT only has one processor)
   if (procId == "" ) {
-    const std::map<std::string, std::string>& procRoleMap = trgSys.getProcRole();
+    const std::map<std::string, std::string>& procRoleMap = trgSys.getProcToRoleAssignment();
     if (procRoleMap.size() != 1) {
       if (procRoleMap.size() == 0) {
         edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
@@ -140,8 +142,8 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
   }
 
   // get the settings and masks for the processor id
-  std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
-  std::map<std::string, l1t::Mask> masks = trgSys.getMasks(procId);
+  std::map<std::string, l1t::Parameter> settings = trgSys.getParameters(procId.c_str());
+  std::map<std::string, l1t::Mask> masks = trgSys.getMasks(procId.c_str());
   //for (auto& it: settings) {
   //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
   //}
@@ -242,13 +244,13 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
      ss.str("");
      ss << "inputPorts.CaloL2_" << std::setw(2) << i+1;
      // for now set as unmasked if one input is not masked
-     if (!trgSys.isMasked(procId, ss.str())) {
+     if (!trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
         caloInputsMasked = false;
      }
      if (i < 12) {
         ss.str("");
         ss << "inputPorts.BMTF_" << std::setw(2) << i+1;
-        if (trgSys.isMasked(procId, ss.str())) {
+        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
            maskedBmtfInputs[i] = 1;
         }
         ss.str("");
@@ -258,7 +260,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
         } else {
            ss << "-_" << std::setw(2) << i-5;
         }
-        if (trgSys.isMasked(procId, ss.str())) {
+        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
            maskedOmtfInputs[i] = 1;
         }
         ss.str("");
@@ -268,7 +270,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
         } else {
            ss << "-_" << std::setw(2) << i-5;
         }
-        if (trgSys.isMasked(procId, ss.str())) {
+        if (trgSys.isMasked(procId.c_str(), ss.str().c_str())) {
            maskedEmtfInputs[i] = 1;
         }
      }
@@ -313,25 +315,25 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
   setMaskedEmtfnInputs(emtfnMasked);
 
   // LUTs from settings with with automatic detection of address width and 31 bit output width
-  setAbsIsoCheckMemLUT(settings["AbsIsoCheckMem"].getLUT());
-  setRelIsoCheckMemLUT(settings["RelIsoCheckMem"].getLUT());
-  setIdxSelMemPhiLUT(settings["IdxSelMemPhi"].getLUT());
-  setIdxSelMemEtaLUT(settings["IdxSelMemEta"].getLUT());
-  setFwdPosSingleMatchQualLUT(settings["EmtfPosSingleMatchQual"].getLUT());
-  setFwdNegSingleMatchQualLUT(settings["EmtfNegSingleMatchQual"].getLUT());
-  setOvlPosSingleMatchQualLUT(settings["OmtfPosSingleMatchQual"].getLUT());
-  setOvlNegSingleMatchQualLUT(settings["OmtfNegSingleMatchQual"].getLUT());
-  setBOPosMatchQualLUT(settings["BOPosMatchQual"].getLUT());
-  setBONegMatchQualLUT(settings["BONegMatchQual"].getLUT());
-  setFOPosMatchQualLUT(settings["EOPosMatchQual"].getLUT());
-  setFONegMatchQualLUT(settings["EONegMatchQual"].getLUT());
-  setBPhiExtrapolationLUT(settings["BPhiExtrapolation"].getLUT());
-  setOPhiExtrapolationLUT(settings["OPhiExtrapolation"].getLUT());
-  setFPhiExtrapolationLUT(settings["EPhiExtrapolation"].getLUT());
-  setBEtaExtrapolationLUT(settings["BEtaExtrapolation"].getLUT());
-  setOEtaExtrapolationLUT(settings["OEtaExtrapolation"].getLUT());
-  setFEtaExtrapolationLUT(settings["EEtaExtrapolation"].getLUT());
-  setSortRankLUT(settings["SortRank"].getLUT());
+  setAbsIsoCheckMemLUT(l1t::convertToLUT(settings["AbsIsoCheckMem"].getVector<unsigned int>()));
+  setRelIsoCheckMemLUT(l1t::convertToLUT(settings["RelIsoCheckMem"].getVector<unsigned int>()));
+  setIdxSelMemPhiLUT(l1t::convertToLUT(settings["IdxSelMemPhi"].getVector<unsigned int>()));
+  setIdxSelMemEtaLUT(l1t::convertToLUT(settings["IdxSelMemEta"].getVector<unsigned int>()));
+  setFwdPosSingleMatchQualLUT(l1t::convertToLUT(settings["EmtfPosSingleMatchQual"].getVector<unsigned int>()));
+  setFwdNegSingleMatchQualLUT(l1t::convertToLUT(settings["EmtfNegSingleMatchQual"].getVector<unsigned int>()));
+  setOvlPosSingleMatchQualLUT(l1t::convertToLUT(settings["OmtfPosSingleMatchQual"].getVector<unsigned int>()));
+  setOvlNegSingleMatchQualLUT(l1t::convertToLUT(settings["OmtfNegSingleMatchQual"].getVector<unsigned int>()));
+  setBOPosMatchQualLUT(l1t::convertToLUT(settings["BOPosMatchQual"].getVector<unsigned int>()));
+  setBONegMatchQualLUT(l1t::convertToLUT(settings["BONegMatchQual"].getVector<unsigned int>()));
+  setFOPosMatchQualLUT(l1t::convertToLUT(settings["EOPosMatchQual"].getVector<unsigned int>()));
+  setFONegMatchQualLUT(l1t::convertToLUT(settings["EONegMatchQual"].getVector<unsigned int>()));
+  setBPhiExtrapolationLUT(l1t::convertToLUT(settings["BPhiExtrapolation"].getVector<unsigned int>()));
+  setOPhiExtrapolationLUT(l1t::convertToLUT(settings["OPhiExtrapolation"].getVector<unsigned int>()));
+  setFPhiExtrapolationLUT(l1t::convertToLUT(settings["EPhiExtrapolation"].getVector<unsigned int>()));
+  setBEtaExtrapolationLUT(l1t::convertToLUT(settings["BEtaExtrapolation"].getVector<unsigned int>()));
+  setOEtaExtrapolationLUT(l1t::convertToLUT(settings["OEtaExtrapolation"].getVector<unsigned int>()));
+  setFEtaExtrapolationLUT(l1t::convertToLUT(settings["EEtaExtrapolation"].getVector<unsigned int>()));
+  setSortRankLUT(l1t::convertToLUT(settings["SortRank"].getVector<unsigned int>()));
 }
 
 

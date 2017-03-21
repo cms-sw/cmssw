@@ -46,7 +46,7 @@ const HcalFrontEndMap::PrecisionItem* HcalFrontEndMap::findById (uint32_t fId) c
   std::vector<const HcalFrontEndMap::PrecisionItem*>::const_iterator item;
 
   sortById();
-  auto ptr = (*mPItemsById.load(std::memory_order_acquire));
+  auto const& ptr = (*mPItemsById.load(std::memory_order_acquire));
   item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessById());
   if (item == ptr.end() || (*item)->mId != fId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;

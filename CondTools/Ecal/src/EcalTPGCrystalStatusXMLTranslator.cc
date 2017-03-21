@@ -5,6 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -26,22 +27,26 @@ using namespace std;
 int EcalTPGCrystalStatusXMLTranslator::writeXML(const std::string& filename, 
 						const EcalCondHeader& header,
 						const EcalTPGCrystalStatus& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
 std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalTPGCrystalStatus& record){
 
-  cms::concurrency::xercesInitialize();
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-  DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), 0, 0 );
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(TPGCrystalStatus_tag).c_str(), doctype );
+    impl->createDocument( 0, cms::xerces::uStr(TPGCrystalStatus_tag.c_str()).ptr(), doctype );
 
   DOMElement* root = doc->getDocumentElement();
 
@@ -79,7 +84,7 @@ std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& hea
     }   // ix
   }    // side
 
-  std::string dump = toNative(writer->writeToString( root )); 
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
   doc->release();
   doctype->release();
   writer->release();

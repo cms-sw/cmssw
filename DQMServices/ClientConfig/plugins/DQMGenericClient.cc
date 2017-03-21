@@ -279,13 +279,14 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       args.push_back(*iToken);
     }
 
-    if ( args.size() != 1 ) {
+    if ( args.size() == 0 || args.size() > 2) {
       LogInfo("DQMGenericClient") << "Wrong input to cdCmds\n";
       continue;
     }
 
     CDOption opt;
     opt.name = args[0];
+    opt.ascending = args.size() == 2 ? (args[1] != "descending") : true;
 
     cdOptions_.push_back(opt);
   }
@@ -296,6 +297,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   {
     CDOption opt;
     opt.name = cdSet->getUntrackedParameter<string>("name");
+    opt.ascending = cdSet->getUntrackedParameter<bool>("ascending",true);
 
     cdOptions_.push_back(opt);
   }
@@ -369,7 +371,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
           cdOption != cdOptions_.end(); ++cdOption )
     {
-      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name);
+      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name, cdOption->ascending);
     }
 
     for ( vector<EfficOption>::const_iterator efficOption = efficOptions_.begin();
@@ -788,7 +790,7 @@ void DQMGenericClient::normalizeToEntries(DQMStore::IBooker& ibooker, DQMStore::
   return;
 }
 
-void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& cdName) 
+void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& cdName, bool ascending) 
 {
   if ( ! igetter.dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -822,8 +824,15 @@ void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::
 
   int n_bins = cd->GetNbinsX() + 1;
 
-  for (int i = 1; i <= n_bins; i++) {
-    cd->SetBinContent(i,cd->GetBinContent(i) + cd->GetBinContent(i-1));
+  if(ascending) {
+    for (int i = 1; i <= n_bins; i++) {
+      cd->SetBinContent(i,cd->GetBinContent(i) + cd->GetBinContent(i-1));
+    }
+  }
+  else {
+    for (int i = n_bins-1; i >= 0; i--) { // n_bins points to the overflow bin
+      cd->SetBinContent(i,cd->GetBinContent(i) + cd->GetBinContent(i+1));
+    }
   }
 
   return;

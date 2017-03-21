@@ -4,6 +4,7 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
@@ -33,7 +34,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #local reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
-from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
+from RecoCTPPS.Configuration.recoCTPPS_cff import *
 #
 # new tau configuration
 #
@@ -47,7 +48,7 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _phase2_localreco = localreco.copyAndExclude([castorreco])
 _phase2_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
@@ -55,13 +56,21 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(localreco, _phase2_localreco)
 phase2_common.toReplaceWith(localreco_HcalNZS, _phase2_localreco_HcalNZS)
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+_phase2_timing_layer_localreco = _phase2_localreco.copy()
+_phase2_timing_layer_localreco += fastTimingLocalReco
+_phase2_timing_layer_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
+_phase2_timing_layer_localreco_HcalNZS += fastTimingLocalReco
+phase2_timing_layer.toReplaceWith(localreco,_phase2_timing_layer_localreco)
+phase2_timing_layer.toReplaceWith(localreco_HcalNZS,_phase2_timing_layer_localreco_HcalNZS)
+
 _ctpps_2016_localreco = localreco.copy()
-_ctpps_2016_localreco += totemRPLocalReconstruction
+_ctpps_2016_localreco += recoCTPPS
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
-_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
+_ctpps_2016_localreco_HcalNZS += recoCTPPS
 ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
@@ -135,6 +144,10 @@ noTrackingAndDependent.append(siPixelClustersPreSplitting)
 noTrackingAndDependent.append(siStripZeroSuppression)
 noTrackingAndDependent.append(siStripClusters)
 noTrackingAndDependent.append(initialStepSeedLayersPreSplitting)
+noTrackingAndDependent.append(trackerClusterCheckPreSplitting)
+noTrackingAndDependent.append(initialStepTrackingRegionsPreSplitting)
+noTrackingAndDependent.append(initialStepHitDoubletsPreSplitting)
+noTrackingAndDependent.append(initialStepHitTripletsPreSplitting)
 noTrackingAndDependent.append(initialStepSeedsPreSplitting)
 noTrackingAndDependent.append(initialStepTrackCandidatesPreSplitting)
 noTrackingAndDependent.append(initialStepTracksPreSplitting)

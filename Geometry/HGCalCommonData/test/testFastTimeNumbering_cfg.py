@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.testFastTimeXML_cfi")
+process.load("Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",

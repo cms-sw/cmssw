@@ -133,7 +133,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=2017NewFPix label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=2017 label=$t >& /dev/null &
   fi
 done
 

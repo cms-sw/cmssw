@@ -138,6 +138,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
     float phi_factor;
     float cnorm;
+    float enorm;
 
 
     for(int depth = 1; depth <= depths; depth++){
@@ -150,7 +151,9 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
                // occupancies
                cnorm = ieta_iphi_occupancy_maps[depth-1]->getBinContent(i, j) / fev;
+               enorm = ieta_iphi_occupancy_maps[depth-1]->getBinError(i, j) / fev;
                ieta_iphi_occupancy_maps[depth-1]->setBinContent(i, j, cnorm);
+               ieta_iphi_occupancy_maps[depth-1]->setBinError(i, j, enorm);
 
            } //for loop over NbinsYU
        } //for loop over NbinsX	    
@@ -225,11 +228,15 @@ void HcalDigisClient::scaleMETH2D(MonitorElement* ME, double s) {
     int ny = ME->getNbinsY();
 
     double content(0);
+    double error(0);
     for (int i = 1; i <= nx; i++) {
         for (int j = 1; j <= ny; j++) {
             content = ME->getBinContent(i, j);
+            error = ME->getBinError(i, j);
             content *= s;
+	    error *= s;
             ME->setBinContent(i, j, content);
+            ME->setBinError(i, j, error);
         }
     }
 }

@@ -90,9 +90,6 @@ void TrackAnalyzer::initHistos()
   Chi2oNDFVsEta = nullptr;
   Chi2oNDFVsPhi = nullptr;
   Chi2oNDFVsTheta = nullptr;
-  Chi2oNDFVsTheta = nullptr;
-  Chi2oNDFVsPhi = nullptr;
-  Chi2oNDFVsEta = nullptr;
   	    
   NumberOfRecHitsPerTrack = nullptr;
   NumberOfValidRecHitsPerTrack = nullptr;
@@ -110,9 +107,12 @@ void TrackAnalyzer::initHistos()
   DistanceOfClosestApproach = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
+  DistanceOfClosestApproachToPV = nullptr;
+  DeltaZToPV = nullptr;
   DistanceOfClosestApproachVsTheta = nullptr;
-  DistanceOfClosestApproachVsPhi = nullptr;
+  DistanceOfClosestApproachVsPhi = nullptr;  
   DistanceOfClosestApproachToBSVsPhi = nullptr;
+  DistanceOfClosestApproachToPVVsPhi = nullptr;
   DistanceOfClosestApproachVsEta = nullptr;
   xPointOfClosestApproach = nullptr;
   xPointOfClosestApproachVsZ0wrt000 = nullptr;
@@ -810,23 +810,28 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       
       histname = "DistanceOfClosestApproachToPV_";
       DistanceOfClosestApproachToPV = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
-      DistanceOfClosestApproachToPV->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
+      DistanceOfClosestApproachToPV->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",1);
       DistanceOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
+      
+      histname = "DeltaZToPV_";
+      DeltaZToPV = ibooker.book1D(histname+CategoryName,histname+CategoryName,Z0Bin,Z0Min,Z0Max);
+      DeltaZToPV->setAxisTitle("Track d_{z} w.r.t. PV (cm)",1);
+      DeltaZToPV->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToPVVsPhi_";
       DistanceOfClosestApproachToPVVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
       DistanceOfClosestApproachToPVVsPhi->getTH1()->SetCanExtend(TH1::kAllAxes);
       DistanceOfClosestApproachToPVVsPhi->setAxisTitle("Track #phi",1);
-      DistanceOfClosestApproachToPVVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
+      DistanceOfClosestApproachToPVVsPhi->setAxisTitle("Track d_{xy} w.r.t. PV (cm)",2);
       
       histname = "xPointOfClosestApproachVsZ0wrtPV_";
       xPointOfClosestApproachVsZ0wrtPV = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
-      xPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. Beam Spot  (cm)",1);
+      xPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. PV (cm)",1);
       xPointOfClosestApproachVsZ0wrtPV->setAxisTitle("x component of Track PCA to PV (cm)",2);
       
       histname = "yPointOfClosestApproachVsZ0wrtPV_";
       yPointOfClosestApproachVsZ0wrtPV = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
-      yPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. Beam Spot (cm)",1);
+      yPointOfClosestApproachVsZ0wrtPV->setAxisTitle("d_{z} w.r.t. PV (cm)",1);
       yPointOfClosestApproachVsZ0wrtPV->setAxisTitle("y component of Track PCA to PV (cm)",2);
       
     }
@@ -1190,6 +1195,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       yPointOfClosestApproachToPV->Fill(track.vy()-pv.position().y());
       zPointOfClosestApproachToPV->Fill(track.dz(pv.position()));
       DistanceOfClosestApproachToPV      -> Fill(track.dxy(pv.position()));
+      DeltaZToPV                         -> Fill(track.dz (pv.position()));
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
       yPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vy()-pv.position().y()));
@@ -1421,11 +1427,6 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #phi",1);
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #chi^{2}/ndf",2);
       
-      histname = "Chi2oNDFVsEta_" + histTag;
-      tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
-      tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
-      tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
-      
       histname = "Chi2ProbVsPhi_" + histTag;
       tkmes.Chi2ProbVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Tracks #phi"  ,1);
@@ -1440,6 +1441,22 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     
     // general properties
     ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
+
+
+    histname = "Chi2oNDFVsEta_" + histTag;
+    tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
+    tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
+
+    histname = "Chi2oNDFVsPt_" + histTag;
+    tkmes.Chi2oNDFVsPt   = ibooker.bookProfile(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsPt->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.Chi2oNDFVsPt->setAxisTitle("Track #chi^{2}/ndf",2);
+
+    histname = "Chi2oNDFVsNHits_" + histTag;
+    tkmes.Chi2oNDFVsNHits   = ibooker.bookProfile(histname, histname, 50, 0, 50, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsNHits->setAxisTitle("Track NHits", 1);
+    tkmes.Chi2oNDFVsNHits->setAxisTitle("Track #chi^{2}/ndf",2);
 
     histname = "TrackP_" + histTag;
     tkmes.TrackP = ibooker.book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
@@ -1761,6 +1778,10 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       double chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
       double chi2oNDF = track.normalizedChi2();
 
+      tkmes.Chi2oNDFVsEta->Fill(eta, chi2oNDF);
+      tkmes.Chi2oNDFVsPt->Fill(pt, chi2oNDF);
+      tkmes.Chi2oNDFVsNHits->Fill(nRecHits, chi2oNDF);
+
       if(doAllPlots_) {
 	
 	// general properties
@@ -1768,7 +1789,6 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 	  tkmes.Chi2oNDFVsTheta->Fill(theta, chi2oNDF);
 	}
 	tkmes.Chi2oNDFVsPhi->Fill(phi, chi2oNDF);
-	tkmes.Chi2oNDFVsEta->Fill(eta, chi2oNDF);
 	tkmes.Chi2ProbVsPhi->Fill(phi, chi2prob);
 	tkmes.Chi2ProbVsEta->Fill(eta, chi2prob);
       }

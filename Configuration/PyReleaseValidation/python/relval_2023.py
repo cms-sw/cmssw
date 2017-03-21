@@ -12,24 +12,39 @@ workflows = Matrix()
 
 #just define all of them
 
-numWFStart=20000
-numWFSkip=200
 #2023 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias)
-numWFIB = [20021.0,20024.0,20025.0,20026.0] #2023D1 scenario
-numWFIB.extend([20421.0,20424.0,20425.0,20426.0]) #2023D2
-numWFIB.extend([20821.0,20824.0,20825.0,20826.0]) #2023D3
-numWFIB.extend([21221.0,21224.0,21225.0,21226.0]) #2023D4
-numWFIB.extend([22424.0]) #2023D3Timing
+numWFIB = [20021.0,20034.0,20046.0,20053.0] #2023D7 scenario
+numWFIB.extend([20421.0,20434.0,20446.0,20453.0]) #2023D10
+numWFIB.extend([21221.0,21234.0,21246.0,21253.0]) #2023D4
+numWFIB.extend([23221.0,23234.0,23246.0,23253.0]) #2023D8
+numWFIB.extend([23621.0,23634.0,23646.0,23653.0]) #2023D9
+numWFIB.extend([24034.0])#2023D11 TTbar only 
 for i,key in enumerate(upgradeKeys[2023]):
-    numWF=numWFStart+i*numWFSkip
+    numWF=numWFAll[2023][i]
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
         for step in upgradeProperties[2023][key]['ScenToRun']:
             if 'Sim' in step:
+                if 'HLBeamSpotFull' in step and '14TeV' in frag:
+                    step = 'GenSimHLBeamSpotFull14'
                 stepList.append(k+'_'+step)
             else:
                 stepList.append(step+'_'+key)
         if numWF in numWFIB:
 	    workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
         numWF+=1
+
+# Tracking-specific special workflows
+def _trackingOnly(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFullGlobal' in step or 'HARVESTFullGlobal' in step:
+            s = s.replace('FullGlobal', 'Full_trackingOnly')
+        if 'ALCA' in s:
+            continue
+        #print step, s
+        res.append(s)
+    return res
+workflows[21234.1] = [ workflows[21234.0][0], _trackingOnly(workflows[21234.0][1]) ] # 2023D4

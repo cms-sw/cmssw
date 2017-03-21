@@ -180,7 +180,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
 
     // create new uGt Board
-    m_uGtBrd = new GlobalBoard();
+    m_uGtBrd = std::make_unique<GlobalBoard>();
     m_uGtBrd->setVerbosity(m_verbosity);
 
     // initialize cached IDs
@@ -232,9 +232,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 // destructor
 L1TGlobalProducer::~L1TGlobalProducer()
 {
-
-    delete m_uGtBrd;
-
 }
 
 // member functions
@@ -322,7 +319,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	gtParser.parseCondFormats(utml1GtMenu); 
         
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), data->numberChips(), 
+        m_l1GtMenu  =  std::make_unique<TriggerMenu>(gtParser.gtTriggerMenuName(), data->numberChips(), 
                         gtParser.vecMuonTemplate(),
                         gtParser.vecCaloTemplate(),
                         gtParser.vecEnergySumTemplate(),
@@ -333,16 +330,16 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                         gtParser.corEnergySumTemplate()) ;
 
  
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScaleDbKey(gtParser.gtScaleDbKey());
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScales(gtParser.gtScales());
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
+	m_l1GtMenu->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
+	m_l1GtMenu->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
+	m_l1GtMenu->setGtScaleDbKey(gtParser.gtScaleDbKey());
+	m_l1GtMenu->setGtScales(gtParser.gtScales());
+	m_l1GtMenu->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
 
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
-	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
+	m_l1GtMenu->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
+	m_l1GtMenu->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
 
-        (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+        m_l1GtMenu->buildGtConditionMap();
         
 	int printV = 2;
         if(m_printL1Menu) m_l1GtMenu->print(std::cout, printV);
@@ -400,7 +397,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
     else{
       // Set Prescale factors to initial dummy values
-      m_prescaleSet = 1;
+      m_prescaleSet = 0;
       m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
       m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
       m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
@@ -523,22 +520,18 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     }
     LogDebug("L1TGlobalProducer") << "HW BxCross " << bxCrossHw << std::endl;  
 
-
     // get the prescale factor from the configuration for now
-    // Prescale set indexed by zero internally, but externally indexed by 1
-    unsigned int pfAlgoSetIndex = m_prescaleSet-1;
+    // prescale set index counts from zero
+    unsigned int pfAlgoSetIndex = m_prescaleSet;
 
-    // Require that prescale set be positive
-    if( m_prescaleSet<=0 ) pfAlgoSetIndex = 0;
-
-    if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size()-1 ){
-      LogTrace("L1TGlobalProducer")
+    auto max = (*m_prescaleFactorsAlgoTrig).size()-1;
+    if (pfAlgoSetIndex > max) {
+      edm::LogWarning("L1TGlobalProducer")
 	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
-	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()
+	<< "\nNumber of prescale algo sets available: 0.." << max
 	<< "Setting former to latter."
 	<< std::endl;
-
-      pfAlgoSetIndex = (*m_prescaleFactorsAlgoTrig).size()-1;
+      pfAlgoSetIndex = max;
     }
 
     const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
@@ -587,7 +580,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 
 //  Run the GTL for this BX
-        m_uGtBrd->runGTL(iEvent, evSetup, m_l1GtMenu,
+        m_uGtBrd->runGTL(iEvent, evSetup, m_l1GtMenu.get(),
             m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
             m_numberPhysTriggers,
             m_nrL1Mu,

@@ -21,7 +21,7 @@ AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*>&
   theCSCStations.insert( theCSCStations.end(), cscStations.begin(), cscStations.end() );
 
   setSurface( computeSurface() );
-   
+  compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
       
 

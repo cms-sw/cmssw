@@ -91,7 +91,7 @@ from CondCore.CondDB.CondDB_cfi import *
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if os.environ["CMS_PATH"] != "":
   del process.es_prefer_GlobalTag
-  del process.SiStripPedestalsFakeESSource
+  del process.siStripPedestalsFakeESSource
   del process.siStripBadChannelFakeESSource
   del process.siStripBadFiberFakeESSource
   del process.DTFakeVDriftESProducer

@@ -28,7 +28,7 @@ RunMemTTErrorsDat::~RunMemTTErrorsDat()
 
 
 void RunMemTTErrorsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void RunMemTTErrorsDat::prepareWrite()
 
 
 void RunMemTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemTTErrorsDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -71,7 +71,7 @@ void RunMemTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunMemTTErrorsDat
 
 
 void RunMemTTErrorsDat::fetchData(map< EcalLogicID, RunMemTTErrorsDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

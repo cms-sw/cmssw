@@ -4,10 +4,10 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERecHitAuxSetter.h"
 
 #include "FWCore/Framework/interface/Run.h"
 
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 

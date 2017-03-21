@@ -10,15 +10,18 @@ readGeometryFromDB = False
 # We cannot read the geometry from the DB, since we have to inject out custom-made
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
-if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
-else:
+if readGeometryFromDB:
 # Global Tag and geometry via it
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+else:
+  process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+
+# Add our custom detector grouping to DDD
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII_D4.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseII_cff")
@@ -52,7 +55,7 @@ def customizeMessageLogger(process):
     process.MessageLogger.destinations.extend([destination])
     process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
     # 4. Define and extend the categories we would like to monitor
-    log_debug_categories = ['TrackingMaterialAnalyser']
+    log_debug_categories = ['TrackingMaterialAnalyser', 'MaterialAccountingGroup']
     process.MessageLogger.categories.extend(log_debug_categories)
 
     # 5. Extend the configuration of the configured destination so that it
@@ -67,9 +70,4 @@ def customizeMessageLogger(process):
 
 #process = customizeMessageLogger(process)
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted(process)
 

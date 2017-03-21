@@ -6,7 +6,7 @@
 
 void SiPixelPhase1Harvester::dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) {
   for (HistogramManager& histoman : histo)
-    histoman.executePerLumiHarvesting(iBooker, iGetter, eSetup);
+    histoman.executePerLumiHarvesting(iBooker, iGetter, lumiBlock, eSetup);
 };
 void SiPixelPhase1Harvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   for (HistogramManager& histoman : histo)

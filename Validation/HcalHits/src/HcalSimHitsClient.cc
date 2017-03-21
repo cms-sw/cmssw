@@ -10,7 +10,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet& iConfig) {
 

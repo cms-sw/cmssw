@@ -7,28 +7,48 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     InnerPixelDigiSource   = cms.InputTag("simSiPixelDigis","Pixel"),
     OuterTrackerDigiSource = cms.InputTag("mix", "Tracker"),
     GeometryType = cms.string('idealForDigi'),
-    NumbeOfDigisH = cms.PSet(
+    NumberOfDigisPerDetH = cms.PSet(
            Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
            xmax = cms.double(200.5)
     ),
+    DigiOccupancySH = cms.PSet(
+           Nbins = cms.int32(51),
+           xmin = cms.double(-0.001),
+           xmax = cms.double(0.05)
+    ),
+    DigiOccupancyPH = cms.PSet(
+           Nbins = cms.int32(51),
+           xmin = cms.double(-0.0001),
+           xmax = cms.double(0.005)
+    ),
     PositionOfDigisH = cms.PSet(
-           Nxbins = cms.int32(260),
+           Nxbins = cms.int32(1016),
            xmin   = cms.double(0.5),
-           xmax   = cms.double(260.5),
-           Nybins = cms.int32(2),
+           xmax   = cms.double(1016.5),
+           Nybins = cms.int32(10),
            ymin   = cms.double(0.5),
-           ymax   = cms.double(2.5)
+           ymax   = cms.double(10.5)
     ),
     DigiChargeH = cms.PSet(
       Nbins = cms.int32(261),
       xmin   = cms.double(0.5),
       xmax   = cms.double(260.5)
     ), 
-    NumberOfClustersH = cms.PSet(
-           Nbins = cms.int32(51),
+    TotalNumberOfDigisPerLayerH = cms.PSet(
+      Nbins = cms.int32(100),
+      xmin   = cms.double(0.0),
+      xmax   = cms.double(50000.0)
+    ),
+    NumberOfHitDetsPerLayerH = cms.PSet(
+      Nbins = cms.int32(2000),
+      xmin   = cms.double(-0.5),
+      xmax   = cms.double(2000.5)
+    ),
+    NumberOfClustersPerDetH = cms.PSet(
+           Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
-           xmax = cms.double(50.5)
+           xmax = cms.double(200.5)
     ),
     ClusterWidthH = cms.PSet(
            Nbins = cms.int32(16),
@@ -36,29 +56,29 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
            xmax   = cms.double(15.5),
     ),
     ClusterChargeH = cms.PSet(
-      Nbins = cms.int32(1024),
-      xmin   = cms.double(0.5),
-      xmax   = cms.double(1024.5)
+        Nbins = cms.int32(1024),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(1024.5)
     ),  
     ClusterPositionH = cms.PSet(
-      Nbins = cms.int32(1016),
-      xmin   = cms.double(0.5),
-      xmax   = cms.double(1016.5)
+        Nbins = cms.int32(1016),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(1016.5)
     ),  
     XYPositionMapH = cms.PSet(
-           Nxbins = cms.int32(1200),
-           xmin   = cms.double(-1200.),
-           xmax   = cms.double(1200.),
-           Nybins = cms.int32(1200),
-           ymin   = cms.double(-1200.),
-           ymax   = cms.double(1200.)
+        Nxbins = cms.int32(1250),
+        xmin   = cms.double(-1250.),
+        xmax   = cms.double(1250.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(-1250.),
+        ymax   = cms.double(1250.)
     ),
     RZPositionMapH = cms.PSet(
-           Nxbins = cms.int32(3000),
-           xmin   = cms.double(-3000.),
-           xmax   = cms.double(3000.),
-           Nybins = cms.int32(600),
-           ymin   = cms.double(0.),
-           ymax   = cms.double(1200.)
+        Nxbins = cms.int32(3000),
+        xmin   = cms.double(-3000.),
+        xmax   = cms.double(3000.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(1250.)
     )
 )

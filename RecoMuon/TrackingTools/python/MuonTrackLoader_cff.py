@@ -84,6 +84,11 @@ MuonTrackLoaderForCosmic = cms.PSet(
     )
 )
 
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+for _loader in [MuonTrackLoaderForSTA, MuonTrackLoaderForGLB, MuonTrackLoaderForL2, MuonTrackLoaderForL3, MuonTrackLoaderForCosmic]:
+    phase1Pixel.toModify(_loader, TrackLoaderParameters = dict(TTRHBuilder = 'WithTrackAngle')) # FIXME
+
 # This customization will be removed once we get the templates for
 # phase2 pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

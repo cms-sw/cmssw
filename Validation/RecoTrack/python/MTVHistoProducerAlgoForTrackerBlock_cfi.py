@@ -57,6 +57,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxDz = cms.double(30),
     nintDz = cms.int32(60),
     #
+    dxyDzZoom = cms.double(25),
+    #
     # dE/dx
     minDeDx = cms.double(0.),
     maxDeDx = cms.double(10.),
@@ -95,6 +97,11 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minPVz = cms.double(-60),
     maxPVz = cms.double(60),
     nintPVz = cms.int32(120),
+
+    # MVA distributions
+    minMVA = cms.double(-1),
+    maxMVA = cms.double(1),
+    nintMVA = cms.int32(100),
 
     #
     #parameters for resolution plots

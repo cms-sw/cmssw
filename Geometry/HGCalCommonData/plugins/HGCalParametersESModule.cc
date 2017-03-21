@@ -32,7 +32,7 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namec_ = iC.getUntrackedParameter<std::string>("NameC");
   edm::LogInfo("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":"
 			    << namew_ << ":" << namec_;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" 
 	    << namec_ << std::endl;
 #endif

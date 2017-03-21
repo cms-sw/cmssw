@@ -18,6 +18,7 @@
 
 
 // system include files
+#include <cmath>
 #include <utility>
 #include <algorithm>
 
@@ -43,7 +44,7 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
-// #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -61,15 +62,6 @@
 
 // Some helper functions
 namespace {
-    // A stub for the "HcalSiPMnonlinearity" class. To be removed
-    // after integration of PR #16070.
-    class HcalSiPMnonlinearity
-    {
-    public:
-        inline explicit HcalSiPMnonlinearity(const std::vector<float>&) {}
-        inline double getRecoCorrectionFactor(double) const {return 1.0;}
-    };
-
     // Class for making SiPM/QIE11 look like HPD/QIE8. HPD/QIE8
     // needs only pedestal and gain to convert charge into energy.
     // Due to nonlinearities, response of SiPM/QIE11 is substantially
@@ -142,6 +134,56 @@ namespace {
     float getTDCTimeFromSample(const HcalQIESample&)
     {
         return HcalSpecialTimes::UNKNOWN_T_NOTDC;
+    }
+
+    float getDifferentialChargeGain(const HcalQIECoder& coder,
+                                    const HcalQIEShape& shape,
+                                    const unsigned adc,
+                                    const unsigned capid,
+                                    const bool isQIE11)
+    {
+        // We have 5-bit ADC mantissa in QIE8 and 6-bit in QIE11
+        static const unsigned mantissaMaskQIE8 = 0x1f;
+        static const unsigned mantissaMaskQIE11 = 0x3f;
+
+        const float q = coder.charge(shape, adc, capid);
+        const unsigned mantissaMask = isQIE11 ? mantissaMaskQIE11 : mantissaMaskQIE8;
+        const unsigned mantissa = adc & mantissaMask;
+
+        // First, check if we are in the two lowest or two highest ADC
+        // values for this range. Assume that they have the lowest and
+        // the highest gain in the range, respectively.
+        if (mantissa == 0U || mantissa == mantissaMask - 1U)
+            return coder.charge(shape, adc+1U, capid) - q;
+        else if (mantissa == 1U || mantissa == mantissaMask)
+            return q - coder.charge(shape, adc-1U, capid);
+        else
+        {
+            const float qup = coder.charge(shape, adc+1U, capid);
+            const float qdown = coder.charge(shape, adc-1U, capid);
+            const float upGain = qup - q;
+            const float downGain = q - qdown;
+            const float averageGain = (qup - qdown)/2.f;
+            if (std::abs(upGain - downGain) < 0.01f*averageGain)
+                return averageGain;
+            else
+            {
+                // We are in the gain transition region.
+                // Need to determine if we are in the lower
+                // gain ADC count or in the higher one.
+                // This can be done by figuring out if the
+                // "up" gain is more consistent then the
+                // "down" gain.
+                const float q2up = coder.charge(shape, adc+2U, capid);
+                const float q2down = coder.charge(shape, adc-2U, capid);
+                const float upGain2 = q2up - qup;
+                const float downGain2 = qdown - q2down;
+                if (std::abs(upGain2 - upGain) < std::abs(downGain2 - downGain))
+                    return upGain;
+                else
+                    return downGain;
+            }
+        }
     }
 
     // The first element of the pair indicates presence of optical
@@ -244,7 +286,8 @@ private:
     bool recoParamsFromDB_;
 
     // Parameters for turning status bit setters on/off
-    bool setNegativeFlags_;
+    bool setNegativeFlagsQIE8_;
+    bool setNegativeFlagsQIE11_;
     bool setNoiseFlagsQIE8_;
     bool setNoiseFlagsQIE11_;
     bool setPulseShapeFlagsQIE8_;
@@ -302,7 +345,8 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
-      setNegativeFlags_(conf.getParameter<bool>("setNegativeFlags")),
+      setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
+      setNegativeFlagsQIE11_(conf.getParameter<bool>("setNegativeFlagsQIE11")),
       setNoiseFlagsQIE8_(conf.getParameter<bool>("setNoiseFlagsQIE8")),
       setNoiseFlagsQIE11_(conf.getParameter<bool>("setNoiseFlagsQIE11")),
       setPulseShapeFlagsQIE8_(conf.getParameter<bool>("setPulseShapeFlagsQIE8")),
@@ -384,7 +428,15 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     {
         const DFrame& frame(*it);
         const HcalDetId cell(frame.id());
-        const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
+
+        // Protection against calibration channels which are not
+        // in the database but can still come in the QIE11DataFrame
+        // in the laser calibs, etc.
+        const HcalSubdetector subdet = cell.subdet();
+        if (!(subdet == HcalSubdetector::HcalBarrel ||
+              subdet == HcalSubdetector::HcalEndcap ||
+              subdet == HcalSubdetector::HcalOuter))
+            continue;
 
         // Check if the database tells us to drop this channel
         const HcalChannelStatus* mydigistatus = qual.getValues(cell.rawId());
@@ -401,12 +453,19 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             continue;
 
         // Basic ADC decoding tools
+        const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
         const HcalCalibrations& calib = cond.getHcalCalibrations(cell);
         const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
         const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
         const HcalCoderDb coder(*channelCoder, *shape);
         const RawChargeFromSample<DFrame> rcfs(cond, cell);
+
+        // needed for the dark current in the M2
+        const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
+        const double darkCurrent = siPMParameter.getDarkCurrent();
+        const double fcByPE = siPMParameter.getFCByPE();
+        const double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
 
         // ADC to fC conversion
         CaloSamples cs;
@@ -422,21 +481,28 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         for (int ts = 0; ts < maxTS; ++ts)
         {
             auto s(frame[ts]);
+            const uint8_t adc = s.adc();
             const int capid = s.capid();
             const double pedestal = calib.pedestal(capid);
-	    const double pedestalWidth = calibWidth.pedestal(capid);
+            const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
+            const double gainWidth = calibWidth.gain(capid);
             const double rawCharge = rcfs.getRawCharge(cs[ts], pedestal);
             const float t = getTDCTimeFromSample(s);
-            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, t);
+            const float dfc = getDifferentialChargeGain(*channelCoder, *shape, adc,
+                                                        capid, channelInfo->hasTimeInfo());
+            channelInfo->setSample(ts, adc, dfc, rawCharge,
+                                   pedestal, pedestalWidth,
+                                   gain, gainWidth, t);
             if (ts == soi)
                 soiCapid = capid;
         }
 
         // Fill the overall channel info items
-	const int pulseShapeID = param_ts->pulseShapeID();
+        const int pulseShapeID = param_ts->pulseShapeID();
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
         channelInfo->setChannelInfo(cell, pulseShapeID, maxTS, soi, soiCapid,
+                                    darkCurrent, fcByPE, lambda,
                                     hwerr.first, hwerr.second,
                                     taggedBadByDb || dropByZS);
 
@@ -463,11 +529,9 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
 }
 
 void HBHEPhase1Reconstructor::setCommonStatusBits(
-    const HBHEChannelInfo& info, const HcalCalibrations& calib,
-    HBHERecHit* rh)
+    const HBHEChannelInfo& /* info */, const HcalCalibrations& /* calib */,
+    HBHERecHit* /* rh */)
 {
-    if (setNegativeFlags_)
-        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(
@@ -480,6 +544,9 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(
 
     if (setPulseShapeFlagsQIE8_)
         hbhePulseShapeFlagSetterQIE8_->SetPulseShapeFlags(*rh, frame, coder, calib);
+
+    if (setNegativeFlagsQIE8_)
+        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(
@@ -492,6 +559,9 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(
 
     if (setPulseShapeFlagsQIE11_)
         hbhePulseShapeFlagSetterQIE11_->SetPulseShapeFlags(*rh, frame, coder, calib);
+
+    if (setNegativeFlagsQIE11_)
+        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::runHBHENegativeEFilter(const HBHEChannelInfo& info,
@@ -529,7 +599,7 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
     // Configure the negative energy filter
     ESHandle<HBHENegativeEFilter> negEHandle;
-    if (setNegativeFlags_)
+    if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_)
     {
         eventSetup.get<HBHENegativeEFilterRcd>().get(negEHandle);
         negEFilter_ = negEHandle.product();
@@ -667,7 +737,8 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
-    desc.add<bool>("setNegativeFlags");
+    desc.add<bool>("setNegativeFlagsQIE8");
+    desc.add<bool>("setNegativeFlagsQIE11");
     desc.add<bool>("setNoiseFlagsQIE8");
     desc.add<bool>("setNoiseFlagsQIE11");
     desc.add<bool>("setPulseShapeFlagsQIE8");

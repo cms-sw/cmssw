@@ -30,7 +30,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 
  protected:
 
-	virtual void analyze( const edm::Event&, const edm::EventSetup& );
+	virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
 	void bookRollME(DQMStore::IBooker &,RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string, MonitorElement*> &);

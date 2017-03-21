@@ -16,6 +16,8 @@
 
 #include "L1AnalysisL1UpgradeDataFormat.h"
 
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+
 namespace L1Analysis
 {
   class L1AnalysisL1Upgrade 

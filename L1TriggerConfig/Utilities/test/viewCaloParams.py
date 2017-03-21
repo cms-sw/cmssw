@@ -6,23 +6,24 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(3))
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(285243))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-#process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_2_cfi")
+process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi")
 
-from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = cms.string('sqlite:l1config.db')
-
-process.l1conddb = cms.ESSource("PoolDBESSource",
-       CondDB,
-       toGet   = cms.VPSet(
-            cms.PSet(
-                 record = cms.string('L1TCaloParamsRcd'),
-                 tag = cms.string("L1TCaloParams_Stage2v0_hlt")
-            )
-       )
-)
+#from CondCore.CondDB.CondDB_cfi import CondDB
+##CondDB.connect = cms.string('sqlite:l1config.db')
+#CondDB.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#
+#process.l1conddb = cms.ESSource("PoolDBESSource",
+#       CondDB,
+#       toGet   = cms.VPSet(
+#            cms.PSet(
+#                 record = cms.string('L1TCaloStage2ParamsRcd'),
+#                 tag = cms.string("L1TCaloParams_Stage2v0_hlt")
+#            )
+#       )
+#)
 
 process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer", printEgIsoLUT = cms.untracked.bool(False) )
 

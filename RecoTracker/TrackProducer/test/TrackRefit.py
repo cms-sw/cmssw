@@ -24,10 +24,26 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_GRun', '')
 # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_GRun', '')
 
 
+
+
 ### Track refitter specific stuff
-process.load("RecoTracker.TrackProducer.TrackRefitter_cfi")
-process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.Fitter = 'FlexibleKFFittingSmoother'
+import RecoTracker.TrackProducer.TrackRefitter_cfi
+import CommonTools.RecoAlgos.recoTrackRefSelector_cfi
+process.mytkselector = CommonTools.RecoAlgos.recoTrackRefSelector_cfi.recoTrackRefSelector.clone()
+process.mytkselector.quality = ['highPurity']
+process.mytkselector.min3DLayer = 2
+process.mytkselector.ptMin = 0.5
+process.mytkselector.tip = 1.0
+process.myRefittedTracks = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+process.myRefittedTracks.src= 'mytkselector'
+process.myRefittedTracks.NavigationSchool = ''
+process.myRefittedTracks.Fitter = 'FlexibleKFFittingSmoother'
+
+
+### and an analyzer
+process.trajCout = cms.EDAnalyzer('TrajectoryAnalyzer',
+   trajectoryInput=cms.InputTag('myRefittedTracks')
+)
 
 process.source = cms.Source ("PoolSource",
                              fileNames=cms.untracked.vstring('file:pickevents_1.root',
@@ -35,7 +51,7 @@ process.source = cms.Source ("PoolSource",
                              skipEvents=cms.untracked.uint32(0)
                              )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.Path = cms.Path(process.TrackRefitter)
+process.Path = cms.Path(process.mytkselector+process.myRefittedTracks+process.trajCout)
 

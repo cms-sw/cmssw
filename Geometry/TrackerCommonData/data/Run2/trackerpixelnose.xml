@@ -37,7 +37,7 @@
   </LogicalPart>
   <LogicalPart name="PIXNoseLayer1" category="unspecified">
    <rSolid name="trackerpixelnose:PIXNoseLayer1"/>
-   <rMaterial name="materials:T_G10"/>
+   <rMaterial name="trackermaterial:T_G10"/>
   </LogicalPart>
   <LogicalPart name="PIXNoseLayer2" category="unspecified">
    <rSolid name="trackerpixelnose:PIXNoseLayer2"/>
@@ -49,7 +49,7 @@
   </LogicalPart>
   <LogicalPart name="PIXNoseLayer4" category="unspecified">
    <rSolid name="trackerpixelnose:PIXNoseLayer4"/>
-   <rMaterial name="materials:Tpatch_PN"/>
+   <rMaterial name="trackermaterial:Tpatch_PN"/>
   </LogicalPart>
  </LogicalPartSection>
  <PosPartSection label="trackerpixelnose.xml">

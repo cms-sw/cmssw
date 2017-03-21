@@ -14,6 +14,7 @@
 
 //#include "PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -89,7 +90,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   // Be careful, this parameter is also used in SiPixelDet.cc to
   // calculate the noise in adc counts from noise in electrons.
   // Both defaults should be the same.
-  theElectronPerADC(conf_common.getParameter<double>("ElectronPerAdc")),
+  theElectronPerADC(conf_specific.getParameter<double>("ElectronPerAdc")),
 
   // ADC saturation value, 255(8bit adc.
   theAdcFullScale(conf_specific.getParameter<int>("AdcFullScale")),
@@ -110,6 +111,10 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   // Add threshold gaussian smearing:
   theThresholdSmearing_Endcap(conf_specific.getParameter<double>("ThresholdSmearing_Endcap")),
   theThresholdSmearing_Barrel(conf_specific.getParameter<double>("ThresholdSmearing_Barrel")),
+  
+  // Add HIP Threshold in electron units. 
+  theHIPThresholdInE_Endcap(conf_specific.getParameter<double>("HIPThresholdInElectrons_Endcap")),
+  theHIPThresholdInE_Barrel(conf_specific.getParameter<double>("HIPThresholdInElectrons_Barrel")),
 
   // theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofLowerCut(conf_specific.getParameter<double>("TofLowerCut")),
@@ -579,7 +584,8 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   // Fill the global map with all hit pixels from this event
   for (auto const & hit_s : hit_signal) {
     int chan =  hit_s.first;
-    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( hit_s.second, &hit, hitIndex, tofBin, hit_s.second) : DigitizerUtility::Amplitude( hit_s.second, hit_s.second) ) ;
+    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( hit_s.second, &hit, hit_s.second, hitIndex, tofBin) 
+                                          : DigitizerUtility::Amplitude( hit_s.second, nullptr, hit_s.second) ) ;
   }
 }
 // ======================================================================
@@ -619,22 +625,23 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 	std::pair<int,int> XtalkPrev = std::pair<int,int>(hitChan.first-1, hitChan.second);
 	int chanXtalkPrev = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
 	  : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
-	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, -1.0)));
+	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
       }
       if (hitChan.first < (numRows-1)) {
 	std::pair<int,int> XtalkNext = std::pair<int,int>(hitChan.first+1, hitChan.second);
         int chanXtalkNext = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
 	  : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
-	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, -1.0)));
+	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
       }
     }
     for (auto const & l : signalNew) {
       int chan = l.first;
       auto iter = theSignal.find(chan);
-      if (iter != theSignal.end())
+      if (iter != theSignal.end()) {
 	theSignal[chan] += l.second.ampl();
-      else 
-        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(),-1.0)));
+      }  else {
+        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0)));
+      }
     } 
   } 
   if (!addNoisyPixels)  // Option to skip noise in non-hit pixels
@@ -677,7 +684,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 
     if (theSignal[chan] == 0) {
       int noise = int((*mapI).second);
-      theSignal[chan] = DigitizerUtility::Amplitude (noise, -1.);
+      theSignal[chan] = DigitizerUtility::Amplitude (noise, nullptr, -1.);
     }
   }
 }
@@ -699,7 +706,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
 
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
-  if (Subid == PixelSubdetector::PixelBarrel) { // barrel layers
+  if (Subid == PixelSubdetector::PixelBarrel || Subid == StripSubdetector::TOB) { // barrel layers
     unsigned int layerIndex = tTopo->pxbLayer(detID);
     if (layerIndex-1 < eff.barrel_efficiencies.size()) subdetEfficiency = eff.barrel_efficiencies[layerIndex-1];
   } else {                // forward disks
@@ -754,7 +761,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
       alpha2_Barrel = 0.0;
     }
     
-    if (Sub_detid == PixelSubdetector::PixelBarrel) { // barrel layers
+    if (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == StripSubdetector::TOB) { // barrel layers
       dir_x = -( tanLorentzAnglePerTesla_Barrel * Bfield.y() + alpha2_Barrel* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_Barrel * Bfield.x() - alpha2_Barrel* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_Barrel* Bfield.z()*Bfield.z() );
@@ -904,25 +911,26 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   auto it = _signal.find(detID);
   if (it == _signal.end()) return;
 
-  const signal_map_type& theSignal = _signal[detID]; // ** please check detID exists!!!
+  const signal_map_type& theSignal = _signal[detID];
 
 
   unsigned int Sub_detid = DetId(detID).subdetId();
 
   float theThresholdInE = 0.;
-
+  float theHIPThresholdInE = 0.;
   // Define Threshold
-  if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
+  if (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == StripSubdetector::TOB) { // Barrel modules
     if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
     else theThresholdInE = theThresholdInE_Barrel; // no smearing
+    theHIPThresholdInE = theHIPThresholdInE_Barrel;
   } else { // Forward disks modules
     if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
     else theThresholdInE = theThresholdInE_Endcap; // no smearing
+    theHIPThresholdInE = theHIPThresholdInE_Endcap;
   }
 
-
   if (addNoise) add_noise(pixdet, theThresholdInE/theNoiseInElectrons);  // generate noise
-
+  
   // Do only if needed
   if (AddPixelInefficiency && theSignal.size() > 0) {
     if (use_ineff_from_db_) 
@@ -937,27 +945,22 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
       module_killing_conf(detID);
   }
 
-  // DDigitize if the signal is greater than threshold
+  // Digitize if the signal is greater than threshold
   for (auto const & s : theSignal) {
-    DigitizerUtility::Amplitude sig_data = s.second;  
+    //    DigitizerUtility::Amplitude sig_data = s.second;  
+    const DigitizerUtility::Amplitude& sig_data = s.second;
     float signalInElectrons  = sig_data.ampl();
     int adc;
     if (signalInElectrons >= theThresholdInE) { // check threshold
-
       if (doDigitalReadout) adc = theAdcFullScale;
       else adc = std::min( int(signalInElectrons / theElectronPerADC), theAdcFullScale );
-
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
-      info.ot_bit      = ( int(signalInElectrons / theElectronPerADC) > theAdcFullScale ? true : false);
-      if (makeDigiSimLinks_ && sig_data.hitInfo() != 0) {
-	info.hit_counter = sig_data.hitIndex();
-	info.tof_bin     = sig_data.tofBin();
-	info.event_id    = sig_data.eventId();
-	for (unsigned int j = 0; j != sig_data.trackIds().size(); ++j) {
-	  unsigned int tkid = sig_data.trackIds()[j];
-	  float  charge_frac = sig_data.individualampl()[j]/adc;
-	  info.track_map.insert({tkid, charge_frac});
+      info.ot_bit      = ( signalInElectrons  > theHIPThresholdInE ? true : false);
+      if (makeDigiSimLinks_ ) {
+	for (auto const & l : sig_data.simInfoList()) {
+	  float  charge_frac = l.first/signalInElectrons;
+          if (l.first > -5.0) info.simInfoList.push_back({charge_frac, l.second.get()});
 	}
       }
       digi_map.insert({s.first, info});

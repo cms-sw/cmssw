@@ -8,6 +8,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -31,7 +31,8 @@
   <class name="edm::Wrapper<l1t::JetVectorRef>"/>
 
 
-  <class name="l1t::EGamma" ClassVersion="13">
+  <class name="l1t::EGamma" ClassVersion="14">
+   <version ClassVersion="14" checksum="1235149790"/>
    <version ClassVersion="13" checksum="2044674704"/>
    <version ClassVersion="12" checksum="1332125006"/>
    <version ClassVersion="11" checksum="2788532966"/>
@@ -152,6 +153,14 @@
   <class name="edm::Wrapper<std::vector<l1extra::L1EtMissParticle> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1ParticleMap> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1HFRings> >"/>
+
+  <class name="HOTPDigiTwinMux" ClassVersion="14">
+    <version ClassVersion="14" checksum="66417560"/>
+  </class>
+  <class name="std::vector<HOTPDigiTwinMux>"/>
+  <class name="edm::SortedCollection<HOTPDigiTwinMux,edm::StrictWeakOrdering<HOTPDigiTwinMux> >"/>
+  <class name="edm::StrictWeakOrdering<HOTPDigiTwinMux>"/>
+  <class name="edm::Wrapper<edm::SortedCollection<HOTPDigiTwinMux,edm::StrictWeakOrdering<HOTPDigiTwinMux> > >" splitLevel="0"/>
 
   <class name="edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>

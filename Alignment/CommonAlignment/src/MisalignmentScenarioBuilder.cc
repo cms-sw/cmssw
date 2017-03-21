@@ -19,6 +19,14 @@
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 
+
+//______________________________________________________________________________
+MisalignmentScenarioBuilder::MisalignmentScenarioBuilder(AlignableObjectId::Geometry geometry) :
+  alignableObjectId_(geometry)
+{
+}
+
+
 //__________________________________________________________________________________________________
 // Call for each alignable the more general version with its appropriate level name. 
 void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet, 
@@ -29,7 +37,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
   typedef std::map<std::string, std::vector<Alignable*> > AlignablesMap;
   AlignablesMap alisMap;
   for (std::vector<Alignable*>::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
-    const std::string &levelName = AlignableObjectId::idToString((*iA)->alignableObjectId());
+    const std::string &levelName = alignableObjectId_.idToString((*iA)->alignableObjectId());
     alisMap[levelName].push_back(*iA); // either first entry of new level or add to an old one
   }
 
@@ -189,7 +197,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
                                         << " - skipping PSet " << (*it) 
 					<< " not fitting into global " << globalName << std::endl;
 
-      } else if ( AlignableObjectId::stringToId( rootName ) == align::invalid ) {
+      } else if (alignableObjectId_.stringToId(rootName) == align::invalid) {
         // Parameter is not known!
         throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;
       } else {
@@ -366,19 +374,19 @@ bool MisalignmentScenarioBuilder::possiblyPartOf(const std::string & /*sub*/, co
 const std::string 
 MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) const
 {
+  std::string result{parameterSetName}; // Initialise to full string
 
-  std::string result = parameterSetName; // Initialise to full string
-  
   // Check if string ends with 's'
-  const int lastChar = parameterSetName.length()-1;
+  const auto lastChar = parameterSetName.length()-1;
   if ( parameterSetName[lastChar] == 's' ) {
     result =  parameterSetName.substr( 0, lastChar );
   } else {
-    // Otherwise, look for numbers (assumes names have no numbers inside...)
-    for ( unsigned int ichar = 0; ichar<parameterSetName.length(); ichar++ ) {
-      if ( isdigit(parameterSetName[ichar]) ) {
-        result = parameterSetName.substr( 0, ichar );
-        break; // Stop at first digit
+    // Otherwise, look for numbers at the end
+    // (assumes that numbers at the end are not part of the name)
+    for (auto ichar = lastChar; ichar != 0; --ichar) {
+      if (!isdigit(parameterSetName[ichar])) {
+        result = parameterSetName.substr(0, ichar + 1);
+        break; // Stop at first non-digit
       }
     }
   }
@@ -386,5 +394,4 @@ MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) co
   LogDebug("PrintParameters") << "Name was " << parameterSetName << ", root is " << result;
 
   return result;
-
 }

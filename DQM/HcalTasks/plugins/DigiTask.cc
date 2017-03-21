@@ -55,9 +55,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		vuTCA);
 	vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN+6,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	vFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN+6,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN+6,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 
 	//	initialize filters
@@ -72,132 +78,135 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			(*it)-FED_VME_MIN).rawId());
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
+    {
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
-			hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+			cspair.first, cspair.second, FIBER_uTCA_MIN1,
 			FIBERCH_MIN, false).rawId());
+    }
 
 	//	INITIALIZE FIRST
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cfC_SubdetPM.initialize(_name, "fC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQ_SubdetPM.initialize(_name, "SumQ", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQ_depth.initialize(_name, "SumQ", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
 	_cSumQvsLS_SubdetPM.initialize(_name, "SumQvsLS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
 	_cShapeCut_FED.initialize(_name, "Shape",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
 	_cTimingCut_SubdetPM.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cTimingCut_FEDVME.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cTimingCut_FEDuTCA.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cTimingCut_ElectronicsVME.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cTimingCut_ElectronicsuTCA.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cTimingCutvsLS_FED.initialize(_name, "TimingvsLS",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cTimingCut_depth.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 
 	//	Occupancy w/o a cut
 	_cOccupancy_FEDVME.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancy_FEDuTCA.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancy_ElectronicsVME.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancy_ElectronicsuTCA.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
 	_cOccupancy_depth.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	//	Occupancy w/ a cut
 	_cOccupancyCut_FEDVME.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyCut_FEDuTCA.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyCut_ElectronicsVME.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyCut_ElectronicsuTCA.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fElectronics,
 		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cDigiSize_FED.initialize(_name, "DigiSize",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
@@ -211,66 +220,66 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cQ2Q12CutvsLS_FEDHF.initialize(_name, "Q2Q12vsLS",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),0);
 		_cSumQvsBX_SubdetPM.initialize(_name, "SumQvsBX",
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
 		_cDigiSizevsLS_FED.initialize(_name, "DigiSizevsLS",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),0);
 		_cTimingCutvsiphi_SubdetPM.initialize(_name, "TimingCutvsiphi",
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 		_cTimingCutvsieta_Subdet.initialize(_name, "TimingCutvsieta",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 		_cOccupancyvsiphi_SubdetPM.initialize(_name, "Occupancyvsiphi",
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cOccupancyvsieta_Subdet.initialize(_name, "Occupancyvsieta",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cOccupancyCutvsiphi_SubdetPM.initialize(_name, "OccupancyCutvsiphi",
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cOccupancyCutvsieta_Subdet.initialize(_name, "OccupancyCutvsieta",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
 		_cOccupancyCutvsBX_Subdet.initialize(_name, "OccupancyCutvsBX",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
 //		_cOccupancyCutvsSlotvsLS_HFPM.initialize(_name, 
 //			"OccupancyCutvsSlotvsLS", hcaldqm::hashfunctions::fSubdetPM,
 //			new hcaldqm::quantity::LumiSection(_maxLS),
 //			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-//			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+//			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cOccupancyCutvsiphivsLS_SubdetPM.initialize(_name, 
 			"OccupancyCutvsiphivsLS", hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::FlagQuantity(_vflags),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
 		_cSummaryvsLS.initialize(_name, "SummaryvsLS",
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::FEDQuantity(vFEDs),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
 
 		_xUniHF.initialize(hcaldqm::hashfunctions::fFEDSlot);
 		_xUni.initialize(hcaldqm::hashfunctions::fFED);

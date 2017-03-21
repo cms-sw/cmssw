@@ -5,6 +5,7 @@
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
+import sys
 
 process = cms.Process("PROD")
 
@@ -21,6 +22,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Tracker': 'Tracker',
+                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
                  'PixBar':  'PixelBarrel',
                  'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
                  'PixFwdMinus': 'PixelForwardZminus',
@@ -31,7 +33,11 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'TIDF':        'TIDF',
                  'TEC':         'TEC',
                  'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
-                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead']}
+                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
+                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
+                 'Phase2OTBarrel': 'Phase2OTBarrel',
+                 'Phase2PixelEndcap': 'Phase2PixelEndcap',
+                 'Phase2OTForward': 'Phase2OTForward'}
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
@@ -61,24 +67,34 @@ if options.label not in _ALLOWED_LABELS:
     print
     raise RuntimeError("Unknown label")
 
-if options.label not in _LABELS2COMPS.keys():
-  print "Error, '%s' does not have a valid registered component" % options.label
-  raise RuntimeError("Unknown component")
-
 _components = _LABELS2COMPS[options.label]
 #
 #Geometry
 #
-if options.geom == 'phaseI':
+def _adaptToRun2(det):
+  if det == 'PixelForwardZminus':
+    det = det.replace('minus', 'Minus')
+  elif det == 'PixelForwardZplus':
+    det = det.replace('plus', 'Plus')
+  return det
+
+if options.geom == '2017' or options.geom == 'phaseI':
   process.load("Configuration.Geometry.GeometryExtended2017_cff")
-elif options.geom == '2017NewFPix':
-  process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
-#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-#process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-#process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+  if isinstance(_components, list):
+      for i in range(len(_components)):
+          _components[i] = _adaptToRun2(_components[i])
+  else:
+      _components = _adaptToRun2(_components)
 
+elif options.geom == 'phaseIID4':
+  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
+else:
+  print("Unknown geometry %s" % options.geom)
+  sys.exit(1)
+
+#
 #Magnetic Field
 #
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")

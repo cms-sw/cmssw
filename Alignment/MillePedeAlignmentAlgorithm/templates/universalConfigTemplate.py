@@ -47,6 +47,7 @@ setupCosmicsDecoMode  = False
 setupCosmicsZeroTesla = False
 setupPrimaryWidth     = -1.0
 setupJson             = "placeholder_json"
+setupRunStartGeometry = -1
 
 ################################################################################
 # Variables edited by MPS (mps_setup and mps_merge). Be careful.
@@ -130,25 +131,17 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 ## insert Pedesettings ##
 #########################
 
-# # typical pede settings are listed below;
+# # reasonable pede settings are already defined in
+# # 'confAliProducer.setConfiguration' above
 # # if you want obtain alignment errors, use "inversion 3 0.8" as
 # # process.AlignmentProducer.algoConfig.pedeSteerer.method and set
 # # process.AlignmentProducer.saveApeToDB = True
+# # a list of possible options is documented here:
+# # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
+# # you can change pede settings as follows:
 #
-# process.AlignmentProducer.algoConfig.pedeSteerer.method = "sparseMINRES-QLP 3  0.8"
-# process.AlignmentProducer.algoConfig.pedeSteerer.options = [
-#     "entries 50 10 2",
-#     "outlierdownweighting 3",
-#     "dwfractioncut 0.1",
-#     "compress",
-#     "threads 10",
-#     "matiter 1",
-#     "printcounts 2",
-#     "chisqcut  30.  6.",
-#     "bandwidth 6 1",
-#     "monitorresiduals",
-# ]
-# process.AlignmentProducer.algoConfig.minNumHits = 8
+# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
+# helper.set_pede_option(process, "entries 50 10 2")
 
 
 ################################################################################
@@ -174,4 +167,5 @@ else:
     import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.PedeSetup as pede
     pede.setup(process,
                binary_files = merge_binary_files,
-               tree_files = merge_tree_files)
+               tree_files = merge_tree_files,
+               run_start_geometry = setupRunStartGeometry)

@@ -1,96 +1,17 @@
 # "PIon" menu (placeholder)
 
-HLT_PAFullTracks_Multiplicity120_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity150_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity110_HighPt8_v*     #CMSHLT-1059
-HLT_PAFullTracks_Multiplicity110_HighPt16_v*    #CMSHLT-1059
-HLT_PAFullTracks_Multiplicity185_part1_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part2_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part3_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part4_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part5_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part6_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity220_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity250_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity280_v*             #CMSHLT-1000
-
-HLT_PAL1DoubleMu0_MGT1_v*                   #CMSHLT-1013
-HLT_PAL1DoubleMu0_HighQ_v*                  #CMSHLT-1013
-HLT_PAL1DoubleMu0_v*                        #CMSHLT-1013
-HLT_PAL1DoubleMu10_v*                       #CMSHLT-1013
-HLT_PAL1DoubleMuOpen_OS_v*                  #CMSHLT-1013
-HLT_PAL1DoubleMuOpen_SS_v*                  #CMSHLT-1013
-HLT_PAL1DoubleMuOpen_v*                     #CMSHLT-1013
-HLT_PAL2DoubleMu10_v*                       #CMSHLT-1013
-HLT_PAL2DoubleMuOpen_v*                     #CMSHLT-1013
-HLT_PAL3DoubleMu10_v*                       #CMSHLT-1013
-HLT_PAL3DoubleMuOpen_HIon_v*                #CMSHLT-1013
-HLT_PAL3DoubleMuOpen_v*                     #CMSHLT-1013
-HLT_PAL2Mu15_v*                             #CMSHLT-1013
-HLT_PAL2Mu12_v*                             #CMSHLT-1013
-HLT_PAL3Mu12_v*                             #CMSHLT-1013
-HLT_PAL3Mu15_v*                             #CMSHLT-1013
-HLT_PAL3Mu3_v*                              #CMSHLT-1013
-HLT_PAL3Mu5_v*                              #CMSHLT-1013
-HLT_PAL3Mu7_v*                              #CMSHLT-1013
-
-HLT_PAAK4CaloJet40_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet80_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta5p1v2                   #CMSHLT-1028
-HLT_PAAK4PFJet60_Eta5p1_v*                  #CMSHLT-1028
-HLT_PAAK4PFJet80_Eta5p1_v*                  #CMSHLT-1028
-HLT_PAAK4PFJet60_Eta1p9toEta5p1_v*          #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta1p9toEta5p1_v*          #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta2p9toEta5p1_v*          #CMSHLT-1028
-HLT_PADiAK4CaloJetAve40_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4CaloJetAve60_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4CaloJetAve80_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4PFJetAve40_Eta5p1_v*             #CMSHLT-1028
-HLT_PADiAK4PFJetAve60_Eta5p1_v*             #CMSHLT-1028
-HLT_PADiAK4PFJetAve80_Eta5p1_v*             #CMSHLT-1028
-
-HLT_PASinglePhoton10_Eta3p1_v*              #CMSHLT-1028
-HLT_PASinglePhoton15_Eta3p1_v*              #CMSHLT-1028
-HLT_PASinglePhoton20_Eta3p1_v*              #CMSHLT-1028
-HLT_PASinglePhoton30_Eta3p1_v*              #CMSHLT-1028
-HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v*  #CMSHLT-1028
-
-HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu3_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v*        #CMSHLT-1028
-HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v*      #CMSHLT-1028
-HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v*      #CMSHLT-1028
-HLT_PASinglePhoton15_Eta3p1_PAL3Mu3_v*      #CMSHLT-1028
-HLT_PASinglePhoton15_Eta3p1_PAL3Mu5_v*      #CMSHLT-1028
-HLT_PASinglePhoton20_Eta3p1_PAL3Mu3_v*      #CMSHLT-1028
-HLT_PASinglePhoton20_Eta3p1_PAL3Mu5_v*      #CMSHLT-1028
-
-HLT_PADmesonPPTrackingGlobal_Dpt5_v*        #CMSHLT-1030
-HLT_PADmesonPPTrackingGlobal_Dpt8_v*        #CMSHLT-1030
-HLT_PADmesonPPTrackingGlobal_Dpt15_v*       #CMSHLT-1030
-HLT_PADmesonPPTrackingGlobal_Dpt30_v*       #CMSHLT-1030
-HLT_PADmesonPPTrackingGlobal_Dpt50_v*       #CMSHLT-1030
-
+HLT_Random_v*
+HLT_ZeroBias_v*
 HLT_Physics_v*
 
 HLTriggerFirstPath
 HLTriggerFinalPath
+HLTAnalyzerEndpath
 
 PhysicsCommissioningOutput
-PhysicsPAMuonsOutput                # CMSHLT-1013
-PhysicsPAHighMultiplicity0Output    # CMSHLT-1000
-PhysicsPAHighMultiplicity1Output    # CMSHLT-1000
-PhysicsPAHighMultiplicity2Output    # CMSHLT-1000
-PhysicsPAJetsEGOutput               # CMSHLT-1028
-PhysicsPAMesonDOutput               # CMSHLT-1030
+
 DQMOutput
 
-######## paths that are different between PIon and online_pion ################################
+## only in 'online' version
+RatesMonitoring
 
-#HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
-RatesMonitoring						# only in 'online'

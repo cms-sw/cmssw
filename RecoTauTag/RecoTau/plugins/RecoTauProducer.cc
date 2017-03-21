@@ -166,7 +166,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
-    if(fabs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
+    if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
     reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
       throw cms::Exception("BadJetRegionRef") 

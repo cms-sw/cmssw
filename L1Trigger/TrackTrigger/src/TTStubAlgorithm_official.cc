@@ -86,14 +86,14 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   ///    in inner and outer stack member, in terms of outer member pitch
   ///    (in case they are the same, this is just a plain coordinate difference)
   double dispD = 2 * (mp1.x() - mp0.x()) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-  int dispI = ((dispD>0)-(dispD<0))*floor(fabs(dispD)); /// In HALF-STRIP units!
+  int dispI = ((dispD>0)-(dispD<0))*floor(std::abs(dispD)); /// In HALF-STRIP units!
   /// 2) offset is the projection with a straight line of the innermost
   ///    hit towards the ourermost stack member, still in terms of outer member pitch
   ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
   ///    be consistent with the definition given above 
   
   double offsetD = 2 * delta * ( mp0.x() - (top0->nrows()/2 - 0.5) ) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-  int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
+  int offsetI = ((offsetD>0)-(offsetD<0))*floor(std::abs(offsetD)); /// In HALF-STRIP units!
 
   if (stDetId.subdetId()==StripSubdetector::TOB)
   {
@@ -120,7 +120,7 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   }
 
   /// Accept the stub if the post-offset correction displacement is smaller than the half-window
-  if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
+  if ( std::abs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
   {
     aConfirmation = true;
     aDisplacement = dispI; /// In HALF-STRIP units!

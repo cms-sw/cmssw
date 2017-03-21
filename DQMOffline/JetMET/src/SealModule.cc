@@ -1,5 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DQMOffline/JetMET/interface/DQMPFCandidateAnalyzer.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzer_HeavyIons.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzer_HeavyIons_matching.h"
@@ -13,6 +15,7 @@
 #include "DQMOffline/JetMET/interface/SUSYDQMAnalyzer.h"
 
 DEFINE_FWK_MODULE(JetAnalyzer);
+DEFINE_FWK_MODULE(DQMPFCandidateAnalyzer);
 DEFINE_FWK_MODULE(JetAnalyzer_HeavyIons);
 DEFINE_FWK_MODULE(JetAnalyzer_HeavyIons_matching);
 DEFINE_FWK_MODULE(METAnalyzer);

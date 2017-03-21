@@ -111,8 +111,7 @@ def produceXMLFromParameterFile(args):
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld(args):
-    """
-    Computes the difference between the old values, stored in the
+    """Computes the difference between the old values, stored in the
     central repository for the current release, e.g. from
     $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml,
     and the new values that we assume are present in the same file
@@ -126,10 +125,12 @@ def compareNewXMLWithOld(args):
     ComponentsName KindOfParameter OldValue NewValue Difference
     where the Difference is computed as (NewValue-OldValue)/OldValue.
 
-    Results are flushed at the terminal, nothing is saved.
+    Results are flushed at the terminal. The header file
+    ListGroupsMaterialDifference.h is automatically created.
+
     """
 
-    getTrackerRecoMaterial(args.xml, LOCAL_RM)
+    getTrackerRecoMaterialCopy(args.xml, LOCAL_RM)
     tracker_reco_material = LOCAL_RM
     tracker_reco_material_updated = os.path.join(os.environ['CMSSW_BASE'],
                                                  'src/SimTracker/TrackerMaterialAnalysis/test/trackerRecoMaterial.xml')
@@ -155,7 +156,7 @@ def compareNewXMLWithOld(args):
         ordered_keys.append(current_detector)
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
             updated_current_detector_node = root_updated.find(".//%sSpecPar[@name='%s']" % (TAG_PREFIX,current_detector))
-            if updated_current_detector_node:
+            if updated_current_detector_node is not None:
                 for child in updated_current_detector_node:
                     name = child.get('name', None)
                     if name and name == parameter.attrib['name']:
@@ -240,7 +241,7 @@ if __name__ == '__main__':
                         For phaseII use:
                         src/Geometry/TrackerRecoData/data/PhaseII/TiltedTracker/trackerRecoMaterial.xml
                         """,
-                        required=True)
+                        required=False)
     parser.add_argument('-p', '--produce', action='store_true',
                         default=False,
                         help='Produce a trackerRecoMaterial.xml starting from the paramters.xml file produced by the trackingMaterialProducer.')

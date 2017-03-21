@@ -51,16 +51,19 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
+                     4.53, #run1 data + miniAOD
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
-                     10021.0, #2017 tenmu
+                     10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
-                     20024.0, #2023D1 ttbar (Run2 calo)
-                     22424.0, #2023D3Timing ttbar (HGCal + timing)
+                     10824.0, #2018 ttbar
+                     20034.0, #2023D7 ttbar (Run2 calo)
+                     23234.0, #2023D8 ttbar (HGCal + timing)
+                     21234.0, #2024D4 ttbar (TDR baseline Tracker)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -72,6 +75,12 @@ if __name__ == '__main__':
     usage = 'usage: runTheMatrix.py --show -s '
 
     parser = optparse.OptionParser(usage)
+
+    parser.add_option('-b','--batchName',
+                      help='relval batch: suffix to be appended to Campaign name',
+                      dest='batchName',
+                      default=''
+                     )
 
     parser.add_option('-m','--memoryOffset',
                       help='memory of the wf for single core',

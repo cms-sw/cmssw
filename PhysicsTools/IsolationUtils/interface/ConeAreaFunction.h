@@ -44,15 +44,15 @@ class ConeAreaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametri
 
   void SetAcceptanceLimit(double etaMax);
 
-  virtual ROOT::Math::IGenFunction* Clone () const { return new ConeAreaFunction(*this); }
+  virtual ROOT::Math::IGenFunction* Clone () const override { return new ConeAreaFunction(*this); }
 
  protected:
-  void SetParameters(double* param);
-  virtual double DoEvalPar(double , const double *) const;
-  double DoEval(double x) const;
+  void SetParameters(double const* param) override;
+  virtual double DoEvalPar(double , const double *) const override;
+  double DoEval(double x) const override;
   double DoDerivative(double x) const;
   void DoParameterGradient(double x, double* paramGradient) const;
-  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const override;
 
 // !!! ONLY FOR TESTING
 mutable double theta0_; // polar angle of cone axis

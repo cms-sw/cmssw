@@ -22,16 +22,15 @@ HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 #endif
 }
 
-
 HcalDDDSimConstants::~HcalDDDSimConstants() { 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants::destructed!!!\n";
 #endif
 }
 
-HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside, 
-						 int depth, int etaR,
-						 int iphi) const {
+HcalCellType::HcalCell HcalDDDSimConstants::cell(const int idet, const int zside, 
+						 const int depth, const int etaR,
+						 const int iphi) const {
 
   double etaMn = hpar->etaMin[0];
   double etaMx = hpar->etaMax[0];
@@ -46,7 +45,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
        idet==static_cast<int>(HcalOuter)||idet==static_cast<int>(HcalForward))
       && etaR >=etaMn && etaR <= etaMx && depth > 0)    ok = true;
   if (idet == static_cast<int>(HcalEndcap) && depth>(int)(hpar->zHE.size()))ok=false;
-  else if (idet == static_cast<int>(HcalBarrel) && depth > 17)              ok=false;
+  else if (idet == static_cast<int>(HcalBarrel) && depth > maxLayerHB_+1)   ok=false;
   else if (idet == static_cast<int>(HcalOuter) && depth != 4)               ok=false;
   else if (idet == static_cast<int>(HcalForward) && depth > maxDepth[2])    ok=false;
   if (ok) {
@@ -65,7 +64,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
       fibin = hpar->phitable[etaR-hpar->etaMin[2]];
       if (unitPhi(fibin) > 2) fioff = hpar->phioff[4];
     }
-    phi  = fioff + (iphi - 0.5)*fibin;
+    phi  =-fioff + (iphi - 0.5)*fibin;
     dphi = 0.5*fibin;
     if (idet == static_cast<int>(HcalForward)) {
       int ir = nR + hpar->etaMin[2] - etaR - 1;
@@ -121,6 +120,26 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
   return tmp;
 }
 
+int HcalDDDSimConstants::findDepth(const int det, const int eta, 
+				   const int phi, const int zside,
+				   const int lay) const {
+
+  int depth = (ldmap_.isValid(det,phi,zside)) ? ldmap_.getDepth(det,eta,phi,zside,lay) : -1;
+  return depth;
+}
+
+unsigned int HcalDDDSimConstants::findLayer(const int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const {
+  
+  unsigned int id = layerGroup.size();
+  for (unsigned int i = 0; i < layerGroup.size(); i++) {
+    if (layer == (int)(layerGroup[i].layer)) {
+      id = i;
+      break;
+    }
+  }
+  return id;
+}
+
 std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const int type) const {
 
   std::vector<std::pair<double,double> > gcons;
@@ -136,8 +155,57 @@ std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const i
   return gcons;
 }
 
+int HcalDDDSimConstants::getDepthEta16(const int det, const int phi, 
+				       const int zside) const {
 
-std::pair<int,double> HcalDDDSimConstants::getDetEta(double eta, int depth) {
+  int depth = ldmap_.getDepth16(det,phi,zside);
+  if (depth < 0) depth = (det == 2) ? depthEta16[1] : depthEta16[0];
+#ifdef EDM_ML_DEBUG
+  std::cout << "getDepthEta16: " << det << ":" << depth << std::endl;
+#endif
+  return depth;
+}
+
+int HcalDDDSimConstants::getDepthEta16M(const int det) const {
+  int depth = (det == 2) ? depthEta16[1] : depthEta16[0];
+  std::vector<int> phis;
+  int detsp = ldmap_.validDet(phis);
+  if (detsp == det) {
+    int zside = (phis[0] > 0) ? 1 : -1;
+    int iphi  = (phis[0] > 0) ? phis[0] : -phis[0];
+    int depthsp = ldmap_.getDepth16(det,iphi,zside);
+    if (det == 1 && depthsp > depth) depth = depthsp;
+    if (det == 2 && depthsp < depth) depth = depthsp;
+  }
+  return depth;
+}
+
+int HcalDDDSimConstants::getDepthEta29(const int phi, const int zside, 
+				       const int i) const {
+
+  int depth = (i == 0) ? ldmap_.getMaxDepthLastHE(2,phi,zside) : -1;
+  if (depth < 0) depth = (i == 1) ? depthEta29[1] : depthEta29[0];
+  return depth;
+}
+
+int HcalDDDSimConstants::getDepthEta29M(const int i, 
+					const bool planOne) const {
+  int depth = (i == 1) ? depthEta29[1] : depthEta29[0];
+  if (i == 0 && planOne) {
+    std::vector<int> phis;
+    int detsp = ldmap_.validDet(phis);
+    if (detsp == 2) {
+      int zside = (phis[0] > 0) ? 1 : -1;
+      int iphi  = (phis[0] > 0) ? phis[0] : -phis[0];
+      int depthsp = ldmap_.getMaxDepthLastHE(2,iphi,zside);
+      if (depthsp > depth) depth = depthsp;
+    }
+  }
+  return depth;
+}
+
+std::pair<int,double> HcalDDDSimConstants::getDetEta(const double eta, 
+						     const int depth) {
 
   int    hsubdet(0), ieta(0);
   double etaR(0);
@@ -145,7 +213,8 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(double eta, int depth) {
   for (int i = 0; i < nEta; i++)
     if (heta > hpar->etaTable[i]) ieta = i + 1;
   if (heta <= hpar->etaRange[1]) {
-    if ((ieta <= hpar->etaMin[1] && depth==3) || ieta > hpar->etaMax[0]) {
+    if ((ieta == hpar->etaMin[1] && depth==depthEta16[1]) ||
+	(ieta > hpar->etaMax[0])) {
       hsubdet = static_cast<int>(HcalEndcap);
     } else {
       hsubdet = static_cast<int>(HcalBarrel);
@@ -160,7 +229,8 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(double eta, int depth) {
   return std::pair<int,double>(hsubdet,etaR);
 }
 
-int HcalDDDSimConstants::getEta(int det, int lay, double hetaR) {
+int HcalDDDSimConstants::getEta(const int det, const int lay, 
+				const double hetaR) {
 
   int    ieta(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
@@ -173,7 +243,7 @@ int HcalDDDSimConstants::getEta(int det, int lay, double hetaR) {
       if (hetaR > hpar->etaTable[i]) ieta = i + 1;
     if (det == static_cast<int>(HcalBarrel)) {
       if (ieta > hpar->etaMax[0])  ieta = hpar->etaMax[0];
-      if (lay == 18) {
+      if (lay == maxLayer_) {
 	if (hetaR > etaHO[1] && ieta == hpar->noff[2]) ieta++;
       }
     } else if (det == static_cast<int>(HcalEndcap)) {
@@ -183,7 +253,8 @@ int HcalDDDSimConstants::getEta(int det, int lay, double hetaR) {
   return ieta;
 }
 
-std::pair<int,int> HcalDDDSimConstants::getEtaDepth(int det, int etaR, int phi,
+std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR, 
+						    int phi, int zside, 
 						    int depth, int lay) {
 
   //Modify the depth index
@@ -192,22 +263,26 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(int det, int etaR, int phi,
     depth = 4;
   } else {
     if (lay >= 0) {
-      depth= layerGroup( etaR-1, lay-1 );
+      depth= layerGroup(det, etaR, phi, zside, lay-1);
       if (etaR == hpar->noff[0] && lay > 1) {
 	int   kphi   = phi + int((hpar->phioff[3]+0.1)/hpar->phibin[etaR-1]);
 	kphi         = (kphi-1)%4 + 1;
-	if (kphi == 2 || kphi == 3) depth = layerGroup( etaR-1, lay-2 );
+	if (kphi == 2 || kphi == 3)
+	  depth = layerGroup(det, etaR, phi, zside, lay-2);
       }
     } else if (det == static_cast<int>(HcalBarrel)) {
-      if (depth>maxDepth[0]) depth = maxDepth[0];
+      if (depth>getMaxDepth(det,etaR,phi,zside,false)) 
+	depth = getMaxDepth(det,etaR,phi,zside,false);
     }
-    if (etaR >= hpar->noff[1] && depth > depthEta29[0]) {
-      etaR -= depthEta29[1];
+    if (etaR >= hpar->noff[1] && depth > getDepthEta29(phi,zside,0)) {
+      etaR -= getDepthEta29(phi,zside,1);
     } else if (etaR == hpar->etaMin[1]) {
       if (det == static_cast<int>(HcalBarrel)) {
-	if (depth > depthEta16[0]) depth = depthEta16[0];
+	if (depth > getDepthEta16(det, phi, zside)) 
+	  depth = getDepthEta16(det, phi, zside);
       } else {
-	if (depth < depthEta16[1]) depth = depthEta16[1];
+	if (depth < getDepthEta16(det, phi, zside)) 
+	  depth = getDepthEta16(det, phi, zside);
       }
     }
   }
@@ -242,16 +317,109 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
   }
 }
 
-unsigned int HcalDDDSimConstants::findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const {
-  
-  unsigned int id = layerGroup.size();
-  for (unsigned int i = 0; i < layerGroup.size(); i++) {
-    if (layer == (int)(layerGroup[i].layer)) {
-      id = i;
-      break;
+double HcalDDDSimConstants::getLayer0Wt(const int det, const int phi, 
+					const int zside) const {
+
+  double wt = ldmap_.getLayer0Wt(det, phi, zside);
+  if (wt < 0) wt = (det == 2) ? hpar->Layer0Wt[1] :  hpar->Layer0Wt[0];
+  return wt;
+}
+
+int HcalDDDSimConstants::getLayerFront(const int det, const int eta, 
+				       const int phi, const int zside,
+				       const int depth) const {
+
+  int layer = ldmap_.getLayerFront(det, eta, phi, zside, depth);
+  if (layer < 0) {
+    if (det == 1 || det == 2) {
+      layer = 1;
+      for (int l=0; l<getLayerMax(eta,depth); ++l) {
+	if ((int)(layerGroup(eta-1,l)) == depth+1) {
+	  layer = l+1; break;
+	}
+      }
+    } else {
+      layer = (eta > hpar->noff[2]) ? maxLayerHB_+1 : maxLayer_;
     }
   }
-  return id;
+  return layer;
+}
+
+int HcalDDDSimConstants::getLayerBack(const int det, const int eta, 
+				      const int phi, const int zside,
+				      const int depth) const {
+
+  int layer = ldmap_.getLayerBack(det, eta, phi, zside, depth);
+  if (layer < 0) {
+    if (det == 1 || det ==2) {
+      layer = depths[depth-1][eta-1];
+    } else {
+      layer = maxLayer_;
+    }
+  }
+  return layer;
+}
+
+int HcalDDDSimConstants::getLayerMax(const int eta, const int depth) const {
+
+  int layermx =  ((eta < hpar->etaMin[1]) && depth-1 < maxDepth[0]) ? maxLayerHB_+1 : (int)layerGroupSize(eta-1);
+  return layermx;
+}
+
+int HcalDDDSimConstants::getMaxDepth(const int det, const int eta, 
+				     const int phi, const int zside,
+				     const bool partialDetOnly) const {
+
+  int dmax(-1);
+  if (partialDetOnly) {
+    if (ldmap_.isValid(det,phi,zside)) {
+      dmax = ldmap_.getDepths(eta).second;
+    }
+  } else if (det == 1 || det == 2) {
+    if (ldmap_.isValid(det,phi,zside))
+      dmax = ldmap_.getDepths(eta).second;
+    else if (det == 2)               
+      dmax = layerGroup(eta-1,maxLayer_);
+    else if (eta == hpar->etaMax[0]) 
+      dmax = getDepthEta16(det,phi,zside);
+    else                             
+      dmax = layerGroup(eta-1,maxLayerHB_);
+  } else if (det == 3) { // HF
+    dmax = maxHFDepth(zside*eta,phi);
+  } else if (det == 4) { // HO
+    dmax = maxDepth[3];
+  } else {
+    dmax = -1;
+  }
+  return dmax;
+}
+
+int HcalDDDSimConstants::getMinDepth(const int det, const int eta, 
+				     const int phi, const int zside,
+				     const bool partialDetOnly) const {
+
+  int lmin(-1);
+  if (partialDetOnly) {
+    if (ldmap_.isValid(det,phi,zside)) {
+      lmin = ldmap_.getDepths(eta).first;
+    }
+  } else if (det == 3) { // HF
+    lmin = 1;
+  } else if (det == 4) { // HO
+    lmin = maxDepth[3];
+  } else {
+    if (ldmap_.isValid(det,phi,zside)) {
+      lmin = ldmap_.getDepths(eta).first;
+    } else if (layerGroupSize(eta-1) > 0) {
+      lmin = (int)(layerGroup(eta-1, 0));
+      unsigned int type  = (det == 1) ? 0 : 1;
+      if (type == 1 && eta == hpar->etaMin[1]) 
+	lmin = getDepthEta16(det, phi, zside);
+    } else {
+      lmin = 1;
+    }
+  }
+  return lmin;
 }
 
 std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
@@ -263,8 +431,9 @@ std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
   }
 }
 
-std::pair<double,double> HcalDDDSimConstants::getPhiCons(int det, int ieta) {
-
+std::pair<double,double> HcalDDDSimConstants::getPhiCons(const int det, 
+							 const int ieta) const {
+  
   double fioff(0), fibin(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
     fioff   = hpar->phioff[2];
@@ -273,14 +442,37 @@ std::pair<double,double> HcalDDDSimConstants::getPhiCons(int det, int ieta) {
       fioff = hpar->phioff[4];
     }
   } else { // Barrel or Endcap
-    if (det == static_cast<int>(HcalBarrel)) {
-      fioff   = hpar->phioff[0];
-    } else {
+    if (det == static_cast<int>(HcalEndcap)) {
       fioff   = hpar->phioff[1];
+    } else {
+      fioff   = hpar->phioff[0];
     }
     fibin = hpar->phibin[ieta-1];
   }
   return std::pair<double,double>(fioff,fibin);
+}
+
+std::vector<std::pair<int,double> >
+HcalDDDSimConstants::getPhis(const int subdet, const int ieta) const {
+
+  std::vector<std::pair<int,double> > phis;
+  int ietaAbs = (ieta > 0) ? ieta : -ieta;
+  std::pair<double,double> ficons = getPhiCons(subdet, ietaAbs);
+  int nphi    = int((CLHEP::twopi+0.1*ficons.second)/ficons.second);
+  int units   = unitPhi(subdet, ietaAbs);
+  for (int ifi = 0; ifi < nphi; ++ifi) {
+    double phi =-ficons.first + (ifi+0.5)*ficons.second;
+    int iphi   = phiNumber(ifi+1,units);
+    phis.push_back(std::pair<int,double>(iphi,phi));
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "getPhis: subdet|ieta|iphi " << subdet << "|" << ieta 
+	    << " with " << phis.size() << " phi bins" << std::endl;
+  for (unsigned int k=0; k<phis.size(); ++k)
+    std::cout << "[" << k << "] iphi " << phis[k].first << " phi "
+	      << phis[k].second/CLHEP::deg << std::endl;
+#endif
+  return phis;
 }
 
 std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const{
@@ -323,34 +515,33 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const{
   return cellTypes;
 }
 
-std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector subdet,
-							     int ieta, int depthl) const {
+std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetector subdet, const int ieta, const int depthl) const {
 
   std::vector<HcalCellType> cellTypes;
   if (subdet == HcalForward) {
     if (dzVcal < 0) return cellTypes;
   }
 
-  int    dmin, dmax, indx, nz, nmod;
+  int    dmin, dmax, indx, nz;
   double hsize = 0;
   switch(subdet) {
   case HcalEndcap:
-    dmin = 1; dmax = 19; indx = 1; nz = nzHE; nmod = nmodHE;
+    dmin = 1; dmax = maxLayer_+1; indx = 1; nz = nzHE;
     break;
   case HcalForward:
-    dmin = 1; dmax = maxDepth[2]; indx = 2; nz = 2; nmod = 18; 
+    dmin = 1; dmax = (idHF2QIE.size() > 0) ? 2 : maxDepth[2]; indx = 2; nz = 2;
     break;
   case HcalOuter:
-    dmin = 4; dmax = 4; indx = 0; nz = nzHB; nmod = nmodHB;
+    dmin = 4; dmax = 4; indx = 0; nz = nzHB;
     break;
   default:
-    dmin = 1; dmax = 17; indx = 0; nz = nzHB; nmod = nmodHB;
+    dmin = 1; dmax = maxLayerHB_+1; indx = 0; nz = nzHB;
     break;
   }
   if (depthl > 0) dmin = dmax = depthl;
   int ietamin = (ieta>0) ? ieta : hpar->etaMin[indx];
   int ietamax = (ieta>0) ? ieta : hpar->etaMax[indx];
-  int phi = 1, zside  = 1;
+  int phi     = (indx == 2) ? 3 : 1;
 
   // Get the Cells 
   int subdet0 = static_cast<int>(subdet);
@@ -360,57 +551,70 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
     if (subdet == HcalForward) {
       if (depth%2 == 1) hsize = dzVcal;
       else              hsize = dzVcal-0.5*dlShort;
-    }
-    for (int eta=ietamin; eta<= ietamax; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi);
-      if (temp1.ok) {
-	int units = unitPhi (subdet0, eta);
-	HcalCellType temp2(subdet, eta, phi, depth, temp1,
-			   shift, gain, nz, nmod, hsize, units);
-	if (subdet == HcalOuter) {
-	  if (eta == hpar->noff[4]) {
-	    std::vector<int> missPlus, missMinus;
-	    int kk = 7;
-	    for (int miss=0; miss<hpar->noff[5]; miss++) {
-	      missPlus.push_back(hpar->noff[kk]);
-	      kk++;
-	    }
-	    for (int miss=0; miss<hpar->noff[6]; miss++) {
-	      missMinus.push_back(hpar->noff[kk]);
-	      kk++;
-	    }
-	    temp2.setMissingPhi(missPlus, missMinus);
-	  }
-	} else if (subdet == HcalForward) {
-	  if (idHF2QIE.size() > 0 && depth > 2) {
-	    int phiInc = 4/temp2.nPhiModule();
-	    int iphi   = 1;
-	    if (temp2.unitPhi() == 4) iphi = 3;
-	    std::vector<int> missPlus, missMinus;
-	    for (int k=0; k<temp2.nPhiBins(); ++k) {
-	      bool okp(true), okn(true);
-	      for (unsigned int l=0; l<idHF2QIE.size(); ++l) {
-		if ((eta == idHF2QIE[l].ietaAbs()) && 
-		    (iphi == idHF2QIE[l].iphi())) {
-		  if (idHF2QIE[l].zside() == 1) okp = false;
-		  else                          okn = false;
+    } 
+    for (int eta=ietamin; eta<=ietamax; eta++) {
+      for (int iz=0; iz<nz; ++iz) {
+	int zside = -2*iz + 1;
+	HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi);
+	if (temp1.ok) {
+	  std::vector<std::pair<int,double> > phis = getPhis(subdet0,eta);
+	  HcalCellType temp2(subdet, eta, zside, depth, temp1,
+			     shift, gain, hsize);
+	  double dphi, fioff;
+	  std::vector<int> phiMiss2;
+	  if      ((subdet == HcalBarrel) || (subdet == HcalOuter)) {
+	    fioff = hpar->phioff[0];
+	    dphi  = hpar->phibin[eta-1];
+	    if (subdet == HcalOuter) {
+	      if (eta == hpar->noff[4]) {
+		int kk = (iz == 0) ? 7 : (7+hpar->noff[5]);
+		for (int miss=0; miss<hpar->noff[5+iz]; miss++) {
+		  phiMiss2.push_back(hpar->noff[kk]);
+		  kk++;
 		}
 	      }
-	      if (okp) missPlus.push_back(iphi);
-	      if (okn) missMinus.push_back(iphi);
-	      iphi += phiInc;
 	    }
-	    temp2.setMissingPhi(missPlus, missMinus);
+	  } else if (subdet == HcalEndcap) {
+	    fioff = hpar->phioff[1];
+	    dphi  = hpar->phibin[eta-1];
+	  } else {
+	    fioff = hpar->phioff[2];
+	    dphi  = hpar->phitable[eta-hpar->etaMin[2]];
+	    if (unitPhi(dphi) > 2) fioff = hpar->phioff[4];
+	  }
+	  int unit  = unitPhi(dphi);
+	  temp2.setPhi(phis,phiMiss2,fioff,dphi,unit);
+	  cellTypes.push_back(temp2);
+	  // For HF look at extra cells
+	  if ((subdet == HcalForward) && (idHF2QIE.size() > 0)) {
+	    HcalCellType temp3(subdet, eta, zside+2, depth, temp1,
+			       shift, gain, hsize);
+	    std::vector<int> phiMiss3;
+	    for (unsigned int k=0; k<phis.size(); ++k) {
+	      bool ok(false);
+	      for (unsigned int l=0; l<idHF2QIE.size(); ++l) {
+		if ((eta*zside     == idHF2QIE[l].ieta()) && 
+		    (phis[k].first == idHF2QIE[l].iphi())) {
+		  ok = true;
+		  break;
+		}
+	      }
+	      if (!ok) phiMiss3.push_back(phis[k].first);
+	    }
+	    dphi  = hpar->phitable[eta-hpar->etaMin[2]];
+	    unit  = unitPhi(dphi);
+	    fioff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
+	    temp3.setPhi(phis,phiMiss2,fioff,dphi,unit);
+	    cellTypes.push_back(temp3);
 	  }
 	}
-	cellTypes.push_back(temp2);
       }
     }
   }
   return cellTypes;
 }
 
-int HcalDDDSimConstants::maxHFDepth(int eta, int iphi) const {
+int HcalDDDSimConstants::maxHFDepth(const int eta, const int iphi) const {
   int mxdepth = maxDepth[2];
   if (idHF2QIE.size() > 0) {
     bool ok(false);
@@ -424,15 +628,12 @@ int HcalDDDSimConstants::maxHFDepth(int eta, int iphi) const {
   return mxdepth;
 }
 
-unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
+unsigned int HcalDDDSimConstants::numberOfCells(const HcalSubdetector subdet) const{
 
   unsigned int num = 0;
   std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
   for (unsigned int i=0; i<cellTypes.size(); i++) {
-    int ncur = (cellTypes[i].nHalves() > 1) ? 2*cellTypes[i].nPhiBins() :
-      cellTypes[i].nPhiBins();
-    num += (unsigned int)(ncur);
-    num -= (unsigned int)(cellTypes[i].nPhiMissingBins());
+    num += (unsigned int)(cellTypes[i].nPhiBins());
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDSimConstants:numberOfCells " 
@@ -442,7 +643,7 @@ unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
   return num;
 }
 
-int HcalDDDSimConstants::phiNumber(int phi, int units) const {
+int HcalDDDSimConstants::phiNumber(const int phi, const int units) const {
 
   int iphi_skip = phi;
   if      (units==2) iphi_skip  = (phi-1)*2+1;
@@ -453,40 +654,44 @@ int HcalDDDSimConstants::phiNumber(int phi, int units) const {
 
 void HcalDDDSimConstants::printTiles() const {
  
+  std::vector<int> phis;
+  int detsp = ldmap_.validDet(phis);
+  int kphi  = (detsp > 0) ? phis[0] : 1;
+  int zside = (kphi > 0) ? 1 : -1;
+  int iphi  = (kphi > 0) ? kphi : -kphi;
   std::cout << "Tile Information for HB from " << hpar->etaMin[0] << " to " << hpar->etaMax[0] << "\n\n";
   for (int eta=hpar->etaMin[0]; eta<= hpar->etaMax[0]; eta++) {
-    int dmax = 1;
-    if (depths[0][eta-1] < 17) dmax = 2;
-    if (maxDepth[0] > 2) {
-      if (eta == hpar->etaMin[1]) dmax = depthEta16[0];
-      else                        dmax = maxDepth[0];
-    }
+    int dmax = getMaxDepth(1,eta,iphi,-zside,false);
     for (int depth=1; depth<=dmax; depth++) 
-      printTileHB(eta, depth);
+      printTileHB(eta, iphi, -zside, depth);
+    if (detsp == 1) {
+      int dmax = getMaxDepth(1,eta,iphi,zside,false);
+      for (int depth=1; depth<=dmax; depth++) 
+	printTileHB(eta, iphi, zside, depth);
+    }
   }
 
   std::cout << "\nTile Information for HE from " << hpar->etaMin[1] << " to " << hpar->etaMax[1] << "\n\n";
   for (int eta=hpar->etaMin[1]; eta<= hpar->etaMax[1]; eta++) {
-    int dmin=1, dmax=3;
-    if (eta == hpar->etaMin[1]) {
-      dmax = dmin = depthEta16[1];
-    } else if (depths[0][eta-1] > 18) {
-      dmax = 1;
-    } else if (depths[1][eta-1] > 18) {
-      dmax = 2;
-    }
+    int dmin = (eta == hpar->etaMin[1]) ? getDepthEta16(2,iphi,-zside) : 1;
+    int dmax = getMaxDepth(2,eta,iphi,-zside,false);
     for (int depth=dmin; depth<=dmax; depth++)
-      printTileHE(eta, depth);
+      printTileHE(eta, iphi, -zside, depth);
+    if (detsp == 2) {
+      int dmax = getMaxDepth(2,eta,iphi,zside,false);
+      for (int depth=1; depth<=dmax; depth++) 
+	printTileHE(eta, iphi, zside, depth);
+    }
   }
 }
 
-int HcalDDDSimConstants::unitPhi(int det, int etaR) const {
+int HcalDDDSimConstants::unitPhi(const int det, const int etaR) const {
 
   double dphi = (det == static_cast<int>(HcalForward)) ? hpar->phitable[etaR-hpar->etaMin[2]] : hpar->phibin[etaR-1];
   return unitPhi(dphi);
 }
 
-int HcalDDDSimConstants::unitPhi(double dphi) const {
+int HcalDDDSimConstants::unitPhi(const double dphi) const {
 
   const double fiveDegInRad = 2*M_PI/72;
   int units = int(dphi/fiveDegInRad+0.5);
@@ -526,7 +731,7 @@ void HcalDDDSimConstants::initialize( void ) {
     unsigned int imx = layerGroupSize( i );
     int laymax = (imx > 0) ? layerGroup( i, imx-1 ) : 0;
     if (i < hpar->etaMax[0]) {
-      int laymax0 = (imx > 16) ? layerGroup( i, 16 ) : laymax;
+      int laymax0 = (imx > 16) ? layerGroup(i, 16) : laymax;
       if (i+1 == hpar->etaMax[0] && laymax0 > 2) laymax0 = 2;
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
@@ -543,7 +748,7 @@ void HcalDDDSimConstants::initialize( void ) {
   int maxdepth = (maxDepth[1]>maxDepth[0]) ? maxDepth[1] : maxDepth[0];
   for (int i=0; i<maxdepth; ++i) {
     for (int k=0; k<nEta-1; ++k) {
-      int layermx = ((k+1 < hpar->etaMin[1]) && i < maxDepth[0]) ? 17 : (int)layerGroupSize( k );
+      int layermx = getLayerMax(k+1,i+1);
       int ll      = layermx;
       for (int l=layermx-1; l >= 0; --l) {
 	if ((int)layerGroup( k, l ) == i+1) {
@@ -560,17 +765,17 @@ void HcalDDDSimConstants::initialize( void ) {
 #endif
   }
 
-  nzHB   = hpar->modHB[0];
-  nmodHB = hpar->modHB[1];
-  nzHE   = hpar->modHE[0];
-  nmodHE = hpar->modHE[1];
+  nzHB   = hpar->modHB[1];
+  nmodHB = hpar->modHB[0];
+  nzHE   = hpar->modHE[1];
+  nmodHE = hpar->modHE[0];
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDSimConstants:: " << nzHB << ":" << nmodHB
 	    << " barrel and " << nzHE << ":" << nmodHE
 	    << " endcap half-sectors" << std::endl;
 #endif
 
-  if (hpar->rHB.size() > 17 && hpar->zHO.size() > 4) {
+  if (hpar->rHB.size() > maxLayerHB_+1 && hpar->zHO.size() > 4) {
     rminHO   = hpar->rHO[0];
     for (int k=0; k<4; ++k) etaHO[k] = hpar->rHO[k+1];
   } else {
@@ -629,9 +834,68 @@ void HcalDDDSimConstants::initialize( void ) {
   for (unsigned int k=0; k<idHF2QIE.size(); ++k) 
     std::cout << " [" << k << "] " << idHF2QIE[k] << std::endl;
 #endif
+
+  depthMaxSp_ = std::pair<int,int>(0,0);
+  int noffk(noffsize+5);
+  if ((int)(hpar->noff.size()) > (noffsize+5)) {
+    noffk += (2*hpar->noff[noffsize+4]);
+    if ((int)(hpar->noff.size()) > noffk+5) {
+      int dtype = hpar->noff[noffk+1];
+      int nphi  = hpar->noff[noffk+2];
+      int ndeps = hpar->noff[noffk+3];
+      int ndp16 = hpar->noff[noffk+4];
+      int ndp29 = hpar->noff[noffk+5];
+      double wt = 0.1*(hpar->noff[noffk+6]);
+      if (dtype == 1 || dtype == 2) {
+	if ((int)(hpar->noff.size()) >= (noffk+7+nphi+3*ndeps)) {
+	  std::vector<int> ifi, iet, ily, idp;
+	  for (int i=0; i<nphi; ++i) ifi.push_back(hpar->noff[noffk+7+i]);
+	  for (int i=0; i<ndeps;++i) {
+	    iet.push_back(hpar->noff[noffk+7+nphi+3*i]);
+	    ily.push_back(hpar->noff[noffk+7+nphi+3*i+1]);
+	    idp.push_back(hpar->noff[noffk+7+nphi+3*i+2]);
+	  }
+#ifdef EDM_ML_DEBUG
+	  std::cout << "Initialize HcalLayerDepthMap for Detector " << dtype
+		    << " etaMax " << hpar->etaMax[dtype] << " with " << nphi 
+		    << " sectors";
+	  for (int i=0; i<nphi; ++i) std::cout << ":" << ifi[i];
+	  std::cout << " and " << ndeps << " depth sections" << std::endl;
+	  for (int i=0; i<ndeps;++i)
+	    std::cout << " [" << i << "] " << iet[i] << "  " << ily[i] << "  "
+		      << idp[i] << std::endl;
+	  std::cout << "Maximum depth for last HE Eta tower " << depthEta29[0]
+		    << ":" << ndp16 << ":" << ndp29 << " L0 Wt " 
+		    << hpar->Layer0Wt[dtype-1] << ":" << wt << std::endl;
+#endif
+	  ldmap_.initialize(dtype,hpar->etaMax[dtype-1],ndp16,ndp29,wt,ifi,iet,
+			    ily,idp);
+	  int zside   = (ifi[0]>0) ? 1 : -1;
+	  int iphi    = (ifi[0]>0) ? ifi[0] : -ifi[0];
+	  depthMaxSp_ = std::pair<int,int>(dtype,ldmap_.getDepthMax(dtype,iphi,zside));
+	}
+      }
+    }
+  }
+  if (depthMaxSp_.first == 0) {
+    depthMaxSp_ = depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
+  } else if (depthMaxSp_.first == 1) {
+    depthMaxDf_ = std::pair<int,int>(1,maxDepth[0]);
+    if (depthMaxSp_.second > maxDepth[0]) maxDepth[0] = depthMaxSp_.second;
+  } else {
+    depthMaxDf_ = std::pair<int,int>(2,maxDepth[1]);
+    if (depthMaxSp_.second > maxDepth[1]) maxDepth[1] = depthMaxSp_.second;
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "Detector type and maximum depth for all RBX " 
+	    << depthMaxDf_.first << ":" << depthMaxDf_.second
+	    << " and for special RBX " << depthMaxSp_.first << ":" 
+	    << depthMaxSp_.second << std::endl;
+#endif
 }
 
-double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
+double HcalDDDSimConstants::deltaEta(const int det, const int etaR,
+				     const int depth) const {
 
   double tmp = 0;
   if (det == static_cast<int>(HcalForward)) {
@@ -643,7 +907,7 @@ double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
     }
   } else {
     if (etaR > 0 && etaR < nEta) {
-      if (etaR == hpar->noff[1]-1 && depth > 2) {
+      if (etaR == hpar->noff[1]-1 && depth > depthEta29[0]) {
 	tmp = 0.5*(hpar->etaTable[etaR+1]-hpar->etaTable[etaR-1]);
       } else if (det == static_cast<int>(HcalOuter)) {
 	if (etaR == hpar->noff[2]) {
@@ -669,8 +933,8 @@ double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
   return tmp;
 }
 
-double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
-				   int depth) const {
+double HcalDDDSimConstants::getEta(const int det, const int etaR,
+				   const int zside, const int depth) const {
 
   double tmp = 0;
   if (det == static_cast<int>(HcalForward)) {
@@ -682,7 +946,7 @@ double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
     }
   } else {
     if (etaR > 0 && etaR < nEta) {
-      if (etaR == hpar->noff[1]-1 && depth > 2) {
+      if (etaR == hpar->noff[1]-1 && depth > depthEta29[0]) {
 	tmp = 0.5*(hpar->etaTable[etaR+1]+hpar->etaTable[etaR-1]);
       } else if (det == static_cast<int>(HcalOuter)) {
 	if (etaR == hpar->noff[2]) {
@@ -709,7 +973,7 @@ double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
   return tmp;
 }
  
-double HcalDDDSimConstants::getEta(double r, double z) const {
+double HcalDDDSimConstants::getEta(const double r, const double z) const {
 
   double tmp = 0;
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
@@ -720,7 +984,8 @@ double HcalDDDSimConstants::getEta(double r, double z) const {
   return tmp;
 }
 
-int HcalDDDSimConstants::getShift(HcalSubdetector subdet, int depth) const {
+int HcalDDDSimConstants::getShift(const HcalSubdetector subdet,
+				  const int depth) const {
 
   int shift;
   switch(subdet) {
@@ -740,7 +1005,8 @@ int HcalDDDSimConstants::getShift(HcalSubdetector subdet, int depth) const {
   return shift;
 }
 
-double HcalDDDSimConstants::getGain(HcalSubdetector subdet, int depth) const {
+double HcalDDDSimConstants::getGain(const HcalSubdetector subdet, 
+				    const int depth) const {
 
   double gain;
   switch(subdet) {
@@ -760,21 +1026,17 @@ double HcalDDDSimConstants::getGain(HcalSubdetector subdet, int depth) const {
   return gain;
 }
 
-void HcalDDDSimConstants::printTileHB(int eta, int depth) const {
+void HcalDDDSimConstants::printTileHB(const int eta, const int phi,
+				      const int zside, const int depth) const {
   std::cout << "HcalDDDSimConstants::printTileHB for eta " << eta << " and depth " << depth << "\n";
   
   double etaL   = hpar->etaTable.at(eta-1);
   double thetaL = 2.*atan(exp(-etaL));
   double etaH   = hpar->etaTable.at(eta);
   double thetaH = 2.*atan(exp(-etaH));
-  int    layL=0, layH=0;
-  if (depth == 1) {
-    layH = depths[0][eta-1];
-  } else {
-    layL = depths[0][eta-1];
-    layH = depths[1][eta-1];
-  }
-  std::cout << "\ntileHB:: eta|depth " << eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << "\n";
+  int    layL   = getLayerFront(1,eta,phi,zside,depth);
+  int    layH   = getLayerBack(1,eta,phi,zside,depth);
+  std::cout << "\ntileHB:: eta|depth " << zside*eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << "\n";
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(2,0);
     int kk=0;
@@ -793,28 +1055,19 @@ void HcalDDDSimConstants::printTileHB(int eta, int depth) const {
   }
 }
 
-void HcalDDDSimConstants::printTileHE(int eta, int depth) const {
+void HcalDDDSimConstants::printTileHE(const int eta, const int phi,
+				      const int zside, const int depth) const {
 
   double etaL   = hpar->etaTable[eta-1];
   double thetaL = 2.*atan(exp(-etaL));
   double etaH   = hpar->etaTable[eta];
   double thetaH = 2.*atan(exp(-etaH));
-  int    layL=0, layH=0;
-  if (eta == 16) {
-    layH = depths[2][eta-1];
-  } else if (depth == 1) {
-    layH = depths[0][eta-1];
-  } else if (depth == 2) {
-    layL = depths[0][eta-1];
-    layH = depths[1][eta-1];
-  } else {
-    layL = depths[1][eta-1];
-    layH = depths[2][eta-1];
-  }
+  int    layL   = getLayerFront(2,eta,phi,zside,depth);
+  int    layH   = getLayerBack(2,eta,phi,zside,depth);
   double phib  = hpar->phibin[eta-1];
   int nphi = 2;
   if (phib > 6*CLHEP::deg) nphi = 1;
-  std::cout << "\ntileHE:: Eta/depth " << eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << " phi " << nphi << "\n";
+  std::cout << "\ntileHE:: Eta/depth " << zside*eta << "|" << depth << " theta " << thetaH/CLHEP::deg << ":" << thetaL/CLHEP::deg << " Layer " << layL << ":" << layH-1 << " phi " << nphi << "\n";
   for (int lay=layL; lay<layH; ++lay) {
     std::vector<double> area(4,0);
     int kk=0;
@@ -856,27 +1109,36 @@ void HcalDDDSimConstants::printTileHE(int eta, int depth) const {
   }
 }
 
-unsigned int HcalDDDSimConstants::layerGroupSize(unsigned int eta) const {
+unsigned int HcalDDDSimConstants::layerGroupSize(const int eta) const {
   unsigned int k = 0;
-  for( auto const & it : hpar->layerGroupEtaSim ) {
-    if( it.layer == eta + 1 ) {
+  for (auto const & it : hpar->layerGroupEtaSim) {
+    if (it.layer == (unsigned int)(eta + 1)) {
       return it.layerGroup.size();
     }
-    if( it.layer > eta + 1 ) break;
+    if (it.layer > (unsigned int)(eta + 1)) break;
     k = it.layerGroup.size();
   }
   return k;
 }
 
-unsigned int HcalDDDSimConstants::layerGroup(unsigned int eta, 
-					     unsigned int i) const {
+unsigned int HcalDDDSimConstants::layerGroup(const int eta, 
+					     const int i) const {
   unsigned int k = 0;
-  for( auto const & it :  hpar->layerGroupEtaSim ) {
-    if( it.layer == eta + 1 ) {
-      return it.layerGroup.at( i );
+  for (auto const & it :  hpar->layerGroupEtaSim) {
+    if (it.layer == (unsigned int)(eta + 1)) {
+      return it.layerGroup.at(i);
     }
-    if( it.layer > eta + 1 ) break;
-    k = it.layerGroup.at( i );
+    if (it.layer > (unsigned int)(eta + 1)) break;
+    k = it.layerGroup.at(i);
   }
   return k;
+}
+ 
+unsigned int HcalDDDSimConstants::layerGroup(const int det, const int eta,
+					     const int phi, const int zside,
+					     const int lay) const {
+
+  int depth0 = findDepth(det,eta,phi,zside,lay);
+  unsigned int depth = (depth0 > 0) ? (unsigned int)(depth0) : layerGroup(eta-1,lay);
+  return depth;
 }

@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 # L1 Trigger DQM sequence for offline DQM
 #
-# used by DQM GUI: DQM/Configuration 
+# used by DQM GUI: DQM/Configuration
 #
 #
 #
-# standard RawToDigi sequence and RECO sequence must be run before the L1 Trigger modules, 
+# standard RawToDigi sequence and RECO sequence must be run before the L1 Trigger modules,
 # labels from the standard sequence are used as default for the L1 Trigger DQM modules
 #
 # V.M. Ghete - HEPHY Vienna - 2011-01-02 
@@ -91,7 +91,7 @@ l1tStage2EmulatorMonitorClient = cms.Sequence(
                         )
 
 #
-# define sequences 
+# define sequences
 #
 
 Stage2l1TriggerOnline = cms.Sequence( 

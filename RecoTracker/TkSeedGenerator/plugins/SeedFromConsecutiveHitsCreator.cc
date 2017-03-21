@@ -5,7 +5,8 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
@@ -23,6 +24,16 @@ namespace {
 }
 
 SeedFromConsecutiveHitsCreator::~SeedFromConsecutiveHitsCreator(){}
+
+void SeedFromConsecutiveHitsCreator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<std::string>("propagator", "PropagatorWithMaterialParabolicMf");
+  desc.add<double>("SeedMomentumForBOFF", 5.0);
+  desc.add<double>("OriginTransverseErrorMultiplier", 1.0);
+  desc.add<double>("MinOneOverPtError", 1.0);
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.add<std::string>("magneticField", "ParabolicMf");
+  desc.add<bool>("forceKinematicWithRegionDirection", false);
+}
 
 void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
 	  const edm::EventSetup& es,

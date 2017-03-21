@@ -12,11 +12,14 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::E
   mixMod.produces<HODigiCollection>();
   mixMod.produces<HFDigiCollection>();
   mixMod.produces<ZDCDigiCollection>();
-  mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-  mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
   mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
   mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
-
+  if(pset.getParameter<bool>("debugCaloSamples")){
+    mixMod.produces<CaloSamplesCollection>("HcalSamples");
+  }
+  if(pset.getParameter<bool>("injectTestHits")){
+    mixMod.produces<edm::PCaloHitContainer>("HcalHits");
+  }
 }
 
 

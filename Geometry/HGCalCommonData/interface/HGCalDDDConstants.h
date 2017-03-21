@@ -41,6 +41,7 @@ public:
 				     float alpha, float cellSize) const;
   HGCalGeometryMode   geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
+  bool                isValidCell(int layindex, int wafer, int cell) const;
   unsigned int        layers(bool reco) const;
   unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
@@ -51,6 +52,7 @@ public:
   int                 maxCells(int lay, bool reco) const;
   int                 maxCellsSquare(float h, float bl, float tl, float alpha,
 				     float cellSize) const;
+  int                 maxModules() const {return modHalf_;}
   int                 maxRows(int lay, bool reco) const;
   double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
@@ -64,6 +66,7 @@ public:
   std::vector<int>    numberCellsSquare(float h, float bl, float tl, 
 					float alpha, float cellSize) const;
   int                 numberCellsHexagon(int wafer) const;
+  std::pair<int,int>  rowColumnWafer(const int wafer) const;
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
@@ -103,9 +106,9 @@ private:
   constexpr static double tan30deg_ = 0.5773502693;
   double                 rmax_, hexside_;
   HGCalGeometryMode      mode_;
-  int32_t                tot_wafers_;
+  int32_t                tot_wafers_, modHalf_;
   std::array<uint32_t,2> tot_layers_;
-  simrecovecs max_modules_layer_; 
+  simrecovecs            max_modules_layer_; 
 };
 
 #endif

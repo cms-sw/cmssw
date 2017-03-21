@@ -2,6 +2,7 @@
 #include "ThirdHitRZPrediction.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
@@ -50,19 +51,60 @@ PixelQuadrupletGenerator::PixelQuadrupletGenerator(const edm::ParameterSet& cfg,
 
 PixelQuadrupletGenerator::~PixelQuadrupletGenerator() {}
 
+void PixelQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<double>("extraHitRZtolerance", 0.1);
+  desc.add<double>("extraHitRPhitolerance", 0.1);
+
+  edm::ParameterSetDescription descExtraPhi;
+  descExtraPhi.add<double>("pt1", 0.1);
+  descExtraPhi.add<double>("pt2", 0.1);
+  descExtraPhi.add<double>("value1", 999);
+  descExtraPhi.add<double>("value2", 0.15);
+  descExtraPhi.add<bool>("enabled", false);
+  desc.add<edm::ParameterSetDescription>("extraPhiTolerance", descExtraPhi);
+
+  edm::ParameterSetDescription descMaxChi2;
+  descMaxChi2.add<double>("pt1", 0.2);
+  descMaxChi2.add<double>("pt2", 1.5);
+  descMaxChi2.add<double>("value1", 500);
+  descMaxChi2.add<double>("value2", 50);
+  descMaxChi2.add<bool>("enabled", true);
+  desc.add<edm::ParameterSetDescription>("maxChi2", descMaxChi2);
+
+  desc.add<bool>("fitFastCircle", false);
+  desc.add<bool>("fitFastCircleChi2Cut", false);
+  desc.add<bool>("useBendingCorrection", false);
+
+  edm::ParameterSetDescription descComparitor;
+  descComparitor.add<std::string>("ComponentName", "none");
+  descComparitor.setAllowAnything(); // until we have moved SeedComparitor too to EDProducers
+  desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
+}
+
 
 void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, OrderedHitSeeds& result,
                                               const edm::Event& ev, const edm::EventSetup& es,
                                               const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                               const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers)
 {
-  if (theComparitor) theComparitor->init(ev, es);
-
   OrderedHitTriplets triplets;
   theTripletGenerator->hitTriplets(region, triplets, ev, es,
                                    tripletLayers, // pair generator picks the correct two layers from these
                                    std::vector<SeedingLayerSetsHits::SeedingLayer>{tripletLayers[2]});
   if(triplets.empty()) return;
+
+  assert(theLayerCache);
+  hitQuadruplets(region, result, ev, es, triplets.begin(), triplets.end(), fourthLayers, *theLayerCache);
+}
+
+void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, OrderedHitSeeds& result,
+                                              const edm::Event& ev, const edm::EventSetup& es,
+                                              OrderedHitTriplets::const_iterator tripletsBegin,
+                                              OrderedHitTriplets::const_iterator tripletsEnd,
+                                              const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers,
+                                              LayerCacheType& layerCache)
+{
+  if (theComparitor) theComparitor->init(ev, es);
 
   const size_t size = fourthLayers.size();
 
@@ -80,7 +122,7 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
 
   // Build KDtrees
   for(size_t il=0; il!=size; ++il) {
-    fourthHitMap[il] = &(*theLayerCache)(fourthLayers[il], region, ev, es);
+    fourthHitMap[il] = &(layerCache)(fourthLayers[il], region, es);
     auto const& hits = *fourthHitMap[il];
 
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
@@ -122,7 +164,8 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
   std::array<bool, 4> barrels;
 
   // Loop over triplets
-  for(const auto& triplet: triplets) {
+  for(auto iTriplet = tripletsBegin; iTriplet != tripletsEnd; ++iTriplet) {
+    const auto& triplet = *iTriplet;
     GlobalPoint gp0 = triplet.inner()->globalPosition();
     GlobalPoint gp1 = triplet.middle()->globalPosition();
     GlobalPoint gp2 = triplet.outer()->globalPosition();

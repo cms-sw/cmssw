@@ -325,7 +325,7 @@ std::string RPCPhiEff::fromRaw(const edm::Event & iEvent){
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void RPCPhiEff::beginJob(const edm::EventSetup &)
+void RPCPhiEff::beginJob()
 {
 }
 

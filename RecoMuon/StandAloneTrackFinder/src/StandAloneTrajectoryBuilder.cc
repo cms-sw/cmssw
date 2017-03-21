@@ -278,10 +278,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   
   TrajectorySeed seedForBW;
 
-  if(theBWSeedType == "noSeed") {
-    TrajectorySeed seedVoid;
-    seedForBW = seedVoid;
-  }
+  if(theBWSeedType == "noSeed") { }
   else if(theBWSeedType == "fromFWFit") {
 
     

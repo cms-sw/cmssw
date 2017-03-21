@@ -46,7 +46,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
 process.triplets = cms.EDAnalyzer("HitTripletProducer",

@@ -99,7 +99,7 @@ Tm MODRunIOV::getSubRunEnd() const
 
 
 int MODRunIOV::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -154,7 +154,7 @@ int MODRunIOV::fetchID()
 
 
 void MODRunIOV::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -193,7 +193,7 @@ void MODRunIOV::setByID(int id)
 
 
 int MODRunIOV::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -245,7 +245,7 @@ int MODRunIOV::writeDB()
 
 
 void MODRunIOV::fetchParentIDs( int* runIOVID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the RunIOV
   m_runIOV.setConnection(m_env, m_conn);
@@ -260,7 +260,7 @@ void MODRunIOV::fetchParentIDs( int* runIOVID)
 
 
 void MODRunIOV::setByRun( RunIOV* runiov, subrun_t subrun)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   

@@ -142,7 +142,7 @@ process.primDigis = process.hcalDigis.clone()
 process.primDigis.InputLabel = rawTag
 primFEDs = [x*2+1100 for x in range(9)]
 primFEDs[len(primFEDs):] = [x+724 for x in range(8)]
-primFEDs[len(primFEDs):] = [1118, 1120, 1122]
+primFEDs[len(primFEDs):] = [1118,1119,1120,1121,1122,1123]
 print "Primary FEDs to be Unpacked:", primFEDs
 process.primDigis.FEDs = cms.untracked.vint32(primFEDs)
 process.hbhereco.digiLabel = cms.InputTag("primDigis")

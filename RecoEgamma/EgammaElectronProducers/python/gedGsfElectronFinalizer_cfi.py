@@ -7,9 +7,9 @@ gedGsfElectrons = cms.EDProducer("GEDGsfElectronFinalizer",
                                  pfCandidatesTag = cms.InputTag("particleFlowTmp"),
                                  regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
                                  pfIsolationValues = cms.PSet(
-                                       pfSumChargedHadronPt = cms.InputTag('gedElPFIsoValueCharged03'),
-                                       pfSumPhotonEt = cms.InputTag('gedElPFIsoValueGamma03'),
-                                       pfSumNeutralHadronEt= cms.InputTag('gedElPFIsoValueNeutral03'),
-                                       pfSumPUPt = cms.InputTag('gedElPFIsoValuePU03')),
+                                       pfSumChargedHadronPt = cms.InputTag('egmElectronIsolationCITK:h+-DR030-'),
+                                       pfSumPhotonEt = cms.InputTag('egmElectronIsolationCITK:gamma-DR030-'),
+                                       pfSumNeutralHadronEt= cms.InputTag('egmElectronIsolationCITK:h0-DR030-'),
+                                       pfSumPUPt = cms.InputTag('egmElectronIsolationPileUpCITK:h+-DR030-')),
                                  outputCollectionLabel = cms.string("")
                                  )

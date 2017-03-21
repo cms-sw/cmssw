@@ -132,7 +132,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     if(imax>0 ){
       maximum_to_left =  theMaxima.at(imax-1) - theMaxima.at(imax);
     }
-    if(fabs(maximum_to_right) < fabs(maximum_to_left)){
+    if(std::abs(maximum_to_right) < std::abs(maximum_to_left)){
       theClosestMaximum.push_back(maximum_to_right);
     }
     else{

@@ -26,7 +26,7 @@ RunLaserRunDat::~RunLaserRunDat()
 
 
 void RunLaserRunDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -44,7 +44,7 @@ void RunLaserRunDat::prepareWrite()
 
 
 void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item
 
 
 void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

@@ -7,6 +7,8 @@
 
 #include <memory>
 
+//#define EDM_ML_DEBUG
+
 CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
   delete m_reverseItems.load();
   m_reverseItems = nullptr;
@@ -93,36 +95,81 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
   
   if (standardHB_) {
     if (id.ietaAbs()<=m_cttopo->lastHBRing()) {
-      m_hcaltopo->depthBinInformation(HcalBarrel,hcal_ieta,nd,sd);
-      for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
+      m_hcaltopo->depthBinInformation(HcalBarrel,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
+	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
+	    items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	  }
+	} else {
+	  HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd);
+	  items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
+      }
     }
   }
   if (standardHO_) {
     if (id.ietaAbs()<=m_cttopo->lastHORing()) {
-      m_hcaltopo->depthBinInformation(HcalOuter,hcal_ieta,nd,sd);
-      for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd));
+      m_hcaltopo->depthBinInformation(HcalOuter,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	HcalDetId hid(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd);
+        items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+      }
     }
   }
   if (standardHE_) {
     if (id.ietaAbs()>=m_cttopo->firstHERing() && id.ietaAbs()<=m_cttopo->lastHERing()) {
-      m_hcaltopo->depthBinInformation(HcalEndcap,hcal_ieta,nd,sd);
-      for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
+      m_hcaltopo->depthBinInformation(HcalEndcap,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
+	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
+	    items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	  } 
+	} else {
+	  HcalDetId hid(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd);
+	  items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
+      }
     }
   }
   if (standardHF_) {
     if (id.ietaAbs()>=m_cttopo->firstHFRing() && id.ietaAbs()<=m_cttopo->lastHFRing()) { 
-      m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta,nd,sd);
-      for (int i=0; i<nd; i++)
-        items.push_back(HcalDetId(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd));
+      m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	HcalDetId hid(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd);
+        items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+      }
       // special handling for first HF tower
       if (id.ietaAbs() == m_cttopo->firstHFRing()) {
         int hcal_ieta2 = hcal_ieta-1;
-        m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta2,nd,sd);
-        for (int i=0; i<nd; i++)
-          items.push_back(HcalDetId(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd));
+        m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta2,id.iphi(),id.zside(),nd,sd);
+        for (int i=0; i<nd; i++) {
+	  HcalDetId hid(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd);
+          items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
       }
     }
   }

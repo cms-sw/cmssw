@@ -69,18 +69,18 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
     isForward = true;
 
     theEdgePixelResolutionFileName = config.getParameter<string>( "EdgePixelForwardResolutionFile" );
-    theEdgePixelResolutionFile = new TFile( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theEdgePixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
     theBigPixelResolutionFileName = config.getParameter<string>( "BigPixelForwardResolutionFile" );
-    theBigPixelResolutionFile = new TFile( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theBigPixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelForwardResolutionFile" );
-    theRegularPixelResolutionFile = new TFile( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theRegularPixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     
     theMergingProbabilityFileName = config.getParameter<string>( "MergingProbabilityForwardFile" );
-    theMergingProbabilityFile =new TFile( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
+    theMergingProbabilityFile =std::make_unique<TFile>( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
     theMergedPixelResolutionXFileName = config.getParameter<string>( "MergedPixelForwardResolutionXFile" );
-    theMergedPixelResolutionXFile = new TFile( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionXFile = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
     theMergedPixelResolutionYFileName = config.getParameter<string>( "MergedPixelForwardResolutionYFile" );
-    theMergedPixelResolutionYFile = new TFile( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionYFile = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
 
     initializeForward();
     

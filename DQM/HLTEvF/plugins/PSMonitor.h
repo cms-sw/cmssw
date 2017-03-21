@@ -53,7 +53,7 @@ public:
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup);
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
 

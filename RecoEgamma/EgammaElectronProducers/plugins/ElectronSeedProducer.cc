@@ -68,6 +68,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
+  auto theconsumes = consumesCollector();
+
   // new beamSpot tag
   beamSpotTag_ = consumes<reco::BeamSpot>(conf_.getParameter<edm::InputTag>("beamSpot")); 
 
@@ -85,6 +87,13 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 	 hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
        }
      hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
+     
+     allowHGCal_ = conf_.getParameter<bool>("allowHGCal");
+     if( allowHGCal_ ) {
+       const edm::ParameterSet& hgcCfg = conf_.getParameterSet("HGCalConfig");
+       hgcClusterTools_.reset( new hgcal::ClusterTools(hgcCfg, theconsumes) );
+     }
+     
      maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
      maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
      maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
@@ -162,6 +171,10 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
    {
     hcalHelper_->checkSetup(iSetup) ;
     hcalHelper_->readEvent(e) ;
+    if( allowHGCal_ ) {
+      hgcClusterTools_->getEventSetup(iSetup);
+      hgcClusterTools_->getEvent(e);
+    }
    }
 
   // get calo geometry
@@ -258,9 +271,16 @@ void ElectronSeedProducer::filterClusters
          had2 = hcalHelper_->hcalESumDepth2(scl);
          had = had1+had2 ;
          scle = scl.energy() ;
+         int det_group = scl.seed()->hitsAndFractions()[0].first.det() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if ( (detector==EcalEndcap || detector==HGCEE) && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if( detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
+         else if( allowHGCal_ && (detector==HcalEndcap || det_group == DetId::Forward) ) {
+           float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
+           had1 = had_fraction*scl.seed()->energy();
+           had2 = 0.;
+           HoeVeto= ( had_fraction >= 0.f && had_fraction < maxHOverEEndcaps_ );
+         }
          if (HoeVeto)
           {
            sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
@@ -304,7 +324,7 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("endcapSuperClusters",edm::InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"));
   {
-    edm::ParameterSetDescription psd0, psd1, psd2, psd3;
+    edm::ParameterSetDescription psd0, psd1, psd2, psd3, psd4;
     psd1.add<unsigned int>("maxElement", 0);
     psd1.add<std::string>("ComponentName", std::string("StandardHitPairGenerator"));
     psd1.addUntracked<int>("useOnDemandTracker", 0);
@@ -370,7 +390,8 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<double>("hOverEHFMinE",0.8);
     psd0.add<double>("DeltaPhi2B",0.008);
     psd0.add<double>("PhiMin2B",-0.002);
-
+    psd0.add<bool>("allowHGCal",false);
+    
     psd3.add<std::string>("ComponentName",std::string("SeedFromConsecutiveHitsCreator"));
     psd3.add<std::string>("propagator",std::string("PropagatorWithMaterial"));
     psd3.add<double>("SeedMomentumForBOFF",5.0);
@@ -379,6 +400,13 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd3.add<std::string>("magneticField",std::string(""));
     psd3.add<std::string>("TTRHBuilder",std::string("WithTrackAngle"));
     psd3.add<bool>("forceKinematicWithRegionDirection",false);
+
+    psd4.add<edm::InputTag>("HGCEEInput",edm::InputTag("HGCalRecHit","HGCEERecHits"));
+    psd4.add<edm::InputTag>("HGCFHInput",edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+    psd4.add<edm::InputTag>("HGCBHInput",edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+    
+    psd0.add<edm::ParameterSetDescription>("HGCalConfig",psd4);
+
     psd0.add<edm::ParameterSetDescription>("SeedCreatorPSet",psd3);
 
     desc.add<edm::ParameterSetDescription>("SeedConfiguration",psd0);

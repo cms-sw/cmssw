@@ -111,7 +111,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    if(0==clss || 0==clss->GetTypeInfo()) {
       return FWRepresentationInfo();
    }
-   boost::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
+   std::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
 
    const TClass* modelClass = accessor->modelType();
    //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;

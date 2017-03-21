@@ -52,14 +52,14 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginJob
   virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
- virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
- void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+ virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+ void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 
 private:

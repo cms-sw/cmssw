@@ -32,7 +32,7 @@ ODDCCConfig::~ODDCCConfig()
 {
 }
 
-int ODDCCConfig::fetchNextId()  throw(std::runtime_error) {
+int ODDCCConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -57,7 +57,7 @@ int ODDCCConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODDCCConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -151,7 +151,7 @@ void ODDCCConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODDCCConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -205,7 +205,7 @@ void ODDCCConfig::clear(){
 
 
 void ODDCCConfig::fetchData(ODDCCConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   //  result->clear();
@@ -266,7 +266,7 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
 
 
-int ODDCCConfig::fetchID()    throw(std::runtime_error)
+int ODDCCConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;

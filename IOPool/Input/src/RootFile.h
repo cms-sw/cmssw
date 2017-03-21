@@ -39,7 +39,7 @@ namespace edm {
   class BranchID;
   class BranchIDListHelper;
   class ProductProvenanceRetriever;
-  class DaqProvenanceHelper;
+  struct DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
   class ProcessHistoryRegistry;
@@ -116,11 +116,11 @@ namespace edm {
                processingMode, runHelper,
                false, productSelectorRules, inputType, branchIDListHelper,
                thinnedAssociationsHelper, associationsFromSecondary,
-               nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,  
+               nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, labelRawDataLikeMC,
                false, enablePrefetching) {}
-               
+
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -141,11 +141,11 @@ namespace edm {
                nullptr, false, -1, -1, nStreams, treeCacheSize, treeMaxVirtualSize,
                InputSource::RunsLumisAndEvents, runHelper,
                false, productSelectorRules, inputType, nullptr, nullptr,
-               nullptr, nullptr, false, processHistoryRegistry,  
+               nullptr, nullptr, false, processHistoryRegistry,
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, false,
                false, enablePrefetching) {}
-               
+
     ~RootFile();
 
     RootFile(RootFile const&) = delete; // Disallow copying and moving

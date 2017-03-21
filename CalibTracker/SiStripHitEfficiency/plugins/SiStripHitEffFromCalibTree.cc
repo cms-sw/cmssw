@@ -71,7 +71,6 @@
 #include "TF1.h"
 #include "TROOT.h"
 #include "TTree.h"
-#include "TChain.h"
 #include "TStyle.h"
 #include "TLeaf.h"
 #include "TGaxis.h"
@@ -107,6 +106,9 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     void totalStatistics();
     void makeSummary();
     void makeSummaryVsBx();
+	void ComputeEff(vector< TH1F* > &vhfound, vector< TH1F* > &vhtotal, string name);
+    void makeSummaryVsLumi();
+    void makeSummaryVsCM();
     TString GetLayerName(Long_t k);
     TString GetLayerSideName(Long_t k);
     float calcPhi(float x, float y);
@@ -117,7 +119,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     SiStripQuality* quality_;
     SiStripBadStrip* getNewObject() override;
     
-    TChain* CalibTree;
+    TTree* CalibTree;
     vector<string> CalibTreeFilenames; 
     float threshold;
     unsigned int nModsMin;
@@ -129,9 +131,11 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float _stripsApvEdge;
     unsigned int _bunchx;
     unsigned int _spaceBetweenTrains;
+	bool _useCM;
     bool _showEndcapSides;
     bool  _showRings;
     bool  _showTOB6TEC9;
+	bool _showOnlyGoodModules;
     float _tkMapMin;
     float _effPlotMin;
     TString _title;
@@ -150,6 +154,12 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     int layertotal[23];
     map< unsigned int, vector<int> > layerfound_perBx;
     map< unsigned int, vector<int> > layertotal_perBx;
+	vector< TH1F* > layerfound_vsLumi;
+	vector< TH1F* > layertotal_vsLumi;
+	vector< TH1F* > layerfound_vsPU;
+	vector< TH1F* > layertotal_vsPU;
+	vector< TH1F* > layerfound_vsCM;
+	vector< TH1F* > layertotal_vsCM;
     int goodlayertotal[35];
     int goodlayerfound[35];
     int alllayertotal[35];
@@ -172,9 +182,11 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge",10.0);
   _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
   _spaceBetweenTrains = conf.getUntrackedParameter<int>("SpaceBetweenTrains",25);
+  _useCM = conf.getUntrackedParameter<bool>("UseCommonMode",false);
   _showEndcapSides = conf.getUntrackedParameter<bool>("ShowEndcapSides",true);
   _showRings = conf.getUntrackedParameter<bool>("ShowRings",false);
   _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9",false);
+  _showOnlyGoodModules = conf.getUntrackedParameter<bool>("ShowOnlyGoodModules",false);
   _tkMapMin = conf.getUntrackedParameter<double>("TkMapMin",0.9);
   _effPlotMin = conf.getUntrackedParameter<double>("EffPlotMin",0.9);
   _title = conf.getParameter<std::string>("Title"); 
@@ -233,24 +245,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   for (itBadMod=badModules_list.begin(); itBadMod!=badModules_list.end(); ++itBadMod) 
     cout<<" "<<*itBadMod<<endl;
 
-  //Open the ROOT Calib Tree
-  CalibTree = new TChain("hitefftree");
-  for( unsigned int ifile=0; ifile < CalibTreeFilenames.size(); ifile++)
-    CalibTree->Add((CalibTreeFilenames[ifile]+"/anEff/traj").c_str());
-  TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
-  TLeaf* sistripLf = CalibTree->GetLeaf("SiStripQualBad");
-  TLeaf* idLf = CalibTree->GetLeaf("Id");
-  TLeaf* acceptLf = CalibTree->GetLeaf("withinAcceptance");
-  TLeaf* layerLf = CalibTree->GetLeaf("layer");
-  TLeaf* nHitsLf = CalibTree->GetLeaf("nHits");
-  TLeaf* xLf = CalibTree->GetLeaf("TrajGlbX");
-  TLeaf* yLf = CalibTree->GetLeaf("TrajGlbY");
-  TLeaf* zLf = CalibTree->GetLeaf("TrajGlbZ");
-  TLeaf* ResXSigLf = CalibTree->GetLeaf("ResXSig");
-  TLeaf* TrajLocXLf = CalibTree->GetLeaf("TrajLocX");
-  TLeaf* TrajLocYLf = CalibTree->GetLeaf("TrajLocY");
-  TLeaf* ClusterLocXLf = CalibTree->GetLeaf("ClusterLocX");
-  TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
+
+  // initialze counters and histos
   for(int l=0; l < 35; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
@@ -258,230 +254,290 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     alllayerfound[l] = 0;
   }
 
-  int nevents = CalibTree->GetEntries();
-  cout << "Successfully loaded analyze function with " << nevents << " events!\n";
-  cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
-
   TH1F* resolutionPlots[23];
   for(Long_t ilayer = 0; ilayer <23; ilayer++) {
     resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i",(int)(ilayer)),GetLayerName(ilayer),125,-125,125);
     resolutionPlots[ilayer]->GetXaxis()->SetTitle("trajX-clusX [strip unit]");
+
+	layerfound_vsLumi.push_back( fs->make<TH1F>(Form("layerfound_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
+	layertotal_vsLumi.push_back( fs->make<TH1F>(Form("layertotal_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
+	layerfound_vsPU.push_back( fs->make<TH1F>(Form("layerfound_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
+	layertotal_vsPU.push_back( fs->make<TH1F>(Form("layertotal_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
+
+	if(_useCM) {
+	  layerfound_vsCM.push_back( fs->make<TH1F>(Form("layerfound_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
+	  layertotal_vsCM.push_back( fs->make<TH1F>(Form("layertotal_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
+	}
   }
 
-  //Loop through all of the events
-  for(int j =0; j < nevents; j++) {
-    CalibTree->GetEvent(j);
-    unsigned int isBad = (unsigned int)BadLf->GetValue();
-    unsigned int quality = (unsigned int)sistripLf->GetValue();
-    unsigned int id = (unsigned int)idLf->GetValue();
-    unsigned int accept = (unsigned int)acceptLf->GetValue();
-    unsigned int layer_wheel = (unsigned int)layerLf->GetValue();
-    unsigned int layer = layer_wheel;
-    if(_showRings && layer >10) { // use rings instead of wheels
-      if(layer<14) layer = 10 + ((id>>9)&0x3); //TID   3 disks and also 3 rings -> use the same container
-      else layer = 13 + ((id>>5)&0x7); //TEC
-    }
-    unsigned int nHits = (unsigned int)nHitsLf->GetValue();
-    double x = xLf->GetValue();
-    double y = yLf->GetValue();
-    double z = zLf->GetValue();
-    double resxsig = ResXSigLf->GetValue();
-    double TrajLocX = TrajLocXLf->GetValue();
-    double TrajLocY = TrajLocYLf->GetValue();
-    double ClusterLocX = ClusterLocXLf->GetValue();
-    double TrajLocXMid;
-    double stripTrajMid;
-    double stripCluster;
-    bool badquality = false;
-    unsigned int bx = (unsigned int)BunchLf->GetValue();
-    if(_bunchx > 0 && _bunchx != bx) continue;
-
-    //We have two things we want to do, both an XY color plot, and the efficiency measurement
-    //First, ignore anything that isn't in acceptance and isn't good quality
-    
-    //if(quality == 1 || accept != 1 || nHits < 8) continue;
-    if(accept != 1 || nHits < 8) continue;
-    if(quality == 1) badquality = true;
-    
-    // don't compute efficiencies in modules from TOB6 and TEC9
-    if(!_showTOB6TEC9 && (layer_wheel==10 || layer_wheel==22)) continue; 
-			
-	// don't use bad modules given in the bad module list
-	itBadMod = badModules_list.find(id);
-	if(itBadMod!=badModules_list.end()) continue;
+  cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
 
 
-    //Now that we have a good event, we need to look at if we expected it or not, and the location
-    //if we didn't
-    //Fill the missing hit information first
-    bool badflag = false;
+  //Open the ROOT Calib Tree
+  for( unsigned int ifile=0; ifile < CalibTreeFilenames.size(); ifile++) {
+
+    cout<<"Loading file: "<<CalibTreeFilenames[ifile]<<endl;
+	TFile* CalibTreeFile = TFile::Open(CalibTreeFilenames[ifile].c_str(),"READ");
+	CalibTreeFile->cd("anEff");
+	CalibTree = (TTree*)(gDirectory->Get("traj"));
 	
-	// By default uses the old matching method
-    if(_ResXSig < 0) {
-      if(isBad == 1) badflag = true; // isBad set to false in the tree when resxsig<999.0
-    }
-    else {
-      if(isBad == 1 || resxsig > _ResXSig) badflag = true;
-    }
+	TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
+	TLeaf* sistripLf = CalibTree->GetLeaf("SiStripQualBad");
+	TLeaf* idLf = CalibTree->GetLeaf("Id");
+	TLeaf* acceptLf = CalibTree->GetLeaf("withinAcceptance");
+	TLeaf* layerLf = CalibTree->GetLeaf("layer");
+	TLeaf* nHitsLf = CalibTree->GetLeaf("nHits");
+	TLeaf* xLf = CalibTree->GetLeaf("TrajGlbX");
+	TLeaf* yLf = CalibTree->GetLeaf("TrajGlbY");
+	TLeaf* zLf = CalibTree->GetLeaf("TrajGlbZ");
+	TLeaf* ResXSigLf = CalibTree->GetLeaf("ResXSig");
+	TLeaf* TrajLocXLf = CalibTree->GetLeaf("TrajLocX");
+	TLeaf* TrajLocYLf = CalibTree->GetLeaf("TrajLocY");
+	TLeaf* ClusterLocXLf = CalibTree->GetLeaf("ClusterLocX");
+	TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
+	TLeaf* InstLumiLf = CalibTree->GetLeaf("instLumi");
+	TLeaf* PULf = CalibTree->GetLeaf("PU");
+	TLeaf* CMLf = 0;
+	if(_useCM) CMLf = CalibTree->GetLeaf("commonMode");
 
-	// Conversion of positions in strip unit
-    int   nstrips = -9; 
-    float Pitch   = -9.0; 
+	int nevents = CalibTree->GetEntries();
+	cout << "Successfully loaded analyze function with " << nevents << " events!\n";
 
-    if (resxsig==1000.0) { // special treatment, no GeomDetUnit associated in some cases when no cluster found
-      Pitch = 0.0205;  // maximum
-      nstrips = 768;  // maximum
-      stripTrajMid   =    TrajLocX/Pitch + nstrips/2.0 ;      
-      stripCluster   = ClusterLocX/Pitch + nstrips/2.0 ;
-    }
-    else {
-		DetId ClusterDetId(id);
-		const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
-		const StripTopology& Topo  = stripdet->specificTopology();
-		nstrips = Topo.nstrips();
-		Pitch = stripdet->surface().bounds().width() / Topo.nstrips();
-		stripTrajMid   =    TrajLocX/Pitch + nstrips/2.0 ; //layer01->10
-		stripCluster   = ClusterLocX/Pitch + nstrips/2.0 ;
 
-		// For trapezoidal modules: extrapolation of x trajectory position to the y middle of the module
-		//  for correct comparison with cluster position
-    	float hbedge   = 0;
-    	float htedge   = 0;
-    	float hapoth   = 0;
-		if(layer>=11) {
-		  const BoundPlane plane = stripdet->surface();
-		  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-		  std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters(); 
-		  hbedge         = parameters[0];
-		  htedge         = parameters[1];
-		  hapoth         = parameters[3];
-		  TrajLocXMid = TrajLocX / (1 + (htedge-hbedge)*TrajLocY/(htedge+hbedge)/hapoth) ; // radialy extrapolated x loc position at middle  
-		  stripTrajMid   =    TrajLocXMid/Pitch + nstrips/2.0 ;
-		}
-	}
-	
-	
-	if(!badquality && layer<23) {
-	  if(resxsig!=1000.0) resolutionPlots[layer]->Fill(stripTrajMid-stripCluster);
-	  else resolutionPlots[layer]->Fill(1000);
-	}
-	
-		
-	// New matching methods
-    int   tapv   = -9;
-    int   capv    = -9;
-	float stripInAPV = 64.;
-	
-    if ( _clusterMatchingMethod >=1 ) { 
-      badflag = false;  // reset 
-      if(resxsig == 1000.0) { // default value when no cluster found in the module
-        badflag = true; // consider the module inefficient in this case
+	//Loop through all of the events
+	for(int j =0; j < nevents; j++) {
+      CalibTree->GetEntry(j);
+      unsigned int isBad = (unsigned int)BadLf->GetValue();
+      unsigned int quality = (unsigned int)sistripLf->GetValue();
+      unsigned int id = (unsigned int)idLf->GetValue();
+      unsigned int accept = (unsigned int)acceptLf->GetValue();
+      unsigned int layer_wheel = (unsigned int)layerLf->GetValue();
+      unsigned int layer = layer_wheel;
+      if(_showRings && layer >10) { // use rings instead of wheels
+    	if(layer<14) layer = 10 + ((id>>9)&0x3); //TID   3 disks and also 3 rings -> use the same container
+    	else layer = 13 + ((id>>5)&0x7); //TEC
       }
-      else{
-		if (_clusterMatchingMethod==2 || _clusterMatchingMethod==4) { // check the distance between cluster and trajectory position
-		  if ( abs(stripCluster - stripTrajMid) > _clusterTrajDist ) badflag = true;
-		}
-		if (_clusterMatchingMethod==3 || _clusterMatchingMethod==4) { // cluster and traj have to be in the same APV (don't take edges into accounts)
-		  tapv = (int) stripTrajMid/128;
-		  capv = (int) stripCluster/128;
-		  stripInAPV = stripTrajMid-tapv*128;
+      unsigned int nHits = (unsigned int)nHitsLf->GetValue();
+      double x = xLf->GetValue();
+      double y = yLf->GetValue();
+      double z = zLf->GetValue();
+      double resxsig = ResXSigLf->GetValue();
+      double TrajLocX = TrajLocXLf->GetValue();
+      double TrajLocY = TrajLocYLf->GetValue();
+      double ClusterLocX = ClusterLocXLf->GetValue();
+      double TrajLocXMid;
+      double stripTrajMid;
+      double stripCluster;
+      bool badquality = false;
+      unsigned int bx = (unsigned int)BunchLf->GetValue();
+      if(_bunchx > 0 && _bunchx != bx) continue;
+	  double instLumi = 0;
+	  if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue();
+	  double PU = 0;
+	  if(PULf!=0) PU = PULf->GetValue();
+	  int CM = -100;
+	  if(_useCM) CM = CMLf->GetValue();
 
-		  if(stripInAPV<_stripsApvEdge || stripInAPV>128-_stripsApvEdge) continue;
-		  if(tapv != capv) badflag = true;
-		} 	
-      }
-	}
-	
-	
-	
-    if(badflag && !badquality) {   
-      hit temphit;         
-      temphit.x = x;
-      temphit.y = y;
-      temphit.z = z;
-      temphit.id = id;
-      hits[layer].push_back(temphit);
-    } 
-    pair<unsigned int, unsigned int> newgoodpair (1,1);
-    pair<unsigned int, unsigned int> newbadpair (1,0);
-    //First, figure out if the module already exists in the map of maps
-    map< unsigned int, pair< unsigned int, unsigned int> >::iterator it = modCounter[layer].find(id);
-    if(!badquality) {
-      if(it == modCounter[layer].end()) {
-        if(badflag) modCounter[layer][id] = newbadpair;
-        else modCounter[layer][id] = newgoodpair;
+      //We have two things we want to do, both an XY color plot, and the efficiency measurement
+      //First, ignore anything that isn't in acceptance and isn't good quality
+
+      //if(quality == 1 || accept != 1 || nHits < 8) continue;
+      if(accept != 1 || nHits < 8) continue;
+      if(quality == 1) badquality = true;
+
+      // don't compute efficiencies in modules from TOB6 and TEC9
+      if(!_showTOB6TEC9 && (layer_wheel==10 || layer_wheel==22)) continue; 
+
+	  // don't use bad modules given in the bad module list
+	  itBadMod = badModules_list.find(id);
+	  if(itBadMod!=badModules_list.end()) continue;
+
+
+      //Now that we have a good event, we need to look at if we expected it or not, and the location
+      //if we didn't
+      //Fill the missing hit information first
+      bool badflag = false;
+
+	  // By default uses the old matching method
+      if(_ResXSig < 0) {
+    	if(isBad == 1) badflag = true; // isBad set to false in the tree when resxsig<999.0
       }
       else {
-        ((*it).second.first)++;
-        if(!badflag) ((*it).second.second)++;
+    	if(isBad == 1 || resxsig > _ResXSig) badflag = true;
       }
 
-	  if(layerfound_perBx.find(bx)==layerfound_perBx.end()) {
-	    layerfound_perBx[bx] = vector<int>(23, 0);
-	    layertotal_perBx[bx] = vector<int>(23, 0);
-	  }
-	  if(!badflag) layerfound_perBx[bx][layer]++;
-	  layertotal_perBx[bx][layer]++;
+	  // Conversion of positions in strip unit
+      int   nstrips = -9; 
+      float Pitch   = -9.0; 
 
-      //Have to do the decoding for which side to go on (ugh)
+      if (resxsig==1000.0) { // special treatment, no GeomDetUnit associated in some cases when no cluster found
+    	Pitch = 0.0205;  // maximum
+    	nstrips = 768;  // maximum
+    	stripTrajMid   =    TrajLocX/Pitch + nstrips/2.0 ;      
+    	stripCluster   = ClusterLocX/Pitch + nstrips/2.0 ;
+      }
+      else {
+		  DetId ClusterDetId(id);
+		  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+		  const StripTopology& Topo  = stripdet->specificTopology();
+		  nstrips = Topo.nstrips();
+		  Pitch = stripdet->surface().bounds().width() / Topo.nstrips();
+		  stripTrajMid   =    TrajLocX/Pitch + nstrips/2.0 ; //layer01->10
+		  stripCluster   = ClusterLocX/Pitch + nstrips/2.0 ;
+
+		  // For trapezoidal modules: extrapolation of x trajectory position to the y middle of the module
+		  //  for correct comparison with cluster position
+    	  float hbedge   = 0;
+    	  float htedge   = 0;
+    	  float hapoth   = 0;
+		  if(layer>=11) {
+			const BoundPlane plane = stripdet->surface();
+			const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+			std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters(); 
+			hbedge         = parameters[0];
+			htedge         = parameters[1];
+			hapoth         = parameters[3];
+			TrajLocXMid = TrajLocX / (1 + (htedge-hbedge)*TrajLocY/(htedge+hbedge)/hapoth) ; // radialy extrapolated x loc position at middle  
+			stripTrajMid   =    TrajLocXMid/Pitch + nstrips/2.0 ;
+		  }
+	  }
+
+
+	  if(!badquality && layer<23) {
+		if(resxsig!=1000.0) resolutionPlots[layer]->Fill(stripTrajMid-stripCluster);
+		else resolutionPlots[layer]->Fill(1000);
+	  }
+
+
+	  // New matching methods
+      int   tapv   = -9;
+      int   capv    = -9;
+	  float stripInAPV = 64.;
+
+      if ( _clusterMatchingMethod >=1 ) { 
+    	badflag = false;  // reset 
+    	if(resxsig == 1000.0) { // default value when no cluster found in the module
+          badflag = true; // consider the module inefficient in this case
+    	}
+    	else{
+		  if (_clusterMatchingMethod==2 || _clusterMatchingMethod==4) { // check the distance between cluster and trajectory position
+			if ( abs(stripCluster - stripTrajMid) > _clusterTrajDist ) badflag = true;
+		  }
+		  if (_clusterMatchingMethod==3 || _clusterMatchingMethod==4) { // cluster and traj have to be in the same APV (don't take edges into accounts)
+			tapv = (int) stripTrajMid/128;
+			capv = (int) stripCluster/128;
+			stripInAPV = stripTrajMid-tapv*128;
+
+			if(stripInAPV<_stripsApvEdge || stripInAPV>128-_stripsApvEdge) continue;
+			if(tapv != capv) badflag = true;
+		  } 	
+    	}
+	  }
+
+
+
+      if(badflag && !badquality) {   
+    	hit temphit;         
+    	temphit.x = x;
+    	temphit.y = y;
+    	temphit.z = z;
+    	temphit.id = id;
+    	hits[layer].push_back(temphit);
+      } 
+      pair<unsigned int, unsigned int> newgoodpair (1,1);
+      pair<unsigned int, unsigned int> newbadpair (1,0);
+      //First, figure out if the module already exists in the map of maps
+      map< unsigned int, pair< unsigned int, unsigned int> >::iterator it = modCounter[layer].find(id);
+      if(!badquality) {
+    	if(it == modCounter[layer].end()) {
+          if(badflag) modCounter[layer][id] = newbadpair;
+          else modCounter[layer][id] = newgoodpair;
+    	}
+    	else {
+          ((*it).second.first)++;
+          if(!badflag) ((*it).second.second)++;
+    	}
+
+		if(layerfound_perBx.find(bx)==layerfound_perBx.end()) {
+	      layerfound_perBx[bx] = vector<int>(23, 0);
+	      layertotal_perBx[bx] = vector<int>(23, 0);
+		}
+		if(!badflag) layerfound_perBx[bx][layer]++;
+		layertotal_perBx[bx][layer]++;
+
+		if(!badflag) layerfound_vsLumi[layer]->Fill(instLumi);
+		layertotal_vsLumi[layer]->Fill(instLumi);
+		if(!badflag) layerfound_vsPU[layer]->Fill(PU);
+		layertotal_vsPU[layer]->Fill(PU);
+
+		if(_useCM){
+	      if(!badflag) layerfound_vsCM[layer]->Fill(CM);
+		  layertotal_vsCM[layer]->Fill(CM);
+		}
+
+    	//Have to do the decoding for which side to go on (ugh)
+    	if(layer <= 10) {
+          if(!badflag) goodlayerfound[layer]++;
+          goodlayertotal[layer]++;
+    	}
+    	else if(layer > 10 && layer < 14) {
+          if( ((id>>13)&0x3) == 1) {
+		if(!badflag) goodlayerfound[layer]++;
+        	goodlayertotal[layer]++;
+	  }
+	  else if( ((id>>13)&0x3) == 2) {
+		if(!badflag) goodlayerfound[layer+3]++;
+        	goodlayertotal[layer+3]++;
+	  }
+    	}
+    	else if(layer > 13 && layer <= 22) {
+          if( ((id>>18)&0x3) == 1) {
+		if(!badflag) goodlayerfound[layer+3]++;
+        	goodlayertotal[layer+3]++;
+	  }
+	  else if( ((id>>18)&0x3) == 2) {
+		if(!badflag) goodlayerfound[layer+3+nTEClayers]++;
+        	goodlayertotal[layer+3+nTEClayers]++;
+	  }
+    	} 
+      }
+      //Do the one where we don't exclude bad modules!
       if(layer <= 10) {
-        if(!badflag) goodlayerfound[layer]++;
-        goodlayertotal[layer]++;
+    	if(!badflag) alllayerfound[layer]++;
+    	alllayertotal[layer]++;
       }
       else if(layer > 10 && layer < 14) {
-        if( ((id>>13)&0x3) == 1) {
-	  if(!badflag) goodlayerfound[layer]++;
-          goodlayertotal[layer]++;
-	}
-	else if( ((id>>13)&0x3) == 2) {
-	  if(!badflag) goodlayerfound[layer+3]++;
-          goodlayertotal[layer+3]++;
-	}
+    	if( ((id>>13)&0x3) == 1) {
+	  if(!badflag) alllayerfound[layer]++;
+          alllayertotal[layer]++;
+    	}
+    	else if( ((id>>13)&0x3) == 2) {
+          if(!badflag) alllayerfound[layer+3]++;
+          alllayertotal[layer+3]++;
+    	}
       }
       else if(layer > 13 && layer <= 22) {
-        if( ((id>>18)&0x3) == 1) {
-	  if(!badflag) goodlayerfound[layer+3]++;
-          goodlayertotal[layer+3]++;
-	}
-	else if( ((id>>18)&0x3) == 2) {
-	  if(!badflag) goodlayerfound[layer+3+nTEClayers]++;
-          goodlayertotal[layer+3+nTEClayers]++;
-	}
-      } 
+    	if( ((id>>18)&0x3) == 1) {
+          if(!badflag) alllayerfound[layer+3]++;
+          alllayertotal[layer+3]++;
+    	}
+    	else if( ((id>>18)&0x3) == 2) {
+          if(!badflag) alllayerfound[layer+3+nTEClayers]++;
+          alllayertotal[layer+3+nTEClayers]++;
+    	}
+      }  
+      //At this point, both of our maps are loaded with the correct information
     }
-    //Do the one where we don't exclude bad modules!
-    if(layer <= 10) {
-      if(!badflag) alllayerfound[layer]++;
-      alllayertotal[layer]++;
-    }
-    else if(layer > 10 && layer < 14) {
-      if( ((id>>13)&0x3) == 1) {
-	if(!badflag) alllayerfound[layer]++;
-        alllayertotal[layer]++;
-      }
-      else if( ((id>>13)&0x3) == 2) {
-        if(!badflag) alllayerfound[layer+3]++;
-        alllayertotal[layer+3]++;
-      }
-    }
-    else if(layer > 13 && layer <= 22) {
-      if( ((id>>18)&0x3) == 1) {
-        if(!badflag) alllayerfound[layer+3]++;
-        alllayertotal[layer+3]++;
-      }
-      else if( ((id>>18)&0x3) == 2) {
-        if(!badflag) alllayerfound[layer+3+nTEClayers]++;
-        alllayertotal[layer+3+nTEClayers]++;
-      }
-    }  
-    //At this point, both of our maps are loaded with the correct information
-  }
+  }// go to next CalibTreeFile
+
   makeHotColdMaps();
   makeTKMap();
   makeSQLite();
   totalStatistics();
   makeSummary();
   makeSummaryVsBx();
+  makeSummaryVsLumi();
+  if(_useCM) makeSummaryVsCM();
   
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
@@ -1002,10 +1058,12 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   found2->Sumw2();
   all2->Sumw2();
 
-  TGraphAsymmErrors *gr = new TGraphAsymmErrors(nLayers+1);
+  TGraphAsymmErrors *gr = fs->make<TGraphAsymmErrors>(nLayers+1);
+  gr->SetName("eff_good");
   gr->BayesDivide(found,all); 
 
-  TGraphAsymmErrors *gr2 = new TGraphAsymmErrors(nLayers+1);
+  TGraphAsymmErrors *gr2 = fs->make<TGraphAsymmErrors>(nLayers+1);
+  gr2->SetName("eff_all");
   gr2->BayesDivide(found2,all2);
 
   for(int j = 0; j<nLayers+1; j++){
@@ -1078,17 +1136,18 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   overlay->SetFrameFillStyle(4000);
   overlay->Draw("same");
   overlay->cd();
-  gr2->Draw("AP");
+  if(!_showOnlyGoodModules) gr2->Draw("AP");
 
   TLegend *leg = new TLegend(0.70,0.27,0.88,0.40);
   leg->AddEntry(gr,"Good Modules","p");
-  leg->AddEntry(gr2,"All Modules","p");
+  if(!_showOnlyGoodModules) leg->AddEntry(gr2,"All Modules","p");
   leg->SetTextSize(0.020);
   leg->SetFillColor(0);
   leg->Draw("same");
   
   c7->SaveAs("Summary.png");
 }
+
 
 void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
   cout<<"Computing efficiency vs bx"<<endl;
@@ -1185,6 +1244,76 @@ TString SiStripHitEffFromCalibTree::GetLayerName(Long_t k) {
 	}
    
     return layername;
+}
+
+void SiStripHitEffFromCalibTree::ComputeEff(vector< TH1F* > &vhfound, vector< TH1F* > &vhtotal, string name) {
+
+  unsigned int nLayers = 22;
+  if(_showRings) nLayers = 20;
+  
+  TH1F* hfound;
+  TH1F* htotal;
+  
+  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+	
+	hfound = vhfound[ilayer];
+	htotal = vhtotal[ilayer];
+	
+	hfound->Sumw2();
+	htotal->Sumw2();	
+	
+	// new ROOT version: TGraph::Divide don't handle null or negative values
+	for (Long_t i=0; i< hfound->GetNbinsX()+1; ++i) {
+	  if( hfound->GetBinContent(i)==0) hfound->SetBinContent(i,1e-6);
+	  if( htotal->GetBinContent(i)==0) htotal->SetBinContent(i,1);
+	}
+		
+	TGraphAsymmErrors *geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
+	geff->SetName(Form("%s_layer%i", name.c_str(), ilayer));
+	geff->BayesDivide(hfound, htotal);
+	if(name=="effVsLumi") geff->SetTitle("Hit Efficiency vs inst. lumi. - "+GetLayerName(ilayer));
+	if(name=="effVsPU") geff->SetTitle("Hit Efficiency vs pileup - "+GetLayerName(ilayer));
+	if(name=="effVsCM") geff->SetTitle("Hit Efficiency vs common Mode - "+GetLayerName(ilayer));
+	geff->SetMarkerStyle(20);
+	
+  }
+
+}
+
+void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
+  cout<<"Computing efficiency vs lumi"<<endl;
+  
+  unsigned int nLayers = 22;
+  if(_showRings) nLayers = 20;
+  unsigned int nLayersForAvg = 0;
+  float layerLumi = 0;
+  float layerPU = 0;
+  float avgLumi = 0;
+  float avgPU = 0;
+  
+  cout<<"Lumi summary:  (avg over trajectory measurements)"<<endl; 
+  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+	layerLumi=layertotal_vsLumi[ilayer]->GetMean();
+	layerPU=layertotal_vsPU[ilayer]->GetMean();
+	//cout<<" layer "<<ilayer<<"  lumi: "<<layerLumi<<"  pu: "<<layerPU<<endl;	
+	if(layerLumi!=0 && layerPU!=0) {
+	  avgLumi+=layerLumi;
+	  avgPU+=layerPU;
+	  nLayersForAvg++;
+	}
+  }
+  avgLumi/=nLayersForAvg;
+  avgPU/=nLayersForAvg;
+  cout<<"Avg conditions:   lumi :"<<avgLumi<<"  pu: "<<avgPU<<endl;
+  
+  ComputeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
+  ComputeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
+  
+}
+
+void SiStripHitEffFromCalibTree::makeSummaryVsCM() {
+  cout<<"Computing efficiency vs CM"<<endl;
+  ComputeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
 }
 
 TString SiStripHitEffFromCalibTree::GetLayerSideName(Long_t k) {

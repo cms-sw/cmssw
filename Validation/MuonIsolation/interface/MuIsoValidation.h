@@ -71,7 +71,7 @@ public:
   
 private:
   //---------methods----------------------------
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void InitStatics();
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

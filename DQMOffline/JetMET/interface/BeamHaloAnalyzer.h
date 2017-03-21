@@ -159,7 +159,7 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
  private:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event& , const edm::EventSetup&);
+  virtual void analyze(const edm::Event& , const edm::EventSetup&) override;
 
   edm::InputTag IT_L1MuGMTReadout;
 

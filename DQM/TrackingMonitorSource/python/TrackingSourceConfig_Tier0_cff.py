@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### load which are the tracks collection 2 be monitored
@@ -297,9 +296,6 @@ trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
 trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 
 
-# import v0 monitoring
-from DQM.TrackingMonitor.V0Monitor_cff import *
-
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
@@ -309,9 +305,9 @@ TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommo
 # track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0 += sequenceName[tracks]
+        TrackingDQMSourceTier0 += cms.ignore(sequenceName[tracks])
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0 += locals()[label]
+    TrackingDQMSourceTier0 += cms.ignore(locals()[label])
 # seeding monitoring
 for _eraName, _postfix, _era in _cfg.allEras():
     _seq = cms.Sequence()
@@ -327,6 +323,7 @@ for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0 += locals()[label]
 TrackingDQMSourceTier0 += voMonitoringSequence
+TrackingDQMSourceTier0 += voWcutMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -336,9 +333,9 @@ TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitM
 ## monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0Common+=sequenceName[tracks]
+        TrackingDQMSourceTier0Common+=cms.ignore(sequenceName[tracks])
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0Common += locals()[label]
+    TrackingDQMSourceTier0Common += cms.ignore(locals()[label])
 # seeding monitoring
 TrackingDQMSourceTier0Common += TrackSeedMonSequence
 # MessageLog
@@ -346,6 +343,7 @@ for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0Common += locals()[label]
 TrackingDQMSourceTier0Common += voMonitoringCommonSequence
+TrackingDQMSourceTier0Common += voWcutMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -356,11 +354,11 @@ TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitM
 # monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0MinBias += sequenceName[tracks]
+        TrackingDQMSourceTier0MinBias += cms.ignore(sequenceName[tracks])
 
     for topology in [ 'MB', 'ZBnoHIPnoOOT', 'ZBHIPnoOOT', 'ZBHIPOOT']:
         label = 'TrackerCollisionSelectedTrackMon' + str(topology) + str(tracks)
-        TrackingDQMSourceTier0MinBias += locals()[label]
+        TrackingDQMSourceTier0MinBias += cms.ignore(locals()[label])
 # seeding monitoring
 TrackingDQMSourceTier0MinBias += TrackSeedMonSequence
 # MessageLog
@@ -372,6 +370,10 @@ TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBnoHIPnoOOTSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBHIPnoOOTSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBHIPOOTSequence
+TrackingDQMSourceTier0MinBias += voWcutMonitoringMBSequence
+TrackingDQMSourceTier0MinBias += voWcutMonitoringZBnoHIPnoOOTSequence
+TrackingDQMSourceTier0MinBias += voWcutMonitoringZBHIPnoOOTSequence
+TrackingDQMSourceTier0MinBias += voWcutMonitoringZBHIPOOTSequence
 
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 

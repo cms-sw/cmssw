@@ -414,6 +414,15 @@ namespace reco {
     virtual double vy() const {return vertex().y();}
     virtual double vz() const {return vertex().z();}
 
+    /// do we have a valid time information
+    bool isTimeValid() const { return timeError_ >= 0.f; }
+    /// \return the timing
+    float time() const { return time_; }
+    /// \return the timing uncertainty
+    float timeError() const { return timeError_; }
+    /// \set the timing information
+    void setTime(float time, float timeError = 0.f) { time_ = time; timeError_ = timeError; }
+
   private:
     /// Polymorphic overlap
     virtual bool overlap( const Candidate & ) const;
@@ -509,6 +518,11 @@ namespace reco {
     unsigned short storedRefsBitPattern_;
     std::vector<unsigned long long> refsInfo_;
     std::vector<const void *> refsCollectionCache_;
+
+    /// timing information (valid if timeError_ >= 0)
+    float time_;
+    /// timing information uncertainty (<0 if timing not available)
+    float timeError_;
 
   };
 

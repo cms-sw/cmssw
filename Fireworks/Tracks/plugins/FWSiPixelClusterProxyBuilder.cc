@@ -80,8 +80,8 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
          float localPoint[3] = 
             {     
-               fireworks::pixelLocalX(( *itc ).minPixelRow(), ( int )pars[0] ),
-               fireworks::pixelLocalY(( *itc ).minPixelCol(), ( int )pars[1] ),
+               fireworks::pixelLocalX(( *itc ).minPixelRow(), pars ),
+               fireworks::pixelLocalY(( *itc ).minPixelCol(), pars ),
                0.0
             };
 
@@ -106,9 +106,9 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
             for(int of=0;of<8;of++) {
                float lp[3]= {
                   fireworks::pixelLocalX(
-                                         (*itc).pixel(j).x+offsetx[of%4],( int )pars[0]) ,
+                                         (*itc).pixel(j).x+offsetx[of%4], pars) ,
                   fireworks::pixelLocalY(
-                                         (*itc).pixel(j).y+offsety[of%4], ( int )pars[1] ),
+                                         (*itc).pixel(j).y+offsety[of%4], pars ),
                   (of<4)?(0.0f):(adc)
                };
 

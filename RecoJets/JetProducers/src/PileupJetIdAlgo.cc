@@ -151,7 +151,7 @@ std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(const std::vector<std::
             if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
             tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
         }
-        std::unique_ptr<TMVA::IMethod> temp( reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights.c_str() ) );
+        reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights.c_str());
         return( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
 }
 
@@ -468,7 +468,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 					if (isVtx0) {
 					    if (lPack->fromPV(vtx_i) == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
 					    if (lPack->fromPV(vtx_i) == 0) inVtxOther = true;
-					    dZ0 = lPack->dz(vtx_i);
+					    dZ0 = lPack->dz(iv.position());
 					}
 
 					if (fabs(lPack->dz(iv.position())) < fabs(dZ_tmp)) {

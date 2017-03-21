@@ -64,6 +64,9 @@ multiTrackValidator = cms.EDAnalyzer(
     label = cms.VInputTag(cms.InputTag("generalTracks")),
     beamSpot = cms.InputTag("offlineBeamSpot"),
 
+    ### selection MVA
+    mvaLabels = cms.untracked.PSet(),
+
     ### dE/dx configuration ###
     dEdx1Tag = cms.InputTag("dedxHarmonic2"),
     dEdx2Tag = cms.InputTag("dedxTruncated40"),
@@ -91,6 +94,7 @@ multiTrackValidator = cms.EDAnalyzer(
     dodEdxPlots = cms.untracked.bool(False),
     doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
     doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
+    doMVAPlots = cms.untracked.bool(False), # needs input from track MVA selectors
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

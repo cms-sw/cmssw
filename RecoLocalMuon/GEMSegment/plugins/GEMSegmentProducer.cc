@@ -46,7 +46,7 @@ GEMSegmentProducer::GEMSegmentProducer(const edm::ParameterSet& ps) : iev(0) {
 
 void GEMSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
-  LogDebug("GEMSegmentProducer") << "start producing segments for " << ++iev << "th event with csc data";
+  LogDebug("GEMSegmentProducer") << "start producing segments for " << ++iev << "th event with GEM data";
 	
   // find the geometry (& conditions?) for this event & cache it in the builder
   edm::ESHandle<GEMGeometry> gemg;

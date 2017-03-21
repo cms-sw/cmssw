@@ -187,26 +187,6 @@ namespace edm {
     return new (iAlloc) FunctorTask<F>(f);
   }
 
-  template<typename F>
-  class FunctorWaitingTask : public WaitingTask {
-  public:
-    explicit FunctorWaitingTask( F f): func_(f) {}
-    
-    task* execute() override {
-      func_(exceptionPtr());
-      return nullptr;
-    };
-    
-  private:
-    F func_;
-  };
-  
-  template< typename ALLOC, typename F>
-  FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorWaitingTask<F>(f);
-  }
-
-  
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
@@ -295,8 +275,51 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
-    //The caller should be checking to see if waitTask needs to be run
+    if(not skipCurrentProcess) {
+      m_waitingTasks.add(waitTask);
+      
+      bool expected = false;
+      if(worker_ and prefetchRequested_.compare_exchange_strong(expected,true)) {
+        //using a waiting task to do a callback guarantees that
+        // the m_waitingTasks list will be released from waiting even
+        // if the module does not put this data product or the
+        // module has an exception while running
+        
+        auto waiting = make_waiting_task(tbb::task::allocate_root(),
+                                         [this](std::exception_ptr const *  iException) {
+                                           if(nullptr != iException) {
+                                             m_waitingTasks.doneWaiting(*iException);
+                                           } else {
+                                             m_waitingTasks.doneWaiting(std::exception_ptr());
+                                           }
+                                         });
+        worker_->callWhenDoneAsync(waiting);
+      }
+    }
   }
+  
+  void
+  PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    ProducedProductResolver::putProduct_(std::move(edp));
+    bool expected = false;
+    if(prefetchRequested_.compare_exchange_strong(expected,true)) {
+      m_waitingTasks.doneWaiting(std::exception_ptr());
+    }
+  }
+
+  
+  void
+  PuttableProductResolver::resetProductData_(bool deleteEarly) {
+    m_waitingTasks.reset();
+    DataManagingProductResolver::resetProductData_(deleteEarly);
+    prefetchRequested_ = false;
+  }
+
+  void
+  PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+  }
+
   
   void
   UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -407,7 +430,6 @@ namespace edm {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
-    assert(edp.get() != nullptr);
     
     setProduct(std::move(edp));  // ProductResolver takes ownership
   }
@@ -423,6 +445,13 @@ namespace edm {
   bool
   ProducedProductResolver::isFromCurrentProcess() const {
     return true;
+  }
+  
+  void
+  ProducedProductResolver::resetFailedFromThisProcess() {
+    if(ProductStatus::ResolveFailed == status()) {
+      resetProductData_(false);
+    }
   }
 
   

@@ -1,0 +1,5 @@
+from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducerDefault_cfi import multiHitFromChi2EDProducerDefault as _multiHitFromChi2EDProducerDefault
+multiHitFromChi2EDProducer = _multiHitFromChi2EDProducerDefault.clone()
+
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(multiHitFromChi2EDProducer, maxElement = 1000000)

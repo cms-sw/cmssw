@@ -53,7 +53,7 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual void attachTo(edm::ActivityRegistry &);
+   virtual void attachTo(edm::ActivityRegistry &) override;
    void postBeginJob();
    void postEndJob();
 
@@ -64,13 +64,13 @@ public:
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
-   virtual void checkPosition();
-   virtual void stopPlaying();
-   virtual void autoLoadNewEvent();
+   virtual void checkPosition() override;
+   virtual void stopPlaying() override ;
+   virtual void autoLoadNewEvent() override;
 
    void showPathsGUI(const TGWindow *p);
 
-   void quit();
+   void quit() override;
 
    virtual void startingNewLoop(unsigned int) override;
    virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int) override;

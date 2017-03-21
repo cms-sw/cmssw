@@ -4,6 +4,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrackFitters"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="DataFormats/Alignment"/>
 <use   name="rootcore"/>
 <use   name="Alignment/CommonAlignment"/>

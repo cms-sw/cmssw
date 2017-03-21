@@ -23,8 +23,8 @@ class HiBasicGenTest : public DQMEDAnalyzer
  public:
   explicit HiBasicGenTest(const edm::ParameterSet&);
   virtual ~HiBasicGenTest();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker &,
       edm::Run const &, edm::EventSetup const &) override;
 

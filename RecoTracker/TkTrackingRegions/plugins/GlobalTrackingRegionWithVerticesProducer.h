@@ -39,6 +39,29 @@ public:
 
   virtual ~GlobalTrackingRegionWithVerticesProducer(){}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<bool>("precise", true);
+    desc.add<bool>("useMultipleScattering", false);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+    desc.add<bool>("useFixedError", true);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("sigmaZVertex", 3.0);
+    desc.add<double>("fixedError", 0.2);
+    desc.add<edm::InputTag>("VertexCollection", edm::InputTag("firstStepPrimaryVertices"));
+    desc.add<double>("ptMin", 0.9);
+    desc.add<bool>("useFoundVertices", true);
+    desc.add<bool>("useFakeVertices", false);
+    desc.add<double>("nSigmaZ", 4.0);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("globalTrackingRegionWithVertices", descRegion);
+  }
+
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions
     (const edm::Event& ev, const edm::EventSetup&) const override
   {

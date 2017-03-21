@@ -51,9 +51,6 @@ namespace reco {
     std::vector<double> recHitContribFrac() 
       const {return recHitContribFrac_;} 
 
-    friend  std::ostream& operator<<(std::ostream& out, 
-                                     const PFSimParticle& track);
-
   private:
     
     /// pdg code 
@@ -73,6 +70,10 @@ namespace reco {
     std::vector<double>   recHitContribFrac_;
 
   };
+
+  std::ostream& operator<<(std::ostream& out, 
+                           const PFSimParticle& track);
+
 
 }
 

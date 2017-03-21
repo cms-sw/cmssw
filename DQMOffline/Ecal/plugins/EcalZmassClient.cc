@@ -138,8 +138,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	  {
 
 	    B->Fit ("mygauss", "QR");
-	    mean = fabs (func->GetParameter (1));
-	    sigma = fabs (func->GetParError (1));
+	    mean = std::abs (func->GetParameter (1));
+	    sigma = std::abs (func->GetParError (1));
 	  }
 
 	if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20)
@@ -197,8 +197,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	  {
 
 	    Bbis->Fit ("mygauss", "QR");
-	    rms = fabs (func->GetParameter (2));
-	    rmsErr = fabs (func->GetParError (2));
+	    rms = std::abs (func->GetParameter (2));
+	    rmsErr = std::abs (func->GetParError (2));
 	  }
 
 	if (N == 0 || rms < 0 || rms > 50 || rmsErr <= 0 || rmsErr > 50)
@@ -256,8 +256,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	if (N != 0)
 	  {
 	    E->Fit ("mygauss", "QR");
-	    mean = fabs (func->GetParameter (1));
-	    sigma = fabs (func->GetParError (1));
+	    mean = std::abs (func->GetParameter (1));
+	    sigma = std::abs (func->GetParError (1));
 	  }
 
 	if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20)
@@ -317,8 +317,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	  {
 
 	    Ebis->Fit ("mygauss", "QR");
-	    rms = fabs (func->GetParameter (2));
-	    rmsErr = fabs (func->GetParError (2));
+	    rms = std::abs (func->GetParameter (2));
+	    rmsErr = std::abs (func->GetParError (2));
 	  }
 
 	if (N == 0 || rms < 0 || rms > 50 || rmsErr <= 0 || rmsErr > 50)
@@ -378,8 +378,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	  {
 
 	    M->Fit ("mygauss", "QR");
-	    mean = fabs (func->GetParameter (1));
-	    sigma = fabs (func->GetParError (1));
+	    mean = std::abs (func->GetParameter (1));
+	    sigma = std::abs (func->GetParError (1));
 	  }
 	if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20)
 	  {
@@ -437,8 +437,8 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	  {
 
 	    Mbis->Fit ("mygauss", "QR");
-	    rms = fabs (func->GetParameter (2));
-	    rmsErr = fabs (func->GetParError (2));
+	    rms = std::abs (func->GetParameter (2));
+	    rmsErr = std::abs (func->GetParError (2));
 	  }
 
 	if (N == 0 || rms < 0 || rms > 50 || rmsErr <= 0 || rmsErr > 50)
@@ -500,7 +500,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	    C1->Fit ("mygauss", "QR");
 	    if ((func->GetNDF () != 0))
 	      {
-		Chi2 = fabs (func->GetChisquare ()) / fabs (func->GetNDF ());
+		Chi2 = std::abs (func->GetChisquare ()) / std::abs (func->GetNDF ());
 		NDF = 0.1;
 	      }
 	  }
@@ -562,7 +562,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	    C2->Fit ("mygauss", "QR");
 	    if (func->GetNDF () != 0)
 	      {
-		Chi2 = fabs (func->GetChisquare ()) / fabs (func->GetNDF ());
+		Chi2 = std::abs (func->GetChisquare ()) / std::abs (func->GetNDF ());
 		NDF = 0.1;
 	      }
 	  }
@@ -623,7 +623,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 	    C3->Fit ("mygauss", "QR");
 	    if ((func->GetNDF () != 0))
 	      {
-		Chi2 = fabs (func->GetChisquare ()) / fabs (func->GetNDF ());
+		Chi2 = std::abs (func->GetChisquare ()) / std::abs (func->GetNDF ());
 		NDF = 0.1;
 	      }
 	  }

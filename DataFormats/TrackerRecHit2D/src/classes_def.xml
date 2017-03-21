@@ -74,6 +74,10 @@
   <class name="edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >::const_iterator"/>
 
   <class name="edm::OwnVector<SiTrackerMultiRecHit,edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator"/>
+
+  <class name="edm::OwnVector<BaseTrackerRecHit>" persistent="false"/>
+  <class name="edm::Wrapper<edm::OwnVector<BaseTrackerRecHit> >" persistent="false"/>
+
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D, edm::ClonePolicy<SiStripRecHit2D> >, edm::ClonePolicy<SiStripRecHit2D> >"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit1D, edm::ClonePolicy<SiStripRecHit1D> >, edm::ClonePolicy<SiStripRecHit1D> >"/>
 

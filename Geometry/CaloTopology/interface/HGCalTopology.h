@@ -28,7 +28,7 @@ public:
     DetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -40,7 +40,7 @@ public:
     DetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -52,7 +52,7 @@ public:
     DetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
 
@@ -64,7 +64,7 @@ public:
     DetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
   
@@ -72,7 +72,7 @@ public:
     DetId nextId=changeZ(id,+1);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
   
@@ -80,7 +80,7 @@ public:
     DetId nextId=changeZ(id,-1);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(DetId(nextId.rawId()));
+      vNeighborsDetId.push_back(nextId);
     return vNeighborsDetId;
   }
 

@@ -53,6 +53,7 @@ trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
         cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
     )
 )
+
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
@@ -73,4 +74,9 @@ trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
     OrderedHitsFactoryPSet = dict(maxElement = 100000),
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
 )
+
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
+                        ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+                        )
 

@@ -38,13 +38,13 @@ public:
   }
 
   using	Components = BasicTrajectoryState::Components;
-  Components const & components() const {
+  Components const & components() const override {
     return theStates;
   }
   bool singleState() const override { return false;}
 
 
-  virtual bool canUpdateLocalParameters() const { return false; }
+  virtual bool canUpdateLocalParameters() const override { return false; }
   virtual void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,

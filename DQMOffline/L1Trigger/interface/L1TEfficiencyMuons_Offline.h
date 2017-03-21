@@ -117,16 +117,16 @@ class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
 
     protected:
    // Luminosity Block
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
         virtual void dqmEndLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-        virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup);
+        virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
         virtual void bookControlHistos(DQMStore::IBooker &);
         virtual void bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut);
         virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
        //virtual void analyze (const edm::Event& e, const edm::EventSetup& c);
 
     private:
-        void analyze (const edm::Event& e, const edm::EventSetup& c);
+        void analyze (const edm::Event& e, const edm::EventSetup& c) override;
 
         // Helper Functions
         const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> & vertex,edm::Handle<reco::BeamSpot> & beamSpot);

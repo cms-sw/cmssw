@@ -13,7 +13,7 @@ class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchm
   
   MatchMETBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob(){};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

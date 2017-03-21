@@ -43,7 +43,7 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   virtual ~EfficiencyAnalyzer() ;
 
   /* Operations */ 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
@@ -121,13 +121,15 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   int _numPV;
 
   // STA Label
-  edm::EDGetTokenT<reco::MuonCollection>  theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionLabel_;
 
   //Vertex requirements
   bool doPVCheck_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+
+  std::string theFolder;
 };
 #endif 
 

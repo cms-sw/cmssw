@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
@@ -66,51 +65,37 @@ trackingPhase2PU140.toModify(pixelPairStepSeedLayers,
     )
 )
 
-# SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
-pixelPairStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVertices")
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.useMultipleScattering = True
-pixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('pixelPairStepSeedLayers')
+# TrackingRegion
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
+    ptMin = 0.6,
+    originRadius = 0.015,
+    fixedError = 0.03,
+    useMultipleScattering = True,
+))
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(useMultipleScattering=False))
+trackingPhase1PU70.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 1.2, useMultipleScattering=False))
+trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 1.3, useMultipleScattering=False))
 
-pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+# SEEDS
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+pixelPairStepHitDoublets = _hitPairEDProducer.clone(
+    seedingLayers = "pixelPairStepSeedLayers",
+    trackingRegions = "pixelPairStepTrackingRegions",
+    produceSeedingHitSets = True,
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+pixelPairStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+    seedingHitSets = "pixelPairStepHitDoublets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(True),
         FilterStripHits = cms.bool(False),
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache'),
     )
-from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
-trackingLowPU.toModify(pixelPairStepSeeds,
-    RegionFactoryPSet = dict(RegionPSet = dict(
-        VertexCollection = 'pixelVertices',
-        useMultipleScattering = False
-    ))
-)
-trackingPhase1PU70.toModify(pixelPairStepSeeds,
-    RegionFactoryPSet = dict(
-        RegionPSet = dict(
-            ptMin = 1.2,
-            useMultipleScattering = False,
-            VertexCollection = "pixelVertices",
-        )
-    ),
-)
-trackingPhase2PU140.toModify(pixelPairStepSeeds,
-    RegionFactoryPSet = dict(
-        RegionPSet = dict(
-            ptMin = 1.3,
-            useMultipleScattering = False,
-            VertexCollection = "pixelVertices",
-        )
-    ),
-    ClusterCheckPSet = dict(doClusterCheck = False),
-    OrderedHitsFactoryPSet = dict( maxElement = 0 ),
-    SeedCreatorPSet = dict( magneticField = '', propagator = 'PropagatorWithMaterial'),
 )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -336,6 +321,8 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
 # Final sequence
 PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepSeedLayers*
+                         pixelPairStepTrackingRegions*
+                         pixelPairStepHitDoublets*
                          pixelPairStepSeeds*
                          pixelPairStepTrackCandidates*
                          pixelPairStepTracks*

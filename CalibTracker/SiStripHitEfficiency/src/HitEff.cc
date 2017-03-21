@@ -72,6 +72,8 @@
 
 using namespace std;
 HitEff::HitEff(const edm::ParameterSet& conf) : 
+  scalerToken_( consumes< LumiScalersCollection >(conf.getParameter<edm::InputTag>("lumiScalers")) ),
+  commonModeToken_( mayConsume< edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode")) ),
   combinatorialTracks_token_( consumes< reco::TrackCollection >(conf.getParameter<edm::InputTag>("combinatorialTracks")) ),
   trajectories_token_( consumes< std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories")) ),
   clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters")) ),
@@ -81,6 +83,8 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
 {
   layers =conf_.getParameter<int>("Layer");
   DEBUG = conf_.getParameter<bool>("Debug");
+  addLumi_ = conf_.getUntrackedParameter<bool>("addLumi", false);
+  addCommonMode_ = conf_.getUntrackedParameter<bool>("addCommonMode", false);
 }
 
 // Virtual destructor needed.
@@ -129,6 +133,11 @@ void HitEff::beginJob(){
   traj->Branch("tquality",&tquality,"tquality/I");
   traj->Branch("istep",&istep,"istep/I");
   traj->Branch("bunchx",&bunchx,"bunchx/I");
+  if(addLumi_) {
+    traj->Branch("instLumi",&instLumi,"instLumi/F");
+	traj->Branch("PU",&PU,"PU/F");
+  }
+  if(addCommonMode_) traj->Branch("commonMode",&commonMode,"commonMode/F");
 
   events = 0;
   EventTrackCKF = 0;
@@ -153,6 +162,21 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   int run_nr = e.id().run();
   int ev_nr = e.id().event();
   int bunch_nr = e.bunchCrossing();
+
+  // Luminosity informations
+  edm::Handle<LumiScalersCollection> lumiScalers;
+  instLumi=0; PU=0;
+  if(addLumi_) {
+    e.getByToken(scalerToken_, lumiScalers); 
+	if (lumiScalers->begin() != lumiScalers->end()) {
+      instLumi = lumiScalers->begin()->instantLumi();
+	  PU = lumiScalers->begin()->pileup();
+	}
+  }
+  
+  // CM
+  edm::Handle<edm::DetSetVector<SiStripRawDigi> > commonModeDigis;
+  if(addCommonMode_) e.getByToken(commonModeToken_, commonModeDigis);
 
   //CombinatoriaTrack
   edm::Handle<reco::TrackCollection> trackCollectionCKF;
@@ -477,6 +501,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  withinAcceptance = TM->withinAcceptance();
 	  
 	  trajHitValid = TM->validHit();
+	  int TrajStrip = -1;
 
 	  // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
 	  TKlayers = checkLayer(iidd, tTopo);
@@ -488,7 +513,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    run = 0; event = 0; TrajLocX = 0.0; TrajLocY = 0.0; TrajLocErrX = 0.0; TrajLocErrY = 0.0; 
 	    TrajLocAngleX = -999.0; TrajLocAngleY = -999.0;	ResX = 0.0; ResXSig = 0.0;
 	    ClusterLocX = 0.0; ClusterLocY = 0.0; ClusterLocErrX = 0.0; ClusterLocErrY = 0.0; ClusterStoN = 0.0;
-	    bunchx = 0;
+	    bunchx = 0; commonMode = -100;
 	    
 	    // RPhi RecHit Efficiency 
 	    
@@ -504,7 +529,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		  if (DEBUG) cout << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << endl;
 		  DetId ClusterDetId(ClusterId);
 		  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
-
+		  const StripTopology& Topo  = stripdet->specificTopology();
+		  
                   float hbedge   = 0.0;
                   float htedge   = 0.0;
                   float hapoth   = 0.0;
@@ -521,6 +547,20 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
                      uxlden   = 1 + yloc*uylfac;
                   }
 		  
+		  // Need to know position of trajectory in strip number for selecting the right APV later
+		  if( TrajStrip==-1 ) {
+		    int nstrips = Topo.nstrips();
+		    float pitch = stripdet->surface().bounds().width() / nstrips;
+		    TrajStrip = xloc/pitch + nstrips/2.0;
+		    // Need additionnal corrections for endcap
+			if(TKlayers>=11) {
+			  float TrajLocXMid = xloc / (1 + (htedge-hbedge)*yloc/(htedge+hbedge)/hapoth) ; // radialy extrapolated x loc position at middle
+			  TrajStrip = TrajLocXMid/pitch + nstrips/2.0;
+			}
+			//cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
+		  }
+
+
 		  for(edmNew::DetSet<SiStripCluster>::const_iterator iter=DSViter->begin();iter!=DSViter->end();++iter) {
 		    //iter is a single SiStripCluster
 		    StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(*iter,*stripdet);
@@ -671,6 +711,15 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      ClusterLocErrY = FinalCluster[5];
 	      ClusterStoN = FinalCluster[6];
 	      
+		  // CM of APV crossed by traj
+		  if(addCommonMode_)
+		  if(commonModeDigis.isValid() && TrajStrip>=0 && TrajStrip<=768) {
+		    edm::DetSetVector<SiStripRawDigi>::const_iterator digiframe = commonModeDigis->find(iidd);
+			if(digiframe != commonModeDigis->end())
+			  if( (unsigned) TrajStrip/128 < digiframe->data.size())
+			    commonMode = digiframe->data.at(TrajStrip/128).adc();
+		  }
+
 	      if (DEBUG)	      cout << "before check good" << endl;
 	      
 	      if ( FinalResSig < 999.0) {  //could make requirement on track/hit consistency, but for

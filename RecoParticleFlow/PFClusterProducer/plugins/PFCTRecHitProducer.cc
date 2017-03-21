@@ -25,8 +25,9 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 
@@ -141,6 +142,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
   iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
+  // Get Hcal Topology
+  edm::ESHandle<HcalTopology> hcalTopology;
+  iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
+  theHcalTopology = hcalTopology.product();
 
   auto rechits = std::make_unique<std::vector<reco::PFRecHit>>(); 
   auto rechitsCleaned = std::make_unique<std::vector<reco::PFRecHit>>(); 
@@ -185,6 +190,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       if(hits[i].det()==DetId::Hcal) { 
 	foundHCALConstituent = true;
 	detid = hits[i];
+	if (theHcalTopology->withSpecialRBXHBHE() && 
+	    detid.subdet() == HcalEndcap) {
+	  detid = theHcalTopology->idFront(detid);
+	}
 	// An HCAL tower was found: Look for dead ECAL channels in the same CaloTower.
 	if ( ECAL_Compensate_ && energy > ECAL_Threshold_ ) {
 	  for(unsigned int j=0;j<allConstituents.size();++j) { 

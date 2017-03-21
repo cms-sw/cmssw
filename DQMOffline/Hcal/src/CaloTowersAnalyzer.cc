@@ -390,10 +390,6 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
 }
 
 
-void CaloTowersAnalyzer::beginRun() {}
-
-void CaloTowersAnalyzer::endRun() {}
-
 CaloTowersAnalyzer::~CaloTowersAnalyzer() {
   
 }

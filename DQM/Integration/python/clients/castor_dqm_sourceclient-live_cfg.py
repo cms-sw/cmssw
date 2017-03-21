@@ -27,36 +27,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #============================================
 # Castor Conditions: from Global Conditions Tag 
 #============================================
-process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
-#FIXME: they should use an official GT, not define custom records and conditions on their own!!!
-process.GlobalTag.toGet = cms.VPSet( cms.PSet( record = cms.string('CastorGainsRcd'),
-                                               tag = cms.string('CastorGains_v2.1_hlt'), 
-                                               ),
-                                     cms.PSet( record = cms.string('CastorSaturationCorrsRcd'),
-                                               tag = cms.string('CastorSaturationCorrs_v3.00_offline'),
-                                               ),
-                                     cms.PSet( record = cms.string('CastorPedestalWidthsRcd'),
-                                               tag = cms.string('CastorPedestalWidths_v3.00_offline'),
-                                               ),
-                                     cms.PSet( record = cms.string('CastorGainWidthsRcd'),
-                                               tag = cms.string('CastorGainWidths_v3.00_offline'),
-                                               ),
-                                     cms.PSet( record = cms.string('CastorQIEDataRcd'),
-                                               tag = cms.string('CastorQIEData_v3.00_offline'),
-                                               ),
-                                     cms.PSet( record = cms.string('CastorChannelQualityRcd'),
-                                               tag = cms.string('CastorChannelQuality_v3.00_offline'),
-                                               ),
-                                     cms.PSet( record = cms.string('CastorElectronicsMapRcd'),
-                                               tag = cms.string('CastorElectronicsMap_v3.00_offline'),
-                                               ),
-                                      )
-
-process.CastorDbProducer = cms.ESProducer("CastorDbProducer")
-
-##most likely the real fix:
-#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-## Condition for lxplus: change and possibly customise the GT
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+##
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 

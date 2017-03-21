@@ -45,7 +45,7 @@ public:
                  const MeasurementEstimator::OpaquePayload  & opay) const override;
 
 
-  virtual Chi2ChargeMeasurementEstimator* clone() const {
+  virtual Chi2ChargeMeasurementEstimator* clone() const override {
     return new Chi2ChargeMeasurementEstimator(*this);
   }
 private:

@@ -72,7 +72,7 @@ FWProxyBuilderConfiguration::makeSetter(TGCompositeFrame* frame, FWParameterBase
 {
    //  std::cout << "make setter " << pb->name() << std::endl;
 
-   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(pb) );
+   std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(pb) );
    ptr->attach(pb, this); 
    TGFrame* tmpFrame = ptr->build(frame, false);
    frame->AddFrame(tmpFrame, new TGLayoutHints(kLHintsExpandX));

@@ -76,9 +76,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
+    {
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
-			hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+			cspair.first, cspair.second, FIBER_uTCA_MIN1,
 			FIBERCH_MIN, false).rawId());
+    }
 
 	//	Containers XXX
 	_xPedSum1LS.initialize(hcaldqm::hashfunctions::fDChannel);
@@ -99,236 +102,236 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	//	Containers
 	_cMean1LS_Subdet.initialize(_name, "Mean1LS",hcaldqm::hashfunctions::fSubdet, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cRMS1LS_Subdet.initialize(_name, "RMS1LS", hcaldqm::hashfunctions::fSubdet, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMean1LS_depth.initialize(_name, "Mean1LS", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cRMS1LS_depth.initialize(_name, "RMS1LS", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cMean1LS_FEDVME.initialize(_name, "Mean1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cMean1LS_FEDuTCA.initialize(_name, "Mean1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cRMS1LS_FEDVME.initialize(_name, "RMS1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMS1LS_FEDuTCA.initialize(_name, "RMS1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	
 	_cMeanTotal_Subdet.initialize(_name, "Mean",hcaldqm::hashfunctions::fSubdet, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cRMSTotal_Subdet.initialize(_name, "RMS", hcaldqm::hashfunctions::fSubdet, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMeanTotal_depth.initialize(_name, "Mean", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cRMSTotal_depth.initialize(_name, "RMS", hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cMeanTotal_FEDVME.initialize(_name, "Mean", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cMeanTotal_FEDuTCA.initialize(_name, "Mean", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_15),0);
 	_cRMSTotal_FEDVME.initialize(_name, "RMS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMSTotal_FEDuTCA.initialize(_name, "RMS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 
 	_cMeanDBRef1LS_Subdet.initialize(_name, "MeanDBRef1LS", hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cRMSDBRef1LS_Subdet.initialize(_name, "RMSDBRef1LS", hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMeanDBRef1LS_depth.initialize(_name, "MeanDBRef1LS", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),0);
 	_cRMSDBRef1LS_depth.initialize(_name, "RMSDBRef1LS", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),0);
 	_cMeanDBRef1LS_FEDVME.initialize(_name, "MeanDBRef1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cMeanDBRef1LS_FEDuTCA.initialize(_name, "MeanDBRef1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMSDBRef1LS_FEDVME.initialize(_name, "RMSDBRef1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMSDBRef1LS_FEDuTCA.initialize(_name, "RMSDBRef1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	
 	_cMeanDBRefTotal_Subdet.initialize(_name, "MeanDBRef", hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cRMSDBRefTotal_Subdet.initialize(_name, "RMSDBRef", hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMeanDBRefTotal_depth.initialize(_name, "MeanDBRef", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),0);
 	_cRMSDBRefTotal_depth.initialize(_name, "RMSDBRef", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fAroundZero),0);
 	_cMeanDBRefTotal_FEDVME.initialize(_name, "MeanDBRef", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cMeanDBRefTotal_FEDuTCA.initialize(_name, "MeanDBRef", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMSDBRefTotal_FEDVME.initialize(_name, "RMSDBRef", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 	_cRMSDBRefTotal_FEDuTCA.initialize(_name, "RMSDBRef", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_5),0);
 
 	_cMissingvsLS_Subdet.initialize(_name, "MissingvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyEAvsLS_Subdet.initialize(_name, "OccupancyEAvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
 	_cNBadMeanvsLS_Subdet.initialize(_name, "NBadMeanvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cNBadRMSvsLS_Subdet.initialize(_name, "NBadRMSvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cMissing1LS_depth.initialize(_name, "Missing1LS", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBad1LS_depth.initialize(_name, "MeanBad1LS", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBad1LS_depth.initialize(_name, "RMSBad1LS", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMissing1LS_FEDVME.initialize(_name, "Missing1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMissing1LS_FEDuTCA.initialize(_name, "Missing1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBad1LS_FEDVME.initialize(_name, "MeanBad1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBad1LS_FEDuTCA.initialize(_name, "MeanBad1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBad1LS_FEDVME.initialize(_name, "RMSBad1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBad1LS_FEDuTCA.initialize(_name, "RMSBad1LS", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	
 	_cMissingTotal_depth.initialize(_name, "Missing", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBadTotal_depth.initialize(_name, "MeanBad", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBadTotal_depth.initialize(_name, "RMSBad", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMissingTotal_FEDVME.initialize(_name, "Missing", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMissingTotal_FEDuTCA.initialize(_name, "Missing", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBadTotal_FEDVME.initialize(_name, "MeanBad", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMeanBadTotal_FEDuTCA.initialize(_name, "MeanBad", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBadTotal_FEDVME.initialize(_name, "RMSBad", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cRMSBadTotal_FEDuTCA.initialize(_name, "RMSBad", hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::FlagQuantity(_vflags),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
 	_cSummaryvsLS.initialize(_name, "SummaryvsLS",
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::FEDQuantity(vFEDs),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
 
 	//	book plots
 	_cADC_SubdetPM.book(ib, _emap, _subsystem);

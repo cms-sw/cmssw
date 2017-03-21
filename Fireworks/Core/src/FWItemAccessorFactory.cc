@@ -90,7 +90,7 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
     mean that the product associated to @a iClass will not show up in the
     "Add Collection" table.
  */
-boost::shared_ptr<FWItemAccessorBase>
+std::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
    static const bool debug = false;
@@ -103,9 +103,8 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
       if (debug)
          fwLog(fwlog::kDebug) << "class " << iClass->GetName()
                               << " uses FWItemTVirtualCollectionProxyAccessor." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
+      return std::make_shared<FWItemTVirtualCollectionProxyAccessor>(iClass,
+            std::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate()));
    } 
    
    // Iterate on the available plugins and use the one which handles 
@@ -121,7 +120,7 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
       if (debug)
          fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
                               << accessorName << "." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
+      return std::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
    }
    
    if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
@@ -132,13 +131,12 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
                               << " which uses FWItemTVirtualCollectionProxyAccessor."
                               << std::endl;
    	   
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
-                                                   offset));
+      return std::make_shared<FWItemTVirtualCollectionProxyAccessor>(iClass,
+            std::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
+                                                   offset);
    }
 
-   return boost::shared_ptr<FWItemAccessorBase>(new FWItemSingleAccessor(iClass));
+   return std::make_shared<FWItemSingleAccessor>(iClass);
 }
 
 /** Helper method which @return true if the passes @a iClass can be accessed via

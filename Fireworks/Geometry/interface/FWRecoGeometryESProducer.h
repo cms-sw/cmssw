@@ -16,6 +16,7 @@ class CaloGeometry;
 class HGCalGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
+class FastTimeGeometry;
 class FWRecoGeometry;
 class FWRecoGeometryRecord;
 class GeomDet;
@@ -44,21 +45,30 @@ private:
   void addTIDGeometry( void );
   void addTECGeometry( void );
   void addCaloGeometry( void );
+
+  void addFTLGeometry( void );
   
+
+   
+  void ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit );
+   
+
   unsigned int insert_id( unsigned int id );
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
   
   edm::ESHandle<GlobalTrackingGeometry>      m_geomRecord;
   edm::ESHandle<CaloGeometry>                m_caloGeom;
+  edm::ESHandle<FastTimeGeometry>            m_ftlBarrelGeom,m_ftlEndcapGeom;
   std::vector<edm::ESHandle<HGCalGeometry> > m_hgcalGeoms;
   const TrackerGeometry*                     m_trackerGeom;
-  std::shared_ptr<FWRecoGeometry>          m_fwGeometry;
+  std::shared_ptr<FWRecoGeometry>            m_fwGeometry;
   
   unsigned int m_current;
   bool m_tracker;
   bool m_muon;
   bool m_calo;
+  bool m_timing;
 };
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H

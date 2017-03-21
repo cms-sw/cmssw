@@ -12,7 +12,7 @@
 
 // system include files
 #include <cassert>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <exception>
 
 // user include files
@@ -108,7 +108,7 @@ FWModelChangeManager::endChanges()
           itChanges != m_itemChanges.end();
           ++itChanges,++index) {
          if( !guard ) {
-            // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+            // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
             guard = true;
             changeSignalsAreComing_();
          }
@@ -141,7 +141,7 @@ FWModelChangeManager::endChanges()
          {
             if (!guard) 
             {
-               // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+               // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
                guard = true;
                changeSignalsAreComing_();
             }

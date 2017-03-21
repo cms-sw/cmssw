@@ -25,9 +25,9 @@ class EcalTangentFilter : public edm::EDFilter {
       ~EcalTangentFilter();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override;
       
       // ----------member data ---------------------------
 		int fNgood, fNtot, fEvt;

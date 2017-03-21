@@ -13,4 +13,6 @@ triggerEfficiencyTest = cms.EDAnalyzer("DTLocalTriggerEfficiencyTest",
     folderRoot = cms.untracked.string('')
 )
 
+from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
+run2_25ns_specific.toModify( triggerEfficiencyTest,hwSources = cms.untracked.vstring('TM') )
 

@@ -9,6 +9,7 @@
 
 class RecoTrackSelector: public RecoTrackSelectorBase {
  public:
+  typedef reco::TrackRef reference_type;
   typedef reco::TrackCollection collection;
   typedef std::vector<const reco::Track *> container;
   typedef container::const_iterator const_iterator;
@@ -25,10 +26,12 @@ class RecoTrackSelector: public RecoTrackSelectorBase {
     init(event,es);
     selected_.clear();
     for( reco::TrackCollection::const_iterator trk = c->begin();
-         trk != c->end(); ++ trk )
-      if ( operator()(*trk) ) {
+         trk != c->end(); ++ trk ) {
+      reference_type tkref(c,std::distance(c->begin(),trk));
+      if ( operator()(*tkref) ) {
 	selected_.push_back( & * trk );
       }
+    }
   }
 
   size_t size() const { return selected_.size(); }

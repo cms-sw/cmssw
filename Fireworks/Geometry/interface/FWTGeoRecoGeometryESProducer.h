@@ -15,6 +15,7 @@ namespace edm
 class CaloGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
+class TrackerTopology;
 class FWTGeoRecoGeometry;
 class FWTGeoRecoGeometryRecord;
 
@@ -78,6 +79,7 @@ private:
    edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
    edm::ESHandle<CaloGeometry>           m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
+   const TrackerTopology* m_trackerTopology;
   
    std::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 

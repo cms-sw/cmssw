@@ -63,12 +63,12 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   ~PhotonMVAEstimatorRun2Spring15NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
  
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
   
-  virtual int getNCategories() const { return nCategories; }
+  virtual int getNCategories() const override { return nCategories; }
   bool isEndcapCategory( int category ) const;
   virtual const std::string& getName() const override final { return _name; }
   virtual const std::string& getTag() const override final { return _tag; }

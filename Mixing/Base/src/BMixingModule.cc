@@ -177,8 +177,7 @@ namespace edm {
     for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
       if (globalConf->inputConfigs_[makeIdx]) {
       	const edm::ParameterSet & psin=pset.getParameter<edm::ParameterSet>(globalConf->inputConfigs_[makeIdx]->sourcename_);
-        std::shared_ptr<PileUp> p(new PileUp(psin, globalConf->inputConfigs_[makeIdx]));
-        inputSources_.push_back(p);
+        inputSources_.push_back(std::make_shared<PileUp>(psin, globalConf->inputConfigs_[makeIdx]));
         inputSources_.back()->input(makeIdx);
       } else {
         inputSources_.push_back(nullptr);

@@ -44,7 +44,7 @@ class RPCSimAverageNoiseEffCls : public RPCSim
 
 // private:
  protected:
-  void init(){};
+  void init() override{};
   
   double aveEff;
   double aveCls;

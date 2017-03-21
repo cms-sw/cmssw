@@ -60,7 +60,7 @@ class SiStripSpyMonitorModule : public DQMEDAnalyzer
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup& );
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) override;
 
 
   //check if contains pedsubtr data = 0

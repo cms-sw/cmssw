@@ -19,8 +19,10 @@
     <ZSection z=" [ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
   </Polycone>
   <Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"      rMax="[escon:Front_window_Al]"/>
-    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"      rMax="[escon:R_MAX]"/>
+    <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
+    <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
   </Polycone>
 </SolidSection>
 

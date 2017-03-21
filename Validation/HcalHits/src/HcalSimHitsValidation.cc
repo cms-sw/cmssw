@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
@@ -46,9 +46,9 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
 
   //Center the iphi bins on the integers
-  float iphi_min = 0.5;
-  float iphi_max = NphiMax + 0.5;
-  int iphi_bins = (int) (iphi_max - iphi_min);
+  //float iphi_min = 0.5;
+  //float iphi_max = NphiMax + 0.5;
+  //int iphi_bins = (int) (iphi_max - iphi_min);
 
   int iEtaHBMax = hcons->getEtaRange(0).second;
   int iEtaHEMax = hcons->getEtaRange(1).second;
@@ -220,8 +220,8 @@ void HcalSimHitsValidation::endJob() {
 
     float phi_factor;
 
-    if      (fabs(ieta) <= 20) phi_factor = 72.;
-    else if (fabs(ieta) <  40) phi_factor = 36.;
+    if      (std::abs(ieta) <= 20) phi_factor = 72.;
+    else if (std::abs(ieta) <  40) phi_factor = 36.;
     else                       phi_factor = 18.;
     
     float cnorm;
@@ -308,16 +308,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ; SimHits != SimHitResult->end(); ++SimHits) {
     HcalDetId cell;
-    if (testNumber_) {
-      int subdet, z, depth, eta, phi, lay;
-      HcalTestNumbering::unpackHcalIndex(SimHits->id(), subdet, z, depth, eta,
-                                        phi, lay);
-      int sign = (z==0) ? (-1):(1);
-      eta     *= sign;
-      cell     = HcalDetId((HcalSubdetector)(subdet), eta, phi, depth);
-    } else {
-      cell = HcalDetId(SimHits->id());
-    }
+    if (testNumber_) cell = HcalHitRelabeller::relabel(SimHits->id(),hcons);
+    else cell = HcalDetId(SimHits->id());
 
     const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
     double etaS = cellGeometry->getPosition().eta () ;
@@ -332,7 +324,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
     
     if (r < partR){      
-      eta_diff = fabs(eta_MC - etaS);
+      eta_diff = std::abs(eta_MC - etaS);
       if(eta_diff < etaMax) {
 	etaMax  = eta_diff; 
 	ietaMax = cell.ieta(); 

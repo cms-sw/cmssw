@@ -337,7 +337,7 @@ void CmsShowCommonPopup::getColorSetColors (int& hci, int& sci)
 TGFrame*
 CmsShowCommonPopup::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
 {
-   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
+   std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach(param, this);
  
    TGFrame* pframe = ptr->build(frame);

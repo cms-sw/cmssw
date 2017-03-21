@@ -15,9 +15,9 @@ class HLTDisplacedtktkFilter : public HLTFilter {
     explicit HLTDisplacedtktkFilter(const edm::ParameterSet&);
     ~HLTDisplacedtktkFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);	
-    virtual void beginJob() ;
+    virtual void beginJob() override ;
     virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-    virtual void endJob() ;
+    virtual void endJob() override ;
 
   private:
     bool fastAccept_;

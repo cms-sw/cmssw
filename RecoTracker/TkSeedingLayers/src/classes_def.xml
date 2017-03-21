@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="std::vector<SeedingHitSet>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<SeedingHitSet> >" persistent="false"/>
+</lcgdict>

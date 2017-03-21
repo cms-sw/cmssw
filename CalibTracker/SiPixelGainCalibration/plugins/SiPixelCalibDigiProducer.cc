@@ -213,7 +213,7 @@ SiPixelCalibDigiProducer::clear(){
 void 
 SiPixelCalibDigiProducer::setPattern(){
   //  edm::LogInfo("SiPixelCalibProducer") << "in setPattern()" << std::endl;
-  uint32_t patternnumber = abs(iEventCounter_-1)/pattern_repeat_;
+  uint32_t patternnumber = (iEventCounter_-1)/pattern_repeat_;
   uint32_t rowpatternnumber = patternnumber/calib_->nColumnPatterns();
   uint32_t colpatternnumber = patternnumber%calib_->nColumnPatterns();
   edm::LogInfo("SiPixelCalibDigiProducer") << " rowpatternnumbers = " << rowpatternnumber << " " << colpatternnumber << " " << patternnumber << std::endl;

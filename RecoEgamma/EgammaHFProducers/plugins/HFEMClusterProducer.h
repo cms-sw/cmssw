@@ -15,7 +15,7 @@
 class HFEMClusterProducer : public edm::stream::EDProducer<> {
 public:
   explicit HFEMClusterProducer(edm::ParameterSet const& conf);
-  virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
+  virtual void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
   virtual void beginRun(edm::Run const &, edm::EventSetup const&) override final { algo_.resetForRun(); }
 private:
   edm::EDGetToken hfreco_;

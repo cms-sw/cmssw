@@ -1,9 +1,0 @@
-<library   name="OutputDDToDDL" file="stubs/Output*.cc">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/OfflineDBLoader"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="Geometry/Records"/>
-  <use   name="MagneticField/Records"/>
-</library>

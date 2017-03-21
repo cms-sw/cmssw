@@ -75,7 +75,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     }
   }
   
-  void BaseHadronizer::generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine) {
+  void BaseHadronizer::generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine, unsigned int ncpu) {
         
     if (gridpackPath().empty()) {
       return;
@@ -103,13 +103,16 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
    
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
     const char *outfilename = "cmsgrid_final.lhe";
+
+
     
-    char *args[5];
-    args[0] = strdup(script.fullPath().c_str());
-    args[1] = strdup(gridpackPath().c_str());
-    args[2] = strdup(nevStream.str().c_str());
-    args[3] = strdup(randomStream.str().c_str());
-    args[4] = NULL;
+    std::array<std::string,5> argStrs;
+    argStrs[0]=script.fullPath();
+    argStrs[1]=gridpackPath();
+    argStrs[2]=nevStream.str();
+    argStrs[3]=randomStream.str();
+    argStrs[4]=std::to_string(ncpu);
+    std::array<char*,6>args{ { &argStrs[0][0], &argStrs[1][0],&argStrs[2][0],&argStrs[3][0], &argStrs[4][0], NULL } };
     
     pid_t pid = fork();
 
@@ -119,7 +122,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     } 
     else if (pid==0) {
       //child
-      execvp(args[0],args);
+      execvp(args[0],std::begin(args));
       _exit(1);   // exec never returns
     }
     else {
@@ -137,10 +140,6 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     std::fclose(lhef);
 
     lheFile_ = outfilename;
-    
-    for (int iarg=0; iarg<4; ++iarg) {
-      delete[] args[iarg];
-    }
     
   }
   

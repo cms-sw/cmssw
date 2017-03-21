@@ -28,7 +28,7 @@ CaliGeneralDat::~CaliGeneralDat()
 
 
 void CaliGeneralDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -46,7 +46,7 @@ void CaliGeneralDat::prepareWrite()
 
 
 void CaliGeneralDat::writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -73,7 +73,7 @@ void CaliGeneralDat::writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item
 
 
 void CaliGeneralDat::fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

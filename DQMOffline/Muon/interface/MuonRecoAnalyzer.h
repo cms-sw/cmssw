@@ -36,7 +36,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   virtual ~MuonRecoAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  
   //calculate residual & pull:
@@ -47,7 +47,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
     MuonServiceProxy *theService;
   edm::ParameterSet parameters;
   
-  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   // Switch for verbosity
   std::string metname;
     
@@ -144,5 +144,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etaEfficiency;
   std::vector<MonitorElement*> phiEfficiency;
 
+  bool IsminiAOD;
+  std::string theFolder;
 };
 #endif

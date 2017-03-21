@@ -90,40 +90,43 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 	  } else {
 	    id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
 	  }
-	  const CaloCellGeometry* icell1 = geom.getGeometry(id1);
-	  GlobalPoint global1 = geom.getPosition(id1);
-	  DetId       idc1    = geom.getClosestCell(global1);
-	  std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
-		    << ":" << sector << ":0:" << cell << ") Geom " << icell1
-		    << " position (" << global1.x() << ", " << global1.y()
-		    << ", " << global1.z() << ") ids " << std::hex 
-		    << id1.rawId() << ":" << idc1.rawId() << std::dec;
-	  if (squareCell) {
-	    if (subdet == HGCEE)
-	      std::cout << ":" << HGCEEDetId(id1) << ":" << HGCEEDetId(idc1);
-	    else
-	      std::cout << ":" << HGCHEDetId(id1) << ":" << HGCHEDetId(idc1);
-	  } else {
-	    std::cout << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1);
-	  }
-	  std::cout << " parameter[11] = " << icell1->param()[10] << ":"
-		    << icell1->param()[11] << std::endl;
-	  if (id1.rawId() != idc1.rawId()) std::cout << "***** ERROR *****\n";
-	  if (squareCell) {
-	    DetId id2= ((subdet == HGCEE) ? 
-			(DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
-			(DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
-	    const CaloCellGeometry* icell2 = geom.getGeometry(id2);
-	    GlobalPoint global2 = geom.getPosition(id2);
-	    DetId       idc2    = geom.getClosestCell(global2);
+	  if (geom.topology().valid(id1)) {
+	    const CaloCellGeometry* icell1 = geom.getGeometry(id1);
+	    GlobalPoint global1 = geom.getPosition(id1);
+	    DetId       idc1    = geom.getClosestCell(global1);
 	    std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
-		      << ":" << sector << ":1:" << cell << ") Geom " << icell2
-		      << " position (" << global2.x() << ", " << global2.y()
-		      << ", " << global2.z() << ") ids " << std::hex 
-		      << id2.rawId() << ":" << idc2.rawId() << std::dec 
-		      << " parameter[11] = " << icell2->param()[10] << ":"
-		      << icell2->param()[11] << std::endl;
-	    if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
+		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
+		      << " position (" << global1.x() << ", " << global1.y()
+		      << ", " << global1.z() << ") ids " << std::hex 
+		      << id1.rawId() << ":" << idc1.rawId() << std::dec;
+	    if (squareCell) {
+	      if (subdet == HGCEE)
+		std::cout << ":" << HGCEEDetId(id1) << ":" << HGCEEDetId(idc1);
+	      else
+		std::cout << ":" << HGCHEDetId(id1) << ":" << HGCHEDetId(idc1);
+	    } else {
+	      std::cout << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1);
+	    }
+	    std::cout << " parameter[11] = " << icell1->param()[10] << ":"
+		      << icell1->param()[11] << std::endl;
+	    if (id1.rawId() != idc1.rawId()) std::cout <<"***** ERROR *****\n";
+	    if (squareCell) {
+	      DetId id2= ((subdet == HGCEE) ? 
+			  (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
+			  (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
+	      
+	      const CaloCellGeometry* icell2 = geom.getGeometry(id2);
+	      GlobalPoint global2 = geom.getPosition(id2);
+	      DetId       idc2    = geom.getClosestCell(global2);
+	      std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
+			<< ":" << sector << ":1:" << cell << ") Geom " << icell2
+			<< " position (" << global2.x() << ", " << global2.y()
+			<< ", " << global2.z() << ") ids " << std::hex 
+			<< id2.rawId() << ":" << idc2.rawId() << std::dec 
+			<< " parameter[11] = " << icell2->param()[10] << ":"
+			<< icell2->param()[11] << std::endl;
+	      if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
+	    }
 	  }
 	}
       }

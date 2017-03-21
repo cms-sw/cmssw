@@ -34,7 +34,7 @@ TestHits::TestHits(const edm::ParameterSet& iConfig):
 
 TestHits::~TestHits(){}
 
-void TestHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
+void TestHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
  
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);

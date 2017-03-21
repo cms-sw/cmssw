@@ -513,19 +513,12 @@ namespace edm
     LogInfo("DataMixingHcalDigiWorker") << "total # ZDC Merged digis: " << ZDCdigis->size() ;
 
 
-    // make empty collections for now:
-    std::unique_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
-    std::unique_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
-
-
     e.put(std::move(HBHEdigis), HBHEDigiCollectionDM_);
     e.put(std::move(HOdigis), HODigiCollectionDM_);
     e.put(std::move(HFdigis), HFDigiCollectionDM_);
     e.put(std::move(QIE10digis), QIE10DigiCollectionDM_);
     e.put(std::move(QIE11digis), QIE11DigiCollectionDM_);
     e.put(std::move(ZDCdigis), ZDCDigiCollectionDM_);
-    e.put(std::move(hbheupgradeResult), "HBHEUpgradeDigiCollection");
-    e.put(std::move(hfupgradeResult), "HFUpgradeDigiCollection");
 
     // clear local storage after this event
     HBHEDigiStorage_.clear();

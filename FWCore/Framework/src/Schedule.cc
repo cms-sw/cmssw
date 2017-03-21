@@ -17,6 +17,7 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -72,7 +73,7 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(std::shared_ptr<TriggerResultInserter>(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams())),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -522,7 +523,8 @@ namespace edm {
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
                                                     prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns);
+                                                    tns,
+                                                    processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
@@ -616,6 +618,9 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogVerbatim("FwkSummary") << "";
+      if(streamSchedules_[0]->context().processContext()->isSubProcess()) {
+        LogVerbatim("FwkSummary") << "TrigReport Process: "<<streamSchedules_[0]->context().processContext()->processName();
+      }
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
       if(!tr.trigPathSummaries.empty()) {
         LogVerbatim("FwkSummary") << "TrigReport"
@@ -943,7 +948,15 @@ namespace edm {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->endStream();
   }
-
+  
+  void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                      unsigned int iStreamID,
+                                      EventPrincipal& ep,
+                                      EventSetup const& es) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
+  }
+  
   void Schedule::preForkReleaseResources() {
     using std::placeholders::_1;
     for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));

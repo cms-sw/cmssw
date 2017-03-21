@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -107,6 +107,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meHEDepHit_ = ib.book1D("Hit18","Depths in HE",          20,0.,20.);
       meHODepHit_ = ib.book1D("Hit19","Depths in HO",          20,0.,20.);
       meHFDepHit_ = ib.book1D("Hit20","Depths in HF",          20,0.,20.);
+      meHFDepHitw_ = ib.book1D("Hit20b","Depths in HF (p.e. weighted)",          20,0.,20.);
       meHBEtaHit_ = ib.book1D("Hit21","Eta in HB",            101,-50.5,50.5);
       meHEEtaHit_ = ib.book1D("Hit22","Eta in HE",            101,-50.5,50.5);
       meHOEtaHit_ = ib.book1D("Hit23","Eta in HO",            101,-50.5,50.5);
@@ -239,20 +240,14 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
     int det, subdet, depth, eta, phi;
-    if (testNumber_) {
-      int z, lay;
-      HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, eta, phi, lay);
-      int sign = (z==0) ? (-1):(1);
-      eta     *= sign;
-      det      = 4;
-    } else {
-      HcalDetId id = HcalDetId(id_);
-      det          = id.det();
-      subdet       = id.subdet();
-      depth        = id.depth();
-      eta          = id.ieta();
-      phi          = id.iphi();
-    }
+    HcalDetId hid;
+    if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+    else hid = HcalDetId(id_);
+    det      = hid.det();
+    subdet   = hid.subdet();
+    depth    = hid.depth();
+    eta      = hid.ieta();
+    phi      = hid.iphi();
 
     LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ 
 			<< std::dec << " Det " << det << " Sub " 
@@ -332,6 +327,7 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
+	  meHFDepHitw_->Fill(double(depth),energy);
 	  meHFEtaHit_->Fill(double(eta));
 	  meHFPhiHit_->Fill(double(phi));
 	  meHFEneHit_->Fill(energy);

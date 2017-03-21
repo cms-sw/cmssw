@@ -765,7 +765,7 @@ void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::
   }
 
   DOMElement* element = xmlDoc->getDocumentElement();
-  std::string type = toNative(element->getTagName());
+  std::string type = cms::xerces::toString(element->getTagName());
 
   // 1st level
   int EBEE = -1;
@@ -773,15 +773,15 @@ void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::
   for (DOMNode* childNode = element->getFirstChild(); 
        childNode; childNode = childNode->getNextSibling()) {    
     if (childNode->getNodeType() == DOMNode::ELEMENT_NODE) {
-      const std::string foundName = toNative(childNode->getNodeName());
+      const std::string foundName = cms::xerces::toString(childNode->getNodeName());
       DOMElement *child = static_cast<DOMElement *>(childNode);
       DOMNamedNodeMap *attributes = child->getAttributes();
       unsigned int numAttributes = attributes->getLength();
       for (unsigned int j = 0; j < numAttributes; ++j) {
 	DOMNode *attributeNode = attributes->item(j);
 	DOMAttr *attribute = static_cast<DOMAttr *>(attributeNode);
-	const std::string info = toNative(attribute->getName());
-	const std::string scope = toNative(attribute->getValue());
+	const std::string info = cms::xerces::toString(attribute->getName());
+	const std::string scope = cms::xerces::toString(attribute->getValue());
 	if(info == "_scope") {
 	  if(scope.substr(0,2) == "EE") EBEE = 1;
 	  else EBEE = 0;
@@ -791,12 +791,12 @@ void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::
       for (DOMNode* subchildNode = childNode->getFirstChild(); 
 	   subchildNode; subchildNode = subchildNode->getNextSibling()) {    
 	if (subchildNode->getNodeType() == DOMNode::ELEMENT_NODE) {
-	  const std::string subName = toNative(subchildNode->getNodeName());
+	  const std::string subName = cms::xerces::toString(subchildNode->getNodeName());
 	  // 3rd level
 	  for (DOMNode* subsubchildNode = subchildNode->getFirstChild(); 
 	       subsubchildNode; subsubchildNode = subsubchildNode->getNextSibling()) {    
 	    if (subsubchildNode->getNodeType() == DOMNode::ELEMENT_NODE) {
-	      const std::string subName = toNative(subsubchildNode->getNodeName());
+	      const std::string subName = cms::xerces::toString(subsubchildNode->getNodeName());
 	      if(subName == "L1ZSUPPRESSION")
 		GetNodeData(subsubchildNode,L1ZS[EBEE]);
 	      if(subName == "L2ZSUPPRESSION")

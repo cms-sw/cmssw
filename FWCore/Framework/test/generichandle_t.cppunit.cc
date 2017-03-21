@@ -37,7 +37,7 @@ Test of GenericHandle class.
 namespace edm {
    class ProducerBase {
       public:
-         static void commitEvent(Event& e) { e.commit_(); }
+         static void commitEvent(Event& e) { e.commit_(std::vector<ProductResolverIndex>()); }
    };
 }
 

@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.Isolation.isoDeposits_cfi import *
+from CommonTools.ParticleFlow.Isolation.isoDeposits_cfi import isoDeposits as _isoDeposits
 
 
 
 def isoDepositReplace( toBeIsolated, isolating):
-    newDepositProducer = isoDeposits.clone()
+    newDepositProducer = _isoDeposits.clone()
     newDepositProducer.src = toBeIsolated
     newDepositProducer.ExtractorPSet.inputCandView = isolating
     return newDepositProducer

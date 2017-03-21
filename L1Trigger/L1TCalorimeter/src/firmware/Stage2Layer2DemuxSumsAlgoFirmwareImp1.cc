@@ -168,5 +168,5 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   outputSums.push_back(etSumMissingEtHF);
   outputSums.push_back(htSumMissingHtHF);
   outputSums.push_back(etSumTowCount);
-  
+
 }

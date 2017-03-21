@@ -18,6 +18,7 @@
 
 #include <TMVA/Types.h>
 #include <TMVA/Factory.h>
+#include <TMVA/DataLoader.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -340,34 +341,38 @@ void ProcTMVA::runTMVATrainer()
 			<< "Could not open TMVA ROOT file for writing."
 			<< std::endl;
 
-	std::auto_ptr<TMVA::Factory> factory(
+	std::unique_ptr<TMVA::Factory> factory(
 		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
 
-	factory->SetInputTrees(treeSig, treeBkg);
+	std::unique_ptr<TMVA::DataLoader> loader(new TMVA::DataLoader("ProcTMVA"));
+
+	loader->SetInputTrees(treeSig, treeBkg);
 
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++)
-		factory->AddVariable(iter->c_str(), 'D');
+		loader->AddVariable(iter->c_str(), 'D');
 
-	factory->SetWeightExpression("__WEIGHT__");
+	loader->SetWeightExpression("__WEIGHT__");
 
-	if (doUserTreeSetup)
-		factory->PrepareTrainingAndTestTree(
+	if (doUserTreeSetup) {
+		loader->PrepareTrainingAndTestTree(
 					setupCuts.c_str(), setupOptions);
-	else
-		factory->PrepareTrainingAndTestTree(
+	} else {
+		loader->PrepareTrainingAndTestTree(
 				"", 0, 0, 0, 0,
 				"SplitMode=Block:!V");
+	}
 
 	for(std::vector<Method>::const_iterator iter = methods.begin();
 	    iter != methods.end(); ++iter)
-		factory->BookMethod(iter->type, iter->name, iter->description);
+		factory->BookMethod(loader.get(), iter->type, iter->name, iter->description);
 
 	factory->TrainAllMethods();
 	factory->TestAllMethods();
 	factory->EvaluateAllMethods();
 
 	factory.release(); // ROOT seems to take care of destruction?!
+	loader.release();
 
 	file->Close();
 

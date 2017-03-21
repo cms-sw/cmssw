@@ -21,6 +21,7 @@ These products should be informational products about the filter decision.
 
 #include <string>
 #include <vector>
+#include <array>
 
 namespace edm {
   namespace maker {
@@ -32,6 +33,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -54,6 +56,9 @@ namespace edm {
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
+    //Needed by WorkerT but not supported
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    

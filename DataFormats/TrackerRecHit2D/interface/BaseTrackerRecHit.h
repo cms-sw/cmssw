@@ -21,7 +21,7 @@ namespace trackerHitRTTI {
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single || rtti(hit)==fastSingle;}
   inline bool isProjMono(TrackingRecHit const & hit)  { return rtti(hit)==projMono || rtti(hit)==fastProjMono;}
-  inline bool isProjStereo(TrackingRecHit const & hit)  { return rtti(hit)==projStereo || fastProjStereo;}
+  inline bool isProjStereo(TrackingRecHit const & hit)  { return rtti(hit)==projStereo || rtti(hit)==fastProjStereo;}
   inline bool isProjected(TrackingRecHit const & hit)  { return ((rtti(hit)==projMono) | (rtti(hit)==projStereo)) || (rtti(hit)==fastProjMono) | (rtti(hit)==fastProjStereo);}
   inline bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match || rtti(hit)==fastMatch;}
   inline bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
@@ -58,7 +58,7 @@ public:
   bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
   bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
   bool isProjMono() const { return trackerHitRTTI::isProjMono(*this);}
-  bool isProjSterep() const { return trackerHitRTTI::isProjStereo(*this);}
+  bool isProjStereo() const { return trackerHitRTTI::isProjStereo(*this);}
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
 
   virtual bool isPixel() const { return false;}

@@ -118,8 +118,6 @@ namespace reco {
       return linkData_;
     }
 
-    friend std::ostream& operator<<( std::ostream& out, const PFBlock& co );
-
   private:
     
     /// \return size of linkData_, calculated from the number of elements
@@ -132,6 +130,9 @@ namespace reco {
     edm::OwnVector< reco::PFBlockElement >          elements_;
         
   };
+
+  std::ostream& operator<<( std::ostream& out, const PFBlock& co );
+
 }
 
 #endif

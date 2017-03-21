@@ -132,7 +132,7 @@ void MuScleFitPlotter::fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
     
     for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
 	 part!=Evt->particles_end(); part++) {
-      if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {//looks for muon in the final state
+      if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {//looks for muon in the final state
 	bool fromRes = false;
 	for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);//loops on the mother of the final state muons
 	     mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
@@ -239,7 +239,7 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks)
   //Loop on simulated tracks
   for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
     // Select the muons from all the simulated tracks
-    if (fabs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type())==13) {
       simMuons.push_back(*simTrack);	  
       mapHisto["hSimMu"]->Fill((*simTrack).momentum());
     }
@@ -264,7 +264,7 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks)
     std::pair<SimTrack,SimTrack> simMuFromBestRes = MuScleFitUtils::findBestSimuRes(simMuons);
     reco::Particle::LorentzVector bestSimZ = (simMuFromBestRes.first).momentum()+(simMuFromBestRes.second).momentum();
     mapHisto["hSimBestRes"]->Fill(bestSimZ);
-    if (fabs(simMuFromBestRes.first.momentum().eta())<2.5 && fabs(simMuFromBestRes.second.momentum().eta())<2.5 &&
+    if (std::abs(simMuFromBestRes.first.momentum().eta())<2.5 && std::abs(simMuFromBestRes.second.momentum().eta())<2.5 &&
 	simMuFromBestRes.first.momentum().pt()>2.5 && simMuFromBestRes.second.momentum().pt()>2.5) {
       mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.first.momentum(), bestSimZ, int(simMuFromBestRes.first.charge()));
       mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.second.momentum(),bestSimZ, int(simMuFromBestRes.second.charge()));
@@ -281,7 +281,7 @@ void MuScleFitPlotter::fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Han
   //Fill resonance info
   reco::Particle::LorentzVector rightSimRes = (simMuFromRes.first)+(simMuFromRes.second);
   mapHisto["hSimRightRes"]->Fill(rightSimRes);
-  /*if ((fabs(simMuFromRes.first.Eta())<2.5 && fabs(simMuFromRes.second.Eta())<2.5) 
+  /*if ((std::abs(simMuFromRes.first.Eta())<2.5 && std::abs(simMuFromRes.second.Eta())<2.5) 
     && simMuFromRes.first.Pt()>2.5 && simMuFromRes.second.Pt()>2.5) {
   }*/
 }

@@ -4,4 +4,4 @@
 <use   name="CoralBase"/>
 
 <flags   EDM_PLUGIN="1"/>
-<library   file="HGCalGeometryTester.cc" name="testGeometryHCCalGeometry"> </library>
+<library   file="*.cc" name="testGeometryHCCalGeometry"> </library>

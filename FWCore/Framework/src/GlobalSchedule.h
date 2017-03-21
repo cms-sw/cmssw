@@ -172,6 +172,11 @@ namespace edm {
     
     SendTerminationSignalIfException terminationSentry(actReg_.get(), &globalContext);
 
+    //If we are in an end transition, we need to reset failed items since they might
+    // be set this time around
+    if( not T::begin_) {
+      ep.resetFailedFromThisProcess();
+    }
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);
 

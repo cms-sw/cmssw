@@ -115,9 +115,22 @@ namespace edm {
   }
 
   void
-  Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut,
+                 std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+    auto nPut = putProducts().size()+putProductsWithoutParents().size();
     commit_aux(putProducts(), true, previousParentage, previousParentageId);
     commit_aux(putProductsWithoutParents(), false);
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != nPut) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
+    }
   }
 
   void

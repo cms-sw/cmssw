@@ -71,7 +71,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
     if(iEta==0) continue;
 
       double eta=EBDetId::approxEta(EBDetId(iEta,1));
-      eta = fabs(eta);
+      eta = std::abs(eta);
       double r= calcmuTot(eta);
       
       mu_eta[iEta]=r;
@@ -85,7 +85,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 	{
 	  EEDetId eedetidpos(iX,iY,1);
 	  double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
-          eta = fabs(eta);
+          eta = std::abs(eta);
           double r=calcmuTot(eta);
           double v=calcampDropPhotoDetector(eta);
 
@@ -104,7 +104,7 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, d
   double muTot=0;
   if(id.subdetId()==EcalBarrel) {
     EBDetId ebId(id);
-    int ieta= fabs(ebId.ieta());
+    int ieta= std::abs(ebId.ieta());
     muTot= mu_eta[ieta];
     
   } else if(id.subdetId()==EcalEndcap){
@@ -188,7 +188,7 @@ double EnergyResolutionVsLumi::calcnoiseADC(double eta)
   double Nadc = 1.1;
   double result =1.0;
   EvolutionECAL model;
-  if(fabs(eta)<1.497){
+  if(std::abs(eta)<1.497){
     Nadc = 1.1;
     result = model.NoiseFactorFE(totLumi, eta)*Nadc;
   }else{

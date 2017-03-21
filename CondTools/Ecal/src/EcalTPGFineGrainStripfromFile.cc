@@ -13,6 +13,7 @@
 
 popcon::EcalTPGFineGrainStripfromFile::EcalTPGFineGrainStripfromFile(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGFineGrainStripfromFile")) {
+  fname = ps.getParameter<std::string>("FileName");
 
   std::cout << "EcalTPGFineGrainStripfromFile constructor\n" << std::endl;
 }
@@ -25,10 +26,6 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   std::cout << "------- Ecal -> getNewObjects\n";
 	edm::LogInfo("EcalTPGFineGrainStripfromFile") << "Started GetNewObjects!!!";
   
-  Ref payload= lastPayload();
-  
-  // here popcon tells us which is the last since of the last object in the offline DB
-
   EcalTPGFineGrainStripEE * fgrStripEE = new EcalTPGFineGrainStripEE;
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
@@ -36,7 +33,7 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   std::ifstream fLin;
   std::ostringstream oss;
   oss << fileIOV;
-  std::string fname = "/afs/cern.ch/cms/ECAL/triggerTransp/TPG_beamv6_trans_" + oss.str() + "_spikekill.txt";
+  //  std::string fname = "/afs/cern.ch/cms/ECAL/triggerTransp/TPG_beamv6_trans_" + oss.str() + "_spikekill.txt";
   fLin.open(fname.c_str());
   if(!fLin.is_open()) {
     std::cout << "ERROR : can't open file '" << fname << std::endl;

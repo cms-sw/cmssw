@@ -29,74 +29,65 @@ hiLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiLowPtTripletSte
 hiLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiLowPtTripletStepClusters')
 
 # SEEDS
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+
+hiLowPtTripletStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+    precise = True,
+    useMultipleScattering = False,
+    useFakeVertices       = False,
+    beamSpot = "offlineBeamSpot",
+    useFixedError = False,
+    nSigmaZ = 4.0,
+    sigmaZVertex = 4.0,
+    fixedError = 0.2,
+    VertexCollection = "hiSelectedVertex",
+    ptMin = 0.4,
+    useFoundVertices = True,
+    originRadius = 0.02
+))
+hiLowPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
+    clusterCheck = "",
+    seedingLayers = "hiLowPtTripletStepSeedLayers",
+    trackingRegions = "hiLowPtTripletStepTrackingRegions",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
+)
+hiLowPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
+    doublets = "hiLowPtTripletStepTracksHitDoublets",
+    maxElement = 5000000,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    produceSeedingHitSets = True,
+)
+hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
+    nSigmaLipMaxTolerance = 4.0,
+    nSigmaTipMaxTolerance = 4.0,
+    lipMax = 0,
+    ptMin = 0.4,
+)
 hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel primary tracks with vertex constraint'),
 
-    # Region
-    RegionFactoryPSet = cms.PSet(
-	  ComponentName = cms.string("GlobalTrackingRegionWithVerticesProducer"),
-	  RegionPSet = cms.PSet(
-            precise = cms.bool(True),
-            useMultipleScattering = cms.bool(False),
-            useFakeVertices       = cms.bool(False),            
-            beamSpot = cms.InputTag("offlineBeamSpot"),
-            useFixedError = cms.bool(False),
-            nSigmaZ = cms.double(4.0),
-            sigmaZVertex = cms.double(4.0),
-            fixedError = cms.double(0.2),
-            VertexCollection = cms.InputTag("hiSelectedVertex"),
-            ptMin = cms.double(0.4),
-            useFoundVertices = cms.bool(True),
-            originRadius = cms.double(0.02)
-	  )
-    ),
-     
     # Ordered Hits
-    OrderedHitsFactoryPSet = cms.PSet( 
-          ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	  SeedingLayers = cms.InputTag( "PixelLayerTriplets" ),
-          GeneratorPSet = cms.PSet( 
-		PixelTripletHLTGenerator
-          )
-    ),
+    SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTriplets"),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-	  ComponentName = cms.string('PixelFitterByHelixProjections'),
-	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
-    useFilterWithES = cms.bool( True ),
-    FilterPSet = cms.PSet( 
-        nSigmaLipMaxTolerance = cms.double(4.0),
-        chi2 = cms.double(1000.0),
-        ComponentName = cms.string('HIPixelTrackFilter'),
-        nSigmaTipMaxTolerance = cms.double(4.0),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
-        VertexCollection = cms.InputTag("hiSelectedVertex"),
-        useClusterShape = cms.bool(False),
-        lipMax = cms.double(0),
-        tipMax = cms.double(0),
-        ptMin = cms.double(0.4)
-    ),
+    Filter = cms.InputTag("hiLowPtTripletStepPixelTracksFilter"),
 	
     # Cleaner
-    CleanerPSet = cms.PSet(  
-          ComponentName = cms.string( "TrackCleaner" )
-    )
+    Cleaner = cms.string("trackCleaner")
 )
-
-hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)
-hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiLowPtTripletStepSeedLayers')
-
-hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
-
 
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
@@ -198,6 +189,11 @@ hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
 
 hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
                                         hiLowPtTripletStepSeedLayers*
+                                        hiLowPtTripletStepTrackingRegions*
+                                        hiLowPtTripletStepTracksHitDoublets*
+                                        hiLowPtTripletStepTracksHitTriplets*
+                                        pixelFitterByHelixProjections*
+                                        hiLowPtTripletStepPixelTracksFilter*
                                         hiLowPtTripletStepPixelTracks*hiLowPtTripletStepSeeds*
                                         hiLowPtTripletStepTrackCandidates*
                                         hiLowPtTripletStepTracks*

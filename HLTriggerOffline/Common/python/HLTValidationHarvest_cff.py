@@ -16,6 +16,7 @@ from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
+from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -23,6 +24,7 @@ hltpostvalidation = cms.Sequence(
      +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
+    + postProcessorHLTgsfTrackingSequence
     +topHLTriggerValidationHarvest
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
@@ -37,13 +39,13 @@ hltpostvalidation = cms.Sequence(
     +HltBTagPostVal
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(hltpostvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     hltpostvalidation.remove(postProcessorHLTtrackingSequence)
     hltpostvalidation.remove(postProcessorHLTvertexing)
+    hltpostvalidation.remove(postProcessorHLTgsfTrackingSequence)
     # remove this:     +hltvalidationqt ?
     # remove this:    +hltExoticaPostProcessors ?
     
@@ -53,10 +55,12 @@ hltpostvalidation_preprod = cms.Sequence(
     +HLTTauPostVal
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
+    + postProcessorHLTgsfTrackingSequence
    #+HLTHiggsPostVal
     )
 
 hltpostvalidation_prod = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
+    + postProcessorHLTgsfTrackingSequence
     )

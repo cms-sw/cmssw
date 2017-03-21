@@ -23,6 +23,9 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${3}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
+ncpu=${4}
+echo "%MSG-MG5 thread count requested = $ncpu"
+
 LHEWORKDIR=`pwd`
 
 if [[ -d lheevent ]]
@@ -36,8 +39,8 @@ mkdir lheevent; cd lheevent
 #untar the tarball directly from cvmfs
 tar -xaf ${path} 
 
-#generate events (call for 1 core always for now until hooks to set number of cores are implemented upstream)
-./runcmsgrid.sh $nevt $rnum 1
+#generate events
+./runcmsgrid.sh $nevt $rnum $ncpu
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 

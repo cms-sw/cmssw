@@ -51,8 +51,8 @@ public:
 
 private:
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   // ----------member data ---------------------------
   std::string tagname_;

@@ -62,6 +62,11 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     /// Add Fill Descriptions
     static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
+    // Separating the offline part of the fillDescriptions() above
+    // TODO: make similar fillDescriptionsHLT, and switch the
+    // fillDescriptions() above take edm::ConfigurationDescriptions&
+    static void fillDescriptionsOffline(edm::ParameterSetDescription& descriptions);
+
   private:
     
     void build(const edm::ParameterSet&, edm::ConsumesCollector&);

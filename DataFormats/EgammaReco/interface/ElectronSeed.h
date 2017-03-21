@@ -66,8 +66,8 @@ class ElectronSeed : public TrajectorySeed
        float dPhi1 =std::numeric_limits<float>::infinity() ) ;
 
     //! Accessors
-    CtfTrackRef ctfTrack() const { return ctfTrack_ ; }
-    CaloClusterRef caloCluster() const { return caloCluster_ ; }
+    const CtfTrackRef& ctfTrack() const { return ctfTrack_ ; }
+    const CaloClusterRef& caloCluster() const { return caloCluster_ ; }
     unsigned char hitsMask() const { return hitsMask_ ; }
     int subDet2() const { return subDet2_ ; }
     float dRz2() const { return dRz2_ ; }

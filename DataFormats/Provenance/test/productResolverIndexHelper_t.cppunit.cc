@@ -125,6 +125,20 @@ void TestProductResolverIndexHelper::testOneEntry() {
 
   matches = helper.relatedIndexes(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA");
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
+
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processA");
+    CPPUNIT_ASSERT(indexToModules.size() == 1);
+    CPPUNIT_ASSERT(indexToModules.count("labelA") == 1);
+    auto const& range = indexToModules.equal_range("labelA");
+    CPPUNIT_ASSERT( range.first->second == indexWithProcess);
+  }
+  
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processNotHere");
+    CPPUNIT_ASSERT(indexToModules.size() == 0);
+  }
+
 }
 
 void TestProductResolverIndexHelper::testManyEntries() {
@@ -214,4 +228,31 @@ void TestProductResolverIndexHelper::testManyEntries() {
   ProductResolverIndex indexC = matches.index(1);
   CPPUNIT_ASSERT_THROW(matches.index(2), cms::Exception);
   CPPUNIT_ASSERT(indexC == 27);
+  
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processA");
+    CPPUNIT_ASSERT(indexToModules.size() == 1);
+  }
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processB");
+    CPPUNIT_ASSERT(indexToModules.size() == 5);
+    
+  }
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processB1");
+    CPPUNIT_ASSERT(indexToModules.size() == 1);
+  }
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processB2");
+    CPPUNIT_ASSERT(indexToModules.size() == 1);
+  }
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processB3");
+    CPPUNIT_ASSERT(indexToModules.size() == 1);
+  }
+  {
+    auto indexToModules = helper.indiciesForModulesInProcess("processC");
+    CPPUNIT_ASSERT(indexToModules.size() == 3);
+  }
+
 }

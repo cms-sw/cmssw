@@ -435,7 +435,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
   }
 }
 
-void PhiSymmetryCalibration::endRun(edm::Run& run, const edm::EventSetup&){
+void PhiSymmetryCalibration::endRun(edm::Run const& run, const edm::EventSetup&){
  
   
   std::cout  << "PHIREPRT : run "<< run.run() 

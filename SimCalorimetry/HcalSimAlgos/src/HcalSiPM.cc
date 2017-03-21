@@ -12,9 +12,10 @@
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau) :
-  theCellCount(nCells), theSiPM(nCells,1.), theTauInv(1.0/tau),
-  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.) {
-
+  theCellCount(nCells), theSiPM(nCells,1.),
+  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(0)
+{
+  setTau(tau);
   assert(theCellCount>0);
   resetSiPM();
 }
@@ -108,6 +109,12 @@ double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, doub
   if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) 
     pes += addCrossTalkCells(engine, pes);
 
+  // Account for saturation - disabled in lieu of recovery model below
+  //pes = nonlin->getPixelsFired(pes);
+
+  //disable saturation/recovery model for bad tau values
+  if(theTau<=0) return pes;
+
   unsigned int pixel;
   double sum(0.), hit(0.);
   for (unsigned int pe(0); pe < pes; ++pe) {
@@ -141,8 +148,16 @@ void HcalSiPM::setNCells(int nCells) {
   resetSiPM();
 }
 
+void HcalSiPM::setTau(double tau) { 
+  theTau = tau;
+  if(theTau > 0) theTauInv = 1./theTau;
+  else theTauInv = 0;
+}
+
 void HcalSiPM::setCrossTalk(double xTalk) {
   // set the cross-talk probability
+
+  double oldCrossTalk = theCrossTalk;
 
   if((xTalk < 0) || (xTalk >= 1)) {
     theCrossTalk = 0.;
@@ -151,10 +166,12 @@ void HcalSiPM::setCrossTalk(double xTalk) {
   }   
 
   // Recalculate the crosstalk CDFs
-  borelcdfs.clear();
-  if (theCrossTalk > 0)
-    for (int k=1; k<=100; k++)
-      BorelCDF(k);
+  if (theCrossTalk != oldCrossTalk) {
+    borelcdfs.clear();
+    if (theCrossTalk > 0)
+      for (int k=1; k<=100; k++)
+	BorelCDF(k);
+  }
 }
 
 void HcalSiPM::setTemperatureDependence(double dTemp) {
@@ -164,7 +181,15 @@ void HcalSiPM::setTemperatureDependence(double dTemp) {
 
 double HcalSiPM::cellCharge(double deltaTime) const {
   if (deltaTime <= 0.) return 0.;
-  if (deltaTime > 10./theTauInv) return 1.;
+  if (deltaTime*theTauInv > 10.) return 1.;
   double result(1. - std::exp(-deltaTime*theTauInv));
   return (result > 0.99) ? 1.0 : result;
+}
+
+void HcalSiPM::setSaturationPars(const std::vector<float>& pars)
+{
+  if (nonlin)
+    delete nonlin;
+
+  nonlin = new HcalSiPMnonlinearity(pars);
 }

@@ -68,7 +68,7 @@ namespace l1t {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
     virtual ~GtRecordDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
     InputTag   uGtAlgInputTag;
@@ -97,6 +97,7 @@ namespace l1t {
     unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
     unsigned int formatMissET(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
+    unsigned int formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
     std::map<std::string, std::vector<int> > m_algoSummary;
     
@@ -450,7 +451,10 @@ namespace l1t {
 			 break; 					    
 		       case l1t::EtSum::EtSumType::kTotalHt:
 			 cout << " HTT:  ";
-			 break; 
+			 break;
+		       case l1t::EtSum::EtSumType::kTowerCount:
+			 cout << " TowerCounts:  ";
+			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFP0:
 			 cout << " HFP0: ";
 			 break; 			 		     
@@ -650,6 +654,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    unsigned int HFM0packWd  = 0;
    unsigned int HFP1packWd  = 0;
    unsigned int HFM1packWd  = 0;
+   unsigned int TowerCountspackWd = 0; // ccla
 
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
@@ -672,7 +677,10 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     break;	      		     
 	   case l1t::EtSum::EtSumType::kTotalHt:
 	     HTTpackWd = formatTotalET(etsum);
-	     break; 	
+	     break;
+	   case l1t::EtSum::EtSumType::kTowerCount:
+	     TowerCountspackWd = formatTowerCounts(etsum);
+	     break;
 	   case l1t::EtSum::EtSumType::kMinBiasHFP0:
 	     HFP0packWd = formatHMB(etsum);
 	     break;
@@ -699,6 +707,9 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    
    // ETTem goes into ETT word bits 12 - 23
    if(m_tvVersion>1) ETTpackWd |= ( ETTempackWd << 12);
+
+   // ccla Towercounts go in HTT word, bits 12-24
+   if(m_tvVersion>1) HTTpackWd |= ( TowerCountspackWd << 12);
 
    // Fill in the words in appropriate order
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
@@ -835,6 +846,20 @@ unsigned int GtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator
 // Pack Bits
   packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
   
+  return packedVal;
+}
+
+unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  unsigned int packedVal = 0;
+  //unsigned int shift = 12;
+
+// Pack Bits
+  //packedVal |= ((etSum->hwPt()     & 0xfff)   << shift);
+
+  //towercount takes 13 bits
+  packedVal |= ((etSum->hwPt()     & 0x1fff)   <<0);
+
   return packedVal;
 }
 

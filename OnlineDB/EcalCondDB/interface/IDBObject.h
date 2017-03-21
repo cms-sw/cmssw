@@ -38,8 +38,7 @@ class IDBObject {
   oracle::occi::Environment* m_env;
   oracle::occi::Connection* m_conn;
   
-  void checkConnection() const
-    throw(std::runtime_error)
+  void checkConnection() const noexcept(false)
     {
       if (m_conn == NULL) {
 	throw std::runtime_error("ERROR:  Connection was not set");

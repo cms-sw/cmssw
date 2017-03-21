@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_set>
 #include <memory>
 #include <tuple>
 
@@ -92,9 +93,9 @@ private :
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
   std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
-
+  
   //geometries
-  std::vector<DetId> validIds_;
+  std::unordered_set<DetId> validIds_;
   const HGCalGeometry* gHGCal_;
   const HcalGeometry* gHcal_;
 
@@ -109,6 +110,10 @@ private :
 
   //delay to apply after evaluating time of arrival at the sensitive detector
   float tofDelay_;
+
+  //average occupancies
+  std::array<double,3> averageOccupancies_;
+  uint32_t nEvents_;
 };
 
 

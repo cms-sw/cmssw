@@ -165,7 +165,7 @@ namespace ecaldqm
         if(intensity < toleranceAmplitudeLo_
             || intensity > toleranceAmplitudeHi_
             || aRms > aMean * toleranceAmpRMSRatio_
-            || abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
+            || std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);

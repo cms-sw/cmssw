@@ -154,6 +154,9 @@
   <ZSection z="[BeampipeZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRout6]"/>
   <ZSection z="[BeampipeZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
   <ZSection z="[BeampipeZ5]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
+  <ZSection z="[BeampipeZ19]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
+  <ZSection z="[BeampipeZ19]" rMin="[cms:Rmin]" rMax="[BeampipeRout17]"/>
+  <ZSection z="[BeampipeZ24]" rMin="[cms:Rmin]" rMax="[BeampipeRout17]"/>
   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:CalorBeamR2]"/>
   <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR0]" />
  </Polycone> 

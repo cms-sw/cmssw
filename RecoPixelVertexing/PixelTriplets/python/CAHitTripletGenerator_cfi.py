@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 CAHitTripletGenerator = cms.PSet(
     ComponentName = cms.string("CAHitTripletGenerator"),
+    SeedingLayers = cms.InputTag("seedingLayersEDProducer"),
     extraHitRPhitolerance = cms.double(0.06),
     maxChi2 = cms.PSet(
         pt1    = cms.double(0.8), pt2    = cms.double(2),

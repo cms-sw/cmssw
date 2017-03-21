@@ -25,9 +25,10 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleFedErrFakeESSource_cfi")
-process.siStripBadModuleFedErrFakeESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-process.SiStripBadModuleFedErrService.FileName = cms.string('/afs/cern.ch/user/d/dutta/work/public/BadChannel/DQM_V0001_R000260576__ZeroBias__Run2015D-PromptReco-v4__DQMIO.root')
+process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
+from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import siStripBadModuleFedErrESSource
+siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
+siStripBadModuleFedErrESSource.FileName = cms.string('/afs/cern.ch/user/d/dutta/work/public/BadChannel/DQM_V0001_R000260576__ZeroBias__Run2015D-PromptReco-v4__DQMIO.root')
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),

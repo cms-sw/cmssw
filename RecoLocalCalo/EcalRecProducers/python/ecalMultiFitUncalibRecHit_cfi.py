@@ -19,6 +19,18 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       doPrefitEE = cms.bool(False),
       prefitMaxChiSqEB = cms.double(25.),
       prefitMaxChiSqEE = cms.double(10.),
+      
+      dynamicPedestalsEB = cms.bool(False),
+      dynamicPedestalsEE = cms.bool(False),
+      mitigateBadSamplesEB = cms.bool(False),
+      mitigateBadSamplesEE = cms.bool(False),
+      gainSwitchUseMaxSampleEB = cms.bool(True),
+      gainSwitchUseMaxSampleEE = cms.bool(False),      
+      selectiveBadSampleCriteriaEB = cms.bool(False),
+      selectiveBadSampleCriteriaEE = cms.bool(False),
+      simplifiedNoiseModelForGainSwitch = cms.bool(True),
+      addPedestalUncertaintyEB = cms.double(0.),
+      addPedestalUncertaintyEE = cms.double(0.),
   
       # decide which algorithm to be use to calculate the jitter
       timealgo = cms.string("RatioMethod"),

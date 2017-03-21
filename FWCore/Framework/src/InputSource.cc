@@ -479,28 +479,28 @@ namespace edm {
   InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
-    run.commit_();
+    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
-    run.commit_();
+    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
-    lb.commit_();
+    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
-    lb.commit_();
+    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void

@@ -75,6 +75,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
   virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
+  virtual void preallocThreads(unsigned int) override;
 
   int closeDescriptors(int preserve);
   void executeScript();
@@ -88,6 +89,7 @@ private:
   std::vector<std::string> args_;
   uint32_t npars_;
   uint32_t nEvents_;
+  unsigned int nThreads_{1};
   std::string outputContents_;
 
   std::auto_ptr<lhef::LHEReader>		reader_;
@@ -146,6 +148,13 @@ ExternalLHEProducer::~ExternalLHEProducer()
 //
 // member functions
 //
+
+// ------------ method called with number of threads in job --
+void
+ExternalLHEProducer::preallocThreads(unsigned int iThreads)
+{
+  nThreads_ = iThreads;
+}
 
 // ------------ method called to produce the data  ------------
 void
@@ -230,6 +239,8 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   std::ostringstream randomStream;
   randomStream << rng->mySeed(); 
   args_.push_back(randomStream.str());
+
+  args_.emplace_back(std::to_string(nThreads_));
 
   for ( unsigned int iArg = 0; iArg < args_.size() ; iArg++ ) {
     LogDebug("LHEInputArgs") << "arg [" << iArg << "] = " << args_[iArg];

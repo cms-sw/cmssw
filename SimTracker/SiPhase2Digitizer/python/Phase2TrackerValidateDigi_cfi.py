@@ -31,29 +31,81 @@ digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
         xmax   = cms.double(100.0)
     ),
     TrackEtaH = cms.PSet(
-        Nbins  = cms.int32(35),
-        xmin   = cms.double(-3.5),
-        xmax   = cms.double(3.5),
+        Nbins  = cms.int32(45),
+        xmin   = cms.double(-4.5),
+        xmax   = cms.double(4.5)
     ),
     TrackPhiH = cms.PSet(
         Nbins  = cms.int32(64),
         xmin   = cms.double(-3.2),
         xmax   = cms.double(3.2)
     ),  
+    SimHitElossH = cms.PSet(
+        Nbins  = cms.int32(100),
+        xmin   = cms.double(0.0),
+        xmax   = cms.double(100000.0)
+    ),  
+    SimHitDxH = cms.PSet(
+        Nbins  = cms.int32(1000),
+        xmin   = cms.double(0.0),
+        xmax   = cms.double(0.1)
+    ),
+    SimHitDyH = cms.PSet(
+        Nbins  = cms.int32(1000),
+        xmin   = cms.double(0.0),
+        xmax   = cms.double(0.1)
+    ),
+    SimHitDzH = cms.PSet(
+        Nbins  = cms.int32(150),
+        xmin   = cms.double(0.0),
+        xmax   = cms.double(0.03)
+    ),
     XYPositionMapH = cms.PSet(
-           Nxbins = cms.int32(1200),
-           xmin   = cms.double(-1200.),
-           xmax   = cms.double(1200.),
-           Nybins = cms.int32(1200),
-           ymin   = cms.double(-1200.),
-           ymax   = cms.double(1200.)
+        Nxbins = cms.int32(1250),
+        xmin   = cms.double(-1250.),
+        xmax   = cms.double(1250.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(-1250.),
+        ymax   = cms.double(1250.)
     ),
     RZPositionMapH = cms.PSet(
-           Nxbins = cms.int32(3000),
-           xmin   = cms.double(-3000.),
-           xmax   = cms.double(3000.),
-           Nybins = cms.int32(600),
-           ymin   = cms.double(0.),
-           ymax   = cms.double(1200.)
+        Nxbins = cms.int32(3000),
+        xmin   = cms.double(-3000.),
+        xmax   = cms.double(3000.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(1250.)
+    ),
+   TOFEtaMapH = cms.PSet(
+        Nxbins = cms.int32(45),
+        xmin   = cms.double(-4.5),
+        xmax   = cms.double(4.5),
+        Nybins = cms.int32(200),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(40.)
+    ),
+   TOFPhiMapH = cms.PSet(
+        Nxbins = cms.int32(64),
+        xmin   = cms.double(-3.2),
+        xmax   = cms.double(3.2),
+        Nybins = cms.int32(200),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(40.)
+    ),
+   TOFZMapH = cms.PSet(
+        Nxbins = cms.int32(3000),
+        xmin   = cms.double(-300.),
+        xmax   = cms.double(300.),
+        Nybins = cms.int32(200),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(40.)
+    ),
+    TOFRMapH = cms.PSet(
+        Nxbins = cms.int32(1200),
+        xmin   = cms.double(0.),
+        xmax   = cms.double(120.),
+        Nybins = cms.int32(200),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(40.)
     )
 )

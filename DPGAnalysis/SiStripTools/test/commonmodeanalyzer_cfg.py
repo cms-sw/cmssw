@@ -73,6 +73,16 @@ process.seqProducers = cms.Sequence(process.seqEventHistoryReco)
 
 process.load("DPGAnalysis.SiStripTools.commonmodeanalyzer_cfi")
 process.commonmodeanalyzer.historyProduct = cms.InputTag("froml1abcHEs")
+process.commonmodeanalyzer.selections = cms.VPSet(
+        cms.PSet(label=cms.string("TIB"),selection=cms.untracked.vstring("0x1e000000-0x16000000")),
+        cms.PSet(label=cms.string("TEC"),selection=cms.untracked.vstring("0x1e000000-0x1c000000")),
+        cms.PSet(label=cms.string("TOB"),selection=cms.untracked.vstring("0x1e000000-0x1a000000")),
+        cms.PSet(label=cms.string("TID"),selection=cms.untracked.vstring("0x1e000000-0x18000000")),
+        cms.PSet(label=cms.string("TOB_L1"),selection=cms.untracked.vstring("0x1e01c000-0x1a004000")),
+        cms.PSet(label=cms.string("TOB_L2"),selection=cms.untracked.vstring("0x1e01c000-0x1a008000")),
+        cms.PSet(label=cms.string("TOBplus_1_4_1_4"),selection=cms.untracked.vstring("0x1e01ffe0-0x1a006460")),
+        cms.PSet(label=cms.string("TOBplus_2_2_2_4"),selection=cms.untracked.vstring("0x1e01ffe0-0x1a00a280"))
+)
 process.commonmodenoignorebadfedmod = process.commonmodeanalyzer.clone(ignoreBadFEDMod=False)
 process.commonmodenoignore = process.commonmodenoignorebadfedmod.clone(ignoreNotConnected=False)
 

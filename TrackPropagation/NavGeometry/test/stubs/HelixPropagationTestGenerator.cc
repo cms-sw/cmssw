@@ -159,8 +159,8 @@ HelixPropagationTestGenerator::bidirectionalStep (const ExtendedDouble stepSize)
   //
   // recalculate position and direction in double precision
   //
-  currentPosition = VectorTypeExtended(theCenter.x()+cos(phiHelix)/fabs(theCurvature),
-				       theCenter.y()+sin(phiHelix)/fabs(theCurvature),
+  currentPosition = VectorTypeExtended(theCenter.x()+cos(phiHelix)/std::abs(theCurvature),
+				       theCenter.y()+sin(phiHelix)/std::abs(theCurvature),
 				       theCenter.z()+dPhi/theCurvature*startDirection.z()/startDirection.perp());
   currentDirection = VectorTypeExtended(cos(startDirection.phi()+dPhi)*startDirection.perp(),
 					sin(startDirection.phi()+dPhi)*startDirection.perp(),

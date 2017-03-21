@@ -54,12 +54,46 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       }
       m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regionPSet.getParameter<std::string>("howToUseMeasurementTracker"));
       if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
+        // temporary until everything migrated to InputTag
+        edm::InputTag tag;
+        if(regionPSet.existsAs<edm::InputTag>("measurementTrackerName")) {
+          tag = regionPSet.getParameter<edm::InputTag>("measurementTrackerName");
+        }
+        else {
+          tag = edm::InputTag(regionPSet.getParameter<std::string>("measurementTrackerName"));
+        }
+
+        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(tag);
       }
     }
   
     virtual ~TauRegionalPixelSeedGenerator() {}
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<double>("ptMin", 5.0);
+    desc.add<double>("originHalfLength", 0.2);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("deltaEtaRegion", 0.1);
+    desc.add<double>("deltaPhiRegion", 0.1);
+    desc.add<edm::InputTag>("JetSrc", edm::InputTag("icone5Tau1"));
+    desc.add<edm::InputTag>("vertexSrc", edm::InputTag("pixelVertices"));
+    desc.add<bool>("searchOpt", false);
+
+    desc.add<std::string>("howToUseMeasurementTracker", "ForSiStrips");
+
+    // allow both InputTag and string for the moment, use InputTag as the default
+    desc.addNode(edm::ParameterDescription<edm::InputTag>("measurementTrackerName", edm::InputTag("MeasurementTrackerEvent"), true) xor
+                 edm::ParameterDescription<std::string>("measurementTrackerName", "MeasurementTrackerEvent", true));
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("tauRegionalPixelSeedTrackingRegions", descRegion);
+  }
+
 
     virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
       std::vector<std::unique_ptr<TrackingRegion> > result;

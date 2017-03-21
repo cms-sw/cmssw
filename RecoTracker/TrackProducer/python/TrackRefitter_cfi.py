@@ -39,4 +39,6 @@ TrackRefitter = cms.EDProducer("TrackRefitter",
     #NavigationSchool = cms.string('') 
 )
 
-
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(TrackRefitter, TTRHBuilder = 'WithTrackAngle') # FIXME

@@ -50,7 +50,7 @@ virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSet
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 
 void checkCalibrations(edm::EventSetup const & c);
 

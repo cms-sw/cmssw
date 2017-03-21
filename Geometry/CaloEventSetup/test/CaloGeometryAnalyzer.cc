@@ -217,7 +217,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
    }
    else
    {
-      if( 2 < abs( base.size() - over.size() ) ) 
+      if( 2 < std::abs( (int)(base.size()) - (int)(over.size()) ) ) 
       {
       DetSet inBaseNotOver ;
       DetSet inOverNotBase ;
@@ -366,7 +366,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      ,
 {
    static const GlobalPoint origin (0,0,0) ;
    const int ieta ( id.ieta() ) ;
-   if( 85 == abs( ieta ) )
+   if( 85 == std::abs( ieta ) )
    {
       const EcalBarrelGeometry* ebG ( dynamic_cast<const EcalBarrelGeometry*>( geom ) );
       const CaloCellGeometry* cell ( geom->getGeometry(id) ) ;

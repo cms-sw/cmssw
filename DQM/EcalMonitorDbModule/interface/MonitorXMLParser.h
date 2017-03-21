@@ -174,7 +174,7 @@ public:
 
   const std::vector< DB_ME > & getDB_ME( void ) const { return (DBMonitoringElements_ ); }
 
-  void load() throw( std::runtime_error ); 
+  void load() noexcept(false);
 
 }; // class MonitorXMLParser
 

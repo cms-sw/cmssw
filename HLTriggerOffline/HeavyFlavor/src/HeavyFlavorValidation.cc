@@ -55,7 +55,7 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   protected:
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
@@ -153,7 +153,11 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
 			for( size_t j = 0; j < moduleNames.size(); j++) {
 				TString name = moduleNames[j];
-				if(name.Contains("Filter")){ 
+                                // MK 2016-12-09: added requirement for the module EDM type to be
+                                // EDFilter, as without it the name check can match also any EDProducer
+                                // (and would be fragile; ok I think it is still fragile, but the added
+                                // check allows PR #16792 to go forward)
+				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleNames[j]) == "EDFilter"){
 					int level = 0;
 					if(name.Contains("L1"))
 						level = 1;

@@ -26,7 +26,7 @@ class QcdHighPtDQM : public DQMEDAnalyzer {
   virtual ~QcdHighPtDQM();
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   // input tags/Tokens for Jets/MET

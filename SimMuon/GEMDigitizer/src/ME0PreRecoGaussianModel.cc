@@ -22,6 +22,8 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   sigma_t(config.getParameter<double>("timeResolution")), 
   sigma_u(config.getParameter<double>("phiResolution")), 
   sigma_v(config.getParameter<double>("etaResolution")), 
+  error_u(config.getParameter<double>("phiError")), 
+  error_v(config.getParameter<double>("etaError")), 
   gaussianSmearing_(config.getParameter<bool>("gaussianSmearing")),
   constPhiSmearing_(config.getParameter<bool>("constantPhiSpatialResolution")),
   corr(config.getParameter<bool>("useCorrelation")), 
@@ -33,9 +35,12 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   simulateElectronBkg_(config.getParameter<bool>("simulateElectronBkg")), 
   simulateNeutralBkg_(config.getParameter<bool>("simulateNeutralBkg")), 
   minBunch_(config.getParameter<int>("minBunch")), 
-  maxBunch_(config.getParameter<int>("maxBunch"))
+  maxBunch_(config.getParameter<int>("maxBunch")),
+  instLumi_(config.getParameter<double>("instLumi")),
+  rateFact_(config.getParameter<double>("rateFact"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
+  // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
   neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
   neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
   eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
@@ -53,8 +58,8 @@ for (const auto & hit: simHits)
   // Digitize only Muons?
   if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
   // Digitize only in [minBunch,maxBunch] window
-  // window is: [(2n-1)*bxw/2, (2n+1)*bxw/2], n = [minBunch, maxBunch]
-  if(hit.timeOfFlight() < (2*minBunch_-1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+1)*bxwidth*1.0/2) continue;
+  // window is: [(2n+1)*bxw/2, (2n+3)*bxw/2], n = [minBunch, maxBunch]
+  if(hit.timeOfFlight() < (2*minBunch_+1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+3)*bxwidth*1.0/2) continue;
   // is GEM efficient?
   if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
   // create digi
@@ -77,7 +82,16 @@ for (const auto & hit: simHits)
   double corr=0.;
   double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
   int pdgid = hit.particleType();
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
+  if (ex == 0) ex = error_u;//errors cannot be zero
+  if (ey == 0) ey = error_v;
+
+  int evtId = hit.eventId().event();
+  int bx = hit.eventId().bunchCrossing();
+  int procType = hit.processType();
+  int res = 1;
+  if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
+    
+  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
   digi_.insert(digi);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
@@ -111,7 +125,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 
   // Divide the detector area in different strips
   // take smearing in y-coord as height for each strip
-  double heightIt = sigma_v;
+  double initialHeight = sigma_v;
+  if(sigma_v < 1.0) initialHeight = 1.0;
+  double heightIt = initialHeight;
   int heightbins  = height/heightIt; // round down
 
   edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: sNoise]["<<roll->id().rawId()<<"] :: roll with id = "<<roll->id();
@@ -134,7 +150,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 
     double myRandY = CLHEP::RandFlat::shoot(engine);
     double y0_rand = (hx+myRandY)*heightIt;  // Y coord, measured from the bottom of the roll
-    if(hx==heightbins-1) y0_rand = hx*sigma_v + myRandY*heightIt;
+    if(hx==heightbins-1) y0_rand = hx*initialHeight + myRandY*heightIt;
     double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
     double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
     // max length in x for given y coordinate (cfr trapezoidal eta partition)
@@ -161,7 +177,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageElectronRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
-      
+
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
+      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
+
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
       const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
       
@@ -193,7 +212,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	int pdgid = 0;
 	if (myrandP <= 0.5) pdgid = -11; // electron
 	else             pdgid = 11;  // positron
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	if (ex == 0) ex = error_u;//errors cannot be zero
+	if (ey == 0) ey = error_v;
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
 	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
@@ -209,6 +230,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageNeutralRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
+
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
+      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/5;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);
@@ -241,7 +265,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	double myrandP = CLHEP::RandFlat::shoot(engine);
 	if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
 	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	if (ex == 0) ex = error_u;//errors cannot be zero
+	if (ey == 0) ey = error_v;
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
 	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"

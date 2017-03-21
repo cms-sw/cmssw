@@ -3,10 +3,17 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi import *
 from RecoTracker.FinalTrackSelectors.DuplicateListMerger_cfi import *
 
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import Chi2MeasurementEstimator as _Chi2MeasurementEstimator
+duplicateTrackCandidatesChi2Est = _Chi2MeasurementEstimator.clone(
+    ComponentName = "duplicateTrackCandidatesChi2Est",
+    MaxChi2 = 100,
+)
+
 duplicateTrackCandidates = DuplicateTrackMerger.clone()
 duplicateTrackCandidates.source = cms.InputTag("preDuplicateMergingGeneralTracks")
 duplicateTrackCandidates.useInnermostState  = True
 duplicateTrackCandidates.ttrhBuilderName   = "WithAngleAndTemplate"
+duplicateTrackCandidates.chi2EstimatorName = "duplicateTrackCandidatesChi2Est"
                                      
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
@@ -22,6 +29,11 @@ duplicateTrackClassifier.mva.maxChi2n = [10.,1.0,0.4]  # [9999.,9999.,9999.]
 duplicateTrackClassifier.mva.minLayers = [0,0,0]
 duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
+
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
+
 # This customization will be removed once we get the templates for
 # phase2 pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

@@ -77,6 +77,8 @@ private:
     timesFailed_(),
     timesExcept_(),
     state_(Ready),
+    numberOfPathsOn_(0),
+    numberOfPathsLeftToRun_(0),
     moduleCallingContext_(&iMD),
     actions_(iActions),
     cached_exception_(),
@@ -102,7 +104,7 @@ private:
     ModuleCallingContext const* imcc = mcc;
     while(imcc->type() == ParentContext::Type::kModule) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "'";
       ex.addContext(iost.str());
@@ -110,7 +112,7 @@ private:
     }
     if(imcc->type() == ParentContext::Type::kInternal) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
       ex.addContext(iost.str());
@@ -118,7 +120,7 @@ private:
     }
     while(imcc->type() == ParentContext::Type::kModule) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "'";
       ex.addContext(iost.str());
@@ -210,6 +212,9 @@ private:
         iPrincipal.prefetchAsync(iTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
       }
     }
+    
+    preActionBeforeRunEventAsync(iTask,moduleCallingContext_,iPrincipal);
+    
     if(0 == iTask->decrement_ref_count()) {
       //if everything finishes before we leave this routine, we need to launch the task
       tbb::task::spawn(*iTask);
@@ -305,12 +310,13 @@ private:
       throw;
     }
   }
-
-  void Worker::pathFinished(EventPrincipal const& iEvent) {
-    if(earlyDeleteHelper_) {
-      earlyDeleteHelper_->pathFinished(iEvent);
+  
+  void Worker::skipOnPath() {
+    if( 0 == --numberOfPathsLeftToRun_) {
+      waitingTasks_.doneWaiting(cached_exception_);
     }
   }
+
   void Worker::postDoEvent(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);

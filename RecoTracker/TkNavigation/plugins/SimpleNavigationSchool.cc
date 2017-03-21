@@ -126,6 +126,13 @@ void SimpleNavigationSchool::linkNextForwardLayer( const BarrelDetLayer* bl,
 	fli != theRightLayers.end(); fli++) {
     if ( length < (**fli).position().z() &&
 	 radius < (**fli).specificSurface().outerRadius()) {
+      //search if there are any sovrapposition between forward layers
+      for ( FDLI fliNext = fli; fliNext != theRightLayers.end(); fliNext++) {
+        if ( (**fliNext).position().z() < (**fli).position().z() && (**fliNext).specificSurface().innerRadius() < (**fli).specificSurface().outerRadius()) {
+          rightFL.push_back( *fliNext);
+          return;
+        }
+      }
       rightFL.push_back( *fli);
       return;
     }
@@ -307,8 +314,8 @@ SimpleNavigationSchool::splitForwardLayers()
   FDLI begin = myRightLayers.begin();
   FDLI end   = myRightLayers.end();
 
-  // sort according to inner radius
-  sort ( begin, end, DiskLessInnerRadius()); 
+  // sort according to inner radius, but keeping the ordering in z!
+  stable_sort ( begin, end, DiskLessInnerRadius());
 
   // partition in cylinders
   vector<FDLC> result;
@@ -337,7 +344,7 @@ SimpleNavigationSchool::splitForwardLayers()
       LogDebug("TkNavigation") << "found break between groups" ;
 
       // sort layers in group along Z
-      sort ( current.begin(), current.end(), DetLessZ());
+      stable_sort ( current.begin(), current.end(), DetLessZ());
 
       result.push_back(current);
       current.clear();
@@ -349,7 +356,7 @@ SimpleNavigationSchool::splitForwardLayers()
   // now sort subsets in Z
   for ( vector<FDLC>::iterator ivec = result.begin();
 	ivec != result.end(); ivec++) {
-    sort( ivec->begin(), ivec->end(), DetLessZ());
+    stable_sort( ivec->begin(), ivec->end(), DetLessZ());
   }
 
   return result;

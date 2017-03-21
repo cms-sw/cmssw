@@ -74,13 +74,13 @@ public:
     }
   }
 
-  Trajectory fitOne(const Trajectory& aTraj,fitType) const;
+  Trajectory fitOne(const Trajectory& aTraj,fitType) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits,fitType) const;
+		    const RecHitContainer& hits,fitType) const override;
 
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
-		    const TSOS& firstPredTsos,fitType) const;
+		    const TSOS& firstPredTsos,fitType) const override;
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
@@ -101,7 +101,7 @@ public:
   }
 
  // FIXME a prototype:	final inplementaiton may differ 
-  virtual void setHitCloner(TkCloner const * hc) {  theHitCloner = hc;}
+  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
 
 
 private:

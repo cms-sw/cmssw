@@ -11,7 +11,6 @@
 
 DDEcalPreshowerAlgo::DDEcalPreshowerAlgo() : DDAlgorithm() {
   LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: Creating an instance" ;
-
 }
 
 void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
@@ -20,7 +19,6 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
 				     const DDStringArguments & sArgs,
 				     const DDStringVectorArguments & vsArgs)
 {
-
   LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: Initialize" ;
  
   asym_ladd_ = vArgs["ASYMETRIC_LADDER"];
@@ -94,7 +92,6 @@ void DDEcalPreshowerAlgo::execute(DDCompactView& cpv)
 
 void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
 {
-
   double zpos = -thickness_/2., sdx(0), sdy(0), bdx(0),bdy(0);;
 
   for(size_t i = 0; i<thickLayers_.size(); ++i) {
@@ -134,45 +131,84 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
     }
     
     if (I==10 || I==20) { // New lead shape
-      
-      int absz=0; double outalbx, outalby, shiftR, outalbx2, outalby2, shiftR2;
+
+      int absz=0;
+      double outalbx, outalby, shiftR, outalbx2, outalby2, shiftR2;
 
       absz = int(abs1stx.size()); 
       if ( I==20) absz = int(abs2ndx.size()); 
       int cutabsx=-1, cutabsy=-1;
+     
+      DDName dd_tmp_name_b(getLayName(i)+"Lcut","esalgo");
+      DDName dd_tmp_name_c(getLayName(i)+"tmpb","esalgo");
+      DDName dd_tmp_name_d(getLayName(i)+"LinPb","esalgo");
+
+      DDName dd_tmp_name_e(getLayName(i)+"LinAl","esalgo");
+      DDName dd_tmp_name_f(getLayName(i)+"LOutAl","esalgo");
+
+      std::ostringstream  tmp_Alname_fin;
+      tmp_Alname_fin << getLayName(i) << "LtmpAl" << absz-1; 
+      DDName dd_Alname_fin(tmp_Alname_fin.str(),"esalgo");
+
+      DDSolid Outer_Al = DDSolid(dd_Alname_fin);
+
+      DDLogicalPart layerFinOutAl = DDLogicalPart(dd_tmp_name_f,getMaterial(i-1),Outer_Al);
 
       DDName dd_Alname_f(getLayName(i)+"LOutAl","esalgo");
       DDName dd_Alname_g(getLayName(i)+"LOutAl2","esalgo");
       DDName dd_Alname_h(getLayName(i)+"LOutAltmp","esalgo");
       DDName dd_Alname_i(getLayName(i)+"LOutAltmp2","esalgo");
       DDName dd_Alname_j(getLayName(i)+"LOutAltmp3","esalgo");
+      DDName dd_Alname_k(getLayName(i)+"LOutAltmp4","esalgo");
+      DDName dd_Alname_l(getLayName(i)+"LOutAltmp5","esalgo");
+      DDName dd_Alname_m(getLayName(i)+"LOutAltmp6","esalgo");
 
-      DDSolid Out_Al = DDSolidFactory::tubs(dd_Alname_f,zHalf-0.1*mm,rMax_Abs_Al_-20*cm,rMax_Abs_Al_,0.,90.*deg); 
-      outalbx = absAlX_X_; outalby = rMax_Abs_Al_+0.1*mm-absAlX_subtr1_Yshift_; shiftR = absAlX_subtr1_Yshift_;
-      if ( I==20)  {  outalbx = absAlY_X_; outalby = rMax_Abs_Al_+0.1*mm-absAlY_subtr1_Yshift_; shiftR =  absAlY_subtr1_Xshift_; } 
+      DDSolid Out_Al = DDSolidFactory::tubs(dd_Alname_f,zHalf-0.1*mm,rMax_Abs_Al_-20*cm,rMax_Abs_Al_,0.,90.*deg);
 
+      outalbx = absAlX_X_*0.1;
+      outalby = rMax_Abs_Al_+0.1*mm-absAlX_subtr1_Yshift_;
+      shiftR = absAlX_subtr1_Yshift_;
+      if ( I==20)  {
+	outalbx = absAlY_X_*0.1;
+	outalby = rMax_Abs_Al_+0.1*mm-absAlY_subtr1_Yshift_;
+	shiftR =  absAlY_subtr1_Xshift_;
+      } 
       DDSolid OutAltmp = DDSolidFactory::box(dd_Alname_h,outalbx/2+0.1*mm,outalby/2+0.1*mm,zHalf);
       DDSolid Out_Altmp3 = DDSolidFactory::subtraction(dd_Alname_j,Out_Al,OutAltmp,DDTranslation(outalbx/2,outalby/2+shiftR,0),DDRotation());
-
-      outalby2 = absAlX_Y_; outalbx2 = rMax_Abs_Al_+0.1*mm-absAlX_subtr1_Xshift_; shiftR2 = absAlX_subtr1_Xshift_;
-     if ( I==20)  { outalby2 = absAlY_Y_; outalbx2 = rMax_Abs_Al_+0.1*mm-absAlY_subtr1_Xshift_; shiftR2 = absAlY_subtr1_Xshift_; }
+      outalby2 = absAlX_Y_*0.1;
+      outalbx2 = rMax_Abs_Al_+0.1*mm-absAlX_subtr1_Xshift_;
+      shiftR2 = absAlX_subtr1_Xshift_;
+      if ( I==20)  {
+	outalby2 = absAlY_Y_*0.1;
+	outalbx2 = rMax_Abs_Al_+0.1*mm-absAlY_subtr1_Xshift_;
+	shiftR2 = absAlY_subtr1_Xshift_;
+      }
       DDSolid OutAltmp2 = DDSolidFactory::box(dd_Alname_i,outalbx2/2+0.1*mm,outalby2/2+0.1*mm,zHalf);
-      DDSolid Out_Al2 = DDSolidFactory::subtraction(dd_Alname_g,Out_Altmp3,OutAltmp2,DDTranslation(outalbx2/2+shiftR2,outalby2/2,0),DDRotation());
-  
+      DDSolid Out_Altmp4 = DDSolidFactory::subtraction(dd_Alname_k,Out_Altmp3,OutAltmp2,DDTranslation(outalbx2/2+shiftR2,outalby2/2,0),DDRotation());
+      DDSolid Out_Altmp5 = DDSolidFactory::unionSolid(dd_Alname_l,Out_Altmp4,Out_Altmp4,DDTranslation(0,0,0),DDRotation("esalgo:RABS90"));
+      DDSolid Out_Altmp6 = DDSolidFactory::unionSolid(dd_Alname_m,Out_Altmp5,Out_Altmp4,DDTranslation(0,0,0),DDRotation("esalgo:RABS180B"));
+      DDSolid Out_Al2 = DDSolidFactory::unionSolid(dd_Alname_g,Out_Altmp6,Out_Altmp4,DDTranslation(0,0,0),DDRotation("esalgo:R180"));
+    
       for (int L=0; L<absz; ++L) {
 	int K=L; 
-	std::ostringstream  tmp_name_b, tmp_name_b2, tmp_FAl_name_c, tmp_FAl_name_d;
+	std::ostringstream  tmp_name_b, tmp_name_b2, tmp_FAl_name_c, tmp_FAl_name_d1, tmp_FAl_name_d2, tmp_FAl_name_d3, tmp_FAl_name_d;
 	tmp_name_b << getLayName(i) << "L" << K; 
 	tmp_name_b2 << getLayName(i) << "Lb2" << K; 
 
-     if(L==0) tmp_FAl_name_c << getLayName(i)<<"LOutAl2"; 
-     if(L>0) tmp_FAl_name_c << getLayName(i) << "LtmpAl" << K-1; 
+	if(L==0) tmp_FAl_name_c << getLayName(i)<<"LOutAl2"; 
+	if(L>0) tmp_FAl_name_c << getLayName(i) << "LtmpAl" << K-1; 
 
+	tmp_FAl_name_d1 << getLayName(i) << "LtmpAl" << K << "_1"; 
+	tmp_FAl_name_d2 << getLayName(i) << "LtmpAl" << K << "_2"; 
+	tmp_FAl_name_d3 << getLayName(i) << "LtmpAl" << K << "_3"; 
 	tmp_FAl_name_d << getLayName(i) << "LtmpAl" << K; 
 
 	DDName dd_tmp_name_b(tmp_name_b.str(),"esalgo");
 	DDName dd_tmp_name_b2(tmp_name_b2.str(),"esalgo");
 	DDName dd_FAl_name_c(tmp_FAl_name_c.str(),"esalgo");
+	DDName dd_FAl_name_d1(tmp_FAl_name_d1.str(),"esalgo");
+	DDName dd_FAl_name_d2(tmp_FAl_name_d2.str(),"esalgo");
+	DDName dd_FAl_name_d3(tmp_FAl_name_d3.str(),"esalgo");
 	DDName dd_FAl_name_d(tmp_FAl_name_d.str(),"esalgo");
 
 	if(L==0) bdx = std::abs(abs1stx[K])/2; 
@@ -181,8 +217,8 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
 	if(abs1stx[K] < rIn+30*cm) { bdy=abs1sty[K]/2 - 30*cm; cutabsx = K;}
 	
 	if(I==20) { if(L==0) bdx = std::abs(abs2ndx[K])/2; 
-		if(L>0) bdx = std::abs(abs2ndx[K]-abs2ndx[K-1])/2;
-		bdy=abs2ndy[K];}
+	  if(L>0) bdx = std::abs(abs2ndx[K]-abs2ndx[K-1])/2;
+	  bdy=abs2ndy[K];}
 	
 	if((abs2ndx[K] < rIn+30*cm) && I==20) { bdy=abs2ndy[K]/2 - 30*cm; cutabsy = K;}
 	
@@ -197,29 +233,22 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
 		
 	DDLogicalPart layer = DDLogicalPart(dd_tmp_name_b,getMaterial(i),solid_b);
 	
-	cpv.position(layer, parent(), 1, DDTranslation(sdx,sdy, zpos), DDRotation());
-	cpv.position(layer, parent(), 2, DDTranslation(-sdx,sdy, zpos), DDRotation());
-	 DDSolid solid_c = DDSolid(dd_FAl_name_c);  
-         DDSolid solid_d = DDSolidFactory::subtraction(dd_FAl_name_d,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
+	cpv.position(layer, layerFinOutAl, 1, DDTranslation(sdx,sdy,0), DDRotation());
+	cpv.position(layer, layerFinOutAl, 2, DDTranslation(-sdx,sdy,0), DDRotation());
+	DDSolid solid_c = DDSolid(dd_FAl_name_c);
+	DDSolid solid_d1 = DDSolidFactory::unionSolid(dd_FAl_name_d1,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
+	DDSolid solid_d2 = DDSolidFactory::unionSolid(dd_FAl_name_d,solid_d1,solid_b2,DDTranslation(-sdx,-sdy,0),DDRotation());
+
 	if(((abs1stx[K] < rIn+30*cm) && I==10) || ((abs2ndx[K] < rIn+30*cm) && I==20) ) { 
-	  cpv.position(layer, parent(), 3, DDTranslation(sdx,-sdy, zpos), DDRotation());
-	  cpv.position(layer, parent(), 4, DDTranslation(-sdx,-sdy, zpos), DDRotation());
-	 DDSolid solid_c = DDSolid(dd_FAl_name_c);  
-         DDSolid solid_d = DDSolidFactory::subtraction(dd_FAl_name_d,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
-	}		
-
-
-      }  
-      
-
-
-      DDName dd_tmp_name_b(getLayName(i)+"Lcut","esalgo");
-      DDName dd_tmp_name_c(getLayName(i)+"tmpb","esalgo");
-      DDName dd_tmp_name_d(getLayName(i)+"LinPb","esalgo");
-
-      DDName dd_tmp_name_e(getLayName(i)+"LinAl","esalgo");
-      DDName dd_tmp_name_f(getLayName(i)+"LOutAl","esalgo");
-
+	  cpv.position(layer, layerFinOutAl, 3, DDTranslation(sdx,-sdy,0), DDRotation());
+	  cpv.position(layer, layerFinOutAl, 4, DDTranslation(-sdx,-sdy,0), DDRotation());
+	  DDSolid solid_c = DDSolid(dd_FAl_name_c);  
+	  DDSolid solid_d1 = DDSolidFactory::unionSolid(dd_FAl_name_d1,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
+	  DDSolid solid_d2 = DDSolidFactory::unionSolid(dd_FAl_name_d2,solid_d1,solid_b2,DDTranslation(sdx,-sdy,0),DDRotation());
+	  DDSolid solid_d3 = DDSolidFactory::unionSolid(dd_FAl_name_d3,solid_d2,solid_b2,DDTranslation(-sdx,sdy,0),DDRotation());
+	  DDSolid solid_d4 = DDSolidFactory::unionSolid(dd_FAl_name_d,solid_d3,solid_b2,DDTranslation(-sdx,-sdy,0),DDRotation());
+	}
+      }
       
       bdx = abs1stx[cutabsx];
       if(I==20) bdx = abs2ndx[cutabsy];
@@ -229,42 +258,25 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
 
       DDSolid iner = DDSolidFactory::tubs(dd_tmp_name_c,zHalf+0.1*mm,0,In_rad_Abs_Pb,0.,360.*deg); 
 
-
       DDSolid final = DDSolidFactory::subtraction(dd_tmp_name_d,solidcut,iner,DDTranslation(0,0,0),DDRotation());
-
       
       DDLogicalPart layer = DDLogicalPart(dd_tmp_name_d,getMaterial(i),final);
       cpv.position(layer, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
 
       DDSolid iner_Al = DDSolidFactory::tubs(dd_tmp_name_e,zHalf,In_rad_Abs_Al,In_rad_Abs_Pb-0.01*mm,0.,360.*deg); 
+
       DDLogicalPart layerAl = DDLogicalPart(dd_tmp_name_e,getMaterial(i-1),iner_Al);
       cpv.position(layerAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
-  
-	std::ostringstream  tmp_Alname_fin;
-	tmp_Alname_fin << getLayName(i) << "LtmpAl" << absz-1; 
-        DDName dd_Alname_fin(tmp_Alname_fin.str(),"esalgo");
-
-      DDSolid Outer_Al = DDSolid(dd_Alname_fin);
-
-      DDLogicalPart layerFinOutAl = DDLogicalPart(dd_tmp_name_f,getMaterial(i-1),Outer_Al);
-
-     cpv.position(layerFinOutAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
-     cpv.position(layerFinOutAl, parent(), 2, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS90"));
-     cpv.position(layerFinOutAl, parent(), 3, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS180B"));
-     cpv.position(layerFinOutAl, parent(), 4, DDTranslation(0,0, zpos), DDRotation("esalgo:R180"));
-  
-
-    
-    } else {
+      cpv.position(layerFinOutAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
+    }
+    else {
       
       cpv.position(layer, parent(), 1, DDTranslation(0.,0., zpos), DDRotation());
       
       LogDebug("SFGeom")<<" debug : tubs, Logical part: "<<DDLogicalPart(ddname,getMaterial(i),solid)<<"\n translation "<<DDTranslation(0.,0.,zpos)<<" rotation "<<DDRotation()<< "\n";
-    } 
-    
+    }
     zpos += zHalf; 
   }
-  
 }
 
 void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
@@ -344,11 +356,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 						  (ladder_thick-(ceramic_length-waf_active)*sin(wedge_angle*2))/2,   // pDx4
 						  0 );
 
-// Creation of ladders with 5 micromodules length
+    // Creation of ladders with 5 micromodules length
     
     if(M<int(types_l5_.size())) {
-      
-      
       for (int i=0; i<=1; i++) {
 	for (int j=0; j<=3; j++) {
 	  if(ladd_l5_map_[(i+j*2+M*10)]!=1){
@@ -392,7 +402,7 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	  DDSolid solid_5b = DDSolidFactory::unionSolid(dd_tmp_name_5b,solid_5a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
 	  
 	  if(ladd_side==0) sdxe2[enb] = -ladder_width/4; 
-     sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
+	  sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
 	  sdze2[enb] = -ladder_thick/2. + LdrFrnt_Offset + (waf_active*sin(wedge_angle*2))/4;
 	  if(ladd_side==1) sdxe2[enb] = ladder_width/4;
 	  
@@ -409,8 +419,6 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	
       } //end of not plain ladder shape
       else {
-	
-	
 	
 	DDName dd_tmp_name_5pa(getLadPrefix(2)+"5p","esalgo");
 	DDName dd_tmp_name_5pb(getLadPrefix(3)+"5p","esalgo");
@@ -433,7 +441,7 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       }
     }
 
-// Creation of ladders with 4 micromodules length
+    // Creation of ladders with 4 micromodules length
 
     if( M >= int(types_l5_.size()) ) {
       int d = M - types_l5_.size();
@@ -567,8 +575,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       }
     }
    
-// insert SWED, SFBX and SFBY into ladders
-  swed_scopy_glob++;
+    // insert SWED, SFBX and SFBY into ladders
+    swed_scopy_glob++;
     if(M<int(types_l5_.size())) {
       DDName ddname(getLadPrefix(0)+types_l5_[M],"esalgo");
       DDName ddname2(getLadPrefix(1)+types_l5_[M],"esalgo"); 
@@ -611,7 +619,7 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       }
   }
 
-// Positioning of ladders
+  // Positioning of ladders
 
   std::string type;
   int icopy[100] = {0};
@@ -630,8 +638,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       if(K==3) type = typeOfLaddRow3[J]; 
 
       for(int i=0;i<int(types_l5_.size());i++) if(type == types_l5_[i]) {
-	ladder_new_length_ = micromodule_length + 4*waf_active;
-	ladd_shift_ = 5*waf_active;}
+	  ladder_new_length_ = micromodule_length + 4*waf_active;
+	  ladd_shift_ = 5*waf_active;}
       
       int j = 0;
       

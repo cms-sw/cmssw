@@ -47,7 +47,7 @@ public:
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
       
   // ----------member data ---------------------------
   const edm::ParameterSet iConfig_;

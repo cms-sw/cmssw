@@ -15,7 +15,7 @@ public:
  double operator() (const SingleGaussianState<N>&, 
 			     const SingleGaussianState<N>&) const override;
 
-  virtual KullbackLeiblerDistance<N>* clone() const
+  virtual KullbackLeiblerDistance<N>* clone() const override
   {  
     return new KullbackLeiblerDistance<N>(*this);
   }

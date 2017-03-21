@@ -34,11 +34,11 @@ class L1TdeGCT : public DQMEDAnalyzer {
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
  
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -3,7 +3,7 @@
 #include <string>
 #include <cassert>
 #include <exception>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -68,16 +68,16 @@ const G4AffineTransform& GetTransform(const G4TouchableHistory* touchable, int d
 //   - how may steps up in the hierarchy it is (0 is the starting volume)
 // if no sensitive detector is found, return a NULL pointer and 0
 
-boost::tuple<const G4VPhysicalVolume*, int> GetSensitiveVolume( const G4VTouchable* touchable )
+std::tuple<const G4VPhysicalVolume*, int> GetSensitiveVolume( const G4VTouchable* touchable )
 {
   int depth = touchable->GetHistoryDepth();
   for (int level = 0; level < depth; ++level) {      // 0 is self
     const G4VPhysicalVolume* volume = touchable->GetVolume(level);
     if (volume->GetLogicalVolume()->GetSensitiveDetector() != 0) {
-      return boost::make_tuple(volume, level);
+      return std::make_tuple(volume, level);
     }
   }
-  return boost::tuple<const G4VPhysicalVolume*, int>(0, 0);
+  return std::tuple<const G4VPhysicalVolume*, int>(0, 0);
 }
 
 //-------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
   int level = 0;
   const G4VPhysicalVolume* sensitive = 0;
   GlobalPoint position;
-  boost::tuples::tie(sensitive, level) = GetSensitiveVolume(touchable);
+  std::tie(sensitive, level) = GetSensitiveVolume(touchable);
   if (sensitive) {
     const G4VSolid &          solid     = *touchable->GetSolid( level );
     const G4AffineTransform & transform = GetTransform( touchable, level );

@@ -96,9 +96,7 @@ public:
 
 
 /// get hits from layer compatible with region constraints 
-  virtual Hits hits(
-		    const edm::Event& ev,
-		    const edm::EventSetup& es,
+  virtual Hits hits(const edm::EventSetup& es,
 		    const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
   
   /// clone region with new vertex position

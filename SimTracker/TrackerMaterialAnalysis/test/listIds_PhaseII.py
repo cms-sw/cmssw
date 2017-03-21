@@ -7,7 +7,7 @@ process = cms.Process("MaterialAnalyser")
 readGeometryFromDB = False
 
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.Geometry.GeometrySimDB_cff')
@@ -27,14 +27,9 @@ process.source = cms.Source("EmptySource",
 )
 
 process.listIds = cms.EDAnalyzer("ListIds",
-                                materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi"),
-                                printMaterial = cms.untracked.bool(False)
+                                materials = cms.untracked.vstring("materials:Silicon", "tracker:tkLayout_SenSi"),
+                                printMaterial = cms.untracked.bool(True)
                                 )
 process.path = cms.Path(process.listIds)
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted(process)
 

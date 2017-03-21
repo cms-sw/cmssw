@@ -32,7 +32,9 @@ class HcalDbService {
   const HcalTopology* getTopologyUsed() const;
   
   const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const;
-    const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
+  const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
+  const HcalCalibrationsSet* getHcalCalibrationsSet() const;
+  const HcalCalibrationWidthsSet* getHcalCalibrationWidthsSet() const;
 
   const HcalPedestal* getPedestal (const HcalGenericDetId& fId) const;
   const HcalPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;
@@ -56,6 +58,7 @@ class HcalDbService {
   const HcalSiPMCharacteristics* getHcalSiPMCharacteristics () const;
   const HcalTPChannelParameter* getHcalTPChannelParameter (const HcalGenericDetId& fId) const;
   const HcalTPParameters* getHcalTPParameters () const;
+  const HcalMCParam* getHcalMCParam (const HcalGenericDetId& fId) const;
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; mCalibSet = nullptr;}
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mCalibWidthSet = nullptr;}
@@ -77,6 +80,7 @@ class HcalDbService {
   void setData (const HcalSiPMCharacteristics* fItem) {mSiPMCharacteristics = fItem;}
   void setData (const HcalTPChannelParameters* fItem) {mTPChannelParameters = fItem; mCalibSet = nullptr;}
   void setData (const HcalTPParameters* fItem) {mTPParameters = fItem;}
+  void setData (const HcalMCParams* fItem) {mMCParams = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
@@ -105,6 +109,7 @@ class HcalDbService {
   const HcalSiPMCharacteristics* mSiPMCharacteristics;
   const HcalTPChannelParameters* mTPChannelParameters;
   const HcalTPParameters* mTPParameters;
+  const HcalMCParams* mMCParams;
   //  bool mPedestalInADC;
   mutable std::atomic<HcalCalibrationsSet const *> mCalibSet;
   mutable std::atomic<HcalCalibrationWidthsSet const *> mCalibWidthSet;

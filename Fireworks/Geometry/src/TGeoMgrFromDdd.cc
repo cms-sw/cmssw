@@ -353,14 +353,14 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    {
 	       x = pt.x2(); // tubs radius
 	    }
-	    double halfOpeningAngle = asin( x / abs( r ))/deg;
+	    double halfOpeningAngle = asin( x / std::abs( r ))/deg;
 	    double displacement = 0;
 	    double startPhi = 0;
 	    /* calculate the displacement of the tubs w.r.t. to the trap,
 	       determine the opening angle of the tubs */
 	    double delta = sqrt( r * r - x * x );
 
-	    if( r < 0 && abs( r ) >= x )
+	    if( r < 0 && std::abs( r ) >= x )
 	    {
 	      intersec = true; // intersection solid
 	      h = pt.y1() < pt.y2() ? pt.y2() : pt.y1(); // tubs half height
@@ -376,7 +376,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 		startPhi = -90.- halfOpeningAngle;
 	      }
 	    }
-	    else if( r > 0 && abs( r ) >= x )
+	    else if( r > 0 && std::abs( r ) >= x )
 	    {
 	      if( atMinusZ )
 	      {
@@ -405,7 +405,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      
 	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( pt.name().name().c_str(),
 							    0.,
-							    abs(r)/cm, // radius cannot be negative!!!
+							    std::abs(r)/cm, // radius cannot be negative!!!
 							    h/cm,
 							    startPhi,
 							    startPhi + halfOpeningAngle * 2. ));

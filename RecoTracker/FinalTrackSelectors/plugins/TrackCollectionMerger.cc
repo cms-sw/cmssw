@@ -59,6 +59,7 @@ namespace {
       desc.add<unsigned int>("minShareHits",2);
       desc.add<bool>("allowFirstHitShare",true);
       desc.add<std::string>("minQuality","loose");
+      TrackCollectionCloner::fill(desc);
       descriptions.add("TrackCollectionMerger", desc);
     }
 

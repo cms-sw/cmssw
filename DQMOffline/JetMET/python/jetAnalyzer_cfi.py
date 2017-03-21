@@ -105,8 +105,8 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("LOOSE"),
     #options for Calo and JPT: PURE09,DQM09,CRAFT08
-    #for PFJets: FIRSTDATA or RUNIISTARTUP (suitable for RECO beyond 7_2_X)
-    JetIDVersion               = cms.string("RUNIISTARTUP"),
+    #for PFJets: FIRSTDATA or RUNIISTARTUP (suitable for RECO beyond 7_2_X) or WINTER16 (for 8_0_X onwards)
+    JetIDVersion               = cms.string("WINTER16"),
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJets"),

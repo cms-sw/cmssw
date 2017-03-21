@@ -205,7 +205,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*' )
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -289,7 +289,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
             'HLT_L1*',
             'HLT_Jet*',
             'HLT_Physics*',
-            'HLT_ZeroBias*'
+            'HLT_ZeroBias*',
+            'HLT_PAL1*',
+            'HLT_PAZeroBias*',
+            'HLT_PAAK*'
             )
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
@@ -352,7 +355,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 
@@ -572,9 +575,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load("RecoHI.HiTracking.LowPtTracking_PbPb_cff")
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    process.hiPixel3ProtoTracks.FilterPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+
+    process.hiProtoTrackFilter.siPixelRecHits = "siPixelRecHitsPreSplitting"
     process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
-    process.hiPixel3PrimTracks.FilterPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+
+    process.hiFilter.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
+
     process.hiPrimTrackCandidates.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
     process.hiGlobalPrimTracks.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
     process.multFilter.inputTag = cms.InputTag("siPixelClustersPreSplitting")

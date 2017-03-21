@@ -27,3 +27,6 @@ DEFINE_EDM_PLUGIN(ME0DigiPreRecoModelFactory, ME0PreRecoNoSmearModel, "ME0PreRec
 
 #include "SimMuon/GEMDigitizer/interface/ME0PreRecoGaussianModel.h"
 DEFINE_EDM_PLUGIN(ME0DigiPreRecoModelFactory, ME0PreRecoGaussianModel, "ME0PreRecoGaussianModel");
+
+#include "SimMuon/GEMDigitizer/interface/ME0ReDigiProducer.h"
+DEFINE_FWK_MODULE(ME0ReDigiProducer);

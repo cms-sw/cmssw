@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <stdlib.h>
 
 //boost libraries
 #include <boost/lexical_cast.hpp>
@@ -25,11 +26,12 @@ template <class varType> varType convertVariable(const std::string& aVar)
 	catch (std::exception& e)
 	{
 		std::map<std::string, int> hexnums;
-        	std::string strHexNums("0123456789ABCDEF");
+        	std::string strHexNums("0123456789ABCDEFabcdef");
 	       	for(unsigned int i=0; i<strHexNums.size(); i++)
 	                hexnums[strHexNums.substr(i,1)] = i;
+                char *endptr = NULL;
 		if ( aVar.substr(0,2) == "0x" && aVar.substr(2,aVar.size()).find_first_not_of(strHexNums) == std::string::npos)
-			temp = convertFromHexStringToInt(aVar);
+			temp = strtol(aVar.c_str(),&endptr,0);//convertFromHexStringToInt(aVar);
 		else
 			throw std::runtime_error(std::string("Method convertVariable error: ") + e.what());
 	}

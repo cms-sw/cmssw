@@ -1,4 +1,3 @@
-using namespace std;
 
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
@@ -10,6 +9,7 @@ using namespace std;
 #include "DataFormats/Common/interface/Handle.h"
 #include <iostream>
 #include <fstream>
+using namespace std;
 
 
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):

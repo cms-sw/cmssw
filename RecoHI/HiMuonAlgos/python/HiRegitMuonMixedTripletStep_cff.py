@@ -5,14 +5,28 @@ import FWCore.ParameterSet.Config as cms
 ################################### 4th step: large impact parameter tracking using mixed-triplet seeding
 
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons","UpdatedAtVtx")
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaPhi      = 0.3
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaEta      = 0.2
+# Are the following values set to the same in every iteration? If yes,
+# why not making the change in HITrackingRegionProducer_cfi directly
+# once for all?
+hiRegitMuMixedTripletStepTrackingRegionsA = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
+    MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
+    MuonTrackingRegionBuilder = dict(
+        vertexCollection = "hiSelectedVertex",
+        UseVertex     = True,
+        Phi_fixed     = True,
+        Eta_fixed     = True,
+        DeltaPhi      = 0.3,
+        DeltaEta      = 0.2,
+        # Ok, the following ones are specific to MixedTripletStep
+        Pt_min        = 1.3,
+        DeltaR        = 0.5, # default = 0.2
+        DeltaZ        = 0.5, # this give you the length
+        Rescale_Dz    = 4., # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+    )
+)
+hiRegitMuMixedTripletStepTrackingRegionsB = hiRegitMuMixedTripletStepTrackingRegionsA.clone(
+    MuonTrackingRegionBuilder = dict(Pt_min = 1.5)
+)
 
 ###################################
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
@@ -34,14 +48,17 @@ hiRegitMuMixedTripletStepSeedLayersA.FPix.skipClusters = cms.InputTag('hiRegitMu
 hiRegitMuMixedTripletStepSeedLayersA.TEC.skipClusters  = cms.InputTag('hiRegitMuMixedTripletStepClusters')
 
 # SEEDS A
-hiRegitMuMixedTripletStepSeedsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.clone()
-hiRegitMuMixedTripletStepSeedsA.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuMixedTripletStepSeedsA.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuMixedTripletStepSeedsA.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 1.3
-hiRegitMuMixedTripletStepSeedsA.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.5 # default = 0.2
-hiRegitMuMixedTripletStepSeedsA.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ	    = 0.5 # this give you the length 
-hiRegitMuMixedTripletStepSeedsA.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4.   # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuMixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuMixedTripletStepSeedLayersA'
+hiRegitMuMixedTripletStepHitDoubletsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitDoubletsA.clone(
+    seedingLayers = "hiRegitMuMixedTripletStepSeedLayersA",
+    trackingRegions = "hiRegitMuMixedTripletStepTrackingRegionsA",
+    clusterCheck = "hiRegitMuClusterCheck",
+)
+hiRegitMuMixedTripletStepHitTripletsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitTripletsA.clone(
+    doublets = "hiRegitMuMixedTripletStepHitDoubletsA"
+)
+hiRegitMuMixedTripletStepSeedsA     = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.clone(
+    seedingHitSets = "hiRegitMuMixedTripletStepHitTripletsA"
+)
 
 # SEEDING LAYERS B
 hiRegitMuMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.clone()
@@ -49,14 +66,17 @@ hiRegitMuMixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiRegitMu
 hiRegitMuMixedTripletStepSeedLayersB.TIB.skipClusters  = cms.InputTag('hiRegitMuMixedTripletStepClusters')
 
 
-hiRegitMuMixedTripletStepSeedsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.clone()
-hiRegitMuMixedTripletStepSeedsB.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuMixedTripletStepSeedsB.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuMixedTripletStepSeedsB.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 1.5
-hiRegitMuMixedTripletStepSeedsB.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.5 # default = 0.2
-hiRegitMuMixedTripletStepSeedsB.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 0.5 # this give you the length 
-hiRegitMuMixedTripletStepSeedsB.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4.   # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuMixedTripletStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuMixedTripletStepSeedLayersB'
+hiRegitMuMixedTripletStepHitDoubletsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitDoubletsB.clone(
+    seedingLayers = "hiRegitMuMixedTripletStepSeedLayersB",
+    trackingRegions = "hiRegitMuMixedTripletStepTrackingRegionsB",
+    clusterCheck = "hiRegitMuClusterCheck",
+)
+hiRegitMuMixedTripletStepHitTripletsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitTripletsB.clone(
+    doublets = "hiRegitMuMixedTripletStepHitDoubletsB"
+)
+hiRegitMuMixedTripletStepSeedsB     = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.clone(
+    seedingHitSets = "hiRegitMuMixedTripletStepHitTripletsB"
+)
 
 # combine seeds
 hiRegitMuMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone(
@@ -132,8 +152,14 @@ hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.h
 
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
                                          hiRegitMuMixedTripletStepSeedLayersA*
+                                         hiRegitMuMixedTripletStepTrackingRegionsA*
+                                         hiRegitMuMixedTripletStepHitDoubletsA*
+                                         hiRegitMuMixedTripletStepHitTripletsA*
                                          hiRegitMuMixedTripletStepSeedsA*
                                          hiRegitMuMixedTripletStepSeedLayersB*
+                                         hiRegitMuMixedTripletStepTrackingRegionsB*
+                                         hiRegitMuMixedTripletStepHitDoubletsB*
+                                         hiRegitMuMixedTripletStepHitTripletsB*
                                          hiRegitMuMixedTripletStepSeedsB*
                                          hiRegitMuMixedTripletStepSeeds*
                                          hiRegitMuMixedTripletStepTrackCandidates*

@@ -33,12 +33,23 @@ public:
 
   virtual ~MultiHitGeneratorFromChi2();
 
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static const char *fillDescriptionsLabel() { return "multiHitFromChi2"; }
+
+
   void initES(const edm::EventSetup& es) override; 
 
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
                         const edm::Event & ev, const edm::EventSetup& es,
                         SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers);
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
+
+  void hitSets(const TrackingRegion& region, OrderedMultiHits& trs,
+               const edm::Event& ev, const edm::EventSetup& es,
+               const HitDoublets& doublets,
+               const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+               LayerCacheType& layerCache,
+               cacheHits& refittedHitStorage);
 
   void hitTriplets(
 		   const TrackingRegion& region, 
@@ -48,6 +59,14 @@ public:
 		   const RecHitsSortedInPhi ** thirdHitMap,
 		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
 		   const int nThirdLayers)override;
+
+  void hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+               const edm::EventSetup& es,
+               const HitDoublets& doublets,
+               const RecHitsSortedInPhi **thirdHitMap,
+               const std::vector<const DetLayer *>& thirdLayerDetLayer,
+               const int nThirdLayers,
+               cacheHits& refittedHitStorage);
 private:
   using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;
 

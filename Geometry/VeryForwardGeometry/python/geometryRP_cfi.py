@@ -81,8 +81,38 @@ totemGeomXMLFiles = cms.vstring(
         'Geometry/VeryForwardData/data/RP_Cuts_Per_Region.xml',
         'Geometry/VeryForwardData/data/RP_Param_Beam_Region.xml')
 
+ctppsDiamondGeomXMLFiles = cms.vstring(
+        # diamond detectors
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Materials.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_X_Distance.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Station_Parameters.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Positive_Station.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Negative_Station.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Stations_Assembly.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern1_Segment1.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment1.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment2.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern3_Segment1.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern3_Segment2.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern3_Segment3.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern3_Segment4.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment1.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment2.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment3.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment4.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment5.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml',
+)
+
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = totemGeomXMLFiles,
+    geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles,
     rootNodeName = cms.string('cms:CMSE')
 )
 

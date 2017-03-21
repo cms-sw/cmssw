@@ -65,7 +65,7 @@ class IdealCastorTrapezoid: public CaloCellGeometry
       using CaloCellGeometry::vocalCorners;
       virtual void vocalCorners( Pt3DVec&        vec ,
 				 const CCGFloat* pv  ,
-				 Pt3D&           ref  ) const ;
+				 Pt3D&           ref  ) const override ;
 
       static void localCorners( Pt3DVec&        vec ,
 				const CCGFloat* pv  , 

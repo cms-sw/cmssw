@@ -24,7 +24,7 @@ SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
 SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
-SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
 SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
 SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
 SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
@@ -74,6 +74,8 @@ stage2L1Trigger.toModify(SiStripMonitorClusterBPTX,
     )
 )
 
+# refitter ### (FIXME rename, move)
+from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi 
@@ -110,8 +112,8 @@ SiStripMonitorTrackIB.TopFolderName = cms.string("SiStrip/IsolatedBunches")
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
-MonitorTrackResiduals.trajectoryInput = 'generalTracks'
-MonitorTrackResiduals.Tracks          = 'generalTracks'
+MonitorTrackResiduals.trajectoryInput = 'refittedForPixelDQM'
+MonitorTrackResiduals.Tracks          = 'refittedForPixelDQM'
 MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
@@ -151,12 +153,9 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*MonitorTrackResiduals
+    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*refittedForPixelDQM*MonitorTrackResiduals
     *dqmInfoSiStrip)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
-    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
@@ -165,11 +164,8 @@ SiStripDQMTier0Common = cms.Sequence(
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackMB*SiStripMonitorTrackIB*MonitorTrackResiduals
+    *SiStripMonitorTrackMB*SiStripMonitorTrackIB*refittedForPixelDQM*MonitorTrackResiduals
     *dqmInfoSiStrip)
-phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
-    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 
 

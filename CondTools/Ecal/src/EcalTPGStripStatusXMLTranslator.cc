@@ -5,6 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -54,25 +55,27 @@ int  EcalTPGStripStatusXMLTranslator::readXML(const std::string& filename,
 int EcalTPGStripStatusXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
 					  const EcalTPGStripStatus& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
-
 std::string EcalTPGStripStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalTPGStripStatus& record){
 
-  cms::concurrency::xercesInitialize();
-
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
   DOMDocument* doc =
-    impl->createDocument( 0, fromNative(TPGStripStatus_tag).c_str(), doctype );
+    impl->createDocument( 0, cms::xerces::uStr(TPGStripStatus_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
@@ -91,26 +94,26 @@ std::string EcalTPGStripStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
       //		<< " TCC " << tccid << " TT " << tt << " ST " << pseudostrip
       //		<< ", status = " << itSt->second << std::endl;
       DOMElement* cell_node = 
-	root->getOwnerDocument()->createElement( fromNative(Cell_tag).c_str());
+	root->getOwnerDocument()->createElement( cms::xerces::uStr(Cell_tag.c_str()).ptr());
       stringstream value_s;
       value_s << tccid ;
-      cell_node->setAttribute(fromNative(TCC_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(TCC_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s << tt ;
-      cell_node->setAttribute(fromNative(TT_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(TT_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       value_s.str("");
       value_s << pseudostrip;
-      cell_node->setAttribute(fromNative(ST_tag).c_str(),
-			      fromNative(value_s.str()).c_str());
+      cell_node->setAttribute(cms::xerces::uStr(ST_tag.c_str()).ptr(),
+			      cms::xerces::uStr(value_s.str().c_str()).ptr());
       root->appendChild(cell_node);
 
       WriteNodeWithValue(cell_node, TPGStripStatus_tag, 1);
     }
   }
 
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();

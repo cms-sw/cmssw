@@ -22,7 +22,7 @@ public:
 
     RK4OneStepTempl<T,N> solver;
     Vector one(       solver(startPar, startState, deriv, step));
-    if (std::abs(one[0])>huge || std::abs(one(1)>huge)) return std::pair<Vector, Scalar>(one,hugediff);
+    if (std::abs(one[0])>huge || std::abs(one(1))>huge) return std::pair<Vector, Scalar>(one,hugediff);
 
     Vector firstHalf( solver(startPar, startState, deriv, step/2));
     Vector secondHalf(solver(startPar+step/2, firstHalf, deriv, step/2));

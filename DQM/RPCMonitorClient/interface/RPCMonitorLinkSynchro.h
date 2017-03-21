@@ -26,9 +26,9 @@ public:
   virtual ~RPCMonitorLinkSynchro();
  
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
   virtual  const RPCRawSynchro::ProdItem & select(const RPCRawSynchro::ProdItem &v, const edm::Event&, const edm::EventSetup&) { return v; };
  
 protected:

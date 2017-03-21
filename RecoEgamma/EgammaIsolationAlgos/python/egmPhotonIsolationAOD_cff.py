@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import * 
 from CommonTools.ParticleFlow.pfParticleSelection_cff import * 
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import IsoConeDefinitions
+from RecoEgamma.EgammaIsolationAlgos.egmIsoConeDefinitions_cfi import IsoConeDefinitions
 
 pfNoPileUpCandidates = pfAllChargedHadrons.clone()
 pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)

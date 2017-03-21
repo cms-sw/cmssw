@@ -1,0 +1,8 @@
+<library   name="CompareDDViews" file="Compare*.cc">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="DetectorDescription/Core"/>
+  <use   name="DetectorDescription/Parser"/>
+  <use   name="DetectorDescription/RegressionTest"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>

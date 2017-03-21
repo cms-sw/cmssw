@@ -58,7 +58,7 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
 		      edm::Handle<edm::SimTrackContainer> simTracks);
   void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,

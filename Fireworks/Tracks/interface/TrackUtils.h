@@ -63,8 +63,8 @@ TEveTrack* prepareTrack( const reco::Track& track,
                          TEveTrackPropagator* propagator,
                          const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>() );
  
-float pixelLocalX( const double mpx, const int m_nrows );
-float pixelLocalY( const double mpy, const int m_ncols );
+float pixelLocalX( const double mpx, const float* );
+float pixelLocalY( const double mpy, const float* );
 
 void localSiStrip( short strip, float* localTop, float* localBottom, const float* pars, unsigned int id );
 

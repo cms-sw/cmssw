@@ -98,7 +98,7 @@ class GEMDetId :public DetId {
   static const int maxRingId=   3;
 
   static const int minStationId=     1;
-  static const int maxStationId=     4;
+  static const int maxStationId=     2;  // in the detId there is space to go up to 4 stations. Only 2 implemented now
 
   static const int minChamberId=     0;
   static const int maxChamberId=     36;

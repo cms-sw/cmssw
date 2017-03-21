@@ -28,11 +28,11 @@ class HCALRecHitAnalyzer: public DQMEDAnalyzer {
 
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob(void);
   //  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override ;
  private:
 
 

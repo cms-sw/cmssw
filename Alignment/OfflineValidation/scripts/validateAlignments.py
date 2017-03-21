@@ -174,6 +174,9 @@ class ValidationJob:
             log = ">             " + self.validation.name + " is already validated."
             print log
             return log
+        else:
+            if self.validation.jobid:
+                print "jobid {} will be ignored, since the validation {} is not preexisting".format(self.validation.jobid, self.validation.name)
 
         general = self.__config.getGeneral()
         log = ""

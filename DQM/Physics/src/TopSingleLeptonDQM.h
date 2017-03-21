@@ -284,7 +284,7 @@ class TopSingleLeptonDQM : public DQMEDAnalyzer {
   ~TopSingleLeptonDQM() {};
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
  
  protected:
   //Book histograms
