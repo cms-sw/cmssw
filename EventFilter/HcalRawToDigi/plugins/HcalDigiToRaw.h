@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -24,12 +24,12 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class HcalDigiToRaw : public edm::EDProducer
+class HcalDigiToRaw : public edm::global::EDProducer<>
 {
 public:
   explicit HcalDigiToRaw(const edm::ParameterSet& ps);
   virtual ~HcalDigiToRaw();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
 private:
   HcalPacker packer_;
   edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;

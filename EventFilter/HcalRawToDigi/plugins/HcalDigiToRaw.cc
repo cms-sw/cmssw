@@ -35,7 +35,7 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf) :
 HcalDigiToRaw::~HcalDigiToRaw() { }  
 
 // Functions that gets called by framework every event
-void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
+void HcalDigiToRaw::produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& es) const
 {
   HcalPacker::Collections colls;
 
