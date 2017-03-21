@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,7 +17,7 @@
 
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 
-class ESDigiToRaw : public edm::EDProducer {
+class ESDigiToRaw : public edm::stream::EDProducer<> {
   
  public:
   
@@ -25,7 +25,7 @@ class ESDigiToRaw : public edm::EDProducer {
   virtual ~ESDigiToRaw();
   
   void beginJob() ;
-  void produce(edm::Event& e, const edm::EventSetup& es);
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
   void endJob() ;
 
   typedef uint32_t Word32;
