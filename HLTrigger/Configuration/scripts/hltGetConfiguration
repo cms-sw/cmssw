@@ -155,7 +155,7 @@ parser.add_argument('--max-events',
                     default = defaults.events,
                     metavar = 'EVENTS',
                     help    = 'Run on EVENTS events (-1 for unlimited)' )
-group.add_argument('--setup',
+parser.add_argument('--setup',
                     dest    = 'setup',
                     action  = 'store',
                     type    = str,
