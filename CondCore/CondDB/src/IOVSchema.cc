@@ -280,6 +280,26 @@ namespace cond {
       return false;
     }
 
+    bool IOV::Table::getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      Query< MAX_SINCE > q0( m_schema );
+      q0.addCondition<TAG_NAME>( tag );
+      q0.addCondition<SINCE>( begin, "<=");
+      cond::Time_t lower_since = 0;
+      for( auto row: q0 ){
+	lower_since = std::get<0>( row );
+      }
+      if ( !lower_since ) return false;
+      Query< SINCE, PAYLOAD_HASH > q1( m_schema );
+      q1.addCondition<TAG_NAME>( tag );
+      q1.addCondition<SINCE>( lower_since, ">=");
+      q1.addCondition<SINCE>( end, "<=");
+      for( auto row: q1 ){
+        iovs.push_back( row );
+      }
+      return iovs.size();
+    }
+
     void IOV::Table::insertOne( const std::string& tag, 
 				cond::Time_t since, 
 				cond::Hash payloadHash, 
@@ -447,6 +467,92 @@ namespace cond {
 
     IPayloadTable& IOVSchema::payloadTable(){
       return m_payloadTable;
+    }
+
+   
+    bool runinfo::getRunStartTime( coral::ISchema& schema, 
+				   cond::Time_t start, 
+				   cond::Time_t end, 
+				   std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime> >& runData ){
+      static constexpr const char* const RUNINFO_DATE_T = "RUNSESSION_DATE";
+      static constexpr const char* const RUNINFO_PARAMETER_T = "RUNSESSION_PARAMETER";
+      static constexpr const char* const RUNINFO_DATE_VALUE_C = "RUNSESSION_DATE.VALUE";
+      static constexpr const char* const RUNINFO_PARAMETER_RUNNUM_C = "RUNSESSION_PARAMETER.RUNNUMBER";
+      static constexpr const char* const RUNNUM_C = "RUNNUMBER";
+      static constexpr const char* const ID_C = "ID";
+      static constexpr const char* const MIN_RUNINFO_PARAMETER_RUNNUM_C = "MIN(RUNSESSION_PARAMETER.RUNNUMBER)";
+      // first find the lowest run in the range
+      bool ret = false;
+      std::unique_ptr<coral::IQuery> q0( schema.newQuery() );
+      q0->addToTableList( RUNINFO_PARAMETER_T );
+      q0->addToOutputList( MIN_RUNINFO_PARAMETER_RUNNUM_C );
+      q0->defineOutputType( MIN_RUNINFO_PARAMETER_RUNNUM_C, coral::AttributeSpecification::typeNameForType<int>() );
+      static constexpr const char* const RUNNUMBER_VAL = "RUNNUMBER_VAL";
+      std::string whereCl0( RUNINFO_PARAMETER_RUNNUM_C + std::string(" >= :") + RUNNUMBER_VAL );
+      coral::AttributeList whereData0;
+      whereData0.extend<int>( RUNNUMBER_VAL );
+      whereData0[  RUNNUMBER_VAL ].data<int>() = end;
+      q0->setCondition( whereCl0, whereData0 );
+      coral::ICursor& res0 = q0->execute();
+      if( res0.next() ){
+        ret = true;
+	const coral::AttributeList& row = res0.currentRow();
+        end = row[ MIN_RUNINFO_PARAMETER_RUNNUM_C ].data<int>();
+      }
+      // then join the DATE and PARAM tables and retrieve all the runs in the range, with their start times
+      // requires optimization...
+      std::unique_ptr<coral::IQuery> q1( schema.newQuery() );
+      static constexpr const char* const SELECTED_RUNS = "SELECTED_RUNS";
+      auto& sq = q1->defineSubQuery( SELECTED_RUNS );
+      sq.addToTableList( RUNINFO_PARAMETER_T );
+      sq.addToOutputList( RUNNUM_C );
+      sq.addToOutputList( ID_C );
+      std::string startRunVar("START_RUN");
+      std::string endRunVar("END_RUN");
+      std::string whereCl1(  RUNNUM_C + std::string(">=:")+startRunVar+std::string(" AND ") +
+			     RUNNUM_C + std::string("<=:")+endRunVar +std::string(" AND ")+
+			     std::string("NAME='CMS.LVL0:START_TIME_T'") );
+      coral::AttributeList whereData1;
+      whereData1.extend<int>( startRunVar );
+      whereData1.extend<int>( endRunVar );
+      whereData1[ startRunVar ].data<int>() = start;
+      whereData1[ endRunVar ].data<int>() = end;
+      sq.setCondition( whereCl1, whereData1 );
+      q1->addToTableList( SELECTED_RUNS );
+      q1->addToTableList( RUNINFO_DATE_T );
+      q1->addToOutputList( RUNINFO_DATE_VALUE_C );
+      q1->addToOutputList( std::string(SELECTED_RUNS)+"."+RUNNUM_C );
+      q1->defineOutputType( RUNINFO_DATE_VALUE_C, coral::AttributeSpecification::typeNameForType<coral::TimeStamp>() );
+      q1->defineOutputType( std::string(SELECTED_RUNS)+"."+RUNNUM_C, coral::AttributeSpecification::typeNameForType<int>() );
+      std::string whereCl2( std::string(SELECTED_RUNS)+"."+ID_C+" = RUNSESSION_DATE.RUNSESSION_PARAMETER_ID");
+      q1->setCondition( whereCl2, coral::AttributeList() );
+      /**
+      q1->addToTableList( RUNINFO_DATE_T );
+      q1->addToTableList( RUNINFO_PARAMETER_T );
+      q1->addToOutputList( RUNINFO_DATE_VALUE_C );
+      q1->addToOutputList( RUNINFO_PARAMETER_RUNNUM_C );
+      q1->defineOutputType( RUNINFO_DATE_VALUE_C, coral::AttributeSpecification::typeNameForType<coral::TimeStamp>() );
+      q1->defineOutputType( RUNINFO_PARAMETER_RUNNUM_C, coral::AttributeSpecification::typeNameForType<int>() );
+      std::string startRunVar("START_RUN");
+      std::string endRunVar("END_RUN");
+      std::string whereCl1(  RUNINFO_PARAMETER_RUNNUM_C + std::string(">=:")+startRunVar+std::string(" AND ") +
+			     RUNINFO_PARAMETER_RUNNUM_C + std::string("<=:")+endRunVar +std::string(" AND ")+
+			     std::string("RUNSESSION_PARAMETER.NAME='CMS.LVL0:START_TIME_T' AND ")+
+			     std::string("RUNSESSION_PARAMETER.ID=RUNSESSION_DATE.RUNSESSION_PARAMETER_ID") );
+      coral::AttributeList whereData1;
+      whereData1.extend<int>( startRunVar );
+      whereData1.extend<int>( endRunVar );
+      whereData1[ startRunVar ].data<int>() = start;
+      whereData1[ endRunVar ].data<int>() = end;
+      q1->setCondition( whereCl1, whereData1 );
+      **/
+      coral::ICursor& res1 = q1->execute();
+      while( res1.next() ){
+	const coral::AttributeList& row = res1.currentRow();
+	//runData.push_back( std::make_tuple( row[ RUNINFO_PARAMETER_RUNNUM_C ].data<int>() , row[ RUNINFO_DATE_VALUE_C ].data<coral::TimeStamp>().time() ) );
+	runData.push_back( std::make_tuple( row[ std::string(SELECTED_RUNS)+"."+RUNNUM_C ].data<int>() , row[ RUNINFO_DATE_VALUE_C ].data<coral::TimeStamp>().time() ) );
+      }
+      return ret;
     }
       
   }

@@ -123,6 +123,7 @@ def _run_editor(editor, tempfd):
 
 
 def _parse_timestamp(timestamp):
+
     try:
         return datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
     except ValueError:
@@ -254,9 +255,9 @@ def _check_same_object(args):
     if (args.destdb is None or args.db == args.destdb) and (args.second is None or args.first == args.second):
         raise Exception('The source object and the destination object are the same (i.e. same database and same name): %s' % str_db_object(args.db, args.first))
 
-def _connect(db, init, read_only, args):
+def _connect(db, init, authPath, verbose, read_only, force):
 
-    logging.debug('Preparing connection to %s ...', db)
+    logging.debug('Connecting to %s ...', db)
 
     url = conddb.make_url( db, read_only )
     pretty_url = url
@@ -267,7 +268,7 @@ def _connect(db, init, read_only, args):
     connTo = '%s [%s]' %(db,pretty_url)
     logging.info('Connecting to %s', connTo)
     logging.debug('DB url: %s',url)
-    connection = conddb.connect(url, authPath=args.authPath, verbose=0 if args.verbose is None else args.verbose - 1)
+    connection = conddb.connect(url, init=init, authPath=authPath, verbose=0 if verbose is None else verbose - 1)
 
 
     if not read_only:
@@ -275,37 +276,36 @@ def _connect(db, init, read_only, args):
             raise Exception('Impossible to edit a read-only database.')
 
         if connection.is_official:
-            if args.force:
+            if force:
                 logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
             else:
                 raise Exception('Editing official databases is forbidden. Use the official DropBox to upload conditions. If you need a special intervention on the database, see the contact help: %s' % conddb.contact_help)
-        # for sqlite we trigger the implicit schema creation
-        if url.drivername == 'sqlite':
-            if init:
-                connection.init()
-    if not connection._is_valid:
+    # for sqlite we trigger the implicit schema creation
+    if init and url.drivername == 'sqlite':
+        connection.init()
+    if not connection.is_valid():
         raise Exception('No valid schema found in the database.')
 
     return connection
 
 
-def connect(args, init=False, read_only=True):
+def connect(args, init=False, read_only=True, schema='cms_conditions'):
     args.force = args.force if 'force' in dir(args) else False
 
     if 'destdb' in args:
         if args.destdb is None:
             args.destdb = args.db
         if args.db == args.destdb:
-            conn1 = _connect(args.destdb, init, read_only, args)
+            conn1 = _connect(args.destdb, init, args.authPath, args.verbose, read_only, args.force)
             return conn1, conn1
-        conn1 = _connect( args.db, init, True, args)
+        conn1 = _connect( args.db, init, args.authPath, args.verbose, True, args.force)
         conn2url = conddb.make_url(args.destdb, False)
         if conn2url.drivername == 'sqlite' and not os.path.exists(args.destdb): 
             init = True
-        conn2 = _connect(args.destdb, init, False, args)
+        conn2 = _connect(args.destdb, init, args.authPath, args.verbose, False, args.force)
         return conn1, conn2
 
-    return _connect( args.db, init, read_only, args)
+    return _connect( args.db, init, args.authPath, args.verbose, read_only, args.force)
 
 
 def str_db_object(db, name):
@@ -392,7 +392,7 @@ def _ljust_colors(args, string, width, fillchar=' '):
     return string + fillchar * (width - len(_strip_colors(args, string)))
 
 
-def output_table(args, table, headers, filters=None, output_file=None, no_first_header=False, no_max_length=False):
+def output_table(args, table, headers, filters=None, output_file=None, no_first_header=False):
     if args.quiet:
         return
 
@@ -403,10 +403,8 @@ def output_table(args, table, headers, filters=None, output_file=None, no_first_
         filters = [None] * len(headers)
 
     def max_length_filter(s):
-        #s = str(s).replace('\n', '\\n')
-        s = str(s).replace('\n', '  ')
-        s = str(s).replace(chr(13),'  ')
-        return '%s...' % s[:conddb.name_length] if ( len(s) > conddb.name_length and not no_max_length ) else s
+        s = str(s).replace('\n', '\\n')
+        return '%s...' % s[:conddb.name_length] if len(s) > conddb.name_length else s
 
     new_table = [[] for i in range(len(table))]
     for column_index in range(len(headers)):
@@ -767,8 +765,8 @@ def _diff_tags(args, session1, session2, first, second):
     Tag2 = session2.get_dbtype(conddb.Tag)
     IOV1 = session1.get_dbtype(conddb.IOV)
     IOV2 = session2.get_dbtype(conddb.IOV)
-    tag1 = session1.query(Tag1).get(first)
-    tag2 = session2.query(Tag2).get(second)
+    tag1 = session1.query(conddb.Tag).get(first)
+    tag2 = session2.query(conddb.Tag).get(second)
 
     if args.long:
         _output_diff_objects(args, tag1, tag2)
@@ -903,49 +901,39 @@ def diff(args):
     if not (is_tag1 and is_tag2) and not (is_global_tag1 and is_global_tag2):
         raise Exception('There are no tag or global tag pairs named %s and %s in the database(s).' % (args.first, args.second))
 
-def convertRunToTimes( fromRun, toRun ):
+def convertRunToTimes(startRun, stopRun=None):
 
-    fromTime = None
-    fromLumi = None
-    toTime = None
-    toLumi = None
-    # the time we get may be a bit delayed (7-10 sec according to Salvatore) 
-    if not fromRun is None:
-        startTime1, stopTime1 = runToTime( fromRun )
-        fromTime =  startTime1-15.
-        fromLumi = fromRun<<32|0x1
-    if not toRun is None:
-        startTime2, stopTime2 = runToTime( toRun )
-        toTime = stopTime2+15.
-        toLumi = toRun<<32|0x1
+    if not stopRun :
+       stopRun = startRun + 1
 
-    timeMap = { 'from' : {
+    startTime1, stopTime1 = runToTime(startRun)
+    startTime2, stopTime2 = runToTime(stopRun)
+
+    timeMap = { 'start' : {
     	      		    'hash' : None,
-    	      		    'run'  : fromRun,
-			    'time' : fromTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
-			    'lumi' : fromLumi,
+    	      		    'run'  : startRun,
+			    'time' : startTime1-15., # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+			    'lumi' : startRun<<32|0x1,
     	      		  },
-    	        'to'  : {
+    	        'stop'  : {
     	      		    'hash' : None,
-			    'run'  : toRun,
-			    'time' : toTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
-			    'lumi' : toLumi,
+			    'run'  : stopRun,
+			    'time' : stopTime2+15., # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+			    'lumi' : stopRun<<32|0x1,
     	      		  } 
 	      }
 
-    logging.debug("convertRunToTimes> start: %s stop %s \n    timeMap: %s " % (fromRun, toRun, str(timeMap)))
+    logging.debug("convertRunToTimes> start: %s stop %s \n    timeMap: %s " % (startRun, stopRun, str(timeMap)))
 
     return timeMap
 
 def runToTime(runNr):
 
     connStr = conddb._getCMSFrontierSQLAlchemyConnectionString('PromptProd', 'CMS_CONDITIONS')
-    url = conddb.make_url( connStr, True )
-    connection = conddb.connect(url)
+    
+    connection = conddb.connect(connStr)
     session = connection.session()
-
     IOV = session.get_dbtype(conddb.IOV)
-
     startIOV = session.query(IOV.insertion_time).filter(IOV.tag_name == 'runinfo_start_31X_hlt', IOV.since == runNr).all()
     stopIOV  = session.query(IOV.insertion_time).filter(IOV.tag_name == 'runinfo_31X_hlt', IOV.since == runNr).all()
 
@@ -962,50 +950,30 @@ def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
     TagLog = session.get_dbtype(conddb.TagLog)
     session.add(TagLog(tag_name=the_tag, event_time=the_timestamp, action=the_action, user_name=userName, host_name=hostName, command=userCommand, user_text=note ))
 
-def _copy_payload( args, copyTime, session1, session2, payloadHash ):
-    Payload1 = session1.get_dbtype(conddb.Payload)
-    Payload2 = session2.get_dbtype(conddb.Payload)
-    if _exists(session2, Payload2.hash, payloadHash):
-        logging.info('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
-        return False
-    else:
-        logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
-        q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
-        payload = _rawdict(q)
-        payload['insertion_time'] = copyTime
-        session2.add(Payload2(** payload))
-        return True
+def _copy_tag(args, copyTime, session1, session2, isSQLite, first, second, fromIOV=None, toIOV=None, timeMap=None):
+    logging.info('Copying tag %s to %s ...', str_db_object(args.db, first), str_db_object(args.destdb, second))
 
-def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
     Tag1 = session1.get_dbtype(conddb.Tag)
     Tag2 = session2.get_dbtype(conddb.Tag)
     # Copy the tag
     tag = _rawdict(session1.query(Tag1).get(first))
     tag['name'] = second
-
-    if session2._is_sqlite:
+    if isSQLite:
         if tag['end_of_validity'] >= maxSince:
             tag['end_of_validity'] = -1
     else:
-        if tag['end_of_validity'] == -1 or tag['end_of_validity'] > maxSince :
+        if tag['end_of_validity'] == -1:
             tag['end_of_validity'] = maxSince
     tag['insertion_time'] = copyTime
     tag['modification_time'] = copyTime
 
-    if timeMap:
-       fromIOV = timeMap['from'][ tag['time_type'].lower().strip() ]
-       toIOV   = timeMap['to'] [ tag['time_type'].lower().strip() ]
-
     if fromIOV is None:
         fromIOV = 1
     
-    selectStr = 'from since=%s' %fromIOV
-    if toIOV is not None:
-        selectStr += ' to since=%s' %toIOV
-    if args.snapshot is not None:
-        selectStr += ' selecting insertion time < %s' %args.snapshot
+    if timeMap and not fromIOV and not toIOV:
+       fromIOV = timeMap['start'][ tag['time_type'].lower().strip() ]
+       toIOV   = timeMap['stop'] [ tag['time_type'].lower().strip() ]
 
-    logging.info('Copying tag %s to %s %s', str_db_object(args.db, first), str_db_object(args.destdb, second), selectStr)
   
     query = session2.query(Tag2).filter(Tag2.name == second )
     destExists = False
@@ -1025,7 +993,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         if destTimeType != tag['time_type']:
             logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
             raise Exception('Time type mismatch, bailing out.')
-        output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
+        output(args, 'Confirm the update of the existing tag "%s" [n]?' %second, newline=False)
         if not args.yes and raw_input().lower() not in ['y', 'yes']:
             raise Exception('Aborted by the user.')
         session2.merge(Tag2(name=second,modification_time=copyTime))
@@ -1039,6 +1007,8 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
 
     IOV1 = session1.get_dbtype(conddb.IOV)
     IOV2 = session2.get_dbtype(conddb.IOV)
+    Payload1 = session1.get_dbtype(conddb.Payload)
+    Payload2 = session2.get_dbtype(conddb.Payload)
     # Get the closest smaller IOV than the given starting point (args.from),
     # since it may lie between two sinces. For the ending point (args.to)
     # is not needed, since the last IOV of a tag always goes up to infinity.
@@ -1059,61 +1029,54 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             scalar()
         logging.debug('The closest smaller IOV than the given starting one (--from %s) is %s...', fromVal, prev_iov)
 
-    # Select the input IOVs
+
+    # Copy the distinct payloads referenced in the IOVs of the tag
+    # FIXME: Put the DISTINCT query as a subquery (we can't directly use distinct on BLOBs)
+    query = session1.query(IOV1.payload_hash).filter(IOV1.tag_name == first)
+    if prev_iov is not None:
+        query = query.filter(IOV1.since >= prev_iov)
+    if toIOV is not None:
+        toVal = toIOV
+        logging.debug("filtering with TO %s of type %s for tag: %s to "  % (toIOV, tag['time_type'], str(tag['name'])) )
+        query = query.filter(IOV1.since <= toVal)
+    query = query.distinct()
+    for (payload_hash, ) in query:
+        if _exists(session2, Payload2.hash, payload_hash):
+            logging.info('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payload_hash), str_db_object(args.destdb, payload_hash))
+        else:
+            logging.info('Copying payload %s to %s ...', str_db_object(args.db, payload_hash), str_db_object(args.destdb, payload_hash))
+            payload = _rawdict(session1.query(Payload1).filter(Payload1.hash == payload_hash).one())
+            payload['insertion_time'] = copyTime
+            session2.add(Payload2(** payload))
+
+    # Copy the IOVs of the tag
     query = session1.query(IOV1).filter(IOV1.tag_name == first)
     if prev_iov is not None:
         query = query.filter(IOV1.since >= prev_iov)
     if toIOV is not None:
         query = query.filter(IOV1.since <= toIOV)
     query = query.filter(_inserted_before(IOV1,args.snapshot))
+    query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
     iovs = {}
-    hashes = set()
-    if not args.o2oTest:
-        query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
-        for iov in query:
-            iov = _rawdict(iov)
-            #iov['tag_name'] = second
+    for iov in query:
+        iov = _rawdict(iov)
+        iov['tag_name'] = second
 
-            # In the first IOV of the tag we need to use the starting point given
-            # by the user, instead of the one coming from the source tag; unless
-            # the starting point was before any IOV: in such case, up to the first
-            # IOV there is no payload, so we use the one from the source tag.
-            # Note that we need to replace it for every insertion time (since
-            # the primary key is (since, insertion_time).
-            if prev_iov is not None and iov['since'] == prev_iov:
-                iov['since'] = fromIOV
-                first_iov = False
+        # In the first IOV of the tag we need to use the starting point given
+        # by the user, instead of the one coming from the source tag; unless
+        # the starting point was before any IOV: in such case, up to the first
+        # IOV there is no payload, so we use the one from the source tag.
+        # Note that we need to replace it for every insertion time (since
+        # the primary key is (since, insertion_time).
+        if prev_iov is not None and iov['since'] == prev_iov:
+            iov['since'] = fromIOV
+            first_iov = False
 
-            since = iov['since']
-        
-            if since not in iovs.keys():
+        since = iov['since']
+        if since not in iovs.keys():
             # updating the insertion time to the execution time. 
             # Because of that, for a given since, only the most recent will be added.
-                iovs[since] = iov['payload_hash']
-                hashes.add( iov['payload_hash'] )
-            else:
-                logging.warning('Skipping older iov with since %s...', since)
-    else:
-        query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
-        lastIov = None
-        for iov in query:
-            iov = _rawdict(iov)
-            since = iov['since'] 
-            if lastIov is None:
-                lastIov = since
-            else:
-                if lastIov != since:
-                    iovs[since] = iov['payload_hash']
-                    hashes.add( iov['payload_hash'] )
-                    break 
-    logging.info('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
-    # Copy the payloads referenced in the selected iovs
-    np = 0
-    for h in hashes:
-        if _copy_payload( args, copyTime, session1, session2, h ):
-            np += 1
-    logging.info('%s payload(s) copied.',np)
-    # Calculate if extra iovs are needed - for the override mode ( they will have already their payloads copied )                        
+            iovs[since] = iov['payload_hash']
     extraiovs = {}
     if args.override:
         # the interval to be overriden is defined by the new iov set boundaries, 
@@ -1135,7 +1098,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                     if newSince < since:
                         extraiovs[since] = iovs[newSince]
                         break
-    # Copy the set of IOVs collected        
+            
     niovs = 0
     for k,v in iovs.items():
         logging.debug('Copying IOV %s -> %s...', k, v)
@@ -1159,17 +1122,22 @@ def copy(args):
 
     args.type, args.first = _identify_object(session1, args.type, args.first)
 
-    copyTime = datetime.datetime.now()
-
     if args.type == 'payload':
         if args.second is None:
             args.second = args.first
         elif args.first != args.second:
             raise Exception('Cannot modify the name (hash) of a payload while copying, since the hash has to match the data.')
 
-        if _copy_payload( args, copyTime, session1, session2, args.first ):
-            _confirm_changes(args)
-            session2.commit()
+        logging.info('Copying payload %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
+
+        # Copy the payload
+        Payload1 = session1.get_dbtype(conddb.Payload)
+        Payload2 = session2.get_dbtype(conddb.Payload)
+        session2.add(Payload2(**_rawdict(session1.query(Payload1).get(args.first))))
+
+        _confirm_changes(args)
+        session2.commit()
+
 
     elif args.type == 'tag':
         if args.second is None:
@@ -1177,11 +1145,10 @@ def copy(args):
         if args.force and args.yes:
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
-        if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override or snapshot.')
 
-        niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
+        copyTime = datetime.datetime.now()
+
+        niovs = _copy_tag(args, copyTime, session1, session2, connection2.is_sqlite, args.first, args.second, getattr(args, 'from'), args.to)
 
         _confirm_changes(args)
         note = args.note
@@ -1198,7 +1165,6 @@ def copy(args):
         if args.second is None:
             args.second = args.first
 
-        # 'from' is a keyword!
 	timeMap = convertRunToTimes(getattr(args, 'from'), args.to)
 
         logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
@@ -1211,12 +1177,6 @@ def copy(args):
         global_tag = _rawdict(session1.query(GlobalTag1).get(args.first))
         global_tag['name'] = args.second
         global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
-        if args.snapshot is None:
-            args.snapshot = str(global_tag['snapshot_time'].strftime("%Y-%m-%d %H:%M:%S"))
-        else:
-            global_tag['snapshot_time'] = _parse_timestamp(args.snapshot)
-        if _exists(session2, GlobalTag2.name, args.second):
-            raise Exception('A GlobalTag named "%s" already exists in %s' %(args.second, args.destdb))   
         session2.add(GlobalTag2(**global_tag))
 
         # Copy the tags of the global tag
@@ -1229,8 +1189,7 @@ def copy(args):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
                 logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-                copyTime = datetime.datetime.now()
-                _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
+                _copy_tag(args, session1, session2, tag, tag, timeMap=timeMap)
 
         # Copy the map of the global tag
         query = session1.query(GlobalTagMap1).filter(GlobalTagMap1.global_tag_name == args.first)
@@ -1341,92 +1300,6 @@ def edit(args):
 
 
         elif args.type == 'tag':
-            if args.header:
-                Tag = session.get_dbtype(conddb.Tag)
-                table = session.query(Tag.description,Tag.synchronization,Tag.end_of_validity).\
-                    filter(Tag.name == name).\
-                    all()
-                table = [ (str(x[0].strip()),str(x[1]),str(x[2])) for x in table ] 
-
-                output_table( args,
-                    table,
-                    ['Description','Synchronization','End of Validity'],
-                    output_file = tempfd, 
-                    no_max_length = True
-                )
-
-                tempfd.write('''
-# Editing tag %s
-#
-# You can add, remove or modify rows/lines after the headers.
-# Then, save the file and quit the editor.
-# The changes will be recognized and you will be asked for confirmation
-# before the changes are written into the database.
-#
-# Whitespace is not important.
-# Lines starting with # are ignored.
-''' % name)
-                _run_editor(editor, tempfd)
-                new_table = []
-                editRe = re.compile(r'^(.*)\s+([a-z]+)\s+(\d+)\s*$')
-                for index, line in enumerate(tempfd.readlines()):
-                    if index in {0, 1}:
-                        continue
-
-                    line = line.strip()
-
-                    if len(line) == 0 or line.startswith('#'):
-                        continue
-
-                    editMatch = editRe.match(line)
-                    if editMatch:
-                        description,synchronization,endOfValidity = editMatch.groups()
-                        if synchronization not in tuple(conddb.Synchronization):
-                            raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
-                    else:
-                        raise Exception('Each line must contain the Description, Synchronization and End Of Validity fields in the required format.')
-
-                    new_table.append((description.strip(),synchronization,endOfValidity))
-
-                header = table[0]
-                new_header = new_table[0]
-
-                if new_table == table:
-                    logging.info('No changes found.')
-                    session.rollback()
-                    return
-
-                changes = []
-                changes.append(('+',new_header[0],new_header[1],new_header[2]))
-                changes.append(('-',header[0],header[1],header[2]))
-                output_table(args,
-                             sorted(changes, key=lambda x: (0 if x[0] == '-' else 1)),
-                             ['', 'Description', 'Synchronization', 'End Of Validity'],
-                             no_first_header = True,
-                             )
-
-                _confirm_changes(args)
-                note = '-'
-                if args.force:
-                    note = _get_user_note(args,'Please provide an editing note: ')
-                action = ''
-                if header[0] != new_header[0]:
-                    action += 'Description updated'
-                if header[1] != new_header[1]:
-                    if len(action): action += ', '
-                    action += 'Synchronization changed'
-                if header[2] != new_header[2]:
-                    if len(action): action += ', '
-                    action += 'End Of Validity changed'
-                if len(action): action += '.'
-
-                updatedHeader = Tag(name=name,description=new_header[0],synchronization=new_header[1],end_of_validity=new_header[2],modification_time=datetime.datetime.now()) 
-                session.merge(updatedHeader)
-                _update_tag_log(session,name,datetime.datetime.now(),action,note)
-                session.commit()
-                logging.info('Tag header updated. Action(s): %s' %action)
-                return
-
             IOV = session.get_dbtype(conddb.IOV)
             table = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash).\
                 filter(IOV.tag_name == name).\
@@ -1458,8 +1331,6 @@ def edit(args):
 # replaced with the actual insertion times. The format must be
 # one of the following: '2013-01-20', '2013-01-20 10:11:12' or
 # '2013-01-20 10:11:12.123123'.
-# If the insertion time desired is the one of the command execution, 
-# you can simply write a '-' in the corresponding column
 #
 # Suggestion: open another terminal to copy the payloads you need.
 ''' % name)
@@ -1492,10 +1363,7 @@ def edit(args):
                 elif len(payload) < conddb.hash_length:
                     payload = _get_payload_full_hash(session, payload)
 
-                if insertion_timestamp == '-':
-                    insertion_time = datetime.datetime.now()
-                else:
-                    insertion_time = _parse_timestamp(insertion_timestamp)
+                insertion_time = _parse_timestamp(insertion_timestamp)
                 new_table.append((int(since), insertion_time, payload))
 
             table = set(table)
@@ -1544,8 +1412,7 @@ def edit(args):
             # Use session.delete() instead of bulk delete to let SQLAlchemy use UPDATE
             # (since we may disable DELETE in Oracle for the tables)
             for since, insertion_time, _ in deleted:
-                session.query(IOV).filter(IOV.tag_name==name, IOV.since==since, IOV.insertion_time==insertion_time).delete()
-                #session.delete(session.query(IOV).filter(IOV.tag_name==name, IOV.since==since, IOV.insertion_time==insertion_time))
+                session.delete(session.query(IOV).get((name, since, insertion_time)))
             for since, insertion_time, payload in added:
                 if connection.is_official:
                     insertion_time = datetime.datetime.now()
@@ -1806,12 +1673,10 @@ def main():
     parser_copy.add_argument('--note','-n', help='Editing note.')
     parser_copy.add_argument('--override','-o', action='store_true', help='Override the existing iovs for the interval covered by the new iovs.') 
     parser_copy.add_argument('--snapshot','-s', help="Timestamp of the snapshot to consider for the source iovs. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
-    parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
     parser_copy.set_defaults(func=copy)
 
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
     parser_edit.add_argument('name', help="Name of the object. This can be a tag's name (edits its attributes and its IOVs/payloads), a global tag's name (edits its attributes and its mapping records <-> tags) or a payload's SHA1 hexadecimal hash (or a prefix if unique; TODO: edits its attributes). It must exactly match -- if needed, use the search command first to look for it.")
-    parser_edit.add_argument('--header', default=False, action='store_true', help='Edit the header attributes of the object.')
     parser_edit.add_argument('--type', default=None, choices=['tag', 'gt', 'payload'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
     parser_edit.set_defaults(func=edit)
 

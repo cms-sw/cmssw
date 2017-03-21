@@ -104,6 +104,24 @@ namespace cond {
 	  return "COUNT(*)";
 	}
       };
+
+      struct MIN_SINCE {
+	typedef cond::Time_t type;				   
+	static constexpr size_t size = 0;
+	static std::string tableName(){ return SINCE::tableName(); }	
+	static std::string fullyQualifiedName(){ 
+	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
+	} 
+      };
+
+      struct MAX_SINCE {
+	typedef cond::Time_t type;				   
+	static constexpr size_t size = 0;
+	static std::string tableName(){ return SINCE::tableName(); }	
+	static std::string fullyQualifiedName(){ 
+	  return "MAX("+SINCE::fullyQualifiedName()+")";	  
+	} 
+      };
      
       class Table : public IIOVTable {
       public:
@@ -127,6 +145,7 @@ namespace cond {
 	bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
 	bool getSize( const std::string& tag, size_t& size );
         bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
+	bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs );
 	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime);
 	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
 	void erase( const std::string& tag );
@@ -174,6 +193,11 @@ namespace cond {
       TAG_LOG::Table m_tagLogTable;
       PAYLOAD::Table m_payloadTable;
     };
+
+    namespace runinfo {
+      static constexpr const char* const RUNINFO_SCHEMA = "CMS_RUNINFO";
+      bool getRunStartTime( coral::ISchema& schema, cond::Time_t start, cond::Time_t end, std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime> >& runData );
+    }
   }
 }
 #endif

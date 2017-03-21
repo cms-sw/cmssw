@@ -150,6 +150,14 @@ namespace cond {
       m_session->iovSchema().iovTable().erase( tag );      
     }
 
+    bool Session::getIovRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			    std::vector<std::tuple<cond::Time_t,cond::Hash> >& range ){
+      m_session->openIovDb();
+      return m_session->iovSchema().iovTable().getRange( tag, begin, end, range );
+    }
+    
+
+
     bool Session::existsGlobalTag( const std::string& name ){
       m_session->openGTDb();
       return m_session->gtSchema().gtTable().select( name );    
@@ -198,6 +206,14 @@ namespace cond {
 				    cond::Binary& streamerInfoData ){
       m_session->openIovDb();
       return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
+    }
+
+    RunInfoProxy Session::getRunInfo( cond::Time_t start, cond::Time_t end ){
+      if(!m_session->transaction.get()) 
+	throwException( "The transaction is not active.","Session::getRunInfo" );
+      RunInfoProxy proxy( m_session );
+      proxy.load( start, end );
+      return proxy;
     }
 
     std::string Session::connectionString(){

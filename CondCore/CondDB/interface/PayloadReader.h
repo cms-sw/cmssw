@@ -12,7 +12,7 @@
 // Created:     Jul 2015
 //
 
-#include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/CondDB/interface/Session.h"
 
 #include <memory>
 
@@ -40,7 +40,7 @@ namespace cond {
       PayloadReader& operator=( const PayloadReader& rhs );
 
       //
-      ConnectionPool& connection();
+      //ConnectionPool& connection();
 
       //
       void open( const std::string& connectionString );
@@ -56,7 +56,7 @@ namespace cond {
       
    private:
       
-      std::shared_ptr<ConnectionPool> m_connection;
+      //std::shared_ptr<ConnectionPool> m_connection;
       Session m_session;
     };
         

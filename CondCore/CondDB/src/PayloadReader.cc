@@ -1,15 +1,15 @@
 #include "CondCore/CondDB/interface/PayloadReader.h"
-
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 namespace cond {
 
   namespace persistency {
 
     PayloadReader::PayloadReader(){
-      m_connection.reset( new ConnectionPool );
+      //m_connection.reset( new ConnectionPool );
     }
  
     PayloadReader::PayloadReader( const PayloadReader& rhs ):
-      m_connection( rhs.m_connection ),
+      //m_connection( rhs.m_connection ),
       m_session( rhs.m_session ){
     }
 
@@ -17,17 +17,18 @@ namespace cond {
     }
     
     PayloadReader& PayloadReader::operator=( const PayloadReader& rhs ){
-      m_connection = rhs.m_connection;
+      //m_connection = rhs.m_connection;
       m_session = rhs.m_session;
       return *this;
     }
 
-    ConnectionPool& PayloadReader::connection(){
-      return *m_connection;
-    }
+    //ConnectionPool& PayloadReader::connection(){
+    //  return *m_connection;
+    //}
 
     void PayloadReader::open( const std::string& connectionString ){
-      m_session = m_connection->createSession( connectionString );
+      ConnectionPool connection;
+      m_session = connection.createSession( connectionString );
     }
 
     void PayloadReader::open(){
