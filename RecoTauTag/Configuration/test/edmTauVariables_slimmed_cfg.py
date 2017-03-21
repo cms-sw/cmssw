@@ -1,16 +1,22 @@
 ## import skeleton process
-from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process, patAlgosToolsTask
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
+patAlgosToolsTask.add(process.inclusiveVertexingTask)
+patAlgosToolsTask.add(process.inclusiveCandidateVertexingTask)
+patAlgosToolsTask.add(process.inclusiveCandidateVertexingCvsLTask)
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
+patAlgosToolsTask.add(process.slimmingTask)
+
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeCommon, miniAOD_customizeMC
 miniAOD_customizeCommon(process)
 miniAOD_customizeMC(process)

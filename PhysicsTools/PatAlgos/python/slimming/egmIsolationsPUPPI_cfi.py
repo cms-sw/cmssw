@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationPUPPI_cff import egmPhotonIsolationMiniAODPUPPI as _egmPhotonPUPPIIsolationForPhotons
 from RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff import egmElectronIsolationMiniAODPUPPI as _egmElectronIsolationMiniAODPUPPI
@@ -6,15 +7,17 @@ from RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff import egmEle
 
 def makeInputForPUPPIIsolationEgm(process):
 
-	process.egmPhotonPUPPIIsolation = _egmPhotonPUPPIIsolationForPhotons.clone()
+	task = getPatAlgosToolsTask(process)
+
+	addToProcessAndTask('egmPhotonPUPPIIsolation', _egmPhotonPUPPIIsolationForPhotons.clone(), process, task)
 	process.egmPhotonPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedPhotons")
 	process.egmPhotonPUPPIIsolation.srcForIsolationCone = cms.InputTag("particleFlow")
 	process.egmPhotonPUPPIIsolation.puppiValueMap = cms.InputTag('puppi')
 
-	process.egmElectronPUPPIIsolation = _egmElectronIsolationMiniAODPUPPI.clone()
+	addToProcessAndTask('egmElectronPUPPIIsolation', _egmElectronIsolationMiniAODPUPPI.clone(), process, task)
 	process.egmElectronPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
 	process.egmElectronPUPPIIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 
-	process.egmElectronPUPPINoLeptonsIsolation = _egmElectronIsolationMiniAODPUPPINoLeptons.clone()
+	addToProcessAndTask('egmElectronPUPPINoLeptonsIsolation', _egmElectronIsolationMiniAODPUPPINoLeptons.clone(), process, task)
 	process.egmElectronPUPPINoLeptonsIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
 	process.egmElectronPUPPINoLeptonsIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
