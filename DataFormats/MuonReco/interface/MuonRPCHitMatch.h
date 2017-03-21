@@ -11,7 +11,7 @@ namespace reco {
          int bx;               // bunch crossing
          float y;              // y coordinate for iRPCs
          float time;           // precise time for iRPCs
-         MuonRPCHitMatch():x(0),mask(0),bx(0),y(0),time(0){}
+    MuonRPCHitMatch():x(0),mask(0),bx(0),y(0),time(0){}
    };
 }
 
