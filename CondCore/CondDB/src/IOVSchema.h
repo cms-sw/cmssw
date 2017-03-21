@@ -104,6 +104,24 @@ namespace cond {
 	  return "COUNT(*)";
 	}
       };
+
+      struct MIN_SINCE {
+	typedef cond::Time_t type;				   
+	static constexpr size_t size = 0;
+	static std::string tableName(){ return SINCE::tableName(); }	
+	static std::string fullyQualifiedName(){ 
+	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
+	} 
+      };
+
+      struct MAX_SINCE {
+	typedef cond::Time_t type;				   
+	static constexpr size_t size = 0;
+	static std::string tableName(){ return SINCE::tableName(); }	
+	static std::string fullyQualifiedName(){ 
+	  return "MAX("+SINCE::fullyQualifiedName()+")";	  
+	} 
+      };
      
       class Table : public IIOVTable {
       public:
@@ -111,22 +129,15 @@ namespace cond {
 	virtual ~Table(){}
 	bool exists();
 	void create();
-	size_t selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups );
-	size_t selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
-				     std::vector<cond::Time_t>& groups );
-	size_t selectLatestByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
-				    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
-	size_t selectSnapshotByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
-				      const boost::posix_time::ptime& snapshotTime, 
-				      std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
-	size_t selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
-	size_t selectSnapshot( const std::string& tag,
-                               const boost::posix_time::ptime& snapshotTime,
-                               std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
-	bool getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash );
-	bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
-	bool getSize( const std::string& tag, size_t& size );
-        bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
+	size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
+			  std::vector<cond::Time_t>& groups );
+	size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
+		       const boost::posix_time::ptime& snapshotTime, 
+		       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+	bool getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
+        bool getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
+	bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+		       const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs );
 	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime);
 	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
 	void erase( const std::string& tag );
@@ -174,6 +185,7 @@ namespace cond {
       TAG_LOG::Table m_tagLogTable;
       PAYLOAD::Table m_payloadTable;
     };
+
   }
 }
 #endif
