@@ -8,7 +8,7 @@ static const double cap = 6.0;
 static const double tspar0[2] = {15.5, 12.2999};
 static const double tspar1[2] = {-3.2,-2.19142};
 static const double tspar2[2] = {32, 0};
-static const double tspar0_siPM[2] = {0., 0.}; // 2ns delay for MC and DATA, recheck later for data
+static const double tspar0_siPM[2] = {0., 0.}; // 0ns delay for MC and DATA, recheck later for data
 static const double tspar1_siPM[2] = {0, 0};
 static const double tspar2_siPM[2] = {0, 0};
 
@@ -26,7 +26,7 @@ double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, doubl
   }
   else if (source==InputPars) {
     if(isHPD) return std::fmin(cap, par0 + par1*log(fC+par2));
-    return cap+tspar0_siPM[source-1];
+    return cap+tspar0_siPM[0];
   }
   else if (source==Data || source==MC){
     if(isHPD) return std::fmin(cap,tspar0[source-1]+tspar1[source-1]*log(fC+tspar2[source-1]));
