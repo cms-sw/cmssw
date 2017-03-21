@@ -52,8 +52,9 @@
     <version ClassVersion="11" checksum="2861296960"/>
     <version ClassVersion="10" checksum="754193003"/>    
   </class>
-  <class name="reco::MuonRPCHitMatch" ClassVersion="10">
-   <version ClassVersion="10" checksum="4193465224"/>
+  <class name="reco::MuonRPCHitMatch" ClassVersion="11">
+    <version ClassVersion="11" checksum="1921012196"/>
+    <version ClassVersion="10" checksum="4193465224"/>
   </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
