@@ -459,7 +459,16 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BirkC1 = cms.double(0.013),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
-    )
+    ),
+    AHCalSD = cms.PSet(
+        UseBirkLaw      = cms.bool(True),
+        BirkC3          = cms.double(1.75),
+        BirkC2          = cms.double(0.142),
+        BirkC1          = cms.double(0.0052),
+        EminHit         = cms.double(0.0),
+        TimeSliceUnit   = cms.double(1),
+        IgnoreTrackID   = cms.bool(False),
+    ),
 )
 
 
