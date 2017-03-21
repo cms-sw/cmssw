@@ -402,9 +402,8 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
     double dR = std::numeric_limits<double>::max();
     if(dRtpSelector(tp)) {//only for those needed for efficiency!
       ++n_selTP_dr;
-      auto  && p = tp.momentum();
-      float eta = etaFromXYZ(p.x(),p.y(),p.z());
-      float phi = atan2f(p.y(),p.x());
+      float eta = etaL[iTP1];
+      float phi = phiL[iTP1];
       for(size_t iTP2: selected_tPCeff) {
         //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
         if (iTP1==iTP2) {continue;}
