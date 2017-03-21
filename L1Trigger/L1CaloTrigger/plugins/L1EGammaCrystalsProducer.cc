@@ -36,7 +36,6 @@ Implementation:
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include <iostream>
 
@@ -83,11 +82,9 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
       double EtminForStore;
       bool debug;
-      bool useECalEndcap;
       bool useRecHits;
       edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEBToken_;
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
-      //edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEEToken_;
       edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
 
@@ -155,11 +152,9 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
    EtminForStore(iConfig.getParameter<double>("EtminForStore")),
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
-   useECalEndcap(iConfig.getParameter<bool>("useECalEndcap")),
    useRecHits(iConfig.getParameter<bool>("useRecHits")),
    ecalRecHitEBToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEB"))),
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
-   //ecalRecHitEEToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEE"))),
    hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
    hcalTPToken_(consumes< edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP"))),
    useTowerMap(iConfig.getUntrackedParameter<bool>("useTowerMap", false)),
@@ -248,30 +243,6 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       //   }
       //}
    } // Done loading Rec Hits
-   
-   // We don't use end cap at the moment
-   //if ( useECalEndcap )
-   //{
-   //   // Retrieve the ecal endcap hits
-   //   // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
-   //   edm::Handle<EcalRecHitCollection> pcalohitsEndcap;
-   //   iEvent.getByToken(ecalRecHitEEToken_,pcalohitsEndcap);
-   //   //iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",pcalohitsEndcap);
-   //   for(auto& hit : *pcalohitsEndcap.product())
-   //   {
-   //      if(hit.energy() > 0.2 && !hit.checkFlag(EcalRecHit::kOutOfTime) && !hit.checkFlag(EcalRecHit::kL1SpikeFlag))
-   //      {
-   //         auto cell = geometryHelper.getEcalEndcapGeometry()->getGeometry(hit.id());
-   //         SimpleCaloHit ehit;
-   //         // endcap cell ids won't have any relation to barrel hits
-   //         ehit.id = hit.id();
-   //         ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-   //         ehit.energy = hit.energy();
-   //         ehit.isEndcapHit = true;
-   //         ecalhits.push_back(ehit);
-   //      }
-   //   }
-   //}
 
    //if (!useRecHits) {
    //   std::cout << "Incorporating Hcal TPs under development at the moment" << std::endl;

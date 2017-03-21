@@ -65,7 +65,6 @@ process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EtminForStore = cms.double(0.),
    debug = cms.untracked.bool(False),
-   useECalEndcap = cms.bool(False),
    useRecHits = cms.bool(False),
    ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
    #ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
