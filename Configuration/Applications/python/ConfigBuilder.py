@@ -606,6 +606,7 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
+		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
