@@ -390,13 +390,7 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
-  mu1 = muons.begin();
-  while (mu1 != muons.end()) {
-    if ((*mu1)->hwWins() < minWins || (*mu1)->hwCancelBit() == 1) {
-      muons.erase(mu1);
-    }
-    ++mu1;
-  }
+  muons.remove_if([&minWins](auto muon) { return ((muon->hwWins() < minWins) || (muon->hwCancelBit() == 1)); });
   muons.sort(L1TMuonProducer::compareMuons);
 }
 
