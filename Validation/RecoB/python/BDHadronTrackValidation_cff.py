@@ -1,24 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
 # Need to add pfImpactParameterTagInfos to the pat jets --> make personal patJet collection
-from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets as patJets
+# and rerun PAT (because sometimes validation is ran without PAT sequence enables)
+from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
 patJetsBDHadron = patJets.clone(
     tagInfoSources = cms.VInputTag(cms.InputTag('pfImpactParameterTagInfos')),
     addTagInfos = cms.bool(True)
 )
 
-selectedPatJetsBDHadron = cms.EDFilter("PATJetSelector",
-    src = cms.InputTag("patJetsBDHadron"),
-    cut = cms.string("pt > 10.")
-)
+#selectedPatJetsBDHadron = cms.EDFilter("PATJetSelector",
+#    src = cms.InputTag("patJetsBDHadron"),
+#    cut = cms.string("pt > 10.")
+#)
 
 
 # my analyzer
 from Validation.RecoB.BDHadronTrackMonitoring_cfi import *
-BDHadronTrackMonitoringAnalyze.PatJetSource = cms.InputTag('selectedPatJetsBDHadron')#'selectedPatJets')
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
+BDHadronTrackMonitoringAnalyze.PatJetSource = cms.InputTag('patJetsBDHadron')#'selectedPatJetsBDHadron')
 
 
 
-bdHadronTrackValidationSeq = cms.Sequence(patJetsBDHadron * selectedPatJetsBDHadron * BDHadronTrackMonitoringAnalyze)
+bdHadronTrackValidationSeq = cms.Sequence(patJetCorrections
+					* patJetCharge*patJetPartonMatch
+					* patJetGenJetMatch*patJetFlavourIdLegacy
+					* patJetFlavourId*patJetsBDHadron
+					* tpClusterProducer
+					* BDHadronTrackMonitoringAnalyze) #patJetsBDHadron * selectedPatJetsBDHadron * 
 
 bdHadronTrackPostProcessor = cms.Sequence(BDHadronTrackMonitoringHarvest)
