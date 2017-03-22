@@ -36,7 +36,7 @@ class CTPPSDiamondTrackRecognition
     void clear();
 
     /// Feed a new hit to the tracks recognition algorithm
-    void addHit( const CTPPSDiamondRecHit recHit );
+    void addHit( const CTPPSDiamondRecHit& recHit );
 
     /// Produce a collection of tracks for the current station, given its hits collection
     int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks );

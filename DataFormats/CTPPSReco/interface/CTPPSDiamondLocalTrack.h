@@ -20,7 +20,7 @@ class CTPPSDiamondLocalTrack
   public:
     CTPPSDiamondLocalTrack() :
       chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
-    CTPPSDiamondLocalTrack( const math::XYZPoint pos0, const math::XYZPoint pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
+    CTPPSDiamondLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
       pos0_( pos0 ), pos0_sigma_( pos0_sigma ),
       chi_squared_( chisq ), valid_( false ),
       t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
@@ -40,8 +40,8 @@ class CTPPSDiamondLocalTrack
     
     //--- spatial set'ters
 
-    inline void setPosition( const math::XYZPoint pos0 ) { pos0_ = pos0; }
-    inline void setPositionSigma( const math::XYZPoint pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
+    inline void setPosition( const math::XYZPoint& pos0 ) { pos0_ = pos0; }
+    inline void setPositionSigma( const math::XYZPoint& pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
 
     inline void setChiSquared( const float chisq ) { chi_squared_ = chisq; }
 
@@ -92,7 +92,7 @@ class CTPPSDiamondLocalTrack
 inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLocalTrack& rhs )
 {
   // as for now, only sort by temporal coordinate
-  return ( lhs.getT() < rhs.getT() );
+  return ( lhs.getT() < rhs.getT() || lhs.getX0() < rhs.getX0() );
 }
 
 #endif

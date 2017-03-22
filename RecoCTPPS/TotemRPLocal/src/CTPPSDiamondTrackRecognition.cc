@@ -50,7 +50,7 @@ CTPPSDiamondTrackRecognition::clear()
 //----------------------------------------------------------------------------------------------------
 
 void
-CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit recHit )
+CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
   hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
@@ -78,10 +78,10 @@ int
 CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>& tracks )
 {
   int number_of_tracks = 0;
-  for ( HitParametersVectorMap::const_iterator ootIt=hitParametersVectorMap_.begin(); ootIt!=hitParametersVectorMap_.end(); ++ootIt ) {
+  for ( auto const& oot : hitParametersVectorMap_ ) {
     std::vector<float> hit_profile( ( stopAtX_-startFromX_ )/resolution_, 0. );
-    for ( HitParametersVector::const_iterator param_it=ootIt->second.begin(); param_it!=ootIt->second.end(); ++param_it ) {
-      hit_f_.SetParameters( param_it->center, param_it->width, sigma_ );
+    for ( auto const& param : oot.second ) {
+      hit_f_.SetParameters( param.center, param.width, sigma_ );
       for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
         hit_profile[i] += hit_f_.Eval( startFromX_ + i*resolution_ );
       }
@@ -118,9 +118,9 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
               math::XYZPoint pos0_sigma( ( j-track_start_n )*resolution_*0.5, yWidth_ * 0.5, 0. );
               math::XYZPoint pos0( startFromX_ + track_start_n*resolution_ + pos0_sigma.X(), yPosition_, 0. );
               int mult_hits = 0;
-              if ( mhMap_.find( ootIt->first ) != mhMap_.end() ) mult_hits = mhMap_[ootIt->first];
+              if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
 
-              CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., 0., ootIt->first, mult_hits );
+              CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., 0., oot.first, mult_hits );
               track.setValid( true );
               tracks.push_back( track );
               ++number_of_tracks;
