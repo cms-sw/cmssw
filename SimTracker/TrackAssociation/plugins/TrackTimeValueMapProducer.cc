@@ -130,7 +130,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
     evt.getByToken(token,back);
   }
 
-  std::vector<float> generalTrackTimes, gsfTrackTimes;
+  std::vector<float> generalTrackTimes;
  
   //get track collections
   edm::Handle<edm::View<reco::Track> > TrackCollectionH;
