@@ -10,6 +10,12 @@
 #include <mutex>
 #include <unistd.h>
 
+// boost headers
+#include <boost/chrono.hpp>
+
+// tbb headers
+#include <tbb/concurrent_unordered_set.h>
+
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,6 +35,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimer.h"
+#include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 
 /*
@@ -86,100 +93,269 @@ public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService();
 
-  // reserve plots for timing vs. luminosity - these should only be called before any begin run (actually, before any preStreamBeginRun)
-  unsigned int reserveLuminosityPlots(std::string const & name, std::string const & title, std::string const & label, double range, double resolution);
-  unsigned int reserveLuminosityPlots(std::string && name, std::string && title, std::string && label, double range, double resolution);
-
-  // set the event luminosity
-  void setLuminosity(unsigned int stream_id, unsigned int luminosity_id, double value);
-
-  // query the current module/path/event
-  // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
-  double currentModuleTime(edm::StreamID) const;            // return the time spent since the last preModuleEvent() event
-  double currentPathTime(edm::StreamID) const;              // return the time spent since the last prePathEvent() event
-  double currentEventTime(edm::StreamID) const;             // return the time spent since the last preEvent() event
-
-  // query the time spent in a module/path (available after it has run)
-  double queryModuleTime(edm::StreamID, const edm::ModuleDescription &) const;
-  double queryModuleTime(edm::StreamID, unsigned int id) const;
-  double queryModuleTimeByLabel(edm::StreamID, const std::string &) const;
-  double queryModuleTimeByType(edm::StreamID, const std::string &) const;
-  /* FIXME re-implement taking into account subprocesses
-  double queryPathActiveTime(edm::StreamID, const std::string &) const;
-  double queryPathExclusiveTime(edm::StreamID, const std::string &) const;
-  double queryPathTotalTime(edm::StreamID, const std::string &) const;
-  */
-
-  // query the time spent in the current event's
-  //  - source        (available during event processing)
-  //  - all paths     (available during endpaths)
-  //  - all endpaths  (available after all endpaths have run)
-  //  - processing    (available after the event has been processed)
-  double querySourceTime(edm::StreamID) const;
-  double queryEventTime(edm::StreamID) const;
-  /* FIXME re-implement taking into account subprocesses
-  double queryPathsTime(edm::StreamID) const;
-  double queryEndPathsTime(edm::StreamID) const;
-  */
-
-  /* FIXME not yet implemented
-  // try to assess the overhead which may not be included in the source, paths and event timers
-  double queryPreSourceOverhead(edm::StreamID) const;       // time spent after the previous event's postEvent and this event's preSource
-  double queryPreEventOverhead(edm::StreamID) const;        // time spent after this event's postSource and preEvent
-  double queryPreEndPathsOverhead(edm::StreamID) const;     // time spent after the last path's postPathEvent and the first endpath's prePathEvent
-  */
-
 private:
+  void unsupportedSignal(std::string signal) const;
+
+  // these signal pairs are not guaranteed to happen in the same thread
+
   void preallocate(edm::service::SystemBounds const &);
+
+  void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+  void postBeginJob();
+
   void postEndJob();
-  void preGlobalBeginRun(edm::GlobalContext const &);
-  void preStreamBeginRun(edm::StreamContext const &);
-  void postStreamBeginRun(edm::StreamContext const &);
-  void postStreamEndRun(edm::StreamContext const &);
-  void postStreamBeginLumi(edm::StreamContext const &);
-  void postStreamEndLumi(edm::StreamContext const& );
-  void postGlobalEndRun(edm::GlobalContext const &);
-  void preModuleBeginJob(edm::ModuleDescription const &);
-  void preSourceEvent(  edm::StreamID );
-  void postSourceEvent( edm::StreamID );
-  void preEvent(edm::StreamContext const &);
-  void postEvent(edm::StreamContext const &);
-  void prePathEvent(edm::StreamContext const &, edm::PathContext const &);
-  void postPathEvent(edm::StreamContext const &, edm::PathContext const &,edm:: HLTPathStatus const &);
-  void preModuleEvent(edm::StreamContext const &, edm::ModuleCallingContext const &);
-  void postModuleEvent(edm::StreamContext const &, edm::ModuleCallingContext const &);
-  void preModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &);
-  void postModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &);
+
+  void preGlobalBeginRun(edm::GlobalContext const&);
+  void postGlobalBeginRun(edm::GlobalContext const&);
+
+  void preGlobalEndRun(edm::GlobalContext const&);
+  void postGlobalEndRun(edm::GlobalContext const&);
+
+  void preStreamBeginRun(edm::StreamContext const&);
+  void postStreamBeginRun(edm::StreamContext const&);
+
+  void preStreamEndRun(edm::StreamContext const&);
+  void postStreamEndRun(edm::StreamContext const&);
+
+  void preGlobalBeginLumi(edm::GlobalContext const&);
+  void postGlobalBeginLumi(edm::GlobalContext const&);
+
+  void preGlobalEndLumi(edm::GlobalContext const&);
+  void postGlobalEndLumi(edm::GlobalContext const&);
+
+  void preStreamBeginLumi(edm::StreamContext const&);
+  void postStreamBeginLumi(edm::StreamContext const&);
+
+  void preStreamEndLumi(edm::StreamContext const&);
+  void postStreamEndLumi(edm::StreamContext const&);
+
+  void preEvent(edm::StreamContext const&);
+  void postEvent(edm::StreamContext const&);
+
+  void prePathEvent(edm::StreamContext const&, edm::PathContext const&);
+  void postPathEvent(edm::StreamContext const&, edm::PathContext const&, edm::HLTPathStatus const&);
+
+  // these signal pairs are guaranteed to be called within the same thread
+
+  //void preOpenFile(std::string const&, bool);
+  //void postOpenFile(std::string const&, bool);
+
+  //void preCloseFile(std::string const&, bool);
+  //void postCloseFile(std::string const&, bool);
+
+  void preSourceConstruction(edm::ModuleDescription const&);
+  //void postSourceConstruction(edm::ModuleDescription const&);
+
+  void preSourceRun();
+  void postSourceRun();
+
+  void preSourceLumi();
+  void postSourceLumi();
+
+  void preSourceEvent(edm::StreamID);
+  void postSourceEvent(edm::StreamID);
+
+  //void preModuleConstruction(edm::ModuleDescription const&);
+  //void postModuleConstruction(edm::ModuleDescription const&);
+
+  void preModuleBeginJob(edm::ModuleDescription const&);
+  //void postModuleBeginJob(edm::ModuleDescription const&);
+
+  //void preModuleEndJob(edm::ModuleDescription const&);
+  //void postModuleEndJob(edm::ModuleDescription const&);
+
+  //void preModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  //void postModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  //void preModuleEndStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  //void postModuleEndStream(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleGlobalBeginRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+  void postModuleGlobalBeginRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+  void postModuleGlobalEndRun(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleGlobalBeginLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+  void postModuleGlobalBeginLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleGlobalEndLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+  void postModuleGlobalEndLumi(edm::GlobalContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleStreamBeginRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleStreamBeginRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleStreamEndRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleStreamEndRun(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleStreamBeginLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleStreamBeginLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preModuleEventDelayedGet(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEventDelayedGet(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  void preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+  // keep track of the dependencies among modules
+  ProcessCallGraph m_callgraph;
 
-  struct LuminosityDescription {
-    std::string name;
-    std::string title;
-    std::string label;
-    double      range;
-    double      resolution;
 
-    LuminosityDescription(std::string const & _name, std::string const & _title, std::string const & _label, double _range, double _resolution) :
-      name(_name),
-      title(_title),
-      label(_label),
-      range(_range),
-      resolution(_resolution)
+  // resources being monitored by the service
+  struct Resources {
+    boost::chrono::nanoseconds time_thread;
+    boost::chrono::nanoseconds time_real;
+
+    Resources() :
+      time_thread(boost::chrono::nanoseconds::zero()),
+      time_real(boost::chrono::nanoseconds::zero())
     { }
 
-    LuminosityDescription(std::string && _name, std::string && _title, std::string const & _label, double _range, double _resolution) :
-      name(_name),
-      title(_title),
-      label(_label),
-      range(_range),
-      resolution(_resolution)
-    { }
+    void reset() {
+      time_thread = boost::chrono::nanoseconds::zero();
+      time_real   = boost::chrono::nanoseconds::zero();
+    }
+
+    Resources & operator+=(Resources const & other) {
+      time_thread += other.time_thread;
+      time_real   += other.time_real;
+      return *this;
+    }
+
+    Resources operator+(Resources const & other) const {
+      Resources result;
+      result.time_thread = time_thread + other.time_thread;
+      result.time_real   = time_real   + other.time_real;
+      return result;
+    }
   };
 
+
+  struct ResourcesPerPath {
+    Resources active;
+    Resources total;
+
+    void reset() {
+      active.reset();
+      total.reset();
+    }
+  };
+
+  struct ResourcesPerProcess {
+    Resources                     total;
+    std::vector<ResourcesPerPath> paths;
+    std::vector<ResourcesPerPath> endpaths;
+
+    void reset() {
+      total.reset();
+      for (auto & path: paths)
+        path.reset();
+      for (auto & path: endpaths)
+        path.reset();
+    }
+  };
+
+  struct ResourcesPerStream {
+    Resources                        total;
+    std::vector<Resources>           modules;
+    std::vector<ResourcesPerProcess> processes;
+
+    void reset() {
+      total.reset();
+      for (auto & module: modules)
+        module.reset();
+      for (auto & process: processes)
+        process.reset();
+    }
+  };
+
+  std::vector<ResourcesPerStream> streams_;
+
+
+  // per-thread measurements
+  struct Measurement {
+    boost::chrono::thread_clock::time_point          time_thread;
+    boost::chrono::high_resolution_clock::time_point time_real;
+
+    void measure() {
+      time_thread = boost::chrono::thread_clock::now();
+      time_real   = boost::chrono::high_resolution_clock::now();
+    }
+
+    void measure(Resources & store) {
+      auto new_time_thread = boost::chrono::thread_clock::now();
+      auto new_time_real   = boost::chrono::high_resolution_clock::now();
+      store.time_thread = new_time_thread - time_thread;
+      store.time_real   = new_time_real   - time_real;
+      time_thread = new_time_thread;
+      time_real   = new_time_real;
+    }
+  };
+
+  // per-thread quantities, indexed by a thread_local id
+  std::vector<Measurement> threads_;
+
+  // define a unique id per thread
+  static unsigned int threadId();
+
+  // retrieve the current thread's per-thread quantities
+  Measurement & thread();
+
+
+
+  // plots associated to each module
+  struct PlotsPerModule {
+    TH1F * active;          // time spent in the module
+  };
+
+  struct PlotsPerPath {
+    TH1F * active;          // time spent in all the modules in the path
+    TH1F * total;           // time spent in all the modules in the path, and their dependencies
+    TH1F * module_counter;  // for each module in the path, track how many times it ran
+    TH1F * module_active;   // for each module in the path, track the active time spent
+    TH1F * module_total;    // for each module in the path, track the total time spent
+  };
+
+  struct PlotsPerProcess {
+    TH1F * total;                               // time spent in all the modules of the (sub)process
+    std::vector<PlotsPerPath>    paths;
+    std::vector<PlotsPerPath>    endpaths;
+  };
+
+  struct PlotsPerStream {
+    TH1F * total;                               // time spent in all the modules of the job
+    std::vector<PlotsPerModule>  modules;
+    std::vector<PlotsPerProcess> processes;
+  };
+
+  std::vector<PlotsPerStream> stream_plots_;
+
+
+
+
+
+
+
+
+
+
+
+  /*
+
+private:
 
   struct PathInfo;
 
@@ -219,19 +395,15 @@ private:
 
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
+    std::vector<unsigned int>   dependencies;       // list of all modules in the path and their dependencies
+    std::vector<unsigned int>   last_dependencies;  // last entry in the vector of `dependencies' for each module in the path
     ModuleInfo *                first_module;       // first module actually run in this path
     FastTimer                   timer;              // per-event timer
     double                      time_active;        // time actually spent in this path
     double                      time_exclusive;     // time actually spent in this path, in modules that are not run on any other paths
-    double                      time_premodules;    // time spent between "begin path" and the first "begin module"
-    double                      time_intermodules;  // time spent between modules
-    double                      time_postmodules;   // time spent between the last "end module" and "end path"
-    double                      time_overhead;      // sum of time_premodules, time_intermodules, time_postmodules
+    double                      time_overhead;      // time spente before, between or after modules
     double                      time_total;         // sum of the time spent in all modules which would have run in this path (plus overhead)
     double                      summary_active;
-    double                      summary_premodules;
-    double                      summary_intermodules;
-    double                      summary_postmodules;
     double                      summary_overhead;
     double                      summary_total;
     uint32_t                    last_run;           // index of the last module run in this path, plus one
@@ -239,9 +411,6 @@ private:
     bool                        accept;             // flag indicating if the path acepted the event
     TH1F *                      dqm_active;         // see time_active
     TH1F *                      dqm_exclusive;      // see time_exclusive
-    TH1F *                      dqm_premodules;     // see time_premodules
-    TH1F *                      dqm_intermodules;   // see time_intermodules
-    TH1F *                      dqm_postmodules;    // see time_postmodules
     TH1F *                      dqm_overhead;       // see time_overhead
     TH1F *                      dqm_total;          // see time_total
     TH1F *                      dqm_module_counter; // for each module in the path, track how many times it ran
@@ -251,19 +420,15 @@ private:
   public:
     PathInfo() :
       modules(),
+      dependencies(),
+      last_dependencies(),
       first_module(nullptr),
       timer(),
       time_active(0.),
       time_exclusive(0.),
-      time_premodules(0.),
-      time_intermodules(0.),
-      time_postmodules(0.),
       time_overhead(0.),
       time_total(0.),
       summary_active(0.),
-      summary_premodules(0.),
-      summary_intermodules(0.),
-      summary_postmodules(0.),
       summary_overhead(0.),
       summary_total(0.),
       last_run(0),
@@ -271,9 +436,6 @@ private:
       accept(false),
       dqm_active(nullptr),
       dqm_exclusive(nullptr),
-      dqm_premodules(nullptr),
-      dqm_intermodules(nullptr),
-      dqm_postmodules(nullptr),
       dqm_overhead(nullptr),
       dqm_total(nullptr),
       dqm_module_counter(nullptr),
@@ -291,15 +453,9 @@ private:
       timer.reset();
       time_active = 0.;
       time_exclusive = 0.;
-      time_premodules = 0.;
-      time_intermodules = 0.;
-      time_postmodules = 0.;
       time_overhead = 0.;
       time_total = 0.;
       summary_active = 0.;
-      summary_premodules = 0.;
-      summary_intermodules = 0.;
-      summary_postmodules = 0.;
       summary_overhead = 0.;
       summary_total = 0.;
       last_run = 0;
@@ -308,9 +464,6 @@ private:
 
       // the DQM plots are owned by the DQMStore
       dqm_active = nullptr;
-      dqm_premodules = nullptr;
-      dqm_intermodules = nullptr;
-      dqm_postmodules = nullptr;
       dqm_overhead = nullptr;
       dqm_total = nullptr;
       dqm_module_counter = nullptr;
@@ -319,7 +472,7 @@ private:
     }
   };
 
-  // the vector is indexed by the peudo-process id, the paths by their path name
+  // the vector is indexed by the peudo-process id, the map by the paths name
   template <typename T>
   using PathMap = std::vector<std::unordered_map<std::string, T>>;
 
@@ -327,13 +480,14 @@ private:
   template <typename T>
   using ModuleMap = std::vector<T>;
 
+  */
+
   // timer configuration
   bool                                          m_use_realtime;
   bool                                          m_enable_timing_paths;
   bool                                          m_enable_timing_modules;
   bool                                          m_enable_timing_exclusive;
   const bool                                    m_enable_timing_summary;
-  const bool                                    m_skip_first_path;
 
   // dqm configuration
   bool                                          m_enable_dqm;                   // non const because the availability of the DQMStore can only be checked during the begin job
@@ -344,7 +498,6 @@ private:
   const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
-  const bool                                    m_enable_dqm_bymoduletype;      // require per-module timers
   const bool                                    m_enable_dqm_summary;
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
@@ -352,7 +505,7 @@ private:
   unsigned int                                  m_concurrent_runs;
   unsigned int                                  m_concurrent_streams;
   unsigned int                                  m_concurrent_threads;
-  unsigned int                                  m_module_id;                    // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
+  unsigned int                                  module_id_;                     // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
 
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
@@ -360,15 +513,16 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
+  const uint32_t                                m_dqm_lumisections_range;
   std::string                                   m_dqm_path;
 
+  /*
   struct ProcessDescription {
     std::string         name;
     std::string         first_path;             // the framework does not provide a pre/postPaths or pre/postEndPaths signal,
     std::string         last_path;              // so we emulate them keeping track of the first and last non-empty Path and EndPath
     std::string         first_endpath;
     std::string         last_endpath;
-    edm::ParameterSetID pset;
   };
 
   struct Timing {
@@ -413,20 +567,18 @@ private:
   };
 
   struct TimingPerProcess {
-    double              preevent;               // time spent between the end of the Source and the new Event, Lumisection or Run
-    double              event;                  // time spent processing the Event
-    double              all_paths;              // time spent processing all Paths
-    double              all_endpaths;           // time spent processing all EndPaths
-    double              interpaths;             // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
-    std::vector<double> paths_interpaths;       // time spent between the beginning of the Event and the first Path, between Paths, and between the last (End)Path and the end of the Event
+    double preevent;                // time spent between the end of the Source and the new Event, Lumisection or Run
+    double event;                   // time spent processing the Event
+    double all_paths;               // time spent processing all Paths
+    double all_endpaths;            // time spent processing all EndPaths
+    double interpaths;              // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
 
     TimingPerProcess() :
       preevent      (0.),
       event         (0.),
       all_paths     (0.),
       all_endpaths  (0.),
-      interpaths    (0.),
-      paths_interpaths()
+      interpaths    (0.)
     { }
 
     void reset() {
@@ -435,19 +587,14 @@ private:
       all_paths     = 0.;
       all_endpaths  = 0.;
       interpaths    = 0.;
-      paths_interpaths.assign(paths_interpaths.size(), 0.);
     }
 
     TimingPerProcess & operator+=(TimingPerProcess const & other) {
-      assert( paths_interpaths.size() == other.paths_interpaths.size() );
-
       preevent      += other.preevent;
       event         += other.event;
       all_paths     += other.all_paths;
       all_endpaths  += other.all_endpaths;
       interpaths    += other.interpaths;
-      for (unsigned int i = 0; i < paths_interpaths.size(); ++i)
-        paths_interpaths[i] += other.paths_interpaths[i];
       return *this;
     }
 
@@ -602,13 +749,11 @@ private:
     TProfile * active_time;
     TProfile * total_time;
     TProfile * exclusive_time;
-    TProfile * interpaths;
 
     PathProfilesPerProcess() :
       active_time   (nullptr),
       total_time    (nullptr),
-      exclusive_time(nullptr),
-      interpaths    (nullptr)
+      exclusive_time(nullptr)
     {}
 
     ~PathProfilesPerProcess() {
@@ -620,7 +765,6 @@ private:
       active_time    = nullptr;
       total_time     = nullptr;
       exclusive_time = nullptr;
-      interpaths     = nullptr;
     }
 
   };
@@ -639,14 +783,11 @@ private:
     Timing                                          timing;
     std::vector<TimingPerProcess>                   timing_perprocess;
 
-    // luminosity per event
-    std::vector<double>                             luminosity;
-
     // overall plots
-    SummaryPlots                                    dqm;                            // whole event summary plots
-    std::vector<SummaryProfiles>                    dqm_byluminosity;               // whole event plots vs. "luminosity"
-    std::vector<SummaryPlotsPerProcess>             dqm_perprocess;                 // per-process event summary plots
-    std::vector<std::vector<SummaryProfilesPerProcess>> dqm_perprocess_byluminosity;    // per-process plots vs. "luminosity"
+    SummaryPlots                                    dqm;                        // whole event summary plots
+    SummaryProfiles                                 dqm_byls;                   // whole event plots vs. "luminosity"
+    std::vector<SummaryPlotsPerProcess>             dqm_perprocess;             // per-process event summary plots
+    std::vector<SummaryProfilesPerProcess>          dqm_perprocess_byls;        // per-process plots vs. "luminosity"
 
     // plots by path
     std::vector<PathProfilesPerProcess>             dqm_paths;
@@ -656,9 +797,7 @@ private:
     ModuleInfo *                                    current_module;
     PathMap<PathInfo>                               paths;
     std::unordered_map<std::string, ModuleInfo>     modules;
-    std::unordered_map<std::string, ModuleInfo>     moduletypes;
-    ModuleMap<ModuleInfo *>                         fast_modules;               // these assume that module ids are constant throughout the whole job,
-    ModuleMap<ModuleInfo *>                         fast_moduletypes;
+    ModuleMap<ModuleInfo *>                         fast_modules;
 
     StreamData() :
       // timers
@@ -672,13 +811,11 @@ private:
       // time accounting per-event
       timing(),
       timing_perprocess(),
-      // luminosity per event
-      luminosity(),
       // overall plots
       dqm(),
-      dqm_byluminosity(),
+      dqm_byls(),
       dqm_perprocess(),
-      dqm_perprocess_byluminosity(),
+      dqm_perprocess_byls(),
       // plots by path
       dqm_paths(),
       // per-path, per-module and per-module-type accounting
@@ -686,9 +823,7 @@ private:
       current_module(nullptr),
       paths(),
       modules(),
-      moduletypes(),
-      fast_modules(),
-      fast_moduletypes()
+      fast_modules()
     { }
 
     // called in FastTimerService::postStreamEndRun()
@@ -705,18 +840,13 @@ private:
       timing.reset();
       for (auto & timing: timing_perprocess)
         timing.reset();
-      // luminosity per event
-      for (auto & lumi: luminosity)
-        lumi = 0;
       // overall plots
       dqm.reset();
-      for (auto & plots: dqm_byluminosity)
+      dqm_byls.reset();
+      for (auto & plots: dqm_perprocess)
         plots.reset();
-      for (auto & perprocess_plots: dqm_perprocess)
-        perprocess_plots.reset();
-      for (auto & process_plots: dqm_perprocess_byluminosity)
-        for (auto & plots: process_plots)
-          plots.reset();
+      for (auto & plots: dqm_perprocess_byls)
+        plots.reset();
       // plots by path
       for (auto & plots: dqm_paths)
         plots.reset();
@@ -728,17 +858,12 @@ private:
           keyval.second.reset();
       for (auto & keyval: modules)
         keyval.second.reset();
-      for (auto & keyval: moduletypes)
-        keyval.second.reset();
     }
 
   };
 
   // process descriptions
   std::vector<ProcessDescription>               m_process;
-
-  // description of the luminosity axes
-  std::vector<LuminosityDescription>            m_dqm_luminosity;
 
   // stream data
   std::vector<StreamData>                       m_stream;
@@ -750,6 +875,12 @@ private:
   std::vector<TimingPerProcess>                 m_job_summary_perprocess;       // per-process time accounting per-job
   std::mutex                                    m_summary_mutex;                // synchronise access to the summary objects across different threads
 
+  */
+
+  // log unsupported signals
+  mutable tbb::concurrent_unordered_set<std::string> m_unsupported_signals;     // keep track of unsupported signals received
+
+  /*
   static
   double delta(FastTimer::Clock::time_point const & first, FastTimer::Clock::time_point const & second)
   {
@@ -760,16 +891,12 @@ private:
   void fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
 
   // find the first and last non-empty paths, optionally skipping the first one
-  std::pair<std::string,std::string> findFirstLast(unsigned int pid, std::vector<std::string> const & paths, bool skip = false);
+  std::pair<std::string,std::string> findFirstLast(unsigned int pid, std::vector<std::string> const & paths);
 
   // print a timing summary for the run or job
   void printSummary(Timing const & summary, std::string const & label) const;
   void printProcessSummary(Timing const & total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const;
-
-  // assign a "process id" to a process, given its ProcessContext
-  static
-  unsigned int processID(edm::ProcessContext const *);
-
+  */
 };
 
 #endif // ! FastTimerService_h
