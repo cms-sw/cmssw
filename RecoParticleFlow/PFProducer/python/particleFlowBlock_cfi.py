@@ -178,7 +178,9 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _addTiming = particleFlowBlock.elementImporters.copy()
 _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
-                             timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
+                             timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
+                             timeValueMapGsf = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
+                             timeErrorMapGsf = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution")
                              ) 
                    )
 
