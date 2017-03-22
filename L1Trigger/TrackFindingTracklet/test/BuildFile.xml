@@ -18,6 +18,7 @@
     <use   name="FastSimulation/BaseParticlePropagator"/>
     <use   name="heppdt"/>
     <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="SimTracker/TrackTriggerAssociation"/>
     <use   name="DataFormats/Common"/>
     <use   name="DataFormats/TrackerRecHit2D"/>
     <use   name="SimDataFormats/Vertex"/>
