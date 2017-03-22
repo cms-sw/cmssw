@@ -132,8 +132,9 @@ namespace edm {
 
       void operator()(edm::BranchDescription const& branchDescription) {
 
-         if (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T)) &&
-             branchDescription.branchType() == branchType_) {
+         if (branchDescription.dropped()) return;
+         if (branchDescription.branchType() == branchType_ &&
+             branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T))) {
 
             auto const& token =matcher_(branchDescription);
             if (not token.isUninitialized()) {
