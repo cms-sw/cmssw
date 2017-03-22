@@ -402,7 +402,12 @@ class PFRecHitQTestECALThreshold : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
       edm::ESHandle<CaloGeometry> pG;
       iSetup.get<CaloGeometryRecord>().get(pG);
-      EcalRingCalibrationTools::setCaloGeometry(&(*pG));
+      CaloSubdetectorGeometry const* endcapGeometry = pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+      endcapGeometrySet_=false;
+      if (endcapGeometry) {
+        EcalRingCalibrationTools::setCaloGeometry(&(*pG));
+        endcapGeometrySet_=true;
+      }
     }
 
     bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
@@ -429,12 +434,19 @@ class PFRecHitQTestECALThreshold : public PFRecHitQTestBase {
 
  protected:
     std::vector<double> thresholds_;
+    bool endcapGeometrySet_;
 
     bool pass(const reco::PFRecHit& hit){
       
+      // this is to skip endcap ZS for Phase2 until there is a defined geometry
+      // apply the loosest ZS threshold, for the first eta-ring in EE
+      if(!endcapGeometrySet_) {
+        int firstEERing = 171;
+        return (hit.energy() > thresholds_[firstEERing]);
+      }
+
       DetId detId(hit.detId());
       int iring = EcalRingCalibrationTools::getRingIndex(detId);
-      
       if (  hit.energy() > thresholds_[iring] ) return true;
 
       return false;
