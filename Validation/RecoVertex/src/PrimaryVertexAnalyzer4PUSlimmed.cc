@@ -69,7 +69,6 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
         edm::EDGetTokenT<edm::View<reco::Vertex>>(
             consumes<edm::View<reco::Vertex>>(l)));
   }
-  errorPrintedForColl_.resize(reco_vertex_collections_.size(), false);
 }
 
 PrimaryVertexAnalyzer4PUSlimmed::~PrimaryVertexAnalyzer4PUSlimmed() {}
@@ -1267,6 +1266,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   using std::endl;
   using edm::Handle;
   using edm::View;
+  using edm::LogInfo;
   using namespace reco;
 
   std::vector<float> pileUpInfo_z;
@@ -1337,38 +1337,16 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   }
 
   int label_index = -1;
-  for(size_t iToken=0, endToken=reco_vertex_collection_tokens_.size(); iToken<endToken; ++iToken) {
-    auto const& vertex_token = reco_vertex_collection_tokens_[iToken];
+  for (auto const& vertex_token : reco_vertex_collection_tokens_) {
     std::vector<recoPrimaryVertex> recopv;  // a list of reconstructed
                                             // primary MC vertices
     std::string label = reco_vertex_collections_[++label_index].label();
     edm::Handle<edm::View<reco::Vertex>> recVtxs;
     if (!iEvent.getByToken(vertex_token, recVtxs)) {
-      if(!errorPrintedForColl_[iToken]) {
-        edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
-          << "Skipping vertex collection: " << label << " since it is missing.";
-        errorPrintedForColl_[iToken] = true;
-      }
+      LogInfo("PrimaryVertexAnalyzer4PUSlimmed")
+          << "Skipping vertex collection: " << label << " since it is missing."
+          << std::endl;
       continue;
-    }
-    // check upfront that refs to track are (likely) to be valid
-    {
-      bool ok = true;
-      for(const auto& v: *recVtxs) {
-        if(v.tracksSize() > 0) {
-          const auto& ref = v.trackRefAt(0);
-          if(ref.isNull() || !ref.isAvailable()) {
-            if(!errorPrintedForColl_[iToken]) {
-              edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
-                << "Skipping vertex collection: " << label << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
-              errorPrintedForColl_[iToken] = true;
-            }
-            ok = false;
-          }
-        }
-      }
-      if(!ok)
-        continue;
     }
 
     reco::VertexRecoToSimCollection vertex_r2s = vertexAssociator.associateRecoToSim(recVtxs, TVCollectionH);
