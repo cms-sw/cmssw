@@ -101,10 +101,14 @@ bool JetCorrectorParametersHelper::binBoundChecks(unsigned dim, const float& val
 {
   if (value < min || value > max)
     {
+      //The code below was commented out to reduce the number of error messages in the runTheMatrix logs
+      //This is not a new failure mode, but this was the first time a message was printed.
+      /*
       std::stringstream sserr;
       sserr<<"Value for dimension "<<dim<<" is outside of the bin boundaries"<<std::endl
            <<"\tRequested "<<value<<" for boundaries ("<<min<<","<<max<<")";
       handleError("JetCorrectorParametersHelper",sserr.str());
+      */
       return false;
     }
     return true;
