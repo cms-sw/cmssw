@@ -460,12 +460,16 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			//	ONLINE 
 			if (_ptype==fOnline)
 			{
-				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				if (rawid != 0) {
+					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				}
 				_cTimingCut_depth.fill(did, timing);
 			}//	^^^ONLINE
 			else
 			{
-				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				if (rawid != 0) {
+			    	_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				}
 				_cTimingCut_depth.fill(did, timing);
 			}
 			_cOccupancyCut_depth.fill(did);
