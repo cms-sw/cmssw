@@ -303,28 +303,27 @@ void ClusterShapeExtractor::processPixelRecHits
 
   for(  SiPixelRecHitCollection::DataContainer::const_iterator
         recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
-  {
-    // Fill map
-    if(simHitMap.count(key) == 0)
-       simHitMap[key] = &(*recHit);
-    else
-      if(        recHit->cluster()->size() >
-         simHitMap[key]->cluster()->size())
-         simHitMap[key] = &(*recHit);
-      ++counter_2;
-  }
+      if(checkSimHits(*recHit, simHit, key))
+        {
+          // Fill map
+          if(simHitMap.count(key) == 0)
+              { simHitMap[key] = &(*recHit); }
+          else if(        recHit->cluster()->size() >
+                   simHitMap[key]->cluster()->size())
+                   simHitMap[key] = &(*recHit);
+          ++counter_2;
+        }
 
   for(  SiPixelRecHitCollection::DataContainer::const_iterator
         recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
-  {
-    // Check whether the present rechit is the largest
-      if(&(*recHit) == simHitMap[key]) {
-      processSim(*recHit, simHit, clusterShapeCache, hspc);
-          ++counter;
-      }
-  }
+      if(checkSimHits(*recHit, simHit, key))
+        {
+          // Check whether the present rechit is the largest
+            if(&(*recHit) == simHitMap[key]) {
+                processSim(*recHit, simHit, clusterShapeCache, hspc);
+                ++counter;
+            }
+        }
 //    std::cout << "recHits->size() = " << recHits->size() << ", counter = " << counter
 //              << ", counter_2 = " << counter_2 << std::endl;
 }
