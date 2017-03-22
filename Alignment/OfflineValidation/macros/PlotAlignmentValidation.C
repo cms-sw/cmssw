@@ -1,6 +1,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -813,7 +814,17 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	}
 
 	if (plotinfo.plotPlain) {
-	  if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0, layer); }
+	  if (plotinfo.h) {
+            setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0, layer);
+          } else {
+            if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0) {
+              vmean.push_back(nan(""));
+              vrms.push_back(nan(""));
+              if (plotinfo.plotSplits && plotinfo.plotPlain) {
+                vdeltamean.push_back(nan(""));
+              }
+            }
+          }
 	}
 
 	if (plotinfo.plotSplits) {
@@ -1020,15 +1031,20 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
       TString title = alignment->getName();
       int color = alignment->getLineColor();
       int style = alignment->getLineStyle();
+      bool foundit = false;
       for (auto entry : *legend->GetListOfPrimitives()) {
         TLegendEntry *legendentry = dynamic_cast<TLegendEntry*>(entry);
         assert(legendentry);
         TH1 *h = dynamic_cast<TH1*>(legendentry->GetObject());
         if (!h) continue;
         if (legendentry->GetLabel() == title && h->GetLineColor() == color && h->GetLineStyle() == style) {
+          foundit = true;
           summaryfile << h->GetEntries();
           break;
         }
+      }
+      if (!foundit) {
+        summaryfile << 0;
       }
     }
     summaryfile << "\n";
