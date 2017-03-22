@@ -7,8 +7,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
                    'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
-                   'standardValidation' : ['prevalidation','validation','validationHarvesting'],
-                   'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT']
+                   'standardValidation' : ['prevalidation','validation','validationHarvesting']
                  }
 
 _phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation','bTagOnlyValidation','hcalOnlyValidation']
