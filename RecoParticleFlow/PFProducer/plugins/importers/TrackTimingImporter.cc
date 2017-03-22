@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -19,6 +20,8 @@ public:
     BlockElementImporterBase(conf,sumes),    
     srcTime_( sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeValueMap")) ),
     srcTimeError_( sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeErrorMap")) ),
+    srcTimeGsf_( sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeValueMapGsf")) ),
+    srcTimeErrorGsf_( sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeErrorMapGsf")) ),
     debug_(conf.getUntrackedParameter<bool>("debug",false)) {    
   }
   
@@ -27,7 +30,7 @@ public:
 
 private:
     
-  edm::EDGetTokenT<edm::ValueMap<float> > srcTime_, srcTimeError_;
+  edm::EDGetTokenT<edm::ValueMap<float> > srcTime_, srcTimeError_, srcTimeGsf_, srcTimeErrorGsf_;
   const bool debug_;
   
 };
@@ -41,21 +44,41 @@ importToBlock( const edm::Event& e,
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
   
-  edm::Handle<edm::ValueMap<float> > timeH, timeErrH;
+  edm::Handle<edm::ValueMap<float> > timeH, timeErrH, timeGsfH, timeErrGsfH;
   
   e.getByToken(srcTime_, timeH);
   e.getByToken(srcTimeError_, timeErrH);
-    
+  e.getByToken(srcTimeGsf_, timeGsfH);
+  e.getByToken(srcTimeErrorGsf_, timeErrGsfH);
+  
   auto TKs_end = std::partition(elems.begin(),elems.end(),
 				[](const ElementType& a){
 			        return a->type() == reco::PFBlockElement::TRACK;
 				});  
   auto btk_elems = elems.begin();  
-  // now we actually insert tracks, again tagging muons along the way
-  reco::PFRecTrackRef pftrackref;  
   for( auto track = btk_elems;  track != TKs_end; ++track) {
     const auto& ref = (*track)->trackRef();
-    (*track)->setTime( (*timeH)[ref], (*timeErrH)[ref] );
+    if (timeH->contains(ref.id())) {
+      (*track)->setTime( (*timeH)[ref], (*timeErrH)[ref] );
+    }
+    if( debug_ ) {
+      edm::LogInfo("TrackTimingImporter") 
+      	<< "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
+	<< " has time: " << (*track)->time() << " +/- " << (*track)->timeError() << std::endl;
+    }
+    
+  }
+  
+  auto gsfTKs_end = std::partition(elems.begin(),elems.end(),
+				[](const ElementType& a){
+			        return a->type() == reco::PFBlockElement::GSF;
+				});  
+  auto gsfbtk_elems = elems.begin();  
+  for( auto track = gsfbtk_elems;  track != gsfTKs_end; ++track) {
+    const auto& ref = static_cast<const reco::PFBlockElementGsfTrack*>((*track).get())->GsftrackRef();
+    if (timeGsfH->contains(ref.id())) {
+      (*track)->setTime( (*timeGsfH)[ref], (*timeErrGsfH)[ref] );
+    }
     if( debug_ ) {
       edm::LogInfo("TrackTimingImporter") 
       	<< "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
