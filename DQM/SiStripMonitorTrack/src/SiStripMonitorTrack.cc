@@ -853,7 +853,7 @@ using namespace reco;
   edm::Handle<reco::TrackCollection > trackCollectionHandle;
   ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
   if (trackCollectionHandle.isValid()){
-    trackStudyFromTrack(trackCollectionHandle,es);
+    trackStudyFromTrajectory(trackCollectionHandle,es);
   } else {
     edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
     return;
