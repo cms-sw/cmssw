@@ -21,11 +21,11 @@ class L1TLossFunction
   // The gradient of the loss function.
   // Each tree is a step in the direction of the gradient
   // towards the minimum of the Loss Function.
-  virtual Double_t target(Event* e) = 0;
+  virtual Double_t target(emtf::Event* e) = 0;
   
   // The fit should minimize the loss function in each
   // terminal node at each iteration.
-  virtual Double_t fit(std::vector<Event*>& v) = 0;
+  virtual Double_t fit(std::vector<emtf::Event*>& v) = 0;
   virtual std::string name() = 0;
   virtual int id() = 0;
 };
@@ -40,20 +40,20 @@ class LeastSquares : public L1TLossFunction
   LeastSquares(){}
   ~LeastSquares(){}
   
-  Double_t target(Event* e)
+  Double_t target(emtf::Event* e)
   {
     // Each tree fits the residuals when using LeastSquares.
     return e->trueValue - e->predictedValue;
   }
   
-  Double_t fit(std::vector<Event*>& v)
+  Double_t fit(std::vector<emtf::Event*>& v)
   {
     // The average of the residuals minmizes the Loss Function for LS.
     
     Double_t SUM = 0;
     for(unsigned int i=0; i<v.size(); i++)
       {
-	Event* e = v[i];
+        emtf::Event* e = v[i];
 	SUM += e->trueValue - e->predictedValue;
       }
     
@@ -74,7 +74,7 @@ class AbsoluteDeviation : public L1TLossFunction
   AbsoluteDeviation(){}
   ~AbsoluteDeviation(){}
   
-  Double_t target(Event* e)
+  Double_t target(emtf::Event* e)
   {
     // The gradient.
     if ((e->trueValue - e->predictedValue) >= 0)
@@ -83,7 +83,7 @@ class AbsoluteDeviation : public L1TLossFunction
       return -1;
   }
   
-  Double_t fit(std::vector<Event*>& v)
+  Double_t fit(std::vector<emtf::Event*>& v)
   {
     // The median of the residuals minimizes absolute deviation.
     if(v.size()==0) return 0;
@@ -92,7 +92,7 @@ class AbsoluteDeviation : public L1TLossFunction
     // Load the residuals into a vector. 
     for(unsigned int i=0; i<v.size(); i++)
       {
-	Event* e = v[i];
+        emtf::Event* e = v[i];
 	residuals[i] = (e->trueValue - e->predictedValue);
       }
     
@@ -133,7 +133,7 @@ class Huber : public L1TLossFunction
   double quantile;
   double residual_median;
   
-  Double_t target(Event* e)
+  Double_t target(emtf::Event* e)
   {
     // The gradient of the loss function.
     
@@ -143,7 +143,7 @@ class Huber : public L1TLossFunction
       return quantile*(((e->trueValue - e->predictedValue) > 0)?1.0:-1.0);
   }
   
-  Double_t fit(std::vector<Event*>& v)
+  Double_t fit(std::vector<emtf::Event*>& v)
   {
     // The constant fit that minimizes Huber in a region.
     
@@ -153,7 +153,7 @@ class Huber : public L1TLossFunction
     double x = 0;
     for(unsigned int i=0; i<v.size(); i++)
       {
-	Event* e = v[i];
+        emtf::Event* e = v[i];
 	double residual = e->trueValue - e->predictedValue;
 	double diff = residual - residual_median; 
 	x += ((diff > 0)?1.0:-1.0)*std::min(quantile, TMath::Abs(diff));
@@ -166,7 +166,7 @@ class Huber : public L1TLossFunction
   std::string name() { return "Huber"; }
   int id(){ return 3; }
   
-  double calculateQuantile(std::vector<Event*>& v, double whichQuantile)
+  double calculateQuantile(std::vector<emtf::Event*>& v, double whichQuantile)
   {
     // Container for the residuals.
     std::vector<Double_t> residuals(v.size());
@@ -174,7 +174,7 @@ class Huber : public L1TLossFunction
     // Load the residuals into a vector. 
     for(unsigned int i=0; i<v.size(); i++)
       {
-	Event* e = v[i];
+        emtf::Event* e = v[i];
 	residuals[i] = TMath::Abs(e->trueValue - e->predictedValue);
       }
     
@@ -194,13 +194,13 @@ class PercentErrorSquared : public L1TLossFunction
   PercentErrorSquared(){}
   ~PercentErrorSquared(){}
   
-  Double_t target(Event* e)
+  Double_t target(emtf::Event* e)
   {   
     // The gradient of the squared percent error.
     return (e->trueValue - e->predictedValue)/(e->trueValue * e->trueValue);
   }   
   
-  Double_t fit(std::vector<Event*>& v)
+  Double_t fit(std::vector<emtf::Event*>& v)
   {   
     // The average of the weighted residuals minimizes the squared percent error.
     // Weight(i) = 1/true(i)^2. 
@@ -210,7 +210,7 @@ class PercentErrorSquared : public L1TLossFunction
     
     for(unsigned int i=0; i<v.size(); i++)
       {   
-	Event* e = v[i];
+        emtf::Event* e = v[i];
 	SUMtop += (e->trueValue - e->predictedValue)/(e->trueValue*e->trueValue); 
 	SUMbottom += 1/(e->trueValue*e->trueValue);
       }   
