@@ -5,7 +5,7 @@
 // Generic parameters for Jet corrections
 //
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParametersHelper.h"
+#include "CondFormats/JetMETObjects/interface/Utilities.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -88,8 +88,8 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
         }
       for(unsigned i=0;i<mNvar;i++)
         {
-          mMin.push_back(getFloat(tokens[i*2]));
-          mMax.push_back(getFloat(tokens[i*2+1]));
+          mMin.push_back(getFloat(tokens[i*mNvar]));
+          mMax.push_back(getFloat(tokens[i*mNvar+1]));
         }
       unsigned nParam = getUnsigned(tokens[2*mNvar]);
       if (nParam != tokens.size()-(2*mNvar+1))
@@ -153,28 +153,7 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
     }
   std::sort(mRecords.begin(), mRecords.end());
   valid_ = true;
-
-  if(mDefinitions.nBinVar()<=MAX_SIZE_DIMENSIONALITY)
-    {
-      init();
-    }
-  else
-    {
-      std::stringstream sserr;
-      sserr<<"since the binned dimensionality is greater than "<<MAX_SIZE_DIMENSIONALITY
-           <<" the SimpleJetCorrector will default to using the legacy binIndex function!";
-      handleError("JetCorrectorParameters",sserr.str());
-    }
 }
-//------------------------------------------------------------------------
-//--- initializes the correct JetCorrectorParametersHelper ---------------
-//------------------------------------------------------------------------
-void JetCorrectorParameters::init()
-{
-  std::sort(mRecords.begin(), mRecords.end());
-  helper = std::make_shared<JetCorrectorParametersHelper>();
-  helper->init(mDefinitions,mRecords);
-} 
 //------------------------------------------------------------------------
 //--- returns the index of the record defined by fX ----------------------
 //------------------------------------------------------------------------
@@ -202,20 +181,6 @@ int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const
         }
     }
   return result;
-}
-//------------------------------------------------------------------------
-//--- returns the index of the record defined by fX (non-linear search) --
-//------------------------------------------------------------------------
-int JetCorrectorParameters::binIndexN(const std::vector<float>& fX) const
-{
-  if(helper->size()>0)
-    {
-      return helper->binIndexN(fX,mRecords);
-    }
-  else
-    { 
-      return -1;
-    }
 }
 //------------------------------------------------------------------------
 //--- returns the neighbouring bins of fIndex in the direction of fVar ---

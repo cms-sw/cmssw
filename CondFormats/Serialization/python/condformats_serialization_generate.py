@@ -272,8 +272,6 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     clang.cindex.CursorKind.CONVERSION_FUNCTION,
                     clang.cindex.CursorKind.TYPE_REF,
                     clang.cindex.CursorKind.DECL_REF_EXPR,
-                    clang.cindex.CursorKind.CLASS_TEMPLATE,
-                    clang.cindex.CursorKind.TYPE_ALIAS_DECL,
                 ]):
                     logging.debug('Skipping member: %s %s %s %s', member.displayname, member.spelling, member.kind, member.type.kind)
 
@@ -298,7 +296,6 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     raise Exception('Unexposed declaration. This probably means (at the time of writing) that an unknown class was found (may happen, for instance, when the compiler does not find the headers for std::vector, i.e. missing -I option): %s %s %s %s %s' % (member.displayname, member.spelling, member.kind, member.type.kind, statement))
 
                 else:
-                    statement = get_statement(member)
                     raise Exception('Unknown kind. Please fix the script: %s %s %s %s %s' % (member.displayname, member.spelling, member.kind, member.type.kind, statement))
 
             if template_types:
