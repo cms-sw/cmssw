@@ -1,14 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
+
 SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   name = "valid",
   title = "Valid Hits",
   xlabel = "valid hits",
   dimensions = 0,
+
   specs = VPSet(
     StandardSpecifications1D_Num,
     StandardSpecification2DOccupancy,
+
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=10000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=200, xmin=0, xmax=30000),
   )
 )
 
@@ -17,9 +28,19 @@ SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   title = "Missing Hits",
   xlabel = "missing hits",
   dimensions = 0,
+
   specs = VPSet(
     StandardSpecifications1D_Num,
     StandardSpecification2DOccupancy,
+
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=10000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=200, xmin=0, xmax=30000),
   )
 )
 
