@@ -1749,15 +1749,17 @@ namespace edm {
     for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
-      if(drop && !prod.dropped()) {
-        if(productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation)) {
-          LogWarning("RootFile")
-            << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
-            << "of file '" << file_ << "' because it is dependent on a branch\n"
-            << "that was explicitly dropped.\n";
+      if(drop) {
+        if(!prod.dropped()) {
+          if(productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation)) {
+            LogWarning("RootFile")
+              << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
+              << "of file '" << file_ << "' because it is dependent on a branch\n"
+              << "that was explicitly dropped.\n";
+          }
+          treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+          hasNewlyDroppedBranch_[prod.branchType()] = true;
         }
-        treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
-        hasNewlyDroppedBranch_[prod.branchType()] = true;
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
         prodList.erase(icopy);
