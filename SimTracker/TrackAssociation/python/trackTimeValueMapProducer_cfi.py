@@ -5,6 +5,7 @@ trackTimeValueMapProducer = cms.EDProducer(
     trackSrc = cms.InputTag('generalTracks'),
     trackingParticleSrc = cms.InputTag('mix:MergedTrackTruth'),
     trackingVertexSrc = cms.InputTag('mix:MergedTrackTruth'),
+    pileupSummaryInfo = cms.InputTag('addPileupInfo'),
     associators = cms.VInputTag(cms.InputTag('quickTrackAssociatorByHits')),
     resolutionModels = cms.VPSet( cms.PSet( modelName = cms.string('ConfigurableFlatResolutionModel'),
                                             resolutionInNs = cms.double(0.030) ),

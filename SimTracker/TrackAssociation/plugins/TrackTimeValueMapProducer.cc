@@ -23,7 +23,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include <memory>
@@ -51,7 +51,7 @@ private:
   const std::string tracksName_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
   const edm::EDGetTokenT<TrackingVertexCollection> trackingVertices_;
-  const edm::EDGetTokenT<edm::HepMCProduct> hepMCProduct_;
+  const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfo_;
   // tracking particle associators by order of preference
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;  
   // eta bounds
@@ -59,10 +59,7 @@ private:
   // options
   std::vector<std::unique_ptr<const ResolutionModel> > resolutions_;
   // functions
-  void calculateTrackTimes( const edm::View<reco::Track>&, 
-                            const std::vector<reco::RecoToSimCollection>&,
-                            std::vector<float>& ) const;
-  std::pair<float,float> extractTrackVertexTime(const std::vector<std::pair<TrackingParticleRef, double> >&) const;
+  std::pair<float,float> extractTrackVertexTime(const TrackingParticle&) const;
 };
 
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
@@ -89,6 +86,7 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
   tracksName_(conf.getParameter<edm::InputTag>("trackSrc").label()),
   trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
   trackingVertices_(consumes<TrackingVertexCollection>( conf.getParameter<edm::InputTag>("trackingVertexSrc") ) ),
+  pileupSummaryInfo_(consumes<std::vector<PileupSummaryInfo> >( conf.getParameter<edm::InputTag>("pileupSummaryInfo") ) ),
   associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) ),
   etaMin_( conf.getParameter<double>("etaMin") ),
   etaMax_( conf.getParameter<double>("etaMax") ),
@@ -140,7 +138,9 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   //get tracking particle collections
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   evt.getByToken(trackingParticles_, TPCollectionH);
-  //const TrackingParticleCollection&  TPCollection = *TPCollectionH;
+  
+  edm::Handle<std::vector<PileupSummaryInfo> > pileupSummaryH;
+  evt.getByToken(pileupSummaryInfo_, pileupSummaryH);
   
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks;  
@@ -149,8 +149,47 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   }
   
 
-  calculateTrackTimes(TrackCollection, associatedTracks, generalTrackTimes);
+  double sumSimTime = 0.;
+  double sumSimTimeSq = 0.;
+  int nsim = 0;
+  for (const PileupSummaryInfo &puinfo : *pileupSummaryH) {
+    if (puinfo.getBunchCrossing() == 0) {
+      for (const float &time : puinfo.getPU_times()) {
+        double simtime = time;
+        sumSimTime += simtime;
+        sumSimTimeSq += simtime*simtime;
+        ++nsim;
+      }
+      break;
+    }
+  }
+  
+  double meanSimTime = sumSimTime/double(nsim);
+  double varSimTime = sumSimTimeSq/double(nsim) - meanSimTime*meanSimTime;
+  double rmsSimTime = std::sqrt(std::max(0.1*0.1,varSimTime));
+    
+  for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
+    const auto tkref = TrackCollection.refAt(itk);
+    reco::RecoToSimCollection::const_iterator track_tps = associatedTracks.back().end();
 
+    for( const auto& association : associatedTracks ) {
+      track_tps = association.find(tkref);
+      if( track_tps != association.end() ) break;
+    }
+
+    if (track_tps != associatedTracks.back().end() && track_tps->val.size() == 1) {
+      const std::pair<float,float> time_info = extractTrackVertexTime(*track_tps->val[0].first);
+      generalTrackTimes.push_back(time_info.first);
+    }
+    else {
+      float rndtime = CLHEP::RandGauss::shoot(rng_engine, meanSimTime, rmsSimTime);
+      generalTrackTimes.push_back(rndtime);
+      if (track_tps != associatedTracks.back().end() && track_tps->val.size() > 1) {
+        LogDebug("TooManyTracks") << "track matched to " << track_tps->val.size() << " tracking particles!" << std::endl;
+      }
+    }
+  }
+  
   for( const auto& reso : resolutions_ ) {
     const std::string& name = reso->name();
     std::vector<float> times, resos;
@@ -160,13 +199,16 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
     for( unsigned i = 0; i < TrackCollection.size(); ++i ) {
       const reco::Track& tk = TrackCollection[i];
-      if( edm::isFinite( generalTrackTimes[i] ) && generalTrackTimes[i] != 0.f) {
+      const float absEta = std::abs(tk.eta());
+      bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && tk.p()>pMin_ && (absEta>etaMaxForPtThreshold_ || tk.pt()>ptMin_);
+      if (inAcceptance) {
         const float resolution = reso->getTimeResolution(tk);
         times.push_back( CLHEP::RandGauss::shoot(rng_engine, generalTrackTimes[i], resolution) );
         resos.push_back( resolution );
-      } else {
-        times.push_back( 0.0f );
-        resos.push_back( fakeBeamSpotTimeWidth );
+      }
+      else {
+        times.push_back(0.0f);
+        resos.push_back(-1.);
       }
     }
 
@@ -175,56 +217,24 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   }
 }
 
-void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track>& tkcoll,
-                                                     const std::vector<reco::RecoToSimCollection>& assocs,
-                                                     std::vector<float>& tvals ) const { 
-  constexpr float flt_max = std::numeric_limits<float>::quiet_NaN();
-  
-  for( unsigned itk = 0; itk < tkcoll.size(); ++itk ) {
-    const auto tkref = tkcoll.refAt(itk);
-    reco::RecoToSimCollection::const_iterator track_tps = assocs.back().end();
-    const float absEta = std::abs(tkref->eta());
-    if( absEta < etaMax_ && absEta >= etaMin_ && tkref->p()>pMin_ && (absEta>etaMaxForPtThreshold_ || tkref->pt()>ptMin_) ) {
-      for( const auto& association : assocs ) {
-	track_tps = association.find(tkref);
-	if( track_tps != association.end() ) break;
-      }
-    }    
-
-    if( track_tps != assocs.back().end() ) {
-      if( !track_tps->val.size() ) {
-        tvals.push_back(flt_max);
-      } else {        
-        const std::pair<float,float> time_info = extractTrackVertexTime(track_tps->val);
-        tvals.push_back(time_info.first);
-      }
-    } else {
-      tvals.push_back(flt_max);
-    }
-  } 
-}
-
 std::pair<float,float> TrackTimeValueMapProducer::
-extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double> >& tp_list ) const {
+extractTrackVertexTime( const TrackingParticle &tp ) const {
   float result = 0.f;
   float result_z = 0.f;
-  for( const auto& tpref : tp_list ) {
-    const auto& tvertex = tpref.first->parentVertex();
-    result = tvertex->position().T()*CLHEP::second; // convert into nano-seconds
-    result_z = tvertex->position().Z();
-    // account for secondary vertices...
-    
-    if( tvertex->nSourceTracks() ) {
-      auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
+  const auto& tvertex = tp.parentVertex();
+  result = tvertex->position().T()*CLHEP::second; // convert into nano-seconds
+  result_z = tvertex->position().Z();
+  // account for secondary vertices...
+  
+  if( tvertex->nSourceTracks() ) {
+    auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
+    result = pvertex->position().T()*CLHEP::second;
+    result_z = pvertex->position().Z();
+    while( pvertex->nSourceTracks() ) {
+      pvertex = pvertex->sourceTracks()[0]->parentVertex();
       result = pvertex->position().T()*CLHEP::second;
       result_z = pvertex->position().Z();
-      while( pvertex->nSourceTracks() ) {
-        pvertex = pvertex->sourceTracks()[0]->parentVertex();
-        result = pvertex->position().T()*CLHEP::second;
-        result_z = pvertex->position().Z();
-      }
-    }    
+    }
   }
-  if( tp_list.size() > 1 ) LogDebug("TooManyTracks") << "track matched to " << tp_list.size() << " tracking particles!" << std::endl;
   return std::make_pair(result,result_z);
 }
