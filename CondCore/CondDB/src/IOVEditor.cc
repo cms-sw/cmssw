@@ -214,7 +214,8 @@ namespace cond {
 	  // retrieve the last since
 	  cond::Time_t last = 0;
 	  cond::Hash h;
-	  m_session->iovSchema().iovTable().getLastIov( m_data->tag, last, h );
+	  boost::posix_time::ptime no_time;
+	  m_session->iovSchema().iovTable().getLastIov( m_data->tag, no_time, last, h );
 	  // check if the min iov is greater then the last since
 	  if( l <= last ){
 	    std::stringstream msg;
