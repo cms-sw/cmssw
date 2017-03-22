@@ -96,38 +96,38 @@ private:
   }
 
   
-  void Worker::exceptionContext(const std::string& iID,
-                        bool iIsEvent,
+  void Worker::exceptionContext(
                         cms::Exception& ex,
                         ModuleCallingContext const* mcc) {
     
     ModuleCallingContext const* imcc = mcc;
-    while(imcc->type() == ParentContext::Type::kModule) {
+    while( (imcc->type() == ParentContext::Type::kModule) or
+          (imcc->type()  == ParentContext::Type::kInternal) ) {
       std::ostringstream iost;
-      iost << "Calling method for module "
-      << imcc->moduleDescription()->moduleName() << "/'"
+      if( imcc->state() == ModuleCallingContext::State::kPrefetching ) {
+        iost << "Prefetching for module ";
+      } else {
+        iost << "Calling method for module ";
+      }
+      iost << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "'";
+
+      if(imcc->type() == ParentContext::Type::kInternal) {
+        iost << " (probably inside some kind of mixing module)";
+        imcc = imcc->internalContext()->moduleCallingContext();
+      } else {
+        imcc = imcc->moduleCallingContext();
+      }
       ex.addContext(iost.str());
-      imcc = imcc->moduleCallingContext();
-    }
-    if(imcc->type() == ParentContext::Type::kInternal) {
-      std::ostringstream iost;
-      iost << "Calling method for module "
-      << imcc->moduleDescription()->moduleName() << "/'"
-      << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
-      ex.addContext(iost.str());
-      imcc = imcc->internalContext()->moduleCallingContext();
-    }
-    while(imcc->type() == ParentContext::Type::kModule) {
-      std::ostringstream iost;
-      iost << "Calling method for module "
-      << imcc->moduleDescription()->moduleName() << "/'"
-      << imcc->moduleDescription()->moduleLabel() << "'";
-      ex.addContext(iost.str());
-      imcc = imcc->moduleCallingContext();
     }
     std::ostringstream ost;
-    ost << "Calling method for module " << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
+    if( imcc->state() == ModuleCallingContext::State::kPrefetching ) {
+      ost << "Prefetching for module ";
+    } else {
+      ost << "Calling method for module ";
+    }
+    ost << imcc->moduleDescription()->moduleName() << "/'"
+    << imcc->moduleDescription()->moduleLabel() << "'";
     ex.addContext(ost.str());
     
     if (imcc->type() == ParentContext::Type::kPlaceInPath) {
@@ -135,14 +135,26 @@ private:
       ost << "Running path '";
       ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
       ex.addContext(ost.str());
+      auto streamContext =imcc->placeInPathContext()->pathContext()->streamContext();
+      if(streamContext) {
+        ost.str("");
+        edm::exceptionContext(ost,*streamContext);
+        ex.addContext(ost.str());
+      }
+    } else {
+      if (imcc->type() == ParentContext::Type::kStream) {
+        ost.str("");
+        edm::exceptionContext(ost, *(imcc->streamContext()) );
+        ex.addContext(ost.str());
+      } else if(imcc->type() == ParentContext::Type::kGlobal) {
+        ost.str("");
+        edm::exceptionContext(ost, *(imcc->globalContext()) );
+        ex.addContext(ost.str());
+      }
     }
-    ost.str("");
-    ost << "Processing Event ";
-    ost << iID;
-    ex.addContext(ost.str());
   }
 
-  bool Worker::shouldRethrowException(cms::Exception& ex,
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
                                       ParentContext const& parentContext,
                                       bool isEvent,
                                       TransitionIDValueBase const& iID) const {
@@ -153,35 +165,40 @@ private:
     
     // Get the action corresponding to this exception.  However, if processing
     // something other than an event (e.g. run, lumi) always rethrow.
-    exception_actions::ActionCodes action = (isEvent ? actions_->find(ex.category()) : exception_actions::Rethrow);
-    
-    if(action == exception_actions::Rethrow) {
+    if(not isEvent) {
       return true;
     }
+    try {
+      convertException::wrap([&]() {
+        std::rethrow_exception(iPtr);
+      });
+    } catch(cms::Exception &ex) {
+      exception_actions::ActionCodes action = actions_->find(ex.category());
     
-    ModuleCallingContext tempContext(&description(),ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+      if(action == exception_actions::Rethrow) {
+        return true;
+      }
     
-    // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
-    // as IgnoreCompletely, so any subsequent OutputModules are still run.
-    // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
-    ModuleCallingContext const* top_mcc = tempContext.getTopModuleCallingContext();
-    if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
-       top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
+      ModuleCallingContext tempContext(&description(),ModuleCallingContext::State::kInvalid, parentContext, nullptr);
       
-      if ((action == exception_actions::SkipEvent && tempContext.type() == ParentContext::Type::kPlaceInPath) ||
-          action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
-    }
-    switch(action) {
-      case exception_actions::IgnoreCompletely:
-      {
-        exceptionContext(iID.value(), isEvent, ex, &tempContext);
+      // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
+      // as IgnoreCompletely, so any subsequent OutputModules are still run.
+      // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
+      ModuleCallingContext const* top_mcc = tempContext.getTopModuleCallingContext();
+      if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
+         top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
+        
+        if ((action == exception_actions::SkipEvent && tempContext.type() == ParentContext::Type::kPlaceInPath) ||
+            action == exception_actions::FailPath) {
+          action = exception_actions::IgnoreCompletely;
+        }
+      }
+      if(action == exception_actions::IgnoreCompletely) {
         edm::printCmsExceptionWarning("IgnoreCompletely", ex);
         return false;
-        break;
       }
-      default:
-        return true;
     }
+    return true;
   }
 
   
