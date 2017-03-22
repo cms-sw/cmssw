@@ -143,9 +143,10 @@ def _parse_timestamp(timestamp):
 
 
 def _confirm_changes(args):
-    output(args, 'Confirm changes? [n]', newline=False)
-    if not args.yes and raw_input().lower() not in ['y', 'yes']:
-        raise Exception('Aborted by the user.')
+    if not args.yes:
+        output(args, 'Confirm changes? [n]', newline=False)
+        if raw_input().lower() not in ['y', 'yes']:
+            raise Exception('Aborted by the user.')
 
 def _get_user_note(args,message):
     output(args, message, newline=False)
@@ -851,6 +852,7 @@ def listTags_(args):
             all(),
         ['Name', 'TimeType', 'ObjectType', 'Synchronisation', 'EndOfValidity', 'Insertion_time', 'Description'],
     )
+    return 0
 
 
 def listGTsForTag_(args):
@@ -1197,9 +1199,10 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         if destTimeType != tag['time_type']:
             logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
             raise Exception('Time type mismatch, bailing out.')
-        output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
-        if not args.yes and raw_input().lower() not in ['y', 'yes']:
-            raise Exception('Aborted by the user.')
+        if not args.yes:
+            output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
+            if raw_input().lower() not in ['y', 'yes']:
+                raise Exception('Aborted by the user.')
     else:
         session2.add(Tag2(**tag))
         destSynchro = tag['synchronization']
@@ -1337,7 +1340,6 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         logging.debug('Copying IOV %s -> %s...', k, v)
         session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
         niovs += 1
-
     return niovs
 
 def copy(args):
@@ -1371,12 +1373,12 @@ def copy(args):
                 raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, synchronize  or snapshot.')
         if args.synchronize:
             if args.override:
-                raise Exception('Overiding copy is not supported with the synchronization.')
+                raise Exception('Override copy is not supported with the synchronization.')
 
         niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
 
         if niovs!=0:
-            _confirm_changes(args)
+            #_confirm_changes(args)
             note = args.note
             if args.force and args.note is None:
                 note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
@@ -1384,6 +1386,8 @@ def copy(args):
                 note = '-'
             _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
             session2.commit()
+            return 0
+        return -1
 
 
     elif args.type == 'gt':
@@ -1435,6 +1439,7 @@ def copy(args):
 
         _confirm_changes(args)
         session2.commit()
+        return 0
 
 
 def edit(args):
@@ -2043,7 +2048,7 @@ def main():
     else:
         # Only one error line
         try:
-            args.func(args)
+            sys.exit(args.func(args))
         except Exception as e:
             logging.error(e)
             sys.exit(1)
