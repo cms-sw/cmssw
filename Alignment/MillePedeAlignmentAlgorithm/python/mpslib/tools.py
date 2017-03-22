@@ -142,6 +142,7 @@ def get_iovs(db, tag):
     """
 
     db = db.replace("sqlite_file:", "").replace("sqlite:", "")
+    db = db.replace("frontier://FrontierProd/CMS_CONDITIONS", "pro")
 
     con = conddb.connect(url = conddb.make_url(db))
     session = con.session()
