@@ -8,24 +8,17 @@ patJetsBDHadron = patJets.clone(
     addTagInfos = cms.bool(True)
 )
 
-#selectedPatJetsBDHadron = cms.EDFilter("PATJetSelector",
-#    src = cms.InputTag("patJetsBDHadron"),
-#    cut = cms.string("pt > 10.")
-#)
-
-
 # my analyzer
 from Validation.RecoB.BDHadronTrackMonitoring_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
-BDHadronTrackMonitoringAnalyze.PatJetSource = cms.InputTag('patJetsBDHadron')#'selectedPatJetsBDHadron')
-
-
+BDHadronTrackMonitoringAnalyze.PatJetSource = cms.InputTag('patJetsBDHadron')
 
 bdHadronTrackValidationSeq = cms.Sequence(patJetCorrections
 					* patJetCharge*patJetPartonMatch
 					* patJetGenJetMatch*patJetFlavourIdLegacy
 					* patJetFlavourId*patJetsBDHadron
 					* tpClusterProducer
-					* BDHadronTrackMonitoringAnalyze) #patJetsBDHadron * selectedPatJetsBDHadron * 
-
+					* BDHadronTrackMonitoringAnalyze
+					) 
+					
 bdHadronTrackPostProcessor = cms.Sequence(BDHadronTrackMonitoringHarvest)
