@@ -267,8 +267,11 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             // Check if the detId is in the current geometry setup
             // so that L1EG doesn't crash
             if (!hbGeometry->present( hit.id()) ) {
-              //std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
+              std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
               continue;
+            }
+            else {
+              std::cout << " -- YES: Hcal hit DetID is present in HCAL Geom: " << hit.id() << std::endl;
             }
 
             auto cell = hbGeometry->getGeometry(hit.id());
