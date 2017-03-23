@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 
 def setup(process, input_files, collection,
-          json_file = "", cosmics_zero_tesla = False, cosmics_deco_mode = True):
+          json_file = "",
+          cosmics_zero_tesla = False,
+          cosmics_deco_mode = True,
+          TTRHBuilder = None):
     """Mille-specific setup.
 
     Arguments:
@@ -11,6 +14,9 @@ def setup(process, input_files, collection,
     - `collection`: track collection to be used
     - `cosmics_zero_tesla`: triggers the corresponding track selection
     - `cosmics_deco_mode`: triggers the corresponding track selection
+    - `TTRHBuilder`: TransientTrackingRecHitBuilder used in the track selection
+                     and refitting sequence;
+                     defaults to the default of the above-mentioned sequence
     """
 
     # no database output in the mille step:
@@ -25,11 +31,11 @@ def setup(process, input_files, collection,
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackRefitter
-    process.TrackRefittingSequence = trackRefitter.getSequence(
-        process,
-        collection,
-        cosmicsDecoMode = cosmics_deco_mode,
-        cosmicsZeroTesla = cosmics_zero_tesla)
+    kwargs = {"cosmicsDecoMode": cosmics_deco_mode,
+              "cosmicsZeroTesla": cosmics_zero_tesla}
+    if TTRHBuilder is not None: kwargs["TTRHBuilder"] = TTRHBuilder
+    process.TrackRefittingSequence \
+        = trackRefitter.getSequence(process, collection, **kwargs)
 
 
     # Configure the input data
