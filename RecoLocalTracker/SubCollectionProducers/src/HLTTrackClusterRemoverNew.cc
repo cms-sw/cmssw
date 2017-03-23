@@ -141,10 +141,10 @@ HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet& iConfig
       if (not (iConfig.getParameter<InputTag>("oldClusterRemovalInfo")== edm::InputTag())) mergeOld_=true;
     }
 
-  if ((doPixelChargeCheck_ && !doPixel_) || (doStripChargeCheck_ && !doStrip_))
-    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Charge check asked without cluster collection ";
-  if (doPixelChargeCheck_)
-    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Pixel cluster charge check not yet implemented";
+    if ((doPixelChargeCheck_ && !doPixel_) || (doStripChargeCheck_ && !doStrip_))
+      throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Charge check asked without cluster collection ";
+    if (doPixelChargeCheck_)
+      throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Pixel cluster charge check not yet implemented";
 
   fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
