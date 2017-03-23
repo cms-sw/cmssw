@@ -19,10 +19,10 @@ GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap,
   theChamber(chamber) {
   
   // Verbosity level, set to 0 (no print) by default.
-  infoV        = copad.getParameter<int>("verbosity");
-  maxDeltaPadGE11_ = copad.getParameter<int>("maxDeltaPadGE11");
-  maxDeltaPadGE21_ = copad.getParameter<int>("maxDeltaPadGE21");
-  maxDeltaBX_ = copad.getParameter<int>("maxDeltaBX");
+  infoV        = copad.getParameter<unsigned int>("verbosity");
+  maxDeltaPadGE11_ = copad.getParameter<unsigned int>("maxDeltaPadGE11");
+  maxDeltaPadGE21_ = copad.getParameter<unsigned int>("maxDeltaPadGE21");
+  maxDeltaBX_ = copad.getParameter<unsigned int>("maxDeltaBX");
 }
 
 GEMCoPadProcessor::GEMCoPadProcessor() :
@@ -69,7 +69,7 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
     for (auto p = pads_range.first; p != pads_range.second; ++p) {
       for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
 	
-	const int deltaPad(std::abs(p->pad() - co_p->pad()));
+	const unsigned int deltaPad(std::abs(p->pad() - co_p->pad()));
         // check the match in pad
         if ((theStation==1 and deltaPad > maxDeltaPadGE11_) or
 	    (theStation==2 and deltaPad > maxDeltaPadGE21_)) continue;
