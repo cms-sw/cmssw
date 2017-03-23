@@ -103,11 +103,9 @@ void FlatRandomPtAndDxyGunProducer::produce(Event &e, const EventSetup& es)
       for (int j=0; j<100; j++){
 	  vz = CLHEP::RandFlat::shoot(engine, 0.0, lzMax_);// this is abs(vz)
 	  float v0 = vz - DistanceToAPEX_;
-	  if (v0>0 and lxy*lxy/(ConeTheta*ConeTheta)<=(v0*v0))
-	     continue;
-	  else{
-	     passLz = true;
-	     break;
+	  if ( v0<=0 or lxylxy/(ConeTheta*ConeTheta) > v0*v0 ) {
+	      passLz=true;
+	      break;
 	  }
       }
       if (pz<0)
