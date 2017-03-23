@@ -380,7 +380,7 @@ void HcalGeometry::localCorners(Pt3DVec&        lc,
    }
 }
 
-void HcalGeometry::newCell(const GlobalPoint& f1 ,
+unsigned int HcalGeometry::newCellImpl(const GlobalPoint& f1 ,
 			   const GlobalPoint& f2 ,
 			   const GlobalPoint& f3 ,
 			   const CCGFloat*    parm ,
@@ -414,7 +414,30 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
     m_hfCellVec.at( index ) = IdealZPrism( f1, cornersMgr(), parm,  hid.depth()==1 ? IdealZPrism::EM : IdealZPrism::HADR ) ;
   }
 
+  return din;
+}
+
+void HcalGeometry::newCell(const GlobalPoint& f1 ,
+               const GlobalPoint& f2 ,
+               const GlobalPoint& f3 ,
+               const CCGFloat*    parm ,
+               const DetId&       detId) {
+
+  unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
+
   addValidID( detId ) ;
+  m_dins.push_back( din );
+}
+
+void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
+               const GlobalPoint& f2 ,
+               const GlobalPoint& f3 ,
+               const CCGFloat*    parm ,
+               const DetId&       detId) {
+
+  unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
+
+  m_validIds.push_back( detId ) ;
   m_dins.push_back( din );
 }
 
@@ -520,3 +543,12 @@ DetId HcalGeometry::correctId(const DetId& id) const {
     return id;
   }
 }
+
+void HcalGeometry::increaseReserve(unsigned int extra) {
+  m_validIds.reserve(m_validIds.size()+extra);
+}
+
+void HcalGeometry::sortValidIds() {
+  std::sort(m_validIds.begin(),m_validIds.end());
+}
+
