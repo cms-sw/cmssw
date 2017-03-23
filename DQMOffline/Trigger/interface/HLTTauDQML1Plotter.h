@@ -105,6 +105,14 @@ private:
     MonitorElement* secondTauEta_;
     MonitorElement* secondTauPhi_;
 
+    MonitorElement* firstIsoTauEt_;
+    MonitorElement* firstIsoTauEta_;
+    MonitorElement* firstIsoTauPhi_;
+    
+    MonitorElement* secondIsoTauEt_;
+    MonitorElement* secondIsoTauEta_;
+    MonitorElement* secondIsoTauPhi_;
+
     MonitorElement* l1etmEtEffNum_;
     MonitorElement* l1etmEtEffDenom_;
 };
