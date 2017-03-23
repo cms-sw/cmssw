@@ -232,10 +232,8 @@ namespace edm {
     
     virtual SerialTaskQueueChain* serializeRunModule() = 0;
     
-    static void exceptionContext(const std::string& iID,
-                          bool iIsEvent,
-                          cms::Exception& ex,
-                          ModuleCallingContext const* mcc);
+    static void exceptionContext(cms::Exception& ex,
+                                 ModuleCallingContext const* mcc);
     
     /*This base class is used to hide the differences between the ID used
      for Event, LuminosityBlock and Run. Using the base class allows us
@@ -261,7 +259,7 @@ namespace edm {
         
     };
     
-    bool shouldRethrowException(cms::Exception& ex,
+    bool shouldRethrowException(std::exception_ptr iPtr,
                                 ParentContext const& parentContext,
                                 bool isEvent,
                                 TransitionIDValueBase const& iID) const;
@@ -626,11 +624,13 @@ namespace edm {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
 
       //if have TriggerResults based selection we want to reject the event before doing prefetching
-      if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
-        setPassed<T::isEvent_>();
-        waitingTasks_.doneWaiting(nullptr);
-        return;
-      }
+      try {
+        if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+          setPassed<T::isEvent_>();
+          waitingTasks_.doneWaiting(nullptr);
+          return;
+        }
+      }catch(...) {}
       
       auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
         this, ep,es,streamID,parentContext,context);
@@ -645,37 +645,25 @@ namespace edm {
                                    StreamID streamID,
                                    ParentContext const& parentContext,
                                    typename T::Context const* context) {
-    try {
-      convertException::wrap([&]() {
-        if(iEPtr) {
-          assert(*iEPtr);
-          moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
-          std::rethrow_exception(*iEPtr);
-        }
-
-        runModule<T>(ep,es,streamID,parentContext,context);
-      });
-    } catch( cms::Exception& iException) {
+    std::exception_ptr exceptionPtr;
+    if(iEPtr) {
+      assert(*iEPtr);
       TransitionIDValue<typename T::MyPrincipal> idValue(ep);
-      if(shouldRethrowException(iException, parentContext, T::isEvent_, idValue)) {
-        assert(not cached_exception_);
-        std::ostringstream iost;
-        if(iEPtr) {
-          iost<<"Prefetching for module ";
-        } else {
-          iost<<"Calling method for module ";
-        }
-        iost<<description().moduleName() << "/'"
-        << description().moduleLabel() << "'";
-        iException.addContext(iost.str());
-        setException<T::isEvent_>(std::current_exception());
-        waitingTasks_.doneWaiting(cached_exception_);
-        return;
+      if(shouldRethrowException(*iEPtr, parentContext, T::isEvent_, idValue)) {
+        exceptionPtr = *iEPtr;
+        setException<T::isEvent_>(exceptionPtr);
       } else {
         setPassed<T::isEvent_>();
       }
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
+    } else {
+      try {
+        runModule<T>(ep,es,streamID,parentContext,context);
+      } catch(...) {
+        exceptionPtr = std::current_exception();
+      }
     }
-    waitingTasks_.doneWaiting(nullptr);
+    waitingTasks_.doneWaiting(exceptionPtr);
   }
 
   template <typename T>
@@ -692,32 +680,20 @@ namespace edm {
       
       auto toDo =[this, &principal, &es, streamID,parentContext,context, serviceToken]()
       {
+        std::exception_ptr exceptionPtr;
         try {
           //Need to make the services available
           ServiceRegistry::Operate guard(serviceToken);
-          convertException::wrap([&]() {
             
-            this->runModule<T>(principal,
-                                 es,
-                                 streamID,
-                                 parentContext,
-                                 context);
-          });
-        } catch( cms::Exception& iException) {
-          TransitionIDValue<typename T::MyPrincipal> idValue(principal);
-          if(shouldRethrowException(iException, parentContext, T::isEvent_, idValue)) {
-            assert(not this->cached_exception_);
-            std::ostringstream iost;
-            iost<<"Calling method for module ";
-            iost<<this->description().moduleName() << "/'"
-            << this->description().moduleLabel() << "'";
-            iException.addContext(iost.str());
-            setException<T::isEvent_>(std::current_exception());
-            this->waitingTasks_.doneWaiting(this->cached_exception_);
-            return;
-          }
+          this->runModule<T>(principal,
+                               es,
+                               streamID,
+                               parentContext,
+                               context);
+        } catch( ... ) {
+          exceptionPtr = std::current_exception();
         }
-        this->waitingTasks_.doneWaiting(nullptr);
+        this->waitingTasks_.doneWaiting(exceptionPtr);
       };
       if(auto queue = this->serializeRunModule()) {
         queue->push( toDo);
@@ -774,71 +750,71 @@ namespace edm {
 
     auto resetContext = [](ModuleCallingContext* iContext) {iContext->setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr); };
     std::unique_ptr<ModuleCallingContext, decltype(resetContext)> prefetchSentry(&moduleCallingContext_,resetContext);
-    
-    try {
-      convertException::wrap([&]() {
 
-        if (T::isEvent_) {
-
-          //if have TriggerResults based selection we want to reject the event before doing prefetching
-          if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
-            timesRun_.fetch_add(1,std::memory_order_relaxed);
-            rc = setPassed<T::isEvent_>();
-            waitingTasks_.doneWaiting(nullptr);
-            return;
-          }
-          auto waitTask = edm::make_empty_waiting_task();
-          {
-            //Make sure signal is sent once the prefetching is done
-            // [the 'pre' signal was sent in prefetchAsync]
-            //The purpose of this block is to send the signal after wait_for_all
-            auto sentryFunc = [this](void*) {
-              emitPostModuleEventPrefetchingSignal();
-            };
-            std::unique_ptr<ActivityRegistry, decltype(sentryFunc)> signalSentry(actReg_.get(),sentryFunc);
-            
-            //set count to 2 since wait_for_all requires value to not go to 0
-            waitTask->set_ref_count(2);
-
-            prefetchAsync(waitTask.get(),parentContext, ep);
-            waitTask->decrement_ref_count();
-            waitTask->wait_for_all();
-          }
-          if(waitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(waitTask->exceptionPtr()));
-          }
+    if (T::isEvent_) {
+      try {
+        //if have TriggerResults based selection we want to reject the event before doing prefetching
+        if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+          timesRun_.fetch_add(1,std::memory_order_relaxed);
+          rc = setPassed<T::isEvent_>();
+          waitingTasks_.doneWaiting(nullptr);
+          return true;
         }
-        //successful prefetch so no reset necessary
-        prefetchSentry.release();
-        if(auto queue = serializeRunModule()) {
-          auto serviceToken = ServiceRegistry::instance().presentToken();
-          queue->pushAndWait([&]() {
-            //Need to make the services available
-            ServiceRegistry::Operate guard(serviceToken);
-            rc = runModule<T>(ep,es,streamID,parentContext,context);
-          });
+      }catch(...) {}
+      auto waitTask = edm::make_empty_waiting_task();
+      {
+        //Make sure signal is sent once the prefetching is done
+        // [the 'pre' signal was sent in prefetchAsync]
+        //The purpose of this block is to send the signal after wait_for_all
+        auto sentryFunc = [this](void*) {
+          emitPostModuleEventPrefetchingSignal();
+        };
+        std::unique_ptr<ActivityRegistry, decltype(sentryFunc)> signalSentry(actReg_.get(),sentryFunc);
+        
+        //set count to 2 since wait_for_all requires value to not go to 0
+        waitTask->set_ref_count(2);
+        
+        prefetchAsync(waitTask.get(),parentContext, ep);
+        waitTask->decrement_ref_count();
+        waitTask->wait_for_all();
+      }
+      if(waitTask->exceptionPtr() != nullptr) {
+        TransitionIDValue<typename T::MyPrincipal> idValue(ep);
+        if(shouldRethrowException(*waitTask->exceptionPtr(), parentContext, T::isEvent_, idValue)) {
+          setException<T::isEvent_>(*waitTask->exceptionPtr());
+          waitingTasks_.doneWaiting(cached_exception_);
+          std::rethrow_exception(cached_exception_);
         } else {
-          rc = runModule<T>(ep,es,streamID,parentContext,context);
+          setPassed<T::isEvent_>();
+          waitingTasks_.doneWaiting(nullptr);
+          return true;
         }
-      });
-    }
-    catch(cms::Exception& ex) {
-      TransitionIDValue<typename T::MyPrincipal> idValue(ep);
-      if(shouldRethrowException(ex, parentContext, T::isEvent_, idValue)) {
-        assert(not cached_exception_);
-        std::ostringstream iost;
-        iost<<"Calling method for module ";
-        iost<<description().moduleName() << "/'"
-        << description().moduleLabel() << "'";
-        ex.addContext(iost.str());
-
-        setException<T::isEvent_>(std::current_exception());
-        waitingTasks_.doneWaiting(cached_exception_);
-        std::rethrow_exception(cached_exception_);
-      } else {
-        rc = setPassed<T::isEvent_>();
       }
     }
+    
+    //successful prefetch so no reset necessary
+    prefetchSentry.release();
+    if(auto queue = serializeRunModule()) {
+      auto serviceToken = ServiceRegistry::instance().presentToken();
+      queue->pushAndWait([&]() {
+        //Need to make the services available
+        ServiceRegistry::Operate guard(serviceToken);
+        try {
+          rc = runModule<T>(ep,es,streamID,parentContext,context);
+        } catch(...) {
+        }
+      });
+    } else {
+      try {
+        rc = runModule<T>(ep,es,streamID,parentContext,context);
+      } catch(...) {
+      }
+    }
+    if(state_ == Exception) {
+      waitingTasks_.doneWaiting(cached_exception_);
+      std::rethrow_exception(cached_exception_);
+    }
+    
     waitingTasks_.doneWaiting(nullptr);
     return rc;
   }
@@ -858,14 +834,31 @@ namespace edm {
     if (T::isEvent_) {
       timesRun_.fetch_add(1,std::memory_order_relaxed);
     }
-    
-    bool rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
-    
-    if (rc) {
-      setPassed<T::isEvent_>();
-    } else {
-      setFailed<T::isEvent_>();
+
+    bool rc = true;
+    try {
+      convertException::wrap([&]()
+      {
+        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
+        
+        if (rc) {
+          setPassed<T::isEvent_>();
+        } else {
+          setFailed<T::isEvent_>();
+        }
+      });
+    } catch(cms::Exception& ex) {
+      exceptionContext(ex, &moduleCallingContext_);
+      TransitionIDValue<typename T::MyPrincipal> idValue(ep);
+      if(shouldRethrowException(std::current_exception(), parentContext, T::isEvent_, idValue)) {
+        assert(not cached_exception_);
+        setException<T::isEvent_>(std::current_exception());
+        std::rethrow_exception(cached_exception_);
+      } else {
+        rc = setPassed<T::isEvent_>();
+      }
     }
+    
     return rc;
   }
 }
