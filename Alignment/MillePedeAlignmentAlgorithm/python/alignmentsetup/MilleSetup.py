@@ -28,8 +28,6 @@ def setup(process, input_files, collection,
 
     # Track selection and refitting
     # --------------------------------------------------------------------------
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-
     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackRefitter
     kwargs = {"cosmicsDecoMode": cosmics_deco_mode,
               "cosmicsZeroTesla": cosmics_zero_tesla}
@@ -51,6 +49,5 @@ def setup(process, input_files, collection,
 
     # The executed path
     # --------------------------------------------------------------------------
-    process.p = cms.Path(process.offlineBeamSpot*
-                         process.TrackRefittingSequence*
+    process.p = cms.Path(process.TrackRefittingSequence*
                          process.AlignmentProducer)
