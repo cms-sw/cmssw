@@ -44,6 +44,7 @@ namespace hgcal {
     float getPhi(const DetId& id) const;
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
+    inline const CaloGeometry * getGeometry() const {return geom_;};
   private:
     const CaloGeometry* geom_;
   };

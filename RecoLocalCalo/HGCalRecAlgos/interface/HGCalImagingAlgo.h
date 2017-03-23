@@ -50,7 +50,7 @@ class HGCalImagingAlgo
  HGCalImagingAlgo() : vecDeltas(), kappa(1.), ecut(0.), cluster_offset(0),
 		      sigma2(1.0),
 		      algoId(reco::CaloCluster::undefined),
-		      verbosity(pERROR){
+                      verbosity(pERROR),initialized(false){
  }
 
   HGCalImagingAlgo(std::vector<double> vecDeltas_in, double kappa_in, double ecut_in,
@@ -76,6 +76,7 @@ class HGCalImagingAlgo
                                                             nonAgedNoises(nonAgedNoises_in),
                                                             noiseMip(noiseMip_in),
 							    verbosity(the_verbosity),
+                                                            initialized(false),
 							    points(2*(maxlayer+1)),
 							    minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
 							    maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
@@ -107,6 +108,7 @@ class HGCalImagingAlgo
                                                             nonAgedNoises(nonAgedNoises_in),
                                                             noiseMip(noiseMip_in),
 							    verbosity(the_verbosity),
+                                                            initialized(false),
 							    points(2*(maxlayer+1)),
 							    minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
 							    maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
@@ -148,6 +150,8 @@ class HGCalImagingAlgo
 	maxpos[i][0]=0.;maxpos[i][1]=0.;
       }
   }
+  void computeThreshold();
+
   /// point in the space
   typedef math::XYZPoint Point;
 
@@ -185,10 +189,13 @@ class HGCalImagingAlgo
   double fcPerEle;
   std::vector<double> nonAgedNoises;
   double noiseMip;
+  std::vector<std::vector<double> >thresholds;
 
   // The verbosity level
   VerbosityLevel verbosity;
 
+  // initialized
+  bool initialized;
 
   struct Hexel {
 

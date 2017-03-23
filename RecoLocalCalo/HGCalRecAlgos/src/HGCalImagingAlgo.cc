@@ -4,6 +4,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
@@ -12,27 +13,22 @@
 
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
   //loop over all hits and create the Hexel structure, skip energies below ecut
+  computeThreshold();
+  
   for (unsigned int i=0;i<hits.size();++i) {
     const HGCRecHit& hgrh = hits[i];
     DetId detid = hgrh.detid();
     int layer = rhtools_.getLayerWithOffset(detid);
     float thickness = -9999.;
-    unsigned thickIndex = -1;
     float sigmaNoise = -9999.;
     if(dependSensor){
-      if( layer <= 40 ) {
+      if (layer<= 40)
 	thickness = rhtools_.getSiThickness(detid);
-	if( thickness>99. && thickness<101.) thickIndex=0;
-	else if( thickness>199. && thickness<201. ) thickIndex=1;
-	else if( thickness>299. && thickness<301. ) thickIndex=2;
-	else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
-      }
-      if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
-      else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
-      if(hgrh.energy() < ecut*sigmaNoise) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
+      HGCalDetId hgDetId(detid);
+      double storedThreshold=thresholds[layer-1][layer<=40 ? hgDetId.wafer() : 0];
+      if(hgrh.energy() <  storedThreshold) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
     }
     if(!dependSensor && hgrh.energy() < ecut) continue;
-
 
     layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
 
@@ -549,4 +545,57 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
     diff = std::sqrt(diff2);
     //std::cout << " iteration = " << iter << " diff = " << diff << std::endl;
   }
+}
+
+void HGCalImagingAlgo::computeThreshold() {
+
+  if(initialized) return;
+  const std::vector<DetId>& listee(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCEE));
+  const std::vector<DetId>& listfh(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCHEF));
+  //  const std::vector<DetId>& listbh(rhtools_.getGeometry()->getValidDetIds(DetId::Hcal,HcalSubdetector::HcalEndcap));
+  
+  std::vector<double> dummy;
+  dummy.resize(700,0);
+  thresholds.resize(52,dummy);
+  float thickness=-9999;
+  unsigned thickIndex = -1;
+  float sigmaNoise = -9999.;
+  int previouswafer=-999;
+  int layer = -999;
+  int wafer=-999;
+
+  for(unsigned icalo=0;icalo<2;++icalo) 
+    {
+      const std::vector<DetId>& listDetId( icalo==0 ? listee : listfh);
+      unsigned nDetIds=listDetId.size();
+
+      for(unsigned i=0;i<nDetIds;++i) 
+	{
+	  HGCalDetId detid = listDetId[i];
+	  wafer=detid.wafer();
+	  if(wafer==previouswafer) continue;
+	  previouswafer=detid.wafer();
+	  // no need to do it twice
+	  if(detid.zside()<0) continue;
+	  layer = rhtools_.getLayerWithOffset(detid);
+
+	  thickness = rhtools_.getSiThickness(detid);
+	  if( thickness>99. && thickness<101.) thickIndex=0;
+	  else if( thickness>199. && thickness<201. ) thickIndex=1;
+	  else if( thickness>299. && thickness<301. ) thickIndex=2;
+	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
+	  sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
+	}
+    }
+
+  // now BH, much faster
+  for ( unsigned ilayer=layer+1;ilayer<=52;++ilayer)
+    {
+      sigmaNoise = 0.001 * noiseMip * dEdXweights[ilayer];
+      dummy.clear();
+      dummy.push_back(sigmaNoise*ecut);
+      thresholds[ilayer-1]=dummy;
+    }
+  initialized=true;
 }
