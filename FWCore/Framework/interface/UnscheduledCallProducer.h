@@ -67,7 +67,9 @@ namespace edm {
             worker->doWork<T>(p, es, streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
-            addContextToException<T>(ex,worker,p.id());
+            if(ex.context().empty()) {
+              addContextToException<T>(ex,worker,p.id());
+            }
             throw;
           }
         }
