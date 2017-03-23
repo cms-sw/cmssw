@@ -201,9 +201,7 @@ def miniAOD_customizeCommon(process):
     #
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileupJetId)
-    task.add(process.pileupJetIdCalculator)
-    task.add(process.pileupJetIdEvaluator)
+    task.add(process.pileUpJetIDTask)
 
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
