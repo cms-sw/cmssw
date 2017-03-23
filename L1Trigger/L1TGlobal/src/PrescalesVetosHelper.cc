@@ -17,7 +17,7 @@ PrescalesVetosHelper::PrescalesVetosHelper(L1TGlobalPrescalesVetos * w) {
   write_ = w; 
   check_write(); 
   we_own_write_ = false;
-  write_->version_ = VERSION; 
+  write_->version_ = VERSION_; 
   read_ = write_; 
 }
 

@@ -1,3 +1,7 @@
+
+#ifndef ADD_PhThLUTs
+#define ADD_PhThLUTs
+
 int PhInit[12][5][12] = {
 {//sector 0
 {//station 0
@@ -7927,3 +7931,5 @@ unsigned int ThDisp[12][51] = {
     0x6,   0x4,   0x5,   0x4,   0x5,   0x6,   0x4,   0x6,   0x4,   0x6,   0x4      },
 };
 // THDISP.pl merged 12 files
+
+#endif

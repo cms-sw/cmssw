@@ -10,7 +10,11 @@ l1t::Muon::Muon()
     hwIsoSum_(0),
     hwDPhiExtra_(0),
     hwDEtaExtra_(0),
-    hwRank_(0)
+    hwRank_(0),
+    hwEtaAtVtx_(0),
+    hwPhiAtVtx_(0),
+    etaAtVtx_(0.),
+    phiAtVtx_(0.)
 {
 
 }
@@ -29,7 +33,11 @@ l1t::Muon::Muon( const LorentzVector& p4,
     int isoSum,
     int dPhi,
     int dEta,
-    int rank )
+    int rank,
+    int hwEtaAtVtx,
+    int hwPhiAtVtx,
+    double etaAtVtx,
+    double phiAtVtx)
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
@@ -39,7 +47,11 @@ l1t::Muon::Muon( const LorentzVector& p4,
     hwIsoSum_(isoSum),
     hwDPhiExtra_(dPhi),
     hwDEtaExtra_(dEta),
-    hwRank_(rank)
+    hwRank_(rank),
+    hwEtaAtVtx_(hwEtaAtVtx),
+    hwPhiAtVtx_(hwPhiAtVtx),
+    etaAtVtx_(etaAtVtx),
+    phiAtVtx_(phiAtVtx)
 {
   
 }
@@ -58,7 +70,11 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     int isoSum,
     int dPhi,
     int dEta,
-    int rank )
+    int rank,
+    int hwEtaAtVtx,
+    int hwPhiAtVtx,
+    double etaAtVtx,
+    double phiAtVtx)
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
@@ -68,7 +84,11 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     hwIsoSum_(isoSum),
     hwDPhiExtra_(dPhi),
     hwDEtaExtra_(dEta),
-    hwRank_(rank)
+    hwRank_(rank),
+    hwEtaAtVtx_(hwEtaAtVtx),
+    hwPhiAtVtx_(hwPhiAtVtx),
+    etaAtVtx_(etaAtVtx),
+    phiAtVtx_(phiAtVtx)
 {
   
 }
@@ -102,25 +122,49 @@ l1t::Muon::setTfMuonIndex(int index)
   tfMuonIndex_ = index;
 }
 
-void 
+void
+l1t::Muon::setHwEtaAtVtx(int hwEtaAtVtx)
+{
+  hwEtaAtVtx_ = hwEtaAtVtx;
+}
+
+void
+l1t::Muon::setHwPhiAtVtx(int hwPhiAtVtx)
+{
+  hwPhiAtVtx_ = hwPhiAtVtx;
+}
+
+void
+l1t::Muon::setEtaAtVtx(double etaAtVtx)
+{
+  etaAtVtx_ = etaAtVtx;
+}
+
+void
+l1t::Muon::setPhiAtVtx(double phiAtVtx)
+{
+  phiAtVtx_ = phiAtVtx;
+}
+
+void
 l1t::Muon::setHwIsoSum(int isoSum) 
 {
   hwIsoSum_ = isoSum;
 }
 
-void 
+void
 l1t::Muon::setHwDPhiExtra(int dPhi)
 {
   hwDPhiExtra_ = dPhi;
 }
 
-void 
+void
 l1t::Muon::setHwDEtaExtra(int dEta) 
 {
   hwDEtaExtra_ = dEta;
 }
 
-void 
+void
 l1t::Muon::setHwRank(int rank) 
 {
   hwRank_ = rank;
@@ -156,25 +200,49 @@ l1t::Muon::tfMuonIndex() const
   return tfMuonIndex_;
 }
 
-int 
+int
+l1t::Muon::hwEtaAtVtx() const
+{
+  return hwEtaAtVtx_;
+}
+
+int
+l1t::Muon::hwPhiAtVtx() const
+{
+  return hwPhiAtVtx_;
+}
+
+double
+l1t::Muon::etaAtVtx() const
+{
+  return etaAtVtx_;
+}
+
+double
+l1t::Muon::phiAtVtx() const
+{
+  return phiAtVtx_;
+}
+
+int
 l1t::Muon::hwIsoSum() const 
 {
   return hwIsoSum_;
 }
 
-int 
+int
 l1t::Muon::hwDPhiExtra() const
 {
   return hwDPhiExtra_;
 }
 
-int 
+int
 l1t::Muon::hwDEtaExtra() const
 {
   return hwDEtaExtra_;
 }
 
-int 
+int
 l1t::Muon::hwRank() const
 {
   return hwRank_;

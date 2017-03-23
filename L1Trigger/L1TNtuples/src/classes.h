@@ -23,6 +23,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloTowerDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloClusterDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisBMTFInputsDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1HODataFormat.h"
 
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTauDataFormat.h"
@@ -54,6 +55,7 @@ namespace{
     L1Analysis::L1AnalysisL1UpgradeDataFormat      pL1upgrade; 
     L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat pL1upgradeTfMuon; 
     L1Analysis::L1AnalysisBMTFInputsDataFormat     pL1bmtfinputs;
+    L1Analysis::L1AnalysisL1HODataFormat           pL1HOMuon; 
     L1Analysis::L1AnalysisL1CaloTowerDataFormat      pL1calotower; 
     L1Analysis::L1AnalysisL1CaloClusterDataFormat      pL1calocluster; 
 
