@@ -1,7 +1,7 @@
 // HGCal Trigger 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-//#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 // HGCalClusters and detId
@@ -363,5 +363,8 @@ namespace HGCalTriggerBackend{
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
 //
 typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodec,HGCalTriggerCellBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
+typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellThresholdCodec,HGCalTriggerCellThresholdDataPayload> HGCalTriggerSimClusterThreshold;
+
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
+DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterThreshold,"HGCalTriggerSimClusterThreshold");
 
