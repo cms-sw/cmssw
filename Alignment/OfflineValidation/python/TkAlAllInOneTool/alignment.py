@@ -4,25 +4,31 @@ import os
 from TkAlExceptions import AllInOneError
 
 class Alignment(object):
+    condShorts = {
+        "TrackerAlignmentErrorExtendedRcd": {
+            "zeroAPE_phase0": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerIdealGeometryErrorsExtended210_mc",
+                "labelName": ""
+            },
+            "zeroAPE_phase1": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0",
+                "labelName": ""
+            },
+        },
+        "TrackerSurfaceDeformationRcd": {
+            "zeroDeformations": {
+                "connectString":("frontier://FrontierProd"
+                                         "/CMS_CONDITIONS"),
+                "tagName": "TrackerSurfaceDeformations_zero",
+                "labelName": ""
+            },
+        },
+    }
     def __init__(self, name, config, runGeomComp = "1"):
-        self.condShorts = {
-            "TrackerAlignmentErrorExtendedRcd": {
-                "zeroAPE": {
-                    "connectString":("frontier://FrontierProd"
-                                             "/CMS_CONDITIONS"),
-                    "tagName": "TrackerIdealGeometryErrorsExtended210_mc",
-                    "labelName": ""
-                }
-            },
-            "TrackerSurfaceDeformationRcd": {
-                "zeroDeformations": {
-                    "connectString":("frontier://FrontierProd"
-                                             "/CMS_CONDITIONS"),
-                    "tagName": "TrackerSurfaceDeformations_zero",
-                    "labelName": ""
-                }
-            },
-        }
         section = "alignment:%s"%name
         if not config.has_section( section ):
             raise AllInOneError("section %s not found. Please define the "
@@ -85,6 +91,10 @@ class Alignment(object):
                             self.condShorts[rcdName][shorthand]["connectString"],
                             self.condShorts[rcdName][shorthand]["tagName"],
                             self.condShorts[rcdName][shorthand]["labelName"]]
+                    elif rcdName == "TrackerAlignmentErrorExtendedRcd" and condPars[0] == "zeroAPE":
+                        raise AllInOneError("Please specify either zeroAPE_phase0 or zeroAPE_phase1")
+                        #can probably make zeroAPE an alias of zeroAPE_phase1 at some point,
+                        #but not sure if now is the time
                     else:
                         msg = ("In section [%s]: '%s' is used with '%s', "
                                "which is an unknown shorthand for '%s'. Either "
