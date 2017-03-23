@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 def getSequence(process, collection,
                 saveCPU = False,
                 TTRHBuilder = "WithAngleAndTemplate",
-                usePixelQualityFlag = True,
+                usePixelQualityFlag = None,
                 openMassWindow = False,
                 cosmicsDecoMode = False,
                 cosmicsZeroTesla = True,
@@ -27,6 +27,11 @@ def getSequence(process, collection,
                  This option is currently not recommended.
     - `TTRHBuilder`: Option used for the Track(Re)Fitter modules.
     - `usePixelQualityFlag`: Option used for the TrackHitFilter module.
+                             Defaults to 'True' but is automatically set to
+                             'False' if a `TTRHBuilder` without templates is
+                             used.
+                             If this is still wanted for some reason, one can
+                             explicitely specify it as 'True'.
     - `openMassWindow`: Used to configure the TwoBodyDecaySelector for ZMuMu.
     - `cosmicsDecoMode`: If set to 'True' a lower Signal/Noise cut is used.
     - `cosmicsZeroTesla`: If set to 'True' a 0T-specific selection is used.
@@ -34,6 +39,18 @@ def getSequence(process, collection,
                             track refitting, e.g. for CRUZET data, you need
                             to provide here the name of the constraint module.
     """
+
+    ###################################################
+    # resolve default values incl. consistency checks #
+    ###################################################
+
+    if usePixelQualityFlag is None:
+        if "Template" not in TTRHBuilder:
+            usePixelQualityFlag = False # not defined without templates
+            print "Using 'TTRHBuilder' without templates:", TTRHBuilder
+            print " --> Turning off pixel quality flag in hit filter."
+        else:
+            usePixelQualityFlag = True # default for usage with templates
 
 
     #############################
