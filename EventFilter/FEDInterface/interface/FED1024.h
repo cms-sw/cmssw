@@ -112,27 +112,36 @@ namespace evf{
 
     class TCDSBST{
     public:
-      struct bst{
-	uint32_t gpstimelow;
-	uint32_t gpstimehigh;
-	uint32_t low0;
-	uint32_t high0;
-	uint32_t low1;
-	uint32_t high1;
-	uint32_t low2;
-	uint32_t high2;
-	uint32_t low3;
-	uint32_t high3;
-	uint32_t low4;
-	uint32_t high4;
-	uint32_t low5;
-	uint32_t status;
+      union tcdsbst {
+        uint64_t words[8];
+        struct {
+          uint32_t gpstimelow;
+          uint32_t gpstimehigh;
+          uint32_t bireserved8_11;
+          uint32_t bireserved12_15;
+          uint16_t bstMaster_bireserved16;
+          uint16_t turnCountLow;
+          uint16_t turnCountHigh;
+          uint16_t lhcFillLow;
+          uint16_t lhcFillHigh;
+          uint16_t beamMode;
+          uint16_t particleTypes;
+          uint16_t beamMomentum;
+          uint32_t intensityBeam1;
+          uint32_t intensityBeam2;
+          uint32_t bireserved40_43;
+          uint32_t bireserved44_47;
+          uint32_t bireserved48_51;
+          uint32_t bireserved52_55;
+          uint32_t bireserved56_59;
+          uint32_t bireserved60_63;
+        } bst;
       };
-      TCDSBST(const unsigned char *p) : b((bst*)p){
+      TCDSBST(const unsigned char *p) : b((tcdsbst*)p){
       }
-      const bst &getBST(){return *b;}
+      const tcdsbst &getBST(){return *b;}
     private:
-      bst *b;
+      tcdsbst *b;
     };
 
     class TCDSRecord{
