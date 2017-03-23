@@ -286,8 +286,11 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-
-  <class name="pat::PackedCandidate" ClassVersion="27">
+  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="10">
+   <version ClassVersion="10" checksum="3320406063"/>
+  </class>
+  <class name="pat::PackedCandidate" ClassVersion="28">
+   <version ClassVersion="28" checksum="2333826691"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>
@@ -311,16 +314,12 @@
     <field name="vertex_" transient="true" />
     <field name="dxy_" transient="true" />
     <field name="dz_" transient="true" />
+    <field name="dtrkpt_" transient="true" />
     <field name="dphi_" transient="true" />
-    <field name="dxydxy_" transient="true" />
-    <field name="dzdz_" transient="true" />
-    <field name="dxydz_" transient="true" />
-    <field name="dlambdadz_" transient="true" />
-    <field name="dphidxy_" transient="true" />
-    <field name="dphidphi_" transient="true" />
-    <field name="detadeta_" transient="true" />
-    <field name="dptdpt_" transient="true" />
     <field name="track_" transient="true" />
+    <field name="m_" transient="true" />
+    <!--- <field name="covariance_load_flag" transient="true"/> -->
+   <!--- <field name="covarianceParameterization_" transient="true" />-->
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
@@ -338,6 +337,14 @@
     <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
+<!---  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-27]" targetClass="pat::PackedCandidate"
+   target="packedCovariance_" embed="false" include="DataFormats/PatCandidates/interface/ioread_legacycovariance.h" >
+   <![CDATA[
+            packedCovariance_ = legacyCovarianceUnpacking(onfile.packedCovarianceDxyDxy_ , onfile.packedCovarianceDxyDz_ , onfile.packedCovarianceDzDz_, onfile.packedCovarianceDlambdaDz_, onfile.packedCovarianceDphiDxy_, onfile.packedCovarianceDptDpt_, onfile.packedCovarianceDetaDeta_, onfile.packedCovarianceDphiDphi_);
+   ]]>
+   </ioread>-->
+
+
 
   <class name="pat::PackedGenParticle" ClassVersion="12">
     <version ClassVersion="12" checksum="2626711017"/>
