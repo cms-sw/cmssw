@@ -117,6 +117,15 @@ def get_tags(global_tag, records):
 
     if len(records) == 0: return {} # avoid useless DB query
 
+    # check for auto GT
+    if global_tag.startswith("auto:"):
+        import Configuration.AlCa.autoCond as AC
+        try:
+            global_tag = AC.autoCond[global_tag.split("auto:")[-1]]
+        except KeyError:
+            print "Unsupported auto GT:", global_tag
+            sys.exit(1)
+
     # setting up the DB session
     con = conddb.connect(url = conddb.make_url())
     session = con.session()
