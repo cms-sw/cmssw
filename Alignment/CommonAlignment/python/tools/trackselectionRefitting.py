@@ -72,7 +72,7 @@ def getSequence(process, collection,
     options["TrackSelector"]["Alignment"] = {
         "filter": True,
         "pMin": 3.0,
-        "nHitMin2D": 2,        
+        "nHitMin2D": 2,
         "d0Min": -50.0,
         "d0Max": 50.0,
         "etaMin": -3.0,
@@ -111,7 +111,8 @@ def getSequence(process, collection,
     #########################################
     isCosmics = False
 
-    if collection == "ALCARECOTkAlMinBias" or collection == "generalTracks" or collection == "ALCARECOTkAlMinBiasHI" or collection == "hiGeneralTracks":
+    if collection in ("ALCARECOTkAlMinBias", "generalTracks",
+                      "ALCARECOTkAlMinBiasHI", "hiGeneralTracks"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
@@ -142,7 +143,9 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1
                 })
-    elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
+    elif collection in ("ALCARECOTkAlMuonIsolated",
+                        "ALCARECOTkAlMuonIsolatedHI",
+                        "ALCARECOTkAlMuonIsolatedPA"):
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
                 "ptMin": 5.0,
@@ -150,7 +153,9 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1,
                 })
-    elif collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
+    elif collection in ("ALCARECOTkAlZMuMu",
+                        "ALCARECOTkAlZMuMuHI",
+                        "ALCARECOTkAlZMuMuPA"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 15.0,
                 "etaMin": -3.0,
@@ -219,7 +224,7 @@ def getSequence(process, collection,
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackRefitter", "Second", {"method": "load",
                                              "clone": True})]
-        if isCosmics: mods = mods[1:]
+        if isCosmics: mods = mods[1:] # skip high purity selector for cosmics
 
 
 
