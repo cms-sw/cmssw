@@ -65,6 +65,7 @@ def getSequence(process, collection,
         }
     options["TrackRefitter"]["First"] = {
         "NavigationSchool": "",
+        "TTRHBuilder": TTRHBuilder
         }
     options["TrackRefitter"]["Second"] = {
         "NavigationSchool": "",
