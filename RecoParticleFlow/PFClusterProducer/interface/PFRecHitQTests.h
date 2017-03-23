@@ -387,13 +387,13 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-class PFRecHitQTestECALThreshold : public PFRecHitQTestBase {
+class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
  public:
-  PFRecHitQTestECALThreshold() {
+  PFRecHitQTestECALMultiThreshold() {
 
   }
 
-  PFRecHitQTestECALThreshold(const edm::ParameterSet& iConfig):
+  PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig)
     {
       thresholds_ = iConfig.getParameter<std::vector<double> >("thresholds");
