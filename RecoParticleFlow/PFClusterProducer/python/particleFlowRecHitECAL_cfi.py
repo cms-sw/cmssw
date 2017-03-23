@@ -19,7 +19,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
              srFlags = cms.InputTag("ecalDigis"),
              qualityTests = cms.VPSet(
                   cms.PSet(
-                  name = cms.string("PFRecHitQTestECALThreshold"),
+                  name = cms.string("PFRecHitQTestECALMultiThreshold"),
                   thresholds = particle_flow_zero_suppression_ECAL.thresholds
                   ),
                   cms.PSet(
@@ -37,7 +37,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
             srFlags = cms.InputTag("ecalDigis"),
             qualityTests = cms.VPSet(
                  cms.PSet(
-                 name = cms.string("PFRecHitQTestECALThreshold"),
+                 name = cms.string("PFRecHitQTestECALMultiThreshold"),
                  thresholds = particle_flow_zero_suppression_ECAL.thresholds
                  ),
                  cms.PSet(
