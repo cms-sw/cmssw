@@ -16,7 +16,7 @@ def getSequence(process, collection,
     subsequent processing steps.
     The modules in the sequence are already attached to the given `process`
     object using the given track collection `collection` and the given
-    optionial arguments.
+    optional arguments.
 
     Arguments:
     - `process`: 'cms.Process' object to which the modules of the sequence will
@@ -241,6 +241,13 @@ def getSequence(process, collection,
 
 
 
+    #######################################################
+    # load offline beam spot module required by the refit #
+    #######################################################
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+
+
+
     ###############################
     ## put the sequence together ##
     ###############################
@@ -262,9 +269,9 @@ def getSequence(process, collection,
                          isCosmics = isCosmics, **(mods[-1][2]))
         modules.append(getattr(process, src))
 
-    moduleSum = modules[0]
-    for mod in modules[1:]:
-        moduleSum += mod
+    moduleSum = process.offlineBeamSpot        # first element of the sequence
+    for module in modules: moduleSum += module # append the other modules
+
     return cms.Sequence(moduleSum)
 
 
