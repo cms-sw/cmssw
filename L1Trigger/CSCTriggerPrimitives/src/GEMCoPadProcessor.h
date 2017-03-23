@@ -46,21 +46,20 @@ class GEMCoPadProcessor
   // declusterizes the clusters into single pad digis
   void declusterize(const GEMPadDigiClusterCollection*, GEMPadDigiCollection&);
 
-  /** Verbosity level: 0: no print (default).
-   *                   1: print only CoPads found.
-   *                   2: info at every step of the algorithm.
-   *                   3: add special-purpose prints. */
-  int infoV;
-
   /** Chamber id (trigger-type labels). */
   const int theEndcap;
   const int theStation;
   const int theRing;
   const int theChamber;
 
-  int maxDeltaPadGE11_;
-  int maxDeltaPadGE21_;
-  int maxDeltaBX_;
+  /** Verbosity level: 0: no print (default).
+   *                   1: print only CoPads found.
+   *                   2: info at every step of the algorithm.
+   *                   3: add special-purpose prints. */
+  unsigned int infoV;
+  unsigned int maxDeltaPadGE11_;
+  unsigned int maxDeltaPadGE21_;
+  unsigned int maxDeltaBX_;
 
   // output collection
   std::vector<GEMCoPadDigi> gemCoPadV;
