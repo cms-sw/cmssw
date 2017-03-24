@@ -36,7 +36,8 @@ class DQMGenericClient : public DQMEDHarvester
   enum class EfficType {
     none = 0,
     efficiency,
-    fakerate
+    fakerate,
+    simpleratio
   };
 
   struct EfficOption
