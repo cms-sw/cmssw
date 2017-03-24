@@ -34,7 +34,7 @@ namespace edm {
   class Adjuster : public AdjusterBase {
 
   public:
-    Adjuster(InputTag const& tag, edm::ConsumesCollector&& iC);
+    Adjuster(InputTag const& tag, edm::ConsumesCollector&& iC, bool wrap);
 
     virtual ~Adjuster() {}
 
@@ -75,9 +75,11 @@ namespace edm {
   }
 
   template<typename T>
-  Adjuster<T>::Adjuster(InputTag const& tag, ConsumesCollector&& iC) : tag_(tag), token_(iC.consumes<T>(tag)) {
-    std::string Musearch = tag_.instance();
-    if(Musearch.find("Muon") == 0) WrapT_ = true; // wrap time for neutrons in Muon system subdetectors
+    Adjuster<T>::Adjuster(InputTag const& tag, ConsumesCollector&& iC, bool wrapLongTimes) : tag_(tag), token_(iC.consumes<T>(tag)) {
+    if(wrapLongTimes) {
+      std::string Musearch = tag_.instance();
+      if(Musearch.find("Muon") == 0) WrapT_ = true; // wrap time for neutrons in Muon system subdetectors
+    }
   }
 }
 
