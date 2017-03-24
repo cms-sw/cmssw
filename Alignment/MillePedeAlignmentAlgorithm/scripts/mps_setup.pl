@@ -193,13 +193,6 @@ if ($mssDir ne "") {
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
   }
 
-  $testMssDir = `$Mpslib::eos ls -d $mssDir`;
-  chomp $testMssDir;
-  if ($testMssDir eq "") {
-    print "Bad MSS directory name $mssDir\n";
-    exit 1;
-  }
-
 }
 
 $pedeMemMin = 1024; # Minimum memory allocated for pede: 1024MB=1GB

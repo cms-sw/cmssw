@@ -216,6 +216,34 @@ def check_iov_definition(cms_process, first_run):
     return problematic_gt_inputs
 
 
+def create_mass_storage_directory(mps_dir_name, general_options):
+    """Create MPS mass storage directory where, e.g., mille binaries are stored.
+
+    Arguments:
+    - `mps_dir_name`: campaign name
+    - `general_options`: general options dictionary
+    """
+
+    # set directory on eos
+    mss_dir = general_options.get("massStorageDir",
+                                  "/store/caf/user/"+os.environ["USER"])
+    mss_dir = os.path.join(mss_dir, "MPproduction", mps_dir_name)
+
+    cmd = ["/afs/cern.ch/project/eos/installation/cms/bin/eos.select",
+           "mkdir", "-p", mss_dir]
+
+    # create directory
+    if not general_options.get("testMode", False):
+        try:
+            with open(os.devnull, "w") as dump:
+                subprocess.check_call(cmd, stdout = dump, stderr = dump)
+        except subprocess.CalledProcessError:
+            print "Failed to create mass storage directory:", mss_dir
+            sys.exit(1)
+
+    return mss_dir
+
+
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
 
@@ -268,13 +296,6 @@ else:
     print currentDir
     sys.exit(1)
 
-# set directory on eos
-mssDir = '/store/caf/user/'+os.environ['USER']+'/MPproduction/'+mpsdirname
-
-# create directory on eos if it doesn't exist already
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-os.system(eos+' mkdir -p '+mssDir)
-
 
 
 #------------------------------------------------------------------------------
@@ -300,12 +321,15 @@ else:
     print "Be sure to give a full path in inputFileList."
 
 # check for default options
-for var in ['globaltag','configTemplate','json']:
+for var in ("globaltag", "configTemplate", "json", "massStorageDir", "testMode"):
     try:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
-        print 'No default', var, 'given in [general] section.'
+        if var == "testMode": continue
+        print "No '" + var + "' given in [general] section."
 
+# create mass storage directory
+mssDir = create_mass_storage_directory(mpsdirname, generalOptions)
 
 
 pedesettings = ([x.strip() for x in config.get("general", "pedesettings").split(",")]
@@ -595,6 +619,7 @@ for section in config.sections():
               generalOptions['jobname'],
               pedeScript,
               mssDir)
+
         # Some output:
         print 'Submitting dataset:', datasetOptions['name']
         print 'Baseconfig:        ', datasetOptions['configTemplate']
