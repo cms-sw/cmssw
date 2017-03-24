@@ -1,7 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <iostream>
 
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
@@ -10,6 +10,8 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+//#define EDM_ML_DEBUG
 
 HcalGeometry::HcalGeometry(const HcalTopology& topology) :
   m_topology(topology), m_mergePosition(topology.getMergePositionFlag()) {
@@ -20,12 +22,14 @@ HcalGeometry::~HcalGeometry() {}
 
 void HcalGeometry::init() {
   if (!m_topology.withSpecialRBXHBHE()) m_mergePosition = false;
-  edm::LogInfo("HcalGeometry") << "HcalGeometry::init() "
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalGeometry: " << "HcalGeometry::init() "
 			       << " HBSize " << m_topology.getHBSize() 
 			       << " HESize " << m_topology.getHESize() 
 			       << " HOSize " << m_topology.getHOSize() 
-			       << " HFSize " << m_topology.getHFSize();
-    
+			       << " HFSize " << m_topology.getHFSize() << std::endl;
+#endif
+
   m_hbCellVec = HBCellVec( m_topology.getHBSize() ) ;
   m_heCellVec = HECellVec( m_topology.getHESize() ) ;
   m_hoCellVec = HOCellVec( m_topology.getHOSize() ) ;
@@ -391,11 +395,13 @@ unsigned int HcalGeometry::newCellImpl(const GlobalPoint& f1 ,
   const HcalDetId hid ( detId ) ;
   unsigned int din=m_topology.detId2denseId(detId);
 
-  edm::LogInfo("HcalGeometry") << " newCell subdet "
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalGeometry: " << " newCell subdet "
  	    << detId.subdetId() << ", raw ID " 
  	    << detId.rawId() << ", hid " << hid << ", din " 
- 	    << din << ", index ";
-  
+ 	    << din << ", index " << std::endl;
+#endif
+
   if (hid.subdet()==HcalBarrel) {
     m_hbCellVec.at( din ) = IdealObliquePrism( f1, cornersMgr(), parm ) ;
   } else if (hid.subdet()==HcalEndcap) {
