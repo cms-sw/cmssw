@@ -55,6 +55,7 @@
     <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
     <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
     <Numeric name="Sectors"     value="18"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       [etaMax:slope], [hgcal:slope1]</Vector>
