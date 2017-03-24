@@ -1512,7 +1512,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("pix_zx", &pix_zx);
     t->Branch("pix_radL", &pix_radL);
     t->Branch("pix_bbxi", &pix_bbxi);
-    t->Branch("pix_bbxi", &pix_bbxi);
     //strips
     if (includeStripHits_) {
       t->Branch("str_isBarrel", &str_isBarrel);
