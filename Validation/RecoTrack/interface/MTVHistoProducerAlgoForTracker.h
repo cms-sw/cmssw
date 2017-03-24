@@ -248,9 +248,9 @@ class MTVHistoProducerAlgoForTracker {
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta,
-    nPXBhits_vs_eta, nPXFhits_vs_eta,
+    nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
     nTIBhits_vs_eta,nTIDhits_vs_eta,
-    nTOBhits_vs_eta,nTEChits_vs_eta,
+    nTOBhits_vs_eta,nTEChits_vs_eta, nSTRIPhits_vs_eta,
     nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
     nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
 

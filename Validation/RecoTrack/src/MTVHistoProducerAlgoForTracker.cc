@@ -574,10 +574,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   nhits_vs_eta.push_back( ibook.bookProfile("hits_eta","mean hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nPXBhits_vs_eta.push_back( ibook.bookProfile("PXBhits_vs_eta","mean # PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nPXFhits_vs_eta.push_back( ibook.bookProfile("PXFhits_vs_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nPXLhits_vs_eta.push_back( ibook.bookProfile("PXLhits_vs_eta","mean # PXL hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTIBhits_vs_eta.push_back( ibook.bookProfile("TIBhits_vs_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTIDhits_vs_eta.push_back( ibook.bookProfile("TIDhits_vs_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTOBhits_vs_eta.push_back( ibook.bookProfile("TOBhits_vs_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTEChits_vs_eta.push_back( ibook.bookProfile("TEChits_vs_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nSTRIPhits_vs_eta.push_back( ibook.bookProfile("STRIPhits_vs_eta","mean # STRIP hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
   nLayersWithMeas_vs_eta.push_back( ibook.bookProfile("LayersWithMeas_eta","mean # Layers with measurement vs eta",
                                                       nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
@@ -1189,12 +1191,20 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     const auto eta = getEta(track.eta());
     chi2_vs_eta[count]->Fill(eta, track.normalizedChi2());
     nhits_vs_eta[count]->Fill(eta, track.numberOfValidHits());
-    nPXBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelBarrelHits());
-    nPXFhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelEndcapHits());
-    nTIBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIBHits());
-    nTIDhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIDHits());
-    nTOBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTOBHits());
-    nTEChits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTECHits());
+    const auto pxbHits = track.hitPattern().numberOfValidPixelBarrelHits();
+    const auto pxfHits = track.hitPattern().numberOfValidPixelEndcapHits();
+    const auto tibHits = track.hitPattern().numberOfValidStripTIBHits();
+    const auto tidHits = track.hitPattern().numberOfValidStripTIDHits();
+    const auto tobHits = track.hitPattern().numberOfValidStripTOBHits();
+    const auto tecHits = track.hitPattern().numberOfValidStripTECHits();
+    nPXBhits_vs_eta[count]->Fill(eta, pxbHits);
+    nPXFhits_vs_eta[count]->Fill(eta, pxfHits);
+    nPXLhits_vs_eta[count]->Fill(eta, pxbHits+pxfHits);
+    nTIBhits_vs_eta[count]->Fill(eta, tibHits);
+    nTIDhits_vs_eta[count]->Fill(eta, tidHits);
+    nTOBhits_vs_eta[count]->Fill(eta, tobHits);
+    nTEChits_vs_eta[count]->Fill(eta, tecHits);
+    nSTRIPhits_vs_eta[count]->Fill(eta, tibHits+tidHits+tobHits+tecHits);
     nLayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().trackerLayersWithMeasurement());
     nPXLlayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().pixelLayersWithMeasurement());
     int LayersAll = track.hitPattern().stripLayersWithMeasurement();
