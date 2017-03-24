@@ -72,6 +72,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     const string typeName = args.size() == 4 ? "eff" : args[4];
     if ( typeName == "eff" ) opt.type = EfficType::efficiency;
     else if ( typeName == "fake" ) opt.type = EfficType::fakerate;
+    else if ( typeName == "simpleratio" ) opt.type = EfficType::simpleratio;
     else opt.type = EfficType::none;
  
     efficOptions_.push_back(opt);
@@ -91,6 +92,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     const string typeName = efficSet->getUntrackedParameter<string>("typeName", "eff");
     if ( typeName == "eff" ) opt.type = EfficType::efficiency;
     else if ( typeName == "fake" ) opt.type = EfficType::fakerate;
+    else if ( typeName == "simpleratio" ) opt.type = EfficType::simpleratio;
     else opt.type = EfficType::none;
 
     efficOptions_.push_back(opt);
@@ -127,6 +129,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     const string typeName = args.size() == 4 ? "eff" : args[4];
     if ( typeName == "eff" ) opt.type = EfficType::efficiency;
     else if ( typeName == "fake" ) opt.type = EfficType::fakerate;
+    else if ( typeName == "simpleratio" ) opt.type = EfficType::simpleratio;
     else opt.type = EfficType::none;
  
     efficOptions_.push_back(opt);
@@ -146,6 +149,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     const string typeName = effProfileSet->getUntrackedParameter<string>("typeName", "eff");
     if ( typeName == "eff" ) opt.type = EfficType::efficiency;
     else if ( typeName == "fake" ) opt.type = EfficType::fakerate;
+    else if ( typeName == "simpleratio" ) opt.type = EfficType::simpleratio;
     else opt.type = EfficType::none;
 
     efficOptions_.push_back(opt);
@@ -595,9 +599,17 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
   float efficAll=0; 
-  if ( type == EfficType::efficiency ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  if ( type == EfficType::efficiency || type == EfficType::simpleratio ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
   else if ( type == EfficType::fakerate ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+  float errorAll=0;
+  if ( type == EfficType::simpleratio ) {
+    if(nSimAll) {
+      const float x = nRecoAll/nSimAll;
+      errorAll = std::sqrt(1.f/nSimAll*x*(1+x));
+    }
+  }
+  else
+    errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
 
   const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
   hGlobalEffic->SetBinContent(iBin, efficAll);
@@ -946,7 +958,12 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
           effVal = denomVal ? numerVal / denomVal : 0;
         }
 
-        float errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
+        float errVal = 0;
+        if (type == EfficType::simpleratio) {
+          errVal = denomVal ? 1.f/denomVal*effVal*(1+effVal) : 0;
+        } else {
+          errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
+        }
 
         LogDebug ("DQMGenericClient") << "(iBinX, iBinY, iBinZ)  = "
              << iBinX << ", "
