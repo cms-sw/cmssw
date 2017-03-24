@@ -150,6 +150,8 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	//	std::cout << histName << std::endl;
 	MonitorElement * me = iGetter.get(histName);
 	
+	if (!me) continue; //Ignore non-existant MEs
+	      
 	if (me->hasError()) {
 	  //If there is an error, fill with 0
 	  summaryMap_[name]->setBinContent(i+1,j+1,0);
