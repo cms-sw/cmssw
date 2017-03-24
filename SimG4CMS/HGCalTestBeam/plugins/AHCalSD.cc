@@ -41,7 +41,8 @@ AHCalSD::~AHCalSD() { }
 double AHCalSD::getEnergyDeposit(G4Step* aStep) {
 
   double destep = aStep->GetTotalEnergyDeposit();
-  double weight(1.0);
+  double wt2    = aStep->GetTrack()->GetWeight();
+  double weight = (wt2 > 0.0) ? wt2 : 1.0;
 #ifdef EDM_ML_DEBUG
   double weight0 = weight;
 #endif
