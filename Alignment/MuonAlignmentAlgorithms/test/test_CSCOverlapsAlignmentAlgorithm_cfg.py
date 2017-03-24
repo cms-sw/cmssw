@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string("ERROR")))
 
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-process.load("Configuration/StandardSequences/GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TrackingTools.GeomPropagators.SmartPropagator_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
