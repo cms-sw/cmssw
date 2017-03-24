@@ -12,7 +12,7 @@
  * $Id: CandCombiner.h,v 1.2 2009/04/22 17:51:05 kaulmer Exp $
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CommonTools/CandUtils/interface/CandCombiner.h"
 #include "CommonTools/CandAlgos/interface/decayParser.h"
@@ -64,7 +64,7 @@ namespace reco {
     };
 
 
-    struct CandCombinerBase : public edm::EDProducer {
+    struct CandCombinerBase : public edm::stream::EDProducer<> {
       CandCombinerBase(const edm::ParameterSet & cfg) :
 	setLongLived_(false),
 	setMassConstraint_(false),
@@ -145,7 +145,7 @@ namespace reco {
 
     private:
       /// process an event
-      void produce(edm::Event& evt, const edm::EventSetup& es) {
+      void produce(edm::Event& evt, const edm::EventSetup& es) override {
 	using namespace std;
 	using namespace reco;
 	Init::init(combiner_.setup(), evt, es);
