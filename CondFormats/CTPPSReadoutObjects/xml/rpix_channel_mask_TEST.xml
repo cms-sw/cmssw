@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<top>	
+  <arm id="0">
+    <station id="0">
+      <!--4a --><!--45 210 nr hor-->  <!--it was 6C -->
+      <rp_detector_set id="2" doCorrelations="0">			
+	<rpix_plane id="0">
+
+	</rpix_plane>
+	<rpix_plane id="1">
+
+	</rpix_plane>
+	<rpix_plane id="2">
+
+	</rpix_plane>
+ 	<rpix_plane id="3">
+
+	</rpix_plane>
+  	<rpix_plane id="4">
+
+	</rpix_plane>
+  	<rpix_plane id="5">
+
+	</rpix_plane>
+        </rp_detector_set>
+    </station>
+  </arm>
+
+  <arm id="1">
+    <station id="0">
+      <!--56 210 nr hor-->
+      <rp_detector_set id="2" doCorrelations="0">			
+	<rpix_plane id="0">
+
+	</rpix_plane>
+	<rpix_plane id="1">
+
+	</rpix_plane>
+	<rpix_plane id="2">
+
+	</rpix_plane>
+ 	<rpix_plane id="3">
+
+	</rpix_plane>
+  	<rpix_plane id="4">
+
+	</rpix_plane>
+  	<rpix_plane id="5">
+
+	</rpix_plane>
+      </rp_detector_set>
+    </station>
+  </arm>
+  
+  
+  
+</top>
+      
+	    
+	      
