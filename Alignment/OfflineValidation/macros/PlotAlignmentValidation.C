@@ -954,7 +954,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       if (plotinfo.variable == "medianY") summaryfile << "^{y}";
       summaryfile << "$\t"
                   << "format={:.3g} um\t"
-                  << "latexformat=${:.3g} \\mu m$";
+                  << "latexformat=${:.3g}$ $\\mu$m";
       for (auto mu : vmean) summaryfile << "\t" << mu;
       summaryfile << "\n";
     }
