@@ -116,8 +116,8 @@ process.ctppsDiamondLocalTracks.trackingAlgorithmParams.pixel_efficiency_functio
 
 
 # CTPPS DQM modules
-process.load("DQM.CTPPS.totemDQM_cff")
-process.totemRPDiamondDQMSource.excludeMultipleHits = cms.bool(True);
+process.load("DQM.CTPPS.ctppsDQM_cff")
+process.ctppsDiamondDQMSource.excludeMultipleHits = cms.bool(True);
 
 process.path = cms.Path(
   process.ctppsRawToDigi *
@@ -125,7 +125,7 @@ process.path = cms.Path(
   process.ctppsDiamondRawToDigi *
   process.ctppsDiamondRecHits *
   process.ctppsDiamondLocalTracks *
-  process.totemDQM 
+  process.ctppsDQM 
 )
 
 process.end_path = cms.EndPath(
