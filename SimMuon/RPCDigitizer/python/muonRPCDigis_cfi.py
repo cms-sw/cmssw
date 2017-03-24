@@ -21,7 +21,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Nbxing = cms.int32(9),
         timeJitter = cms.double(1.0),
         IRPC_time_resolution = cms.double(0.1),
-        IRPC_electronics_jitter = cms.double(0.025)
+        IRPC_electronics_jitter = cms.double(0.025),
         digitizeElectrons = cms.bool(False), # False - do not digitize electron hits (they are included in bkg simulation configured with doBkgNoise)
     ),
     doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
