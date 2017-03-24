@@ -54,6 +54,8 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
         2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
 )
 
+# Adjust the max-dR for 2D-clustering
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.dR_cluster = cms.double(3.)
 
 trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
                                FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
@@ -73,11 +75,6 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives ) 
 process.digi2raw_step = cms.Path( process.DigiToRaw )
-#process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
-#                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
-#                                        )
-
-#process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
@@ -87,8 +84,7 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
                                    
 # Schedule definition
 process.schedule = cms.Schedule( process.hgcl1tpg_step, 
-                                 #process.digi2raw_step, 
-                                 #process.test_step, 
+                                 #process.digi2raw_step,
                                  process.ntuple_step, # create the persistent event 
                                  process.endjob_step
                                  )
