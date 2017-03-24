@@ -71,11 +71,11 @@ private:
 
   Worker::Worker(ModuleDescription const& iMD, 
 		 ExceptionToActionTable const* iActions) :
-    timesRun_(),
-    timesVisited_(),
-    timesPassed_(),
-    timesFailed_(),
-    timesExcept_(),
+    timesRun_(0),
+    timesVisited_(0),
+    timesPassed_(0),
+    timesFailed_(0),
+    timesExcept_(0),
     state_(Ready),
     numberOfPathsOn_(0),
     numberOfPathsLeftToRun_(0),
