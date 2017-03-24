@@ -663,6 +663,7 @@ private:
   const bool includeTrackingParticles_;
   const bool includeOOT_;
   const bool keepEleSimHits_;
+  const bool saveSimHitsP3_;
 
   HistoryBase tracer_;
 
@@ -1165,6 +1166,9 @@ private:
   std::vector<float> simhit_x;
   std::vector<float> simhit_y;
   std::vector<float> simhit_z;
+  std::vector<float> simhit_px;
+  std::vector<float> simhit_py;
+  std::vector<float> simhit_pz;
   std::vector<int> simhit_particle;
   std::vector<short> simhit_process;
   std::vector<float> simhit_eloss;
@@ -1306,7 +1310,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
       includeTrackingParticles_(iConfig.getUntrackedParameter<bool>("includeTrackingParticles")),
       includeOOT_(iConfig.getUntrackedParameter<bool>("includeOOT")),
-      keepEleSimHits_(iConfig.getUntrackedParameter<bool>("keepEleSimHits")) {
+      keepEleSimHits_(iConfig.getUntrackedParameter<bool>("keepEleSimHits")),
+      saveSimHitsP3_(iConfig.getUntrackedParameter<bool>("saveSimHitsP3")) {
   if (includeSeeds_) {
     seedTokens_ =
         edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("seedTracks"),
@@ -1599,6 +1604,11 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("simhit_x", &simhit_x);
       t->Branch("simhit_y", &simhit_y);
       t->Branch("simhit_z", &simhit_z);
+      if (saveSimHitsP3_){
+        t->Branch("simhit_px", &simhit_px);
+        t->Branch("simhit_py", &simhit_py);
+        t->Branch("simhit_pz", &simhit_pz);
+      }
       t->Branch("simhit_particle", &simhit_particle);
       t->Branch("simhit_process", &simhit_process);
       t->Branch("simhit_eloss", &simhit_eloss);
@@ -1905,6 +1915,9 @@ void TrackingNtuple::clearVariables() {
   simhit_x.clear();
   simhit_y.clear();
   simhit_z.clear();
+  simhit_px.clear();
+  simhit_py.clear();
+  simhit_pz.clear();
   simhit_particle.clear();
   simhit_process.clear();
   simhit_eloss.clear();
@@ -2464,6 +2477,12 @@ void TrackingNtuple::fillSimHits(const TrackerGeometry& tracker,
     simhit_x.push_back(pos.x());
     simhit_y.push_back(pos.y());
     simhit_z.push_back(pos.z());
+    if (saveSimHitsP3_){
+      const auto mom = det->surface().toGlobal(simhit.momentumAtEntry());
+      simhit_px.push_back(mom.x());
+      simhit_py.push_back(mom.y());
+      simhit_pz.push_back(mom.z());
+    }
     simhit_particle.push_back(simhit.particleType());
     simhit_process.push_back(simhit.processType());
     simhit_eloss.push_back(simhit.energyLoss());
@@ -3682,6 +3701,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("includeTrackingParticles", true);
   desc.addUntracked<bool>("includeOOT", false);
   desc.addUntracked<bool>("keepEleSimHits", false);
+  desc.addUntracked<bool>("saveSimHitsP3", false);
   descriptions.add("trackingNtuple", desc);
 }
 
