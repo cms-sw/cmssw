@@ -86,7 +86,7 @@ private:
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
-    std::map<uint32_t,uint32_t> NLumiDetectorIsFaulty;
+    std::map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
