@@ -142,6 +142,6 @@ def parsestyle(style):
 
 def recursivesubclasses(cls):
     result = [cls]
-    for subclass in cls.__subclasses__():
-        result += cls.__subclasses__()
+    for subcls in cls.__subclasses__():
+        result += recursivesubclasses(subcls)
     return result

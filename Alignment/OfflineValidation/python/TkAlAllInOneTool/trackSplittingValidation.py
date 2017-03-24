@@ -1,11 +1,11 @@
 import os
 import configTemplates
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithPlots
+from genericValidation import GenericValidationData, ParallelValidation, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidationData, ParallelValidation, ValidationWithPlots):
+class TrackSplittingValidation(GenericValidationData, ParallelValidation, ValidationWithPlotsSummary):
     configBaseName = "TkAlTrackSplitting"
     scriptBaseName = "TkAlTrackSplitting"
     crabCfgBaseName = "TkAlTrackSplitting"
