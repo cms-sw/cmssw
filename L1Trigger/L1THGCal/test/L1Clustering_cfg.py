@@ -132,12 +132,6 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives )
 process.digi2raw_step = cms.Path( process.DigiToRaw )
-process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
-                                        #Luca triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:C2dClusterAlgoBestChoice")
-                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
-                                        )
-
-process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
@@ -149,7 +143,7 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 # Schedule definition
 process.schedule = cms.Schedule( process.generation_step, process.genfiltersummary_step, process.simulation_step, 
                                  process.digitisation_step, process.L1simulation_step, process.hgcl1tpg_step, 
-                                 process.digi2raw_step, #process.test_step,
+                                 process.digi2raw_step,
                                  process.ntuple_step,
                                  process.endjob_step, 
                                  process.FEVTDEBUGoutput_step
