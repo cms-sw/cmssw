@@ -92,7 +92,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
-				 + bdHadronTrackValidationSeq
+                                 + bdHadronTrackValidationSeq
 )
 
 
