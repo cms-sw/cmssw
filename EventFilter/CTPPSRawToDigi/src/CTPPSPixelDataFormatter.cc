@@ -99,9 +99,6 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
   bool skipROC=false;
 
-
-
-
   edm::DetSet<CTPPSPixelDigi> * detDigis=nullptr;
 
   const  Word32 * bw =(const  Word32 *)(header+1);
@@ -121,10 +118,19 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
     mit = mapping_.find(fPos);
+
+    if (mit == mapping_.end()){      
+      if((nroc-1)>=maxROCIndex){
+	errorcheck.checkROC(errorsInEvent, fedId,  ww); // check kind of error
+      }else{
+	edm::LogError("")<< " CTPPS Pixel DAQ map error " ;
+      }
+      continue; //skip word
+    }
+
     CTPPSPixelROCInfo rocInfo = (*mit).second;
 
     CTPPSPixelROC rocp(rocInfo.iD, rocInfo.roc, convroc);
-
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
