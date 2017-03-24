@@ -20,12 +20,13 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 	"keep (4 <= abs(pdgId) <= 5)",
 # keep light-flavour quarks and gluons for parton-based jet flavour
 	"keep (1 <= abs(pdgId) <= 3 || pdgId = 21) & (status = 2 || status = 11 || status = 71 || status = 72) && pt>5", 
-# keep b and c hadrons for hadron-based jet flavour
-	"keep (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",
-# keep onia states
-        "keep abs(pdgId) == 333",
-        "keep abs(pdgId) == 443 || abs(pdgId) == 100443 || abs(pdgId) == 10441 || abs(pdgId) == 20443 || abs(pdgId) == 445 || abs(pdgId) == 30443",
-        "keep abs(pdgId) == 553 || abs(pdgId) == 100553 || abs(pdgId) == 200553 || abs(pdgId) == 10551 || abs(pdgId) == 20553 || abs(pdgId) == 555",
+# keep b and c hadrons for hadron-based jet flavour, and decays for BPH studies
+	"keep++ (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",
+# keep onia states, phi, X(3872), Z(4430)+ and psi(4040)
+        "keep+ abs(pdgId) == 333",
+        "keep+ abs(pdgId) == 9920443 || abs(pdgId) == 9042413 || abs(pdgId) == 9000443",
+        "keep+ abs(pdgId) == 443 || abs(pdgId) == 100443 || abs(pdgId) == 10441 || abs(pdgId) == 20443 || abs(pdgId) == 445 || abs(pdgId) == 30443",
+        "keep+ abs(pdgId) == 553 || abs(pdgId) == 100553 || abs(pdgId) == 200553 || abs(pdgId) == 10551 || abs(pdgId) == 20553 || abs(pdgId) == 555",
 # additional c hadrons for jet fragmentation studies
 	"keep abs(pdgId) = 10411 || abs(pdgId) = 10421 || abs(pdgId) = 10413 || abs(pdgId) = 10423 || abs(pdgId) = 20413 || abs(pdgId) = 20423 || abs(pdgId) = 10431 || abs(pdgId) = 10433 || abs(pdgId) = 20433", 
 # additional b hadrons for jet fragmentation studies
