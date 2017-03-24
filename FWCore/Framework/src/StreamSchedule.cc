@@ -616,9 +616,11 @@ namespace edm {
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        std::ostringstream ost;
-        ost << "Processing Event " << ep.id();
-        ex.addContext(ost.str());
+        if(ex.context().empty()) {
+          std::ostringstream ost;
+          ost << "Processing Event " << ep.id();
+          ex.addContext(ost.str());
+        }
         iExcept = std::current_exception();
       }
       catch(...) {
