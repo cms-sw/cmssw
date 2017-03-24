@@ -31,12 +31,16 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <array>
 
 class DTGeometry;
 class DTTrigGeomUtils;
 class DTChamberId;
 class L1MuDTChambPhDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<int,15>, 5 > ,6> DTArr3bool;
+typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*,15>, 5 > ,6> DTArr3Digi;
 
 class DTLocalTriggerLutTask: public DQMEDAnalyzer{
 
@@ -68,6 +72,8 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
 
+  const int wheelArrayShift = 3;
+
  private:
 
   /// Get the top folder
@@ -91,11 +97,11 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_TokenOut_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 
-  int trigQualBestIn[6][5][13];
-  int trigQualBestOut[6][5][13];
-  const L1MuDTChambPhDigi* trigBestIn[6][5][13];
-  const L1MuDTChambPhDigi* trigBestOut[6][5][13];
-  bool track_ok[6][5][15]; // CB controlla se serve
+  DTArr3int trigQualBestIn;
+  DTArr3int trigQualBestOut;
+  DTArr3Digi trigBestIn;
+  DTArr3Digi trigBestOut;
+  DTArr3bool track_ok; // CB controlla se serve
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

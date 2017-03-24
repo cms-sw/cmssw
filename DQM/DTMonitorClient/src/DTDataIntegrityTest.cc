@@ -144,7 +144,9 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 	    float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
 	    float nROBErrors = histoROSStatus->Integral(2,8,rosNumber,rosNumber);
 	    nErrors += nROBErrors;
-	    float result =  max((float)0., ((float)nFEDEvts-nROBErrors)/(float)nFEDEvts); 
+	    float result =0.;
+	    if(nFEDEvts!=0) 
+		result =  max((float)0., ((float)nFEDEvts-nROBErrors)/(float)nFEDEvts); 
 	    summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
 	    int tdcResult = -2;
 	    float nTDCErrors = histoFEDSummary->Integral(15,15,rosNumber,rosNumber); 

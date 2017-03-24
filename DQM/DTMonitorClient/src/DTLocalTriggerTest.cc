@@ -160,7 +160,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
-	    int sector_id = (wh+3)+(sect-1)*5;
+	    int sector_id = (wh+wheelArrayShift)+(sect-1)*5;
 	    
 	    if (hwSource=="COM") {
 	      // Perform TM-DDU matching test and generates summaries (Phi view)
@@ -463,7 +463,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      }
 	    }
 	    if (matchNoData == 4)   matchErr   = 5;
-	    cmsME.find(fullName("MatchingSummary"))->second->setBinContent(sect,wh+3,matchErr);
+	    cmsME.find(fullName("MatchingSummary"))->second->setBinContent(sect,wh+wheelArrayShift,matchErr);
 	  }
 	}
 	else {
@@ -491,8 +491,8 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	    }
 	    if (corrNoData == 4)   corrErr   = 5;
 	    if (secondNoData == 4) secondErr = 5;
-	    cmsME.find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect,wh+3,corrErr);
-	    cmsME.find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect,wh+3,secondErr);
+	    cmsME.find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect,wh+wheelArrayShift,corrErr);
+	    cmsME.find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect,wh+wheelArrayShift,secondErr);
 	  }
 	// Out part
           TH2F* corrWhSummaryOut   = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummaryOut"))->second);
@@ -518,8 +518,8 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
             }
             if (corrNoData == 4)   corrErr   = 5;
             if (secondNoData == 4) secondErr = 5;
-            cmsME.find(fullName("CorrFractionSummaryOut"))->second->setBinContent(sect,wh+3,corrErr);
-            cmsME.find(fullName("2ndFractionSummaryOut"))->second->setBinContent(sect,wh+3,secondErr);
+            cmsME.find(fullName("CorrFractionSummaryOut"))->second->setBinContent(sect,wh+wheelArrayShift,corrErr);
+            cmsME.find(fullName("2ndFractionSummaryOut"))->second->setBinContent(sect,wh+wheelArrayShift,secondErr);
           }
 	}
       }
@@ -542,12 +542,12 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter & igetter) {
     for (int sect=1; sect<=12; ++sect) {
 
       float maxErr = 8.;
-      int corr   = cmsME.find(fullName("CorrFractionSummaryIn"))->second->getBinContent(sect,wh+3);
-      int second = cmsME.find(fullName("2ndFractionSummaryIn"))->second->getBinContent(sect,wh+3);
+      int corr   = cmsME.find(fullName("CorrFractionSummaryIn"))->second->getBinContent(sect,wh+wheelArrayShift);
+      int second = cmsME.find(fullName("2ndFractionSummaryIn"))->second->getBinContent(sect,wh+wheelArrayShift);
       int lut=0;
       MonitorElement * lutsME = igetter.get(topFolder(hwSource=="TM") + "Summaries/TrigLutSummary");
       if (lutsME) {
-	lut = lutsME->getBinContent(sect,wh+3);
+	lut = lutsME->getBinContent(sect,wh+wheelArrayShift);
 	maxErr+=4;
       } else {
 	LogTrace(category()) << "[" << testName 
@@ -556,7 +556,7 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter & igetter) {
       (corr <5 || second<5) && nSecReadout++;
       int errcode = ((corr<5 ? corr : 4) + (second<5 ? second : 4) + (lut<5 ? lut : 4) );
       errcode = min(int((errcode/maxErr + 0.01)*5),5);
-      cmsME.find("TrigGlbSummary")->second->setBinContent(sect,wh+3,glbPerc[errcode]);
+      cmsME.find("TrigGlbSummary")->second->setBinContent(sect,wh+wheelArrayShift,glbPerc[errcode]);
     
     }
   }

@@ -609,19 +609,19 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
     for (int st=1;st<5;++st){
       for (int wh=-2;wh<3;++wh){
 	for (int sc=1;sc<13;++sc){
-	  if (phcode_best[wh+3][st][sc]>-1 && phcode_best[wh+3][st][sc]<7){
+	  if (phcode_best[wh+wheelArrayShift][st][sc]>-1 && phcode_best[wh+wheelArrayShift][st][sc]<7){
 	    DTChamberId id(wh,st,sc);
 	    uint32_t indexCh = id.rawId();
 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 
-	    innerME.find("TM_BestQual_In"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
+	    innerME.find("TM_BestQual_In"+trigsrc)->second->Fill(phcode_best[wh+wheelArrayShift][st][sc]);  // Best Qual Trigger Phi view
 	  }
-          if (thcode_best[wh+3][st][sc]>0 && thcode_best[wh+3][st][sc]<3){
+          if (thcode_best[wh+wheelArrayShift][st][sc]>0 && thcode_best[wh+wheelArrayShift][st][sc]<3){
             DTChamberId id(wh,st,sc);
             uint32_t indexCh = id.rawId();
             map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 
-            innerME.find("TM_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]);  // Best Qual Trigger Theta view 
+            innerME.find("TM_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+wheelArrayShift][st][sc]);  // Best Qual Trigger Theta view 
 	  }
 	}
       }
@@ -667,9 +667,9 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
       // check if SC data exist: fill for any trigger
       if( quality>-1 && quality<7 ) {	  // it is a phi trigger
 
-	if(quality>dduphcode_best[wh+3][st][sec]) {
-	  dduphcode_best[wh+3][st][sec]=quality;
-	  iphbestddu[wh+3][st][sec] = &(*trigIt);
+	if(quality>dduphcode_best[wh+wheelArrayShift][st][sec]) {
+	  dduphcode_best[wh+wheelArrayShift][st][sec]=quality;
+	  iphbestddu[wh+wheelArrayShift][st][sec] = &(*trigIt);
 	}
 
 	if(tpMode) {
@@ -682,8 +682,8 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
       }
       if( thqual>0 && !tpMode ) {  // it is a theta trigger
 
-	if(thqual>dduthcode_best[wh+3][st][sec] ) {
-	  dduthcode_best[wh+3][st][sec]=thqual;
+	if(thqual>dduthcode_best[wh+wheelArrayShift][st][sec] ) {
+	  dduthcode_best[wh+wheelArrayShift][st][sec]=thqual;
 	}
 
 	innerME.find("DDU_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,bx);     // SM BX vs Qual Theta view
@@ -692,13 +692,13 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
 
     // Fill Quality plots with best ddu triggers in phi & theta
     if (!tpMode) {
-      if (dduphcode_best[wh+3][st][sec]>-1 &&
-	  dduphcode_best[wh+3][st][sec]<7){
+      if (dduphcode_best[wh+wheelArrayShift][st][sec]>-1 &&
+	  dduphcode_best[wh+wheelArrayShift][st][sec]<7){
 
-	innerME.find("DDU_BestQual"+trigsrc)->second->Fill(dduphcode_best[wh+3][st][sec]);  // Best Qual Trigger Phi view
+	innerME.find("DDU_BestQual"+trigsrc)->second->Fill(dduphcode_best[wh+wheelArrayShift][st][sec]);  // Best Qual Trigger Phi view
       }
-      if (dduthcode_best[wh+3][st][sec]>0){
-	innerME.find("DDU_ThetaBestQual"+trigsrc)->second->Fill(dduthcode_best[wh+3][st][sec]); // Best Qual Trigger Theta view
+      if (dduthcode_best[wh+wheelArrayShift][st][sec]>0){
+	innerME.find("DDU_ThetaBestQual"+trigsrc)->second->Fill(dduthcode_best[wh+wheelArrayShift][st][sec]); // Best Qual Trigger Theta view
       }
     }
   }
@@ -895,17 +895,17 @@ void DTLocalTriggerTask::runDDUvsTMAnalysis(string& trigsrc){
   for (int st=1;st<5;++st){
     for (int wh=-2;wh<3;++wh){
       for (int sc=1;sc<13;++sc){
-	if ( (phcode_best[wh+3][st][sc]>-1 && phcode_best[wh+3][st][sc]<7) ||
-	     (dduphcode_best[wh+3][st][sc]>-1 && dduphcode_best[wh+3][st][sc]<7) ){
+	if ( (phcode_best[wh+wheelArrayShift][st][sc]>-1 && phcode_best[wh+wheelArrayShift][st][sc]<7) ||
+	     (dduphcode_best[wh+wheelArrayShift][st][sc]>-1 && dduphcode_best[wh+wheelArrayShift][st][sc]<7) ){
 	  DTChamberId id(wh,st,sc);
 	  uint32_t indexCh = id.rawId();
 	  map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 
-	  innerME.find("COM_QualDDUvsQualTM"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc],dduphcode_best[wh+3][st][sc]);
-	  if ( (phcode_best[wh+3][st][sc]>-1 && phcode_best[wh+3][st][sc]<7) &&
-	       (dduphcode_best[wh+3][st][sc]>-1 && dduphcode_best[wh+3][st][sc]<7) ){
-	    int bxDDU = iphbestddu[wh+3][st][sc]->bx() - iphbestddu[wh+3][st][sc]->secondTrack();
-	    int bxTM = iphbest[wh+3][st][sc]->bxNum() - iphbest[wh+3][st][sc]->Ts2Tag();
+	  innerME.find("COM_QualDDUvsQualTM"+trigsrc)->second->Fill(phcode_best[wh+wheelArrayShift][st][sc],dduphcode_best[wh+wheelArrayShift][st][sc]);
+	  if ( (phcode_best[wh+wheelArrayShift][st][sc]>-1 && phcode_best[wh+wheelArrayShift][st][sc]<7) &&
+	       (dduphcode_best[wh+wheelArrayShift][st][sc]>-1 && dduphcode_best[wh+wheelArrayShift][st][sc]<7) ){
+	    int bxDDU = iphbestddu[wh+wheelArrayShift][st][sc]->bx() - iphbestddu[wh+wheelArrayShift][st][sc]->secondTrack();
+	    int bxTM = iphbest[wh+wheelArrayShift][st][sc]->bxNum() - iphbest[wh+wheelArrayShift][st][sc]->Ts2Tag();
 	    (wheelHistos[wh]).find("COM_BXDiff"+trigsrc)->second->Fill(sc,st,bxDDU-bxTM);
 	  }
 	}
