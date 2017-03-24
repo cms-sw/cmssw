@@ -300,9 +300,9 @@ void DTLocalTriggerLutTask::searchTMBestIn( std::vector<L1MuDTChambPhDigi> const
     int st   = trigIt->stNum();
     int qual = trigIt->code();
 
-    if(qual>trigQualBestIn[wh+3][st][sec] && qual<7) {
-      trigQualBestIn[wh+3][st][sec]=qual;
-      trigBestIn[wh+3][st][sec] = &(*trigIt);
+    if(qual>trigQualBestIn[wh+wheelArrayShift][st][sec] && qual<7) {
+      trigQualBestIn[wh+wheelArrayShift][st][sec]=qual;
+      trigBestIn[wh+wheelArrayShift][st][sec] = &(*trigIt);
     }
 
   }
@@ -331,9 +331,9 @@ void DTLocalTriggerLutTask::searchTMBestOut( std::vector<L1MuDTChambPhDigi> cons
     int st   = trigIt->stNum();
     int qual = trigIt->code();
 
-    if(qual>trigQualBestOut[wh+3][st][sec] && qual<7) {
-      trigQualBestOut[wh+3][st][sec]=qual;
-      trigBestOut[wh+3][st][sec] = &(*trigIt);
+    if(qual>trigQualBestOut[wh+wheelArrayShift][st][sec] && qual<7) {
+      trigQualBestOut[wh+wheelArrayShift][st][sec]=qual;
+      trigBestOut[wh+wheelArrayShift][st][sec] = &(*trigIt);
     }
 
   }
