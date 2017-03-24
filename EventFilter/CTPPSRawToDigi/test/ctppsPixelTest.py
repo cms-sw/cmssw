@@ -28,7 +28,7 @@ fileNames =  cms.untracked.vstring(
  )
 )
 
-process.load("EventFilter.CTPPSRawToDigi.CTPPSPixelRawToDigi_cfi")
+process.load("EventFilter.CTPPSRawToDigi.ctppsPixelRawToDigi_cfi")
 
 process.ctppsPixelDigis.InputLabel = 'source'
 
