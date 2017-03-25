@@ -153,7 +153,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(*trackerPropagator_, alongMomentum);
 
         int sizeBefore = out->size();
-        if (debug_) std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
+        std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
         const reco::Track &tk = *mu.outerTrack();
 
         TrajectoryStateOnSurface state;
@@ -203,7 +203,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                 }
             }
         }
-        if (debug_) std::cout << "Outcome of seeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << ": found " << (out->size() - sizeBefore) << " seeds."<< std::endl;
+        std::cout << "Outcome of seeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << ": found " << (out->size() - sizeBefore) << " seeds."<< std::endl;
 
     }
 
