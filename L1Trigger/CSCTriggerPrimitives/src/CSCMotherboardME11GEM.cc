@@ -1664,10 +1664,10 @@ CSCCorrelatedLCTDigi CSCMotherboardME11GEM::constructLCTsGEM(const CSCCLCTDigi& 
     int bx = gem.bx() + lct_central_bx;;
     
     // ALCT WG
-    int wg();
+    int wg(5);
     
     // construct correlated LCT; temporarily assign track number of 0.
-    return CSCCorrelatedLCTDigi(0, 1, quality, 0, 0, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+    return CSCCorrelatedLCTDigi(0, 1, quality, wg, 0, pattern, 0, bx, 0, 0, 0, theTrigChamber);
   }
 }
 
