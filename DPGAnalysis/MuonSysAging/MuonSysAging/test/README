@@ -1,0 +1,26 @@
+cmsrel CMSSW_8_1_0_pre12
+cd CMSSW_8_1_0_pre12/src
+cmsenv
+git-cms-init
+git cms-merge-topic sunilUIET:MuonSysAgingToolFromDB81X_v4
+scram b -j8
+cd DPGAnalysis/MuonSysAging/test/
+
+##If you want to change the list of chambers to masked make changes in file "test-maker_cfg.py" and run it
+
+cmsRun test-maker_cfg.py
+
+## It will produce DB file named "MuonSystemAging.db"
+
+## To perform validation without muon system aging run "RecoFullGlobal_2023tilted.py"
+
+## To perform validation with muon system aging run "RecoFullGlobal_2023tilted_WithAging.py"
+
+
+***************Where to look for relevant code************
+
+DPGAnalysis/MuonSysAging/test/ChamberMasker.cc  : Read list of chambers to masked from "test-maker_cfg.py" and produce DB file named "MuonSystemAging.db"
+
+DPGAnalysis/MuonSysAging/plugins/DTChamberMasker.cc: Produce digi collection after masking listed DT chambers
+DPGAnalysis/MuonSysAging/plugins/RPCChamberMasker.cc: Produce digi collection after masking listed RPC chambers
+DPGAnalysis/MuonSysAging/plugins/CFEBBufferOverloadProducer.cc: Randomly remove CSC hits

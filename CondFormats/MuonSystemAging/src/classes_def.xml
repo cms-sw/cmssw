@@ -1,0 +1,5 @@
+<lcgdict>
+       <class name="MuonSystemAging" class_version="0"/>
+       <class name="std::vector<int>"/>
+       <class name="std::vector<std::string>"/>
+     </lcgdict>  
