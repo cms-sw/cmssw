@@ -44,7 +44,7 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
     /* search for cluster seeds */
     int itc=0;
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
-        isSeed[itc] = ( (*tc)->hwPt() > seedThreshold_) ? true : false;
+        isSeed[itc] = ( (*tc)->mipPt() > seedThreshold_) ? true : false;
     }
     
     /* clustering the TCs */
@@ -53,7 +53,7 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
     itc=0;
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
             
-        if( (*tc)->hwPt() < triggerCellThreshold_ ){
+        if( (*tc)->mipPt() < triggerCellThreshold_ ){
             continue;
         }
         
