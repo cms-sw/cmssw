@@ -14,12 +14,8 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // The LHC beam info used to come from FED812, but since the new TCDS this
-// info is in FED1024. The general module to decode the info, does however
-// not exist yet. As a temporary solution, we unpack the TCDS FED 1024 raw
-// data, and we get the LHC beam info from the BST record registered there
-// using some utilities provided by the EventFilter packages.
-// The definitive solution requires a properly designed data format with a
-// producer storing it into the Event.
+// info is in FED1024. We retrieve the BST record from the TCDS digis, and
+// we get the LHC beam info using a dedicated data format.
 
 const int DQMProvInfo::MAX_VBINS;
 const int DQMProvInfo::MAX_LUMIS;
@@ -39,10 +35,8 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
   dcsStatusCollection_ =
       consumes<DcsStatusCollection>(ps.getUntrackedParameter<std::string>(
           "dcsStatusCollection", "scalersRawToDigi"));
-  //Used to get the LHC information
-  fedRawDataCollection_ = consumes<FEDRawDataCollection>(
-      ps.getUntrackedParameter<std::string>("fedRawData", "rawDataCollector"));
-
+  // Used to get the BST record from the TCDS information
+  bstrecord_ = consumes<BSTRecord>(ps.getUntrackedParameter<edm::InputTag>("bstData", edm::InputTag("tcdsDigis","bstRecord")));
   // Initialization of the global tag
   globalTag_ = "MODULE::DEFAULT";  // default
   globalTagRetrieved_ = false;     // set as soon as retrieved from first event
@@ -257,22 +251,18 @@ void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
 }
 
 void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
-  edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByToken( fedRawDataCollection_, rawdata );
-  // We unpack the raw data of the TCDS FED1024
-  const FEDRawData& tcdsData = rawdata->FEDData( FEDNumbering::MINTCDSuTCAFEDID );
-  if( tcdsData.size() ) {
-    evf::evtn::TCDSRecord record( tcdsData.data() );
-    //and we look at the BST information stored in the TCDS record
-    unsigned int lhcFillHigh = record.getBST().getBST().bst.lhcFillHigh;
-    unsigned short lhcFillLow = record.getBST().getBST().bst.lhcFillLow;
-    lhcFill_ = static_cast<int>( ( lhcFillHigh << 16 ) + lhcFillLow );
-    beamMode_ = static_cast<int>( record.getBST().getBST().bst.beamMode );
-    momentum_ = static_cast<int>( record.getBST().getBST().bst.beamMomentum );
-    intensity1_ = static_cast<int>( record.getBST().getBST().bst.intensityBeam1 );
-    intensity2_ = static_cast<int>( record.getBST().getBST().bst.intensityBeam2 );
+  edm::Handle<BSTRecord> bstData;
+  event.getByToken( bstrecord_, bstData );
+  // We unpack the BST record from TCDS
+  if( bstData.isValid() ) {
+    //and we look at the BST information
+    lhcFill_ = static_cast<int>( bstData->lhcFill() );
+    beamMode_ = static_cast<int>( bstData->beamMode() );
+    momentum_ = static_cast<int>( bstData->beamMomentum() );
+    intensity1_ = static_cast<int>( bstData->intensityBeam1() );
+    intensity2_ = static_cast<int>( bstData->intensityBeam2() );
   } else {
-    edm::LogWarning("DQMProvInfo") << "TCDS FED Data inaccessible.";
+    edm::LogWarning("DQMProvInfo") << "BST Record from TCDS Data inaccessible.";
   }
 }
 

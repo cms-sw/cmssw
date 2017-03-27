@@ -13,7 +13,7 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/BSTRecord.h"
 
 #include <string>
 #include <vector>
@@ -107,7 +107,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
   std::string provinfofolder_;
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
-  edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollection_;
+  edm::EDGetTokenT<BSTRecord> bstrecord_;
 
   // MonitorElements for LhcInfo and corresponding variables
   MonitorElement* hBeamMode_;
