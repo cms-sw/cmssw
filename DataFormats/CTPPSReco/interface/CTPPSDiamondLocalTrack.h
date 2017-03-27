@@ -91,8 +91,11 @@ class CTPPSDiamondLocalTrack
 
 inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLocalTrack& rhs )
 {
-  // as for now, only sort by temporal coordinate
-  return ( lhs.getT() < rhs.getT() || lhs.getX0() < rhs.getX0() );
+  // start to sort by temporal coordinate
+  if ( lhs.getT() < rhs.getT() ) return true;
+  if ( lhs.getT() > rhs.getT() ) return false;
+  // then sort by x-position
+  return ( lhs.getX0() < rhs.getX0() );
 }
 
 #endif
