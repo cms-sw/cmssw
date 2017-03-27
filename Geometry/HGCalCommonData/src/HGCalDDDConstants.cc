@@ -259,11 +259,16 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
   } else {
     int32_t copyNumber = hgpar_->waferCopy_[mod];
     ok = ((lay > 0 && lay <= (int)(layers(reco))));
-    if( ok ) {
+    if (ok) {
       const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
       const auto& the_modules = hgpar_->copiesInLayers_[lay_idx];
       auto moditr = the_modules.find(copyNumber);
       ok = (moditr != the_modules.end());
+#ifdef EDM_ML_DEBUG
+      if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
+			 << lay_idx << " Copy " << copyNumber << ":" << mod
+			 << " Flag " << ok << std::endl;
+#endif
       if (ok) {
 	if (moditr->second >= 0) {
 	  cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
@@ -279,8 +284,9 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 #ifdef EDM_ML_DEBUG
   if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
 		     << (lay > 0 && (lay <= (int)(layers(reco)))) << " Module "
-		     << mod << ":" << (mod > 0 && mod <= modmax) << " Cell "
-		     << cell << ":" << (cell >=0 && cell <= cellmax)
+		     << mod << ":" << modmax << ":" 
+		     << (mod > 0 && mod <= modmax) << " Cell " << cell << ":"
+		     << cellmax << ":" << (cell >=0 && cell <= cellmax)
 		     << ":" << maxCells(reco) << std::endl; 
 #endif
   return ok;
@@ -302,10 +308,11 @@ bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
   bool   ok = ((rr >= hgpar_->rMinLayHex_[lay-1]) &
 	       (rr <= hgpar_->rMaxLayHex_[lay-1]));
 #ifdef EDM_ML_DEBUG
-  std::cout << "Input " << lay << ":" << wafer << ":" << cell << " Position "
-	    << x << ":" << y << ":" << rr << " Compare Limits " 
-	    << hgpar_->rMinLayHex_[lay-1] << ":" << hgpar_->rMaxLayHex_[lay-1]
-	    << " Flag " << ok << std::endl;
+  if (!ok) 
+    std::cout << "Input " << lay << ":" << wafer << ":" << cell << " Position "
+	      << x << ":" << y << ":" << rr << " Compare Limits " 
+	      << hgpar_->rMinLayHex_[lay-1] << ":" <<hgpar_->rMaxLayHex_[lay-1]
+	      << " Flag " << ok << std::endl;
 #endif
   return ok;
 }
@@ -608,13 +615,26 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
   const int ncopies = hgpar_->waferCopy_.size();
-  int wafer = ncopies;
+  int  wafer(ncopies);
+#ifdef EDM_ML_DEBUG
+  bool ok(false);
+#endif
   for (int k=0; k<ncopies; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
       wafer = k;
+#ifdef EDM_ML_DEBUG
+      ok = true;
+#endif
       break;
     }
   }
+#ifdef EDM_ML_DEBUG
+  if (!ok) {
+    std::cout << "Cannot find " << copy << " in a list of " << ncopies << "\n";
+    for (int k=0; k<ncopies; ++k) std::cout << " " << hgpar_->waferCopy_[k];
+    std::cout << std::endl;
+  }
+#endif
   return wafer;
 }
 
