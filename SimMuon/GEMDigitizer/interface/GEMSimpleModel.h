@@ -89,6 +89,9 @@ private:
   double GE21ModNeuBkgParam3;
   double GE21ModNeuBkgParam4;
   double GE21ModNeuBkgParam5;
+    
+  double instLumi_;
+  double rateFact_;
 };
 #endif
 

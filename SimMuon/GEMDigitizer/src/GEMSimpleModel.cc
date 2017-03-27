@@ -35,6 +35,8 @@ GEMDigiModel(config)
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
 , simulateLowNeutralRate_(config.getParameter<bool>("simulateLowNeutralRate"))
+, instLumi_(config.getParameter<double>("instLumi"))
+, rateFact_(config.getParameter<double>("rateFact"))
 {
 //initialise parameters from the fit:
 //params for pol3 model of electron bkg for GE1/1:
@@ -216,6 +218,10 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
                                       + GE11ElecBkgParam1 * rollRadius
                                       + GE11ElecBkgParam2 * rollRadius * rollRadius
                                       + GE11ElecBkgParam3 * rollRadius * rollRadius * rollRadius;
+      
+    // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
+    averageNoiseElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
+    averageNeutralNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
   }
   if (gemId.station() == 2)
@@ -238,6 +244,9 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 //simulate electron background for GE2/1
     if (simulateElectronBkg_)
       averageNoiseElectronRatePerRoll = constElecGE21 * TMath::Exp(slopeElecGE21 * rollRadius);
+    // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
+    averageNoiseElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
+    averageNeutralNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
   }
 //simulate intrinsic noise
