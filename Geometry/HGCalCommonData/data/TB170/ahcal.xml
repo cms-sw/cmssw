@@ -152,8 +152,17 @@
 
 <SpecParSection label="ahcal.xml" eval="true">
   <SpecPar name="AHcal">
-    <PartSelector path="/AHcalTileSensitive.*"/>
+    <PartSelector path="//AHcalTileSensitive.*"/>
     <Parameter name="Volume" value="AHcalTileSensitive" eval="false"/>
+    <Parameter name="SensitiveDetector" value="AHcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsAHcal">
+    <PartSelector path="//HGCalAH"/>
+    <Parameter name="CMSCutsRegion" value="HGCalAHcalRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
   </SpecPar>
 </SpecParSection>
 
