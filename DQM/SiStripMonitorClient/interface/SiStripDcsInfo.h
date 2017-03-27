@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 class DQMStore;
 class MonitorElement;
@@ -86,7 +87,7 @@ private:
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
-    std::map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
+    std::unordered_map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
