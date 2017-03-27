@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -44,8 +43,15 @@ namespace pat {
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
                 if (std::abs(i.charge()) == std::abs(j.charge())) {
                     if(i.charge()!=0){
-                        if(i.pt() > minPtForTrackProperties_ and j.pt() <= minPtForTrackProperties_ ) return true;
-                        if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
+                        if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
+                        if(! i.hasTrackDetails() and  j.hasTrackDetails() ) return false;
+                        if(i.covarianceVersion() >  j.covarianceVersion() ) return true;
+                        if(i.covarianceVersion() <  j.covarianceVersion() ) return false;
+
+/*                        if(i.pt() > 1. and j.pt() <= 1. ) return true;
+                        if(i.pt() <= 1. and j.pt() > 1. ) return false;
+                        if(i.pt() > 0.5 and j.pt() <= 0.5 ) return true;
+                        if(i.pt() <= 0.5 and j.pt() > 0.5 ) return false;*/
                   }
                    if(i.vertexRef() == j.vertexRef()) 
                       return i.eta() > j.eta();
@@ -82,7 +88,8 @@ namespace pat {
             std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
-           
+            const int covarianceVersion_;
+            const std::vector<int> covariancePackingSchemas_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -107,7 +114,10 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(usePuppi_ ? consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >() ),
   PuppiCands_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >() ),
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
-  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+  covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
+  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
+
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -169,6 +179,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
         for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
           const edm::Ptr<reco::Candidate> & c = svWhiteList[i].sourceCandidatePtr(j);
           if(c.id() == cands.id()) whiteList.insert(c.key());
+
         }
       }
     }
@@ -230,6 +241,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
+          outPtrP->back().setCovarianceVersion(0);
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }
@@ -238,8 +250,18 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           if(outPtrP->back().pt() > minPtForTrackProperties_ || 
 	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
 	     whiteList.find(ic)!=whiteList.end()) {
-            outPtrP->back().setTrackProperties(*ctrack);
+            if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);}
+            else { 
+                if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
+                  else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);} 
+             }
+            
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
+          } else {
+            if(outPtrP->back().pt() > 0.5 ){ 
+                if(ctrack->hitPattern().numberOfValidPixelHits() >0)  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[2],covarianceVersion_); //low quality, with pixels
+                  else       outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[3],covarianceVersion_); //low quality, without pixels
+            }
           }
 
           // these things are always for the CKF track
