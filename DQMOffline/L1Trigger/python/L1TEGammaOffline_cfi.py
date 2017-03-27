@@ -8,6 +8,10 @@ electronEfficiencyBins.extend(list(xrange(120, 180, 20)))
 electronEfficiencyBins.extend(list(xrange(180, 300, 40)))
 electronEfficiencyBins.extend(list(xrange(300, 400, 100)))
 
+# just copy for now
+photonEfficiencyThresholds = electronEfficiencyThresholds
+photonEfficiencyBins = electronEfficiencyBins
+
 l1tEGammaOfflineDQM = cms.EDAnalyzer(
     "L1TEGammaOffline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
@@ -28,9 +32,12 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
     histFolder=cms.string('L1T/L1TEGamma'),
-    electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
 
+    electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
+    
+    photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
+    photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
 )
 
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
