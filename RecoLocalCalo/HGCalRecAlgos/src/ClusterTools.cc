@@ -195,8 +195,6 @@ bool  ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaet
   
   if (getLayer(clus.hitsAndFractions()[0].first)  > 28) return false;
   const  math::XYZPoint & position(clus.position());
-  double sintheta2=sin(position.theta());
-  sintheta2*=sintheta2;
   unsigned nhit=clus.hitsAndFractions().size();
 
   sigmaetaeta=0.;
@@ -220,7 +218,6 @@ bool  ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaet
 	// take w0=2 To be optimized
 	double logweight = std::max(0.,2 + log(theHit->energy()/clus.energy()));
 	double deltaetaeta2 = (cellPos.eta()-position.eta())*(cellPos.eta()-position.eta());
-	deltaetaeta2 *= sintheta2;
 	double deltaphiphi2 = (cellPos.phi()-position.phi())*(cellPos.phi()-position.phi());
 	sigmaetaeta +=  deltaetaeta2* weight;
 	sigmaphiphi +=  deltaphiphi2 * weight;
