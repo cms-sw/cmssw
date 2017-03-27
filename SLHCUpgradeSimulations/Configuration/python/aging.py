@@ -46,6 +46,15 @@ def ageHF(process,turnon):
         process.es_hardcode.HFRecalibration = cms.bool(turnon)
     return process
 
+# needs lumi to set proper ZS thresholds (tbd)
+def ageSiPM(process,turnon,lumi):
+    process.es_hardcode.hbUpgrade.doRadiationDamage = turnon
+    process.es_hardcode.heUpgrade.doRadiationDamage = turnon
+
+    # todo: determine ZS threshold adjustments
+
+    return process
+
 def ageHcal(process,lumi):
     instLumi=1.0e34
     if lumi>=1000:
@@ -67,8 +76,8 @@ def ageHcal(process,lumi):
     process = ageHB(process,True)
     process = ageHE(process,True)
     process = ageHF(process,True)
-#    process = ageSipm(process,True,lumi)
-        
+    process = ageSiPM(process,True,lumi)
+
     return process
 
 def turn_on_HB_aging(process):
@@ -93,6 +102,10 @@ def turn_on_HF_aging(process):
     
 def turn_off_HF_aging(process):
     process = ageHF(process,False)
+    return process
+
+def turn_off_SiPM_aging(process):
+    process = ageSiPM(process,False,0.0)
     return process
 
 def hf_complete_aging(process):

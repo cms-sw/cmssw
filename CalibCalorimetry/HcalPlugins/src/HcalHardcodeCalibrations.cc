@@ -838,7 +838,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
   auto result = std::make_unique<HcalSiPMParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo);
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo,iLumi);
     result->addValues(item);
   }
   return result;
@@ -895,7 +895,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useLayer0Weight",false);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
-	
+
 	edm::ParameterSetDescription desc_hb;
 	desc_hb.add<std::vector<double>>("gain", std::vector<double>({0.19}));
 	desc_hb.add<std::vector<double>>("gainWidth", std::vector<double>({0.0}));
@@ -908,7 +908,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<int>("recoShape",105);
 	desc_hb.add<double>("photoelectronsToAnalog",0.0);
 	desc_hb.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hb.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
+
+	edm::ParameterSetDescription desc_hbRaddam;
+	desc_hbRaddam.add<double>("temperatureBase",20.0);
+	desc_hbRaddam.add<double>("temperatureNew",-5.0);
+	desc_hbRaddam.add<double>("intlumiOffset",150);
+	desc_hbRaddam.add<double>("depVsTemp",0.0631);
+	desc_hbRaddam.add<double>("intlumiToNeutrons",3.67e8);
+	desc_hbRaddam.add<std::vector<double>>("depVsNeutrons",{5.69e-11,7.90e-11});
 
 	edm::ParameterSetDescription desc_hbUpgrade;
 	desc_hbUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
@@ -922,6 +931,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<int>("recoShape",203);
 	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+	desc_hbUpgrade.add<bool>("doRadiationDamage", true);
+	desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -936,7 +947,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<int>("recoShape",105);
 	desc_he.add<double>("photoelectronsToAnalog",0.0);
 	desc_he.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_he.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
+
+	edm::ParameterSetDescription desc_heRaddam;
+	desc_heRaddam.add<double>("temperatureBase",20.0);
+	desc_heRaddam.add<double>("temperatureNew",5.0);
+	desc_heRaddam.add<double>("intlumiOffset",75);
+	desc_heRaddam.add<double>("depVsTemp",0.0631);
+	desc_heRaddam.add<double>("intlumiToNeutrons",2.92e8);
+	desc_heRaddam.add<std::vector<double>>("depVsNeutrons",{5.69e-11,7.90e-11});
 
 	edm::ParameterSetDescription desc_heUpgrade;
 	desc_heUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
@@ -950,6 +970,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<int>("recoShape",203);
 	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+	desc_heUpgrade.add<bool>("doRadiationDamage", true);
+	desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -964,6 +986,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<int>("recoShape",301);
 	desc_hf.add<double>("photoelectronsToAnalog",0.0);
 	desc_hf.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hf.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -978,6 +1001,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<int>("recoShape",301);
 	desc_hfUpgrade.add<double>("photoelectronsToAnalog",0.0);
 	desc_hfUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hfUpgrade.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
 	edm::ParameterSetDescription desc_hfrecal;
@@ -1019,6 +1043,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<int>("recoShape",201);
 	desc_ho.add<double>("photoelectronsToAnalog",4.0);
 	desc_ho.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_ho.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	edm::ParameterSetDescription validator_sipm;
