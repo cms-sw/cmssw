@@ -6,11 +6,11 @@
 namespace reco {
   class MuonRPCHitMatch {
       public:
-         float x;              // X position of the matched segment
-         unsigned int mask;    // arbitration mask
-         int bx;               // bunch crossing
-         float y;              // y coordinate for iRPCs
-         float time;           // precise time for iRPCs
+         float x;              //!< X position of the matched segment
+         unsigned int mask;    //!< arbitration mask
+         int bx;               //!< bunch crossing
+         float y;              //!< y coordinate for iRPCs
+         float time;           //!< precise time for iRPCs
     MuonRPCHitMatch():x(0),mask(0),bx(0),y(0),time(0){}
    };
 }
