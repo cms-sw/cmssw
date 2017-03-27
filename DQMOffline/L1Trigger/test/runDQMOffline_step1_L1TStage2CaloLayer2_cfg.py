@@ -45,9 +45,9 @@ with open('fileListRAW.local') as f:
     fileListRAW = f.readlines()
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring(fileList[0]),
-    secondaryFileNames=cms.untracked.vstring(
-        fileListRAW),
+    fileNames=cms.untracked.vstring('file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
+#     secondaryFileNames=cms.untracked.vstring(
+#         fileListRAW),
 )
 
 process.options = cms.untracked.PSet(
@@ -65,20 +65,26 @@ process.DQMoutput = cms.OutputModule(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
 process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
+process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
+
 process.dqmoffline_step = cms.Path(
     process.l1tStage2CaloLayer2OfflineDQMEmu +
-    process.l1tStage2CaloLayer2OfflineDQM
+    process.l1tStage2CaloLayer2OfflineDQM + 
+    process.l1tEGammaOfflineDQM + 
+    process.l1tEGammaOfflineDQMEmu
 )
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(
-    process.raw2digi_step, process.dqmoffline_step, process.DQMoutput_step)
+    process.raw2digi_step,
+    )
 
 # customisation of the process.
 
@@ -89,3 +95,5 @@ from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAW
 # call to customisation function L1TReEmulFromRAW imported from
 # L1Trigger.Configuration.customiseReEmul
 process = L1TReEmulFromRAW(process)
+process.schedule.append(process.dqmoffline_step)
+process.schedule.append(process.DQMoutput_step)
