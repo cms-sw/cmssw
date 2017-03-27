@@ -11,33 +11,38 @@
 
 namespace edmtest
 {
-  class AlignPCLThresholdsReader : public edm::EDAnalyzer
-  {
+  class AlignPCLThresholdsReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
-    explicit  AlignPCLThresholdsReader(edm::ParameterSet const& p) :
-      printdebug_(p.getUntrackedParameter<bool>("printDebug",true)),
-      formatedOutput_(p.getUntrackedParameter<std::string>("outputFile",""))
-    { 
-      edm::LogInfo("AlignPCLThresholdsReader")<<"AlignPCLThresholdsReader"<<std::endl;
-    }
-    explicit  AlignPCLThresholdsReader(int i) {
-      edm::LogInfo("AlignPCLThresholdsReader")<<"AlignPCLThresholdsReader "<<i<<std::endl; 
-    }
-    virtual ~AlignPCLThresholdsReader() {  
-      edm::LogInfo("AlignPCLThresholdsReader")<<"~AlignPCLThresholdsReader "<<std::endl;
-    }
+    explicit AlignPCLThresholdsReader(edm::ParameterSet const& p); 
+    ~AlignPCLThresholdsReader(); 
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+  private:
+    
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  private:
-    bool printdebug_;
-    std::string formatedOutput_;
+    // ----------member data ---------------------------
+    const bool printdebug_;
+    const std::string formatedOutput_;
 
   };
   
+  AlignPCLThresholdsReader::AlignPCLThresholdsReader(edm::ParameterSet const& p):
+    printdebug_(p.getUntrackedParameter<bool>("printDebug",true)),
+    formatedOutput_(p.getUntrackedParameter<std::string>("outputFile",""))
+  { 
+    edm::LogInfo("AlignPCLThresholdsReader")<<"AlignPCLThresholdsReader"<<std::endl;
+  }
+
+  AlignPCLThresholdsReader::~AlignPCLThresholdsReader() {  
+    edm::LogInfo("AlignPCLThresholdsReader")<<"~AlignPCLThresholdsReader "<<std::endl;
+  }
+
   void
   AlignPCLThresholdsReader::analyze(const edm::Event& e, const edm::EventSetup& context){
 
-    edm::LogInfo("AlignPCLThresholdsReader") <<"### AlignPCLThresholdsReader::analyze"<<std::endl;
+    edm::LogInfo("AlignPCLThresholdsReader") <<"### AlignPCLThresholdsReader::analyze  ###"<<std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
     
@@ -112,7 +117,7 @@ namespace edmtest
 		
 	if((it->second).hasExtraDOF()){
 	  for (unsigned int j=0; j<(it->second).extraDOFSize(); j++){
-	    array<float,4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(it->first,j);
+	    std::array<float,4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(it->first,j);
 	    fprintf(pFile,"Extra DOF: %i \n ",j);	  
 	    fprintf(pFile,"- cut              : %8.3f        " ,extraDOFCuts.at(0));
 	    fprintf(pFile,"| sigCut           : %8.3f        " ,extraDOFCuts.at(1)); 
@@ -124,5 +129,15 @@ namespace edmtest
     }
    
   }
+
+  void
+  AlignPCLThresholdsReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Reads payloads of type AlignPCLThresholds");
+    desc.addUntracked<bool>("printDebug",true);
+    desc.addUntracked<std::string>("outputFile","");
+    descriptions.add("AlignPCLThresholdsReader",desc);
+  }
+
   DEFINE_FWK_MODULE(AlignPCLThresholdsReader);
 }

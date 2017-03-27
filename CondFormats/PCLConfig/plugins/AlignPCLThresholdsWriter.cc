@@ -60,8 +60,8 @@ class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<edm::one::SharedRes
       DOFs::dof mapOntoEnum(std::string coord);
 
       // ----------member data ---------------------------
-      std::string m_record;
-      unsigned int m_minNrecords;
+      const std::string m_record;
+      const unsigned int m_minNrecords;
       const std::vector<edm::ParameterSet> m_parameters;
 };
 
@@ -73,8 +73,7 @@ AlignPCLThresholdsWriter::AlignPCLThresholdsWriter(const edm::ParameterSet& iCon
   m_minNrecords(iConfig.getParameter<unsigned int>("minNRecords")),
   m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds"))
 {
-   //now do what ever initialization is needed
-   usesResource("TFileService");
+  //now do what ever initialization is needed
 }
 
 
@@ -97,7 +96,7 @@ AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
    
    // loop on the PSet and insert the conditions 
 
-   std::vector<std::string> mandatories = {"X","Y","Z","thetaX","thetaY","thetaZ"};
+   std::array<std::string,6> mandatories = {{"X","Y","Z","thetaX","thetaY","thetaZ"}};
    std::vector<std::string> alignables;
 
    // fill the list of alignables
@@ -237,8 +236,6 @@ DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(std::string coord){
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 AlignPCLThresholdsWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
