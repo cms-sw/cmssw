@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import os
 from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('L1TStage2EmulatorDQM', eras.Run2_2016)
@@ -45,9 +45,10 @@ with open('fileListRAW.local') as f:
     fileListRAW = f.readlines()
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring('file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
-#     secondaryFileNames=cms.untracked.vstring(
-#         fileListRAW),
+#     fileNames=cms.untracked.vstring(fileList[0]),
+#     secondaryFileNames=cms.untracked.vstring(fileListRAW),
+    fileNames=cms.untracked.vstring(
+        'file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
 )
 
 process.options = cms.untracked.PSet(
@@ -74,17 +75,23 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
 
+if os.environ.get('DEBUG', False):
+    process.MessageLogger.cout.threshold=cms.untracked.string('DEBUG')
+    process.MessageLogger.debugModules = cms.untracked.vstring(
+        '*',
+    )
+
 process.dqmoffline_step = cms.Path(
     process.l1tStage2CaloLayer2OfflineDQMEmu +
-    process.l1tStage2CaloLayer2OfflineDQM + 
-    process.l1tEGammaOfflineDQM + 
+    process.l1tStage2CaloLayer2OfflineDQM +
+    process.l1tEGammaOfflineDQM +
     process.l1tEGammaOfflineDQMEmu
 )
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(
     process.raw2digi_step,
-    )
+)
 
 # customisation of the process.
 
