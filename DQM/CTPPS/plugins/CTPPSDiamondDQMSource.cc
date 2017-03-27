@@ -34,7 +34,7 @@
 
 #include "TRandom3.h"
 const double SEC_PER_LUMI_SECTION = 23.31;
-
+const double HPTDC_BIN_WIDTH = 25e-9/1024;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -65,8 +65,21 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     bool excludeMultipleHits_;
     double minimumStripAngleForTomography_;
     unsigned int verbosity_;
-    double HPTDCBinWidth_;
+    
+    //Rnd generator used to "fake" pad width
+    TRandom3 randomGen;
 
+    /// plots related to the whole system
+    struct GlobalPlots
+    {
+      MonitorElement *h_trackCorr_hor = NULL;
+
+      GlobalPlots() {};
+      GlobalPlots(DQMStore::IBooker &ibooker);
+    };
+
+    GlobalPlots globalPlot_;
+    
     /// plots related to one Diamond detector package
     struct PotPlots
     {
@@ -93,7 +106,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 
       MonitorElement* error_flags_cumulative = NULL;
 
-      PotPlots() {}
+      PotPlots() {};
       PotPlots( DQMStore::IBooker& ibooker, unsigned int id );
     };
 
@@ -141,6 +154,24 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 
 //----------------------------------------------------------------------------------------------------
 
+CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker)
+{
+  ibooker.setCurrentFolder("CTPPS");
+
+  h_trackCorr_hor = ibooker.book2D("track correlation all hor", "rp, all, hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
+  TH2F *hist = h_trackCorr_hor->getTH2F();
+  TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
+  xa->SetBinLabel(1, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
+  xa->SetBinLabel(2, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
+  xa->SetBinLabel(3, "45, 220, cyl"); ya->SetBinLabel(3, "45, 220, cyl");
+  xa->SetBinLabel(4, "56, 210, near"); ya->SetBinLabel(4, "56, 210, near");
+  xa->SetBinLabel(5, "56, 210, far"); ya->SetBinLabel(5, "56, 210, far");
+  xa->SetBinLabel(6, "56, 220, cyl"); ya->SetBinLabel(6, "56, 220, cyl");
+}
+
+//----------------------------------------------------------------------------------------------------
+
+
 CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned int id )
 {
   std::string path, title;
@@ -149,47 +180,47 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
 
-  activity_per_bx = ibooker.book1D( "activity per BX", title+";Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_short = ibooker.book1D( "activity per BX (short)", title+";Event.BX", 102, -1.5, 100. + 0.5 );
+  activity_per_bx = ibooker.book1D( "activity per BX", title+" activity per BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_short = ibooker.book1D( "activity per BX (short)", title+" activity per BX (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
-  activity_per_bx_plus1 = ibooker.book1D( "activity per BX OOT +1", title+";Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_short_plus1 = ibooker.book1D( "activity per BX OOT +1 (short)", title+";Event.BX", 102, -1.5, 100. + 0.5 );
+  activity_per_bx_plus1 = ibooker.book1D( "activity per BX OOT +1", title+" activity per BX OOT +1;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_short_plus1 = ibooker.book1D( "activity per BX OOT +1 (short)", title+" activity per BX OOT +1 (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
-  activity_per_bx_minus1 = ibooker.book1D( "activity per BX OOT -1", title+";Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_bx_short_minus1 = ibooker.book1D( "activity per BX OOT -1 (short)", title+";Event.BX", 102, -1.5, 100. + 0.5 );
+  activity_per_bx_minus1 = ibooker.book1D( "activity per BX OOT -1", title+" activity per BX OOT -1;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_bx_short_minus1 = ibooker.book1D( "activity per BX OOT -1 (short)", title+" activity per BX OOT -1 (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
-  activity_per_fedbx = ibooker.book1D( "activity per FED BX", title+";Event.BX", 4002, -1.5, 4000. + 0.5 );
-  activity_per_fedbx_short = ibooker.book1D( "activity per FED BX (short)", title+";Event.BX", 102, -1.5, 100. + 0.5 );
+  activity_per_fedbx = ibooker.book1D( "activity per FED BX", title+" activity per FED BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
+  activity_per_fedbx_short = ibooker.book1D( "activity per FED BX (short)", title+" activity per FED BX (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
-  hitDistribution2d = ibooker.book2D( "hits in planes (2D)", title+";plane number;x (mm)", 9, -0.5, 4, 190, -1, 18 );
-  hitDistribution2dOOT= ibooker.book2D( "hits with OOT (x0_25) in planes (2D)", title+";plane number;x (mm)", 17, -0.25, 4, 60, 0, 18 );
-  activePlanes = ibooker.book1D( "active planes", title+";number of active planes", 6, -0.5, 5.5);
+  hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 9, -0.5, 4, 190, -1, 18 );
+  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 60, 0, 18 );
+  activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5);
 
-  trackDistribution = ibooker.book1D( "tracks", title+";x (mm)", 95, -1, 18 );
-  trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+";plane number;x (mm)", 9, -0.5, 4, 60, 0, 18 );
+  trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 95, -1, 18 );
+  trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 60, 0, 18 );
 
-  stripTomographyAllFar = ibooker.book2D( "Tomography all far", "Tomography with strips far (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );
-  stripTomographyAllNear = ibooker.book2D( "Tomography all near", "Tomography with strips near (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );
+  stripTomographyAllFar = ibooker.book2D( "tomography all far", title+" tomography with strips far (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
+  stripTomographyAllNear = ibooker.book2D( "tomography all near", title+" tomography with strips near (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
 
-  stripTomographyAllFar_plus1 = ibooker.book2D( "Tomography all far OOT +1", "Tomography with strips far (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );
-  stripTomographyAllNear_plus1 = ibooker.book2D( "Tomography all near OOT +1", "Tomography with strips near (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );
+  stripTomographyAllFar_plus1 = ibooker.book2D( "tomography all far OOT +1", title+" tomography with strips far (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
+  stripTomographyAllNear_plus1 = ibooker.book2D( "tomography all near OOT +1", title+" tomography with strips near (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
 
-  stripTomographyAllFar_minus1 = ibooker.book2D( "Tomography all far OOT -1", "Tomography with strips far (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );
-  stripTomographyAllNear_minus1 = ibooker.book2D( "Tomography all near OOT -1", "Tomography with strips near (all planes);x (mm);y (mm)", 200, 0, 200, 101, -50, 50 );  
+  stripTomographyAllFar_minus1 = ibooker.book2D( "tomography all far OOT -1", title+" tomography with strips far (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
+  stripTomographyAllNear_minus1 = ibooker.book2D( "tomography all near OOT -1", title+" tomography with strips near (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );  
 
-  leadingEdgeCumulativePot = ibooker.book1D( "Leading Edge", title+";leading edge", 201, -100, 100 );
-  timeOverThresholdCumulativePot = ibooker.book1D( "Time over Threshold", title+";time over threshold", 201, -100, 100 );
-  leadingTrailingCorrelationPot = ibooker.book2D( "Leading Trailing Correlation", title+";leading;trailing", 201, -100, 100, 201, -100, 100 );
+  leadingEdgeCumulativePot = ibooker.book1D( "leading edge", title+" leading edge;leading edge (ns)", 201, -100, 100 );
+  timeOverThresholdCumulativePot = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 201, -100, 100 );
+  leadingTrailingCorrelationPot = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 201, -100, 100, 201, -100, 100 );
   
-  leading_without_trailing_cumulative_pot = ibooker.book1D( "Leading Edges Without Trailing", title+";leading edges without trailing", 4, 0.5, 4.5 );
+  leading_without_trailing_cumulative_pot = ibooker.book1D( "leading edges without trailing", title+" leading edges without trailing;leading edges without trailing", 4, 0.5, 4.5 );
   leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel( 1, "Nothing" );
   leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(2, "Leading only");
   leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(3, "Trailing only");
   leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(4, "Both");
 
-  ec_check = ibooker.book1D("optorxEC(8bit) - vfatEC", title+";optorxEC-vfatEC",512,-256,256);
+  ec_check = ibooker.book1D("optorxEC(8bit) - vfatEC", title+" EC Error;optorxEC-vfatEC",512,-256,256);
 
-  error_flags_cumulative = ibooker.book1D( "hptdc_Errors", title, 16, -0.5, 16.5 );
+  error_flags_cumulative = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index ) 
     error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
   error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
@@ -205,14 +236,14 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots( DQMStore::IBooker& ibooker, unsig
 
   CTPPSDiamondDetId( id ).planeName( title, CTPPSDiamondDetId::nFull );
 
-  digi_profile_cumulative = ibooker.book1D( "digi profile", title, 12, -0.5, 11.5 );
-  hitProfile = ibooker.book1D( "hit profile", title+";hits/detector/event", 180, 0, 18 );
-  hit_multiplicity = ibooker.book1D( "hit multiplicity", title+";x (mm)", 13, -0.5, 12.5 );
+  digi_profile_cumulative = ibooker.book1D( "digi profile", title+" digi profile; ch number", 12, -0.5, 11.5 );
+  hitProfile = ibooker.book1D( "hit profile", title+" hit profile;x (mm)", 180, 0, 18 );
+  hit_multiplicity = ibooker.book1D( "channels per plane", title+" channels per plane; ch per plane", 13, -0.5, 12.5 );
 
-  threshold_voltage = ibooker.book1D( "Threshold Voltage", title+";threshold voltage", 12, -0.5, 11.5 );
+  threshold_voltage = ibooker.book2D( "threshold I2C", title+" threshold I2C; channel; value", 12, -0.5, 11.5, 513, 0, 512 );
 
-  stripTomography_far = ibooker.book2D( "Tomography_far", "Tomography with strips far;x (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
-  stripTomography_near = ibooker.book2D( "Tomography_near", "Tomography with strips near;x (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
+  stripTomography_far = ibooker.book2D( "tomography far", title+" tomography with strips far;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
+  stripTomography_near = ibooker.book2D( "tomography near", title+" tomography with strips near;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -225,27 +256,27 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
 
   CTPPSDiamondDetId( id ).channelName( title, CTPPSDiamondDetId::nFull );
 
-  leading_without_trailing = ibooker.book1D( "Leading Edge Without Trailing", title+";leading edge without trailing", 4, 0.5, 4.5 );
+  leading_without_trailing = ibooker.book1D( "Leading Edges Without Trailing", title+" leading edges without trailing", 4, 0.5, 4.5 );
   leading_without_trailing->getTH1F()->GetXaxis()->SetBinLabel( 1, "Nothing" );
   leading_without_trailing->getTH1F()->GetXaxis()->SetBinLabel( 2, "Leading only" );
   leading_without_trailing->getTH1F()->GetXaxis()->SetBinLabel( 3, "Trailer only" );
   leading_without_trailing->getTH1F()->GetXaxis()->SetBinLabel( 4, "Full" );
 
-  error_flags = ibooker.book1D( "hptdc_Errors", title+";channel number", 16, -0.5, 16.5 );
+  error_flags = ibooker.book1D( "hptdc_Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
     error_flags->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
   error_flags->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
 
-  leading_edge_cumulative = ibooker.book1D( "Leading Edge", title+";leading edge", 1001, 0, 100e-9 );
-  time_over_threshold_cumulative = ibooker.book1D( "Time over Threshold", title+";time over threshold", 2e3, -1e-6, 1e-6 );
-  leading_trailing_correlation = ibooker.book2D( "Leading Trailing Correlation", title+";leading trailing corr", 3e2, 0, 60e-9, 3e2, 0, 60e-9 );
+  leading_edge_cumulative = ibooker.book1D( "leading edge", title+" leading edge; leading edge (ns)", 1001, 0, 100e-9 );
+  time_over_threshold_cumulative = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 2e3, -1e-6, 1e-6 );
+  leading_trailing_correlation = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 3e2, 0, 60e-9, 3e2, 0, 60e-9 );
 
-  channel_ec_check = ibooker.book1D("optorxEC(8bit) - vfatEC vs optorxEC", title+";optorxEC-vfatEC",512,-256,256);
+  channel_ec_check = ibooker.book1D("optorxEC(8bit) - vfatEC vs optorxEC", title+" EC Error;optorxEC-vfatEC",512,-256,256);
 
-  stripTomography_far = ibooker.book2D( "Tomography_far", "Tomography with strips far;x (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
-  stripTomography_near = ibooker.book2D( "Tomography_near", "Tomography with strips near;x (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
+  stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
+  stripTomography_near = ibooker.book2D( "tomography near", "tomography with strips near;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
   
-  hit_rate = ibooker.book1D("hit rate", title+";hit rate", 100, 0, 100e3);	// Hz?
+  hit_rate = ibooker.book1D("hit rate", title+"hit rate;rate (Hz)", 100, 0, 100e3);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -260,7 +291,6 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource( const edm::ParameterSet& ps ) :
   excludeMultipleHits_( ps.getParameter<bool>( "excludeMultipleHits" ) ),
   minimumStripAngleForTomography_( ps.getParameter<double>( "minimumStripAngleForTomography" ) ),
   verbosity_          ( ps.getUntrackedParameter<unsigned int>( "verbosity", 0 ) ),
-  HPTDCBinWidth_( 25e-9/1024 ),
   diff_tmp_582_( -500 ), diff_tmp_583_( -500 )
 {}
 
@@ -282,6 +312,8 @@ CTPPSDiamondDQMSource::bookHistograms( DQMStore::IBooker& ibooker, const edm::Ru
 {
   ibooker.cd();
   ibooker.setCurrentFolder( "CTPPS" );
+  
+  globalPlot_= GlobalPlots( ibooker );
 
   // loop over arms
   for ( unsigned short arm = 0; arm < 2; ++arm ) {
@@ -366,10 +398,89 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
 
   //------------------------------
   // RP Plots
+  //------------------------------  
+  
   //------------------------------
+  // Correlation Plots
+  //------------------------------
+  
+  for ( auto &ds1 : *StripTracks )
+  {
+    for ( auto &tr1 : ds1 )
+    {
+      if ( ! tr1.isValid() )
+        continue;
+  
+      CTPPSDetId rpId1( ds1.detId() );
+      unsigned int arm1 = rpId1.arm();
+      unsigned int stNum1 = rpId1.station();
+      unsigned int rpNum1 = rpId1.rp();
+      if (stNum1 != 0 || ( rpNum1 != 2 && rpNum1 != 3 ) )
+        continue;
+      unsigned int idx1 = arm1*3 + rpNum1-2;
 
-  //Rnd generator used to "fake" pad width
-  TRandom3 randomGen;
+      for ( auto &ds2 : *StripTracks )
+      {
+        for ( auto &tr2 : ds2 )
+        {
+          if ( ! tr2.isValid() )
+            continue;
+        
+          CTPPSDetId rpId2(ds2.detId());
+          unsigned int arm2 = rpId2.arm();
+          unsigned int stNum2 = rpId2.station();
+          unsigned int rpNum2 = rpId2.rp();
+          if (stNum2 != 0 || ( rpNum2 != 2 && rpNum2 != 3 ) )
+            continue;
+          unsigned int idx2 = arm2*3 + rpNum2-2;
+  
+          globalPlot_.h_trackCorr_hor->Fill( idx1, idx2 ); 
+        }
+      }
+      for ( auto &ds2 : *localTracks )
+      {
+        for ( auto &tr2 : ds2 )
+        {
+          if ( ! tr2.isValid() )
+            continue;
+          if ( tr2.getOOTIndex() != 1 )
+            continue;
+          
+          CTPPSDetId diamId2( ds2.detId() );
+          unsigned int arm2 = diamId2.arm();
+          globalPlot_.h_trackCorr_hor->Fill( idx1, arm2*3+2 ); 
+          globalPlot_.h_trackCorr_hor->Fill( arm2*3+2, idx1 );
+        }
+      }
+    }
+  }
+  for ( auto &ds1 : *localTracks )
+  {
+    for ( auto &tr1 : ds1 )
+    {
+      if ( ! tr1.isValid() )
+        continue;
+      if ( tr1.getOOTIndex() != 1 )
+            continue;
+      
+      CTPPSDetId diamId1( ds1.detId() );
+      unsigned int arm1 = diamId1.arm();
+      for ( auto &ds2 : *localTracks )
+      {
+        for ( auto &tr2 : ds2 )
+        {
+          if ( ! tr2.isValid() )
+            continue;
+          if ( tr2.getOOTIndex() != 1 )
+            continue;
+          
+          CTPPSDetId diamId2( ds2.detId() );
+          unsigned int arm2 = diamId2.arm();
+          globalPlot_.h_trackCorr_hor->Fill( arm1*3+2, arm2*3+2 ); 
+        }
+      }
+    }
+  }
   
   
   // Using CTPPSDiamondDigi
@@ -606,10 +717,10 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
               const unsigned int arm = striplt.getZ0()>0 ? 1 : 0;
               if ( arm != detId_plane.arm() ) continue;
               if ( abs( striplt.getZ0() ) > 207e3 ) {
-                planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0(), striplt.getY0() + 30*( hitIt->getOOTIndex()-1 ) );
+                planePlots_[detId_plane].stripTomography_far->Fill( striplt.getX0(), striplt.getY0() + 50*( hitIt->getOOTIndex()-1 ) );
               }
               else {
-                planePlots_[detId_plane].stripTomography_near->Fill( striplt.getX0(), striplt.getY0() + 30*( hitIt->getOOTIndex()-1 ) );
+                planePlots_[detId_plane].stripTomography_near->Fill( striplt.getX0(), striplt.getY0() + 50*( hitIt->getOOTIndex()-1 ) );
               }
             }
           }
@@ -642,10 +753,10 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator dit = it->begin(); dit != it->end(); ++dit ) {
       if ( channelPlots_.find( detId ) != channelPlots_.end() ) {
         if ( dit->getLeadingEdge() != 0 ) {
-          channelPlots_[detId].leading_edge_cumulative->Fill(dit->getLeadingEdge() * HPTDCBinWidth_);
+          channelPlots_[detId].leading_edge_cumulative->Fill(dit->getLeadingEdge() * HPTDC_BIN_WIDTH);
           if (dit->getTrailingEdge() != 0) {
-            channelPlots_[detId].time_over_threshold_cumulative->Fill( HPTDCBinWidth_ * ( dit->getLeadingEdge() - dit->getTrailingEdge() ) );
-            channelPlots_[detId].leading_trailing_correlation->Fill( dit->getTrailingEdge() * HPTDCBinWidth_, dit->getLeadingEdge() * HPTDCBinWidth_ );    
+            channelPlots_[detId].time_over_threshold_cumulative->Fill( HPTDC_BIN_WIDTH * ( dit->getLeadingEdge() - dit->getTrailingEdge() ) );
+            channelPlots_[detId].leading_trailing_correlation->Fill( dit->getTrailingEdge() * HPTDC_BIN_WIDTH, dit->getLeadingEdge() * HPTDC_BIN_WIDTH );    
             ++(channelPlots_[detId].hitsCounterPerLumisection);
           }
         }
@@ -679,10 +790,10 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
               const unsigned int arm = striplt.getZ0()>0 ? 1 : 0;
               if ( arm != detId.arm() ) continue;
               if ( abs( striplt.getZ0() ) > 207e3 ) {
-                channelPlots_[detId].stripTomography_far->Fill( striplt.getX0(), striplt.getY0() + 30*( hitIt->getOOTIndex()-1 ) );
+                channelPlots_[detId].stripTomography_far->Fill( striplt.getX0(), striplt.getY0() + 50*( hitIt->getOOTIndex()-1 ) );
               }
               else {
-                channelPlots_[detId].stripTomography_near->Fill( striplt.getX0(), striplt.getY0() + 30*( hitIt->getOOTIndex()-1 ) );
+                channelPlots_[detId].stripTomography_near->Fill( striplt.getX0(), striplt.getY0() + 50*( hitIt->getOOTIndex()-1 ) );
               }
             }
           }
