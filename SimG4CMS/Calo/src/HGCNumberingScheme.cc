@@ -69,8 +69,8 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
                               << " Subdet= " << subdet << " Zside= " << iz
                               << " Layer= " << layer << " Wafer= " << wafer
-                              << " CellType= " << celltyp << " Cell= "
-                              << icell;
+                              << ":" << module << " CellType= " << celltyp 
+			      << " Cell= " << icell;
     }
   }
 #ifdef DebugLog
