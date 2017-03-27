@@ -1,5 +1,5 @@
-#ifndef _AlignPCLThreshold_h_
-#define _AlignPCLThreshold_h_
+#ifndef CondFormats_PCLConfig_AlignPCLThresholds_h 
+#define CondFormats_PCLConfig_AlignPCLThresholds_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
@@ -73,6 +73,7 @@ public:
   bool hasExtraDOF()           const {return (m_extraDOF.size()>0);}
   unsigned int extraDOFSize()  const {return m_extraDOF.size();}
   std::array<float,4> getExtraDOFCuts(const unsigned int i) const;
+  std::string getExtraDOFLabel(const unsigned int i) const;
 
 private:
 

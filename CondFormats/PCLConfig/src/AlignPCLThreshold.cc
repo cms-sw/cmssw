@@ -19,7 +19,7 @@ AlignPCLThreshold:: AlignPCLThreshold(coordThresholds X,
 
 };
 
-
+//****************************************************************************//
 std::array<float,4> AlignPCLThreshold::getExtraDOFCuts(const unsigned int i) const  { 
   
   if(i<m_extraDOF.size()){
@@ -29,3 +29,12 @@ std::array<float,4> AlignPCLThreshold::getExtraDOFCuts(const unsigned int i) con
   }
 }   
 
+//****************************************************************************//
+std::string AlignPCLThreshold::getExtraDOFLabel(const unsigned int i) const  { 
+  
+  if(i<m_extraDOF.size()){
+    return m_extraDOF[i].m_label; 
+  } else {
+    throw cms::Exception("AlignPCLThreshold")<< "No extra DOF label defined for index" << i << "\n";
+  }
+}   

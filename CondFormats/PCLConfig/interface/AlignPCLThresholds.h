@@ -8,41 +8,40 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class AlignPCLThresholds{
  public:
-  typedef map<string,AlignPCLThreshold> threshold_map;
+  typedef std::map<std::string,AlignPCLThreshold> threshold_map;
   enum coordType {X, Y, Z, theta_X, theta_Y, theta_Z, extra_DOF, endOfTypes}; 
 
   AlignPCLThresholds(){}
   virtual ~AlignPCLThresholds(){}
 
-  void setAlignPCLThreshold(string AlignableId, const AlignPCLThreshold &Threshold);
+  void setAlignPCLThreshold(const std::string &AlignableId, const AlignPCLThreshold &Threshold);
   void setAlignPCLThresholds(const int &Nrecords,const threshold_map &Thresholds);
   void setNRecords(const int &Nrecords);
                   
   const threshold_map& getThreshold_Map () const  {return m_thresholds;}
   const int& getNrecords() const {return m_nrecords;}
 
-  AlignPCLThreshold   getAlignPCLThreshold(string AlignableId) const;
-  AlignPCLThreshold & getAlignPCLThreshold(string AlignableId);
+  AlignPCLThreshold   getAlignPCLThreshold(const std::string &AlignableId) const;
+  AlignPCLThreshold & getAlignPCLThreshold(const std::string &AlignableId);
   
-  float getSigCut     (string AlignableId,coordType type) const;
-  float getCut        (string AlignableId,coordType type) const;
-  float getMaxMoveCut (string AlignableId,coordType type) const; 
-  float getMaxErrorCut(string AlignableId,coordType type) const;                     
+  float getSigCut     (const std::string &AlignableId,const coordType &type) const;
+  float getCut        (const std::string &AlignableId,const coordType &type) const;
+  float getMaxMoveCut (const std::string &AlignableId,const coordType &type) const; 
+  float getMaxErrorCut(const std::string &AlignableId,const coordType &type) const;                     
 
   // overloaded methods to get all the coordinates
-  array<float,6> getSigCut     (string AlignableId) const;
-  array<float,6> getCut        (string AlignableId) const;
-  array<float,6> getMaxMoveCut (string AlignableId) const; 
-  array<float,6> getMaxErrorCut(string AlignableId) const;
+  std::array<float,6> getSigCut     (const std::string &AlignableId) const;
+  std::array<float,6> getCut        (const std::string &AlignableId) const;
+  std::array<float,6> getMaxMoveCut (const std::string &AlignableId) const; 
+  std::array<float,6> getMaxErrorCut(const std::string &AlignableId) const;
   
-  array<float,4> getExtraDOFCutsForAlignable(string AlignableId,const unsigned int i) const;
+  std::array<float,4> getExtraDOFCutsForAlignable(const std::string &AlignableId,const unsigned int i) const;
+  std::string getExtraDOFLabelForAlignable(const std::string &AlignableId,const unsigned int i) const;
 
   double size()const {return m_thresholds.size();}
-  vector<string> getAlignableList() const;
+  std::vector<std::string> getAlignableList() const;
 
   void printAll() const;
 
