@@ -16,7 +16,7 @@ public:
       m_label="default";
     }
     ~coordThresholds(){}
-    void setThresholds(float theCut,float theSigCut,float theErrorCut,float theMaxMoveCut,std::string theLabel){
+    void setThresholds(float theCut,float theSigCut,float theErrorCut,float theMaxMoveCut,const std::string &theLabel){
       m_Cut=theCut;
       m_sigCut=theSigCut;
       m_errorCut=theErrorCut;
