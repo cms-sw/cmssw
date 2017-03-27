@@ -24,11 +24,19 @@ resolution_plots = [
     "resolutionElectronET_EB", "resolutionElectronET_EE",
     "resolutionElectronET_EB_EE", "resolutionElectronPhi_EB", "resolutionElectronPhi_EE",
     "resolutionElectronPhi_EB_EE", "resolutionElectronEta",
+    #
+    "resolutionPhotonET_EB", "resolutionPhotonET_EE",
+    "resolutionPhotonET_EB_EE", "resolutionPhotonPhi_EB", "resolutionPhotonPhi_EE",
+    "resolutionPhotonPhi_EB_EE", "resolutionPhotonEta",
 ]
 plots2D = [
     'L1EGammaETvsElectronET_EB', 'L1EGammaETvsElectronET_EE', 'L1EGammaETvsElectronET_EB_EE',
     'L1EGammaPhivsElectronPhi_EB', 'L1EGammaPhivsElectronPhi_EE', 'L1EGammaPhivsElectronPhi_EB_EE',
     'L1EGammaEtavsElectronEta',
+    #
+    'L1EGammaETvsPhotonET_EB', 'L1EGammaETvsPhotonET_EE', 'L1EGammaETvsPhotonET_EB_EE',
+    'L1EGammaPhivsPhotonPhi_EB', 'L1EGammaPhivsPhotonPhi_EE', 'L1EGammaPhivsPhotonPhi_EB_EE',
+    'L1EGammaEtavsPhotonEta',
 ]
 
 allPlots = []

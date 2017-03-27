@@ -26,7 +26,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -83,8 +82,10 @@ private:
   edm::EDGetTokenT<l1t::EGammaBxCollection> stage2CaloLayer2EGammaToken_;
 
   std::vector<double> electronEfficiencyThresholds_;
-
   std::vector<double> electronEfficiencyBins_;
+
+  std::vector<double> photonEfficiencyThresholds_;
+  std::vector<double> photonEfficiencyBins_;
 
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
@@ -127,6 +128,39 @@ private:
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_total_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EE_total_;
   std::map<double, MonitorElement*> h_efficiencyElectronET_EB_EE_total_;
+
+  // photons
+  MonitorElement* h_L1EGammaETvsPhotonET_EB_;
+  MonitorElement* h_L1EGammaETvsPhotonET_EE_;
+  MonitorElement* h_L1EGammaETvsPhotonET_EB_EE_;
+
+  MonitorElement* h_L1EGammaPhivsPhotonPhi_EB_;
+  MonitorElement* h_L1EGammaPhivsPhotonPhi_EE_;
+  MonitorElement* h_L1EGammaPhivsPhotonPhi_EB_EE_;
+
+  MonitorElement* h_L1EGammaEtavsPhotonEta_;
+
+  // electron resolutions
+  MonitorElement* h_resolutionPhotonET_EB_;
+  MonitorElement* h_resolutionPhotonET_EE_;
+  MonitorElement* h_resolutionPhotonET_EB_EE_;
+
+  MonitorElement* h_resolutionPhotonPhi_EB_;
+  MonitorElement* h_resolutionPhotonPhi_EE_;
+  MonitorElement* h_resolutionPhotonPhi_EB_EE_;
+
+  MonitorElement* h_resolutionPhotonEta_;
+
+  // electron turn-ons
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_pass_;
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_pass_;
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_pass_;
+
+  // we could drop the map here, but L1TEfficiency_Harvesting expects
+  // identical names except for the suffix
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_total_;
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_total_;
+  std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_total_;
 
 };
 

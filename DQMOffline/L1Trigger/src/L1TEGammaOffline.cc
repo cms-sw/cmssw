@@ -6,6 +6,7 @@
 // Geometry
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "TLorentzVector.h"
 
 #include <iostream>
@@ -36,6 +37,8 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
             consumes < l1t::EGammaBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EGammaSource"))),
         electronEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("electronEfficiencyThresholds")),
         electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins")),
+        photonEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("photonEfficiencyThresholds")),
+        photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         tagElectron_(),
         probeElectron_(),
         tagAndProbleInvariantMass_(-1.)
@@ -97,7 +100,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 
   // L1T
   fillElectrons(e, nVertex);
-//      fillPhotons(e, nVertex);
+  fillPhotons(e, nVertex);
 }
 
 void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVertex)
@@ -146,7 +149,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   }
 
   if (!foundMatch) {
-    edm::LogError("L1TEGammaOffline") << "Could not find a matching L1 EGamma " << std::endl;
+    LogDebug("L1TEGammaOffline") << "Could not find a matching L1 EGamma " << std::endl;
     return;
   }
 
@@ -161,15 +164,15 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
+  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
 
   using namespace dqmoffline::l1t;
   // eta
   fill2DWithinLimits(h_L1EGammaEtavsElectronEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionElectronEta_, resolutionEta);
 
-  if (abs(recoEta) <= 1.479) { // barrel
+  if (std::abs(recoEta) <= 1.479) { // barrel
     // et
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EB_, recoEt, l1Et);
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EB_EE_, recoEt, l1Et);
@@ -348,27 +351,117 @@ bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) cons
 
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
 {
-  // TODO
-//  edm::Handle<l1t::EGammaBxCollection> l1EGamma;
-//  e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
-//
-//  edm::Handle<reco::Photon> photons;
-//  e.getByToken(thePhotonCollection_, photons);
-//
-//  if (!photons.isValid()) {
-//    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
-//    return;
-//  }
-//  if (!l1EGamma.isValid()) {
-//    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
-//    return;
-//  }
-//
-//  int bunchCrossing = 0;
-//
-//  for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
-//    // fill photon histograms
-//  }
+  // TODO - just an example here
+  edm::Handle<l1t::EGammaBxCollection> l1EGamma;
+  e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
+
+  edm::Handle < reco::PhotonCollection > photons;
+  e.getByToken(thePhotonCollection_, photons);
+
+  if (!photons.isValid()) {
+    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
+    return;
+  }
+  if (!l1EGamma.isValid()) {
+    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    return;
+  }
+
+  if(photons->size() ==0){
+    LogDebug("L1TEGammaOffline") << "No photons found in event." << std::endl;
+    return;
+  }
+
+  auto probePhoton = photons->at(0);
+
+  double minDeltaR = 0.3;
+  l1t::EGamma closestL1EGamma;
+  bool foundMatch = false;
+
+  int bunchCrossing = 0;
+  for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
+    double currentDeltaR = deltaR(egamma->eta(), egamma->phi(), probePhoton.eta(), probePhoton.phi());
+    if (currentDeltaR > minDeltaR) {
+      continue;
+    } else {
+      minDeltaR = currentDeltaR;
+      closestL1EGamma = *egamma;
+      foundMatch = true;
+    }
+
+  }
+
+  if (!foundMatch) {
+    LogDebug("L1TEGammaOffline") << "Could not find a matching L1 EGamma " << std::endl;
+    return;
+  }
+
+  double recoEt = probePhoton.et();
+  double recoEta = probePhoton.eta();
+  double recoPhi = probePhoton.phi();
+
+  double l1Et = closestL1EGamma.et();
+  double l1Eta = closestL1EGamma.eta();
+  double l1Phi = closestL1EGamma.phi();
+
+  // if no reco value, relative resolution does not make sense -> sort to overflow
+  double outOfBounds = 9999;
+  double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
+  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
+  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+
+  using namespace dqmoffline::l1t;
+  // eta
+  fill2DWithinLimits(h_L1EGammaEtavsPhotonEta_, recoEta, l1Eta);
+  fillWithinLimits(h_resolutionPhotonEta_, resolutionEta);
+
+  if (std::abs(recoEta) <= 1.479) { // barrel
+    // et
+    fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_EE_, recoEt, l1Et);
+    //resolution
+    fillWithinLimits(h_resolutionPhotonET_EB_, resolutionEt);
+    fillWithinLimits(h_resolutionPhotonET_EB_EE_, resolutionEt);
+    // phi
+    fill2DWithinLimits(h_L1EGammaPhivsPhotonPhi_EB_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1EGammaPhivsPhotonPhi_EB_EE_, recoPhi, l1Phi);
+    // resolution
+    fillWithinLimits(h_resolutionPhotonPhi_EB_, resolutionPhi);
+    fillWithinLimits(h_resolutionPhotonPhi_EB_EE_, resolutionPhi);
+
+    // turn-ons
+    for (auto threshold : photonEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyPhotonET_EB_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyPhotonET_EB_EE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyPhotonET_EB_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyPhotonET_EB_EE_pass_[threshold], recoEt);
+      }
+    }
+  } else { // end-cap
+    // et
+    fill2DWithinLimits(h_L1EGammaETvsPhotonET_EE_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_EE_, recoEt, l1Et);
+    //resolution
+    fillWithinLimits(h_resolutionPhotonET_EE_, resolutionEt);
+    fillWithinLimits(h_resolutionPhotonET_EB_EE_, resolutionEt);
+    // phi
+    fill2DWithinLimits(h_L1EGammaPhivsPhotonPhi_EE_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1EGammaPhivsPhotonPhi_EB_EE_, recoPhi, l1Phi);
+    // resolution
+    fillWithinLimits(h_resolutionPhotonPhi_EE_, resolutionPhi);
+    fillWithinLimits(h_resolutionPhotonPhi_EB_EE_, resolutionPhi);
+
+    // turn-ons
+    for (auto threshold : photonEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyPhotonET_EE_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyPhotonET_EB_EE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyPhotonET_EE_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyPhotonET_EB_EE_pass_[threshold], recoEt);
+      }
+    }
+  }
 }
 
 //
@@ -480,6 +573,76 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_.c_str());
+  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+
+  h_L1EGammaPhivsPhotonPhi_EB_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
+      100, -4, 4);
+  h_L1EGammaPhivsPhotonPhi_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
+      100, -4, 4);
+  h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB_EE",
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
+      100, -4, 4);
+
+  h_L1EGammaEtavsPhotonEta_ = ibooker.book2D("L1EGammaEtavsPhotonEta",
+      "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
+
+  // photon resolutions
+  h_resolutionPhotonET_EB_ = ibooker.book1D("resolutionPhotonET_EB",
+      "photon ET resolution (EB); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
+  h_resolutionPhotonET_EE_ = ibooker.book1D("resolutionPhotonET_EE",
+      "photon ET resolution (EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
+  h_resolutionPhotonET_EB_EE_ = ibooker.book1D("resolutionPhotonET_EB_EE",
+      "photon ET resolution (EB+EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
+
+  h_resolutionPhotonPhi_EB_ = ibooker.book1D("resolutionPhotonPhi_EB",
+      "#phi_{photon} resolution (EB); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      120, -0.3, 0.3);
+  h_resolutionPhotonPhi_EE_ = ibooker.book1D("resolutionPhotonPhi_EE",
+      "photon #phi resolution (EE); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      120, -0.3, 0.3);
+  h_resolutionPhotonPhi_EB_EE_ = ibooker.book1D("resolutionPhotonPhi_EB_EE",
+      "photon #phi resolution (EB+EE); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      120, -0.3, 0.3);
+
+  h_resolutionPhotonEta_ = ibooker.book1D("resolutionPhotonEta",
+      "photon #eta resolution  (EB); (L1 EGamma #eta -  Photon #eta)/ Photon #eta; events", 120, -0.3, 0.3);
+
+  // photon turn-ons
+  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  std::vector<float> photonBins(photonEfficiencyBins_.begin(), photonEfficiencyBins_.end());
+  int nBins = photonBins.size() - 1;
+  float* photonBinArray = &(photonBins[0]);
+
+  for (auto threshold : photonEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyPhotonET_EB_pass_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Num",
+        "photon efficiency (EB);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EE_pass_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Num",
+        "photon efficiency (EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EB_EE_pass_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Num",
+        "photon efficiency (EB+EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+
+    h_efficiencyPhotonET_EB_total_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Den",
+        "photon efficiency (EB);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EE_total_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Den",
+        "photon efficiency (EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EB_EE_total_[threshold] = ibooker.book1D(
+        "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Den",
+        "photon efficiency (EB+EE);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+  }
+
   ibooker.cd();
 }
 

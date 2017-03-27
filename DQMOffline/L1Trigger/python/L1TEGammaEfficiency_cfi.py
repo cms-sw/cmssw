@@ -3,6 +3,7 @@ from DQMOffline.L1Trigger import L1TEGammaOffline_cfi
 
 variables = {
     'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds,
+    'photon': L1TEGammaOffline_cfi.photonEfficiencyThresholds,
 }
 
 plots = {
@@ -10,6 +11,10 @@ plots = {
         "efficiencyElectronET_EB", "efficiencyElectronET_EE",
         "efficiencyElectronET_EB_EE"
     ],
+    'photon': [
+        "efficiencyPhotonET_EB", "efficiencyPhotonET_EE",
+        "efficiencyPhotonET_EB_EE"
+    ]
 }
 
 allEfficiencyPlots = []
@@ -31,7 +36,8 @@ l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1TEMU/L1TEGamma/efficiency_raw"),
+            numeratorDir=cms.untracked.string(
+                "L1TEMU/L1TEGamma/efficiency_raw"),
             outputDir=cms.untracked.string("L1TEMU/L1TEGamma"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
