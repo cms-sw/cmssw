@@ -20,7 +20,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,12 +40,14 @@
 // class decleration
 //
 
-class MuonGeometryDBConverter : public edm::EDAnalyzer {
+class MuonGeometryDBConverter : public edm::one::EDAnalyzer<> {
    public:
       explicit MuonGeometryDBConverter(const edm::ParameterSet&);
       ~MuonGeometryDBConverter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions&);
+      void beginJob() override {};
+      void endJob() override {};
 
    private:
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
