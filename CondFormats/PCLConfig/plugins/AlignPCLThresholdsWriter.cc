@@ -45,7 +45,7 @@ namespace DOFs {
   };
 }
 
-class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<>  {
    public:
       explicit AlignPCLThresholdsWriter(const edm::ParameterSet&);
       ~AlignPCLThresholdsWriter();
