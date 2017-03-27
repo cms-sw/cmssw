@@ -857,7 +857,6 @@ namespace edm {
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
     fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
-    sort_all(rep.workerSummaries);
   }
 
   void
