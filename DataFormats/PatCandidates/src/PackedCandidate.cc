@@ -102,7 +102,6 @@ void pat::PackedCandidate::unpackCovariance() const {
     const CovarianceParameterization & p=covarianceParameterization();
     if(p.isValid()) 
     {
-      std::cout << "Input data " <<  packedCovariance_.dptdpt << " " << packedCovariance_.dxydxy << " " << packedCovariance_.dzdz << " " << packedCovariance_.dxydz << std::endl;
       unpackCovarianceElement(packedCovariance_.dptdpt,0,0);
       unpackCovarianceElement(packedCovariance_.detadeta,1,1);
       unpackCovarianceElement(packedCovariance_.dphidphi,2,2);
@@ -222,7 +221,6 @@ void pat::PackedCandidate::unpackTrk() const {
     }
 
 
-    std::cout <<" here "  <<  std::endl;
     switch (innerLost) {
         case validHitInFirstPixelBarrelLayer:
             break;

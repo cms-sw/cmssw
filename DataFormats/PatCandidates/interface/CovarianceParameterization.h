@@ -33,7 +33,6 @@ class CovarianceParameterization {
         };
         CovarianceParameterization() : loadedVersion_(-1) 
         {
-          std::cout << "Init " <<  loadedVersion_ << " " << this << std::endl;
         }
         bool isValid() const {return loadedVersion_!=-1; }
         int loadedVersion() const {return loadedVersion_; }

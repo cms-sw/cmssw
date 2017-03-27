@@ -665,7 +665,7 @@ namespace pat {
 	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,covarianceVersion_ );
         if(covarianceParameterization_.loadedVersion() != covarianceVersion_ )
         {
-          std::cout << "Attempting to load multiple covariance version in same process. This is not supported." << std::endl;
+          std::cerr << "Attempting to load multiple covariance version in same process. This is not supported." << std::endl;
 	  abort();
         }
         return  covarianceParameterization_;
