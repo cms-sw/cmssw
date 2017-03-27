@@ -1,5 +1,5 @@
-#ifndef _AlignPCLThresholds_h_
-#define _AlignPCLThresholds_h_
+#ifndef CondFormats_PCLConfig_AlignPCLThresholds_h
+#define CondFormats_PCLConfig_AlignPCLThresholds_h
 
 #include "CondFormats/PCLConfig/interface/AlignPCLThreshold.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
