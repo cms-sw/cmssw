@@ -11,7 +11,7 @@
 
 namespace edmtest
 {
-  class AlignPCLThresholdsReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+  class AlignPCLThresholdsReader : public edm::one::EDAnalyzer<> {
   public:
     explicit AlignPCLThresholdsReader(edm::ParameterSet const& p); 
     ~AlignPCLThresholdsReader(); 
@@ -118,7 +118,8 @@ namespace edmtest
 	if((it->second).hasExtraDOF()){
 	  for (unsigned int j=0; j<(it->second).extraDOFSize(); j++){
 	    std::array<float,4> extraDOFCuts = thresholds->getExtraDOFCutsForAlignable(it->first,j);
-	    fprintf(pFile,"Extra DOF: %i \n ",j);	  
+	    const char* theLabel =  (thresholds->getExtraDOFLabelForAlignable(it->first,j)).c_str();
+	    fprintf(pFile,"Extra DOF: %i with label %s \n ",j,theLabel);	  
 	    fprintf(pFile,"- cut              : %8.3f        " ,extraDOFCuts.at(0));
 	    fprintf(pFile,"| sigCut           : %8.3f        " ,extraDOFCuts.at(1)); 
 	    fprintf(pFile,"| maxMoveCut       : %8.3f        " ,extraDOFCuts.at(2)); 
