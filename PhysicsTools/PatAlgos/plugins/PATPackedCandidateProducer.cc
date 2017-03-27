@@ -45,8 +45,8 @@ namespace pat {
                     if(i.charge()!=0){
                         if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
                         if(! i.hasTrackDetails() and  j.hasTrackDetails() ) return false;
-                        if(i.covarianceVersion() >  j.covarianceVersion() ) return true;
-                        if(i.covarianceVersion() <  j.covarianceVersion() ) return false;
+                        if(i.covarianceSchema() >  j.covarianceSchema() ) return true;
+                        if(i.covarianceSchema() <  j.covarianceSchema() ) return false;
 
 /*                        if(i.pt() > 1. and j.pt() <= 1. ) return true;
                         if(i.pt() <= 1. and j.pt() > 1. ) return false;
@@ -241,7 +241,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
-          outPtrP->back().setCovarianceVersion(0);
+          outPtrP->back().setCovarianceVersion(covarianceVersion_);
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }

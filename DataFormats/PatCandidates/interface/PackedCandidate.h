@@ -418,6 +418,7 @@ namespace pat {
     int trackerLayersWithMeasurement() const { return stripLayersWithMeasurement() + pixelLayersWithMeasurement(); }
     virtual void setCovarianceVersion(int v) {covarianceVersion_=v;}
     int covarianceVersion() const { return covarianceVersion_;}
+    int covarianceSchema() const { return covarianceSchema_;}
 
 	
     /// vertex position
