@@ -335,8 +335,8 @@ void SiStripDcsInfo::addBadModules() {
 
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
 
-    std::map<uint32_t,uint16_t> lumiCountBadModules = it->second.NLumiDetectorIsFaulty;
-    for(std::map<uint32_t,uint16_t>::iterator ilumibad = lumiCountBadModules.begin(); 
+    std::unordered_map<uint32_t,uint16_t> lumiCountBadModules = it->second.NLumiDetectorIsFaulty;
+    for(std::unordered_map<uint32_t,uint16_t>::iterator ilumibad = lumiCountBadModules.begin(); 
         ilumibad != lumiCountBadModules.end(); ilumibad++) {
       uint32_t ibad = (*ilumibad).first;
       uint32_t nBadLumi = (*ilumibad).second;
