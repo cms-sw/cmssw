@@ -86,6 +86,15 @@ ADCQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
+ADCQTester_cosmics = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config_cosmics.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
+    qtestOnEndJob = cms.untracked.bool(True),
+    reportThreshold = cms.untracked.string("more")
+)
+
 NumClustersQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -97,6 +106,15 @@ NumClustersQTester = cms.EDAnalyzer("QualityTester",
 
 NumClustersQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
+    qtestOnEndJob = cms.untracked.bool(True),
+    reportThreshold = cms.untracked.string("more")
+)
+
+NumClustersQTester_cosmics = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     qtestOnEndLumi = cms.untracked.bool(False),
@@ -122,6 +140,15 @@ NumDigisQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
+NumDigisQTester_cosmics = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config_cosmics.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
+    qtestOnEndJob = cms.untracked.bool(True),
+    reportThreshold = cms.untracked.string("more")
+)
+
 SizeQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
@@ -133,6 +160,15 @@ SizeQTester = cms.EDAnalyzer("QualityTester",
 
 SizeQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
+    qtestOnEndJob = cms.untracked.bool(True),
+    reportThreshold = cms.untracked.string("more")
+)
+
+SizeQTester_cosmics = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     qtestOnEndLumi = cms.untracked.bool(False),
@@ -158,5 +194,15 @@ ChargeQTester_offline = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
+ChargeQTester_cosmics = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config_cosmics.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
+    qtestOnEndJob = cms.untracked.bool(True),
+    reportThreshold = cms.untracked.string("more")
+)
+
 RunQTests_online = cms.Sequence(ADCQTester * NumClustersQTester * NumDigisQTester * SizeQTester * ChargeQTester)
 RunQTests_offline = cms.Sequence(ADCQTester_offline * NumClustersQTester_offline * NumDigisQTester_offline * SizeQTester_offline * ChargeQTester_offline)
+RunQTests_cosmics = cms.Sequence(ADCQTester_cosmics * NumClustersQTester_cosmics * NumDigisQTester_cosmics * SizeQTester_cosmics * ChargeQTester_cosmics)

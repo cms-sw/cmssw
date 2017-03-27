@@ -18,3 +18,5 @@ siPixelPhase1OfflineDQM_harvesting_cosmics = siPixelPhase1OfflineDQM_harvesting.
    SiPixelPhase1TrackClustersHarvester,
    SiPixelPhase1TrackEfficiencyHarvester,
 ])
+
+siPixelPhase1OfflineDQM_harvesting_cosmics.replace(RunQTests_offline, RunQTests_cosmics)
