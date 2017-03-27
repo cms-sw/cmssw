@@ -78,10 +78,7 @@ private:
 
   int checkError(const Word32& data) const;
 
-
-  std::string print(const CTPPSPixelDigi & digi) const;
   std::string print(const Word64    & word) const;
-
 
   const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &mapping_;
 
