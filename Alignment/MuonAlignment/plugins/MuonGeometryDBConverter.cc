@@ -45,6 +45,7 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       explicit MuonGeometryDBConverter(const edm::ParameterSet&);
       ~MuonGeometryDBConverter();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions&);
 
    private:
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -204,6 +205,42 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
    else {
       throw cms::Exception("BadConfig") << "Set maxEvents.input to 1.  (Your output is okay.)" << std::endl;
    }
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+MuonGeometryDBConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Converts muon geometry between various formats.");
+  desc.add<std::string>("input", "ideal");
+  desc.add<std::string>("dtLabel", "");
+  desc.add<std::string>("cscLabel", "");
+  desc.add<double>("shiftErr", 1000.0);
+  desc.add<double>("angleErr", 6.28);
+  desc.add<bool>("getAPEs", true);
+  desc.add<std::string>("output", "xml");
+  desc.add<std::string>("fileName", "REPLACEME.xml");
+  edm::ParameterSetDescription outputXML;
+  outputXML.add<std::string>("fileName", "REPLACEME.xml");
+  outputXML.add<std::string>("relativeto", "ideal");
+  outputXML.add<bool>("survey", false);
+  outputXML.add<bool>("rawIds", false);
+  outputXML.add<bool>("eulerAngles", false);
+  outputXML.add<int>("precision", 10);
+  outputXML.addUntracked<bool>("suppressDTBarrel",      true);
+  outputXML.addUntracked<bool>("suppressDTWheels",      true);
+  outputXML.addUntracked<bool>("suppressDTStations",    true);
+  outputXML.addUntracked<bool>("suppressDTChambers",    false);
+  outputXML.addUntracked<bool>("suppressDTSuperLayers", false);
+  outputXML.addUntracked<bool>("suppressDTLayers",      false);
+  outputXML.addUntracked<bool>("suppressCSCEndcaps",    true);
+  outputXML.addUntracked<bool>("suppressCSCStations",   true);
+  outputXML.addUntracked<bool>("suppressCSCRings",      true);
+  outputXML.addUntracked<bool>("suppressCSCChambers",   false);
+  outputXML.addUntracked<bool>("suppressCSCLayers",     false);
+  desc.add("outputXML", outputXML);
+  descriptions.add("muonGeometryDBConverter", desc);
 }
 
 //define this as a plug-in
