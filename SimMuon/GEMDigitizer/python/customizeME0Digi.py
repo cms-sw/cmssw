@@ -162,3 +162,13 @@ def append_ME0Digi_event(process):
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
     return process
+
+# Customizations for the background (to be updated once the realistic digi is in place)
+def customize_digi_noME0bkg(process):
+    process.simMuonME0Digis.simulateElectronBkg = False
+    process.simMuonME0Digis.simulateNeutralBkg = False
+    return process
+
+def customize_digi_noME0safety(process):
+    process.simMuonME0Digis.rateFact = 1
+    return process
