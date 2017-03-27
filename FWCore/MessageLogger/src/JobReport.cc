@@ -99,8 +99,13 @@ namespace edm {
        << rep.runNumber
        << "\">\n";
 
-    for(auto il : rep.lumiSections) {
-      os << "   <LumiSection ID=\"" << il << "\"/>\n";
+    for(auto const& il : rep.lumiSectionsToNEvents) {
+      if(std::numeric_limits<unsigned long>::max() == il.second) {
+        os << "   <LumiSection ID=\"" << il.first << "\"/>\n";
+        
+      } else {
+        os << "   <LumiSection ID=\"" << il.first << "\" NEvents=\""<<il.second<< "\"/>\n";
+      }
     }
     os << "</Run>\n";
     return os;
@@ -292,13 +297,13 @@ namespace edm {
     }
   }
 
-  void JobReport::JobReportImpl::associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSect) {
+  void JobReport::JobReportImpl::associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSect, unsigned long nEvents) {
     std::map<RunNumber, RunReport>& theMap = outputFiles_.at(token).runReports;
     std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
     if(iter == theMap.end() || runNumber < iter->first) {    // not found
-      theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {lumiSect}});  // insert it
+      theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {{{lumiSect,nEvents}}}});  // insert it
     } else {
-      iter->second.lumiSections.insert(lumiSect);
+      iter->second.lumiSectionsToNEvents[lumiSect]+=nEvents;
     }
   }
 
@@ -308,9 +313,9 @@ namespace edm {
         std::map<RunNumber, RunReport>& theMap = inputFile.runReports;
         std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
         if(iter == theMap.end() || runNumber < iter->first) {    // not found
-          theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {lumiSect}});  // insert it
+          theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {{lumiSect,std::numeric_limits<unsigned long>::max()}}});  // insert it
         } else {
-          iter->second.lumiSections.insert(lumiSect);
+          iter->second.lumiSectionsToNEvents[lumiSect]=std::numeric_limits<unsigned long>::max();
         }
       }
     }
@@ -536,8 +541,8 @@ namespace edm {
   }
 
   void
-  JobReport::reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId) {
-    impl_->associateLumiSection(token, run, lumiSectId);
+  JobReport::reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents) {
+    impl_->associateLumiSection(token, run, lumiSectId,nEvents);
   }
 
   void
