@@ -30,6 +30,9 @@ process.dqmSaver.tag = 'Info'
 
 # Digitisation: produce the Scalers digis containing DCS bits
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.Utilities.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
 
 # DQMProvInfo is the DQM module to be run
 process.load("DQMServices.Components.DQMProvInfo_cfi")
@@ -38,6 +41,7 @@ process.load("DQMServices.Components.DQMProvInfo_cfi")
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.evfDQMmodulesPath = cms.Path(
                                      process.scalersRawToDigi*
+                                     process.tcdsDigis*
                                      process.dqmProvInfo*
                                      process.dqmmodules
                                      )
@@ -47,11 +51,11 @@ process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 # Heavy Ion Specific Fed Raw Data Collection Label
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.dqmProvInfo.fedRawData = cms.untracked.string("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
 else:
-    process.dqmProvInfo.fedRawData = cms.untracked.string("rawDataCollector")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+    process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 # Process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

@@ -3,6 +3,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include <DataFormats/FEDRawData/interface/BSTRecord.h>
 #include <DataFormats/FEDRawData/src/fed_header.h>
 #include <DataFormats/FEDRawData/src/fed_trailer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
@@ -17,7 +18,9 @@ namespace DataFormats_FEDRawData {
      FEDTrailer              c1;
      fedh_struct             d1;
      fedt_struct             e1;
+     BSTRecord               f1;
      edm::Wrapper<FEDRawDataCollection> d;
      edm::RefProd<FEDRawDataCollection> r;
+     edm::Wrapper<BSTRecord> wf;
    };
  }
