@@ -463,3 +463,12 @@ def append_GEMDigi_event(process):
             # getattr(process,b).outputCommands.append('keep *_simSiStripDigis_*_*')
 
     return process
+
+# Customizations for the background
+def customize_digi_noGEMbkg(process):
+    process.simMuonGEMDigis.doBkgNoise = False
+    return process
+
+def customize_digi_noGEMsafety(process):
+    process.simMuonGEMDigis.rateFact = 1
+    return process

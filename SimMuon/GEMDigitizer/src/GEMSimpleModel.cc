@@ -220,9 +220,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
                                       + GE11ElecBkgParam3 * rollRadius * rollRadius * rollRadius;
       
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
-    averageNoiseElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
-    averageNeutralNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
   }
   if (gemId.station() == 2)
   {
@@ -245,9 +244,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
     if (simulateElectronBkg_)
       averageNoiseElectronRatePerRoll = constElecGE21 * TMath::Exp(slopeElecGE21 * rollRadius);
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
-    averageNoiseElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
-    averageNeutralNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;
   }
 //simulate intrinsic noise
   if(simulateIntrinsicNoise_)
