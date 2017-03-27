@@ -153,16 +153,16 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
   folder_organizer.setSiStripFolderName(topFolderName_);
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
-    tkhisto_StoNCorrOnTrack = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
-    tkhisto_NumOnTrack      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
-    tkhisto_NumOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
-    tkhisto_ClChPerCMfromTrack  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
-    tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
-    tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
-    tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
+    tkhisto_StoNCorrOnTrack = std::make_unique<TkHistoMap>(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
+    tkhisto_NumOnTrack      = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true, true);
+    tkhisto_NumOffTrack     = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true, true);
+    tkhisto_ClChPerCMfromTrack  = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
+    tkhisto_NumMissingHits      = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true, true);
+    tkhisto_NumberInactiveHits  = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true, true);
+    tkhisto_NumberValidHits     = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true, true);
   }
   if (clchCMoriginTkHmap_On_)
-    tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
+    tkhisto_ClChPerCMfromOrigin = std::make_unique<TkHistoMap>(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
   //******** TkHistoMaps
 
   std::vector<uint32_t> vdetId_;
@@ -704,11 +704,11 @@ void SiStripMonitorTrack::trajectoryStudy(
       uint32_t thedetid=ttrh->rawId();
       if ( SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) { //TIB/TID + TOB + TEC only
         if ( (ttrh->getType()==1) )
-          tkhisto_NumMissingHits->add(thedetid,1.);
+          tkhisto_NumMissingHits->fill(thedetid,1.);
         if ( (ttrh->getType()==2) )
-          tkhisto_NumberInactiveHits->add(thedetid,1.);
+          tkhisto_NumberInactiveHits->fill(thedetid,1.);
         if ( (ttrh->getType()==0) )
-          tkhisto_NumberValidHits->add(thedetid,1.);
+          tkhisto_NumberValidHits->fill(thedetid,1.);
       }
     }
 
@@ -903,11 +903,11 @@ void SiStripMonitorTrack::trackStudyFromTrack(
         uint32_t thedetid=(*hit)->rawId();
         if ( SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) { //TIB/TID + TOB + TEC only
           if ( ((*hit)->getType()==1) )
-            tkhisto_NumMissingHits->add(thedetid,1.);
+            tkhisto_NumMissingHits->fill(thedetid,1.);
           if ( ((*hit)->getType()==2) )
-            tkhisto_NumberInactiveHits->add(thedetid,1.);
+            tkhisto_NumberInactiveHits->fill(thedetid,1.);
           if ( ((*hit)->getType()==0) )
-            tkhisto_NumberValidHits->add(thedetid,1.);
+            tkhisto_NumberValidHits->fill(thedetid,1.);
         }
       }
 
@@ -1247,7 +1247,7 @@ bool SiStripMonitorTrack::clusterInfos(
     //******** TkHistoMaps
     if (TkHistoMap_On_) {
       uint32_t adet=cluster->detId();
-      tkhisto_NumOnTrack->add(adet,1.);
+      tkhisto_NumOnTrack->fill(adet,1.);
       if(noise > 0.0) tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
       if(noise == 0.0)
 	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
@@ -1292,7 +1292,7 @@ bool SiStripMonitorTrack::clusterInfos(
       //******** TkHistoMaps
       if (TkHistoMap_On_) {
         uint32_t adet=cluster->detId();
-        tkhisto_NumOffTrack->add(adet,1.);
+        tkhisto_NumOffTrack->fill(adet,1.);
         if(charge > 250){
 	  LogDebug("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
         }
