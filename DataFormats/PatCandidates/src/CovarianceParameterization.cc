@@ -93,25 +93,6 @@ void CovarianceParameterization::load(int version)
  if(fileToRead.IsOpen())  {
      readFile(fileToRead);
 
-     //this can be read from file
-//      CompressionSchema schema0;
-//      schema0(0,0)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,4,{-2,1});
-//      schema0(1,1)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,4,{-1,1});
-//      schema0(2,2)=schema0(1,1);
-//      schema0(3,3)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,1024,{-3,4});
-//      schema0(3,4)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,1024,{-8,4});
-//      schema0(4,4)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,1024,{-3,4});
-//      schema0(2,3)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,32,{-1,1.5});
-//      schema0(1,4)=schema0(2,3);
-     
-     
-
-// { (*((TVector)fileToRead.Get("schemas/1/00/param"))) [0], (*((TVector)fileToRead.Get("schemas/1/00/param"))) [1] }
-     
-     
-//      TFolder * fold =(TFolder *) _file0->Get("schemas")
-//      GetListOfFolders()
-
      TIter next(((TDirectoryFile*)fileToRead.Get("schemas"))->GetListOfKeys());
      TKey *key;
      while ((key = (TKey*)next())) {
@@ -144,6 +125,7 @@ void CovarianceParameterization::load(int version)
 //      schemas.push_back(schema0);
     fileToRead.Close();
 
+/* //Override miniaod schema as in root file
      CompressionSchema schemaMiniAOD;
      schemaMiniAOD(0,0)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,256,{-5,5});
      schemaMiniAOD(1,1)=schemaMiniAOD(0,0);
@@ -154,7 +136,7 @@ void CovarianceParameterization::load(int version)
      schemaMiniAOD(2,3)=schemaMiniAOD(0,0);
      schemaMiniAOD(1,4)=schemaMiniAOD(0,0);
 
-     schemas[0]=(schemaMiniAOD); 
+     schemas[0]=(schemaMiniAOD); */
 
 
     loadedVersion_=version; 
@@ -193,11 +175,6 @@ void CovarianceParameterization::addTheHistogram(std::vector<TH3D *> * HistoVect
 
 
 float CovarianceParameterization::meanValue(int i,int j,int sign,float pt, float eta, int nHits,int pixelHits,  float cii,float cjj) const {
-/*   if(loadedVersion_==0) {
-      if(i==0 and j==0) return 1./pt/pt;
-      if(i==2 and j==2) return 1./pt/pt;
-      return 1; 
-    }*/
     int hitNumberToUse = nHits;
     if (hitNumberToUse < 2 ) hitNumberToUse = 2;
     if (hitNumberToUse > 32 ) hitNumberToUse = 32;
@@ -214,8 +191,6 @@ float CovarianceParameterization::meanValue(int i,int j,int sign,float pt, float
 
     int indexOfTheHitogramInTheList = ((9 - min_idx)*min_idx)/2 + max_idx;
 
-
-//uble TrackCovarianceMatrixParametrization::assignTheElement(double oldElement, int pixelValid, int innerStripsValid, int innerStripsLost, int indexOfTheHitogramInTheList, int ptBin, int etaBin, int hitBin) {
     double meanValue = 0.;
     if (pixelHits > 0) {
             meanValue =sign* cov_elements_pixelHit[indexOfTheHitogramInTheList]->GetBinContent(ptBin, etaBin, hitBin);

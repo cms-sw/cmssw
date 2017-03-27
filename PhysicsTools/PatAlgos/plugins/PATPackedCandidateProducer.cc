@@ -48,10 +48,6 @@ namespace pat {
                         if(i.covarianceSchema() >  j.covarianceSchema() ) return true;
                         if(i.covarianceSchema() <  j.covarianceSchema() ) return false;
 
-/*                        if(i.pt() > 1. and j.pt() <= 1. ) return true;
-                        if(i.pt() <= 1. and j.pt() > 1. ) return false;
-                        if(i.pt() > 0.5 and j.pt() <= 0.5 ) return true;
-                        if(i.pt() <= 0.5 and j.pt() > 0.5 ) return false;*/
                   }
                    if(i.vertexRef() == j.vertexRef()) 
                       return i.eta() > j.eta();
