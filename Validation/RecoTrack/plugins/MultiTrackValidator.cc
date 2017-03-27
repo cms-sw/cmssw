@@ -530,23 +530,22 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
       phiL[iTP] = atan2f(p.y(),p.x());
     }
-    auto i=0U;
-    for(size_t iTP: selected_tPCeff) {
-      auto const& tp = *(tPCeff[iTP]);
+    for(size_t iTP1: selected_tPCeff) {
+      auto const& tp = *(tPCeff[iTP1]);
       double dR = std::numeric_limits<double>::max();
       if(dRtpSelector(tp)) {//only for those needed for efficiency!
         ++n_selTP_dr;
         auto  && p = tp.momentum();
         float eta = etaFromXYZ(p.x(),p.y(),p.z());
         float phi = atan2f(p.y(),p.x());
-        for(size_t iTP: selected_tPCeff) {
+        for(size_t iTP2: selected_tPCeff) {
           //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-	  if (i==iTP) {continue;}
-          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP], phiL[iTP]);
+	  if (iTP1==iTP2) {continue;}
+          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP2], phiL[iTP2]);
           if (dR_tmp<dR) dR=dR_tmp;
         }  // ttp2 (iTP)
       }
-      dR_tPCeff[i++] = std::sqrt(dR);
+      dR_tPCeff[iTP1] = std::sqrt(dR);
     }  // tp
   }
 
