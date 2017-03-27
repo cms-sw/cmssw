@@ -44,9 +44,10 @@ XERCES_CPP_NAMESPACE_USE
 //
 // constructors and destructor
 //
-MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
+MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string& fileName)
    : m_fileName(fileName)
 {
+   cms::concurrency::xercesInitialize();
    str_operation = XMLString::transcode("operation");
    str_collection = XMLString::transcode("collection");
    str_name = XMLString::transcode("name");
@@ -197,6 +198,7 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_none);
    XMLString::release(&str_ideal);
    XMLString::release(&str_container);
+   cms::concurrency::xercesTerminate();
 }
 
 //
