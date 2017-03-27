@@ -33,7 +33,7 @@
 
 class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
    public:
-      MuonAlignmentInputXML(std::string fileName);
+      MuonAlignmentInputXML(const std::string& fileName);
       virtual ~MuonAlignmentInputXML();
 
       // ---------- const member functions ---------------------
