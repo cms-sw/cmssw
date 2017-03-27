@@ -190,3 +190,61 @@ double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) c
   }
   return acc;
 }
+
+bool  ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta, double & sigmaphiphi, double & sigmaetaetal, double & sigmaphiphil ) const{
+  
+  if (getLayer(clus.hitsAndFractions()[0].first)  > 28) return false;
+  const  math::XYZPoint & position(clus.position());
+  double sintheta2=sin(position.theta());
+  sintheta2*=sintheta2;
+  unsigned nhit=clus.hitsAndFractions().size();
+
+  sigmaetaeta=0.;
+  sigmaphiphi=0.;
+  sigmaetaetal=0.;
+  sigmaphiphil=0.;
+
+  double sumw=0.;
+  double sumlogw=0.;
+
+  for (unsigned int ih=0;ih<nhit;++ih) {
+    const DetId & id = (clus.hitsAndFractions())[ih].first ;
+    if ((clus.hitsAndFractions())[ih].second==0.) continue;
+
+    HGCRecHitCollection::const_iterator theHit; 
+    if (id.det()==DetId::Forward && id.subdetId()==HGCEE) {
+      const HGCRecHit * theHit = &(*eerh_->find(id));
+
+	GlobalPoint cellPos = rhtools_.getPosition(HGCEEDetId(id));
+	double weight = theHit->energy();
+	// take w0=2 To be optimized
+	double logweight = std::max(0.,2 + log(theHit->energy()/clus.energy()));
+	double deltaetaeta2 = (cellPos.eta()-position.eta())*(cellPos.eta()-position.eta());
+	deltaetaeta2 *= sintheta2;
+	double deltaphiphi2 = (cellPos.phi()-position.phi())*(cellPos.phi()-position.phi());
+	sigmaetaeta +=  deltaetaeta2* weight;
+	sigmaphiphi +=  deltaphiphi2 * weight;
+	sigmaetaetal +=  deltaetaeta2* logweight;
+	sigmaphiphil +=  deltaphiphi2 * logweight;
+	sumw += weight;
+	sumlogw += logweight;
+      }
+    }
+
+
+  //std::cout << "[HGCALShowerBasedEmIdentification::sigmaetaeta], layer " << ilayer
+  //<< " position " << position << " sigmaeta " << sigmaetaeta << std::endl;
+
+  if (sumw==0.) return false;
+  
+  sigmaetaeta /= sumw;
+  sigmaetaeta = sqrt(sigmaetaeta);
+  sigmaphiphi /= sumw;
+  sigmaphiphi = sqrt(sigmaphiphi);
+  
+  sigmaetaetal /= sumlogw;
+  sigmaetaetal = sqrt(sigmaetaetal);
+  sigmaphiphil /= sumlogw;
+  sigmaphiphil = sqrt(sigmaphiphil);
+  return true;
+}

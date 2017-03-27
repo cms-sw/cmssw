@@ -30,8 +30,8 @@ namespace hgcal {
     ~ClusterTools() {}
 
     void getEvent(const edm::Event&);
-    void getEventSetup(const edm::EventSetup&);
-    
+    void getEventSetup(const edm::EventSetup&);        
+
     float getClusterHadronFraction(const reco::CaloCluster&) const;
 
     math::XYZPoint getMultiClusterPosition(const reco::HGCalMultiCluster&, double vz = 0.) const;
@@ -40,6 +40,8 @@ namespace hgcal {
     
     double getMultiClusterEnergy(const reco::HGCalMultiCluster&) const;
 
+    // only for EE
+    bool getWidths(const reco::CaloCluster & clus,double & sigmaetaeta, double & sigmaphiphi, double & sigmaetaetalog, double & sigmaphiphilog ) const;
   private:
 
     std::vector<size_t> sort_by_z(const reco::HGCalMultiCluster&v) const {
