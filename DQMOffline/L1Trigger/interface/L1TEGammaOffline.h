@@ -17,39 +17,22 @@
 
 //Candidate handling
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-// Electron
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
+// Electron & photon collections
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-// PFMET
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 // Vertex utilities
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-// CaloJets
-#include "DataFormats/JetReco/interface/CaloJet.h"
-
-// Calo MET
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-
-// Conversions
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 
 // stage2 collections:
-#include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 class L1TEGammaOffline: public DQMEDAnalyzer {
@@ -69,10 +52,8 @@ protected:
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 private:
-  bool passesSelection(edm::Handle<reco::GsfElectronCollection> const& electrons) const;
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
   bool passesMediumEleId(reco::GsfElectron const& electron) const;
-  //histos booking function
   void bookElectronHistos(DQMStore::IBooker &);
   void bookPhotonHistos(DQMStore::IBooker &);
 
@@ -85,7 +66,6 @@ private:
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
   bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
 
-  //private variables
   math::XYZPoint PVPoint_;
 
   //variables from config file
@@ -108,10 +88,12 @@ private:
 
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
+  double tagAndProbleInvariantMass_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
   MonitorElement* h_nVertex_;
+  MonitorElement* h_tagAndProbeMass_;
 
   // electron reco vs L1
   MonitorElement* h_L1EGammaETvsElectronET_EB_;

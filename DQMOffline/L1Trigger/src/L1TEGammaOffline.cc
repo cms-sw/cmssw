@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 // Geometry
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
 
@@ -38,7 +37,8 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         electronEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("electronEfficiencyThresholds")),
         electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins")),
         tagElectron_(),
-        probeElectron_()
+        probeElectron_(),
+        tagAndProbleInvariantMass_(-1.)
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -85,7 +85,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::analyze" << std::endl;
 
-  edm::Handle<reco::VertexCollection> vertexHandle;
+  edm::Handle < reco::VertexCollection > vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
     edm::LogError("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
@@ -105,7 +105,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   edm::Handle<l1t::EGammaBxCollection> l1EGamma;
   e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
 
-  edm::Handle<reco::GsfElectronCollection> gsfElectrons;
+  edm::Handle < reco::GsfElectronCollection > gsfElectrons;
   e.getByToken(theGsfElectronCollection_, gsfElectrons);
 
   if (!gsfElectrons.isValid()) {
@@ -113,19 +113,19 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (gsfElectrons->size() == 0) {
-    edm::LogError("L1TEGammaOffline") << "empty collection: GSF electrons " << std::endl;
+    LogDebug("L1TEGammaOffline") << "empty collection: GSF electrons " << std::endl;
     return;
   }
   if (!l1EGamma.isValid()) {
     edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
-  if (!passesSelection(gsfElectrons) || !findTagAndProbePair(gsfElectrons))
-    ;
-  return; //continue to next event
+  if (!findTagAndProbePair(gsfElectrons)) {
+    LogDebug("L1TEGammaOffline") << "Could not find a tag & probe pair" << std::endl;
+    return; //continue to next event
+  }
 
-  // for now without tag&probe
-  auto probeElectron = gsfElectrons->at(0);
+  auto probeElectron = probeElectron_;
 
   // find corresponding L1 EG
   double minDeltaR = 0.3;
@@ -144,7 +144,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     }
 
   }
-//  }
 
   if (!foundMatch) {
     edm::LogError("L1TEGammaOffline") << "Could not find a matching L1 EGamma " << std::endl;
@@ -185,7 +184,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     fillWithinLimits(h_resolutionElectronPhi_EB_EE_, resolutionPhi);
 
     // turn-ons
-
     for (auto threshold : electronEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyElectronET_EB_total_[threshold], recoEt);
       fillWithinLimits(h_efficiencyElectronET_EB_EE_total_[threshold], recoEt);
@@ -194,7 +192,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
         fillWithinLimits(h_efficiencyElectronET_EB_EE_pass_[threshold], recoEt);
       }
     }
-
   } else { // end-cap
     // et
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EE_, recoEt, l1Et);
@@ -224,8 +221,8 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
 /**
  * From https://cds.cern.ch/record/2202966/files/DP2016_044.pdf slide 8
  * Filter on
- * HLT_Ele30WP60_Ele8_Mass55
- * HLT_Ele30WP60_SC4_Mass55
+ * HLT_Ele30WP60_Ele8_Mass55 (TODO)
+ * HLT_Ele30WP60_SC4_Mass55 (TODO)
  * Seeded by L1SingleEG, unprescaled required
  *
  * Tag & probe selection
@@ -239,63 +236,47 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
  * @param electrons
  * @return
  */
-bool L1TEGammaOffline::passesSelection(edm::Handle<reco::GsfElectronCollection> const& electrons) const
+bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons)
 {
+  bool foundBoth(false);
   auto nElectrons = electrons->size();
   if (nElectrons < 2)
     return false;
 
-  // TODO: loop over all electron pairs
-  auto tagElectron = electrons->front();
-  auto probeElectron = electrons->at(1);
-  auto combined(tagElectron.p4() + probeElectron.p4());
+  for (auto tagElectron : *electrons) {
+    for (auto probeElectron : *electrons) {
+      if (tagElectron.p4() == probeElectron.p4())
+        continue;
 
-  auto tagAbsEta = std::abs(tagElectron.eta());
-  auto probeAbsEta = std::abs(probeElectron.eta());
+      auto combined(tagElectron.p4() + probeElectron.p4());
+      auto tagAbsEta = std::abs(tagElectron.eta());
+      auto probeAbsEta = std::abs(probeElectron.eta());
 
-  // EB-EE transition region
-  bool isEBEEGap = tagElectron.isEBEEGap() || probeElectron.isEBEEGap();
-  bool passesEta = !isEBEEGap && tagAbsEta < 2.5 && probeAbsEta < 2.5;
-  bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
-  bool passesCharge = tagElectron.charge() == -probeElectron.charge();
+      // EB-EE transition region
+      bool isEBEEGap = tagElectron.isEBEEGap() || probeElectron.isEBEEGap();
+      bool passesEta = !isEBEEGap && tagAbsEta < 2.5 && probeAbsEta < 2.5;
+      bool passesCharge = tagElectron.charge() == -probeElectron.charge();
 
-  // https://github.com/ikrav/cmssw/blob/egm_id_80X_v1/RecoEgamma/ElectronIdentification/plugins/cuts/GsfEleFull5x5SigmaIEtaIEtaCut.cc#L45
-  bool tagPassesMediumID = passesMediumEleId(tagElectron);
-  bool probePassesLooseID = passesMediumEleId(probeElectron);
+      // https://github.com/ikrav/cmssw/blob/egm_id_80X_v1/RecoEgamma/ElectronIdentification/plugins/cuts/GsfEleFull5x5SigmaIEtaIEtaCut.cc#L45
+      bool tagPassesMediumID = passesMediumEleId(tagElectron) && tagElectron.et() > 30.;
+      bool probePassesLooseID = passesLooseEleId(probeElectron);
+      bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
 
-  return passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID;
+      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID) {
+        foundBoth = true;
+        tagElectron_ = tagElectron;
+        probeElectron_ = probeElectron;
+        // plot tag & probe invariant mass
+        dqmoffline::l1t::fillWithinLimits(h_tagAndProbeMass_, combined.M());
+        break;
+      }
+    }
+
+  }
+  return foundBoth;
 }
 
-bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons)
-{
-//  bool foundBoth(false);
-//
-//  for (auto tagElectron : *electrons) {
-//
-//    for (auto probeElectron : *electrons) {
-//      if (tagElectron == probeElectron)
-//        continue;
-//      if (probeElectron.isEBEEGap() || std::abs(probeElectron.eta()) > 2.5)
-//        continue;
-//      if(!passesLooseEleId(probeElectron))
-//        continue;
-//
-//      auto combined(tagElectron.p4() + probeElectron.p4());
-//      bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
-//      bool passesCharge = tagElectron.charge() == -probeElectron.charge();
-//      if(passesInvariantMass && passesCharge){
-//        foundBoth = true;
-//        tagElectron_ = tagElectron;
-//        probeElectron_ = probeElectron;
-//      }
-//    }
-//
-//  }
-//  return foundBoth;
-  return true;
-}
-
-/*
+/**
  * Structure from
  * https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/DQMOffline/EGamma/plugins/ElectronAnalyzer.cc
  * Values from
@@ -367,26 +348,27 @@ bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) cons
 
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
 {
-  edm::Handle<l1t::EGammaBxCollection> l1EGamma;
-  e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
-
-  edm::Handle<reco::Photon> photons;
-  e.getByToken(thePhotonCollection_, photons);
-
-  if (!photons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
-    return;
-  }
-  if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
-    return;
-  }
-
-  int bunchCrossing = 0;
-
-  for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
-    // fill photon histograms
-  }
+  // TODO
+//  edm::Handle<l1t::EGammaBxCollection> l1EGamma;
+//  e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
+//
+//  edm::Handle<reco::Photon> photons;
+//  e.getByToken(thePhotonCollection_, photons);
+//
+//  if (!photons.isValid()) {
+//    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
+//    return;
+//  }
+//  if (!l1EGamma.isValid()) {
+//    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+//    return;
+//  }
+//
+//  int bunchCrossing = 0;
+//
+//  for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
+//    // fill photon histograms
+//  }
 }
 
 //
@@ -413,6 +395,7 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_.c_str());
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
   h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
       "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
