@@ -36,7 +36,7 @@ namespace pat {
     PackedCandidate() :
       packedPt_(0), packedEta_(0),
       packedPhi_(0), packedM_(0),
-      packedDxy_(0), packedDz_(0), packedDPhi_(0),
+      packedDxy_(0), packedDz_(0), packedDPhi_(0), packedDEta_(0),packedDTrkPt_(0),
       packedCovarianceDxyDxy_(0),packedCovarianceDxyDz_(0),
       packedCovarianceDzDz_(0),
       packedCovarianceDlambdaDz_(0),
@@ -48,7 +48,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_(0),
       hcalFraction_(0),
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
-      vertex_(new Point(0,0,0)), dphi_(0), track_(nullptr), pdgId_(0),
+      vertex_(new Point(0,0,0)), dphi_(0), deta_(0), dtrkpt_(0),track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
       dxydxy_(0),
       dzdz_(0),dxydz_(0),dlambdadz_(0), dphidxy_(0),dptdpt_(0),detadeta_(0),
@@ -59,7 +59,8 @@ namespace pat {
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
-      p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), dphi_(0), 
+      p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), 
+      dphi_(0), deta_(0), dtrkpt_(0),
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
       pvRefKey_(pvRefKey),dxydxy_(0),dzdz_(0),dxydz_(0), dlambdadz_(0),
       dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0), packedHits_(0), packedLayers_(0),
@@ -68,12 +69,15 @@ namespace pat {
     }
 
     explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx,
-                              float phiAtVtx, int pdgId,
+                              float trkPt,float etaAtVtx,float phiAtVtx,int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
-      vertex_( new Point(vtx) ), dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
+      vertex_( new Point(vtx) ), 
+      dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
+      deta_(std::abs(etaAtVtx-p4_.load()->eta())>=kMinDEtaToStore_ ? etaAtVtx-p4_.load()->eta() : 0.), 
+      dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId),
       qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
             dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),
@@ -82,13 +86,15 @@ namespace pat {
     }
 
     explicit PackedCandidate( const LorentzVector &p4, const Point &vtx,
-                              float phiAtVtx, int pdgId,
+                              float trkPt, float etaAtVtx, float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
+      deta_(std::abs(etaAtVtx-p4_.load()->eta())>=kMinDEtaToStore_ ? etaAtVtx-p4_.load()->eta() : 0.), 
+      dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId), qualityFlags_(0),
       pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
       dxydxy_(0),dzdz_(0),dxydz_(0),
@@ -100,7 +106,8 @@ namespace pat {
     PackedCandidate( const PackedCandidate& iOther) :
       packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
       packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
-      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
+      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), 
+      packedDPhi_(iOther.packedDPhi_),packedDEta_(iOther.packedDEta_),packedDTrkPt_(iOther.packedDTrkPt_),
       packedCovarianceDxyDxy_(iOther.packedCovarianceDxyDxy_),packedCovarianceDxyDz_(iOther.packedCovarianceDxyDz_),
       packedCovarianceDzDz_(iOther.packedCovarianceDzDz_),
       packedCovarianceDlambdaDz_(iOther.packedCovarianceDlambdaDz_),
@@ -114,7 +121,8 @@ namespace pat {
       //Need to trigger unpacking in iOther
       p4_( new PolarLorentzVector(iOther.polarP4() ) ),
       p4c_( new LorentzVector(iOther.p4())), vertex_( new Point(iOther.vertex())),
-      dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
+      dxy_(iOther.dxy_), dz_(iOther.dz_),
+      dphi_(iOther.dphi_), deta_(iOther.deta_), dtrkpt_(iOther.dtrkpt_),
       track_( iOther.track_ ? new reco::Track(*iOther.track_) : nullptr),
       pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
       pvRefProd_(iOther.pvRefProd_),pvRefKey_(iOther.pvRefKey_),
@@ -126,7 +134,8 @@ namespace pat {
     PackedCandidate( PackedCandidate&& iOther) :
       packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
       packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
-      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
+      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), 
+      packedDPhi_(iOther.packedDPhi_), packedDEta_(iOther.packedDEta_), packedDTrkPt_(iOther.packedDTrkPt_),  
       packedCovarianceDxyDxy_(iOther.packedCovarianceDxyDxy_),packedCovarianceDxyDz_(iOther.packedCovarianceDxyDz_),
       packedCovarianceDzDz_(iOther.packedCovarianceDzDz_),
       packedCovarianceDlambdaDz_(iOther.packedCovarianceDlambdaDz_),
@@ -139,7 +148,8 @@ namespace pat {
       hcalFraction_(iOther.hcalFraction_),
       p4_( iOther.p4_.exchange(nullptr) ) ,
       p4c_( iOther.p4c_.exchange(nullptr)), vertex_(iOther.vertex_.exchange(nullptr)),
-      dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
+      dxy_(iOther.dxy_), dz_(iOther.dz_),
+      dphi_(iOther.dphi_), deta_(iOther.deta_), dtrkpt_(iOther.dtrkpt_),
       track_( iOther.track_.exchange(nullptr) ),
       pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
       pvRefProd_(std::move(iOther.pvRefProd_)),pvRefKey_(iOther.pvRefKey_),
@@ -160,6 +170,8 @@ namespace pat {
       packedDxy_=iOther.packedDxy_; 
       packedDz_=iOther.packedDz_; 
       packedDPhi_=iOther.packedDPhi_;
+      packedDEta_=iOther.packedDEta_;
+      packedDTrkPt_=iOther.packedDTrkPt_;
       packedCovarianceDxyDxy_=iOther.packedCovarianceDxyDxy_;
       packedCovarianceDxyDz_=iOther.packedCovarianceDxyDz_;
       packedCovarianceDzDz_=iOther.packedCovarianceDzDz_;
@@ -190,6 +202,8 @@ namespace pat {
       dxy_=iOther.dxy_;
       dz_ = iOther.dz_;
       dphi_=iOther.dphi_; 
+      deta_=iOther.deta_; 
+      dtrkpt_=iOther.dtrkpt_; 
       
       if(!iOther.track_) {
         delete track_.exchange(nullptr);
@@ -230,6 +244,8 @@ namespace pat {
       packedDxy_=iOther.packedDxy_; 
       packedDz_=iOther.packedDz_; 
       packedDPhi_=iOther.packedDPhi_;
+      packedDEta_=iOther.packedDEta_;
+      packedDTrkPt_=iOther.packedDTrkPt_;
       packedCovarianceDxyDxy_=iOther.packedCovarianceDxyDxy_;
       packedCovarianceDxyDz_=iOther.packedCovarianceDxyDz_;
       packedCovarianceDzDz_=iOther.packedCovarianceDzDz_;
@@ -246,7 +262,9 @@ namespace pat {
       delete vertex_.exchange(iOther.vertex_.exchange(nullptr));
       dxy_=iOther.dxy_;
       dz_ = iOther.dz_;
-      dphi_=iOther.dphi_; 
+      dphi_=iOther.dphi_;      
+      deta_=iOther.deta_; 
+      dtrkpt_=iOther.dtrkpt_;
       delete track_.exchange(iOther.track_.exchange( nullptr));
       pdgId_=iOther.pdgId_; 
       qualityFlags_=iOther.qualityFlags_; 
@@ -344,6 +362,12 @@ namespace pat {
     virtual double pt() const { if (!p4c_) unpack(); return p4_.load()->Pt();}
     /// momentum azimuthal angle                                                          
     virtual double phi() const { if (!p4c_) unpack(); return p4_.load()->Phi(); }
+   
+    /// pt from the track (normally identical to pt())
+    virtual double ptTrk() const {
+        maybeUnpackBoth(); 
+	return p4_.load()->pt() + dtrkpt_;
+    }
     /// momentum azimuthal angle from the track (normally identical to phi())
     virtual float phiAtVtx() const { 
         maybeUnpackBoth(); 
@@ -351,7 +375,13 @@ namespace pat {
         while (ret >  float(M_PI)) ret -= 2*float(M_PI); 
         while (ret < -float(M_PI)) ret += 2*float(M_PI); 
         return ret; 
+    } 
+    /// eta from the track (normally identical to eta())
+    virtual float etaAtVtx() const { 
+        maybeUnpackBoth(); 
+        return p4_.load()->eta() + deta_; 
     }
+    
     /// momentum polar angle                                                              
     virtual double theta() const { if (!p4c_) unpack(); return p4_.load()->Theta(); }
     /// momentum pseudorapidity                                                           
@@ -597,9 +627,12 @@ namespace pat {
 
   protected:
     friend class ::testPackedCandidate;
+    static constexpr float kMinDEtaToStore_=0.001;
+    static constexpr float kMinDTrkPtToStore_=0.001;
+    
 
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
-    uint16_t packedDxy_, packedDz_, packedDPhi_;
+    uint16_t packedDxy_, packedDz_, packedDPhi_, packedDEta_, packedDTrkPt_;
     uint16_t packedCovarianceDxyDxy_,packedCovarianceDxyDz_,packedCovarianceDzDz_;
     int8_t packedCovarianceDlambdaDz_,packedCovarianceDphiDxy_;
     int8_t packedCovarianceDptDpt_,packedCovarianceDetaDeta_,packedCovarianceDphiDphi_;
@@ -620,7 +653,7 @@ namespace pat {
     mutable std::atomic<LorentzVector*> p4c_;
     /// vertex position                                                                   
     mutable std::atomic<Point*> vertex_;
-    CMS_THREAD_GUARD(vertex_) mutable float dxy_, dz_, dphi_;
+    CMS_THREAD_GUARD(vertex_) mutable float dxy_, dz_, dphi_, deta_, dtrkpt_;
     /// reco::Track                                                                   
     mutable std::atomic<reco::Track*> track_;
     /// PDG identifier                                                                    
