@@ -29,6 +29,7 @@ namespace {
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
 
   navigator_.reset(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
+  init_ = false;
     
 }
 
