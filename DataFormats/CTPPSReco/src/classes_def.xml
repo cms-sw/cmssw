@@ -45,8 +45,8 @@
 
 <!-- diamonds objects -->
 
-  <class name="CTPPSDiamondRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="2377257106"/>
+  <class name="CTPPSDiamondRecHit" ClassVersion="4">
+    <version ClassVersion="4" checksum="2150979176"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
@@ -55,6 +55,19 @@
   <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSDiamondRecHit> >"/>
+
+  <class name="CTPPSDiamondLocalTrack" ClassVersion="4">
+    <version ClassVersion="4" checksum="2739193553"/>
+  </class>
+  <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::DetSet<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
 
 <!-- common objects -->
 
