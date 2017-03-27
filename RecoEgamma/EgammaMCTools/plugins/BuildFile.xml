@@ -1,0 +1,11 @@
+<export>
+</export>
+<library   name="RecoEgammaEgammaMCToolsPlugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="DataFormats/HepMCCandidate"/>
+  <use   name="SimDataFormats/TrackingAnalysis"/>
+  <flags EDM_PLUGIN="1"/> 
+</library>
