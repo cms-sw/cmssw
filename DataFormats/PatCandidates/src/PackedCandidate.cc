@@ -6,6 +6,10 @@
 
 #include "DataFormats/PatCandidates/interface/liblogintpack.h"
 using namespace logintpack;
+//std::atomic<CovarianceParameterization*> pat::PackedCandidate::covarianceParameterization_(nullptr);
+
+CovarianceParameterization pat::PackedCandidate::covarianceParameterization_ = CovarianceParameterization();
+std::once_flag pat::PackedCandidate::covariance_load_flag;
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.load()->Pt());
@@ -33,34 +37,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
     packedDz_   = pvRef.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(std::round(dz_/40.f*std::numeric_limits<int16_t>::max()));
     packedDPhi_ =  int16_t(std::round(dphi_/3.2f*std::numeric_limits<int16_t>::max()));
-    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
-    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
-    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
-//    packedCovarianceDxyDxy_ = pack8log(dxydxy_,-15,-1); // MiniFloatConverter::float32to16(dxydxy_*10000.);
-//    packedCovarianceDxyDz_ = pack8log(dxydz_,-20,-1); //MiniFloatConverter::float32to16(dxydz_*10000.);
-//  packedCovarianceDzDz_ = pack8log(dzdz_,-13,-1); //MiniFloatConverter::float32to16(dzdz_*10000.);
-
-    packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,0);
-    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,-5);
-    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,0);
-    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
-
-  /*packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,5,32);
-    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,0,32);
-    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,5,32);
-    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
-
-*/
-/*  packedCovarianceDphiDxy_ =  MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ =  MiniFloatConverter::float32to16(dlambdadz_*10000.);
-    packedCovarianceDetaDeta_ =  MiniFloatConverter::float32to16(detadeta_*10000.);
-    packedCovarianceDphiDphi_ =  MiniFloatConverter::float32to16(dphidphi_*10000.);
-    packedCovarianceDptDpt_ =  MiniFloatConverter::float32to16(dptdpt_*10000.);
-*/
-//    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-//    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
+    packedDEta_ =  MiniFloatConverter::float32to16(deta_);
+    packedDTrkPt_ = MiniFloatConverter::float32to16(dtrkpt_);
  
     if (unpackAfterwards) {
       delete vertex_.exchange(nullptr);
@@ -90,9 +68,61 @@ void pat::PackedCandidate::unpack() const {
       p4c.release();
     }
 }
+
+/*void pat::PackedCandidate::legacyCovarianceUnpacking() const {
+
+    m_(0,0)=unpack8log(packedCovarianceDptDpt_,-15,0)/pt()/pt(); //TODO: tune
+    m_(1,1)=unpack8log(packedCovarianceDetaDeta_,-20,-5);
+    m_(2,2)=unpack8log(packedCovarianceDphiDphi_,-15,0)/pt()/pt(); //TODO: tune
+    m_(2,3)=unpack8log(packedCovarianceDphiDxy_,-17,-4);
+    m_(3,2)=m_(2,3);
+    m_(4,1)=unpack8log(packedCovarianceDlambdaDz_,-17,-4);
+    m_(1,4)=m_(4,1);
+    m_(3,3)=MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
+    m_(3,4)=MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
+    m_(4,3)=m_(3,4);
+    m_(4,4)=MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
+
+}*/
+
+void pat::PackedCandidate::packCovariance(bool unpackAfterwards){
+    packedCovariance_.dptdpt = packCovarianceElement(0,0);
+    packedCovariance_.detadeta = packCovarianceElement(1,1);
+    packedCovariance_.dphidphi = packCovarianceElement(2,2); 
+    packedCovariance_.dxydxy =packCovarianceElement(3,3);
+    packedCovariance_.dzdz = packCovarianceElement(4,4);
+    packedCovariance_.dxydz = packCovarianceElement(3,4);
+    packedCovariance_.dlambdadz = packCovarianceElement(1,4);
+    packedCovariance_.dphidxy = packCovarianceElement(2,3);
+   //unpack afterwards
+   if(unpackAfterwards) unpackCovariance();
+}
+
+void pat::PackedCandidate::unpackCovariance() const {
+    const CovarianceParameterization & p=covarianceParameterization();
+    if(p.isValid()) 
+    {
+      unpackCovarianceElement(packedCovariance_.dptdpt,0,0);
+      unpackCovarianceElement(packedCovariance_.detadeta,1,1);
+      unpackCovarianceElement(packedCovariance_.dphidphi,2,2);
+      unpackCovarianceElement(packedCovariance_.dxydxy,3,3);
+      unpackCovarianceElement(packedCovariance_.dzdz,4,4);
+      unpackCovarianceElement(packedCovariance_.dxydz,3,4);
+      unpackCovarianceElement(packedCovariance_.dlambdadz,1,4);
+      unpackCovarianceElement(packedCovariance_.dphidxy,2,3);
+    } else {
+  throw edm::Exception(edm::errors::UnimplementedFeature)
+     << "You do not have a valid track parameters file loaded. "
+     << "Please check that the release version is compatible with your input data"
+     <<"or avoid accessing track parameter uncertainties. ";
+    }
+}
+
 void pat::PackedCandidate::unpackVtx() const {
     reco::VertexRef pvRef = vertexRef();
     dphi_ = int16_t(packedDPhi_)*3.2f/std::numeric_limits<int16_t>::max(),
+    deta_ = MiniFloatConverter::float16to32(packedDEta_);
+    dtrkpt_ = MiniFloatConverter::float16to32(packedDTrkPt_);
     dxy_ = MiniFloatConverter::float16to32(packedDxy_)/100.;
     dz_   = pvRef.isNonnull() ? MiniFloatConverter::float16to32(packedDz_)/100. : int16_t(packedDz_)*40.f/std::numeric_limits<int16_t>::max();
     Point pv = pvRef.isNonnull() ? pvRef->position() : Point();
@@ -100,34 +130,10 @@ void pat::PackedCandidate::unpackVtx() const {
     auto vertex = std::make_unique<Point>(pv.X() - dxy_ * s,
                     pv.Y() + dxy_ * c,
                     pv.Z() + dz_ ); // for our choice of using the PCA to the PV, by definition the remaining term -(dx*cos(phi) + dy*sin(phi))*(pz/pt) is zero
-//  dxydxy_ = unpack8log(packedCovarianceDxyDxy_,-15,-1);
-//  dxydz_ = unpack8log(packedCovarianceDxyDz_,-20,-1);
-//  dzdz_ = unpack8log(packedCovarianceDzDz_,-13,-1);
-  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
-    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
-    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,0);
-    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,-5);
-    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,0);
-/*
-  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
-    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
-    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,5,32);
-    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,0,32);
-    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,5,32);
-*/
 
-/* dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
- dlambdadz_ = MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
- dptdpt_ = MiniFloatConverter::float16to32(packedCovarianceDptDpt_)/10000.;
- detadeta_ = MiniFloatConverter::float16to32(packedCovarianceDetaDeta_)/10000.;
- dphidphi_ = MiniFloatConverter::float16to32(packedCovarianceDphiDphi_)/10000.;
-*/
-  dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
-    dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
-    dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
-/*  dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
-    dlambdadz_ =MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
-*/
+     
+
+ 
     Point* expected = nullptr;
     if( vertex_.compare_exchange_strong(expected,vertex.get()) ) {
       vertex.release();
@@ -155,22 +161,12 @@ float pat::PackedCandidate::dz(const Point &p) const {
 
 void pat::PackedCandidate::unpackTrk() const {
     maybeUnpackBoth();
-    reco::TrackBase::CovarianceMatrix m;
-//    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
-//    m(1,1)=6e-6; //TODO: tune 
-//    m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
-    m(0,0)=dptdpt_/pt()/pt(); //TODO: tune
-    m(1,1)=detadeta_; //TODO: tune 
-    m(2,2)=dphidphi_/pt()/pt(); //TODO: tune
-    m(2,3)=dphidxy_;
-    m(3,2)=dphidxy_;
-    m(4,1)=dlambdadz_;
-    m(1,4)=dlambdadz_;
-    m(3,3)=dxydxy_;
-    m(3,4)=dxydz_;
-    m(4,3)=dxydz_;
-    m(4,4)=dzdz_;
-    math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
+    math::RhoEtaPhiVector p3(ptTrk(),etaAtVtx(),phiAtVtx());
+    for(int i=0;i<5;i++)
+      for(int j=0;j<5;j++){
+          m_(i,j)=0;
+    }
+    unpackCovariance();
     int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
     int numberOfPixelHits = this->numberOfPixelHits();
     int numberOfHits = this->numberOfHits();
@@ -180,7 +176,7 @@ void pat::PackedCandidate::unpackTrk() const {
     int i=0;
     LostInnerHits innerLost = lostInnerHits();
     
-    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m_,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
     // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
@@ -224,6 +220,7 @@ void pat::PackedCandidate::unpackTrk() const {
           track->appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
     }
 
+
     switch (innerLost) {
         case validHitInFirstPixelBarrelLayer:
             break;
@@ -244,6 +241,7 @@ void pat::PackedCandidate::unpackTrk() const {
     if( track_.compare_exchange_strong(expected,track.get()) ) {
       track.release();
     }
+
 
 }
 
