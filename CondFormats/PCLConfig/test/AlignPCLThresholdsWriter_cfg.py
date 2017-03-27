@@ -77,7 +77,6 @@ process.WriteInDB = cms.EDAnalyzer("AlignPCLThresholdsWriter",
                                    #thresholds  = cms.VPSet()         # empty object
                                    #thresholds = DefaultPlusSurface   # add extra deegree of freedom
                                    thresholds = Thresholds.default   # as a cms.VPset
-
                                    )
 
 process.p = cms.Path(process.WriteInDB)

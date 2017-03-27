@@ -56,7 +56,7 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 ## Read it back
 ##
 process.ReadDB = cms.EDAnalyzer("AlignPCLThresholdsReader")
-process.ReadDB.printdebug  = cms.untracked.bool(True)
+process.ReadDB.printDebug = cms.untracked.bool(True)
 process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds.log')
 
 process.p = cms.Path(process.get+process.ReadDB)
