@@ -22,14 +22,16 @@ process.l1conddb = cms.ESSource("PoolDBESSource",
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TGlobalPrescalesVetosRcd'),
-                 tag = cms.string("L1TGlobalPrescalesVetos_Stage2v0_hlt")
+                 tag = cms.string("L1TGlobalPrescalesVetos_passThrough_mc")
+#                 tag = cms.string("L1TGlobalPrescalesVetos_Stage2v0_hlt")
             )
        )
 )
 
 process.l1gpv = cms.EDAnalyzer("L1TGlobalPrescalesVetosViewer",
-    prescale_table_verbosity = cms.untracked.int32(2),
-    bxmask_map_verbosity     = cms.untracked.int32(0)
+    prescale_table_verbosity = cms.untracked.int32(0),
+    bxmask_map_verbosity     = cms.untracked.int32(0),
+    veto_verbosity           = cms.untracked.int32(0)
 )
 
 process.p = cms.Path(process.l1gpv)
