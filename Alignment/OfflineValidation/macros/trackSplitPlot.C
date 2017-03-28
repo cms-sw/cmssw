@@ -1831,7 +1831,9 @@ TString plainunits(TString variable, char axis) {
 
 TString latexunits(TString variable, char axis) {
     TString result = units(variable, axis);
-    result.ReplaceAll("#", "\\");
+    result.ReplaceAll("#", "\\").ReplaceAll("{", "{{").ReplaceAll("}", "}}")
+          .ReplaceAll("\\mum", "$\\mu$m")
+          .ReplaceAll("\\times10^{{-3}}", "$\\times10^{{-3}}$");
     return result;
 }
 
@@ -1903,8 +1905,8 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
 
 TString latexlabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull) {
     TString result = axislabel(variable, axis, relative, resolution, pull);
-    result.ReplaceAll("#", "\\");
     result.ReplaceAll(" ("+units(variable, axis)+")", "");
+    result.ReplaceAll("#", "\\").ReplaceAll("\\Delta", "\\Delta ");
     return result;
 }
 
