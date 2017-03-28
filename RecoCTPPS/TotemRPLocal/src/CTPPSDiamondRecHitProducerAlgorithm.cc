@@ -22,7 +22,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
   {
     const CTPPSDiamondDetId detid( vec->detId() );
     
-    if ( detid.channel() == 30 ) continue;              // VFAT-like clock information, to be ignored by CTPPSDiamondRecHitProducer
+    if ( detid.channel() > 20 ) continue;              // VFAT-like information, to be ignored by CTPPSDiamondRecHitProducer
 
     const DetGeomDesc* det = geom->GetDetector( detid );
     const float x_pos = det->translation().x(),
