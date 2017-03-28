@@ -440,15 +440,19 @@ class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
 
     // this is to skip endcap ZS for Phase2 until there is a defined geometry
     // apply the loosest ZS threshold, for the first eta-ring in EE
+    DetId detId(hit.detId());
     if(!endcapGeometrySet_) {
-      // 0-169: EB eta-rings
-      // 170-208: EE- eta rings
-      // 209-247: EE+ eta rings
-      int firstEERing = 170;
-      return (hit.energy() > thresholds_[firstEERing]);
+
+        // there is only ECAL EB in Phase 2
+        if(detId.subdetId() != EcalBarrel) return true;
+
+        // 0-169: EB eta-rings
+        // 170-208: EE- eta rings
+        // 209-247: EE+ eta rings
+        int firstEBRing = 0;
+        return (hit.energy() > thresholds_[firstEBRing]);
     }
     
-    DetId detId(hit.detId());
     int iring = EcalRingCalibrationTools::getRingIndex(detId);
     if (  hit.energy() > thresholds_[iring] ) return true;
     
