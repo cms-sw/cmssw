@@ -8,6 +8,7 @@
 
 class CaloCellGeometry;
 class HcalDetId;
+class HcalDDDGeometry;
 
 /** \class HcalDDDGeometryLoader
  *
@@ -35,11 +36,11 @@ private:
 
   /// helper functions to make all the ids and cells, and put them into the
   /// vectors and mpas passed in.
-  void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
+  void fill(HcalSubdetector, HcalDDDGeometry*);
   
   void makeCell( const HcalDetId &, 
 		 const HcalCellType& , double, 
-		 double, CaloSubdetectorGeometry* geom) const;
+		 double, HcalDDDGeometry* geom) const;
   
   const HcalDDDRecConstants* hcalConstants;
 
