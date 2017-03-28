@@ -49,6 +49,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         void fillTriggerGeometry(const HGCalTriggerGeometryBase::es_info& );
         void checkConsistency(const HGCalTriggerGeometryBase::es_info& );
         void setTreeModuleSize(const size_t n);
+        void setTreeModuleCellSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
         void setTreeTriggerCellNeighborSize(const size_t n);
 
@@ -77,6 +78,16 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         std::shared_ptr<float> moduleTC_x_     ;
         std::shared_ptr<float> moduleTC_y_     ;
         std::shared_ptr<float> moduleTC_z_     ;
+        int   moduleCell_N_   ;
+        std::shared_ptr<int>   moduleCell_id_    ;
+        std::shared_ptr<int>   moduleCell_zside_ ;
+        std::shared_ptr<int>   moduleCell_subdet_;
+        std::shared_ptr<int>   moduleCell_layer_ ;
+        std::shared_ptr<int>   moduleCell_wafer_;
+        std::shared_ptr<int>   moduleCell_cell_  ;
+        std::shared_ptr<float> moduleCell_x_     ;
+        std::shared_ptr<float> moduleCell_y_     ;
+        std::shared_ptr<float> moduleCell_z_     ;
         int   triggerCellId_     ;
         int   triggerCellSide_   ;
         int   triggerCellSubdet_ ;
@@ -162,6 +173,25 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
     treeModules_->Branch("tc_x"           , moduleTC_x_.get()      , "tc_x[tc_n]/F");
     treeModules_->Branch("tc_y"           , moduleTC_y_.get()      , "tc_y[tc_n]/F");
     treeModules_->Branch("tc_z"           , moduleTC_z_.get()      , "tc_z[tc_n]/F");
+    treeModules_->Branch("c_n"           , &moduleCell_N_          , "c_n/I");
+    moduleCell_id_    .reset(new int[1],   array_deleter<int>());
+    moduleCell_zside_ .reset(new int[1],   array_deleter<int>());
+    moduleCell_subdet_.reset(new int[1],   array_deleter<int>());
+    moduleCell_layer_ .reset(new int[1],   array_deleter<int>());
+    moduleCell_wafer_ .reset(new int[1],   array_deleter<int>());
+    moduleCell_cell_  .reset(new int[1],   array_deleter<int>());
+    moduleCell_x_     .reset(new float[1], array_deleter<float>());
+    moduleCell_y_     .reset(new float[1], array_deleter<float>());
+    moduleCell_z_     .reset(new float[1], array_deleter<float>());
+    treeModules_->Branch("c_id"          , moduleCell_id_.get()     , "c_id[c_n]/I");
+    treeModules_->Branch("c_zside"       , moduleCell_zside_.get()  , "c_zside[c_n]/I");
+    treeModules_->Branch("c_subdet"      , moduleCell_subdet_.get() , "c_subdet[c_n]/I");
+    treeModules_->Branch("c_layer"       , moduleCell_layer_.get()  , "c_layer[c_n]/I");
+    treeModules_->Branch("c_wafer"       , moduleCell_wafer_.get()  , "c_wafer[c_n]/I");
+    treeModules_->Branch("c_cell"        , moduleCell_cell_.get()   , "c_cell[c_n]/I");
+    treeModules_->Branch("c_x"           , moduleCell_x_.get()      , "c_x[c_n]/F");
+    treeModules_->Branch("c_y"           , moduleCell_y_.get()      , "c_y[c_n]/F");
+    treeModules_->Branch("c_z"           , moduleCell_z_.get()      , "c_z[c_n]/F");
     //
     treeTriggerCells_ = fs_->make<TTree>("TreeTriggerCells","Tree of all HGC trigger cells");
     treeTriggerCells_->Branch("id"             , &triggerCellId_            , "id/I");
@@ -616,6 +646,26 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             moduleTC_z_     .get()[itc] = position.z();
             itc++;
         }
+        auto cells_in_module = triggerGeometry_->getCellsFromModule(id);
+        moduleCell_N_   = cells_in_module.size();
+        //
+        setTreeModuleCellSize(moduleCell_N_);
+        size_t ic = 0;
+        for(const auto& c : cells_in_module)
+        {
+            HGCalDetId cId(c);
+            const GlobalPoint position = (cId.subdetId()==ForwardSubdetector::HGCEE ? info.geom_ee->getPosition(cId) :  info.geom_fh->getPosition(cId));
+            moduleCell_id_    .get()[ic] = c;
+            moduleCell_zside_ .get()[ic] = cId.zside();
+            moduleCell_subdet_.get()[ic] = cId.subdetId();
+            moduleCell_layer_ .get()[ic] = cId.layer();
+            moduleCell_wafer_ .get()[ic] = cId.wafer();
+            moduleCell_cell_  .get()[ic] = cId.cell();
+            moduleCell_x_     .get()[ic] = position.x();
+            moduleCell_y_     .get()[ic] = position.y();
+            moduleCell_z_     .get()[ic] = position.z();
+            ic++;
+        }
         //
         treeModules_->Fill();
     }
@@ -655,6 +705,31 @@ void HGCalTriggerGeomTester::setTreeModuleSize(const size_t n)
     treeModules_->GetBranch("tc_x")      ->SetAddress(moduleTC_x_     .get());
     treeModules_->GetBranch("tc_y")      ->SetAddress(moduleTC_y_     .get());
     treeModules_->GetBranch("tc_z")      ->SetAddress(moduleTC_z_     .get());
+}
+
+/*****************************************************************/
+void HGCalTriggerGeomTester::setTreeModuleCellSize(const size_t n) 
+/*****************************************************************/
+{
+    moduleCell_id_    .reset(new int[n],   array_deleter<int>());
+    moduleCell_zside_ .reset(new int[n],   array_deleter<int>());
+    moduleCell_subdet_.reset(new int[n],   array_deleter<int>());
+    moduleCell_layer_ .reset(new int[n],   array_deleter<int>());
+    moduleCell_wafer_ .reset(new int[n],   array_deleter<int>());
+    moduleCell_cell_  .reset(new int[n],   array_deleter<int>());
+    moduleCell_x_     .reset(new float[n], array_deleter<float>());
+    moduleCell_y_     .reset(new float[n], array_deleter<float>());
+    moduleCell_z_     .reset(new float[n], array_deleter<float>());
+
+    treeModules_->GetBranch("c_id")     ->SetAddress(moduleCell_id_    .get());
+    treeModules_->GetBranch("c_zside")  ->SetAddress(moduleCell_zside_ .get());
+    treeModules_->GetBranch("c_subdet") ->SetAddress(moduleCell_subdet_.get());
+    treeModules_->GetBranch("c_layer")  ->SetAddress(moduleCell_layer_ .get());
+    treeModules_->GetBranch("c_wafer")  ->SetAddress(moduleCell_wafer_ .get());
+    treeModules_->GetBranch("c_cell")   ->SetAddress(moduleCell_cell_  .get());
+    treeModules_->GetBranch("c_x")      ->SetAddress(moduleCell_x_     .get());
+    treeModules_->GetBranch("c_y")      ->SetAddress(moduleCell_y_     .get());
+    treeModules_->GetBranch("c_z")      ->SetAddress(moduleCell_z_     .get());
 }
 
 /*****************************************************************/
