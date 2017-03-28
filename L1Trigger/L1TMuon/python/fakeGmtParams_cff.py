@@ -22,7 +22,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     configFromXml = cms.bool(False),
 
     #fwVersion = cms.uint32(1),
-    fwVersion = cms.uint32(0x5000000),
+    fwVersion = cms.uint32(0x4010000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
