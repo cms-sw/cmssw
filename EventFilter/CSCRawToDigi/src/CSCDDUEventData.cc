@@ -9,10 +9,11 @@
 
 #include <iostream>
 #include <cstdio>
+#include <atomic>
 
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
-bool CSCDDUEventData::debug = false;
+std::atomic<bool> CSCDDUEventData::debug{false};
 uint32_t CSCDDUEventData::errMask = 0xFFFFFFFF;
 
 

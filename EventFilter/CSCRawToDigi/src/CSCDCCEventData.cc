@@ -8,9 +8,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdio>
+#include <atomic>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
-bool CSCDCCEventData::debug = false;
+std::atomic<bool> CSCDCCEventData::debug{false};
 
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 

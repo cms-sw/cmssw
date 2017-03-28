@@ -4,7 +4,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,6 +28,7 @@ const double protonMass = 0.938272;
 
 bool GenMuonRadiationAlgorithm::photos_isInitialized_ = false;
 bool GenMuonRadiationAlgorithm::pythia_isInitialized_ = false;
+CLHEP::HepRandomEngine* GenMuonRadiationAlgorithm::decayRandomEngine = nullptr;
 
 class myPythia6ServiceWithCallback : public gen::Pythia6Service 
 {
@@ -183,7 +183,12 @@ GenMuonRadiationAlgorithm::GenMuonRadiationAlgorithm(const edm::ParameterSet& cf
     << " Invalid Configuration Parameter 'mode' = " << mode_string << " !!\n";
 
   if ( mode_ == kPYTHIA ) pythia_ = new myPythia6ServiceWithCallback(cfg);
-  if ( mode_ == kPHOTOS ) photos_ = new gen::PhotosInterface(cfg.getParameter<edm::ParameterSet>("PhotosOptions"));
+  if ( mode_ == kPHOTOS ){
+    photos_ =  (gen::PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", cfg.getParameter<edm::ParameterSet>("PhotosOptions")));
+    //settings?
+    //usesResource(edm::SharedResourceNames::kPhotos);
+    //you must call photos_->setRandomEngine(decayRandomEngine); every event to properly pass the random number with the multi-threading will add below by Rnd-gen
+  }
 
   verbosity_ = ( cfg.exists("verbosity") ) ? 
     cfg.getParameter<int>("verbosity") : 0;

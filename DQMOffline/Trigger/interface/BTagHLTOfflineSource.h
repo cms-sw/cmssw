@@ -149,10 +149,13 @@ private:
 
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
-
-  // Input tags for calo jets and muons
-  edm::InputTag caloJetsTag_;
-  edm::InputTag muonTag_;
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+  edm::EDGetTokenT <reco::BeamSpot> beamSpotToken;
+  edm::EDGetTokenT <reco::MuonCollection> muonToken;
+  edm::EDGetTokenT <reco::CaloJetCollection> caloJetsToken;
 
   // Selected for calo jets and muons
   reco::CaloJetCollection *SelectedCaloJets; 

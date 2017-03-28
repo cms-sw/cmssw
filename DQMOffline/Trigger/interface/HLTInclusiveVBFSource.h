@@ -100,11 +100,16 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   edm::Handle<edm::TriggerResults> triggerResults_; 
   edm::TriggerNames triggerNames_; // TriggerNames class
   
-  edm::InputTag caloJetsTag_;
-  edm::InputTag caloMETTag_;
-  edm::InputTag pfJetsTag_;
-  edm::InputTag pfMetTag_;
-  
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+
+  edm::EDGetTokenT <edm::View<reco::PFJet> > pfJetsToken;
+  edm::EDGetTokenT <edm::View<reco::PFMET> > pfMetToken;
+  edm::EDGetTokenT <reco::CaloJetCollection> caloJetsToken;
+  edm::EDGetTokenT <reco::CaloMETCollection> caloMetToken;
+
   edm::Handle<reco::CaloJetCollection> calojetColl_;
   edm::Handle<reco::CaloMETCollection> calometColl_; 
   edm::Handle<reco::PFJetCollection>   pfjetColl_;

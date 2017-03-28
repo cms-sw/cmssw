@@ -14,21 +14,21 @@ TopHLTDiMuonDQM::TopHLTDiMuonDQM( const edm::ParameterSet& ps ) {
 
   monitorName_ = ps.getParameter<string>("monitorName");
 
-  triggerResults_ = ps.getParameter<edm::InputTag>("TriggerResults");
-  triggerEvent_   = ps.getParameter<edm::InputTag>("TriggerEvent");
-  triggerFilter_  = ps.getParameter<edm::InputTag>("TriggerFilter");
+  triggerResultsToken = consumes <edm::TriggerResults>  (ps.getParameter<edm::InputTag>("TriggerResults"));
+  triggerEventToken   = consumes <trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("TriggerEvent"));
+  triggerFilter_      = ps.getParameter<edm::InputTag>("TriggerFilter");
 
   hltPaths_L1_   = ps.getParameter<vector<string> >("hltPaths_L1");
   hltPaths_L3_   = ps.getParameter<vector<string> >("hltPaths_L3");
   hltPaths_sig_  = ps.getParameter<vector<string> >("hltPaths_sig");
   hltPaths_trig_ = ps.getParameter<vector<string> >("hltPaths_trig");
 
-  vertex_       = ps.getParameter<edm::InputTag>("vertexCollection");
+  vertexToken   = consumes <reco::VertexCollection> (ps.getParameter<edm::InputTag>("vertexCollection"));
   vertex_X_cut_ = ps.getParameter<double>("vertex_X_cut");
   vertex_Y_cut_ = ps.getParameter<double>("vertex_Y_cut");
   vertex_Z_cut_ = ps.getParameter<double>("vertex_Z_cut");
 
-  muons_        = ps.getParameter<edm::InputTag>("muonCollection");
+  muonToken     = consumes <reco::MuonCollection> (ps.getParameter<edm::InputTag>("muonCollection"));
   muon_pT_cut_  = ps.getParameter<double>("muon_pT_cut");
   muon_eta_cut_ = ps.getParameter<double>("muon_eta_cut");
   muon_iso_cut_ = ps.getParameter<double>("muon_iso_cut");
@@ -211,9 +211,9 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // -------------------------
 
   edm::Handle<TriggerResults> trigResults;
-  iEvent.getByLabel(triggerResults_, trigResults);
+  iEvent.getByToken(triggerResultsToken, trigResults);
 
-  if( trigResults.failedToGet() ) {
+  if( !trigResults.isValid()) {
 
     //    cout << endl << "-----------------------------" << endl;
     //    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
@@ -221,7 +221,7 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-  if( !trigResults.failedToGet() ) {
+  if( trigResults.isValid()) {
 
     const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResults);
 
@@ -262,9 +262,9 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // -----------------------
 
   edm::Handle<TriggerEvent> triggerEvent;
-  iEvent.getByLabel(triggerEvent_, triggerEvent);
+  iEvent.getByToken(triggerEventToken, triggerEvent);
 
-  if( triggerEvent.failedToGet() ) {
+  if( !triggerEvent.isValid() ) {
 
     //    cout << endl << "---------------------------" << endl;
     //    cout << "--- NO TRIGGER EVENT !! ---" << endl;
@@ -272,7 +272,7 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-  if( !triggerEvent.failedToGet() ) {
+  if( triggerEvent.isValid() ) {
 
     size_t filterIndex = triggerEvent->filterIndex( triggerFilter_ );
     TriggerObjectCollection triggerObjects = triggerEvent->getObjects();
@@ -323,9 +323,9 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ------------------------
 
   edm::Handle<reco::VertexCollection> vertexs;
-  iEvent.getByLabel(vertex_, vertexs);
+  iEvent.getByToken(vertexToken, vertexs);
 
-  if( vertexs.failedToGet() ) {
+  if( !vertexs.isValid() ) {
 
     //      cout << endl << "----------------------------" << endl;
     //      cout << "--- NO PRIMARY VERTEX !! ---" << endl;
@@ -333,7 +333,7 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-  if( !vertexs.failedToGet() ) {
+  if( vertexs.isValid() ) {
 
     reco::Vertex primaryVertex = vertexs->front();
 
@@ -358,11 +358,11 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --------------------
 
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(muons_, muons);
+  iEvent.getByToken(muonToken, muons);
 
   reco::MuonCollection::const_iterator muon;
 
-  if( muons.failedToGet() ) {
+  if( !muons.isValid() ) {
 
     //    cout << endl << "------------------------" << endl;
     //    cout << "--- NO RECO MUONS !! ---" << endl;
@@ -370,7 +370,7 @@ void TopHLTDiMuonDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-  if( !muons.failedToGet() ) {
+  if( muons.isValid() ) {
 
     NMuons->Fill( muons->size() );
 
