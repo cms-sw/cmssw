@@ -19,259 +19,322 @@
 #include <vector>
 
 
-ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps)
+
+ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geometry, const unsigned int numberOfStrips, const unsigned int numberOfPartitions) {
+	//First test geometry to make sure that it is compatible with our assumptions
+	const auto& chambers = geometry->chambers();
+	if(!chambers.size())
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - No ME0Chambers in geometry.";
+	const auto* mainChamber = chambers.front();
+	const unsigned int nLayers = chambers.front()->nLayers();
+	if(!nLayers)
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - ME0Chamber has no layers.";
+	const auto* mainLayer = mainChamber->layers()[0];
+	if(!mainLayer->nEtaPartitions())
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - ME0Layer has no partitions.";
+	if(mainLayer->nEtaPartitions() != 1)
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - This module is only compatitble with geometries that contain only one partiton per ME0Layer.";
+
+	const auto* mainPartition = mainLayer->etaPartitions()[0];
+	const TrapezoidalStripTopology * mainTopo = dynamic_cast<const TrapezoidalStripTopology*>(&mainPartition->topology());
+	if(!mainTopo)
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - ME0 strip topology must be of type TrapezoidalStripTopology. This module cannot be used";
+
+	for(const auto& chamber : geometry->chambers() ){
+		if(chamber->nLayers() != int(nLayers))
+			throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - Not all ME0Chambers have the same number of layers. This module cannot be used.";
+		for(unsigned int iL = 0; iL < nLayers; ++iL){
+			if(chamber->layers()[iL]->nEtaPartitions() != mainLayer->nEtaPartitions())
+				throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - Not all ME0Layers have the same number of partitions. This module cannot be used.";
+			if(chamber->layers()[iL]->etaPartitions()[0]->specs()->parameters() != mainPartition->specs()->parameters())
+				throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - Not all ME0 ETA partitions have the same properties. This module cannot be used.";
+			if(std::fabs(chamber->layers()[iL]->etaPartitions()[0]->position().z()) != std::fabs(mainChamber->layers()[iL]->etaPartitions()[0]->position().z()))
+				throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - Not all ME0 ETA partitions in a single layer have the same Z position. This module cannot be used.";
+		}
+	}
+
+	//Calculate radius to center of partition
+	middleDistanceFromBeam = mainTopo->radius();
+
+	//calculate the top of each eta partition, assuming equal distance in eta between partitions
+	auto localTop     = LocalPoint(0,mainTopo->stripLength()/2);
+	auto localBottom  = LocalPoint(0,-1*mainTopo->stripLength()/2);
+	auto globalTop    = mainPartition->toGlobal(localTop);
+	auto globalBottom = mainPartition->toGlobal(localBottom);
+	double etaTop     = globalTop.eta();
+	double etaBottom  = globalBottom.eta();
+	double zBottom    = globalBottom.z();
+	partionTops.reserve(numberOfPartitions);
+	for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
+		double eta = (etaTop -etaBottom)*double(iP + 1)/double(numberOfPartitions) + etaBottom;
+		double distFromBeam = std::fabs(2 * zBottom /(std::exp(-1*eta) - std::exp(eta)  ));
+		partionTops.push_back(distFromBeam - middleDistanceFromBeam);
+		LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "Top of new partition: " <<partionTops.back() << std::endl;
+	}
+
+	//Build topologies
+	stripTopos.reserve(numberOfPartitions);
+	const auto& mainPars = mainPartition->specs()->parameters();
+	for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
+		std::vector<float> params(4,0);
+
+		//half width of trapezoid at local coordinate Y
+		auto getWidth = [&] ( float locY ) -> float { return (mainPars[2]*(mainPars[1]+mainPars[0]) +locY*(mainPars[1] - mainPars[0]) )/(2*mainPars[2]);};
+
+		params[0] = iP == 0 ?  mainPars[0] : getWidth(partionTops[iP -1]); // Half width of bottom of chamber
+		params[1] = iP +1 == numberOfPartitions ?  mainPars[1] : getWidth(partionTops[iP]); // Half width of top of chamber
+		params[2] = ((iP + 1 == numberOfPartitions ? localTop.y() : partionTops[iP] ) - (iP  == 0 ? localBottom.y() : partionTops[iP-1] ) )/2; // Half width of height of chamber
+		params[3] = numberOfStrips;
+
+		stripTopos.push_back(buildTopo(params));
+	}
+
+	//Get TOF at center of each partition
+	tofs.resize(nLayers);
+	LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "TOF numbers [layer][partition]: " ;
+	for(unsigned int iL = 0; iL < nLayers; ++iL){
+		tofs[iL].resize(numberOfPartitions);
+		for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
+			const LocalPoint partCenter(0., getPartCenter(iP), 0.);
+			const GlobalPoint centralGP(mainChamber->layers()[iL]->etaPartitions()[0]->toGlobal(partCenter));
+			tofs[iL][iP] = (centralGP.mag() / 29.9792); //speed of light [cm/ns]
+			LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "["<<iL<<"]["<<iP<<"]="<< tofs[iL][iP] <<" "<<std::endl;
+		}
+	}
+}
+
+unsigned int ME0ReDigiProducer::TemporaryGeometry::findEtaPartition(float locY) const {
+	unsigned int etaPart = stripTopos.size() -1;
+	for(unsigned int iP = 0; iP < stripTopos.size(); ++iP ){
+		if(locY <  partionTops[iP]) {etaPart = iP; break;}
+	}
+	return etaPart;
+}
+
+float ME0ReDigiProducer::TemporaryGeometry::getPartCenter(const unsigned int partIdx) const {return stripTopos[partIdx]->radius() - middleDistanceFromBeam ;}
+
+ME0ReDigiProducer::TemporaryGeometry::~TemporaryGeometry() {
+	for(auto * p : stripTopos) { delete p;}
+}
+
+TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const std::vector<float>& _p) const {
+	float b = _p[0];
+	float B = _p[1];
+	float h = _p[2];
+	float r0 = h*(B + b)/(B - b);
+	float striplength = h*2;
+	float strips = _p[3];
+	float pitch = (b + B)/strips;
+	int nstrip =static_cast<int>(strips);
+
+	LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "New partition parameters: " <<
+			"bottom width("<< 2*b <<") top width("<<2*B<<") height("<< 2*h <<") radius to center("<< r0 <<") nStrips("<< strips <<") pitch(" << pitch<<")"<< std::endl;
+
+	return new TrapezoidalStripTopology(nstrip, pitch, striplength, r0);
+}
+
+ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
+		numberOfSrips      (ps.getParameter<unsigned int>("numberOfSrips")),
+		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
+		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
+		timeResolution     (ps.getParameter<double>("timeResolution")),
+		minBXReadout       (ps.getParameter<int>("minBXReadout")),
+		maxBXReadout       (ps.getParameter<int>("maxBXReadout")),
+		layerReadout       (ps.getParameter<std::vector<int>>("layerReadout")),
+		mergeDigis         (ps.getParameter<bool>("mergeDigis")),
+		token(consumes<ME0DigiPreRecoCollection>(edm::InputTag(ps.getParameter<std::string>("inputCollection"))))
 {
-  produces<ME0DigiPreRecoCollection>();
+	produces<ME0DigiPreRecoCollection>();
+	produces<ME0DigiPreRecoMap>();
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if (!rng.isAvailable()){
-    throw cms::Exception("Configuration")
-      << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
-      << "Add the service in the configuration file or remove the modules that require it.";
-  }
-  std::string collection_(ps.getParameter<std::string>("inputCollection"));
+	edm::Service<edm::RandomNumberGenerator> rng;
+	if (!rng.isAvailable()){
+		throw cms::Exception("Configuration")
+		<< "ME0ReDigiProducer::ME0PreRecoDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+		<< "Add the service in the configuration file or remove the modules that require it.";
+	}
+	geometry = 0;
+	tempGeo = 0;
 
-  token_ = consumes<ME0DigiPreRecoCollection>(edm::InputTag(collection_));
-  timeResolution_ = ps.getParameter<double>("timeResolution");
-  minBunch_ = ps.getParameter<int>("minBunch");
-  maxBunch_ = ps.getParameter<int>("maxBunch");
-  smearTiming_ = ps.getParameter<bool>("smearTiming");
-  discretizeTiming_  = ps.getParameter<bool>("discretizeTiming");
-  radialResolution_ = ps.getParameter<double>("radialResolution");
-  smearRadial_ = ps.getParameter<bool>("smearRadial");
-  oldXResolution_ = ps.getParameter<double>("oldXResolution");
-  oldYResolution_ = ps.getParameter<double>("oldYResolution");
-  newXResolution_ = ps.getParameter<double>("newXResolution");
-  newYResolution_ = ps.getParameter<double>("newYResolution");
-  discretizeX_ = ps.getParameter<bool>("discretizeX");
-  discretizeY_ = ps.getParameter<bool>("discretizeY");
-  reDigitizeOnlyMuons_ = ps.getParameter<bool>("reDigitizeOnlyMuons");
-  reDigitizeNeutronBkg_ = ps.getParameter<bool>("reDigitizeNeutronBkg");
-  rateFact_ = ps.getParameter<double>("rateFact");
-  instLumiDefault_ = ps.getParameter<double>("instLumiDefault");
-  instLumi_ = ps.getParameter<double>("instLumi");
+	if(numberOfSrips == 0)
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip.";
+	if(numberOfPartitions == 0)
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one partition.";
+	if(neutronAcceptance < 0 )
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - neutronAcceptance must be >= 0.";
+
+
+
+
 }
 
 
 ME0ReDigiProducer::~ME0ReDigiProducer()
 {
+	if(tempGeo) delete tempGeo;
 }
 
 
 void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
-  // set geometry
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
-  geometry_= &*hGeom;
+	// set geometry
+	edm::ESHandle<ME0Geometry> hGeom;
+	eventSetup.get<MuonGeometryRecord>().get(hGeom);
+	geometry= &*hGeom;
 
-  LogDebug("ME0ReDigiProducer")
-    << "Extracting central TOFs:" << std::endl;
-  // get the central TOFs for the eta partitions
-  for(auto &roll: geometry_->etaPartitions()){
-    const ME0DetId detId(roll->id());
-    if (detId.chamber() != 1 or detId.region() != 1) continue;
-    const LocalPoint centralLP(0., 0., 0.);
-    const GlobalPoint centralGP(roll->toGlobal(centralLP));
-    const float centralTOF(centralGP.mag() / 29.98); //speed of light
-    centralTOF_.push_back(centralTOF);
-    LogDebug("ME0ReDigiProducer")
-      << "ME0DetId " << detId << " central TOF " << centralTOF << std::endl;
-  }
-  nPartitions_ = centralTOF_.size()/6;
-  LogDebug("ME0ReDigiProducer")<<" Number of partitions "<<nPartitions_<<std::endl;
+	LogDebug("ME0ReDigiProducer")
+	<< "Building temporary geometry:" << std::endl;
+	tempGeo = new TemporaryGeometry(geometry,numberOfSrips,numberOfPartitions);
+	LogDebug("ME0ReDigiProducer")
+	<< "Done building temporary geometry!" << std::endl;
+
+	if(tempGeo->numLayers() != layerReadout.size() )
+		throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<tempGeo->numLayers()
+		<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
+
 }
 
 
 void ME0ReDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+	edm::Service<edm::RandomNumberGenerator> rng;
+	CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  edm::Handle<ME0DigiPreRecoCollection> input_digis;
-  e.getByToken(token_, input_digis);
+	edm::Handle<ME0DigiPreRecoCollection> input_digis;
+	e.getByToken(token, input_digis);
 
-  std::unique_ptr<ME0DigiPreRecoCollection> output_digis(new ME0DigiPreRecoCollection());
+	std::unique_ptr<ME0DigiPreRecoCollection> output_digis(new ME0DigiPreRecoCollection());
+	std::unique_ptr<ME0DigiPreRecoMap>       output_digimap(new ME0DigiPreRecoMap());
 
-  // build the clusters
-  buildDigis(*(input_digis.product()), *output_digis, engine);
+	// build the digis
+	buildDigis(*(input_digis.product()),
+			*output_digis,
+			*output_digimap,
+			engine);
 
-  // store them in the event
-  e.put(std::move(output_digis));
+	// store them in the event
+	e.put(std::move(output_digis));
+	e.put(std::move(output_digimap));
+
+//	produces< edm::ValueMap<edm::Ref(ME0DigiPreReco)> >("ptrToNewDigi");
+
 }
 
 
 void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
-                                   ME0DigiPreRecoCollection & output_digis,
-                                   CLHEP::HepRandomEngine* engine)
+		ME0DigiPreRecoCollection & output_digis,
+		ME0DigiPreRecoMap & output_digimap,
+		CLHEP::HepRandomEngine* engine)
 {
-  /*
-    Starting form the incoming pseudo-digi, which has sigma_x=300um, sigma_t=sigma_R=0, do the following
-    1A. Smear time using sigma_t by 7 ns (native resolution of GEM)
-    1B. Correct the smeared time with the central arrival time for partition
-    1C. Apply discretization: if the smeared time is outside the BX window (-12.5ns;+12.5ns),
-    the hit should be assigned to the next (or previous) BX
 
-    2A. Apply smearing in the radial direction (not in local Y!) sigma_R of 100 um
-    2B. Apply discretization in radial direction to see which eta partition it belongs to.
-    Assign the hit to have Y-position equal to the middle of the partition.
+	LogDebug("ME0ReDigiProducer::buildDigis") << "Begin bulding digis."<<std::endl;
+	ME0DigiPreRecoCollection::DigiRangeIterator me0dgIt;
+	for (me0dgIt = input_digis.begin(); me0dgIt != input_digis.end();
+			++me0dgIt){
 
-    3A. Apply smearing in x-direction (not required if we stick with sigma=300 um, which is what
-    is used in pseudo-digis) to obtain desired x-resolution sigma_x_desired:
-    - use gaussian smear with sigma_eff=sqrt(sigma_desired^2-300^2)
-  */
+		const auto& me0Id = (*me0dgIt).first;
+		LogTrace("ME0ReDigiProducer::buildDigis") << "Starting with chamber: "<< me0Id<<std::endl;
 
-  for(auto &roll: geometry_->etaPartitions()){
-    const ME0DetId detId(roll->id());
-    //const uint32_t rawId(detId.rawId());
-    auto digis = input_digis.get(detId);
-    for (auto d = digis.first; d != digis.second; ++d) {
-      const ME0DigiPreReco me0Digi = *d;
-      edm::LogVerbatim("ME0ReDigiProducer")
-        << "Check detId " << detId << " digi " << me0Digi << std::endl;
+		//setup map for this chamber
+		typedef std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, unsigned int > > > ChamberDigiMap;
+		ChamberDigiMap chDigiMap;
+		//fills map...returns -1 if digi is not already in the map
+		auto fillDigiMap = [&] (unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) -> int {
+			auto it1 = chDigiMap.find(bx);
+			if (it1 == chDigiMap.end()){
+				chDigiMap[bx][part][strip] = currentIDX;
+				return -1;
+			}
+			auto it2 = it1->second.find(part);
+			if (it2 == it1->second.end()){
+				it1->second[part][strip] = currentIDX;
+				return -1;
+			}
+			auto it3 = it2->second.find(strip);
+			if (it3 == it2->second.end()){
+				it2->second[strip] = currentIDX;
+				return -1;
+			}
+			return it3->second;
+		};
 
-      // selection
-      if (reDigitizeOnlyMuons_ and std::abs(me0Digi.pdgid()) != 13) continue;
-      if (!reDigitizeNeutronBkg_ and !me0Digi.prompt()) continue;
+		int newDigiIdx = 0;
+		const ME0DigiPreRecoCollection::Range& range = (*me0dgIt).second;
+		for (ME0DigiPreRecoCollection::const_iterator digi = range.first;
+				digi != range.second;digi++) {
+			LogTrace("ME0ReDigiProducer::buildDigis") << std::endl<< "(" <<digi->x() <<","<< digi->y()<<","<<digi->tof()<<","<<digi->pdgid()<<","<<digi->prompt()<<")-> ";
 
-      // scale background hits for luminosity
-      if (!me0Digi.prompt())
-	  if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/(instLumiDefault_*rateFact_)) continue;
-      
-      edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tPassed selection" << std::endl;
+			//If we don't readout this layer skip
+			if(!layerReadout[me0Id.layer() -1 ]) {
+				output_digimap.insertDigi(me0Id, -1);
+				continue;
+			}
 
-      // time resolution
-      float newTof(me0Digi.tof());
-      if (me0Digi.prompt() and smearTiming_) newTof += CLHEP::RandGaussQ::shoot(engine, 0, timeResolution_);
+			//if neutron and we are filtering skip
+			if(!digi->prompt() && neutronAcceptance < 1.0 )
+				if (CLHEP::RandFlat::shoot(engine) > neutronAcceptance){
+					output_digimap.insertDigi(me0Id, -1);
+					continue;
+				}
 
-      // arrival time in ns
-      //const float t0(centralTOF_[ nPartitions_ * (detId.layer() -1) + detId.roll() - 1 ]);
-      int index = nPartitions_ * (detId.layer() -1) + detId.roll() - 1;
-      edm::LogVerbatim("ME0ReDigiProducer")
-	<<"size "<<centralTOF_.size()<<" nPartitions "<<nPartitions_<<" layer "<<detId.layer()<<" roll "<<detId.roll()<<" index "<<index<<std::endl;
-      
-      const float t0(centralTOF_[ index ]);      
-      const float correctedNewTof(newTof - t0);
+			const unsigned int partIdx = tempGeo->findEtaPartition(digi->y());
+			LogTrace("ME0ReDigiProducer::buildDigis") << partIdx <<" ";
+			float tof = digi->tof() + (timeResolution < 0 ? 0.0 : CLHEP::RandGaussQ::shoot(engine, 0, timeResolution));
+			const float partMeanTof = tempGeo->getCentralTOF(me0Id,partIdx);
+			//convert to relative to partition
+			tof -= partMeanTof;
+			const int bxIdx = std::round(tof/25.0);
+			LogTrace("ME0ReDigiProducer::buildDigis") << tof <<"("<<bxIdx<<") ";
+			//filter if outside of readout window
+			if(bxIdx < minBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
+			if(bxIdx > maxBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
+			tof = bxIdx*25;
 
-      edm::LogVerbatim("ME0ReDigiProducer")
-        <<" t0 "<< t0 << " originalTOF " << me0Digi.tof() << "\tnew TOF " << newTof << " corrected new TOF " << correctedNewTof << std::endl;
+			//get coordinates and errors
+			const float partCenter = tempGeo->getPartCenter(partIdx);
+			const auto* topo = tempGeo->getTopo(partIdx);
 
-      // calculate the new time in ns
-      float newTime = correctedNewTof;
-      if (discretizeTiming_){
-        for (int iBunch = minBunch_ - 2; iBunch <= maxBunch_ + 2; ++iBunch){
-          if (-12.5 + iBunch*25 < newTime and newTime <= 12.5 + iBunch*25){
-            newTime = iBunch * 25;
-            break;
-          }
-        }
-      }
+			//find channel
+			const LocalPoint partLocalPoint(digi->x(), digi->y() - partCenter ,0.);
+			const int strip = topo->channel(partLocalPoint);
+			const float stripF = float(strip)+0.5;
 
-      edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tBX " << newTime << std::endl;
+			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<bxIdx<<","<<partIdx<<","<<strip<<") ";
 
-      // calculate the position in global coordinates
-      const LocalPoint oldLP(me0Digi.x(), me0Digi.y(), 0);
-      const GlobalPoint oldGP(roll->toGlobal(oldLP));
-      const GlobalPoint centralGP(roll->toGlobal(LocalPoint(0.,0.,0.)));
-      const std::vector<float> parameters(roll->specs()->parameters());
-      const float height(parameters[2]); // G4 uses half-dimensions!
+			//If we are merging check to see if it already exists
+			if(mergeDigis){
+				int matchIDX = fillDigiMap(bxIdx,partIdx,strip,newDigiIdx);
+				if(matchIDX >= 0){
+					output_digimap.insertDigi(me0Id, matchIDX);
+					continue;
+				}
+			}
 
-      // smear the new radial with gaussian
-      const float oldR(oldGP.perp());
+			//get digitized location
+			LocalPoint  digiPartLocalPoint = topo->localPosition(stripF);
+			LocalError  digiPartLocalError = topo->localError(stripF, 1./sqrt(12.));
+			LocalPoint  digiChamberLocalPoint(digiPartLocalPoint.x(),digiPartLocalPoint.y() + partCenter,0);
 
-      float newR = oldR;
-      if (me0Digi.prompt() and smearRadial_  and nPartitions_  > 1)
-	newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
-      
-      // calculate the new position in local coordinates
-      const GlobalPoint radialSmearedGP(GlobalPoint::Cylindrical(newR, oldGP.phi(), oldGP.z()));
-      LocalPoint radialSmearedLP = roll->toLocal(radialSmearedGP);
-      
-      // new y position after smearing
-      const float targetYResolution(sqrt(newYResolution_*newYResolution_ - oldYResolution_ * oldYResolution_));
-      float newLPy = radialSmearedLP.y();
-      if (me0Digi.prompt())
-	newLPy = CLHEP::RandGaussQ::shoot(engine, radialSmearedLP.y(), targetYResolution);
-      
-      const ME0EtaPartition* newPart = roll;
-      LocalPoint newLP(radialSmearedLP.x(), newLPy, radialSmearedLP.z());
-      GlobalPoint newGP(newPart->toGlobal(newLP));
-      	
-      // check if digi moves one up or down roll
-      int newRoll = detId.roll();
-      if (newLP.y() > height)  --newRoll;
-      if (newLP.y() < -height) ++newRoll;
+			//Digis store sigmaX,sigmaY, correlationCoef
+			const float sigmaX = std::sqrt(digiPartLocalError.xx());
+			const float sigmaY = std::sqrt(digiPartLocalError.yy());
+			const float corrCoef = digiPartLocalError.xy() /(sigmaX*sigmaY);
 
-      if (newRoll != detId.roll()){
-	// check if new roll is possible
-	if (newRoll < ME0DetId::minRollId || newRoll > ME0DetId::maxRollId){
-	  newRoll = detId.roll();
+			//Fill in the new collection
+			ME0DigiPreReco out_digi(digiChamberLocalPoint.x(), digiChamberLocalPoint.y(),
+					sigmaX, sigmaY, corrCoef, tof, digi->pdgid(), digi->prompt());
+			output_digis.insertDigi(me0Id, out_digi);
+
+			// store index of previous detid and digi
+			output_digimap.insertDigi(me0Id, newDigiIdx);
+			newDigiIdx++;
+
+			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<digiChamberLocalPoint.x()<<","<<digiChamberLocalPoint.y()<<","<<sigmaX<<","<<sigmaY<<","<< tof<<") ";
+		}
+
+		chDigiMap.clear();
+
+
 	}
-	else {	 
-	  // roll changed, get new ME0EtaPartition
-	  newPart = geometry_->etaPartition(ME0DetId(detId.region(), detId.layer(), detId.chamber(), newRoll));
-	}
 
-	// if new ME0EtaPartition fails or roll not changed
-	if (!newPart or newRoll == detId.roll()){
-	  newPart = roll;
-	  // set local y to edge of etaPartition
-	  if (newLP.y() > height)  newLP = LocalPoint(newLP.x(), height, newLP.z());
-	  if (newLP.y() < -height) newLP = LocalPoint(newLP.x(), -height, newLP.z());	
-	}
-	else {// new partiton, get new local point
-	  newLP = newPart->toLocal(newGP);
-	}
-      }	
-
-      // smearing in X
-      double newXResolutionCor = correctSigmaU(roll, newLP.y());
-      
-      // new x position after smearing
-      const float targetXResolution(sqrt(newXResolutionCor*newXResolutionCor - oldXResolution_ * oldXResolution_));
-      float newLPx = newLP.x();
-      if (me0Digi.prompt())
-	newLPx = CLHEP::RandGaussQ::shoot(engine, newLP.x(), targetXResolution);
-
-      // update local point after x smearing
-      newLP = LocalPoint(newLPx, newLP.y(), newLP.z());
-      
-      float newY(newLP.y());
-      // new hit has y coordinate in the center of the roll when using discretizeY
-      if (discretizeY_ and nPartitions_ > 1) newY = 0;
-      edm::LogVerbatim("ME0ReDigiProducer")
-	<< "\tnew Y " << newY << std::endl;
-
-      float newX(newLP.x());
-      edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tnew X " << newX << std::endl;      
-      // discretize the new X
-      if (discretizeX_){
-        int strip(newPart->strip(newLP));
-        float stripF(float(strip) - 0.5);
-        const LocalPoint newLP(newPart->centreOfStrip(stripF));
-        newX = newLP.x();
-        edm::LogVerbatim("ME0ReDigiProducer")
-          << "\t\tdiscretized X " << newX << std::endl;
-      }
-
-      // make a new ME0DetId
-      ME0DigiPreReco out_digi(newX, newY, targetXResolution, targetYResolution, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
-
-      output_digis.insertDigi(newPart->id(), out_digi);
-    }
-  }
-}
-
-double ME0ReDigiProducer::correctSigmaU(const ME0EtaPartition* roll, double y) {
-  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
-  auto& parameters(roll->specs()->parameters());
-  double height(parameters[2]);       // height     = height from Center of Roll
-  double rollRadius = top_->radius(); // rollRadius = Radius at Center of Roll
-  double Rmax = rollRadius+height;    // MaxRadius  = Radius at top of Roll
-  double Rx = rollRadius+y;           // y in [-height,+height]
-  double sigma_u_new = Rx/Rmax*newXResolution_;
-  return sigma_u_new;
 }
