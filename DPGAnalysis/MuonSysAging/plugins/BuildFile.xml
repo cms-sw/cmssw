@@ -1,11 +1,9 @@
 
 <library file="*.cc" name="DPGAnalysisMuonSysAgingPlugins"> 
-  <use name="L1Trigger/DTTrackFinder"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/HepMCCandidate"/>
-  <use name="DQM/DTMonitorModule"/>
-  <use   name="CondFormats/MuonSystemAging"/>
+  <use name="CondFormats/MuonSystemAging"/>
   <use name="rootgraphics"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/PluginManager"/>
@@ -19,9 +17,11 @@
   <use name="DataFormats/MuonDetId"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/Utilities"/>
+  <use name="Geometry/DTGeometry"/>
   <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/RPCGeometry"/>
   <use name="Geometry/Records"/>
-  <use   name="CondFormats/DataRecord"/>
+  <use name="CondFormats/DataRecord"/>
 
   <flags EDM_PLUGIN="1"/>
 </library>

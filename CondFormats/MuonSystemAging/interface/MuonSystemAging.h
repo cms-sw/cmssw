@@ -13,29 +13,30 @@
 #include <regex>
 #include <map>
 
-enum CSCInefficiencyType { 
+enum CSCInefficiencyType 
+  { 
     EFF_CHAMBER=0, 
     EFF_STRIPS=1,
     EFF_WIRES=2 
+  };
+
+class MuonSystemAging 
+{
+
+ public:
+
+  MuonSystemAging();
+  ~MuonSystemAging(){}
+
+  std::map<unsigned int, float>  m_RPCChambEffs;
+  std::map<unsigned int, float>  m_DTChambEffs;
+  std::map<unsigned int, std::pair<unsigned int, float> >  m_CSCChambEffs;
+
+  std::map<unsigned int, float>  m_GEMChambEffs;
+  std::map<unsigned int, float>  m_ME0ChambEffs;
+  
+  COND_SERIALIZABLE;
+
 };
-
-class MuonSystemAging {
-    public:
-    MuonSystemAging();
-    ~MuonSystemAging(){}
-    std::vector<int>  m_RPCchambers;
-    std::vector<std::string>  m_DTchambers;
-    std::map<unsigned int, std::pair<unsigned int, float> >  m_CSCChambEffs;
-    double m_CSCineff;
-    std::vector<int>  m_GE11Pluschambers;
-    std::vector<int>  m_GE11Minuschambers; 
-    std::vector<int>  m_GE21Pluschambers;
-    std::vector<int>  m_GE21Minuschambers;
-    std::vector<int>  m_ME0Pluschambers;
-    std::vector<int>  m_ME0Minuschambers;
-
-   COND_SERIALIZABLE;
-   };
-
 
 #endif

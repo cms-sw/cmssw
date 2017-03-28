@@ -1,5 +1,5 @@
 <lcgdict>
        <class name="MuonSystemAging" class_version="0"/>
-       <class name="std::vector<int>"/>
-       <class name="std::vector<std::string>"/>
-     </lcgdict>  
+       <class name="std::map<unsigned int, float>"/>
+       <class name="std::map<unsigned int, std::pair<unsigned int, float> >"/>
+</lcgdict>  

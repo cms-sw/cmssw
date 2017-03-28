@@ -1,14 +1,15 @@
 // -*- C++ -*-
 //
-// Package:    L1Trigger/L1IntegratedMuonTrigger/RPCChamberMasker
+// Package:    DPGAnalysis/MuonSysAging/
 // Class:      RPCChamberMasker
 // 
-/**\class RPCChamberMasker RPCChamberMasker.cc L1Trigger/L1IntegratedMuonTrigger/RPCChamberMasker/plugins/RPCChamberMasker.cc
+/**\class RPCChamberMasker RPCChamberMasker.cc DPGAnalysis/MuonSysAging/plugins/RPCChamberMasker.cc
 
- Description: [one line class summary]
+ Description:
 
  Implementation:
-     [Notes on implementation]
+     Class to mask RPC digis on a for single DetIds
+
 */
 //
 // Original Author:  Borislav Pavlov
@@ -39,11 +40,19 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/MuonSystemAging/interface/MuonSystemAging.h"
 #include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandomEngine.h"
 //
 // class declaration
 //
 
-class RPCChamberMasker : public edm::EDProducer {
+class RPCChamberMasker : public edm::EDProducer 
+{
+
    public:
       explicit RPCChamberMasker(const edm::ParameterSet&);
       ~RPCChamberMasker();
@@ -57,19 +66,19 @@ class RPCChamberMasker : public edm::EDProducer {
       
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
   edm::InputTag digiTag_;
   edm::EDGetTokenT<RPCDigiCollection> m_digiTag;
-  std::vector<int> m_maskedRPCIDs;
+  std::map<RPCDetId, float> m_ChEffs;
+  bool theRE31_off;
+  bool theRE41_off; 
+
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -81,27 +90,18 @@ class RPCChamberMasker : public edm::EDProducer {
 RPCChamberMasker::RPCChamberMasker(const edm::ParameterSet& iConfig) : 
   digiTag_(iConfig.getParameter<edm::InputTag>("digiTag") )
 {
-   m_digiTag = consumes<RPCDigiCollection>(digiTag_);
- 
-  //std::cout<<"RPCChamberMasker::RPCChamberMasker"<<std::endl;
+
+  m_digiTag = consumes<RPCDigiCollection>(digiTag_);
   produces<RPCDigiCollection>();
 
-/*  std::cout<<"IDs of masked RPCs"<<std::endl;
-  for ( auto rpc_ids : iConfig.getParameter<std::vector<int>>("maskedRPCIDs"))
-    {
-      m_maskedRPCIDs.push_back(rpc_ids);
-      std::cout<<rpc_ids<<std::endl;
-    }
-*/
-  
+  theRE31_off = iConfig.getParameter<bool>("descopeRE31");
+  theRE41_off =iConfig.getParameter<bool>("descopeRE41");
+
 }
 
 
 RPCChamberMasker::~RPCChamberMasker()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -114,7 +114,12 @@ RPCChamberMasker::~RPCChamberMasker()
 void
 RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
+  edm::Service<edm::RandomNumberGenerator> randGenService;
+  CLHEP::HepRandomEngine& randGen = randGenService->getEngine(iEvent.streamID());
+
+  
   std::unique_ptr<RPCDigiCollection> filteredDigis(new RPCDigiCollection());
   if (!digiTag_.label().empty())
     {
@@ -125,17 +130,15 @@ RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       RPCDigiCollection::DigiRangeIterator rpcLayerIdEnd = rpcDigis->end();
       
       for (; rpcLayerIdIt != rpcLayerIdEnd; ++rpcLayerIdIt)
-	  {
+	{
           int id = ((*rpcLayerIdIt).first).rawId();
-          
-          if(std::find(m_maskedRPCIDs.begin(),m_maskedRPCIDs.end(),id) == m_maskedRPCIDs.end()){
-              filteredDigis->put((*rpcLayerIdIt).second,(*rpcLayerIdIt).first);
-          }
-      }
-    } 
+	  auto chEffIt = m_ChEffs.find(id);
+	  if ((chEffIt != m_ChEffs.end()) && (randGen.flat() <= chEffIt->second))
+	    filteredDigis->put((*rpcLayerIdIt).second,(*rpcLayerIdIt).first);
+	}
+    }
+  iEvent.put(std::move(filteredDigis));
 
- 
-      iEvent.put(std::move(filteredDigis));
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -147,7 +150,9 @@ RPCChamberMasker::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-RPCChamberMasker::endJob() {
+RPCChamberMasker::endJob() 
+{
+
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -155,11 +160,41 @@ RPCChamberMasker::endJob() {
 void
 RPCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
 {
-  edm::ESHandle<MuonSystemAging> mcData;
-  iSetup.get<MuonSystemAgingRcd>().get(mcData);
-  const MuonSystemAging* myMC=mcData.product();
-  std::vector<int> mcV = myMC->m_RPCchambers;
-  for(unsigned int i = 0; i < mcV.size();++i)m_maskedRPCIDs.push_back(mcV.at(i));
+
+  m_ChEffs.clear();
+  
+  edm::ESHandle<RPCGeometry> rpcGeom;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  
+  edm::ESHandle<MuonSystemAging> agingObj;
+  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  
+  const auto rolls = rpcGeom->rolls();
+  
+  for ( const auto * roll : rolls)
+    {
+      RPCDetId rollId = roll->id();
+      uint32_t rollRawId = rollId.rawId();
+      
+      Float_t chamberEff = 1.; 
+      for ( auto & agingPair : agingObj->m_RPCChambEffs)
+	{
+	  
+	  if ( agingPair.first == rollRawId)
+	    {
+	      chamberEff = agingPair.second;
+	      break;
+	    }
+	  
+	  if(theRE31_off && ( roll->isIRPC() && (rollId.station()==3) ) ){
+	    chamberEff = 0;
+	  }
+	  if(theRE41_off && ( roll->isIRPC() && (rollId.station()==4) ) ){
+	    chamberEff = 0;
+	  }	   
+	}
+      m_ChEffs[rollId] = chamberEff;
+    }
 
 }
 
@@ -169,33 +204,20 @@ RPCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
 void
 RPCChamberMasker::endRun(edm::Run const&, edm::EventSetup const&)
 {
-}
 
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-RPCChamberMasker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
 }
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-RPCChamberMasker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-RPCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+RPCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonRPCDigis"));
+  desc.add<bool>("descopeRE31", false);
+  desc.add<bool>("descopeRE41", false);
   descriptions.addDefault(desc);
+
 }
 
 //define this as a plug-in
