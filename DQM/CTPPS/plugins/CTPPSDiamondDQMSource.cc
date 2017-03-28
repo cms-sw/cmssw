@@ -105,6 +105,11 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       MonitorElement* ec_check = NULL;
 
       MonitorElement* error_flags_cumulative = NULL;
+      
+      MonitorElement* clock_Digi1_le = NULL;
+      MonitorElement* clock_Digi1_te = NULL;
+      MonitorElement* clock_Digi3_le = NULL;
+      MonitorElement* clock_Digi3_te = NULL;
 
       PotPlots() {};
       PotPlots( DQMStore::IBooker& ibooker, unsigned int id );
@@ -161,12 +166,12 @@ CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker)
   h_trackCorr_hor = ibooker.book2D("track correlation all hor", "rp, all, hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
   TH2F *hist = h_trackCorr_hor->getTH2F();
   TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-  xa->SetBinLabel(1, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
-  xa->SetBinLabel(2, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
-  xa->SetBinLabel(3, "45, 220, cyl"); ya->SetBinLabel(3, "45, 220, cyl");
-  xa->SetBinLabel(4, "56, 210, near"); ya->SetBinLabel(4, "56, 210, near");
-  xa->SetBinLabel(5, "56, 210, far"); ya->SetBinLabel(5, "56, 210, far");
-  xa->SetBinLabel(6, "56, 220, cyl"); ya->SetBinLabel(6, "56, 220, cyl");
+  xa->SetBinLabel(6, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
+  xa->SetBinLabel(5, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
+  xa->SetBinLabel(4, "45, 220, cyl"); ya->SetBinLabel(3, "45, 220, cyl");
+  xa->SetBinLabel(3, "56, 210, near"); ya->SetBinLabel(4, "56, 210, near");
+  xa->SetBinLabel(2, "56, 210, far"); ya->SetBinLabel(5, "56, 210, far");
+  xa->SetBinLabel(1, "56, 220, cyl"); ya->SetBinLabel(6, "56, 220, cyl");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -224,6 +229,13 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   for ( unsigned short error_index=1; error_index<16; ++error_index ) 
     error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
   error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
+  
+  
+  ibooker.setCurrentFolder( path+"/clock/" );
+  clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 201, -100, 100 );
+  clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 201, -100, 100 );
+  clock_Digi3_le = ibooker.book1D( "clock3 leading edge", title+" clock3;leading edge (ns)", 201, -100, 100 );
+  clock_Digi3_te = ibooker.book1D( "clock3 trailing edge", title+" clock3;trailing edge (ns)", 201, -100, 100 );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -276,7 +288,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
   stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
   stripTomography_near = ibooker.book2D( "tomography near", "tomography with strips near;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
   
-  hit_rate = ibooker.book1D("hit rate", title+"hit rate;rate (Hz)", 100, 0, 100e3);
+  hit_rate = ibooker.book1D("hit rate", title+"hit rate;rate (Hz)", 100, 0, 1000);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -408,75 +420,72 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   {
     for ( auto &tr1 : ds1 )
     {
-      if ( ! tr1.isValid() )
-        continue;
+      if ( ! tr1.isValid() )  continue;
   
       CTPPSDetId rpId1( ds1.detId() );
       unsigned int arm1 = rpId1.arm();
       unsigned int stNum1 = rpId1.station();
       unsigned int rpNum1 = rpId1.rp();
-      if (stNum1 != 0 || ( rpNum1 != 2 && rpNum1 != 3 ) )
-        continue;
+      if (stNum1 != 0 || ( rpNum1 != 2 && rpNum1 != 3 ) )  continue;
       unsigned int idx1 = arm1*3 + rpNum1-2;
 
       for ( auto &ds2 : *StripTracks )
       {
         for ( auto &tr2 : ds2 )
         {
-          if ( ! tr2.isValid() )
-            continue;
+          if ( ! tr2.isValid() )  continue;
         
           CTPPSDetId rpId2(ds2.detId());
           unsigned int arm2 = rpId2.arm();
           unsigned int stNum2 = rpId2.station();
           unsigned int rpNum2 = rpId2.rp();
-          if (stNum2 != 0 || ( rpNum2 != 2 && rpNum2 != 3 ) )
-            continue;
+          if (stNum2 != 0 || ( rpNum2 != 2 && rpNum2 != 3 ) )  continue;
           unsigned int idx2 = arm2*3 + rpNum2-2;
   
-          globalPlot_.h_trackCorr_hor->Fill( idx1, idx2 ); 
+          if ( idx1 >= idx2 ) globalPlot_.h_trackCorr_hor->Fill( 5-idx1, idx2 );        //Strips-strips
         }
       }
       for ( auto &ds2 : *localTracks )
       {
         for ( auto &tr2 : ds2 )
         {
-          if ( ! tr2.isValid() )
-            continue;
-          if ( tr2.getOOTIndex() != 1 )
-            continue;
+          if ( ! tr2.isValid() ) continue;
+          if ( tr2.getOOTIndex() != 1 ) continue;
+          if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
           
           CTPPSDetId diamId2( ds2.detId() );
           unsigned int arm2 = diamId2.arm();
-          globalPlot_.h_trackCorr_hor->Fill( idx1, arm2*3+2 ); 
-          globalPlot_.h_trackCorr_hor->Fill( arm2*3+2, idx1 );
+          if ( idx1 >= arm2*3+2 ) globalPlot_.h_trackCorr_hor->Fill( 5-idx1, arm2*3+2 );         //Strips-diamonds
+          else globalPlot_.h_trackCorr_hor->Fill( 5-(arm2*3+2 ),idx1 );         //Strips-diamonds
         }
       }
     }
   }
+  
   for ( auto &ds1 : *localTracks )
   {
     for ( auto &tr1 : ds1 )
     {
-      if ( ! tr1.isValid() )
-        continue;
-      if ( tr1.getOOTIndex() != 1 )
-            continue;
+      if ( ! tr1.isValid() ) continue;
+      if ( excludeMultipleHits_ && tr1.getMultipleHits() > 0 ) continue;
+      if ( tr1.getOOTIndex() != 1 ) continue;
       
       CTPPSDetId diamId1( ds1.detId() );
       unsigned int arm1 = diamId1.arm();
+      
+      globalPlot_.h_trackCorr_hor->Fill( 5-(arm1*3+2), arm1*3+2 );      //diamonds-diamonds
+      
       for ( auto &ds2 : *localTracks )
       {
         for ( auto &tr2 : ds2 )
         {
-          if ( ! tr2.isValid() )
-            continue;
-          if ( tr2.getOOTIndex() != 1 )
-            continue;
+          if ( ! tr2.isValid() ) continue;
+          if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
+          if ( tr2.getOOTIndex() != 1 ) continue;
           
           CTPPSDetId diamId2( ds2.detId() );
           unsigned int arm2 = diamId2.arm();
-          globalPlot_.h_trackCorr_hor->Fill( arm1*3+2, arm2*3+2 ); 
+          if ( arm1 > arm2 ) globalPlot_.h_trackCorr_hor->Fill( 5-(arm1*3+2), arm2*3+2 );      //diamonds-diamonds
         }
       }
     }
@@ -597,18 +606,19 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   }
   
   // Using CTPPSDiamondLocalTrack
-  for ( edm::DetSetVector<CTPPSDiamondLocalTrack>::const_iterator it=localTracks->begin(); it != localTracks->end(); ++it ) {
-    CTPPSDiamondDetId detId_pot( it->detId() );
+  for ( auto &it : *localTracks ) {
+    CTPPSDiamondDetId detId_pot( it.detId() );
     detId_pot.setPlane( 0 );
     detId_pot.setChannel( 0 );
-    const CTPPSDiamondDetId detId(it->detId());
+    const CTPPSDiamondDetId detId(it.detId());
 
-    for ( edm::DetSet<CTPPSDiamondLocalTrack>::const_iterator trackIt = it->begin(); trackIt != it->end(); ++trackIt ) {
-      if ( excludeMultipleHits_ && trackIt->getMultipleHits() > 0 ) continue;
+    for ( auto &track : it ) {
+      if ( ! track.isValid() ) continue;
+      if ( excludeMultipleHits_ && track.getMultipleHits() > 0 ) continue;
       if ( potPlots_.find( detId_pot ) != potPlots_.end() ) {
         const double rnd = ( 2. * randomGen.Rndm() ) - 1.;
-        if ( trackIt->getOOTIndex() == 1 ) potPlots_[detId_pot].trackDistribution->Fill( trackIt->getX0()+rnd*trackIt->getX0Sigma() );
-	potPlots_[detId_pot].trackDistributionOOT->Fill( trackIt->getOOTIndex(), trackIt->getX0()+rnd*trackIt->getX0Sigma() );
+        if ( track.getOOTIndex() == 1 ) potPlots_[detId_pot].trackDistribution->Fill( track.getX0()+rnd*track.getX0Sigma() );
+	potPlots_[detId_pot].trackDistributionOOT->Fill( track.getOOTIndex(), track.getX0()+rnd*track.getX0Sigma() );
       }
     }
   }
@@ -661,6 +671,31 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
+  
+  
+  //------------------------------
+  // Clock Plots
+  //------------------------------
+  
+  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator it = digi->begin(); it != digi->end(); ++it ) {
+    const CTPPSDiamondDetId detId( it->detId() );
+    if ( detId.channel() == 30 ) {
+      CTPPSDiamondDetId detId_pot( it->detId() );
+      detId_pot.setPlane( 0 );
+      detId_pot.setChannel( 0 );
+      for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator dit = it->begin(); dit != it->end(); ++dit ) {
+        if ( detId.plane() == 1 ) {
+          potPlots_[detId_pot].clock_Digi1_le->Fill( dit->getLeadingEdge() );
+          potPlots_[detId_pot].clock_Digi1_te->Fill( dit->getTrailingEdge() );
+        }
+        if ( detId.plane() == 3 ) {
+          potPlots_[detId_pot].clock_Digi3_le->Fill( dit->getLeadingEdge() );
+          potPlots_[detId_pot].clock_Digi3_te->Fill( dit->getTrailingEdge() );
+        }     
+      }
+    }
+  }
+  
 
   //------------------------------
   // Plane Plots
