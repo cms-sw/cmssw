@@ -20,7 +20,6 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('SimGeneral.TrackingAnalysis.trackingParticles_cfi')
 process.load('RecoEgamma.EgammaMCTools.pfClusterMatchedToPhotonsSelector_cfi')
 
 # Global Tag configuration ... just using the same as in the RelVal
@@ -72,11 +71,13 @@ process.PFCLUSTERoutput = cms.OutputModule("PoolOutputModule",
                                            splitLevel = cms.untracked.int32(0)
                                            )
 
-# Make trackingparticles
-process.trackingtruth_step = cms.Path(process.mergedtruth)
+# Make tracking particles
+from SimGeneral.MixingModule.trackingTruthProducer_cfi import trackingParticles
+process.mix.digitizers.mergedtruth = cms.PSet(trackingParticles)
+process.tp_step = cms.Path(process.mix)
 
 # Remake the PFClusters
-process.pfclusters_step = cms.Path(process.bunchSpacingProducer *
+process.pfclusters_step = cms.Path(process.bunchSpacingProducer * 
                                    process.ecalDigis * 
                                    process.ecalPreshowerDigis * 
                                    process.ecalPreshowerRecHit *
@@ -97,6 +98,6 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.PFCLUSTERoutput)
 
 # Schedule definition, rebuilding rechits
-process.schedule = cms.Schedule(process.trackingtruth_step,process.pfclusters_step,process.selection_step,process.endjob_step,process.output_step)
+process.schedule = cms.Schedule(process.tp_step,process.pfclusters_step,process.selection_step,process.endjob_step,process.output_step)
 
 
