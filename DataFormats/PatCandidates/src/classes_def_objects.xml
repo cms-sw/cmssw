@@ -290,7 +290,7 @@
    <version ClassVersion="10" checksum="3320406063"/>
   </class>
   <class name="pat::PackedCandidate" ClassVersion="29">
-   <version ClassVersion="29" checksum="3922741053"/>
+   <version ClassVersion="29" checksum="649303924"/>
    <version ClassVersion="28" checksum="1956349111"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
