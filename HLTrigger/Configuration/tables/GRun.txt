@@ -750,7 +750,7 @@ RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
-ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
+#ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
 ExpressOutput
 #LookAreaOutput
 NanoDSTOutput

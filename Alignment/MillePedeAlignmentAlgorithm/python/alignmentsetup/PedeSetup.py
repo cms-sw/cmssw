@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
-def setup(process, binary_files, tree_files):
+def setup(process, binary_files, tree_files, run_start_geometry):
     """Pede-specific setup.
 
     Arguments:
     - `process`: cms.Process object
     - `binary_files`: list of binary files to be read by pede
     - `tree_files`: list of ROOT files created in the mille step
+    - `run_start_geometry`: run ID to pick the start geometry
     """
 
     # write alignments, APEs, and surface deformations to DB by default
@@ -57,7 +59,14 @@ def setup(process, binary_files, tree_files):
 
     # Set a new source and path.
     # --------------------------------------------------------------------------
-    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
-    process.source = cms.Source("EmptySource")
+    iovs = mps_tools.make_unique_runranges(process.AlignmentProducer)
+    number_of_events = iovs[-1] - iovs[0] + 1
+
+    process.maxEvents = cms.untracked.PSet(
+        input = cms.untracked.int32(number_of_events))
+    process.source = cms.Source(
+        "EmptySource",
+        firstRun = cms.untracked.uint32(run_start_geometry),
+        numberEventsInRun = cms.untracked.uint32(1))
     process.dump = cms.EDAnalyzer("EventContentAnalyzer")
     process.p = cms.Path(process.dump)

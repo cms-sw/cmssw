@@ -4,8 +4,7 @@ import FWCore.ParameterSet.Config as cms
 def reEmulateLayer2(process):
 
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
-    #process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi')
-    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v2_1_cfi')
+    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_cfi')
 
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     
@@ -17,7 +16,12 @@ def reEmulateLayer2(process):
 
 
 def hwEmulCompHistos(process):
-
+    
+    process.TFileService = cms.Service("TFileService",
+                                       fileName = cms.string("l1tCalo_2016_simHistos.root"),
+                                       closeFileFast = cms.untracked.bool(True)
+                                       )
+    
     # histograms
     process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
     process.l1tStage2CaloAnalyzer.doEvtDisp = False
@@ -69,7 +73,7 @@ def reEmulateLayer2ValHistos(process):
     reEmulateLayer2(process)
     hwEmulCompHistos(process)
 
-    process.l1ntupleraw.insert(0,process.caloTowersFilter)
+    #process.l1ntupleraw.insert(0,process.caloTowersFilter)
     #process.l1ntuplesim.insert(0,process.caloTowersFilter)
     process.caloLayer2.insert(0,process.caloTowersFilter)
     process.hwEmulHistos.insert(0,process.caloTowersFilter)

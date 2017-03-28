@@ -2,12 +2,15 @@
 globalTag = {
   'Fake' : 'auto:run1_mc_Fake',
   'Fake1': 'auto:run2_mc_Fake1',
+  'Fake2': 'auto:run2_mc_Fake2',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
+  'GRun2016' : 'auto:run2_mc_GRun2016',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
   'data' : 'auto:run2_hlt_relval',
+  'GRun2016' : 'auto:run2_mc_GRun2016',
 }
 
 

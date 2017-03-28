@@ -39,6 +39,7 @@ from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *
+ME0GeometryESModule.use10EtaPart = cms.bool(True)
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 

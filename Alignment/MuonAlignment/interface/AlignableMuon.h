@@ -45,6 +45,9 @@ public:
   /// Destructor
   ~AlignableMuon();
   
+  /// Updater using DTGeometry and CSCGeometry.
+  /// The given geometries have to match the current ones.
+  void update(const DTGeometry* , const CSCGeometry*);
 
   /// Return all components
   virtual align::Alignables components() const { return theMuonComponents; }
@@ -52,7 +55,7 @@ public:
   /// Alignable tracker has no mother
   virtual Alignable* mother() { return 0; }
 
-  // Methods to return specific of components
+  /// Methods to return specific of components
   align::Alignables DTLayers();
   align::Alignables DTSuperLayers();
   align::Alignables DTChambers();
@@ -65,16 +68,16 @@ public:
   align::Alignables CSCRings();
   align::Alignables CSCEndcaps();
 
-  // Get DT alignments sorted by DetId
+  /// Get DT alignments sorted by DetId
   Alignments* dtAlignments();
 
-  // Get DT alignment errors sorted by DetId
+  /// Get DT alignment errors sorted by DetId
   AlignmentErrorsExtended* dtAlignmentErrorsExtended();
 
-  // Get CSC alignments sorted by DetId
+  /// Get CSC alignments sorted by DetId
   Alignments* cscAlignments();
 
-  // Get CSC alignment errors sorted by DetId
+  /// Get CSC alignment errors sorted by DetId
   AlignmentErrorsExtended* cscAlignmentErrorsExtended();
 
 
@@ -83,30 +86,30 @@ public:
 
 private:
   
-  // Get the position (centered at 0 by default)
+  /// Get the position (centered at 0 by default)
   PositionType computePosition(); 
 
-  // Get the global orientation (no rotation by default)
+  /// Get the global orientation (no rotation by default)
   RotationType computeOrientation();
 
-  // Get the Surface
+  /// Get the Surface
   AlignableSurface computeSurface();
 
-  // Get alignments sorted by DetId
+  /// Get alignments sorted by DetId
   Alignments* alignments() const;
 
-  // Get alignment errors sorted by DetId
+  /// Get alignment errors sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const;
 
 
 
-   // Sub-structure builders 
+  // Sub-structure builders
 
-   // Build muon barrel
-  void buildDTBarrel( const DTGeometry*  );
+  /// Build muon barrel
+  void buildDTBarrel(const DTGeometry*, bool update = false);
 
-  // Build muon end caps
-  void buildCSCEndcap( const CSCGeometry*  );
+  /// Build muon end caps
+  void buildCSCEndcap(const CSCGeometry*, bool update = false);
 
   /// Set mothers recursively
   void recursiveSetMothers( Alignable* alignable );
@@ -114,8 +117,7 @@ private:
   /// alignable object ID provider
   const AlignableObjectId alignableObjectId_;
 
-  // Containers of separate components
-
+  /// Containers of separate components
   std::vector<AlignableDTChamber*>   theDTChambers;
   std::vector<AlignableDTStation*>   theDTStations;
   std::vector<AlignableDTWheel*>     theDTWheels;
