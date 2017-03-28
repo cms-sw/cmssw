@@ -1,9 +1,11 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -71,7 +73,12 @@
 
 CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver) :
   G4VPhysicsConstructor("CMSEmStandard_opt1"), verbose(ver) {
-  G4LossTableManager::Instance();
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
 }
 
@@ -155,10 +162,10 @@ void CMSEmStandardPhysics::ConstructProcess() {
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = 100*MeV;
 
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
-    G4String particleName = particle->GetParticleName();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  for(G4int i=0; i<numParticles; ++i) {
+    G4String particleName = PartNames[i];
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {
 
@@ -331,8 +338,4 @@ void CMSEmStandardPhysics::ConstructProcess() {
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(CLHEP::pi);
-  opt.SetApplyCuts(true);
 }
