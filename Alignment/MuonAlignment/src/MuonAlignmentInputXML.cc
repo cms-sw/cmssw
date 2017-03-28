@@ -288,9 +288,6 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
       char *message = XMLString::transcode(toCatch.getMessage());
       throw cms::Exception("XMLException") << "Xerces XML parser threw this exception: " << message << std::endl;
    }
-   catch (...) {
-      throw cms::Exception("XMLException") << "Xerces XML parser threw an unknown exception" << std::endl;
-   }
 
    DOMDocument *doc = parser->getDocument();
    DOMElement *node_MuonAlignment = doc->getDocumentElement();
