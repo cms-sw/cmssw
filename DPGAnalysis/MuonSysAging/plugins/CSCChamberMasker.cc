@@ -1,18 +1,16 @@
 // -*- C++ -*-
 //
-// Package:    L1Trigger/CSCChamberMasker
+// Package:    DPGAnalysis/MuonSysAging
 // Class:      CSCChamberMasker
 // 
-/**\class CSCChamberMasker CSCChamberMasker.cc L1Trigger/CSCChamberMasker/plugins/CSCChamberMasker.cc
+/**\class CSCChamberMasker CSCChamberMasker.cc DPGAnalysis/MuonSysAging/plugins/CSCChamberMasker.cc
 
- Description: Class to mask CSC digis or trigger segments on a chamber by chamber basis
+ Description: Class to mask CSC digis on a chamber by chamber basis
 
- Implementation:
-     [Notes on implementation]
 */
 //
-// Original Author:  Carlo Battilana
-//         Created:  Sun, 11 Jan 2015 15:12:51 GMT
+// Original Author:  Nick J. Amin
+//         Created:  Mon, 27 Feb 2017 15:12:51 GMT
 //
 //
 
@@ -68,7 +66,9 @@
 // class declaration
 //
 
-class CSCChamberMasker : public edm::EDProducer {
+class CSCChamberMasker : public edm::EDProducer 
+{
+
 public:
   explicit CSCChamberMasker(const edm::ParameterSet&);
   ~CSCChamberMasker();
@@ -102,7 +102,7 @@ private:
 //
 // static data member definitions
 //
-//vector<L1MuRegionalCand>
+
 //
 // constructors and destructor
 //
@@ -125,9 +125,6 @@ CSCChamberMasker::CSCChamberMasker(const edm::ParameterSet& iConfig)
 CSCChamberMasker::~CSCChamberMasker()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -318,13 +315,18 @@ CSCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-CSCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+CSCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  // desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonCSCDigis"));
+  desc.add<edm::InputTag>("stripDigiTag",      edm::InputTag("simMuonCSCDigis:MuonCSCStripDigi"));
+  desc.add<edm::InputTag>("wireDigiTag",       edm::InputTag("simMuonCSCDigis:MuonCSCWireDigi"));
+  desc.add<edm::InputTag>("comparatorDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCComparatorDigi"));
+  desc.add<edm::InputTag>("rpcDigiTag",        edm::InputTag("simMuonCSCDigis:MuonCSCRPCDigi"));
+  desc.add<edm::InputTag>("alctDigiTag",       edm::InputTag("simMuonCSCDigis:MuonCSCALCTDigi"));
+  desc.add<edm::InputTag>("clctDigiTag",       edm::InputTag("simMuonCSCDigis:MuonCSCCLCTDigi"));
   descriptions.addDefault(desc);
+
 }
 
 //define this as a plug-in

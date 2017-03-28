@@ -6,7 +6,7 @@ def appendCSCChamberMaskerAtUnpacking(process):
 
     if hasattr(process,'muonCSCDigis') :
         
-        print "[appendChamberMasker] : Found muonCSCDigis, applying filter"
+        print "[appendCSCChamberMasker] : Found muonCSCDigis, applying filter"
 
         process.preCSCDigis = process.muonCSCDigis.clone()
         process.muonCSCDigis = CSCChamberMasker.clone()
@@ -20,8 +20,8 @@ def appendCSCChamberMaskerAtUnpacking(process):
         process.muonCSCDigis.alctDigiTag = cms.InputTag("preCSCDigis", "MuonCSCALCTDigi") 
         process.muonCSCDigis.clctDigiTag = cms.InputTag("preCSCDigis", "MuonCSCCLCTDigi") 
 
-        process.filteredDigiSequence = cms.Sequence(process.preCSCDigis + process.muonCSCDigis)
-        process.RawToDigi.replace(process.muonCSCDigis, process.filteredDigiSequence)
+        process.filteredCscDigiSequence = cms.Sequence(process.preCSCDigis + process.muonCSCDigis)
+        process.RawToDigi.replace(process.muonCSCDigis, process.filteredCscDigiSequence)
 
         if hasattr(process,"RandomNumberGeneratorService") :
             process.RandomNumberGeneratorService.muonCSCDigis = cms.PSet(
@@ -39,7 +39,7 @@ def appendCSCChamberMaskerAtHLT(process):
 
     if hasattr(process,'hltMuonCSCDigis') :
 
-        print "[appendChamberMasker] : Found hltMuonCSCDigis, applying filter"
+        print "[appendCSCChamberMasker] : Found hltMuonCSCDigis, applying filter"
 
         process.preHltCSCDigis = process.hltMuonCSCDigis.clone()
         process.hltMuonCSCDigis = CSCChamberMasker.clone()

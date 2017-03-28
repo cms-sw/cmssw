@@ -31,7 +31,9 @@
 // class declaration
 //
 
-class ME0ChamberMasker : public edm::EDProducer {
+class ME0ChamberMasker : public edm::EDProducer 
+{
+
    public:
       explicit ME0ChamberMasker(const edm::ParameterSet&);
       ~ME0ChamberMasker();
@@ -45,15 +47,14 @@ class ME0ChamberMasker : public edm::EDProducer {
       
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
   bool ME0Minus_;
   bool ME0Plus_;
   edm::InputTag digiTag_;
   edm::EDGetTokenT<ME0DigiPreRecoCollection> m_digiTag;
-  std::vector<int> m_maskedME0IDs;
+  std::map<unsigned int, float> m_maskedME0IDs;
+
 };
 
 //
@@ -73,22 +74,17 @@ ME0ChamberMasker::ME0ChamberMasker(const edm::ParameterSet& iConfig) :
  ME0Plus_(iConfig.getParameter<bool>("ME0Plus") ), 
  digiTag_(iConfig.getParameter<edm::InputTag>("digiTag") )
 {
-   m_digiTag = consumes<ME0DigiPreRecoCollection>(digiTag_);
- 
+
+  m_digiTag = consumes<ME0DigiPreRecoCollection>(digiTag_); 
   produces<ME0DigiPreRecoCollection>();
 
-  
 }
 
 
 ME0ChamberMasker::~ME0ChamberMasker()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 
 }
-
 
 //
 // member functions
@@ -98,8 +94,10 @@ ME0ChamberMasker::~ME0ChamberMasker()
 void
 ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
   std::unique_ptr<ME0DigiPreRecoCollection> filteredDigis(new ME0DigiPreRecoCollection());
+
   if (!digiTag_.label().empty())
     {
       edm::Handle<ME0DigiPreRecoCollection> me0Digis;
@@ -109,17 +107,24 @@ ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       ME0DigiPreRecoCollection::DigiRangeIterator me0LayerIdEnd = me0Digis->end();
       
       for (; me0LayerIdIt != me0LayerIdEnd; ++me0LayerIdIt)
-	  {
-           int id = ((*me0LayerIdIt).first).chamberId().rawId();
-                   if(std::find(m_maskedME0IDs.begin(),m_maskedME0IDs.end(),id) == m_maskedME0IDs.end()){
-                          filteredDigis->put((*me0LayerIdIt).second,(*me0LayerIdIt).first);
-             }
-          
-     }
-    } 
+	{
 
- 
-      iEvent.put(std::move(filteredDigis));
+	  auto chambId = (*me0LayerIdIt).first.chamberId();
+
+	  bool keepDigi = (!ME0Minus_  && chambId.region() < 0 ) || 
+	                  (!ME0Plus_   && chambId.region() > 0 ) ;
+	  
+	  uint32_t rawId = chambId.rawId();
+	  if(keepDigi || m_maskedME0IDs.find(rawId) == m_maskedME0IDs.end())
+	    {
+	      filteredDigis->put((*me0LayerIdIt).second,(*me0LayerIdIt).first);
+	    }
+          
+	}
+    } 
+  
+  iEvent.put(std::move(filteredDigis));
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -131,7 +136,9 @@ ME0ChamberMasker::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-ME0ChamberMasker::endJob() {
+ME0ChamberMasker::endJob() 
+{
+
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -139,19 +146,12 @@ ME0ChamberMasker::endJob() {
 void
 ME0ChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
 {
-  edm::ESHandle<MuonSystemAging> mcData;
-  iSetup.get<MuonSystemAgingRcd>().get(mcData);
-  const MuonSystemAging* myMC=mcData.product();
-  std::vector<int> mcV;
-  if(ME0Minus_){
-  mcV = myMC->m_ME0Minuschambers;
-  for(unsigned int i = 0; i < mcV.size();++i)m_maskedME0IDs.push_back(mcV.at(i));
-  }
 
-  if(ME0Plus_){
-  mcV = myMC->m_ME0Pluschambers;
-  for(unsigned int i = 0; i < mcV.size();++i)m_maskedME0IDs.push_back(mcV.at(i));
-  }
+  edm::ESHandle<MuonSystemAging> agingObj;
+  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+
+  m_maskedME0IDs = agingObj->m_ME0ChambEffs;
+
 }
 
  
@@ -160,18 +160,22 @@ ME0ChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
 void
 ME0ChamberMasker::endRun(edm::Run const&, edm::EventSetup const&)
 {
+
 }
 
  
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-ME0ChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+ME0ChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonME0Digis"));
+  desc.add<bool>("ME0Minus", true);
+  desc.add<bool>("ME0Plus",  true);
   descriptions.addDefault(desc);
+
 }
 
 //define this as a plug-in

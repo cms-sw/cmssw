@@ -3,9 +3,6 @@
 // Package:     CondFormats/DataRecord
 // Class  :     MuonSystemAgingRcd
 // 
-// Implementation:
-//     [Notes on implementation]
-//
 // Author:      Sunil Bansal
 // Created:     Wed, 01 Jun 2016 13:03:56 GMT
 

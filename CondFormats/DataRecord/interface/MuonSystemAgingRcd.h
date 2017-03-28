@@ -7,10 +7,7 @@
 // 
 /**\class MuonSystemAgingRcd MuonSystemAgingRcd.h CondFormats/DataRecord/interface/MuonSystemAgingRcd.h
 
- Description: [one line class summary]
-
- Usage:
-    <usage>
+ Description: CondFormat implementing inefficiencies in muon stations to mimic aging effects 
 
 */
 //
