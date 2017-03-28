@@ -284,6 +284,7 @@ private:
     bool dropZSmarkedPassed_;
     bool tsFromDB_;
     bool recoParamsFromDB_;
+    bool saveEffectivePedestal_;
 
     // Parameters for turning status bit setters on/off
     bool setNegativeFlagsQIE8_;
@@ -345,6 +346,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
+      saveEffectivePedestal_(conf.getParameter<bool>("saveEffectivePedestal")),
       setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
       setNegativeFlagsQIE11_(conf.getParameter<bool>("setNegativeFlagsQIE11")),
       setNoiseFlagsQIE8_(conf.getParameter<bool>("setNoiseFlagsQIE8")),
@@ -483,7 +485,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             auto s(frame[ts]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
-            const double pedestal = calib.pedestal(capid);
+            //optionally increase pedestal mean to account for dark current + crosstalk
+            const double pedestal = calib.pedestal(capid) + (saveEffectivePedestal_ ? darkCurrent * 25. / (1. - lambda) : 0.);
             const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
             const double gainWidth = calibWidth.gain(capid);
