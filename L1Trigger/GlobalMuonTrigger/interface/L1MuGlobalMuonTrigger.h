@@ -20,7 +20,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -47,7 +47,7 @@ class L1MuGMTDebugBlock;
 //---------------------
 //-- Class Interface --
 //---------------------
-class L1MuGlobalMuonTrigger : public edm::EDProducer {
+class L1MuGlobalMuonTrigger : public edm::one::EDProducer<edm::one::SharedResources> {
 
  public:
 

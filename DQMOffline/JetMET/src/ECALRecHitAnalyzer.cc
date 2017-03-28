@@ -9,10 +9,10 @@
 
 ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
-  
+
   // Retrieve Information from the Configuration File
-  EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
-  EERecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
+  EBRecHitsLabel_  = consumes<EBRecHitCollection> (iConfig.getParameter<edm::InputTag>("EBRecHitsLabel"));
+  EERecHitsLabel_  = consumes<EERecHitCollection> (iConfig.getParameter<edm::InputTag>("EERecHitsLabel"));
   FolderName_      = iConfig.getUntrackedParameter<std::string>("FolderName");
   debug_           = iConfig.getParameter<bool>("Debug");
 
@@ -338,21 +338,9 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 {
   edm::Handle<EBRecHitCollection> EBRecHits;
   edm::Handle<EERecHitCollection> EERecHits;
-  iEvent.getByLabel( EBRecHitsLabel_, EBRecHits );
-  iEvent.getByLabel( EERecHitsLabel_, EERecHits );
+  iEvent.getByToken( EBRecHitsLabel_, EBRecHits );
+  iEvent.getByToken( EERecHitsLabel_, EERecHits );
   DEBUG( "Got ECALRecHits");
-
-  /*
-    edm::Handle<reco::CandidateCollection> to;
-    iEvent.getByLabel( "caloTowers", to );
-    const CandidateCollection *towers = (CandidateCollection *)to.product();
-    reco::CandidateCollection::const_iterator tower = towers->begin();
-    edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
-    const CaloTowerCollection *towerCollection = towerRef.product();
-    CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-    DEBUG( "Got Towers");    
-    DEBUG( "tower size = " << towerCollection->size());
-  */
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);

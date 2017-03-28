@@ -23,6 +23,7 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
 #include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"

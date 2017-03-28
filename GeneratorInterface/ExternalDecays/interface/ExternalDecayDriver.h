@@ -18,12 +18,12 @@ namespace CLHEP {
 
 namespace gen {
 
-class TauolaInterface;
-class EvtGenInterface;
-class PhotosInterface;
+  class EvtGenInterfaceBase;
+  class TauolaInterfaceBase;
+  class PhotosInterfaceBase;
 
-   class ExternalDecayDriver 
-   {
+
+   class ExternalDecayDriver{
       public:
          
 	 // ctor & dtor
@@ -45,9 +45,9 @@ class PhotosInterface;
       private:
       	 
 	 bool                     fIsInitialized;
-	 TauolaInterface*         fTauolaInterface;
-	 EvtGenInterface*         fEvtGenInterface;
-	 PhotosInterface*         fPhotosInterface;
+	 TauolaInterfaceBase*     fTauolaInterface;
+	 EvtGenInterfaceBase*     fEvtGenInterface;
+	 PhotosInterfaceBase*     fPhotosInterface;
 	 std::vector<int>         fPDGs;
 	 std::vector<std::string> fSpecialSettings;
 

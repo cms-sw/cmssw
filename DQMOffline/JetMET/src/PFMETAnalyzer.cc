@@ -61,6 +61,67 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& 
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
+  // trigger information
+  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
+
+  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters");
+
+  //Trigger parameters
+  gtToken        = iC.consumes<L1GlobalTriggerReadoutRecord> (theCleaningParameters.getParameter<edm::InputTag>("gtLabel"));
+  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+
+  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
+  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
+
+  _tightBHFiltering    = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC);
+
+  //Vertex requirements
+  _doPVCheck      = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
+  vertexToken     = iC.consumes<reco::VertexCollection> (theCleaningParameters.getParameter<edm::InputTag>("vertexLabel"));
+
+  if (_doPVCheck) {
+    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
+    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
+  }
+
+
+  // PFMET information
+  thePfMETCollectionToken       = iC.consumes<reco::PFMETCollection>     (parameters.getParameter<edm::InputTag>("METCollectionLabel"));
+  thePfJetCollectionToken       = iC.consumes<std::vector<reco::PFJet> > (parameters.getParameter<edm::InputTag>("PfJetCollectionLabel"));
+  _source                       = parameters.getParameter<std::string>("Source");
+
+  // Other data collections
+  theJetCollectionToken        = iC.consumes<reco::CaloJetCollection> (parameters.getParameter<edm::InputTag>("JetCollectionLabel"));
+  PFCandidatesToken            = iC.consumes<edm::View<reco::PFCandidate> > (parameters.getParameter<edm::InputTag>("PFCandidates"));
+  HcalNoiseRBXCollectionToken  = iC.consumes<reco::HcalNoiseRBXCollection> (parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection"));
+  BeamHaloSummaryToken         = iC.consumes<reco::BeamHaloSummary> (parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
+  HBHENoiseFilterResultToken   = iC.consumes<bool> (parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
+
+  // misc
+  _verbose     = parameters.getParameter<int>("verbose");
+  _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
+  _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
+  _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
+  _cleanupSelection= parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
+
+  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold");
+  _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");
+  _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");
+
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
 }
 
 // ***********************************************************
@@ -80,68 +141,6 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
   metname = "pfMETAnalyzer";
-
-  // trigger information
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
-
-  //Trigger parameters
-  gtTag          = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
-  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
-
-  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
-  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
-
-  _tightBHFiltering    = theCleaningParameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-
-
-  // ==========================================================
-  //DCS information
-  // ==========================================================
-  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
-
-  //Vertex requirements
-  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
-  vertexTag  = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
-
-  if (_doPVCheck) {
-    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
-    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
-    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
-    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
-    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
-  }
-
-
-  // PFMET information
-  thePfMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
-  thePfJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PfJetCollectionLabel");
-  _source                       = parameters.getParameter<std::string>("Source");
-
-  // Other data collections
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  PFCandidatesTag             = parameters.getParameter<edm::InputTag>("PFCandidates");
-  HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
-  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
-
-  // misc
-  _verbose     = parameters.getParameter<int>("verbose");
-  _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
-  _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
-  _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
-  _cleanupSelection= parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
-
-  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold");
-  _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");
-  _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[PFMETAnalyzer] Parameters initialization";
@@ -538,7 +537,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // **** Get the MET container
   edm::Handle<reco::PFMETCollection> pfmetcoll;
-  iEvent.getByLabel(thePfMETCollectionLabel, pfmetcoll);
+  iEvent.getByToken(thePfMETCollectionToken, pfmetcoll);
 
   if(!pfmetcoll.isValid()) return;
 
@@ -551,7 +550,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   //
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
+  iEvent.getByToken(HcalNoiseRBXCollectionToken,HRBXCollection);
   if (!HRBXCollection.isValid()) {
     LogDebug("") << "PfMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "PfMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
@@ -559,7 +558,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultToken, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "PFMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
@@ -568,21 +567,21 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "PFMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "PFMETAnalyzer: Could not find jet product" << std::endl;
   }
 
   edm::Handle<edm::View<PFCandidate> > pfCandidates;
-  iEvent.getByLabel(PFCandidatesTag, pfCandidates);
+  iEvent.getByToken(PFCandidatesToken, pfCandidates);
   if (!pfCandidates.isValid()) {
     LogDebug("") << "PfMETAnalyzer: Could not find pfcandidates product" << std::endl;
     if (_verbose) std::cout << "PfMETAnalyzer: Could not find pfcandidates product" << std::endl;
   }
 
   edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByLabel(thePfJetCollectionLabel, pfJets);
+  iEvent.getByToken(thePfJetCollectionToken, pfJets);
   if (!pfJets.isValid()) {
     LogDebug("") << "PFMETAnalyzer: Could not find pfjet product" << std::endl;
     if (_verbose) std::cout << "PFMETAnalyzer: Could not find pfjet product" << std::endl;
@@ -696,7 +695,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   // Get BeamHaloSummary
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
+  iEvent.getByToken(BeamHaloSummaryToken, TheBeamHaloSummary) ;
 
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
@@ -724,7 +723,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     bPrimaryVertex = false;
     Handle<VertexCollection> vertexHandle;
 
-    iEvent.getByLabel(vertexTag, vertexHandle);
+    iEvent.getByToken(vertexToken, vertexHandle);
 
     if (!vertexHandle.isValid()) {
       LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
@@ -755,7 +754,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( gtTag, gtReadoutRecord);
+  iEvent.getByToken( gtToken, gtReadoutRecord);
 
   if (!gtReadoutRecord.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
@@ -1100,7 +1099,7 @@ bool PFMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByLabel(thePfJetCollectionLabel, pfJets);
+  iEvent.getByToken(thePfJetCollectionToken, pfJets);
   if (!pfJets.isValid()) {
     LogDebug("") << "PFMETAnalyzer: Could not find pfjet product" << std::endl;
     if (_verbose) std::cout << "PFMETAnalyzer: Could not find pfjet product" << std::endl;
@@ -1122,7 +1121,7 @@ bool PFMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByLabel(thePfJetCollectionLabel, pfJets);
+  iEvent.getByToken(thePfJetCollectionToken, pfJets);
   if (!pfJets.isValid()) {
     LogDebug("") << "PFMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "PFMETAnalyzer: Could not find jet product" << std::endl;

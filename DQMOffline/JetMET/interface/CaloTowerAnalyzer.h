@@ -13,6 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -33,10 +36,10 @@ private:
   DQMStore* dbe_;
 
   // Inputs from Configuration
-  edm::InputTag caloTowersLabel_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > caloTowersLabel_;
   std::vector< edm::InputTag >  HLTBitLabel_ ;
-  edm::InputTag HLTResultsLabel_;
-  edm::InputTag HBHENoiseFilterResultLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> HLTResultsLabel_;
+  edm::EDGetTokenT<bool> HBHENoiseFilterResultLabel_;
   bool debug_;
   double energyThreshold_;
   bool allhist_;

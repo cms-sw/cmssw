@@ -65,9 +65,18 @@ EDConsumerBase::~EDConsumerBase()
 ConsumesCollector
 EDConsumerBase::consumesCollector() {
   ConsumesCollector c{this};
-  return std::move(c);
+  return c;
 }
 
+static const edm::InputTag kWasEmpty("@EmptyLabel@");
+
+edm::InputTag const&
+EDConsumerBase::checkIfEmpty(edm::InputTag const& iTag) {
+  if (iTag.label().empty()) {
+    return kWasEmpty;
+  }
+  return iTag;
+}
 
 unsigned int
 EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets) {

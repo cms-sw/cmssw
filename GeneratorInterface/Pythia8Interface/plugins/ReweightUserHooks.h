@@ -1,4 +1,4 @@
-#include <Pythia.h>
+#include "Pythia8/Pythia.h"
 
 class PtHatReweightUserHook : public Pythia8::UserHooks
 {

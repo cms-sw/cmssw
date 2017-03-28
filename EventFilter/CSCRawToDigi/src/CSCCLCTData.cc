@@ -5,8 +5,9 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <atomic>
 
-bool CSCCLCTData::debug = false;
+std::atomic<bool> CSCCLCTData::debug{false};
 
 
 CSCCLCTData::CSCCLCTData(const CSCTMBHeader * tmbHeader)

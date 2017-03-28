@@ -22,6 +22,9 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
   ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")){
 
+  HepMCToken   = consumes <edm::HepMCProduct>      (HepMCLabel);
+  EEHitsToken  = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EEHitsCollection)));
+  ESHitsToken  = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(ESHitsCollection)));
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
@@ -132,13 +135,13 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::HepMCProduct> MCEvt;
-  e.getByLabel(HepMCLabel, MCEvt);
+  e.getByToken(HepMCToken, MCEvt);
 
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
-  e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
+  e.getByToken(EEHitsToken,EcalHitsEE);
 
   edm::Handle<edm::PCaloHitContainer> EcalHitsES;
-  e.getByLabel(g4InfoLabel,ESHitsCollection,EcalHitsES);
+  e.getByToken(ESHitsToken,EcalHitsES);
 
   std::vector<PCaloHit> theEECaloHits;  
   if( EcalHitsEE.isValid() ) {
