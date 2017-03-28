@@ -21,6 +21,8 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
   for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec )
   {
     const CTPPSDiamondDetId detid( vec->detId() );
+    
+    if ( detid.channel() == 30 ) continue;              // VFAT-like clock information, to be ignored by CTPPSDiamondRecHitProducer
 
     const DetGeomDesc* det = geom->GetDetector( detid );
     const float x_pos = det->translation().x(),
