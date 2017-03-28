@@ -22,7 +22,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     fixedRollRadius = cms.bool(True), #Uses fixed radius in the center of the roll
     simulateIntrinsicNoise = cms.bool(False),
     simulateElectronBkg = cms.bool(True),	#False=simulate only neutral Bkg
-    simulateLowNeutralRate = cms.bool(False)	#True=neutral_Bkg at L=1x10^{34}, False at L=5x10^{34}cm^{-2}s^{-1}
+    simulateLowNeutralRate = cms.bool(False),	#True=neutral_Bkg at L=1x10^{34}, False at L=5x10^{34}cm^{-2}s^{-1}
     instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
     rateFact = cms.double(2.0), # We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known)
 )
