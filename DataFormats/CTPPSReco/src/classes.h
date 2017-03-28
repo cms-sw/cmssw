@@ -47,11 +47,6 @@ namespace DataFormats_CTPPSReco {
     std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> > v_ds_ft_frh;
     std::vector<TotemRPLocalTrack::FittedRecHit> v_ft_frh;
 
-    CTPPSLocalTrackLite cltl;
-    std::vector<CTPPSLocalTrackLite> v_cltl;
-    edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
-    edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
-
     //--- diamonds objects
 
     CTPPSDiamondRecHit ctd_rh;
@@ -62,6 +57,11 @@ namespace DataFormats_CTPPSReco {
     edm::DetSet<CTPPSDiamondRecHit> ds_rh;
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
+
+    CTPPSLocalTrackLite cltl;
+    std::vector<CTPPSLocalTrackLite> v_cltl;
+    edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
+    edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
 
   };
 }

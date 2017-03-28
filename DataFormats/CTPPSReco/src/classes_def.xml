@@ -24,25 +24,24 @@
   <class name="TotemRPUVPattern" ClassVersion="2">
     <version ClassVersion="2" checksum="3530058029"/>
   </class>
+  <class name="edm::DetSet<TotemRPUVPattern>"/>
+  <class name="std::vector<TotemRPUVPattern>"/>
+  <class name="std::vector<edm::DetSet<TotemRPUVPattern> >"/>
   <class name="edm::DetSetVector<TotemRPUVPattern>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPUVPattern>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPUVPattern> >"/>
 
   <class name="TotemRPLocalTrack" ClassVersion="2">
     <version ClassVersion="2" checksum="3328119645"/>
   </class>
+  <class name="edm::DetSet<TotemRPLocalTrack>"/>
+  <class name="std::vector<TotemRPLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
-
-  <class name="CTPPSLocalTrackLite" ClassVersion="3">
-    <version ClassVersion="3" checksum="3838813906"/>
-  </class>
-  <class name="std::vector<CTPPSLocalTrackLite>"/>
-  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
-  <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
 
 <!-- diamonds objects -->
 
@@ -57,4 +56,12 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
 
+<!-- common objects -->
+
+  <class name="CTPPSLocalTrackLite" ClassVersion="3">
+    <version ClassVersion="3" checksum="3838813906"/>
+  </class>
+  <class name="std::vector<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper< std::vector<CTPPSLocalTrackLite> >"/>
 </lcgdict>
