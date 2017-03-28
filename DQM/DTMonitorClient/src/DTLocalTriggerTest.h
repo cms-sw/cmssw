@@ -37,6 +37,8 @@ protected:
   void runClientDiagnostic(DQMStore::IBooker &,DQMStore::IGetter &);
 
   void fillGlobalSummary(DQMStore::IGetter &);
+ 
+  const int wheelArrayShift = 3;
 
  private:
 
