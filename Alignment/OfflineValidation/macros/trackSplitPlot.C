@@ -402,7 +402,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             summaryfile << "\n";
         }
         if (legendOptions.Contains("rms")) {
-            summaryfile << "sigma_Delta" << yvar
+            summaryfile << "sigma_Delta" << yvar;
             if (relative) summaryfile << "/" << yvar;
             if (pull)     summaryfile << "_pull";
             summaryfile << "\t"
