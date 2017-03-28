@@ -185,7 +185,7 @@ HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay,
     ++phi0;
     unit     = hcons.unitPhi(phibin[eta-1]);
     phi      = hcons.phiNumber(phi0,unit);
-    depth    = hcons.findDepth(subdet,eta,phi,zside,lay);
+    depth    = hcons.findDepth(subdet,eta,phi,zside,lay-1);
     if (depth <= 0) depth = layerGroup(eta-1, lay-1);
     if (eta == iEtaMin[1]) {
       if (subdet == static_cast<int>(HcalBarrel)) {
