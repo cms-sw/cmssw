@@ -738,6 +738,10 @@ class Dataset(object):
 
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, crab = False, parent = False ):
+        if not firstRun: firstRun = None
+        if not lastRun: lastRun = None
+        if not begin: begin = None
+        if not end: end = None
         if self.__predefined and (jsonPath or begin or end or firstRun or lastRun):
             msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun' "
                     "only work for official datasets, not predefined _cff.py files" )
@@ -899,9 +903,9 @@ class Dataset(object):
         fileList = [ self.__findInJson(fileInfo,"name")
                      for fileInfo in self.fileInfoList(parent) ]
 
-        if firstRun is not None or lastRun is not None:
-            if firstRun is None: firstRun = -1
-            if lastRun is None: lastRun = float('infinity')
+        if firstRun or lastRun:
+            if firstRun: firstRun = -1
+            if lastRun: lastRun = float('infinity')
             unknownfilenames, reasons = [], set()
             for filename in fileList[:]:
                 try:
