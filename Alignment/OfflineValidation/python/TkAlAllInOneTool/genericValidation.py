@@ -678,3 +678,8 @@ class ValidationWithComparison(GenericValidation):
     @abstractmethod
     def comparealignmentsname(cls):
         """classmethod"""
+
+class ValidationForPresentation(ValidationWithPlots):
+    @abstractmethod
+    def presentationsubsections(cls):
+        """classmethod"""

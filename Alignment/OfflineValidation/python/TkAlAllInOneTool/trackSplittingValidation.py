@@ -1,11 +1,12 @@
 import os
 import configTemplates
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithPlotsSummary
+from genericValidation import GenericValidationData, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap
+from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidationData, ParallelValidation, ValidationWithPlotsSummary):
+class TrackSplittingValidation(GenericValidationData, ParallelValidation, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlTrackSplitting"
     scriptBaseName = "TkAlTrackSplitting"
     crabCfgBaseName = "TkAlTrackSplitting"
@@ -68,3 +69,19 @@ class TrackSplittingValidation(GenericValidationData, ParallelValidation, Valida
     @classmethod
     def plotsdirname(cls):
         return "TrackSplittingPlots"
+
+    @classmethod
+    def presentationsubsections(cls):
+        return [
+            SubsectionTrackSplitting('hist.*eps$', 'Track splitting'),
+#           Uncomment and edit to highlight one or more profiles
+#            SubsectionOnePage("profile.phi_org.Delta_phi.*.eps", "modulation"),
+        ]
+
+class SubsectionTrackSplitting(SubsectionFromList):
+    pageidentifiers = (
+                       ("hist[.]Delta_pt", "$p_T$"),
+                       ("hist[.]Delta_(eta|phi)", "Angles"),
+                       ("hist[.]Delta_d(xy|z)", "Vertex"),
+                      )
+

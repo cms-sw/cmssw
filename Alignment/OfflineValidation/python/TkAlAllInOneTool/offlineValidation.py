@@ -1,12 +1,12 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots, ValidationWithPlotsSummary
+from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap, addIndex
+from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
-
-class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary):
+class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlOfflineValidation"
     scriptBaseName = "TkAlOfflineValidation"
     crabCfgBaseName = "TkAlOfflineValidation"
@@ -124,6 +124,26 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
     @classmethod
     def comparealignmentsname(cls):
         return "compareAlignments.cc"
+
+    @classmethod
+    def presentationsubsections(cls):
+        return [
+            SubsectionOnePage('chi2', r'$\chi^2$ plots'),
+            SubsectionSubdetectors('DmedianY*R.*plain.eps$', 'DMR'),
+            SubsectionSubdetectors('DmedianY*R.*split.eps$','Split DMR'),
+            SubsectionSubdetectors('DrmsNY*R.*plain.eps$', 'DRnR'),
+            SubsectionSubdetectors('SurfaceShape', 'Surface Shape'),
+        ]
+
+class SubsectionSubdetectors(SubsectionFromList):
+    pageidentifiers = (
+                       ("BPIX", "BPIX"),
+                       ("FPIX", "FPIX"),
+                       ("TIB", "TIB"),
+                       ("TID", "TID"),
+                       ("TOB", "TOB"),
+                       ("TEC", "TEC"),
+                      )
 
 class OfflineValidationDQM(OfflineValidation):
     configBaseName = "TkAlOfflineValidationDQM"
