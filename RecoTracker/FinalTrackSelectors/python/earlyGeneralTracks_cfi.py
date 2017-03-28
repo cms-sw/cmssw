@@ -54,6 +54,7 @@ _forPhase1 = dict(
         'lowPtTripletStepTracks',
         'detachedQuadStepTracks',
         'detachedTripletStepTracks',
+        'pixelPairStepTracks',
         'mixedTripletStepTracks',
         'pixelLessStepTracks',
         'tobTecStepTracks'
@@ -66,6 +67,7 @@ _forPhase1 = dict(
         "lowPtTripletStep",
         "detachedQuadStep",
         "detachedTripletStep",
+        "pixelPairStep",
         "mixedTripletStep",
         "pixelLessStep",
         "tobTecStep"

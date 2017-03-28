@@ -42,6 +42,7 @@ _iterations_trackingPhase1 = [
     "LowPtTripletStep",
     "DetachedQuadStep",
     "DetachedTripletStep",
+    "PixelPairStep",
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
