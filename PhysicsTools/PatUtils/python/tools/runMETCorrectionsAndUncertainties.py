@@ -1446,7 +1446,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 setattr(process,"pfNoPileUpJME"+postfix,pfCHS)
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
             else:
-                addToProcessAndTask("tmpPFCandCollPtr",
+                addToProcessAndTask("tmpPFCandCollPtr"+postfix,
                                     cms.EDProducer("PFCandidateFwdPtrProducer",
                                                    src = pfCandCollection ),
                                     process, task)

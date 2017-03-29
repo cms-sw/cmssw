@@ -277,10 +277,11 @@ def miniAOD_customizeCommon(process):
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
-    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-    task.add(process.ak4PFJets)
-    task.add(process.ak4PFJetsPuppi)
-    process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
+    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
+        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+        task.add(process.ak4PFJets)
+        task.add(process.ak4PFJetsPuppi)
+        process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
