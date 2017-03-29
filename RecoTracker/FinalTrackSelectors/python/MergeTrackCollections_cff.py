@@ -9,9 +9,9 @@ duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_
     ) 
                                      
 import RecoTracker.TrackProducer.TrackProducer_cfi
-mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = cms.InputTag("duplicateTrackCandidates","candidates"),
-    )
+mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+mergedDuplicateTracks.src = cms.InputTag("duplicateTrackCandidates","candidates")
+mergedDuplicateTracks.Fitter='RKFittingSmoother' # no outlier rejection!
 
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
 duplicateTrackClassifier = TrackCutClassifier.clone()
