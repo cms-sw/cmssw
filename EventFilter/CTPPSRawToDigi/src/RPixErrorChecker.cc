@@ -14,7 +14,7 @@ using namespace edm;
 
 namespace {
   constexpr int CRC_bits = 1;
-  constexpr int LINK_bits = 6;
+//  constexpr int LINK_bits = 6;
   constexpr int ROC_bits  = 5;
   constexpr int DCOL_bits = 5;
   constexpr int PXID_bits = 8;
@@ -26,13 +26,13 @@ namespace {
   constexpr int PXID_shift = ADC_shift + ADC_bits;
   constexpr int DCOL_shift = PXID_shift + PXID_bits;
   constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
-  constexpr int LINK_shift = ROC_shift + ROC_bits;
+//  constexpr int LINK_shift = ROC_shift + ROC_bits;
   constexpr int OMIT_ERR_shift = 20;
  
   constexpr RPixErrorChecker::Word64 CRC_mask = ~(~RPixErrorChecker::Word64(0) << CRC_bits);
   constexpr RPixErrorChecker::Word32 ERROR_mask = ~(~RPixErrorChecker::Word32(0) << ROC_bits);
-  constexpr RPixErrorChecker::Word32 LINK_mask = ~(~RPixErrorChecker::Word32(0) << LINK_bits);
-  constexpr RPixErrorChecker::Word32 ROC_mask  = ~(~RPixErrorChecker::Word32(0) << ROC_bits);
+//  constexpr RPixErrorChecker::Word32 LINK_mask = ~(~RPixErrorChecker::Word32(0) << LINK_bits);
+//  constexpr RPixErrorChecker::Word32 ROC_mask  = ~(~RPixErrorChecker::Word32(0) << ROC_bits);
   constexpr RPixErrorChecker::Word32 OMIT_ERR_mask = ~(~RPixErrorChecker::Word32(0) << OMIT_ERR_bits);
 }  
 
