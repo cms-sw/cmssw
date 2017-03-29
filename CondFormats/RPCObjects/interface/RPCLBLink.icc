@@ -5,12 +5,12 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-inline ::uint32_t RPCLBLink::getId() const
+inline std::uint32_t RPCLBLink::getId() const
 {
     return id_;
 }
 
-inline RPCLBLink::operator ::uint32_t() const
+inline RPCLBLink::operator std::uint32_t() const
 {
     return id_;
 }
@@ -20,7 +20,7 @@ inline bool RPCLBLink::matches(RPCLBLink const & _rhs) const
     return ((id_ & _rhs.getMask()) == (getMask() & _rhs.id_));
 }
 
-inline void RPCLBLink::setId(::uint32_t const & _id)
+inline void RPCLBLink::setId(std::uint32_t const & _id)
 {
     id_ = _id;
 }
@@ -137,17 +137,17 @@ inline bool RPCLBLink::operator!=(RPCLBLink const & _rhs) const
     return (id_ != _rhs.id_);
 }
 
-inline bool RPCLBLink::operator<(::uint32_t const & _rhs) const
+inline bool RPCLBLink::operator<(std::uint32_t const & _rhs) const
 {
     return (id_ < _rhs);
 }
 
-inline bool RPCLBLink::operator==(::uint32_t const & _rhs) const
+inline bool RPCLBLink::operator==(std::uint32_t const & _rhs) const
 {
     return (id_ == _rhs);
 }
 
-inline bool RPCLBLink::operator!=(::uint32_t const & _rhs) const
+inline bool RPCLBLink::operator!=(std::uint32_t const & _rhs) const
 {
     return (id_ != _rhs);
 }
@@ -268,19 +268,19 @@ inline RPCLBLink RPCLBLink::operator--(int)
     return _return;
 }
 
-inline int RPCLBLink::bf_get(int const _min, ::uint32_t const _mask, int const _pos) const
+inline int RPCLBLink::bf_get(int const _min, std::uint32_t const _mask, int const _pos) const
 {
-    ::uint32_t _value(id_ & _mask);
+    std::uint32_t _value(id_ & _mask);
     if (_value == 0)
         return wildcard_;
     return _min + (int)(_value >> _pos) - 1;
 }
 
-inline RPCLBLink & RPCLBLink::bf_set(int const _min, int const _max, ::uint32_t const _mask, int const _pos, int const _value)
+inline RPCLBLink & RPCLBLink::bf_set(int const _min, int const _max, std::uint32_t const _mask, int const _pos, int const _value)
 {
     if (_value >= _min && _value <= _max) {
         id_ &= ~_mask;
-        id_ |= (((::uint32_t)(_value - _min + 1) << _pos) & _mask);
+        id_ |= (((std::uint32_t)(_value - _min + 1) << _pos) & _mask);
     } else if (_value == wildcard_)
         id_ &= ~_mask;
     else
@@ -289,9 +289,9 @@ inline RPCLBLink & RPCLBLink::bf_set(int const _min, int const _max, ::uint32_t 
     return *this;
 }
 
-inline std::ostream & RPCLBLink::bf_stream(std::ostream & _ostream, int const _min, ::uint32_t const _mask, int const _pos) const
+inline std::ostream & RPCLBLink::bf_stream(std::ostream & _ostream, int const _min, std::uint32_t const _mask, int const _pos) const
 {
-    ::uint32_t _value(id_ & _mask);
+    std::uint32_t _value(id_ & _mask);
     if (_value == 0)
         return (_ostream << '*');
     return (_ostream << (_min + (int)(_value >> _pos) - 1));

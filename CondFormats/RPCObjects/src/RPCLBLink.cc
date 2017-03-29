@@ -7,7 +7,7 @@ RPCLBLink::RPCLBLink()
     : id_(0x0)
 {}
 
-RPCLBLink::RPCLBLink(::uint32_t const & _id)
+RPCLBLink::RPCLBLink(std::uint32_t const & _id)
     : id_(_id)
 {}
 
@@ -33,9 +33,9 @@ RPCLBLink::RPCLBLink(int _region
     setConnector(_connector);
 }
 
-::uint32_t RPCLBLink::getMask() const
+std::uint32_t RPCLBLink::getMask() const
 {
-    ::uint32_t _mask(0x0);
+    std::uint32_t _mask(0x0);
     if (id_ & mask_region_)
         _mask |= mask_region_;
     if (id_ & mask_yoke_)

@@ -36,7 +36,7 @@ RPCTwinMuxRawToDigi::RPCTwinMuxRawToDigi(edm::ParameterSet const & _config)
 RPCTwinMuxRawToDigi::~RPCTwinMuxRawToDigi()
 {}
 
-void RPCTwinMuxRawToDigi::compute_crc_64bit(::uint16_t & _crc, ::uint64_t const & _word)
+void RPCTwinMuxRawToDigi::compute_crc_64bit(std::uint16_t & _crc, std::uint64_t const & _word)
 { // overcome constness problem evf::compute_crc_64bit
     unsigned char const * _uchars(reinterpret_cast<unsigned char const *>(&_word));
     for (unsigned char const * _uchar = _uchars + 7
@@ -88,16 +88,16 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
             _counters->add(RPCAMCLinkCounters::fed_event_, RPCAMCLink(_fed, RPCAMCLink::wildcard_));
         }
 
-        ::uint16_t _crc(0xffff);
+        std::uint16_t _crc(0xffff);
 
         FEDRawData const & _raw_data = _raw_data_collection->FEDData(_fed);
-        unsigned int _nwords(_raw_data.size() / sizeof(::uint64_t));
+        unsigned int _nwords(_raw_data.size() / sizeof(std::uint64_t));
         if (!_nwords) {
             continue;
         }
 
-        ::uint64_t const * _word(reinterpret_cast<::uint64_t const *>(_raw_data.data()));
-        ::uint64_t const * _word_end = _word + _nwords;
+        std::uint64_t const * _word(reinterpret_cast<std::uint64_t const *>(_raw_data.data()));
+        std::uint64_t const * _word_end = _word + _nwords;
 
         LogDebug("RPCTwinMuxRawToDigi") << "Handling FED " << _fed << " with length " << _nwords;
 
@@ -125,7 +125,7 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
         // Complete CRC check with trailer
         if (calculate_crc_) {
             _word = _word_end;
-            _word_end = reinterpret_cast<::uint64_t const *>(_raw_data.data()) + _nwords - 1;
+            _word_end = reinterpret_cast<std::uint64_t const *>(_raw_data.data()) + _nwords - 1;
             for ( ; _word < _word_end ; ++_word) {
                 compute_crc_64bit(_crc, *_word);
             }
@@ -147,8 +147,8 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
 }
 
 bool RPCTwinMuxRawToDigi::processCDFHeaders(int _fed
-                                            , ::uint64_t const * & _word, ::uint64_t const * & _word_end
-                                            , ::uint16_t & _crc
+                                            , std::uint64_t const * & _word, std::uint64_t const * & _word_end
+                                            , std::uint16_t & _crc
                                             , RPCAMCLinkCounters & _counters) const
 {
     bool _more_headers(true);
@@ -185,8 +185,8 @@ bool RPCTwinMuxRawToDigi::processCDFHeaders(int _fed
 }
 
 bool RPCTwinMuxRawToDigi::processCDFTrailers(int _fed, unsigned int _nwords
-                                             , ::uint64_t const * & _word, ::uint64_t const * & _word_end
-                                             , ::uint16_t & _crc
+                                             , std::uint64_t const * & _word, std::uint64_t const * & _word_end
+                                             , std::uint16_t & _crc
                                              , RPCAMCLinkCounters & _counters) const
 {
     bool _more_trailers(true);
@@ -224,8 +224,8 @@ bool RPCTwinMuxRawToDigi::processCDFTrailers(int _fed, unsigned int _nwords
 }
 
 bool RPCTwinMuxRawToDigi::processBlock(int _fed
-                                       , ::uint64_t const * & _word, ::uint64_t const * _word_end
-                                       , ::uint16_t & _crc
+                                       , std::uint64_t const * & _word, std::uint64_t const * _word_end
+                                       , std::uint16_t & _crc
                                        , RPCAMCLinkCounters & _counters
                                        , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const
 {
@@ -286,8 +286,8 @@ bool RPCTwinMuxRawToDigi::processBlock(int _fed
 }
 
 bool RPCTwinMuxRawToDigi::processTwinMux(int _fed, unsigned int _amc_number, unsigned int _size
-                                         , ::uint64_t const * & _word, ::uint64_t const * _word_end
-                                         , ::uint16_t & _crc
+                                         , std::uint64_t const * & _word, std::uint64_t const * _word_end
+                                         , std::uint16_t & _crc
                                          , RPCAMCLinkCounters & _counters
                                          , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const
 {
@@ -497,7 +497,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int _fed, unsigned int _amc_number
         RPCFebConnector const & _feb_connector(_lb_link_it->second);
         RPCDetId _det_id(_feb_connector.getRPCDetId());
         unsigned int _channel_offset(_link_record.getPartition() ? 9 : 1); // 1-16
-        ::uint8_t _data(_link_record.getPartitionData());
+        std::uint8_t _data(_link_record.getPartitionData());
 
         for (unsigned int _channel = 0 ; _channel < 8 ; ++_channel) {
             if (_data & (0x1 << _channel)) {

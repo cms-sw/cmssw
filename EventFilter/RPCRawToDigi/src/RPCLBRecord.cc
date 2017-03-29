@@ -1,6 +1,6 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCLBRecord.h"
 
-RPCLBRecord::RPCLBRecord(::uint32_t const _record)
+RPCLBRecord::RPCLBRecord(std::uint32_t const _record)
     : record_(_record)
 {}
 
@@ -11,7 +11,7 @@ RPCLBRecord::RPCLBRecord(unsigned int _bcn
                          , unsigned int _delay
                          , unsigned int _connector
                          , unsigned int _partition
-                         , ::uint8_t _data)
+                         , std::uint8_t _data)
     : record_(0x00)
 {
     setBCN(_bcn);

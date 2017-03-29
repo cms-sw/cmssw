@@ -7,7 +7,7 @@ RPCAMCLink::RPCAMCLink()
     : id_(0x0)
 {}
 
-RPCAMCLink::RPCAMCLink(::uint32_t const & _id)
+RPCAMCLink::RPCAMCLink(std::uint32_t const & _id)
     : id_(_id)
 {}
 
@@ -21,9 +21,9 @@ RPCAMCLink::RPCAMCLink(int _fed
     setAMCInput(_amcinput);
 }
 
-::uint32_t RPCAMCLink::getMask() const
+std::uint32_t RPCAMCLink::getMask() const
 {
-    ::uint32_t _mask(0x0);
+    std::uint32_t _mask(0x0);
     if (id_ & mask_fed_)
         _mask |= mask_fed_;
     if (id_ & mask_amcnumber_)

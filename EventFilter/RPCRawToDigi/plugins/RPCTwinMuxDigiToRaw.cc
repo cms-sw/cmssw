@@ -1,5 +1,6 @@
 #include "EventFilter/RPCRawToDigi/plugins/RPCTwinMuxDigiToRaw.h"
 
+#include <cstdint>
 #include <cstring>
 #include <memory>
 
@@ -166,7 +167,7 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event & _event, edm::EventSetup const & _
         // FED Trailer
         ++_size;
         FEDTrailer::set(_data.data() + (_size - 1) * 8, _size, 0x0, 0, 0);
-        ::uint16_t _crc(evf::compute_crc(_data.data(), _size * 8));
+        std::uint16_t _crc(evf::compute_crc(_data.data(), _size * 8));
         FEDTrailer::set(_data.data() + (_size - 1) * 8, _size, _crc, 0, 0);
     }
 

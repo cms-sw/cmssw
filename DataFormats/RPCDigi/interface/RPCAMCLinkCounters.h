@@ -1,8 +1,7 @@
 #ifndef DataFormats_RPCDigi_RPCAMCLinkCounters_h
 #define DataFormats_RPCDigi_RPCAMCLinkCounters_h
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <map>
 #include <string>
 
@@ -11,7 +10,7 @@
 class RPCAMCLinkCounters
 {
 public:
-    typedef std::map<std::pair<unsigned int, ::uint32_t>, unsigned int > map_type;
+    typedef std::map<std::pair<unsigned int, std::uint32_t>, unsigned int > map_type;
     typedef map_type::iterator          iterator;
     typedef map_type::const_iterator    const_iterator;
 
