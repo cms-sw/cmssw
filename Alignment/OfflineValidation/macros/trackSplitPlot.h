@@ -68,6 +68,7 @@ Table Of Contents
 #include "trackSplitPlot.h"
 
 ofstream devnull("/dev/null");
+template<typename T> T identity(T t) {return t;}
 
 //===================
 //0. Track Split Plot
