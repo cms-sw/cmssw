@@ -21,7 +21,8 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Nbxing = cms.int32(9),
         timeJitter = cms.double(1.0),
         IRPC_time_resolution = cms.double(0.1),
-        IRPC_electronics_jitter = cms.double(0.025)
+        IRPC_electronics_jitter = cms.double(0.025),
+        digitizeElectrons = cms.bool(False), # False - do not digitize electron hits (they are included in bkg simulation configured with doBkgNoise)
     ),
     doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
     Signal = cms.bool(True),
@@ -37,8 +38,8 @@ if fastSim.isChosen():
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 if phase2_muon.isChosen():
     simMuonRPCDigis = cms.EDProducer("RPCandIRPCDigiProducer",
-                                     Noise = cms.bool(True),
-                                     digiModelConfig = cms.PSet(
+        Noise = cms.bool(True),
+        digiModelConfig = cms.PSet(
             signalPropagationSpeed = cms.double(0.66),
             timingRPCOffset = cms.double(50.0),
             Frate = cms.double(1.0),
@@ -56,12 +57,12 @@ if phase2_muon.isChosen():
             IRPC_time_resolution = cms.double(0.1),
             IRPC_electronics_jitter = cms.double(0.025)
             ),
-                                     doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
-                                     Signal = cms.bool(True),
-                                     mixLabel = cms.string('mix'),                                 
-                                     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-                                     digiModel = cms.string('RPCSimAverageNoiseEffCls'),
-                                     digiIRPCModelConfig = cms.PSet(
+        doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
+        Signal = cms.bool(True),
+        mixLabel = cms.string('mix'),                                 
+        InputCollection = cms.string('g4SimHitsMuonRPCHits'),
+        digiModel = cms.string('RPCSimAverageNoiseEffCls'),
+        digiIRPCModelConfig = cms.PSet(
             signalPropagationSpeed = cms.double(0.66),
             timingRPCOffset = cms.double(50.0),
             Frate = cms.double(1.0),
@@ -81,5 +82,5 @@ if phase2_muon.isChosen():
             sigmaY = cms.double(2.), # resolution of 2 cm
             do_Y_coordinate = cms.bool(True)
             ),       
-                                     digiIRPCModel = cms.string('RPCSimModelTiming')
+        digiIRPCModel = cms.string('RPCSimModelTiming')
                                      )
