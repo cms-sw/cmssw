@@ -8,7 +8,7 @@
 using namespace logintpack;
 //std::atomic<CovarianceParameterization*> pat::PackedCandidate::covarianceParameterization_(nullptr);
 
-CovarianceParameterization pat::PackedCandidate::covarianceParameterization_ = CovarianceParameterization();
+CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
 std::once_flag pat::PackedCandidate::covariance_load_flag;
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
