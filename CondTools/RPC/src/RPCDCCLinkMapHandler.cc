@@ -101,9 +101,8 @@ void RPCDCCLinkMapHandler::getNewObjects()
     if (!txt_file_.empty()) {
         edm::LogInfo("RPCDCCLinkMapHandler") << "Fill txtFile";
         std::ofstream _ofstream(txt_file_);
-        for (RPCDCCLinkMap::map_type::const_iterator _link = _dcc_link_map.begin()
-                 ; _link != _dcc_link_map.end() ; ++_link) {
-            _ofstream << _link->first << ": " << _link->second << std::endl;
+        for (auto const & _link : _dcc_link_map) {
+            _ofstream << _link.first << ": " << _link.second << std::endl;
         }
     }
 

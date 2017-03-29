@@ -635,12 +635,12 @@ inline void RPCRecord::set(unsigned int _nword, ::uint64_t const _word)
 inline void RPCRecord::reset()
 {
     record_[0] = TwinMuxRecord::rpc_first_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_0_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_1_offset_);
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
     record_[1] = TwinMuxRecord::rpc_second_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_2_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_3_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_4_offset_);
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
 }
 
 inline ::uint64_t const * RPCRecord::getRecord() const
@@ -661,22 +661,8 @@ inline bool RPCRecord::hasOverflow() const
 inline RPCBXRecord RPCRecord::getRPCBXRecord(unsigned int _link) const
 {
     RPCBXRecord _bx_record;
-    switch (_link) {
-    case 0:
-        _bx_record.set((record_[0] >> bx_record_0_offset_) & bx_record_mask_);
-        break;
-    case 1:
-        _bx_record.set((record_[0] >> bx_record_1_offset_) & bx_record_mask_);
-        break;
-    case 2:
-        _bx_record.set((record_[0] >> bx_record_2_offset_) & bx_record_mask_);
-        break;
-    case 3:
-        _bx_record.set((record_[0] >> bx_record_3_offset_) & bx_record_mask_);
-        break;
-    case 4:
-        _bx_record.set((record_[0] >> bx_record_4_offset_) & bx_record_mask_);
-        break;
+    if (_link < 5) {
+        _bx_record.set((record_[0] >> bx_record_offset_[_link]) & bx_record_mask_);
     }
     return _bx_record;
 }
@@ -684,22 +670,8 @@ inline RPCBXRecord RPCRecord::getRPCBXRecord(unsigned int _link) const
 inline RPCLinkRecord RPCRecord::getRPCLinkRecord(unsigned int _link) const
 {
     RPCLinkRecord _link_record;
-    switch (_link) {
-    case 0:
-        _link_record.set((record_[0] >> link_record_0_offset_) & link_record_mask_);
-        break;
-    case 1:
-        _link_record.set((record_[0] >> link_record_1_offset_) & link_record_mask_);
-        break;
-    case 2:
-        _link_record.set((record_[1] >> link_record_2_offset_) & link_record_mask_);
-        break;
-    case 3:
-        _link_record.set((record_[1] >> link_record_3_offset_) & link_record_mask_);
-        break;
-    case 4:
-        _link_record.set((record_[1] >> link_record_4_offset_) & link_record_mask_);
-        break;
+    if (_link < 5) {
+        _link_record.set((record_[link_record_word_[_link]] >> link_record_offset_[_link]) & link_record_mask_);
     }
     return _link_record;
 }
@@ -720,53 +692,17 @@ inline void RPCRecord::setOverflow(bool _overflow)
 
 inline void RPCRecord::setRPCBXRecord(unsigned int _link, RPCBXRecord const & _bx_record)
 {
-    switch (_link) {
-    case 0:
-        record_[0] &= ~(bx_record_mask_ << bx_record_0_offset_);
-        record_[0] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_0_offset_);
-        break;
-    case 1:
-        record_[0] &= ~(bx_record_mask_ << bx_record_1_offset_);
-        record_[0] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_1_offset_);
-        break;
-    case 2:
-        record_[1] &= ~(bx_record_mask_ << bx_record_2_offset_);
-        record_[1] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_2_offset_);
-        break;
-    case 3:
-        record_[1] &= ~(bx_record_mask_ << bx_record_3_offset_);
-        record_[1] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_3_offset_);
-        break;
-    case 4:
-        record_[1] &= ~(bx_record_mask_ << bx_record_4_offset_);
-        record_[1] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_4_offset_);
-        break;
+    if (_link < 5) {
+        record_[0] &= ~(bx_record_mask_ << bx_record_offset_[_link]);
+        record_[0] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_offset_[_link]);
     }
 }
 
 inline void RPCRecord::setRPCLinkRecord(unsigned int _link, RPCLinkRecord const & _link_record)
 {
-    switch (_link) {
-    case 0:
-        record_[0] &= ~(link_record_mask_ << link_record_0_offset_);
-        record_[0] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_0_offset_);
-        break;
-    case 1:
-        record_[0] &= ~(link_record_mask_ << link_record_1_offset_);
-        record_[0] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_1_offset_);
-        break;
-    case 2:
-        record_[1] &= ~(link_record_mask_ << link_record_2_offset_);
-        record_[1] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_2_offset_);
-        break;
-    case 3:
-        record_[1] &= ~(link_record_mask_ << link_record_3_offset_);
-        record_[1] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_3_offset_);
-        break;
-    case 4:
-        record_[1] &= ~(link_record_mask_ << link_record_4_offset_);
-        record_[1] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_4_offset_);
-        break;
+    if (_link < 5) {
+        record_[link_record_word_[_link]] &= ~(link_record_mask_ << link_record_offset_[_link]);
+        record_[link_record_word_[_link]] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_offset_[_link]);
     }
 }
 

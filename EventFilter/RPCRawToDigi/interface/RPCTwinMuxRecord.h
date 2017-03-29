@@ -14,8 +14,6 @@ public:
     static unsigned int const error_type_      = 2;
     static unsigned int const unknown_type_    = 3;
 
-    static ::uint64_t const twinmux_header_identifier_mask_ = 0xf000000000000000;
-    static ::uint64_t const twinmux_header_identifier_      = 0x0000000000000000;
     static ::uint64_t const rpc_first_identifier_mask_      = 0xf000000000000000;
     static ::uint64_t const rpc_first_identifier_           = 0x9000000000000000;
     static ::uint64_t const rpc_second_identifier_mask_     = 0xf000000000000000;
@@ -215,7 +213,7 @@ public:
                   , unsigned int _orbit_counter
                   , unsigned int _board_id
                   , unsigned int _dt_bx_window = 0x1f
-                  , int _rpc_bx_min = 10, int _rpc_bx_max = 5
+                  , int _rpc_bx_min = 10, int _rpc_bx_max = 5 // values for !hasRPCBXWindows
                   , unsigned int _ho_bx_window = 0x7);
 
     void set(unsigned int _nword, ::uint64_t const _word);
@@ -248,7 +246,7 @@ public:
     void setBoardId(unsigned int _board_id);
 
     void setDTBXWindow(unsigned int _bx_window = 0x1f);
-    void setRPCBXWindow(int _bx_min = 10, int _bx_max = 5);
+    void setRPCBXWindow(int _bx_min = 10, int _bx_max = 5); // values for !hasRPCBXWindows
     void setHOBXWindow(unsigned int _bx_window = 0x7);
 
 protected:
@@ -365,27 +363,17 @@ protected:
 class RPCRecord
 {
 public:
-    // first word
     static ::uint64_t const bx_offset_mask_ = 0x0f00000000000000;
     static ::uint64_t const overflow_mask_  = 0x0080000000000000;
 
     static unsigned int const bx_offset_offset_ = 56;
 
     static ::uint64_t const link_record_mask_ = 0x0fffff;
-    static unsigned int const link_record_0_offset_ = 20;
-    static unsigned int const link_record_1_offset_ = 0;
+    static unsigned int const link_record_word_[5];
+    static unsigned int const link_record_offset_[5];
 
     static ::uint64_t const bx_record_mask_ = 0x07;
-    static unsigned int const bx_record_0_offset_ = 52;
-    static unsigned int const bx_record_1_offset_ = 49;
-    static unsigned int const bx_record_2_offset_ = 46;
-    static unsigned int const bx_record_3_offset_ = 43;
-    static unsigned int const bx_record_4_offset_ = 40;
-
-    // second word
-    static unsigned int const link_record_2_offset_ = 40;
-    static unsigned int const link_record_3_offset_ = 20;
-    static unsigned int const link_record_4_offset_ = 0;
+    static unsigned int const bx_record_offset_[5];
 
 public:
     RPCRecord();

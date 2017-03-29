@@ -124,15 +124,19 @@ RPCBXRecord::RPCBXRecord(::uint8_t const _record)
     : record_(_record)
 {}
 
+unsigned int const RPCRecord::link_record_word_[] = {0, 0, 1, 1, 1};
+unsigned int const RPCRecord::link_record_offset_[] = {20, 0, 40, 20, 0};
+unsigned int const RPCRecord::bx_record_offset_[] = {52, 49, 46, 43, 40};
+
 RPCRecord::RPCRecord()
 {
     record_[0] = TwinMuxRecord::rpc_first_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_0_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_1_offset_);
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
     record_[1] = TwinMuxRecord::rpc_second_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_2_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_3_offset_)
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_4_offset_);
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
+        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
 }
 
 RPCRecord::RPCRecord(::uint64_t const _record[2])
