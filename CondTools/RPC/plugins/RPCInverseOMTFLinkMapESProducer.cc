@@ -28,11 +28,10 @@ void RPCInverseOMTFLinkMapESProducer::RPCOMTFLinkMapCallback(RPCOMTFLinkMapRcd c
 
     edm::ESHandle<RPCAMCLinkMap> _es_map;
     _rcd.get(_es_map);
+
     RPCAMCLinkMap const & _map = *(_es_map.product());
-    RPCAMCLinkMap::map_type::const_iterator _map_end(_map.getMap().end());
-    for (RPCAMCLinkMap::map_type::const_iterator _link = _map.getMap().begin()
-             ; _link != _map_end ; ++_link) {
-        _inverse_map.insert(RPCInverseAMCLinkMap::map_type::value_type(_link->second, _link->first));
+    for (auto const & _link : _map.getMap()) {
+        _inverse_map.insert(RPCInverseAMCLinkMap::map_type::value_type(_link.second, _link.first));
     }
 }
 

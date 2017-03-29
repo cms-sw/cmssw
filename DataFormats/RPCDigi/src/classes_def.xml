@@ -31,8 +31,8 @@
 <!-- StdDictionaries: class name="std::pair<unsigned int, ::uint32_t>" / -->
 <class name="std::pair<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
 <class name="std::map<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
-<class name="RPCAMCLinkCounters" ClassVersion="10">
- <version ClassVersion="10" checksum="1674895127" />
+<class name="RPCAMCLinkCounters" ClassVersion="3">
+ <version ClassVersion="3" checksum="1674895127" />
 </class>
 <class name="edm::Wrapper<RPCAMCLinkCounters>" />
 

@@ -219,9 +219,8 @@ void RPCLBLinkMapHandler::getNewObjects()
     if (!txt_file_.empty()) {
         edm::LogInfo("RPCLBLinkMapHandler") << "Fill txtFile";
         std::ofstream _ofstream(txt_file_);
-        for (RPCLBLinkMap::map_type::const_iterator _link_connector = _lb_link_map.begin()
-                 ; _link_connector != _lb_link_map.end() ; ++_link_connector) {
-            _ofstream << _link_connector->first << ": " << _link_connector->second << std::endl;
+        for (auto const & _link_connector : _lb_link_map) {
+            _ofstream << _link_connector.first << ": " << _link_connector.second << std::endl;
         }
     }
 

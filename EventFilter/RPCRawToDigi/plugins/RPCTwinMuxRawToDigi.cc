@@ -61,9 +61,8 @@ void RPCTwinMuxRawToDigi::beginRun(edm::Run const & _run, edm::EventSetup const 
     if (es_tm_link_map_watcher_.check(_setup)) {
         _setup.get<RPCTwinMuxLinkMapRcd>().get(es_tm_link_map_);
         std::set<int> _feds;
-        for (RPCAMCLinkMap::map_type::const_iterator _tm_link = es_tm_link_map_->getMap().begin()
-                 ; _tm_link != es_tm_link_map_->getMap().end() ; ++_tm_link) {
-            _feds.insert(_tm_link->first.getFED());
+        for (auto const & _tm_link : es_tm_link_map_->getMap()) {
+            _feds.insert(_tm_link.first.getFED());
         }
         feds_.assign(_feds.begin(), _feds.end());
     }
@@ -83,16 +82,15 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
     std::unique_ptr<RPCAMCLinkCounters> _counters(new RPCAMCLinkCounters());
 
     // Loop over the FEDs
-    for (std::vector<int>::const_iterator _fed = feds_.begin()
-             ; _fed != feds_.end() ; ++_fed) {
+    for (int _fed : feds_) {
 
         if (fill_counters_) {
-            _counters->add(RPCAMCLinkCounters::fed_event_, RPCAMCLink(*_fed, RPCAMCLink::wildcard_));
+            _counters->add(RPCAMCLinkCounters::fed_event_, RPCAMCLink(_fed, RPCAMCLink::wildcard_));
         }
 
         ::uint16_t _crc(0xffff);
 
-        FEDRawData const & _raw_data = _raw_data_collection->FEDData(*_fed);
+        FEDRawData const & _raw_data = _raw_data_collection->FEDData(_fed);
         unsigned int _nwords(_raw_data.size() / sizeof(::uint64_t));
         if (!_nwords) {
             continue;
@@ -101,17 +99,17 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
         ::uint64_t const * _word(reinterpret_cast<::uint64_t const *>(_raw_data.data()));
         ::uint64_t const * _word_end = _word + _nwords;
 
-        LogDebug("RPCTwinMuxRawToDigi") << "Handling FED " << *_fed << " with length " << _nwords;
+        LogDebug("RPCTwinMuxRawToDigi") << "Handling FED " << _fed << " with length " << _nwords;
 
         // Handle the CDF Headers
-        if (!processCDFHeaders(*_fed
+        if (!processCDFHeaders(_fed
                                , _word, _word_end
                                , _crc, *_counters)) {
             continue;
         }
 
         // Handle the CDF Trailers
-        if (!processCDFTrailers(*_fed, _nwords
+        if (!processCDFTrailers(_fed, _nwords
                                 , _word, _word_end
                                 , _crc, *_counters)) {
             continue;
@@ -119,7 +117,7 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
 
         // Loop over the Blocks
         while (_word < _word_end) {
-            processBlock(*_fed
+            processBlock(_fed
                          , _word, _word_end
                          , _crc, *_counters, _rpc_digis);
         }
@@ -135,9 +133,9 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & _event, edm::EventSetup const & _
             FEDTrailer _trailer(reinterpret_cast<unsigned char const *>(_word_end));
             if ((unsigned int)(_trailer.crc()) != _crc) {
                 if (fill_counters_) {
-                    _counters->add(RPCAMCLinkCounters::fed_trailer_crc_mismatch_, RPCAMCLink(*_fed, RPCAMCLink::wildcard_));
+                    _counters->add(RPCAMCLinkCounters::fed_trailer_crc_mismatch_, RPCAMCLink(_fed, RPCAMCLink::wildcard_));
                 }
-                edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer CRC doesn't match for FED id " << *_fed;
+                edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer CRC doesn't match for FED id " << _fed;
             }
         }
     }
@@ -268,9 +266,8 @@ bool RPCTwinMuxRawToDigi::processBlock(int _fed
         }
     }
 
-    for (std::vector<std::pair<unsigned int, unsigned int> >::const_iterator _amc_size = _amc_size_map.begin()
-             ; _amc_size != _amc_size_map.end() ; ++_amc_size) {
-        processTwinMux(_fed, _amc_size->first, _amc_size->second
+    for (std::pair<unsigned int, unsigned int> const & _amc_size : _amc_size_map) {
+        processTwinMux(_fed, _amc_size.first, _amc_size.second
                        , _word, _word_end
                        , _crc, _counters
                        , _digis);
@@ -513,17 +510,8 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int _fed, unsigned int _amc_number
             }
         }
 
-        /*
-        if (fill_counters_ && _bx_offset == 0) {
-            rpctwinmux::RPCBXRecord _bx_record(_record.getRPCBXRecord(_link));
-            if ((_bx_record.getBXCounter() & 0x3) != (_bx_counter & 0x3)) {
-                _counters.add(RPCAMCLinkCounters::input_bc_mismatch_, _tm_link);
-            }
-            if (_bx_record.isBC0() && _bx_counter != 0) {
-                _counters.add(RPCAMCLinkCounters::input_bc0_mismatch_, _tm_link);
-            }
-        }
-        */
+        // rpctwinmux::RPCBXRecord checks postponed: not implemented in firmware as planned and tbd if design or firmware should change
+
     }
 }
 
@@ -533,18 +521,17 @@ void RPCTwinMuxRawToDigi::putRPCDigis(edm::Event & _event
     std::unique_ptr<RPCDigiCollection> _rpc_digi_collection(new RPCDigiCollection());
     RPCDetId _rpc_det_id;
     std::vector<RPCDigi> _local_digis;
-    for (std::set<std::pair<RPCDetId, RPCDigi> >::const_iterator _rpc_digi = _digis.begin()
-             ; _rpc_digi != _digis.end() ; ++_rpc_digi) {
-        LogDebug("RPCTwinMuxRawToDigi") << "RPCDigi " << _rpc_digi->first.rawId()
-                                        << ", " << _rpc_digi->second.strip() << ", " << _rpc_digi->second.bx();
-        if (_rpc_digi->first != _rpc_det_id) {
+    for (std::pair<RPCDetId, RPCDigi> const & _rpc_digi : _digis) {
+        LogDebug("RPCTwinMuxRawToDigi") << "RPCDigi " << _rpc_digi.first.rawId()
+                                        << ", " << _rpc_digi.second.strip() << ", " << _rpc_digi.second.bx();
+        if (_rpc_digi.first != _rpc_det_id) {
             if (!_local_digis.empty()) {
                 _rpc_digi_collection->put(RPCDigiCollection::Range(_local_digis.begin(), _local_digis.end()), _rpc_det_id);
                 _local_digis.clear();
             }
-            _rpc_det_id = _rpc_digi->first;
+            _rpc_det_id = _rpc_digi.first;
         }
-        _local_digis.push_back(_rpc_digi->second);
+        _local_digis.push_back(_rpc_digi.second);
     }
     if (!_local_digis.empty()) {
         _rpc_digi_collection->put(RPCDigiCollection::Range(_local_digis.begin(), _local_digis.end()), _rpc_det_id);

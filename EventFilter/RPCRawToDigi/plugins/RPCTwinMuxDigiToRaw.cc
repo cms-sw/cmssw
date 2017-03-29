@@ -59,16 +59,14 @@ void RPCTwinMuxDigiToRaw::beginRun(edm::Run const & _run, edm::EventSetup const 
         edm::ESHandle<RPCAMCLinkMap> _es_tm_link_map;
         _setup.get<RPCTwinMuxLinkMapRcd>().get(_es_tm_link_map);
         fed_amcs_.clear();
-        for (RPCAMCLinkMap::map_type::const_iterator _tm_link = _es_tm_link_map->getMap().begin()
-                 ; _tm_link != _es_tm_link_map->getMap().end() ; ++_tm_link) {
-            RPCAMCLink _amc(_tm_link->first);
+        for (auto const & _tm_link : _es_tm_link_map->getMap()) {
+            RPCAMCLink _amc(_tm_link.first);
             _amc.setAMCInput();
             fed_amcs_[_amc.getFED()].push_back(_amc);
         }
-        for (std::map<int, std::vector<RPCAMCLink> >::iterator _fed_amcs_it = fed_amcs_.begin()
-                 ; _fed_amcs_it != fed_amcs_.end() ; ++_fed_amcs_it) {
-            std::sort(_fed_amcs_it->second.begin(), _fed_amcs_it->second.end());
-            _fed_amcs_it->second.erase(std::unique(_fed_amcs_it->second.begin(), _fed_amcs_it->second.end()), _fed_amcs_it->second.end());
+        for (auto & _fed_amcs : fed_amcs_) {
+            std::sort(_fed_amcs.second.begin(), _fed_amcs.second.end());
+            _fed_amcs.second.erase(std::unique(_fed_amcs.second.begin(), _fed_amcs.second.end()), _fed_amcs.second.end());
         }
     }
 }
@@ -98,33 +96,31 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event & _event, edm::EventSetup const & _
 
     std::map<int, FEDRawData> _fed_data;
     // Loop over the FEDs
-    for (std::map<int, std::vector<RPCAMCLink> >::const_iterator _fed_amcs = fed_amcs_.begin()
-             ; _fed_amcs != fed_amcs_.end() ; ++_fed_amcs) {
-        FEDRawData & _data = _data_collection->FEDData(_fed_amcs->first);
+    for (std::pair<int, std::vector<RPCAMCLink> > const & _fed_amcs : fed_amcs_) {
+        FEDRawData & _data = _data_collection->FEDData(_fed_amcs.first);
         unsigned int _size(0);
 
         // FED Header + BLOCK Header (1 word + 1 word)
         _data.resize((_size + 2) * 8);
         // FED Header
-        FEDHeader::set(_data.data() + _size * 8, event_type_, _event.id().event(), _event.bunchCrossing(), _fed_amcs->first);
+        FEDHeader::set(_data.data() + _size * 8, event_type_, _event.id().event(), _event.bunchCrossing(), _fed_amcs.first);
         ++_size;
         // BLOCK Header
-        rpctwinmux::BlockHeader _block_header(ufov_, _fed_amcs->second.size(), _event.eventAuxiliary().orbitNumber());
+        rpctwinmux::BlockHeader _block_header(ufov_, _fed_amcs.second.size(), _event.eventAuxiliary().orbitNumber());
         std::memcpy(_data.data() + _size * 8, &_block_header.getRecord(), 8);
         ++_size;
 
         // BLOCK AMC Content - 1 word each
-        _data.resize((_size + _fed_amcs->second.size()) * 8);
+        _data.resize((_size + _fed_amcs.second.size()) * 8);
         unsigned int _block_content_size(0);
-        for (std::vector<RPCAMCLink>::const_iterator _amc = _fed_amcs->second.begin()
-                 ; _amc != _fed_amcs->second.end() ; ++_amc) {
-            std::map<RPCAMCLink, std::vector<std::pair<int, rpctwinmux::RPCRecord> > >::const_iterator _bx_tmrecord(_amc_bx_tmrecord.find(*_amc));
+        for (RPCAMCLink const & _amc : _fed_amcs.second) {
+            std::map<RPCAMCLink, std::vector<std::pair<int, rpctwinmux::RPCRecord> > >::const_iterator _bx_tmrecord(_amc_bx_tmrecord.find(_amc));
             unsigned int _block_amc_size(3 + 2 * (_bx_tmrecord == _amc_bx_tmrecord.end() ? 0 : _bx_tmrecord->second.size()));
             _block_content_size += _block_amc_size;
             rpctwinmux::BlockAMCContent _amc_content(true
                                                      , true, true
                                                      , true, true, true, true, _block_amc_size
-                                                     , 0, _amc->getAMCNumber()
+                                                     , 0, _amc.getAMCNumber()
                                                      , 0);
             std::memcpy(_data.data() + _size * 8, &_amc_content.getRecord(), 8);
             ++_size;
@@ -132,13 +128,12 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event & _event, edm::EventSetup const & _
 
         // AMC Payload - 2 words header, 1 word trailer, 2 words per RPCRecord
         _data.resize((_size + _block_content_size) * 8);
-        for (std::vector<RPCAMCLink>::const_iterator _amc = _fed_amcs->second.begin()
-                 ; _amc != _fed_amcs->second.end() ; ++_amc) {
+        for (RPCAMCLink const & _amc : _fed_amcs.second) {
             // TwinMux Header
-            std::map<RPCAMCLink, std::vector<std::pair<int, rpctwinmux::RPCRecord> > >::const_iterator _bx_tmrecord(_amc_bx_tmrecord.find(*_amc));
+            std::map<RPCAMCLink, std::vector<std::pair<int, rpctwinmux::RPCRecord> > >::const_iterator _bx_tmrecord(_amc_bx_tmrecord.find(_amc));
             unsigned int _block_amc_size(3 + 2 * (_bx_tmrecord == _amc_bx_tmrecord.end() ? 0 : _bx_tmrecord->second.size()));
 
-            rpctwinmux::TwinMuxHeader _tm_header(_amc->getAMCNumber(), _event.id().event(), _event.bunchCrossing()
+            rpctwinmux::TwinMuxHeader _tm_header(_amc.getAMCNumber(), _event.id().event(), _event.bunchCrossing()
                                                  , _block_amc_size
                                                  , _event.eventAuxiliary().orbitNumber()
                                                  , 0);

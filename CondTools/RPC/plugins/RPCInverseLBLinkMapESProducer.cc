@@ -31,10 +31,8 @@ void RPCInverseLBLinkMapESProducer::RPCLBLinkMapCallback(RPCLBLinkMapRcd const &
     edm::ESHandle<RPCLBLinkMap> _es_map;
     _rcd.get(_es_map);
     RPCLBLinkMap const & _map = *(_es_map.product());
-    RPCLBLinkMap::map_type::const_iterator _map_end(_map.getMap().end());
-    for (RPCLBLinkMap::map_type::const_iterator _link = _map.getMap().begin()
-             ; _link != _map_end ; ++_link) {
-        _inverse_map.insert(RPCInverseLBLinkMap::map_type::value_type(_link->second.getRPCDetId().rawId(), *_link));
+    for (auto const & _link : _map.getMap()) {
+        _inverse_map.insert(RPCInverseLBLinkMap::map_type::value_type(_link.second.getRPCDetId().rawId(), _link));
     }
 }
 
