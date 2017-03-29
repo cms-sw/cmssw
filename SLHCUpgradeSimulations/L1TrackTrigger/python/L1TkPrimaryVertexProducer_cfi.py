@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
+
+#
+# Default parameters used for the plots for the TP
+#
      L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
      ZMAX = cms.double ( 25. ) ,        # in cm
      CHI2MAX = cms.double( 100. ),
@@ -16,5 +20,20 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
 					 # when = 1 : saturation. Tracks with PT above PTMAX are set to PT=PTMAX.
      MonteCarloVertex = cms.bool( False ),    #  when True: dont run the vxt finding algo but pick up the MC generated vtx
      doPtComp = cms.bool( True ),       # track-stubs PT compatibility cut
-     doTightChi2 = cms.bool( False )    # chi2dof < 5 for tracks with PT > 10
+     doTightChi2 = cms.bool( False ),    # chi2dof < 5 for tracks with PT > 10
+     WEIGHT = cms.int32(1)            # WEIGHT can be set to 0, 1 or 2 for unweighted, pT weighted
+                                      # or pT2 weighted tracks respectively.
+
+#
+# Other working point which works better for H -> TauTau,
+# cf talk by Moshan Ather, Dec 12, 2014:
+
+#     WEIGHT = cms.int32(2),
+#     PTMAX = cms.double( 25. ),
+#     nStubsmin = cms.int32( 5 ),
+#     HighPtTracks = cms.int32( 1),
+#     doPtComp = cms.bool( False ),     
+#     CHI2MAX = cms.double( 20 )
+#
+
 )

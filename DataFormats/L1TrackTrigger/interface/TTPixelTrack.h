@@ -52,6 +52,7 @@ class TTPixelTrack
   double getSigmaD0() const {return theSigmaD0;}
   double getSigmaT() const {return theSigmaT;}
   double getSigmaZ0() const {return theSigmaZ0;}
+  int getNhit() const {return thenhit;}
   
 
   void init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, 
@@ -60,6 +61,7 @@ class TTPixelTrack
 	    const GlobalPoint&  aPOCA,
 	    double aRInv,
 	    double aChi2,
+	    int nhit,
 	    double sigmarinv,
 	    double sigmad0,
 	    double sigmaphi0,
@@ -79,6 +81,7 @@ class TTPixelTrack
   GlobalPoint  thePOCA;
   double       theRInv;
   double       theChi2;
+  int          thenhit;
   double       theSigmaRInv;
   double       theSigmaPhi0;
   double       theSigmaD0;
@@ -111,6 +114,7 @@ void TTPixelTrack::init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, TT
 			const GlobalPoint&  aPOCA,
 			double aRInv,
 			double aChi2,
+			int    anhit,
 			double sigmarinv,
 			double sigmad0,
 			double sigmaphi0,
@@ -122,6 +126,7 @@ void TTPixelTrack::init(const edm::Ref<std::vector<TTTrack<Ref_PixelDigi_> >, TT
   thePOCA=aPOCA;
   theRInv=aRInv;
   theChi2=aChi2;
+  thenhit=anhit;
   theSigmaRInv=sigmarinv;
   theSigmaPhi0=sigmad0;
   theSigmaD0=sigmaphi0;

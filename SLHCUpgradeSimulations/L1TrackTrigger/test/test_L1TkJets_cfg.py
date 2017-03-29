@@ -15,8 +15,7 @@ process = cms.Process("L1TkJets")
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
+'/store/mc/TTI2023Upg14D/Neutrino_Pt2to20_gun/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/022FFF01-E4E0-E311-9DAD-002618943919.root'
    )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )

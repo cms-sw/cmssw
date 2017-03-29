@@ -50,7 +50,20 @@ public:
 
   void write(ofstream& out){
     
-    out << "L1SimTrack: " 
+    out << "SimTrack: " 
+	<< id_ << "\t" 
+	<< type_ << "\t" 
+	<< pt_ << "\t" 
+	<< eta_ << "\t" 
+	<< phi_ << "\t" 
+	<< vx_ << "\t" 
+	<< vy_ << "\t" 
+	<< vz_ << "\t" << endl; 
+	
+  }
+  void write(ostream& out){
+    
+    out << "SimTrack: " 
 	<< id_ << "\t" 
 	<< type_ << "\t" 
 	<< pt_ << "\t" 
@@ -108,6 +121,24 @@ public:
   }
 
   void write(ofstream& out){
+    
+    out << "Digi: " 
+	<< layer_ << "\t" 
+	<< irphi_ << "\t" 
+	<< iz_ << "\t" 
+	<< sensorlayer_ << "\t" 
+	<< ladder_ << "\t" 
+	<< module_ << "\t" 
+	<< x_ << "\t" 
+	<< y_ << "\t" 
+	<< z_ << "\t" << endl; 
+
+    for (unsigned int i=0;i<simtrackids_.size();i++){
+      out << "SimTrackId: "<<simtrackids_[i]<<endl;
+    }
+	
+  }
+  void write(ostream& out){
     
     out << "Digi: " 
 	<< layer_ << "\t" 
@@ -197,6 +228,7 @@ public:
 
   SLHCEvent() {
     //empty constructor to be used with 'filler' functions
+    eventnum_=0;
   }
 
   void setIPx(double x) { x_offset=x;}
@@ -232,7 +264,7 @@ public:
   }
 
 
-  bool addStub(int layer,int ladder,int module,double pt,
+  bool addStub(int layer,int ladder,int module, int strip, double pt,double bend,
 	   double x,double y,double z,
 	   vector<bool> innerStack,
 	   vector<int> irphi,
@@ -243,7 +275,8 @@ public:
     x-=x_offset;
     y-=y_offset;
 
-    L1TStub stub(-1,-1,-1,layer, ladder, module, x, y, z, -1.0, -1.0, pt);
+    L1TStub stub(-1,-1,-1,layer, ladder, module, strip, 
+		 x, y, z, -1.0, -1.0, pt, bend);
 
     for(unsigned int i=0;i<innerStack.size();i++){
       if (innerStack[i]) {
@@ -298,7 +331,7 @@ public:
     }
     in >> eventnum_;
 
-    cout << "Started to read event="<<eventnum_<<endl;
+    //cout << "Started to read event="<<eventnum_<<endl;
 
     // read the SimTracks
 
@@ -321,11 +354,12 @@ public:
       double vz;
       in >> id >> type >> pt >> eta >> phi >> vx >> vy >> vz;
       if (first) {
-	mc_rinv=0.00299792*3.8/pt;
-	mc_phi0=phi;
-	mc_z0=vz;
-	mc_t=tan(0.25*two_pi-2.0*atan(exp(-eta)));
-	event=eventnum_;
+	//mc_rinv=0.00299792*3.8/pt;
+	//mc_phi0=phi;
+	//mc_z0=vz;
+	//double two_pi=8*atan(1.0);
+	//mc_t=tan(0.25*two_pi-2.0*atan(exp(-eta)));
+	//event=eventnum_;
 	first=false;
       }
       vx-=x_offset;
@@ -382,7 +416,7 @@ public:
       digihash_.insert(digi);
     }
 
-    cout << "Read "<<digis_.size()<<" digis"<<endl;
+    //cout << "Read "<<digis_.size()<<" digis"<<endl;
 
     int nlayer[11];
     for (int i=0;i<10;i++) {
@@ -406,12 +440,15 @@ public:
       int layer;
       int ladder;
       int module;
+      int simtrk;
+      int strip;
       double pt;
       double x;
       double y;
       double z;
+      double bend;
 
-      in >> layer >> ladder >> module >> pt >> x >> y >> z;
+      in >> layer >> ladder >> module >> strip >> simtrk >> pt >> x >> y >> z >> bend;
 
       layer--;   
       x-=x_offset;
@@ -419,7 +456,7 @@ public:
 
       if (layer < 10) nlayer[layer]++;
 
-      L1TStub stub(-1,-1,-1,layer, ladder, module, x, y, z, -1.0, -1.0, pt);
+      L1TStub stub(-1,-1,-1,layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend);
 
       in >> tmp;
 
@@ -440,22 +477,51 @@ public:
       bool foundclose=false;
 
       for (unsigned int i=0;i<stubs_.size();i++) {
-	if (fabs(stubs_[i].x()-stub.x())<0.2&&
-	    fabs(stubs_[i].y()-stub.y())<0.2&&
-	    fabs(stubs_[i].z()-stub.z())<2.0) {
+	if (fabs(stubs_[i].x()-stub.x())<0.02&&
+	    fabs(stubs_[i].y()-stub.y())<0.02&&
+	    fabs(stubs_[i].z()-stub.z())<0.2) {
 	  foundclose=true;
 	}
       }
 
+      /*
+      double t=fabs(stub.z())/stub.r();
+      static double piovertwo=2.0*atan(1);
+      double theta=piovertwo-atan(t);
+      double eta=-log(tan(0.5*theta));
+      */
+
+      //if (!foundclose&&(fabs(eta)<2.6)) {
       if (!foundclose) {
 	stubs_.push_back(stub);
       }
     }
-    cout << "Read "<<stubs_.size()<<" stubs"<<endl;
+    //cout << "Read "<<stubs_.size()<<" stubs"<<endl;
 
   }
 
   void write(ofstream& out){
+    
+    out << "Event: "<<eventnum_ << endl;
+      
+    for (unsigned int i=0; i<simtracks_.size(); i++) {
+      simtracks_[i].write(out);
+    }
+    out << "SimTrackEnd" << endl;
+    
+    for (unsigned int i=0; i<digis_.size(); i++) {
+      digis_[i].write(out);
+    }
+    out << "DigiEnd" << endl;
+
+    for (unsigned int i=0; i<stubs_.size(); i++) {
+      stubs_[i].write(out);
+    }
+    out << "StubEnd" << endl;
+    
+  }
+
+  void write(ostream& out){
     
     out << "Event: "<<eventnum_ << endl;
       
@@ -547,7 +613,7 @@ public:
 	if(it==digihash_.end()){
 	  static int count=0;
 	  count++;
-	  if (count<5) {
+	  if (count<0) {
 	    cout << "Warning did not find digi"<<endl;
 	  } 
  	}
@@ -573,7 +639,7 @@ public:
 	if(it==digihash_.end()){
 	  static int count=0;
 	  count++;
-	  if (count < 5) {
+	  if (count < 0) {
 	    cout << "Warning did not find digi in disks"<<endl;
 	  }
 	}
@@ -614,11 +680,11 @@ public:
 
 
 
-  static double mc_rinv;
-  static double mc_phi0;
-  static double mc_z0;
-  static double mc_t;
-  static int event;
+  //static double mc_rinv;
+  //static double mc_phi0;
+  //static double mc_z0;
+  //static double mc_t;
+  //static int event;
 
 private:
 
@@ -631,11 +697,11 @@ private:
 
 };
 
-double SLHCEvent::mc_rinv=0.0;
-double SLHCEvent::mc_phi0=0.0;
-double SLHCEvent::mc_z0=0.0;
-double SLHCEvent::mc_t=0.0;
-int SLHCEvent::event=0;
+//double SLHCEvent::mc_rinv=0.0;
+//double SLHCEvent::mc_phi0=0.0;
+//double SLHCEvent::mc_z0=0.0;
+//double SLHCEvent::mc_t=0.0;
+//int SLHCEvent::event=0;
 
 #endif
 

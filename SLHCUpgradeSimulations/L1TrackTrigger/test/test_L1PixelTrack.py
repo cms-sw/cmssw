@@ -16,12 +16,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-
-'/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/SingleTau1p/NoPU/SingleTau1p_E2023TTI_NoPU.root'
-#'/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/ZH_HToBB_ZToNuNu/NoPU/ZH_Hbb_E2023TTI_NoPU.root'
-
-
-
+'/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/SingleTau1p/NoPU/SingleTau1p_E2023TTI_NoPU.root'
     )
 )
 
@@ -53,7 +48,7 @@ process.BeamSpotFromSim =cms.EDProducer("BeamSpotFromSimProducer")
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
 # if one wants to change the extrapolation window :
-process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
 
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)

@@ -37,6 +37,7 @@
 
   <class pattern="edm::Ptr<TTTrack<*>>" />
   <class pattern="std::vector<edm::Ptr<TTTrack<*>>>" />
+  <class pattern="edm::Ref<std::vector<TTTrack<*>>>" />
   <class pattern="edm::Wrapper<edm::Ptr<TTTrack<*>>>" />
   <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTTrack<*>>>>" />
 
