@@ -21,10 +21,15 @@ DoubleMu4_JpsiTrk_Displaced_BPHMonitoring = hltBPHmonitoring.clone()
 DoubleMu4_JpsiTrk_Displaced_BPHMonitoring.FolderName = cms.string('HLT/BPH/DoubleMu4_JpsiTrk_Displaced/')
 DoubleMu4_JpsiTrk_Displaced_BPHMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleMu4_JpsiTrk_Displaced")
 
-exoHLTMETmonitoring = cms.Sequence(
+bphHLTmonitoring = cms.Sequence(
     Dimuon20_Jpsi_BPHMonitoring
     + Dimuon10_Jpsi_Barrel_BPHMonitoring
     + DoubleMu4_3_Jpsi_Displaced_BPHMonitoring
     + DoubleMu4_JpsiTrk_Displaced_BPHMonitoring
+)
+
+
+bphMonitorHLT = cms.Sequence(
+    bphHLTmonitoring
 )
 
