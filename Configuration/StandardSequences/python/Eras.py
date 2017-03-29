@@ -38,7 +38,7 @@ class Eras (object):
                            'run2_HE_2017', 'stage2L1Trigger',
                            'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017',
                            'run3_HB',
-                           'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
+                           'phase1Pixel', 'run3_GEM', 'run2_GEM_2017', 'run2_CSC_2017',
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_timing_layer','phase2_hcal',
