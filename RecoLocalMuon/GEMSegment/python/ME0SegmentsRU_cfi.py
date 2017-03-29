@@ -10,6 +10,7 @@ RU_ME0 = cms.PSet(
     maxPhiAdditional = cms.double(0.000547), #Assuming 768 strips
     maxETASeeds = cms.double(0.08), #Assuming 8 eta partitions
     maxTOFDiff = cms.double(25),
+    requireCentralBX = cms.bool(True), #require that a majority of hits come from central BX
     minNumberOfHits = cms.uint32(4),
 )
 
