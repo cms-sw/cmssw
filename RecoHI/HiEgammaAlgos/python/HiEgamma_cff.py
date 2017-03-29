@@ -16,6 +16,7 @@ hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusterin
 
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
+photonSequence.remove(photonIsolationHISequence)
 
 # use island for the moment
 photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters")
