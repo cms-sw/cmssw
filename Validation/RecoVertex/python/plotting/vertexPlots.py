@@ -28,7 +28,7 @@ _recovsgen = PlotGroup("recovsgen", [
     Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True, xmin=1e-3, ymax=_maxFake),
     Plot("merged_vs_Z", xtitle="Z (cm)", ytitle="Merge rate", xmin=-20, xmax=20, ymax=_maxFake),
 ],
-                       legendDy=_legendDy_2rows
+                       legendDy=_legendDy_2rows, onlyForPileup=True,
 )
 _pvtagging = PlotGroup("pvtagging", [
     Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3, ratioCoverageXrange=[-0.5, 0.5]),
@@ -148,7 +148,7 @@ _sumpt2 = PlotGroup("sumpt2", [
     Plot("RecoAssoc2GenPVNotMatched_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Reco vertices not matched to gen PV", **_common),
     Plot("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", xtitle="#sum^{}p_{T}^{2}, gen PV tracks removed", ytitle="Reco vertices not matched to gen PV", **_common),
 ],
-                    legendDy=_legendDy_2rows
+                    legendDy=_legendDy_2rows, onlyForPileup=True,
 )
 
 _k0_effandfake = PlotGroup("effandfake", [
@@ -451,8 +451,7 @@ plotter.append("", _vertexFolders, PlotFolder(
     _puritymissing,
     _sumpt2,
     purpose=PlotPurpose.Vertexing,
-    page="vertex",
-    onlyForPileup=True
+    page="vertex"
 ))
 plotter.appendTable("", _vertexFolders, VertexSummaryTable())
 plotter.append("K0", [x+"/K0" for x in _v0Folders], PlotFolder(
