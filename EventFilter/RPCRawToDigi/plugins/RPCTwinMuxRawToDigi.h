@@ -1,6 +1,7 @@
 #ifndef EventFilter_RPCRawToDigi_RPCTwinMuxRawToDigi_h
 #define EventFilter_RPCRawToDigi_RPCTwinMuxRawToDigi_h
 
+#include <cstdint>
 #include <vector>
 #include <utility>
 #include <set>
@@ -33,7 +34,7 @@ public:
     RPCTwinMuxRawToDigi(edm::ParameterSet const & _config);
     ~RPCTwinMuxRawToDigi();
 
-    static void compute_crc_64bit(::uint16_t & _crc, ::uint64_t const & _word);
+    static void compute_crc_64bit(std::uint16_t & _crc, std::uint64_t const & _word);
 
     static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
 
@@ -42,21 +43,21 @@ public:
 
 protected:
     bool processCDFHeaders(int _fed
-                           , ::uint64_t const * & _word, ::uint64_t const * & _word_end
-                           , ::uint16_t & _crc
+                           , std::uint64_t const * & _word, std::uint64_t const * & _word_end
+                           , std::uint16_t & _crc
                            , RPCAMCLinkCounters & _counters) const;
     bool processCDFTrailers(int _fed, unsigned int _nwords
-                            , ::uint64_t const * & _word, ::uint64_t const * & _word_end
-                            , ::uint16_t & _crc
+                            , std::uint64_t const * & _word, std::uint64_t const * & _word_end
+                            , std::uint16_t & _crc
                             , RPCAMCLinkCounters & _counters) const;
     bool processBlock(int _fed
-                      , ::uint64_t const * & _word, ::uint64_t const * _word_end
-                      , ::uint16_t & _crc
+                      , std::uint64_t const * & _word, std::uint64_t const * _word_end
+                      , std::uint16_t & _crc
                       , RPCAMCLinkCounters & _counters
                       , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const;
     bool processTwinMux(int _fed, unsigned int _amc_number, unsigned int _size
-                        , ::uint64_t const * & _word, ::uint64_t const * _word_end
-                        , ::uint16_t & _crc
+                        , std::uint64_t const * & _word, std::uint64_t const * _word_end
+                        , std::uint16_t & _crc
                         , RPCAMCLinkCounters & _counters
                         , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const;
     void processRPCRecord(int _fed, unsigned int _amc_number

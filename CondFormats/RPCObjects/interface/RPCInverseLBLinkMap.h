@@ -1,7 +1,7 @@
 #ifndef CondFormats_RPCObjects_RPCInverseLBLinkMap_h
 #define CondFormats_RPCObjects_RPCInverseLBLinkMap_h
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <map>
 
@@ -11,7 +11,7 @@
 class RPCInverseLBLinkMap
 {
 public:
-    typedef std::multimap<::uint32_t, std::pair<RPCLBLink, RPCFebConnector> > map_type;
+    typedef std::multimap<std::uint32_t, std::pair<RPCLBLink, RPCFebConnector> > map_type;
 
 public:
     RPCInverseLBLinkMap();

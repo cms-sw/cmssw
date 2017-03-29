@@ -1,5 +1,6 @@
 #include "CondTools/RPC/interface/RPCLBLinkMapHandler.h"
 
+#include <cstdint>
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -169,7 +170,7 @@ void RPCLBLinkMapHandler::getNewObjects()
 
     std::string _lb_name("");
     int _first_strip(0), _slope(1);
-    ::uint16_t _channels(0x0);
+    std::uint16_t _channels(0x0);
 
     RPCLBLinkMap * _lb_link_map_object = new RPCLBLinkMap();
     RPCLBLinkMap::map_type & _lb_link_map
@@ -205,7 +206,7 @@ void RPCLBLinkMapHandler::getNewObjects()
         // RPCFebConnector
         _first_strip = _row["FIRST_STRIP"].data<int>();
         _slope = _row["SLOPE"].data<long long>();
-        _channels = (::uint16_t)(_row["CHANNELS"].data<long long>());
+        _channels = (std::uint16_t)(_row["CHANNELS"].data<long long>());
 
         _lb_link_map.insert(std::pair<RPCLBLink, RPCFebConnector>(_lb_link, RPCFebConnector(_det_id
                                                                                             , _first_strip

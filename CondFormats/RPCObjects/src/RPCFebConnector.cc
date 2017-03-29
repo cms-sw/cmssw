@@ -6,7 +6,7 @@
 RPCFebConnector::RPCFebConnector(RPCDetId const & _rpc_det_id
                                  , unsigned int _first_strip
                                  , int _slope
-                                 , ::uint16_t _channels)
+                                 , std::uint16_t _channels)
     : first_strip_(1)
     , slope_(_slope < 0 ? -1 : 1)
     , channels_(_channels)

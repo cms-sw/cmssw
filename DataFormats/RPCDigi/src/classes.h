@@ -37,9 +37,9 @@ namespace DataFormats_RPCDigi {
     std::vector<RPCDigiL1Link> plain;
     edm::Wrapper<std::vector<RPCDigiL1Link> > vectorplain;
 
-    std::pair<unsigned int, ::uint32_t> puu;
-    std::pair<std::pair<unsigned int, ::uint32_t>, unsigned int> ppuuu;
-    std::map<std::pair<unsigned int, ::uint32_t>, unsigned int> mpuuu;
+    std::pair<unsigned int, std::uint32_t> puu;
+    std::pair<std::pair<unsigned int, std::uint32_t>, unsigned int> ppuuu;
+    std::map<std::pair<unsigned int, std::uint32_t>, unsigned int> mpuuu;
     edm::Wrapper<RPCAMCLinkCounters> ralc;
   };
 }

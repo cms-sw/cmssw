@@ -5,7 +5,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-inline unsigned int RPCFebConnector::bit_count(::uint16_t _value)
+inline unsigned int RPCFebConnector::bit_count(std::uint16_t _value)
 {
     // sum per nibble
     _value -= ((  (_value >> 1) & 0x7777)
@@ -39,7 +39,7 @@ inline int RPCFebConnector::getSlope() const
     return slope_;
 }
 
-inline ::uint16_t RPCFebConnector::getChannels() const
+inline std::uint16_t RPCFebConnector::getChannels() const
 {
     return channels_;
 }
@@ -66,7 +66,7 @@ inline RPCFebConnector & RPCFebConnector::setSlope(int _slope)
     return *this;
 }
 
-inline RPCFebConnector & RPCFebConnector::setChannels(::uint16_t _channels)
+inline RPCFebConnector & RPCFebConnector::setChannels(std::uint16_t _channels)
 {
     channels_ = _channels;
     return *this;
@@ -88,7 +88,7 @@ inline unsigned int RPCFebConnector::getStrip(unsigned int _channel) const
 {
     if (!isActive(_channel))
         return 0;
-    int _active_channels = bit_count(::uint16_t(channels_ & ((0x1 << (_channel - 1)) - 1)));
+    int _active_channels = bit_count(std::uint16_t(channels_ & ((0x1 << (_channel - 1)) - 1)));
     return (int)first_strip_ + slope_ * _active_channels;
 }
 
@@ -103,7 +103,7 @@ inline unsigned int RPCFebConnector::getChannel(unsigned int _strip) const
     int _offset = slope_ * (_strip - first_strip_);
     if (_offset < 0 || _offset >= (int)getNChannels())
         return 0;
-    ::uint16_t _channels(channels_);
+    std::uint16_t _channels(channels_);
     for (unsigned int _channel = 1 ; _channels ; _channels >>= 1, ++_channel)
         if (_channels & 0x1) {
             if (!_offset)

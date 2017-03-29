@@ -1,7 +1,7 @@
 #ifndef CondFormats_RPCObjects_RPCLBLink_h
 #define CondFormats_RPCObjects_RPCLBLink_h
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <iosfwd>
 #include <climits>
@@ -40,28 +40,28 @@ protected:
     /** @{ */
     /** field positions and masks */
     static int const pos_region_ = 24;
-    static ::uint32_t const mask_region_ = 0x03000000;
+    static std::uint32_t const mask_region_ = 0x03000000;
     static int const pos_yoke_ = 20;
-    static ::uint32_t const mask_yoke_ = 0x00f00000;
+    static std::uint32_t const mask_yoke_ = 0x00f00000;
     static int const pos_sector_ = 16;
-    static ::uint32_t const mask_sector_ = 0x000f0000;
+    static std::uint32_t const mask_sector_ = 0x000f0000;
     static int const pos_side_ = 14;
-    static ::uint32_t const mask_side_ = 0x0000c000;
+    static std::uint32_t const mask_side_ = 0x0000c000;
     static int const pos_wheelordisk_ = 11;
-    static ::uint32_t const mask_wheelordisk_ = 0x00003800;
+    static std::uint32_t const mask_wheelordisk_ = 0x00003800;
     static int const pos_fibre_ = 7;
-    static ::uint32_t const mask_fibre_ = 0x00000780;
+    static std::uint32_t const mask_fibre_ = 0x00000780;
     static int const pos_radial_ = 5;
-    static ::uint32_t const mask_radial_ = 0x00000060;
+    static std::uint32_t const mask_radial_ = 0x00000060;
     static int const pos_linkboard_ = 3;
-    static ::uint32_t const mask_linkboard_ = 0x00000018;
+    static std::uint32_t const mask_linkboard_ = 0x00000018;
     static int const pos_connector_ = 0;
-    static ::uint32_t const mask_connector_ = 0x00000007;
+    static std::uint32_t const mask_connector_ = 0x00000007;
     /** @} */
 
 public:
     RPCLBLink();
-    RPCLBLink(::uint32_t const & _id);
+    RPCLBLink(std::uint32_t const & _id);
     RPCLBLink(int _region
               , int _yoke
               , int _sector = wildcard_
@@ -72,13 +72,13 @@ public:
               , int _linkboard = wildcard_
               , int _connector = wildcard_);
 
-    ::uint32_t getId() const;
-    operator ::uint32_t() const;
-    ::uint32_t getMask() const;
+    std::uint32_t getId() const;
+    operator std::uint32_t() const;
+    std::uint32_t getMask() const;
 
     bool matches(RPCLBLink const & _rhs) const;
 
-    void setId(::uint32_t const & _id);
+    void setId(std::uint32_t const & _id);
     void reset();
 
     /** @{ */
@@ -114,9 +114,9 @@ public:
     bool operator<(RPCLBLink const & _rhs) const;
     bool operator==(RPCLBLink const & _rhs) const;
     bool operator!=(RPCLBLink const & _rhs) const;
-    bool operator<(::uint32_t const & _rhs) const;
-    bool operator==(::uint32_t const & _rhs) const;
-    bool operator!=(::uint32_t const & _rhs) const;
+    bool operator<(std::uint32_t const & _rhs) const;
+    bool operator==(std::uint32_t const & _rhs) const;
+    bool operator!=(std::uint32_t const & _rhs) const;
 
     RPCLBLink & operator++();
     RPCLBLink operator++(int);
@@ -124,12 +124,12 @@ public:
     RPCLBLink operator--(int);
 
 protected:
-    int bf_get(int const _min, ::uint32_t const _mask, int const _pos) const;
-    RPCLBLink & bf_set(int const _min, int const _max, ::uint32_t const _mask, int const _pos, int const _value);
-    std::ostream & bf_stream(std::ostream & _ostream, int const _min, ::uint32_t const _mask, int const _pos) const;
+    int bf_get(int const _min, std::uint32_t const _mask, int const _pos) const;
+    RPCLBLink & bf_set(int const _min, int const _max, std::uint32_t const _mask, int const _pos, int const _value);
+    std::ostream & bf_stream(std::ostream & _ostream, int const _min, std::uint32_t const _mask, int const _pos) const;
 
 protected:
-    ::uint32_t id_;
+    std::uint32_t id_;
 
     COND_SERIALIZABLE;
 };

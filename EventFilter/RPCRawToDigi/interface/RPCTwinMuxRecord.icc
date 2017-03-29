@@ -5,7 +5,7 @@
 
 namespace rpctwinmux {
 
-inline unsigned int TwinMuxRecord::getType(::uint64_t const _record)
+inline unsigned int TwinMuxRecord::getType(std::uint64_t const _record)
 {
     if ((_record & rpc_first_identifier_mask_) == rpc_first_identifier_)
         return rpc_first_type_;
@@ -21,7 +21,7 @@ inline unsigned int TwinMuxRecord::getType() const
     return getType(record_);
 }
 
-inline void TwinMuxRecord::set(::uint64_t const _record)
+inline void TwinMuxRecord::set(std::uint64_t const _record)
 {
     record_ = _record;
 }
@@ -31,12 +31,12 @@ inline void TwinMuxRecord::reset()
     record_ = 0x0;
 }
 
-inline ::uint64_t const & TwinMuxRecord::getRecord() const
+inline std::uint64_t const & TwinMuxRecord::getRecord() const
 {
     return record_;
 }
 
-inline void BlockHeader::set(::uint64_t const _record)
+inline void BlockHeader::set(std::uint64_t const _record)
 {
     record_ = _record;
 }
@@ -46,7 +46,7 @@ inline void BlockHeader::reset()
     record_ = 0x0;
 }
 
-inline ::uint64_t const & BlockHeader::getRecord() const
+inline std::uint64_t const & BlockHeader::getRecord() const
 {
     return record_;
 }
@@ -69,22 +69,22 @@ inline unsigned int BlockHeader::getOrbitCounter() const
 inline void BlockHeader::setFirmwareVersion(unsigned int _ufov)
 {
     record_ &= ~ufov_mask_;
-    record_ |= (((::uint64_t)(_ufov) << ufov_offset_) & ufov_mask_);
+    record_ |= (((std::uint64_t)(_ufov) << ufov_offset_) & ufov_mask_);
 }
 
 inline void BlockHeader::setNAMC(unsigned int _n_amc)
 {
     record_ &= ~n_amc_mask_;
-    record_ |= (((::uint64_t)(_n_amc) << n_amc_offset_) & n_amc_mask_);
+    record_ |= (((std::uint64_t)(_n_amc) << n_amc_offset_) & n_amc_mask_);
 }
 
 inline void BlockHeader::setOrbitCounter(unsigned int _orbit_counter)
 {
     record_ &= ~orbit_counter_mask_;
-    record_ |= (((::uint64_t)(_orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
+    record_ |= (((std::uint64_t)(_orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
 }
 
-inline void BlockTrailer::set(::uint64_t const _record)
+inline void BlockTrailer::set(std::uint64_t const _record)
 {
     record_ = _record;
 }
@@ -94,12 +94,12 @@ inline void BlockTrailer::reset()
     record_ = 0x0;
 }
 
-inline ::uint64_t const & BlockTrailer::getRecord() const
+inline std::uint64_t const & BlockTrailer::getRecord() const
 {
     return record_;
 }
 
-inline ::uint32_t BlockTrailer::getCRC() const
+inline std::uint32_t BlockTrailer::getCRC() const
 {
     return (record_ & crc_mask_) >> crc_offset_;
 }
@@ -119,31 +119,31 @@ inline unsigned int BlockTrailer::getBXCounter() const
     return (record_ & bx_counter_mask_) >> bx_counter_offset_;
 }
 
-inline void BlockTrailer::setCRC(::uint32_t _crc)
+inline void BlockTrailer::setCRC(std::uint32_t _crc)
 {
     record_ &= ~crc_mask_;
-    record_ |= (((::uint64_t)(_crc) << crc_offset_) & crc_mask_);
+    record_ |= (((std::uint64_t)(_crc) << crc_offset_) & crc_mask_);
 }
 
 inline void BlockTrailer::setBlockNumber(unsigned int _block_number)
 {
     record_ &= ~block_number_mask_;
-    record_ |= (((::uint64_t)(_block_number) << block_number_offset_) & block_number_mask_);
+    record_ |= (((std::uint64_t)(_block_number) << block_number_offset_) & block_number_mask_);
 }
 
 inline void BlockTrailer::setEventCounter(unsigned int _event_counter)
 {
     record_ &= ~event_counter_mask_;
-    record_ |= (((::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
+    record_ |= (((std::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
 }
 
 inline void BlockTrailer::setBXCounter(unsigned int _bx_counter)
 {
     record_ &= ~bx_counter_mask_;
-    record_ |= (((::uint64_t)(_bx_counter) << bx_counter_offset_) & bx_counter_mask_);
+    record_ |= (((std::uint64_t)(_bx_counter) << bx_counter_offset_) & bx_counter_mask_);
 }
 
-inline void BlockAMCContent::set(::uint64_t const _record)
+inline void BlockAMCContent::set(std::uint64_t const _record)
 {
     record_ = _record;
 }
@@ -153,7 +153,7 @@ inline void BlockAMCContent::reset()
     record_ = 0x0;
 }
 
-inline ::uint64_t const & BlockAMCContent::getRecord() const
+inline std::uint64_t const & BlockAMCContent::getRecord() const
 {
     return record_;
 }
@@ -272,28 +272,28 @@ inline void BlockAMCContent::setCRCOk(bool _crc_ok)
 inline void BlockAMCContent::setSize(unsigned int _size)
 {
     record_ &= ~size_mask_;
-    record_ |= (((::uint64_t)(_size) << size_offset_) & size_mask_);
+    record_ |= (((std::uint64_t)(_size) << size_offset_) & size_mask_);
 }
 
 inline void BlockAMCContent::setBlockNumber(unsigned int _block_number)
 {
     record_ &= ~block_number_mask_;
-    record_ |= (((::uint64_t)(_block_number) << block_number_offset_) & block_number_mask_);
+    record_ |= (((std::uint64_t)(_block_number) << block_number_offset_) & block_number_mask_);
 }
 
 inline void BlockAMCContent::setAMCNumber(unsigned int _amc_number)
 {
     record_ &= ~amc_number_mask_;
-    record_ |= (((::uint64_t)(_amc_number) << amc_number_offset_) & amc_number_mask_);
+    record_ |= (((std::uint64_t)(_amc_number) << amc_number_offset_) & amc_number_mask_);
 }
 
 inline void BlockAMCContent::setBoardId(unsigned int _board_id)
 {
     record_ &= ~board_id_mask_;
-    record_ |= (((::uint64_t)(_board_id) << board_id_offset_) & board_id_mask_);
+    record_ |= (((std::uint64_t)(_board_id) << board_id_offset_) & board_id_mask_);
 }
 
-inline void TwinMuxHeader::set(unsigned int _nword, ::uint64_t const _word)
+inline void TwinMuxHeader::set(unsigned int _nword, std::uint64_t const _word)
 {
     if (_nword < 2)
         record_[_nword] = _word;
@@ -305,7 +305,7 @@ inline void TwinMuxHeader::reset()
     record_[1] = dt_bx_window_mask_ | rpc_bx_window_mask_ | ho_bx_window_mask_;
 }
 
-inline ::uint64_t const * TwinMuxHeader::getRecord() const
+inline std::uint64_t const * TwinMuxHeader::getRecord() const
 {
     return record_;
 }
@@ -378,59 +378,59 @@ inline unsigned int TwinMuxHeader::getHOBXWindow() const
 inline void TwinMuxHeader::setAMCNumber(unsigned int _amc_number)
 {
     record_[0] &= ~amc_number_mask_;
-    record_[0] |= (((::uint64_t)(_amc_number) << amc_number_offset_) & amc_number_mask_);
+    record_[0] |= (((std::uint64_t)(_amc_number) << amc_number_offset_) & amc_number_mask_);
 }
 
 inline void TwinMuxHeader::setEventCounter(unsigned int _event_counter)
 {
     record_[0] &= ~event_counter_mask_;
-    record_[0] |= (((::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
+    record_[0] |= (((std::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
 }
 
 inline void TwinMuxHeader::setBXCounter(unsigned int _bx_counter)
 {
     record_[0] &= ~bx_counter_mask_;
-    record_[0] |= (((::uint64_t)(_bx_counter) << bx_counter_offset_) & bx_counter_mask_);
+    record_[0] |= (((std::uint64_t)(_bx_counter) << bx_counter_offset_) & bx_counter_mask_);
 }
 
 inline void TwinMuxHeader::setDataLength(unsigned int _data_length)
 {
     record_[0] &= ~data_length_mask_;
-    record_[0] |= (((::uint64_t)(_data_length) << data_length_offset_) & data_length_mask_);
+    record_[0] |= (((std::uint64_t)(_data_length) << data_length_offset_) & data_length_mask_);
 }
 
 inline void TwinMuxHeader::setOrbitCounter(unsigned int _orbit_counter)
 {
     record_[1] &= ~orbit_counter_mask_;
-    record_[1] |= (((::uint64_t)(_orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
+    record_[1] |= (((std::uint64_t)(_orbit_counter) << orbit_counter_offset_) & orbit_counter_mask_);
 }
 
 inline void TwinMuxHeader::setBoardId(unsigned int _board_id)
 {
     record_[1] &= ~board_id_mask_;
-    record_[1] |= (((::uint64_t)(_board_id) << board_id_offset_) & board_id_mask_);
+    record_[1] |= (((std::uint64_t)(_board_id) << board_id_offset_) & board_id_mask_);
 }
 
 inline void TwinMuxHeader::setDTBXWindow(unsigned int _bx_window)
 {
     record_[1] &= ~dt_bx_window_mask_;
-    record_[1] |= (((::uint64_t)(_bx_window) << dt_bx_window_offset_) & dt_bx_window_mask_);
+    record_[1] |= (((std::uint64_t)(_bx_window) << dt_bx_window_offset_) & dt_bx_window_mask_);
 }
 
 inline void TwinMuxHeader::setRPCBXWindow(int _bx_min, int _bx_max)
 {
-    ::uint64_t _bx_window((_bx_max - 4) + 5 * (_bx_min - 4));
+    std::uint64_t _bx_window((_bx_max - 4) + 5 * (_bx_min - 4));
     record_[1] &= ~rpc_bx_window_mask_;
-    record_[1] |= (((::uint64_t)(_bx_window) << rpc_bx_window_offset_) & rpc_bx_window_mask_);
+    record_[1] |= (((std::uint64_t)(_bx_window) << rpc_bx_window_offset_) & rpc_bx_window_mask_);
 }
 
 inline void TwinMuxHeader::setHOBXWindow(unsigned int _bx_window)
 {
     record_[1] &= ~ho_bx_window_mask_;
-    record_[1] |= (((::uint64_t)(_bx_window) << ho_bx_window_offset_) & ho_bx_window_mask_);
+    record_[1] |= (((std::uint64_t)(_bx_window) << ho_bx_window_offset_) & ho_bx_window_mask_);
 }
 
-inline void TwinMuxTrailer::set(::uint64_t const _record)
+inline void TwinMuxTrailer::set(std::uint64_t const _record)
 {
     record_ = _record;
 }
@@ -440,12 +440,12 @@ inline void TwinMuxTrailer::reset()
     record_ = 0x0;
 }
 
-inline ::uint64_t const & TwinMuxTrailer::getRecord() const
+inline std::uint64_t const & TwinMuxTrailer::getRecord() const
 {
     return record_;
 }
 
-inline ::uint32_t TwinMuxTrailer::getCRC() const
+inline std::uint32_t TwinMuxTrailer::getCRC() const
 {
     return (record_ & crc_mask_) >> crc_offset_;
 }
@@ -460,25 +460,25 @@ inline unsigned int TwinMuxTrailer::getDataLength() const
     return (record_ & data_length_mask_) >> data_length_offset_;
 }
 
-inline void TwinMuxTrailer::setCRC(::uint32_t _crc)
+inline void TwinMuxTrailer::setCRC(std::uint32_t _crc)
 {
     record_ &= ~crc_mask_;
-    record_ |= (((::uint64_t)(_crc) << crc_offset_) & crc_mask_);
+    record_ |= (((std::uint64_t)(_crc) << crc_offset_) & crc_mask_);
 }
 
 inline void TwinMuxTrailer::setEventCounter(unsigned int _event_counter)
 {
     record_ &= ~event_counter_mask_;
-    record_ |= (((::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
+    record_ |= (((std::uint64_t)(_event_counter) << event_counter_offset_) & event_counter_mask_);
 }
 
 inline void TwinMuxTrailer::setDataLength(unsigned int _data_length)
 {
     record_ &= ~data_length_mask_;
-    record_ |= (((::uint64_t)(_data_length) << data_length_offset_) & data_length_mask_);
+    record_ |= (((std::uint64_t)(_data_length) << data_length_offset_) & data_length_mask_);
 }
 
-inline void RPCLinkRecord::set(::uint32_t const _record)
+inline void RPCLinkRecord::set(std::uint32_t const _record)
 {
     record_ = _record;
 }
@@ -488,7 +488,7 @@ inline void RPCLinkRecord::reset()
     record_ = da_mask_;
 }
 
-inline ::uint32_t const & RPCLinkRecord::getRecord() const
+inline std::uint32_t const & RPCLinkRecord::getRecord() const
 {
     return record_;
 }
@@ -528,7 +528,7 @@ inline unsigned int RPCLinkRecord::getPartition() const
     return (record_ & partition_mask_) >> partition_offset_;
 }
 
-inline ::uint8_t RPCLinkRecord::getPartitionData() const
+inline std::uint8_t RPCLinkRecord::getPartitionData() const
 {
     return (record_ & partition_data_mask_) >> partition_data_offset_;
 }
@@ -560,34 +560,34 @@ inline void RPCLinkRecord::setEOD(bool _eod)
 inline void RPCLinkRecord::setDelay(unsigned int _delay)
 {
     record_ &= ~delay_mask_;
-    record_ |= (((::uint32_t)(_delay) << delay_offset_) & delay_mask_);
+    record_ |= (((std::uint32_t)(_delay) << delay_offset_) & delay_mask_);
 }
 
 inline void RPCLinkRecord::setLinkBoard(unsigned int _link_board)
 {
     record_ &= ~link_board_mask_;
-    record_ |= (((::uint32_t)(_link_board) << link_board_offset_) & link_board_mask_);
+    record_ |= (((std::uint32_t)(_link_board) << link_board_offset_) & link_board_mask_);
 }
 
 inline void RPCLinkRecord::setConnector(unsigned int _connector)
 {
     record_ &= ~connector_mask_;
-    record_ |= (((::uint32_t)(_connector) << connector_offset_) & connector_mask_);
+    record_ |= (((std::uint32_t)(_connector) << connector_offset_) & connector_mask_);
 }
 
 inline void RPCLinkRecord::setPartition(unsigned int _partition)
 {
     record_ &= ~partition_mask_;
-    record_ |= (((::uint32_t)(_partition) << partition_offset_) & partition_mask_);
+    record_ |= (((std::uint32_t)(_partition) << partition_offset_) & partition_mask_);
 }
 
-inline void RPCLinkRecord::setPartitionData(::uint8_t _data)
+inline void RPCLinkRecord::setPartitionData(std::uint8_t _data)
 {
     record_ &= ~partition_data_mask_;
-    record_ |= (((::uint32_t)(_data) << partition_data_offset_) & partition_data_mask_);
+    record_ |= (((std::uint32_t)(_data) << partition_data_offset_) & partition_data_mask_);
 }
 
-inline void RPCBXRecord::set(::uint8_t const _record)
+inline void RPCBXRecord::set(std::uint8_t const _record)
 {
     record_ = _record;
 }
@@ -597,7 +597,7 @@ inline void RPCBXRecord::reset()
     record_ = 0x0;
 }
 
-inline ::uint8_t const & RPCBXRecord::getRecord() const
+inline std::uint8_t const & RPCBXRecord::getRecord() const
 {
     return record_;
 }
@@ -623,10 +623,10 @@ inline void RPCBXRecord::setBC0(bool _bc0)
 inline void RPCBXRecord::setBXCounter(unsigned int _bcn)
 {
     record_ &= ~bcn_mask_;
-    record_ |= (((::uint8_t)(_bcn) << bcn_offset_) & bcn_mask_);
+    record_ |= (((std::uint8_t)(_bcn) << bcn_offset_) & bcn_mask_);
 }
 
-inline void RPCRecord::set(unsigned int _nword, ::uint64_t const _word)
+inline void RPCRecord::set(unsigned int _nword, std::uint64_t const _word)
 {
     if (_nword < 2)
         record_[_nword] = _word;
@@ -635,15 +635,15 @@ inline void RPCRecord::set(unsigned int _nword, ::uint64_t const _word)
 inline void RPCRecord::reset()
 {
     record_[0] = TwinMuxRecord::rpc_first_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
     record_[1] = TwinMuxRecord::rpc_second_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
 }
 
-inline ::uint64_t const * RPCRecord::getRecord() const
+inline std::uint64_t const * RPCRecord::getRecord() const
 {
     return record_;
 }
@@ -679,7 +679,7 @@ inline RPCLinkRecord RPCRecord::getRPCLinkRecord(unsigned int _link) const
 inline void RPCRecord::setBXOffset(int _bx_offset)
 {
     record_[0] &= ~bx_offset_mask_;
-    record_[0] |= (((::uint64_t)(_bx_offset + 4) << bx_offset_offset_) & bx_offset_mask_);
+    record_[0] |= (((std::uint64_t)(_bx_offset + 4) << bx_offset_offset_) & bx_offset_mask_);
 }
 
 inline void RPCRecord::setOverflow(bool _overflow)
@@ -694,7 +694,7 @@ inline void RPCRecord::setRPCBXRecord(unsigned int _link, RPCBXRecord const & _b
 {
     if (_link < 5) {
         record_[0] &= ~(bx_record_mask_ << bx_record_offset_[_link]);
-        record_[0] |= (((::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_offset_[_link]);
+        record_[0] |= (((std::uint64_t)_bx_record.getRecord() & bx_record_mask_) << bx_record_offset_[_link]);
     }
 }
 
@@ -702,7 +702,7 @@ inline void RPCRecord::setRPCLinkRecord(unsigned int _link, RPCLinkRecord const 
 {
     if (_link < 5) {
         record_[link_record_word_[_link]] &= ~(link_record_mask_ << link_record_offset_[_link]);
-        record_[link_record_word_[_link]] |= (((::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_offset_[_link]);
+        record_[link_record_word_[_link]] |= (((std::uint64_t)_link_record.getRecord() & link_record_mask_) << link_record_offset_[_link]);
     }
 }
 

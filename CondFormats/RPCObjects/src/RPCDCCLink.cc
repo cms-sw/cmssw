@@ -7,7 +7,7 @@ RPCDCCLink::RPCDCCLink()
     : id_(0x0)
 {}
 
-RPCDCCLink::RPCDCCLink(::uint32_t const & _id)
+RPCDCCLink::RPCDCCLink(std::uint32_t const & _id)
     : id_(_id)
 {}
 
@@ -21,9 +21,9 @@ RPCDCCLink::RPCDCCLink(int _fed
     setTBInput(_tbinput);
 }
 
-::uint32_t RPCDCCLink::getMask() const
+std::uint32_t RPCDCCLink::getMask() const
 {
-    ::uint32_t _mask(0x0);
+    std::uint32_t _mask(0x0);
     if (id_ & mask_fed_)
         _mask |= mask_fed_;
     if (id_ & mask_dccinput_)

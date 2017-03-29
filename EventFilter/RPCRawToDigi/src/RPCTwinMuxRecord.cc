@@ -2,11 +2,11 @@
 
 namespace rpctwinmux {
 
-TwinMuxRecord::TwinMuxRecord(::uint64_t const _record)
+TwinMuxRecord::TwinMuxRecord(std::uint64_t const _record)
     : record_(_record)
 {}
 
-BlockHeader::BlockHeader(::uint64_t const _record)
+BlockHeader::BlockHeader(std::uint64_t const _record)
     : record_(_record)
 {}
 
@@ -18,11 +18,11 @@ BlockHeader::BlockHeader(unsigned int _ufov, unsigned int _n_amc, unsigned int _
     setOrbitCounter(_orbit_counter);
 }
 
-BlockTrailer::BlockTrailer(::uint64_t const _record)
+BlockTrailer::BlockTrailer(std::uint64_t const _record)
     : record_(_record)
 {}
 
-BlockTrailer::BlockTrailer(::uint32_t _crc
+BlockTrailer::BlockTrailer(std::uint32_t _crc
                            , unsigned int _block_number
                            , unsigned int _event_counter
                            , unsigned int _bx_counter)
@@ -34,7 +34,7 @@ BlockTrailer::BlockTrailer(::uint32_t _crc
     setBXCounter(_bx_counter);
 }
 
-BlockAMCContent::BlockAMCContent(::uint64_t const _record)
+BlockAMCContent::BlockAMCContent(std::uint64_t const _record)
     : record_(_record)
 {}
 
@@ -49,7 +49,7 @@ BlockAMCContent::BlockAMCContent(bool _length_correct
                                  , unsigned int _block_number
                                  , unsigned int _amc_number
                                  , unsigned int _board_id)
-    : record_(0x0)
+: record_(0x0)
 {
     setLengthCorrect(_length_correct);
     setLastBlock(_last_block);
@@ -70,7 +70,7 @@ TwinMuxHeader::TwinMuxHeader()
     record_[1] = dt_bx_window_mask_ | rpc_bx_window_mask_ | ho_bx_window_mask_;
 }
 
-TwinMuxHeader::TwinMuxHeader(::uint64_t const _record[2])
+TwinMuxHeader::TwinMuxHeader(std::uint64_t const _record[2])
 {
     record_[0] = _record[0];
     record_[1] = _record[1];
@@ -102,11 +102,11 @@ TwinMuxHeader::TwinMuxHeader(unsigned int _amc_number
     setHOBXWindow(_ho_bx_window);
 }
 
-TwinMuxTrailer::TwinMuxTrailer(::uint64_t const _record)
+TwinMuxTrailer::TwinMuxTrailer(std::uint64_t const _record)
     : record_(_record)
 {}
 
-TwinMuxTrailer::TwinMuxTrailer(::uint32_t _crc
+TwinMuxTrailer::TwinMuxTrailer(std::uint32_t _crc
                                , unsigned int _event_counter
                                , unsigned int _data_length)
     : record_(0x0)
@@ -116,11 +116,11 @@ TwinMuxTrailer::TwinMuxTrailer(::uint32_t _crc
     setDataLength(_data_length);
 }
 
-RPCLinkRecord::RPCLinkRecord(::uint32_t const _record)
+RPCLinkRecord::RPCLinkRecord(std::uint32_t const _record)
     : record_(_record)
 {}
 
-RPCBXRecord::RPCBXRecord(::uint8_t const _record)
+RPCBXRecord::RPCBXRecord(std::uint8_t const _record)
     : record_(_record)
 {}
 
@@ -131,15 +131,15 @@ unsigned int const RPCRecord::bx_record_offset_[] = {52, 49, 46, 43, 40};
 RPCRecord::RPCRecord()
 {
     record_[0] = TwinMuxRecord::rpc_first_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[0])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[1]);
     record_[1] = TwinMuxRecord::rpc_second_identifier_
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
-        | ((::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[2])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[3])
+        | ((std::uint64_t)RPCLinkRecord::da_mask_ << link_record_offset_[4]);
 }
 
-RPCRecord::RPCRecord(::uint64_t const _record[2])
+RPCRecord::RPCRecord(std::uint64_t const _record[2])
 {
     record_[0] = _record[0];
     record_[1] = _record[1];
