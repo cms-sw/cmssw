@@ -124,13 +124,6 @@ def check_iov_definition(cms_process, first_run):
     print "Checking consistency of IOV definition..."
     iovs = mps_tools.make_unique_runranges(cms_process.AlignmentProducer)
 
-    if first_run != iovs[0]:     # simple consistency check
-        print "Value of 'FirstRunForStartGeometry' has to match first defined",
-        print "output IOV:",
-        print first_run, "!=", iovs[0]
-        sys.exit(1)
-
-
     inputs = {
         "TrackerAlignmentRcd": None,
         "TrackerSurfaceDeformationRcd": None,
@@ -150,6 +143,21 @@ def check_iov_definition(cms_process, first_run):
     inputs.update(mps_tools.get_tags(cms_process.GlobalTag.globaltag.value(),
                                      inputs_from_gt))
 
+
+    if first_run != iovs[0]:     # simple consistency check
+        if iovs[0] == 1 and len(iovs) == 1:
+            print "Single IOV output detected in configuration and",
+            print "'FirstRunForStartGeometry' is not 1."
+            print "Creating single IOV output from input conditions in run",
+            print str(first_run)+"."
+            for inp in inputs: inputs[inp]["problematic"] = True
+        else:
+            print "Value of 'FirstRunForStartGeometry' has to match first",
+            print "defined output IOV:",
+            print first_run, "!=", iovs[0]
+            sys.exit(1)
+
+
     for inp in inputs.itervalues():
         inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
 
@@ -159,6 +167,8 @@ def check_iov_definition(cms_process, first_run):
                      for key,value in inputs.iteritems()}
     for iov in reversed(iovs):
         for inp in inputs:
+            if inputs[inp].pop("problematic", False):
+                problematic_gt_inputs[inp] = inputs[inp]
             if inp in problematic_gt_inputs: continue
             if input_indices[inp] < 0:
                 print "First output IOV boundary at run", iov,
