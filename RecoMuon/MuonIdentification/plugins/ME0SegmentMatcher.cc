@@ -39,6 +39,11 @@
 
 ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) : iev(0){
   produces<std::vector<reco::ME0Muon> >();  
+  X_PULL_CUT   = pas.getParameter<double>("maxPullX");
+  X_RESIDUAL_CUT   = pas.getParameter<double>("maxDiffX");
+  Y_PULL_CUT   = pas.getParameter<double>("maxPullY");
+  Y_RESIDUAL_CUT   = pas.getParameter<double>("maxDiffY");
+  PHIDIR_RESIDUAL_CUT   = pas.getParameter<double>("maxDiffPhiDirection");
 }
 
 ME0SegmentMatcher::~ME0SegmentMatcher() {}
@@ -167,10 +172,16 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
 	
 
-	 if ( (fabs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (fabs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
-	 if ( (fabs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (fabs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
+	 // if ( (fabs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (fabs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
+	 // if ( (fabs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (fabs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
 
-	 if ( fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
+	 // if ( fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
+
+
+	 if ( (fabs(thisPosition.x()-r3FinalReco.x()) < (X_PULL_CUT * sigmax)) || (fabs(thisPosition.x()-r3FinalReco.x()) < X_RESIDUAL_CUT ) ) X_MatchFound = true;
+	 if ( (fabs(thisPosition.y()-r3FinalReco.y()) < (Y_PULL_CUT * sigmay)) || (fabs(thisPosition.y()-r3FinalReco.y()) < Y_RESIDUAL_CUT ) ) Y_MatchFound = true;
+
+	 if ( fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < PHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
 
 	 //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
 	 if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
@@ -184,6 +195,20 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	   if (thisDelR < ClosestDelR){
 	     ClosestDelR = thisDelR;
 	     MuonCandidate = reco::ME0Muon(thisTrackRef,(*thisSegment),SegmentNumber);
+
+	     //Setting the variables for easy me0muon selection later on
+	     // MuonCandidate.setXpull( ( fabs(thisPosition.x()-r3FinalReco.x()) / sigmax) );
+	     // MuonCandidate.setYpull( ( fabs(thisPosition.y()-r3FinalReco.y()) / sigmay) );
+
+	     // MuonCandidate.setXpull( fabs(thisPosition.x()-r3FinalReco.x()) );
+	     // MuonCandidate.setYpull( fabs(thisPosition.y()-r3FinalReco.y()) );
+
+	     // MuonCandidate.setPhidirdiff(fabs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()));
+
+	     MuonCandidate.setGlobalTrackPosAtSurface(r3FinalReco_glob);
+	     MuonCandidate.setGlobalTrackMomAtSurface(p3FinalReco_glob);
+	     MuonCandidate.setTrackCharge(chargeReco);
+	     MuonCandidate.setTrackCov(covFinalReco);
 	   }
 	 }
       }//End loop for (auto thisSegment = OurSegments->begin(); thisSegment != OurSegments->end(); ++thisSegment,++SegmentNumber)

@@ -55,12 +55,12 @@
 
 
 ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& parset) :
-  muonsTag(parset.getParameter< edm::InputTag >("muonsTag")),
-  vxtTag(parset.getParameter< edm::InputTag >("vxtTag")),
-  useIPxy(parset.getUntrackedParameter< bool >("useIPxy", true)),
-  useIPz(parset.getUntrackedParameter< bool >("useIPz", true)),
-  selectionTags(parset.getParameter< std::vector<std::string> >("selectionTags")),
-  trackType(parset.getParameter< std::string >("trackType")),
+  //muonsTag(parset.getParameter< edm::InputTag >("muonsTag")),
+  //vxtTag(parset.getParameter< edm::InputTag >("vxtTag")),
+  //useIPxy(parset.getUntrackedParameter< bool >("useIPxy", true)),
+  //useIPz(parset.getUntrackedParameter< bool >("useIPz", true)),
+  //selectionTags(parset.getParameter< std::vector<std::string> >("selectionTags")),
+  //trackType(parset.getParameter< std::string >("trackType")),
   parset_(parset)
 {
   produces<reco::TrackCollection>();
