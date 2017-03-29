@@ -92,6 +92,8 @@ private:
     
   double instLumi_;
   double rateFact_;
+    
+  const double referenceInstLumi = 5; //In units of 10^34 Hz/cm^2. Internally the functions based on the FLUKA+GEANT simulation are normalized to 5x10^34 Hz/cm^2, this is needed to rescale them properly
 };
 #endif
 
