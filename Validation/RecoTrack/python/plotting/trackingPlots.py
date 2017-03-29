@@ -169,7 +169,7 @@ _effandfake3 = PlotGroup("effandfake3",
 )
 _common = {"ymin": 0, "ymax": _maxEff}
 _effandfake4 = PlotGroup("effandfake4",
-                         _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r")) +
+                         _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r"), common=dict(xlog=True)) +
                          _makeEffFakeDupPlots("zpos"   , "vert z", "cm", fakeopts=dict(xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs. z")) +
                          _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
                          _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
@@ -203,7 +203,7 @@ _dupandfake3 = PlotGroup("dupandfake3",
                          ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake4 = PlotGroup("dupandfake4",
-                         _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)") +
+                         _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)", common=dict(xlog=True)) +
                          _makeFakeDupPileupPlots("zpos"   , "z", "cm", xquantity="ref. point z (cm)") +
                          _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
                          _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
@@ -363,7 +363,7 @@ _extDist3 = PlotGroup("dist3",
                       ncols=4, legendDy=_legendDy_4rows,
 )
 _extDist4 = PlotGroup("dist4",
-                      _makeDistPlots("vertpos", "ref. point xy (cm)") +
+                      _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                       _makeDistPlots("zpos"   , "ref. point z (cm)") +
                       _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                       ncols=4
@@ -408,8 +408,8 @@ _extDistSim3 = PlotGroup("distsim3",
                       ncols=2, legendDy=_legendDy_4rows,
 )
 _extDistSim4 = PlotGroup("distsim4",
-                      _makeDistSimPlots("vertpos", "ref. point xy (cm)") +
-                      _makeDistSimPlots("zpos"   , "ref. point z (cm)") +
+                      _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
+                      _makeDistSimPlots("zpos"   , "vert z (cm)") +
                       _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                       ncols=2
 )

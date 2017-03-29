@@ -128,6 +128,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minVertpos  = pset.getParameter<double>("minVertpos");
   maxVertpos  = pset.getParameter<double>("maxVertpos");
   nintVertpos = pset.getParameter<int>("nintVertpos");
+  useLogVertpos = pset.getUntrackedParameter<bool>("useLogVertpos");
 
   //parameters for _vs_ProductionVertexZPosition plots
   minZpos  = pset.getParameter<double>("minZpos");
@@ -284,6 +285,17 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
       minPt=log10(0.1);
     }
   }
+  if(useLogVertpos) {
+    maxVertpos = std::log10(maxVertpos);
+    if(minVertpos > 0) {
+      minVertpos = std::log10(minVertpos);
+    }
+    else {
+      edm::LogWarning("MultiTrackValidator")
+	<< "minVertpos = " << minVertpos << " <= 0 out of range while requesting log scale.  Using minVertpos = 0.1.";
+      minVertpos = -1;
+    }
+  }
 
 }
 
@@ -395,6 +407,10 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
   if(useLogPt){
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
+  }
+  if(useLogVertpos) {
+    BinLogX(h_assocvertpos.back()->getTH1F());
+    BinLogX(h_simulvertpos.back()->getTH1F());
   }
 }
 
@@ -695,6 +711,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_pileuppT.back()->getTH1F());
   }
+  if(useLogVertpos) {
+    BinLogX(h_loopervertpos.back()->getTH1F());
+    BinLogX(h_recovertpos.back()->getTH1F());
+    BinLogX(h_assoc2vertpos.back()->getTH1F());
+    BinLogX(h_pileupvertpos.back()->getTH1F());
+  }
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoPVAssociationHistos(DQMStore::IBooker& ibook){
@@ -846,6 +868,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 double dR,
 									 const math::XYZPoint *pvPosition,
                                                                          const TrackingVertex::LorentzVector *simPVPosition,
+                                                                         const math::XYZPoint& bsPosition,
                                                                          const std::vector<float>& mvas,
                                                                          unsigned int selectsLoose, unsigned int selectsHP) {
   bool isMatched = track;
@@ -853,8 +876,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto phi = momentumTP.phi();
   const auto pt = getPt(sqrt(momentumTP.perp2()));
   const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
-  const auto vertxy = sqrt(vertexTP.perp2());
-  const auto vertz = vertexTP.z();
+
+  const auto vertexTPwrtBS = vertexTP - bsPosition;
+  const auto vertxy = vertexTPwrtBS.r();
+  const auto vertz = vertexTPwrtBS.z();
 
   //efficiency vs. cut on MVA
   //
@@ -1024,8 +1049,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto nlayers = track.hitPattern().trackerLayersWithMeasurement();
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
   const auto n3DLayers = nPixelLayers + track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-  const auto vertxy = std::sqrt(track.referencePoint().perp2());
-  const auto vertz = track.referencePoint().z();
+  const auto refPointWrtBS = track.referencePoint() - bsPosition;
+  const auto vertxy = refPointWrtBS.r();
+  const auto vertz = refPointWrtBS.z();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
   const auto chi2 = track.normalizedChi2();
   const bool fillSeedingLayerSets = !seedingLayerSetNames.empty();

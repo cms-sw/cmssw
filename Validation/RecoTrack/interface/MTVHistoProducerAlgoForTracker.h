@@ -66,6 +66,7 @@ class MTVHistoProducerAlgoForTracker {
 					   double dR,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
+                                           const math::XYZPoint& bsPosition,
                                            const std::vector<float>& mvas,
                                            unsigned int selectsLoose, unsigned int selectsHP);
 
@@ -163,7 +164,7 @@ class MTVHistoProducerAlgoForTracker {
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
   double dxyDzZoom;
-  double minVertpos, maxVertpos;  int nintVertpos;
+  double minVertpos, maxVertpos;  int nintVertpos; bool useLogVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
   double minChi2, maxChi2; int nintChi2;

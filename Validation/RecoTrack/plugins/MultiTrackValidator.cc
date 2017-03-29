@@ -831,7 +831,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, mvaValues, selectsLoose, selectsHP);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, bs.position(), mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
 
         if(matchedTrackPointer && matchedSecondTrackPointer) {
