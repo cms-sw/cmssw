@@ -12,12 +12,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
-
+//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include <string>
 
 class ME0Geometry;
 class ME0EtaPartition;
 class TrapezoidalStripTopology;
+class LocalError;
+class LocalTag;
+template<typename t1, typename t2> class Point3DBase;
+typedef class Point3DBase<float,LocalTag> LocalPoint;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -26,6 +30,7 @@ namespace CLHEP {
 class ME0ReDigiProducer : public edm::stream::EDProducer<>
 {
 private:
+	//Class used to define custom geometry, if required
 	//assume that all ME0 chambers have the same dimension
 	//and for the same layer have the same radial and Z position
 	//Good for now, can build in support for more varied geos later
@@ -65,9 +70,18 @@ public:
                   CLHEP::HepRandomEngine* engine);
 
 private:
+  void fillCentralTOFs();
+  void getStripProperties(const ME0EtaPartition* etaPart, const ME0DigiPreReco* inDigi, float& tof,int& strip, LocalPoint&  digiLocalPoint, LocalError&  digiLocalError) const;
+  int getCustomStripProperties(const ME0DetId& detId, const ME0DigiPreReco* inDigi, float& tof,int& strip, LocalPoint&  digiLocalPoint, LocalError&  digiLocalError) const;
+
+  typedef std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, unsigned int > > > ChamberDigiMap;
+  //fills map...returns -1 if digi is not already in the map
+  unsigned int fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const;
+
   //paramters
-  unsigned int numberOfSrips     ; // number of strips per partition
-  unsigned int numberOfPartitions; // number of partitions per chamber
+  bool         useBuiltinGeo     ; //Use CMSSW defined geometry for digitization, not custom strips and partitions
+  unsigned int numberOfSrips     ; // Custom number of strips per partition
+  unsigned int numberOfPartitions; // Custom number of partitions per chamber
   double       neutronAcceptance ; // fraction of neutron events to keep in event (>= 1 means no filtering)
   double       timeResolution    ; // smear time by gaussian with this sigma (in ns)....negative for no smearing
   int          minBXReadout      ; // Minimum BX to readout
@@ -79,6 +93,7 @@ private:
   edm::EDGetTokenT<ME0DigiPreRecoCollection> token;
   const ME0Geometry* geometry;
   TemporaryGeometry* tempGeo;
+  std::vector<std::vector<double> > tofs ;  //used for built in geo
 };
 
 #endif

@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import me0PreRecoDigiCommonParameters
-
 # Module to create simulated ME0 Pre Reco digis.
-simMuonME0NewGeoDigis = cms.EDProducer("ME0ReDigiProducer",
+simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     inputCollection    =cms.string('simMuonME0Digis'),
-    numberOfSrips      =cms.uint32(768), # number of strips per partition                                             
-    numberOfPartitions =cms.uint32(8),   # number of partitions per chamber                                           
+    useBuiltinGeo      =cms.bool(True),   #Use CMSSW defined geometry for digitization, not custom strips and paritions
+    numberOfSrips      =cms.uint32(384), # If use custom: number of strips per partition                                             
+    numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
     neutronAcceptance  =cms.double(2.0),   # fraction of neutron events to keep in event (>= 1 means no filtering)      
     timeResolution     =cms.double(5),   # smear time by gaussian with this sigma (in ns)....negative for no smearing 
     minBXReadout       =cms.int32(-1),  # Minimum BX to readout                                                      
