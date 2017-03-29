@@ -19,7 +19,7 @@ particle_flow_zero_suppression_ECAL = cms.PSet(
     )
 
 _particle_flow_zero_suppression_ECAL_2017 = cms.PSet(
-    thresholds = cms.vdouble(pfZeroSuppressionThresholds_EB + pfZeroSuppressionThresholds_EEminus + pfZeroSuppressionThresholds_EEplus
+    thresholds = cms.vdouble(_pfZeroSuppressionThresholds_EB_2017 + _pfZeroSuppressionThresholds_EEminus_2017 + _pfZeroSuppressionThresholds_EEplus_2017
         )
     )
 
