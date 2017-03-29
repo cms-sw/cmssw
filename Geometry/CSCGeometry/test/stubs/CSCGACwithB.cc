@@ -2,7 +2,7 @@
 // at centre of each CSC (Nikolai Terentiev needed the values for CSC gain studies.)
 // Tim Cox 11.03.2011 - drop ME1/A 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

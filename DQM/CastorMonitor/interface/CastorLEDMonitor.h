@@ -7,7 +7,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 static const float LedMonAdc2fc[128]=
      { -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
