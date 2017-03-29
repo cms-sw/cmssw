@@ -13,6 +13,7 @@
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include <sstream>
 #include <string>
 #include <map>
@@ -33,7 +34,7 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
 	if(!mainLayer->nEtaPartitions())
 		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - ME0Layer has no partitions.";
 	if(mainLayer->nEtaPartitions() != 1)
-		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - This module is only compatitble with geometries that contain only one partiton per ME0Layer.";
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - This module is only compatitble with geometries that contain only one partition per ME0Layer.";
 
 	const auto* mainPartition = mainLayer->etaPartitions()[0];
 	const TrapezoidalStripTopology * mainTopo = dynamic_cast<const TrapezoidalStripTopology*>(&mainPartition->topology());
@@ -57,33 +58,32 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
 	middleDistanceFromBeam = mainTopo->radius();
 
 	//calculate the top of each eta partition, assuming equal distance in eta between partitions
-	auto localTop     = LocalPoint(0,mainTopo->stripLength()/2);
-	auto localBottom  = LocalPoint(0,-1*mainTopo->stripLength()/2);
-	auto globalTop    = mainPartition->toGlobal(localTop);
-	auto globalBottom = mainPartition->toGlobal(localBottom);
-	double etaTop     = globalTop.eta();
-	double etaBottom  = globalBottom.eta();
-	double zBottom    = globalBottom.z();
-	partionTops.reserve(numberOfPartitions);
-	for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
-		double eta = (etaTop -etaBottom)*double(iP + 1)/double(numberOfPartitions) + etaBottom;
-		double distFromBeam = std::fabs(2 * zBottom /(std::exp(-1*eta) - std::exp(eta)  ));
-		partionTops.push_back(distFromBeam - middleDistanceFromBeam);
-		LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "Top of new partition: " <<partionTops.back() << std::endl;
-	}
+	const auto localTop     = LocalPoint(0,mainTopo->stripLength()/2);
+	const auto localBottom  = LocalPoint(0,-1*mainTopo->stripLength()/2);
+	const auto globalTop    = mainPartition->toGlobal(localTop);
+	const auto globalBottom = mainPartition->toGlobal(localBottom);
+	const double etaTop     = globalTop.eta();
+	const double etaBottom  = globalBottom.eta();
+	const double zBottom    = globalBottom.z();
 
 	//Build topologies
+	partitionTops.reserve(numberOfPartitions);
 	stripTopos.reserve(numberOfPartitions);
 	const auto& mainPars = mainPartition->specs()->parameters();
 	for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
+		const double eta = (etaTop -etaBottom)*double(iP + 1)/double(numberOfPartitions) + etaBottom;
+		const double distFromBeam = std::fabs(zBottom /std::sinh(eta));
+		partitionTops.push_back(distFromBeam - middleDistanceFromBeam);
+		LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "Top of new partition: " <<partitionTops.back() << std::endl;
+
 		std::vector<float> params(4,0);
 
 		//half width of trapezoid at local coordinate Y
 		auto getWidth = [&] ( float locY ) -> float { return (mainPars[2]*(mainPars[1]+mainPars[0]) +locY*(mainPars[1] - mainPars[0]) )/(2*mainPars[2]);};
 
-		params[0] = iP == 0 ?  mainPars[0] : getWidth(partionTops[iP -1]); // Half width of bottom of chamber
-		params[1] = iP +1 == numberOfPartitions ?  mainPars[1] : getWidth(partionTops[iP]); // Half width of top of chamber
-		params[2] = ((iP + 1 == numberOfPartitions ? localTop.y() : partionTops[iP] ) - (iP  == 0 ? localBottom.y() : partionTops[iP-1] ) )/2; // Half width of height of chamber
+		params[0] = iP == 0 ?  mainPars[0] : getWidth(partitionTops[iP -1]); // Half width of bottom of chamber
+		params[1] = iP +1 == numberOfPartitions ?  mainPars[1] : getWidth(partitionTops[iP]); // Half width of top of chamber
+		params[2] = ((iP + 1 == numberOfPartitions ? localTop.y() : partitionTops[iP] ) - (iP  == 0 ? localBottom.y() : partitionTops[iP-1] ) )/2; // Half width of height of chamber
 		params[3] = numberOfStrips;
 
 		stripTopos.push_back(buildTopo(params));
@@ -97,7 +97,7 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
 		for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
 			const LocalPoint partCenter(0., getPartCenter(iP), 0.);
 			const GlobalPoint centralGP(mainChamber->layers()[iL]->etaPartitions()[0]->toGlobal(partCenter));
-			tofs[iL][iP] = (centralGP.mag() / 29.9792); //speed of light [cm/ns]
+			tofs[iL][iP] = (centralGP.mag() / CLHEP::c_light/CLHEP::cm); //speed of light [cm/ns]
 			LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "["<<iL<<"]["<<iP<<"]="<< tofs[iL][iP] <<" "<<std::endl;
 		}
 	}
@@ -106,7 +106,7 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
 unsigned int ME0ReDigiProducer::TemporaryGeometry::findEtaPartition(float locY) const {
 	unsigned int etaPart = stripTopos.size() -1;
 	for(unsigned int iP = 0; iP < stripTopos.size(); ++iP ){
-		if(locY <  partionTops[iP]) {etaPart = iP; break;}
+		if(locY <  partitionTops[iP]) {etaPart = iP; break;}
 	}
 	return etaPart;
 }
@@ -134,8 +134,9 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 }
 
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
+		bxWidth            (25.0),
 		useBuiltinGeo      (ps.getParameter<bool>("useBuiltinGeo")),
-		numberOfSrips      (ps.getParameter<unsigned int>("numberOfSrips")),
+		numberOfStrips      (ps.getParameter<unsigned int>("numberOfSrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
 		timeResolution     (ps.getParameter<double>("timeResolution")),
@@ -158,7 +159,7 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 	tempGeo = 0;
 
 	if(!useBuiltinGeo){
-		if(numberOfSrips == 0)
+		if(numberOfStrips == 0)
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip if using custom geometry.";
 		if(numberOfPartitions == 0)
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one partition if using custom geometry.";
@@ -188,18 +189,18 @@ void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSe
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No ME0Chambers in geometry.";
 		const unsigned int nLayers = chambers.front()->nLayers();
 		if(nLayers != layerReadout.size() )
-			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<nLayers
+			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geometry has "<<nLayers
 			<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
 		fillCentralTOFs();
 	} else {
 		LogDebug("ME0ReDigiProducer")
 				<< "Building temporary geometry:" << std::endl;
-		tempGeo = new TemporaryGeometry(geometry,numberOfSrips,numberOfPartitions);
+		tempGeo = new TemporaryGeometry(geometry,numberOfStrips,numberOfPartitions);
 		LogDebug("ME0ReDigiProducer")
 		<< "Done building temporary geometry!" << std::endl;
 
 		if(tempGeo->numLayers() != layerReadout.size() )
-			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<tempGeo->numLayers()
+			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geometry has "<<tempGeo->numLayers()
 			<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
 	}
 }
@@ -234,7 +235,21 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 		CLHEP::HepRandomEngine* engine)
 {
 
-	LogDebug("ME0ReDigiProducer::buildDigis") << "Begin bulding digis."<<std::endl;
+    /*
+      Starting form the incoming pseudo-digi, which has perfect time and position resolution:
+      1A. Smear time using sigma_t by some value
+      1B. Correct the smeared time with the central arrival time for partition
+      1C. Apply discretization: if the smeared time is outside the BX window (-12.5ns;+12.5ns),
+      the hit should be assigned to the next (or previous) BX
+
+      2A. Find strip that the digi belongs to
+      2B. Get the center of this strip and the error on the position assuming the geometry
+
+      3A. Filter event if a digi at this partition/strip/BX already exists
+      3B. Add to collection
+    */
+
+	LogDebug("ME0ReDigiProducer::buildDigis") << "Begin building digis."<<std::endl;
 	ME0DigiPreRecoCollection::DigiRangeIterator me0dgIt;
 	for (me0dgIt = input_digis.begin(); me0dgIt != input_digis.end();
 			++me0dgIt){
@@ -280,11 +295,11 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 			}
 
 			//filter if outside of readout window
-			const int bxIdx = std::round(tof/25.0);
+			const int bxIdx = std::round(tof/bxWidth);
 			LogTrace("ME0ReDigiProducer::buildDigis") << tof <<"("<<bxIdx<<") ";
 			if(bxIdx < minBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
 			if(bxIdx > maxBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
-			tof = bxIdx*25;
+			tof = bxIdx*bxWidth;
 
 
 			//If we are merging check to see if it already exists
@@ -338,7 +353,7 @@ void ME0ReDigiProducer::fillCentralTOFs() {
 		for(unsigned int iP = 0; iP < nPartitions; ++iP){
 			const unsigned int mapPartIDX = layer->etaPartitions()[iP]->id().roll() -1;
 			const GlobalPoint centralGP(layer->etaPartitions()[iP]->position());
-			tofs[mapLayIDX][mapPartIDX] = (centralGP.mag() / 29.9792); //speed of light [cm/ns]
+			tofs[mapLayIDX][mapPartIDX] = (centralGP.mag() / CLHEP::c_light/CLHEP::cm); //speed of light [cm/ns]
 			LogDebug("ME0ReDigiProducer::fillCentralTOFs()") << "["<<mapLayIDX<<"]["<<mapPartIDX<<"]="<< tofs[mapLayIDX][mapPartIDX] <<" "<<std::endl;
 		}
 	}
@@ -362,7 +377,7 @@ int ME0ReDigiProducer::getCustomStripProperties(const ME0DetId& detId,const ME0D
 
 	//get digitized location
 	LocalPoint  digiPartLocalPoint = topo->localPosition(stripF);
-	digiLocalError = topo->localError(stripF, 1./sqrt(12.));
+	digiLocalError = topo->localError(stripF, 1./sqrt(12.)); //std dev. flat distribution with length L is L/sqrt(12). The strip topology expects the error in units of strips.
 	digiLocalPoint = LocalPoint(digiPartLocalPoint.x(),digiPartLocalPoint.y() + partCenter,0.0);
 	return partIdx;
 

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     inputCollection    =cms.string('simMuonME0Digis'),
     useBuiltinGeo      =cms.bool(True),   #Use CMSSW defined geometry for digitization, not custom strips and paritions
-    numberOfSrips      =cms.uint32(384), # If use custom: number of strips per partition                                             
+    numberOfStrips     =cms.uint32(384), # If use custom: number of strips per partition                                             
     numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
     neutronAcceptance  =cms.double(2.0),   # fraction of neutron events to keep in event (>= 1 means no filtering)      
     timeResolution     =cms.double(5),   # smear time by gaussian with this sigma (in ns)....negative for no smearing 

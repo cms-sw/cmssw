@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
-//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include <string>
 
 class ME0Geometry;
@@ -50,7 +49,7 @@ private:
 		float middleDistanceFromBeam;                        // radiusOfMainPartitionInCenter;
 		std::vector<TrapezoidalStripTopology * > stripTopos; // vector of Topos, one for each part
 		std::vector<std::vector<double> > tofs ;             //TOF to center of the partition:  [layer][part]
-		std::vector<float> partionTops;                      //Top of each position in the chamber's local coords
+		std::vector<float> partitionTops;                    //Top of each partition in the chamber's local coords
 
 	};
 public:
@@ -79,8 +78,9 @@ private:
   unsigned int fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const;
 
   //paramters
+  const float bxWidth;              // ns
   bool         useBuiltinGeo     ; //Use CMSSW defined geometry for digitization, not custom strips and partitions
-  unsigned int numberOfSrips     ; // Custom number of strips per partition
+  unsigned int numberOfStrips     ; // Custom number of strips per partition
   unsigned int numberOfPartitions; // Custom number of partitions per chamber
   double       neutronAcceptance ; // fraction of neutron events to keep in event (>= 1 means no filtering)
   double       timeResolution    ; // smear time by gaussian with this sigma (in ns)....negative for no smearing
@@ -94,6 +94,8 @@ private:
   const ME0Geometry* geometry;
   TemporaryGeometry* tempGeo;
   std::vector<std::vector<double> > tofs ;  //used for built in geo
+
+
 };
 
 #endif
