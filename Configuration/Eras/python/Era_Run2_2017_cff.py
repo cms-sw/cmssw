@@ -8,6 +8,7 @@ from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run2_CSC_2017_cff import run2_CSC_2017
 
-Run2_2017 = cms.ModifierChain(Run2_2016, phase1Pixel, run2_HF_2017, run2_HCAL_2017, run2_HE_2017, run2_HEPlan1_2017, trackingPhase1, run2_GEM_2017)
+Run2_2017 = cms.ModifierChain(Run2_2016, phase1Pixel, run2_HF_2017, run2_HCAL_2017, run2_HE_2017, run2_HEPlan1_2017, trackingPhase1, run2_GEM_2017, run2_CSC_2017)
 
