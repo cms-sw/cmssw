@@ -44,6 +44,7 @@ class CovarianceParameterization {
         void readFile( TFile &);
         void  addTheHistogram(std::vector<TH3D *> * HistoVector, std::string StringToAddInTheName, int i, int j, TFile & fileToRead);
         int loadedVersion_;
+	TFile * fileToRead_;
         std::map<uint16_t,CompressionSchema> schemas; 
         std::vector<TH3D *>  cov_elements_pixelHit;
         std::vector<TH3D *>  cov_elements_noPixelHit;

@@ -88,7 +88,8 @@ float CompressionElement::unpack(uint16_t packed, float ref) const
 void CovarianceParameterization::load(int version)
 {
  edm::FileInPath fip((boost::format("DataFormats/PatCandidates/data/CovarianceParameterization_version%d.root") % version).str());
- TFile fileToRead(fip.fullPath().c_str()); 
+ fileToRead_ = TFile::Open(fip.fullPath().c_str()); 
+ TFile & fileToRead=*fileToRead_;
 //Read files from here fip.fullPath().c_str();
  if(fileToRead.IsOpen())  {
      readFile(fileToRead);
@@ -123,7 +124,6 @@ void CovarianceParameterization::load(int version)
      schemas[schemaN]=schema; 
      }
 //      schemas.push_back(schema0);
-    fileToRead.Close();
 
 /* //Override miniaod schema as in root file
      CompressionSchema schemaMiniAOD;
