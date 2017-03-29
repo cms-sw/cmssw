@@ -35,6 +35,10 @@ tauIdDiscrMVA_trainings_run2 = {
     'tauIdMVADBdR03oldDMwLT' : "tauIdMVADBdR03oldDMwLT",
     'tauIdMVAPWdR03oldDMwLT' : "tauIdMVAPWdR03oldDMwLT"
 }
+tauIdDiscrMVA_trainings_run2_2016 = {
+	'tauIdMVAIsoDBoldDMwLT2016' : "tauIdMVAIsoDBoldDMwLT2016",
+	'tauIdMVAIsoDBnewDMwLT2016' : "tauIdMVAIsoDBnewDMwLT2016"
+}
 tauIdDiscrMVA_WPs = {
     'tauIdMVAoldDMwoLT' : {
         'Eff90' : "oldDMwoLTEff90",
@@ -119,6 +123,24 @@ tauIdDiscrMVA_WPs_run2 = {
         'Eff40' : "PWdR03oldDMwLTEff40"
     }
 }
+tauIdDiscrMVA_WPs_run2_2016 = {
+	'tauIdMVAIsoDBoldDMwLT2016' : {
+		'Eff90' : "DBoldDMwLT2016Eff90",
+		'Eff80' : "DBoldDMwLT2016Eff80",
+		'Eff70' : "DBoldDMwLT2016Eff70",
+		'Eff60' : "DBoldDMwLT2016Eff60",
+		'Eff50' : "DBoldDMwLT2016Eff50",
+		'Eff40' : "DBoldDMwLT2016Eff40"
+	},
+	'tauIdMVAIsoDBnewDMwLT2016' : {
+		'Eff90' : "DBnewDMwLT2016Eff90",
+		'Eff80' : "DBnewDMwLT2016Eff80",
+		'Eff70' : "DBnewDMwLT2016Eff70",
+		'Eff60' : "DBnewDMwLT2016Eff60",
+		'Eff50' : "DBnewDMwLT2016Eff50",
+		'Eff40' : "DBnewDMwLT2016Eff40"
+	}
+}
 tauIdDiscrMVA_mvaOutput_normalizations = {
     'tauIdMVAoldDMwoLT' : "mvaOutput_normalization_oldDMwoLT",
     'tauIdMVAoldDMwLT'  : "mvaOutput_normalization_oldDMwLT",
@@ -132,6 +154,10 @@ tauIdDiscrMVA_mvaOutput_normalizations_run2 = {
     'tauIdMVAPWnewDMwLT' : "mvaOutput_normalization_PWnewDMwLT",
     'tauIdMVADBdR03oldDMwLT' : "mvaOutput_normalization_DBdR03oldDMwLT",
     'tauIdMVAPWdR03oldDMwLT' : "mvaOutput_normalization_PWdR03oldDMwLT"
+}
+tauIdDiscrMVA_mvaOutput_normalizations_run2_2016 = {
+	'tauIdMVAIsoDBoldDMwLT2016' : "mvaOutput_normalization_DBoldDMwLT2016",
+	'tauIdMVAIsoDBnewDMwLT2016' : "mvaOutput_normalization_DBnewDMwLT2016"
 }
 tauIdDiscrMVA_version = "v1"
 for training, gbrForestName in tauIdDiscrMVA_trainings.items():
@@ -180,6 +206,29 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
             label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
+for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
+	loadRecoTauTagMVAsFromPrepDB.toGet.append(
+		cms.PSet(
+			record = cms.string('GBRWrapperRcd'),
+			tag = cms.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version)),
+			label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version))
+		)
+	)
+	for WP in tauIdDiscrMVA_WPs_run2_2016[training].keys():
+		loadRecoTauTagMVAsFromPrepDB.toGet.append(
+			cms.PSet(
+				record = cms.string('PhysicsTGraphPayloadRcd'),
+				tag = cms.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_version, WP)),
+				label = cms.untracked.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_version, WP))
+			)
+		)
+	loadRecoTauTagMVAsFromPrepDB.toGet.append(
+		cms.PSet(
+			record = cms.string('PhysicsTFormulaPayloadRcd'),
+			tag = cms.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version)),
+			label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version))
+		)
+	)
 
 # register anti-electron discriminator MVA
 antiElectronDiscrMVA5_categories = {
