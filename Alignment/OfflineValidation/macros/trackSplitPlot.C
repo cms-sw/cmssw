@@ -93,7 +93,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     std::vector<TString> meansrmss(n);
     std::vector<double> means(n);
     std::vector<double> rmss(n);
-    Bool_t  used[n];        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
+    std::vector<bool> used(n);        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
 
     for (Int_t i = 0; i < n; i++)
     {
@@ -167,6 +167,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                                                   sigmaorg = 0;
         Int_t xint = 0, xint2 = 0;
         Int_t runNumber = 0;
+        double pt1 = 0, maxpt1 = 0;
 
         if (!relative && !pull && (yvar == "dz" || yvar == "dxy"))
             rel = 1e-4;                                     //it's in cm but we want it in um, so divide by 1e-4
@@ -205,6 +206,11 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         if (relative && pull)
             tree->SetBranchAddress(sigmaorgvariable,&sigmaorg);
+        if (xvar == "pt" || yvar == "pt" || xvar == "qoverpt" || yvar == "qoverpt") {
+            tree->SetBranchAddress("pt1_spl", &pt1);
+        } else {
+            maxpt1 = 999;
+        }
 
         Int_t notincluded = 0;                              //this counts the number that aren't in the right run range.
                                                             //it's subtracted from lengths[i] in order to normalize the histograms
@@ -233,6 +239,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             else
                 error = sqrt(sigma1 * sigma1 + sigma2 * sigma2);   // = sqrt(2) if !pull; this divides by sqrt(2) to get the error in 1 track
             y /= (rel * error);
+
+            if (pt1 > maxpt1) maxpt1 = pt1;
 
             if (ymin <= y && y < ymax && xmin <= x && x < xmax)
             {
@@ -287,6 +295,15 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             }
         }
         lengths[i] -= notincluded;
+
+        if (maxpt1 < 6) { //0T
+            used[i] = false;
+            p[i]->SetLineColor(kWhite);
+            p[i]->SetMarkerColor(kWhite);
+            for (unsigned int j = 0; j < q.size(); j++)
+                delete q[j];
+            continue;
+        }
 
         meansrmss[i] = "";
         if (type == Histogram || type == OrgHistogram)
@@ -380,7 +397,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         setAxisLabels(p[i],type,xvar,yvar,relative,pull);
     }
 
-    if (type == Histogram) {
+    if (type == Histogram && !pull && any_of(begin(used), end(used), identity<bool>)) {
         if (legendOptions.Contains("mean")) {
             summaryfile << "   mu_Delta" << yvar;
             if (relative) summaryfile << "/" << yvar;
@@ -750,7 +767,7 @@ void misalignmentDependence(TCanvas *c1old,
 
     TH1 **p = new TH1*[n];
     TF1 **f = new TF1*[n];
-    Bool_t used[n];
+    bool used[n];
     for (Int_t i = 0; i < n; i++)
     {
         stringstream s0;
