@@ -297,12 +297,13 @@ void EcalPedHists::initHists(int FED)
     title3.append(chnl);
     string name3 = "Cry";
     name3.append(chnl+"Gain12");
-    histMap.insert(make_pair(name1,new TH1F(name1.c_str(),title1.c_str(),75,175.0,250.0)));
-    histMap[name1]->SetDirectory(0);
-    histMap.insert(make_pair(name2,new TH1F(name2.c_str(),title2.c_str(),75,175.0,250.0)));
-    histMap[name2]->SetDirectory(0);
-    histMap.insert(make_pair(name3,new TH1F(name3.c_str(),title3.c_str(),75,175.0,250.0)));
-    histMap[name3]->SetDirectory(0);
+    {
+      TDirectory::TContext(nullptr);
+
+      histMap.insert(make_pair(name1,new TH1F(name1.c_str(),title1.c_str(),75,175.0,250.0)));
+      histMap.insert(make_pair(name2,new TH1F(name2.c_str(),title2.c_str(),75,175.0,250.0)));
+      histMap.insert(make_pair(name3,new TH1F(name3.c_str(),title3.c_str(),75,175.0,250.0)));
+    }
   }
   FEDsAndHistMaps_.insert(make_pair(FED,histMap));
 }

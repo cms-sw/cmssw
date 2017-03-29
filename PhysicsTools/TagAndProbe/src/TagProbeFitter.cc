@@ -2,6 +2,7 @@
 #include <stdexcept>
 //#include "TagProbeFitter.h"
 
+#include "TDirectory.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TPad.h"
@@ -781,7 +782,11 @@ void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const 
     p->SetPointError(j, -vi.getAsymErrorLo(), vi.getAsymErrorHi(), -ei.getAsymErrorLo(), ei.getAsymErrorHi() );
   }
   TCanvas canvas(plotName);
-  TH1F *frame = new TH1F("frame", "Efficiency of "+effName, 1, v.getMin(), v.getMax()); frame->SetDirectory(0);
+  TH1F *frame;
+  {
+    TDirectory::TContext(nullptr);
+    frame = new TH1F("frame", "Efficiency of "+effName, 1, v.getMin(), v.getMax());
+  }
   p->SetNameTitle(Form("hxy_%s", eff.GetName()), "Efficiency of "+effName);
   p->GetXaxis()->SetTitle(strlen(v.getUnit()) ? Form("%s (%s)", v.GetName(), v.getUnit()) : v.GetName());
   p->GetYaxis()->SetTitle("Efficiency of "+effName);

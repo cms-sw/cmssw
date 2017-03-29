@@ -1,4 +1,5 @@
 
+#include "TDirectory.h"
 #include "TVector3.h"
 #include "TH2.h"
 #include "TLine.h"
@@ -116,7 +117,11 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
    // draw histogram
    m_viewCanvas->cd();
    m_viewCanvas->SetHighLightColor(-1);
-   TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
+   TH2F* h_res;
+   {
+      TDirectory::TContext(nullptr);
+      h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
+   }
    TPad* padX = new TPad("pad1","pad1", 0.2, 0., 0.8, 0.99);
    padX->SetBorderMode(0);
    padX->SetLeftMargin(0.2);
@@ -124,7 +129,6 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
    padX->cd();
    padX->SetFrameLineWidth(0);
    padX->Modified();
-   h_res->SetDirectory(0);
    h_res->SetStats(kFALSE);
    h_res->SetTitle("");
    h_res->SetXTitle("residual");

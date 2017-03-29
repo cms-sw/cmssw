@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <iostream>
+#include "TDirectory.h"
 #include <TMath.h>
 
 template <typename T>
@@ -42,8 +43,11 @@ template <typename T>
 void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, std::string fn) {
   std::string path = edm::FileInPath(fn).fullPath();
 
-  TTree *t = new TTree("t", "dummy MLP tree");
-  t->SetDirectory(0);
+  TTree *t;
+  {
+    TDirectory::TContext(nullptr);
+    t = new TTree("t", "dummy MLP tree");
+  }
 
   t->Branch("z1", &(ctx.tmp[0]), "z1/D");
   t->Branch("z2", &(ctx.tmp[1]), "z2/D");

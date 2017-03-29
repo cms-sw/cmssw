@@ -38,6 +38,8 @@
 
 
 #include <vector>
+
+#include "TDirectory.h"
 #include "TLine.h"
 
  
@@ -1424,77 +1426,36 @@ void EcalCosmicsHists::initHists(int FED)
   string name1 = "SeedEnergyFED";
   name1.append(intToString(FED));
   int numBins = 200;//(int)round(histRangeMax_-histRangeMin_)+1;
-  TH1F* hist = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
-  FEDsAndHists_[FED] = hist;
-  FEDsAndHists_[FED]->SetDirectory(0);
-  
-  TH1F* E2hist = new TH1F(Form("E2_FED_%d",FED),Form("E2_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
-  FEDsAndE2Hists_[FED] = E2hist;
-  FEDsAndE2Hists_[FED]->SetDirectory(0);
-  
-  TH1F* energyhist = new TH1F(Form("Energy_FED_%d",FED),Form("Energy_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
-  FEDsAndenergyHists_[FED] = energyhist;
-  FEDsAndenergyHists_[FED]->SetDirectory(0);
-  
-  TH2F* E2vsE1hist = new TH2F(Form("E2vsE1_FED_%d",FED),Form("E2vsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
-  FEDsAndE2vsE1Hists_[FED] = E2vsE1hist;
-  FEDsAndE2vsE1Hists_[FED]->SetDirectory(0);
-  
-  TH2F* energyvsE1hist = new TH2F(Form("EnergyvsE1_FED_%d",FED),Form("EnergyvsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
-  FEDsAndenergyvsE1Hists_[FED] = energyvsE1hist;
-  FEDsAndenergyvsE1Hists_[FED]->SetDirectory(0);
-  
-  title1 = "Time for ";
-  title1.append(fedMap_->getSliceFromFed(FED));
-  title1.append(";Relative Time (1 clock = 25ns);Events");
-  name1 = "TimeFED";
-  name1.append(intToString(FED));
-  TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),78,-7,7);
-  FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
-  
-  TH1F* freqHist = new TH1F(Form("Frequency_FED_%d",FED),Form("Frequency for FED %d;Event Number",FED),100,0.,100000);
-  FEDsAndFrequencyHists_[FED] = freqHist;
-  FEDsAndFrequencyHists_[FED]->SetDirectory(0);
-  
-  TH1F* iphiProfileHist = new TH1F(Form("iPhi_Profile_FED_%d",FED),Form("iPhi Profile for FED %d",FED),360,1.,361);
-  FEDsAndiPhiProfileHists_[FED] = iphiProfileHist;
-  FEDsAndiPhiProfileHists_[FED]->SetDirectory(0);
-  
-  TH1F* ietaProfileHist = new TH1F(Form("iEta_Profile_FED_%d",FED),Form("iEta Profile for FED %d",FED),172,-86,86);
-  FEDsAndiEtaProfileHists_[FED] = ietaProfileHist;
-  FEDsAndiEtaProfileHists_[FED]->SetDirectory(0);
-  
-  TH2F* timingHistVsFreq = new TH2F(Form("timeVsFreqFED_%d",FED),Form("time Vs Freq FED %d",FED),78,-7,7,100,0.,100000);
-  FEDsAndTimingVsFreqHists_[FED] = timingHistVsFreq;
-  FEDsAndTimingVsFreqHists_[FED]->SetDirectory(0);
-  
-  TH2F* timingHistVsAmp = new TH2F(Form("timeVsAmpFED_%d",FED),Form("time Vs Amp FED %d",FED),78,-7,7,numBins,histRangeMin_,histRangeMax_);
-  FEDsAndTimingVsAmpHists_[FED] = timingHistVsAmp;
-  FEDsAndTimingVsAmpHists_[FED]->SetDirectory(0);
-  
-  TH1F* numXtalInClusterHist = new TH1F(Form("NumXtalsInCluster_FED_%d",FED),Form("Num active Xtals In Cluster for FED %d;Num Active Xtals",FED),25,0,25);
-  FEDsAndNumXtalsInClusterHists_[FED] = numXtalInClusterHist;
-  FEDsAndNumXtalsInClusterHists_[FED]->SetDirectory(0);
-  
-  TH2F* OccupHist = new TH2F(Form("occupFED_%d",FED),Form("Occupancy FED %d;i#eta;i#phi",FED),85,1,86,20,1,21);
-  FEDsAndOccupancyHists_[FED] = OccupHist;
-  FEDsAndOccupancyHists_[FED]->SetDirectory(0);
-  
-  TH2F* timingHistVsPhi = new TH2F(Form("timeVsPhiFED_%d",FED),Form("time Vs Phi FED %d;Relative Time (1 clock = 25ns);i#phi",FED),78,-7,7,20,1,21);
-  FEDsAndTimingVsPhiHists_[FED] = timingHistVsPhi;
-  FEDsAndTimingVsPhiHists_[FED]->SetDirectory(0);
-  
-  TH2F* timingHistVsModule = new TH2F(Form("timeVsModuleFED_%d",FED),Form("time Vs Module FED %d;Relative Time (1 clock = 25ns);i#eta",FED),78,-7,7,4,1,86);
-  FEDsAndTimingVsModuleHists_[FED] = timingHistVsModule;
-  FEDsAndTimingVsModuleHists_[FED]->SetDirectory(0);
 
-  TH2F* dccRuntypeVsBxFED = new TH2F(Form("DCCRuntypeVsBxFED_%d",FED),Form("DCC Runtype vs. BX FED %d",FED),3600,0,3600,24,0,24);
-  FEDsAndDCCRuntypeVsBxHists_[FED] = dccRuntypeVsBxFED;
-  FEDsAndDCCRuntypeVsBxHists_[FED]->SetDirectory(0); 
-  
+  {
+    TDirectory::TContext(nullptr);
+
+    FEDsAndHists_[FED] = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
+    FEDsAndE2Hists_[FED] = new TH1F(Form("E2_FED_%d",FED),Form("E2_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
+    FEDsAndenergyHists_[FED] = new TH1F(Form("Energy_FED_%d",FED),Form("Energy_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
+    FEDsAndE2vsE1Hists_[FED] = new TH2F(Form("E2vsE1_FED_%d",FED),Form("E2vsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
+    FEDsAndenergyvsE1Hists_[FED] = new TH2F(Form("EnergyvsE1_FED_%d",FED),Form("EnergyvsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
+
+    title1 = "Time for ";
+    title1.append(fedMap_->getSliceFromFed(FED));
+    title1.append(";Relative Time (1 clock = 25ns);Events");
+    name1 = "TimeFED";
+    name1.append(intToString(FED));
+    FEDsAndTimingHists_[FED] = new TH1F(name1.c_str(),title1.c_str(),78,-7,7);
+
+    FEDsAndFrequencyHists_[FED] = new TH1F(Form("Frequency_FED_%d",FED),Form("Frequency for FED %d;Event Number",FED),100,0.,100000);
+    FEDsAndiPhiProfileHists_[FED] = new TH1F(Form("iPhi_Profile_FED_%d",FED),Form("iPhi Profile for FED %d",FED),360,1.,361);
+    FEDsAndiEtaProfileHists_[FED] = new TH1F(Form("iEta_Profile_FED_%d",FED),Form("iEta Profile for FED %d",FED),172,-86,86);
+    FEDsAndTimingVsFreqHists_[FED] = new TH2F(Form("timeVsFreqFED_%d",FED),Form("time Vs Freq FED %d",FED),78,-7,7,100,0.,100000);
+    FEDsAndTimingVsAmpHists_[FED] = new TH2F(Form("timeVsAmpFED_%d",FED),Form("time Vs Amp FED %d",FED),78,-7,7,numBins,histRangeMin_,histRangeMax_);
+
+    FEDsAndNumXtalsInClusterHists_[FED] = new TH1F(Form("NumXtalsInCluster_FED_%d",FED),Form("Num active Xtals In Cluster for FED %d;Num Active Xtals",FED),25,0,25);
+    FEDsAndOccupancyHists_[FED] = new TH2F(Form("occupFED_%d",FED),Form("Occupancy FED %d;i#eta;i#phi",FED),85,1,86,20,1,21);
+    FEDsAndTimingVsPhiHists_[FED] = new TH2F(Form("timeVsPhiFED_%d",FED),Form("time Vs Phi FED %d;Relative Time (1 clock = 25ns);i#phi",FED),78,-7,7,20,1,21);
+    FEDsAndTimingVsModuleHists_[FED] = new TH2F(Form("timeVsModuleFED_%d",FED),Form("time Vs Module FED %d;Relative Time (1 clock = 25ns);i#eta",FED),78,-7,7,4,1,86);
+    FEDsAndDCCRuntypeVsBxHists_[FED] = new TH2F(Form("DCCRuntypeVsBxFED_%d",FED),Form("DCC Runtype vs. BX FED %d",FED),3600,0,3600,24,0,24);
+  }
 }
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
 EcalCosmicsHists::beginRun(edm::Run const &, edm::EventSetup const & eventSetup)

@@ -10,6 +10,7 @@
 
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
+#include "TDirectory.h"
 #include <iostream>
 #include <math.h>
 
@@ -22,9 +23,13 @@ void AcceptanceTableHelper::Init(TFile& f, const std::string basename)
 
   if (h != NULL)
   {
-    h_log10t_log10Xi_Phi = (TH3F*)h->Clone();
+    {
+      // secure it from deleting if the file is eventually closed
+      TDirectory::TContext(nullptr);
+
+      h_log10t_log10Xi_Phi = (TH3F*)h->Clone();
+    }
     std::cout << "Read ";
-    h_log10t_log10Xi_Phi->SetDirectory(0); // secure it from deleting if the file is eventually closed
     h_log10t_log10Xi_Phi->Print();
   } else {
     std::cout << "Warning: could not get acceptance table " << basename << std::endl;
@@ -36,8 +41,12 @@ void AcceptanceTableHelper::Init(TFile& f, const std::string basename)
 
   if (h != NULL)
   {
-    h_t_log10Xi_Phi = (TH3F*)h->Clone();
-    h_t_log10Xi_Phi->SetDirectory(0); // secure it from deleting if the file is eventually closed
+    {
+      // secure it from deleting if the file is eventually closed
+      TDirectory::TContext(nullptr);
+
+      h_t_log10Xi_Phi = (TH3F*)h->Clone();
+    }
     std::cout << "Read ";
     h_t_log10Xi_Phi->Print();
   } else {
