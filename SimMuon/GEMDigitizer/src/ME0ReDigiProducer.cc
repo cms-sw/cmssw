@@ -97,7 +97,7 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
 		for(unsigned int iP = 0; iP < numberOfPartitions; ++iP){
 			const LocalPoint partCenter(0., getPartCenter(iP), 0.);
 			const GlobalPoint centralGP(mainChamber->layers()[iL]->etaPartitions()[0]->toGlobal(partCenter));
-			tofs[iL][iP] = (centralGP.mag() / CLHEP::c_light/CLHEP::cm); //speed of light [cm/ns]
+			tofs[iL][iP] = (centralGP.mag() / (CLHEP::c_light/CLHEP::cm)); //speed of light [cm/ns]
 			LogDebug("ME0ReDigiProducer::TemporaryGeometry") << "["<<iL<<"]["<<iP<<"]="<< tofs[iL][iP] <<" "<<std::endl;
 		}
 	}
@@ -353,7 +353,7 @@ void ME0ReDigiProducer::fillCentralTOFs() {
 		for(unsigned int iP = 0; iP < nPartitions; ++iP){
 			const unsigned int mapPartIDX = layer->etaPartitions()[iP]->id().roll() -1;
 			const GlobalPoint centralGP(layer->etaPartitions()[iP]->position());
-			tofs[mapLayIDX][mapPartIDX] = (centralGP.mag() / CLHEP::c_light/CLHEP::cm); //speed of light [cm/ns]
+			tofs[mapLayIDX][mapPartIDX] = (centralGP.mag() / (CLHEP::c_light/CLHEP::cm)); //speed of light [cm/ns]
 			LogDebug("ME0ReDigiProducer::fillCentralTOFs()") << "["<<mapLayIDX<<"]["<<mapPartIDX<<"]="<< tofs[mapLayIDX][mapPartIDX] <<" "<<std::endl;
 		}
 	}
