@@ -157,7 +157,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   muz0_.numerator   = nullptr;
   muz0_.denominator = nullptr;
  */
-  histname = "mu_P_{t}"; histtitle = "mu_P_{t}";
+  histname = "muPt"; histtitle = "mu_P_{t}";
   bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
   setMETitle(muPt_,"Mu_Pt[GeV]","events/1GeV");
 
@@ -284,16 +284,24 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   edm::ParameterSetDescription desc;
   desc.add<std::string>  ( "FolderName", "HLT/BPH/" );
 
-  desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
-  desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
-  desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
+  desc.add<edm::InputTag>( "tracks",  edm::InputTag("generalTracks") );
+  desc.add<edm::InputTag>( "offlinePVs",     edm::InputTag("offlinePrimaryVertices") );
+  desc.add<edm::InputTag>( "beamSpot",edm::InputTag("offlineBeamSpot") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
-  desc.add<std::string>("metSelection", "pt > 0");
-  desc.add<std::string>("jetSelection", "pt > 0");
-  desc.add<std::string>("eleSelection", "pt > 0");
+/*
+hltBPHmonitoring.tracks       = cms.InputTag("generalTracks") # tracks??
+hltBPHmonitoring.offlinePVs      = cms.InputTag("offlinePrimaryVertices") # PVs
+hltBPHmonitoring.beamSpot = cms.InputTag("offlineBeamSpot") #
+hltBPHmonitoring.muons     = cms.InputTag("muons") #
+ 
+ 
+ */
+//  desc.add<std::string>("metSelection", "pt > 0");
+//  desc.add<std::string>("jetSelection", "pt > 0");
+//  desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
-  desc.add<int>("njets",      0);
-  desc.add<int>("nelectrons", 0);
+//  desc.add<int>("njets",      0);
+// desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
