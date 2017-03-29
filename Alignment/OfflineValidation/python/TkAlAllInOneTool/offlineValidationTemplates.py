@@ -266,7 +266,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 ##############
 ##Trigger sequence

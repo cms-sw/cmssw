@@ -13,9 +13,10 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
     resultBaseName = "AlignmentValidation"
     outputBaseName = "AlignmentValidation"
     defaults = {
-        "offlineModuleLevelHistsTransient":"False",
-        "offlineModuleLevelProfiles":"True",
-        "stripYResiduals":"False",
+        "offlineModuleLevelHistsTransient": "False",
+        "offlineModuleLevelProfiles": "True",
+        "stripYResiduals": "False",
+        "usePixelQualityFlag": "True",
         }
     deprecateddefaults = {
         "DMRMethod":"",
