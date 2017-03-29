@@ -5,17 +5,22 @@ particleFlowRecHitPS = cms.EDProducer("PFRecHitProducer",
         name = cms.string("PFRecHitPreshowerNavigator")
     ),
     producers = cms.VPSet(
-           cms.PSet(
-             name = cms.string("PFPSRecHitCreator"),
-             src  = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-             qualityTests = cms.VPSet(
-                  cms.PSet(
-                  name = cms.string("PFRecHitQTestThreshold"),
-                  threshold = cms.double(7e-6)
-                  )
-             )
-           )
-    )
+        cms.PSet(
+            name = cms.string("PFPSRecHitCreator"),
+            src  = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+            qualityTests = cms.VPSet(
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestThreshold"),
+                    threshold = cms.double(0.)
+                    ),
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestES"),
+                    cleaningThreshold = cms.double(0.),
+                    topologicalCleaning = cms.bool(True)
+                    )
+                )
+            )
+        )
+                                      )
 
-)
 

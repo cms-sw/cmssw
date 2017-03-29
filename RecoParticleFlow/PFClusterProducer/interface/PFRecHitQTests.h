@@ -5,7 +5,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-
+#include <iostream>
+using namespace std;
 
 //
 //  Quality test that checks threshold
@@ -425,9 +426,74 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
 
 };
 
+//
+//  Quality test that checks ES quality cuts
+//
+class PFRecHitQTestES : public PFRecHitQTestBase {
+
+ public:
+  PFRecHitQTestES() {
+
+  }
+
+ PFRecHitQTestES(const edm::ParameterSet& iConfig):
+  PFRecHitQTestBase(iConfig)
+  {
+    thresholdCleaning_   = iConfig.getParameter<double>("cleaningThreshold");
+    topologicalCleaning_ = iConfig.getParameter<bool>("topologicalCleaning");
+  }
+
+  void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+  }
+
+  bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+
+    if ( rh.energy() < thresholdCleaning_ ) {
+      clean=false;
+      return false;
+    }
+    
+    if ( topologicalCleaning_ && 
+	 ( rh.checkFlag(EcalRecHit::kESDead) || 
+	   rh.checkFlag(EcalRecHit::kESTS13Sigmas) || 
+	   rh.checkFlag(EcalRecHit::kESBadRatioFor12) || 
+	   rh.checkFlag(EcalRecHit::kESBadRatioFor23Upper) || 
+	   rh.checkFlag(EcalRecHit::kESBadRatioFor23Lower) || 
+	   rh.checkFlag(EcalRecHit::kESTS1Largest) || 
+	   rh.checkFlag(EcalRecHit::kESTS3Largest) || 
+	   rh.checkFlag(EcalRecHit::kESTS3Negative)
+	   )) {
+      clean=false;
+      return false;
+    }
+
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
+    return true;
+
+  }
+
+  bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
+    return true;
+
+  }
 
 
+ protected:
+  double thresholdCleaning_;
+  bool topologicalCleaning_;
 
+};
 
 //
 //  Quality test that calibrates tower 29 of HCAL
