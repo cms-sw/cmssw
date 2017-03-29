@@ -5,7 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
 import plotting
 import validation
 from html import PlotPurpose
@@ -175,6 +175,8 @@ _effandfake4 = PlotGroup("effandfake4",
                          _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                          legendDy=_legendDy_4rows
 )
+_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xinlabeloption="d")
+_duplicateAlgo = PlotOnSideGroup("duplicateAlgo", Plot("duplicates_oriAlgo_vs_oriAlgo", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_algos_common))
 
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakeratePt", xtitle="track p_{T} (GeV)", ytitle="fakerate vs p_{T}", xlog=True, ymax=_maxFake),
@@ -213,7 +215,6 @@ _dupandfake5 = PlotGroup("dupandfake5",
                          _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common),
                          ncols=3, legendDy=_legendDy_2rows_3cols
 )
-
 
 _common = {
     "ytitle": "Fake+pileup rate",
@@ -924,6 +925,7 @@ _simBasedPlots = [
     _effandfake2,
     _effandfake3,
     _effandfake4,
+    _duplicateAlgo,
 ]
 _recoBasedPlots = [
     _dupandfake1,
