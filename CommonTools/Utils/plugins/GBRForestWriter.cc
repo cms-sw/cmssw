@@ -1,5 +1,6 @@
 #include "CommonTools/Utils/plugins/GBRForestWriter.h"
 
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -59,7 +60,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  dummyVariables.push_back(0.);
 	  mvaReader->AddSpectator(spectatorVariable->data(), &dummyVariables.back());
 	}
-	mvaReader->BookMVA((*category)->methodName_.data(), (*category)->inputFileName_.data());
+	reco::details::loadTMVAWeights(mvaReader, (*category)->methodName_.data(), (*category)->inputFileName_.data());
 	TMVA::MethodBDT* bdt = dynamic_cast<TMVA::MethodBDT*>(mvaReader->FindMVA((*category)->methodName_.data()));
 	if ( !bdt )
 	  throw cms::Exception("GBRForestWriter") 
