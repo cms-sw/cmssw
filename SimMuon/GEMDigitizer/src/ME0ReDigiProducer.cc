@@ -136,7 +136,7 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 		bxWidth            (25.0),
 		useBuiltinGeo      (ps.getParameter<bool>("useBuiltinGeo")),
-		numberOfStrips      (ps.getParameter<unsigned int>("numberOfSrips")),
+		numberOfStrips      (ps.getParameter<unsigned int>("numberOfStrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
 		timeResolution     (ps.getParameter<double>("timeResolution")),
