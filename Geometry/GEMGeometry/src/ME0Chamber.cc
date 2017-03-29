@@ -41,13 +41,13 @@ int ME0Chamber::nLayers() const {
 
 const ME0Layer* ME0Chamber::layer(ME0DetId id) const {
   if (id.chamberId()!=detId_) return 0; // not in this layer!
-  return layer(id.roll());
+  return layer(id.layer());
 }
 
 const ME0Layer* ME0Chamber::layer(int isl) const {
-  for (auto roll : layers_){
-    if (roll->id().roll()==isl) 
-      return roll;
+  for (auto layer : layers_){
+    if (layer->id().layer()==isl)
+      return layer;
   }
   return 0;
 }
