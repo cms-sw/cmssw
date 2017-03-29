@@ -81,7 +81,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Chamber * chamber, con
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      this->buildSegments((*sub_rechits), segments_temp );
+      this->buildSegments(chamber,(*sub_rechits), segments_temp );
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
@@ -90,7 +90,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Chamber * chamber, con
   else {
 	  HitAndPositionPtrContainer ptrRH; ptrRH.reserve(rechits.size());
 	  for(const auto& rh : rechits) ptrRH.push_back(&rh);
-    this->buildSegments(ptrRH, segments);
+    this->buildSegments(chamber,ptrRH, segments);
     return segments;
   }
 }
@@ -288,7 +288,7 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Chamber * chamber, const HitAnd
   return false;
 }
 
-void ME0SegmentAlgorithm::buildSegments(const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs) {
+void ME0SegmentAlgorithm::buildSegments(const ME0Chamber * chamber, const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs) {
   if (rechits.size() < minHitsPerSegment) return;
 
 #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
@@ -344,9 +344,11 @@ void ME0SegmentAlgorithm::buildSegments(const HitAndPositionPtrContainer& rechit
   if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
   timeUncrt = sqrt(timeUncrt);
 
+  const float dPhi = ME0Segment::computeDeltaPhi(chamber,protoIntercept,protoDirection);
+
   // save all information inside GEMCSCSegment
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
-  ME0Segment tmp(bareRHs, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
+  ME0Segment tmp(bareRHs, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt, dPhi);
 
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment made";
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] "<<tmp;

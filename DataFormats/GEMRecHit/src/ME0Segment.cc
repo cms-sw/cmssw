@@ -5,6 +5,9 @@
  */
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMRecHit/interface/ME0Segment.h"
+#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
+#include "Geometry/GEMGeometry/interface/ME0Layer.h"
+#include <TVector2.h>
 #include <iostream>
 
 namespace {
@@ -38,17 +41,19 @@ ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
   theTimeValue = 0.0;
   theTimeUncrt = 0.0;
+  theDeltaPhi  = 0.0;
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theME0RecHits.push_back(*proto_segment[i]);
 }
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float time, float timeErr) :
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float time, float timeErr, float deltaPhi) :
   RecSegment(buildDetId(proto_segment.front()->me0Id())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
   theTimeValue = time;
   theTimeUncrt = timeErr;
+  theDeltaPhi  = deltaPhi;
 
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theME0RecHits.push_back(*proto_segment[i]);
@@ -122,5 +127,24 @@ std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
     " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns ";
 
   return os;  
+}
+
+
+float ME0Segment::computeDeltaPhi(const ME0Chamber * chamber, const LocalPoint& position, const LocalVector& direction ) {
+	auto extrap = [] (const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+	    double extX = point.x()+extZ*dir.x()/dir.z();
+	    double extY = point.y()+extZ*dir.y()/dir.z();
+	    return LocalPoint(extX,extY,extZ);
+	  };
+
+	const float beginOfChamber  = chamber->layer(1)->position().z();
+	const float centerOfChamber = chamber->position().z();
+	const float endOfChamber    = chamber->layer(chamber->nLayers())->position().z();
+
+	LocalPoint projHigh = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) * ( endOfChamber-  centerOfChamber));
+	LocalPoint projLow = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) *( beginOfChamber-  centerOfChamber));
+    auto globLow  = chamber->toGlobal(projLow );
+	auto globHigh = chamber->toGlobal(projHigh);
+	return  TVector2::Phi_mpi_pi(globHigh.phi() - globLow.phi());
 }
 
