@@ -43,7 +43,7 @@ ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const
 }
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr) : 
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float time, float timeErr) :
   RecSegment(buildDetId(proto_segment.front()->me0Id())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
