@@ -70,7 +70,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits = True
 process.TrackerTrackHitFilter.TrackAngleCut = 0.1 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 #-- TrackProducer
 ## now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
@@ -325,7 +325,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 #######################################
 ##Trigger settings for Cosmics during collisions
@@ -387,7 +387,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 #process.TrackerTrackHitFilter.PxlCorrClusterChargeCut = 10000.0
 #process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
@@ -450,7 +450,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
@@ -513,7 +513,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
@@ -576,7 +576,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
@@ -621,7 +621,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 ##############
 ##Trigger sequence
@@ -675,7 +675,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 ##############
 ##Trigger sequence
@@ -740,7 +740,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 #process.TrackerTrackHitFilter.PxlCorrClusterChargeCut = 10000.0
 process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
@@ -810,7 +810,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 #######################################
 ##Trigger settings for Cosmics during collisions
@@ -883,7 +883,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 ##############
 ##Trigger sequence
@@ -948,7 +948,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag= True
+process.TrackerTrackHitFilter.usePixelQualityFlag = .oO[usePixelQualityFlag]Oo.
 
 ##############
 ##Trigger sequence
