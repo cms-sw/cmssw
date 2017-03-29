@@ -134,6 +134,7 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 }
 
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
+		useBuiltinGeo      (ps.getParameter<bool>("useBuiltinGeo")),
 		numberOfSrips      (ps.getParameter<unsigned int>("numberOfSrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
@@ -156,16 +157,15 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 	geometry = 0;
 	tempGeo = 0;
 
-	if(numberOfSrips == 0)
-		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip.";
-	if(numberOfPartitions == 0)
-		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one partition.";
+	if(!useBuiltinGeo){
+		if(numberOfSrips == 0)
+			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip if using custom geometry.";
+		if(numberOfPartitions == 0)
+			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one partition if using custom geometry.";
+	}
+
 	if(neutronAcceptance < 0 )
 		throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - neutronAcceptance must be >= 0.";
-
-
-
-
 }
 
 
@@ -182,16 +182,26 @@ void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSe
 	eventSetup.get<MuonGeometryRecord>().get(hGeom);
 	geometry= &*hGeom;
 
-	LogDebug("ME0ReDigiProducer")
-	<< "Building temporary geometry:" << std::endl;
-	tempGeo = new TemporaryGeometry(geometry,numberOfSrips,numberOfPartitions);
-	LogDebug("ME0ReDigiProducer")
-	<< "Done building temporary geometry!" << std::endl;
+	if(useBuiltinGeo){
+		const auto& chambers = geometry->chambers();
+		if(!chambers.size())
+			throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No ME0Chambers in geometry.";
+		const unsigned int nLayers = chambers.front()->nLayers();
+		if(nLayers != layerReadout.size() )
+			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<nLayers
+			<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
+		fillCentralTOFs();
+	} else {
+		LogDebug("ME0ReDigiProducer")
+				<< "Building temporary geometry:" << std::endl;
+		tempGeo = new TemporaryGeometry(geometry,numberOfSrips,numberOfPartitions);
+		LogDebug("ME0ReDigiProducer")
+		<< "Done building temporary geometry!" << std::endl;
 
-	if(tempGeo->numLayers() != layerReadout.size() )
-		throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<tempGeo->numLayers()
-		<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
-
+		if(tempGeo->numLayers() != layerReadout.size() )
+			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geoemtry has "<<tempGeo->numLayers()
+			<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;
+	}
 }
 
 
@@ -215,9 +225,6 @@ void ME0ReDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup
 	// store them in the event
 	e.put(std::move(output_digis));
 	e.put(std::move(output_digimap));
-
-//	produces< edm::ValueMap<edm::Ref(ME0DigiPreReco)> >("ptrToNewDigi");
-
 }
 
 
@@ -233,30 +240,10 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 			++me0dgIt){
 
 		const auto& me0Id = (*me0dgIt).first;
-		LogTrace("ME0ReDigiProducer::buildDigis") << "Starting with chamber: "<< me0Id<<std::endl;
+		LogTrace("ME0ReDigiProducer::buildDigis") << "Starting with roll: "<< me0Id<<std::endl;
 
-		//setup map for this chamber
-		typedef std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, unsigned int > > > ChamberDigiMap;
+		//setup map for this chamber/eta partition
 		ChamberDigiMap chDigiMap;
-		//fills map...returns -1 if digi is not already in the map
-		auto fillDigiMap = [&] (unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) -> int {
-			auto it1 = chDigiMap.find(bx);
-			if (it1 == chDigiMap.end()){
-				chDigiMap[bx][part][strip] = currentIDX;
-				return -1;
-			}
-			auto it2 = it1->second.find(part);
-			if (it2 == it1->second.end()){
-				it1->second[part][strip] = currentIDX;
-				return -1;
-			}
-			auto it3 = it2->second.find(strip);
-			if (it3 == it2->second.end()){
-				it2->second[strip] = currentIDX;
-				return -1;
-			}
-			return it3->second;
-		};
 
 		int newDigiIdx = 0;
 		const ME0DigiPreRecoCollection::Range& range = (*me0dgIt).second;
@@ -277,51 +264,46 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 					continue;
 				}
 
-			const unsigned int partIdx = tempGeo->findEtaPartition(digi->y());
-			LogTrace("ME0ReDigiProducer::buildDigis") << partIdx <<" ";
+			//smear TOF if necessary
 			float tof = digi->tof() + (timeResolution < 0 ? 0.0 : CLHEP::RandGaussQ::shoot(engine, 0, timeResolution));
-			const float partMeanTof = tempGeo->getCentralTOF(me0Id,partIdx);
-			//convert to relative to partition
-			tof -= partMeanTof;
+
+			//Values used to fill objet
+			int mapPartIDX = me0Id.roll() -1;
+			int strip = 0;
+			LocalPoint  digiLocalPoint;
+			LocalError  digiLocalError;
+			if(useBuiltinGeo){
+				getStripProperties(geometry->etaPartition(me0Id),&*digi,tof,strip,digiLocalPoint,digiLocalError);
+			} else {
+				mapPartIDX = getCustomStripProperties(me0Id,&*digi,tof,strip,digiLocalPoint,digiLocalError);
+
+			}
+
+			//filter if outside of readout window
 			const int bxIdx = std::round(tof/25.0);
 			LogTrace("ME0ReDigiProducer::buildDigis") << tof <<"("<<bxIdx<<") ";
-			//filter if outside of readout window
 			if(bxIdx < minBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
 			if(bxIdx > maxBXReadout) {output_digimap.insertDigi(me0Id, -1); continue; }
 			tof = bxIdx*25;
 
-			//get coordinates and errors
-			const float partCenter = tempGeo->getPartCenter(partIdx);
-			const auto* topo = tempGeo->getTopo(partIdx);
-
-			//find channel
-			const LocalPoint partLocalPoint(digi->x(), digi->y() - partCenter ,0.);
-			const int strip = topo->channel(partLocalPoint);
-			const float stripF = float(strip)+0.5;
-
-			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<bxIdx<<","<<partIdx<<","<<strip<<") ";
 
 			//If we are merging check to see if it already exists
+			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<bxIdx<<","<<mapPartIDX<<","<<strip<<") ";
 			if(mergeDigis){
-				int matchIDX = fillDigiMap(bxIdx,partIdx,strip,newDigiIdx);
+				int matchIDX = fillDigiMap(chDigiMap, bxIdx,mapPartIDX,strip,newDigiIdx);
 				if(matchIDX >= 0){
 					output_digimap.insertDigi(me0Id, matchIDX);
 					continue;
 				}
 			}
 
-			//get digitized location
-			LocalPoint  digiPartLocalPoint = topo->localPosition(stripF);
-			LocalError  digiPartLocalError = topo->localError(stripF, 1./sqrt(12.));
-			LocalPoint  digiChamberLocalPoint(digiPartLocalPoint.x(),digiPartLocalPoint.y() + partCenter,0);
-
 			//Digis store sigmaX,sigmaY, correlationCoef
-			const float sigmaX = std::sqrt(digiPartLocalError.xx());
-			const float sigmaY = std::sqrt(digiPartLocalError.yy());
-			const float corrCoef = digiPartLocalError.xy() /(sigmaX*sigmaY);
+			const float sigmaX = std::sqrt(digiLocalError.xx());
+			const float sigmaY = std::sqrt(digiLocalError.yy());
+			const float corrCoef = digiLocalError.xy() /(sigmaX*sigmaY);
 
 			//Fill in the new collection
-			ME0DigiPreReco out_digi(digiChamberLocalPoint.x(), digiChamberLocalPoint.y(),
+			ME0DigiPreReco out_digi(digiLocalPoint.x(), digiLocalPoint.y(),
 					sigmaX, sigmaY, corrCoef, tof, digi->pdgid(), digi->prompt());
 			output_digis.insertDigi(me0Id, out_digi);
 
@@ -329,7 +311,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 			output_digimap.insertDigi(me0Id, newDigiIdx);
 			newDigiIdx++;
 
-			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<digiChamberLocalPoint.x()<<","<<digiChamberLocalPoint.y()<<","<<sigmaX<<","<<sigmaY<<","<< tof<<") ";
+			LogTrace("ME0ReDigiProducer::buildDigis") << "("<<digiLocalPoint.x()<<","<<digiLocalPoint.y()<<","<<sigmaX<<","<<sigmaY<<","<< tof<<") ";
 		}
 
 		chDigiMap.clear();
@@ -338,3 +320,84 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 	}
 
 }
+
+void ME0ReDigiProducer::fillCentralTOFs() {
+	const auto* mainChamber = geometry->chambers().front();
+	const unsigned int nLayers = mainChamber->nLayers();
+	//Get TOF at center of each partition
+	tofs.clear();
+	tofs.resize(nLayers);
+	LogDebug("ME0ReDigiProducer::fillCentralTOFs()") << "TOF numbers [layer][partition]: " ;
+	for(unsigned int iL = 0; iL < nLayers; ++iL){
+		const auto* layer = mainChamber->layers()[iL];
+		const unsigned int mapLayIDX = layer->id().layer() -1;
+		const unsigned int nPartitions = layer->nEtaPartitions();
+		if(!nPartitions)
+			throw cms::Exception("Setup") << "ME0ReDigiProducer::fillCentralTOFs() - ME0Layer has no partitions.";
+		tofs[mapLayIDX].resize(nPartitions);
+		for(unsigned int iP = 0; iP < nPartitions; ++iP){
+			const unsigned int mapPartIDX = layer->etaPartitions()[iP]->id().roll() -1;
+			const GlobalPoint centralGP(layer->etaPartitions()[iP]->position());
+			tofs[mapLayIDX][mapPartIDX] = (centralGP.mag() / 29.9792); //speed of light [cm/ns]
+			LogDebug("ME0ReDigiProducer::fillCentralTOFs()") << "["<<mapLayIDX<<"]["<<mapPartIDX<<"]="<< tofs[mapLayIDX][mapPartIDX] <<" "<<std::endl;
+		}
+	}
+}
+int ME0ReDigiProducer::getCustomStripProperties(const ME0DetId& detId,const ME0DigiPreReco* inDigi, float& tof,int& strip,  LocalPoint&  digiLocalPoint, LocalError&  digiLocalError ) const {
+	const unsigned int partIdx = tempGeo->findEtaPartition(inDigi->y());
+	LogTrace("ME0ReDigiProducer::buildDigis") << partIdx <<" ";
+	const float partMeanTof = tempGeo->getCentralTOF(detId,partIdx);
+
+	//convert to relative to partition
+	tof -= partMeanTof;
+
+	//get coordinates and errors
+	const float partCenter = tempGeo->getPartCenter(partIdx);
+	const auto* topo = tempGeo->getTopo(partIdx);
+
+	//find channel
+	const LocalPoint partLocalPoint(inDigi->x(), inDigi->y() - partCenter ,0.);
+	strip = topo->channel(partLocalPoint);
+	const float stripF = float(strip)+0.5;
+
+	//get digitized location
+	LocalPoint  digiPartLocalPoint = topo->localPosition(stripF);
+	digiLocalError = topo->localError(stripF, 1./sqrt(12.));
+	digiLocalPoint = LocalPoint(digiPartLocalPoint.x(),digiPartLocalPoint.y() + partCenter,0.0);
+	return partIdx;
+
+
+}
+void ME0ReDigiProducer::getStripProperties(const ME0EtaPartition* etaPart, const ME0DigiPreReco* inDigi, float& tof,int& strip, LocalPoint&  digiLocalPoint, LocalError&  digiLocalError) const {
+	//convert to relative to partition
+	tof -= tofs[etaPart->id().layer()-1][etaPart->id().roll() -1];
+
+	//find channel
+	const LocalPoint partLocalPoint(inDigi->x(), inDigi->y(),0.);
+	strip = etaPart->specificTopology().channel(partLocalPoint);
+	const float stripF = float(strip)+0.5;
+
+	//get digitized location
+	digiLocalPoint = etaPart->specificTopology().localPosition(stripF);
+	digiLocalError = etaPart->specificTopology().localError(stripF, 1./sqrt(12.));
+}
+
+unsigned int ME0ReDigiProducer::fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const {
+	auto it1 = chDigiMap.find(bx);
+	if (it1 == chDigiMap.end()){
+		chDigiMap[bx][part][strip] = currentIDX;
+		return -1;
+	}
+	auto it2 = it1->second.find(part);
+	if (it2 == it1->second.end()){
+		it1->second[part][strip] = currentIDX;
+		return -1;
+	}
+	auto it3 = it2->second.find(strip);
+	if (it3 == it2->second.end()){
+		it2->second[strip] = currentIDX;
+		return -1;
+	}
+	return it3->second;
+}
+
