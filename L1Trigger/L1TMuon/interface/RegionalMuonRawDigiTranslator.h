@@ -42,24 +42,22 @@ namespace l1t {
       static const unsigned bmtfTrAddrStat4Mask_ = 0xF;
       static const unsigned bmtfTrAddrStat4Shift_ = 2;
 
-      static const unsigned emtfTrAddrSectIdMask_ = 0xF;
-      static const unsigned emtfTrAddrSectIdShift_ = 0;
-      static const unsigned emtfTrAddrMe1Mask_ = 0x1F;
-      static const unsigned emtfTrAddrMe1Shift_ = 4;
-      static const unsigned emtfTrAddrMe1SubSecIdShift_ = 9;
-      static const unsigned emtfTrAddrMe1OrderShift_ = 10;
-      static const unsigned emtfTrAddrMe2Mask_ = 0xF;
-      static const unsigned emtfTrAddrMe2Shift_ = 11;
-      static const unsigned emtfTrAddrMe2SubSecIdShift_ = 15;
-      static const unsigned emtfTrAddrMe2OrderShift_ = 16;
-      static const unsigned emtfTrAddrMe3Mask_ = 0x3;
-      static const unsigned emtfTrAddrMe3Shift_ = 17;
-      static const unsigned emtfTrAddrMe3SubSecIdShift_ = 19;
-      static const unsigned emtfTrAddrMe3OrderShift_ = 20;
-      static const unsigned emtfTrAddrMe4Mask_ = 0x3;
-      static const unsigned emtfTrAddrMe4Shift_ = 21;
-      static const unsigned emtfTrAddrMe4SubSecIdShift_ = 23;
-      static const unsigned emtfTrAddrMe4OrderShift_ = 24;
+      static const unsigned emtfTrAddrMe1SegShift_ =   0;
+      static const unsigned emtfTrAddrMe1ChShift_  =   1;
+      static const unsigned emtfTrAddrMe1ChMask_   = 0x7;
+      static const unsigned emtfTrAddrMe2SegShift_ =   4;
+      static const unsigned emtfTrAddrMe2ChShift_  =   5;
+      static const unsigned emtfTrAddrMe2ChMask_   = 0x7;
+      static const unsigned emtfTrAddrMe3SegShift_ =   8;
+      static const unsigned emtfTrAddrMe3ChShift_  =   9;
+      static const unsigned emtfTrAddrMe3ChMask_   = 0x7;
+      static const unsigned emtfTrAddrMe4SegShift_ =  12;
+      static const unsigned emtfTrAddrMe4ChShift_  =  13;
+      static const unsigned emtfTrAddrMe4ChMask_   = 0x7;
+      static const unsigned emtfTrAddrTrkNumShift_ =  16;
+      static const unsigned emtfTrAddrTrkNumMask_  = 0x3;
+      static const unsigned emtfTrAddrBxShift_     =  18;
+      static const unsigned emtfTrAddrBxMask_    = 0x7FF;
   };
 }
 

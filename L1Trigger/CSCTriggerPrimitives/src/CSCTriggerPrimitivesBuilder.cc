@@ -621,6 +621,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   // run MPC simulation
   m_muonportcard->loadDigis(oc_lct);
 
+  // temporary hack to ensure that all MPC LCTs are read out
+  if (runOnData_) {
+    m_minBX = 5;
+    m_maxBX = 11;
+  }
+
   std::vector<csctf::TrackStub> result;
   for(int bx = m_minBX; bx <= m_maxBX; ++bx)
     for(int e = min_endcap; e <= max_endcap; ++e)

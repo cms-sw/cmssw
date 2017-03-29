@@ -49,12 +49,10 @@ private:
     float getEnergy(T1Ref) const;
     float getEt(T1Ref) const;
     
-    edm::InputTag candTag_; // input tag identifying product that contains filtered photons
-    edm::InputTag isoTag_; // input tag identifying product that contains isolated map
-    edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
+    edm::InputTag candTag_; // input tag identifying product that contains filtered candidates
+    edm::InputTag varTag_; // input tag identifying product that contains variable map
     edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
-    edm::EDGetTokenT<T1IsolationMap> isoToken_;
-    edm::EDGetTokenT<T1IsolationMap> nonIsoToken_;
+    edm::EDGetTokenT<T1IsolationMap> varToken_;
     bool lessThan_;           // the cut is "<" or ">" ?
     bool useEt_;              // use E or Et in relative isolation cuts
     double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel
@@ -63,11 +61,9 @@ private:
     double thrOverEEE_;       // threshold for x/E < thr cut (isolations) - ECAL endcap
     double thrOverE2EB_;      // threshold for x/E^2 < thr cut (isolations) - ECAL barrel
     double thrOverE2EE_;      // threshold for x/E^2 < thr cut (isolations) - ECAL endcap
-    int    ncandcut_;        // number of photons required
-    bool doIsolated_;
+    int    ncandcut_;        // number of candidates required
     
-    edm::InputTag L1IsoCollTag_;
-    edm::InputTag L1NonIsoCollTag_;
+    edm::InputTag l1EGTag_;
 };
 
 #endif //HLTGenericFilter_h

@@ -13,6 +13,8 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 
 
+class OMTFConfiguration;
+
 namespace edm {
   class EventSetup;
 }
@@ -25,7 +27,7 @@ class OMTFinputMaker {
 
   ~OMTFinputMaker();
 
-  void initialize(const edm::EventSetup& es);
+  void initialize(const edm::EventSetup& es, const OMTFConfiguration*);
 
   ///Method translating trigger digis into input matrix with global phi coordinates
   OMTFinput buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
@@ -74,6 +76,8 @@ class OMTFinputMaker {
 			      l1t::tftype type);
 
   AngleConverter myAngleConverter;
+
+  const OMTFConfiguration* myOmtfConfig;
 
 };
 

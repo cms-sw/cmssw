@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG 1
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
@@ -9,18 +7,35 @@
 #include "CaloCollections.h"
 
 namespace l1t {
-   namespace stage2 {
-      class MPUnpacker_0x1001000b : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
+  namespace stage2 {
+    class MPUnpacker_0x1001000b : public Unpacker {
+    public:
+      enum { BLK_TOT_POS=123, BLK_X_POS=121, BLK_Y_POS=127, BLK_TOT_NEG=125, BLK_X_NEG=131, BLK_Y_NEG=129};
+      virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+    private:
+      int etaSign(int blkId);
+    };
+  }
 }
+
+
+
+
 
 // Implementation
 
 namespace l1t {
 namespace stage2 {
+  
+   int MPUnpacker_0x1001000b::etaSign(int blkId){
+     if ((blkId == BLK_TOT_NEG) ||
+         (blkId == BLK_X_NEG) ||
+	 (blkId == BLK_Y_NEG)) {
+       return -1;
+     }
+     return 1;
+   }
+
    bool
    MPUnpacker_0x1001000b::unpack(const Block& block, UnpackerCollections *coll)
    {
@@ -51,7 +66,8 @@ namespace stage2 {
      int unsigned ftau = 5;
      int unsigned fjet = 7;
 
-     
+
+
      //      ===== Jets and Sums =====
 
      // ET / MET(x) / MET (y)
@@ -61,29 +77,29 @@ namespace stage2 {
      l1t::EtSum et = l1t::EtSum();
 
      switch(block.header().getID()){
-     case 123:
+     case BLK_TOT_POS:
        et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       et.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
-     case 121:
+     case BLK_X_POS:
        et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
-     case 127:
+     case BLK_Y_POS:
        et.setType(l1t::EtSum::kTotalEty);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
-     case 125:
+     case BLK_TOT_NEG:
        et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       et.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
-     case 131:
+     case BLK_X_NEG:
        et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
-     case 129:
+     case BLK_Y_NEG:
        et.setType(l1t::EtSum::kTotalEty); 
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       et.setHwPt( ( uint32_t(raw_data) ) );
        break;
      default: 
        break;
@@ -101,14 +117,14 @@ namespace stage2 {
      l1t::EtSum ht = l1t::EtSum(); 
 
      //ht.setHwPt(raw_data & 0xFFFFF);
-     ht.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+     ht.setHwPt( ( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
      switch(block.header().getID()){
-     case 123:  ht.setType(l1t::EtSum::kTotalHt);  break;
-     case 121:  ht.setType(l1t::EtSum::kTotalHtx); break;
-     case 127:  ht.setType(l1t::EtSum::kTotalHty); break;
-     case 125:  ht.setType(l1t::EtSum::kTotalHt);  break;
-     case 131:  ht.setType(l1t::EtSum::kTotalHtx); break;
-     case 129: ht.setType(l1t::EtSum::kTotalHty); break;
+     case BLK_TOT_POS:  ht.setType(l1t::EtSum::kTotalHt);  break;
+     case BLK_X_POS:  ht.setType(l1t::EtSum::kTotalHtx); break;
+     case BLK_Y_POS:  ht.setType(l1t::EtSum::kTotalHty); break;
+     case BLK_TOT_NEG:  ht.setType(l1t::EtSum::kTotalHt);  break;
+     case BLK_X_NEG:  ht.setType(l1t::EtSum::kTotalHtx); break;
+     case BLK_Y_NEG: ht.setType(l1t::EtSum::kTotalHty); break;
      default: break;
      }
 
@@ -126,12 +142,7 @@ namespace stage2 {
 
        l1t::Jet jet = l1t::Jet();
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
+       int etasign = etaSign(block.header().getID());
 
        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
@@ -162,13 +173,8 @@ namespace stage2 {
        
        l1t::EGamma eg = l1t::EGamma();
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
-       
+       int etasign = etaSign(block.header().getID());
+
        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
 
        eg.setHwEta(etasign*((raw_data >> 3) & 0x3F));
@@ -198,12 +204,7 @@ namespace stage2 {
        
        l1t::Tau tau = l1t::Tau();
 
-       int etasign = 1;
-       if ((block.header().getID() == 125) ||
-           (block.header().getID() == 131) ||
-           (block.header().getID() == 129)) {
-         etasign = -1;
-       }
+       int etasign = etaSign(block.header().getID());
        
        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
        

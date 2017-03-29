@@ -29,12 +29,15 @@ namespace l1t
 			
 			LogDebug("L1T") << "nBX = " << nBX << " firstBX = " << firstBX << " lastBX = " << lastBX;
 			
-			int processor;
-			if (  block.amc().getAMCNumber()%2 != 0 )
-				processor =  block.amc().getAMCNumber()/2;
-			else
-				processor = 6 + ( block.amc().getAMCNumber()/2 -1);
-			
+			int processor = block.amc().getBoardID() - 1;
+			if ( processor < 0 || processor > 11 )
+			{
+				edm::LogInfo ("l1t:stage2::BMTFUnpackerOutput::unpack") << "Processor found out of range so it will be calculated by the old way";
+				if ( block.amc().getAMCNumber()%2 != 0 )
+			                processor = block.amc().getAMCNumber()/2 ;
+			        else
+			                processor = 6 + (block.amc().getAMCNumber()/2 -1);
+			}
 
 			for(int ibx = firstBX; ibx <= lastBX; ibx++)
 			{
@@ -58,8 +61,6 @@ namespace l1t
 					LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
 					if ( muCand.hwQual() != 0 )
 					{
-						if ( muCand.hwPt() < 6 )
-							std::cout << "Output is: " << std::hex << raw_first <<"\t" << raw_secnd << std::dec << "\tPt: " << muCand.hwPt() << "\teta: " << muCand.hwEta() << "\tphi: " << muCand.hwPhi() <<"\tQual: " << muCand.hwQual() << std::endl << "Wheel is: " << (int) ((raw_secnd >> 20) & 0x3) << std::endl;
 						res->push_back(ibx, muCand);
 					}
 					

@@ -11,16 +11,7 @@ def _modifyCscTriggerPrimitiveDigisForRun2( object ) :
     """
     object.debugParameters = True
     object.checkBadChambers = False
-    object.commonParam.isSLHC = True
-    object.commonParam.smartME1aME1b = True
     object.commonParam.gangedME1a = False
-    object.alctParam07.alctNarrowMaskForR1 = True
-    object.alctParam07.alctGhostCancellationBxDepth = cms.int32(1)
-    object.alctParam07.alctGhostCancellationSideQuality = cms.bool(True)
-    object.alctParam07.alctPretrigDeadtime = cms.uint32(4)
-    object.clctParam07.clctPidThreshPretrig = 4
-    object.clctParam07.clctMinSeparation = 5
-    object.tmbParam.matchTrigWindowSize = 3
 
 
 def _modifyCscTriggerPrimitiveDigisForRun2GE11( object ) :
@@ -579,9 +570,19 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME11LCTs = cms.uint32(2)
     ),
 
+    # MPC sorter config for Run2
+    mpcRun2 = cms.PSet(
+        sortStubs = cms.bool(False),
+        dropInvalidStubs = cms.bool(False),
+        dropLowQualityStubs = cms.bool(False),
+    ),
+
     # MPC sorter config for SLHC studies
     mpcSLHC = cms.PSet(
-        mpcMaxStubs = cms.uint32(3)
+        mpcMaxStubs = cms.uint32(18),
+        sortStubs = cms.bool(False),
+        dropInvalidStubs = cms.bool(False),
+        dropLowQualityStubs = cms.bool(False),
     )
 )
 

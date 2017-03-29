@@ -27,4 +27,5 @@
 <use   name="CondFormats/RunInfo"/>
 
 <use   name="DQM/HcalCommon" />
+<use   name="DQM/HcalTasks"/>
 <flags EDM_PLUGIN="1" />

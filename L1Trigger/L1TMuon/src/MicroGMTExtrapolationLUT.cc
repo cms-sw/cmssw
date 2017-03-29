@@ -20,6 +20,24 @@ l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fnam
   } 
 }
 
+l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (l1t::LUT* lut, const int type) : MicroGMTLUT(lut), m_etaRedInWidth(6), m_ptRedInWidth(6)
+{
+  m_totalInWidth = m_ptRedInWidth + m_etaRedInWidth;
+  if (type == MicroGMTConfiguration::ETA_OUT) {
+    m_outWidth = 4;
+  } else {
+    m_outWidth = 3;
+  }
+
+  m_ptRedMask = (1 << m_ptRedInWidth) - 1;
+  m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;
+
+  m_inputs.push_back(MicroGMTConfiguration::ETA_COARSE);
+  m_inputs.push_back(MicroGMTConfiguration::PT);
+
+  m_initialized = true;
+}
+
 int 
 l1t::MicroGMTExtrapolationLUT::lookup(int eta, int pt) const 
 {

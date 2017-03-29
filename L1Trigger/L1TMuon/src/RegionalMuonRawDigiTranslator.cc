@@ -54,19 +54,16 @@ l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& mu, u
     mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat3, segSel & 0x4);
     mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat4, segSel & 0x8);
   } else if (tf == emtf_neg || tf == emtf_pos) {
-    mu.setTrackSubAddress(RegionalMuonCand::kSectorId, (rawTrackAddress >> emtfTrAddrSectIdShift_) & emtfTrAddrSectIdMask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kME1, (rawTrackAddress >> emtfTrAddrMe1Shift_) & emtfTrAddrMe1Mask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kME1SubSecId, (rawTrackAddress >> emtfTrAddrMe1SubSecIdShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME1Order, (rawTrackAddress >> emtfTrAddrMe1OrderShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME2, (rawTrackAddress >> emtfTrAddrMe2Shift_) & emtfTrAddrMe2Mask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kME2SubSecId, (rawTrackAddress >> emtfTrAddrMe2SubSecIdShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME2Order, (rawTrackAddress >> emtfTrAddrMe2OrderShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME3, (rawTrackAddress >> emtfTrAddrMe3Shift_) & emtfTrAddrMe3Mask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kME3SubSecId, (rawTrackAddress >> emtfTrAddrMe3SubSecIdShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME3Order, (rawTrackAddress >> emtfTrAddrMe3OrderShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME4, (rawTrackAddress >> emtfTrAddrMe4Shift_) & emtfTrAddrMe4Mask_);
-    mu.setTrackSubAddress(RegionalMuonCand::kME4SubSecId, (rawTrackAddress >> emtfTrAddrMe4SubSecIdShift_) & 0x1);
-    mu.setTrackSubAddress(RegionalMuonCand::kME4Order, (rawTrackAddress >> emtfTrAddrMe4OrderShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME1Seg, (rawTrackAddress >> emtfTrAddrMe1SegShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME1Ch,  (rawTrackAddress >> emtfTrAddrMe1ChShift_)  & emtfTrAddrMe1ChMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME2Seg, (rawTrackAddress >> emtfTrAddrMe2SegShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME2Ch,  (rawTrackAddress >> emtfTrAddrMe2ChShift_)  & emtfTrAddrMe2ChMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME3Seg, (rawTrackAddress >> emtfTrAddrMe3SegShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME3Ch,  (rawTrackAddress >> emtfTrAddrMe3ChShift_)  & emtfTrAddrMe3ChMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kME4Seg, (rawTrackAddress >> emtfTrAddrMe4SegShift_) & 0x1);
+    mu.setTrackSubAddress(RegionalMuonCand::kME4Ch,  (rawTrackAddress >> emtfTrAddrMe4ChShift_)  & emtfTrAddrMe4ChMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kTrkNum, (rawTrackAddress >> emtfTrAddrTrkNumShift_) & emtfTrAddrTrkNumMask_);
+    mu.setTrackSubAddress(RegionalMuonCand::kBX,     (rawTrackAddress >> emtfTrAddrBxShift_)     & emtfTrAddrBxMask_);
   } else {
     std::map<int, int> trackAddr;
     trackAddr[0] = rawTrackAddress;
@@ -134,19 +131,19 @@ l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCa
   } else if (tf == emtf_neg || tf == emtf_pos) {
     // protection against a track address map with the wrong size
     if (mu.trackAddress().size() == RegionalMuonCand::kNumEmtfSubAddr) {
-      rawTrkAddr = (mu.trackSubAddress(RegionalMuonCand::kSectorId) & emtfTrAddrSectIdMask_) << emtfTrAddrSectIdShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME1) & emtfTrAddrMe1Mask_) << emtfTrAddrMe1Shift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME1SubSecId) & 0x1) << emtfTrAddrMe1SubSecIdShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME1Order) & 0x1) << emtfTrAddrMe1OrderShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME2) & emtfTrAddrMe2Mask_) << emtfTrAddrMe2Shift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME2SubSecId) & 0x1) << emtfTrAddrMe2SubSecIdShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME2Order) & 0x1) << emtfTrAddrMe2OrderShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME3) & emtfTrAddrMe3Mask_) << emtfTrAddrMe3Shift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME3SubSecId) & 0x1) << emtfTrAddrMe3SubSecIdShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME3Order) & 0x1) << emtfTrAddrMe3OrderShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME4) & emtfTrAddrMe4Mask_) << emtfTrAddrMe4Shift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME4SubSecId) & 0x1) << emtfTrAddrMe4SubSecIdShift_
-                 | (mu.trackSubAddress(RegionalMuonCand::kME4Order) & 0x1) << emtfTrAddrMe4OrderShift_;
+
+      rawTrkAddr = 
+	  (mu.trackSubAddress(RegionalMuonCand::kME1Seg) & 0x1)                   << emtfTrAddrMe1SegShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME1Ch ) & emtfTrAddrMe1ChMask_)  << emtfTrAddrMe1ChShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME2Seg) & 0x1)                   << emtfTrAddrMe2SegShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME2Ch ) & emtfTrAddrMe2ChMask_)  << emtfTrAddrMe2ChShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME3Seg) & 0x1)                   << emtfTrAddrMe3SegShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME3Ch ) & emtfTrAddrMe3ChMask_)  << emtfTrAddrMe3ChShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME4Seg) & 0x1)                   << emtfTrAddrMe4SegShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kME4Ch ) & emtfTrAddrMe4ChMask_)  << emtfTrAddrMe4ChShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kTrkNum) & emtfTrAddrTrkNumMask_) << emtfTrAddrTrkNumShift_
+	| (mu.trackSubAddress(RegionalMuonCand::kBX    ) & emtfTrAddrBxMask_)     << emtfTrAddrBxShift_;
+
     } else {
       edm::LogWarning("L1T") << "EMTF muon track address map contains " << mu.trackAddress().size() << " instead of the expected " << RegionalMuonCand::kNumEmtfSubAddr << " subaddresses. Check the data format. Setting track address to 0.";
       rawTrkAddr = 0;

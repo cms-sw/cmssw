@@ -3,6 +3,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+l1t::MicroGMTLUT::MicroGMTLUT(l1t::LUT* lut) : m_totalInWidth(0), m_outWidth(0), m_initialized(true)
+{
+  std::stringstream ss;
+  lut->write(ss);
+  read(ss);
+}
+
 // I/O functions
 void
 l1t::MicroGMTLUT::save(std::ofstream& output)

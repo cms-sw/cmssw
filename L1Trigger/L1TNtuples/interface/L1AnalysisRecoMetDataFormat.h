@@ -21,6 +21,12 @@ namespace L1Analysis
     {
      met    = -999.;
      metPhi = -999.;
+     caloMet = -999.;
+     caloMetPhi = -999.;
+     caloSumEt = -999.;
+     caloMetBE = -999.;
+     caloMetPhiBE = -999.;
+     caloSumEtBE = -999.;
      Ht     = -999.;
      mHt    = -999.;
      mHtPhi = -999.;
@@ -31,6 +37,12 @@ namespace L1Analysis
     
     float met;
     float metPhi;
+    float caloMet;
+    float caloMetPhi;
+    float caloSumEt;
+    float caloMetBE;
+    float caloMetPhiBE;
+    float caloSumEtBE;
     float Ht;
     float mHt;
     float mHtPhi;

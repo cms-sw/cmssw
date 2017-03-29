@@ -6,7 +6,10 @@
 // Generally useful includes
 #include <iostream>
 #include <iomanip>  // For things like std::setw
+#include <array>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFHitTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFTrackTools.h"
 
 namespace l1t {
   namespace stage2 {

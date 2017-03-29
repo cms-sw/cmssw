@@ -239,6 +239,7 @@ L1TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::Luminosity
   iSummary->baseRunDir           = "";
   iSummary->stL1Jsd              = "";
   iSummary->streamL1Destination  = "";
+  iSummary->streamL1MergeType  = "";
 
   return iSummary;
 }//End globalBeginLuminosityBlockSummary function  
@@ -266,6 +267,7 @@ L1TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& i
     iSummary->stL1Jsd = stL1Jsd_;      
 
     iSummary->streamL1Destination  = runCache()->streamL1Destination;
+    iSummary->streamL1MergeType    = runCache()->streamL1MergeType;
   }
 
   else{
@@ -376,6 +378,7 @@ L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBl
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnFileAdler32);
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
+    l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1MergeType);
     l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnHLTErrorEvents.value());
 
     result = writer.write(l1DaqJsn);

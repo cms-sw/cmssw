@@ -15,6 +15,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
 #include <set>
 
 class HcalUnpacker {
@@ -46,6 +47,7 @@ public:
 private:
   void unpackVME(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
   void unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
+  void unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio);
 
 
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id

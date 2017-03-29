@@ -30,6 +30,7 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet &ps)
   streamLabel_ = ps.getUntrackedParameter<std::string>("streamLabel", "streamDQMHistograms");
 
   transferDestination_ = "";
+  mergeType_ = "";
 }
 
 DQMFileSaverPB::~DQMFileSaverPB() {}
@@ -37,6 +38,7 @@ DQMFileSaverPB::~DQMFileSaverPB() {}
 void DQMFileSaverPB::initRun() const {
   if (!fakeFilterUnitMode_) {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_,evf::MergeTypePB);
   } 
 }
 
@@ -86,7 +88,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
   }
 
   // Write the json file in the open directory.
-  bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, fms);
+  bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, mergeType_, fms);
   write_json(openJsonFilePathName, pt);
   ::rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
 }
@@ -96,7 +98,7 @@ void DQMFileSaverPB::saveRun(const FileParameters& fp) const {
 }
 
 boost::property_tree::ptree
-DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, evf::FastMonitoringService *fms)
+DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, const std::string mergeTypeStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;
@@ -130,7 +132,7 @@ DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName,
   }
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination, mergeType, hltErrorEvents;
 
   processedEvents.put("", nProcessed); // Processed events
   acceptedEvents.put("", nProcessed); // Accepted events, same as processed for our purposes
@@ -142,6 +144,8 @@ DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName,
   inputFiles.put("", ""); // We do not care about input files!
   fileAdler32.put("", -1); // placeholder to match output json definition
   transferDestination.put("", transferDestinationStr); // SM Transfer destination field
+  mergeType.put("", mergeTypeStr); // SM Transfer destination field
+  hltErrorEvents.put("", 0); // Error events
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -152,6 +156,8 @@ DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName,
   data.push_back(std::make_pair("", inputFiles));
   data.push_back(std::make_pair("", fileAdler32));
   data.push_back(std::make_pair("", transferDestination));
+  data.push_back(std::make_pair("", mergeType));
+  data.push_back(std::make_pair("", hltErrorEvents));
 
   pt.add_child("data", data);
 

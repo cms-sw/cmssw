@@ -9,6 +9,7 @@ namespace l1t {
     public: 
       MicroGMTCaloIndexSelectionLUT() {};
       explicit MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type);
+      explicit MicroGMTCaloIndexSelectionLUT (l1t::LUT* lut, int type);
       virtual ~MicroGMTCaloIndexSelectionLUT() {};
 
       // returns the index corresponding to the calo tower sum 

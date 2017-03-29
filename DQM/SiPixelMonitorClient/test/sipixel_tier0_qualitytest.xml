@@ -26,7 +26,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.2</PARAM> 
+     <PARAM name="ymin">1.0</PARAM> 
      <PARAM name="ymax">5.0</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelBarrel: -->
@@ -44,7 +44,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">22.5</PARAM> 
+     <PARAM name="ymin">18.0</PARAM> 
      <PARAM name="ymax">34.0</PARAM> 
 </QTEST>
 <!-- size in PixelBarrel: -->
@@ -190,7 +190,7 @@
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">95.</PARAM> 
-     <PARAM name="ymax">115.</PARAM> 
+     <PARAM name="ymax">130.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:ndigis" activate="true"> 
@@ -225,7 +225,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">19.</PARAM> 
+     <PARAM name="ymin">15.</PARAM> 
      <PARAM name="ymax">27.</PARAM> 
 </QTEST>
 <!-- size in PixelEndcap: -->
@@ -234,7 +234,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.7</PARAM> 
+     <PARAM name="ymin">1.3</PARAM> 
      <PARAM name="ymax">2.2</PARAM> 
 </QTEST>
 <!-- YRange in DISK: -->

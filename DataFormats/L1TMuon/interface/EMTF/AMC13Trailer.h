@@ -25,38 +25,38 @@ namespace l1t {
       
       virtual ~AMC13Trailer() {};
       
-      void set_evt_lgth(int bits)       {  evt_lgth = bits; };
-      void set_crc16(int bits)          {  crc16 = bits; };
-      void set_evt_stat(int bits)       {  evt_stat = bits; };
-      void set_tts(int bits)            {  tts = bits; };
-      void set_c(int bits)              {  c = bits; };
-      void set_f(int bits)              {  f = bits; };
-      void set_t(int bits)              {  t = bits; };
-      void set_r(int bits)              {  r = bits; };
-      void add_format_error()           { format_errors += 1; };
-      void set_dataword(uint64_t bits)  { dataword = bits; };
+      void set_evt_lgth(int bits)      { evt_lgth = bits;    }
+      void set_crc16(int bits)         { crc16 = bits;       }
+      void set_evt_stat(int bits)      { evt_stat = bits;    }
+      void set_tts(int bits)           { tts = bits;         }
+      void set_c(int bits)             { c = bits;           }
+      void set_f(int bits)             { f = bits;           }
+      void set_t(int bits)             { t = bits;           }
+      void set_r(int bits)             { r = bits;           }
+      void add_format_error()          { format_errors += 1; }
+      void set_dataword(uint64_t bits) { dataword = bits;    }
       
-      const int Evt_lgth()      const { return  evt_lgth ; };
-      const int CRC16()         const { return  crc16 ; };
-      const int Evt_stat()      const { return  evt_stat ; };
-      const int TTS()           const { return  tts ; };
-      const int C()             const { return  c ; };
-      const int F()             const { return  f ; };
-      const int T()             const { return  t ; };
-      const int R()             const { return  r ; };
-      const int Format_Errors() const { return format_errors; };
-      const uint64_t Dataword() const { return dataword; };
+      int      Evt_lgth()      const { return evt_lgth;      }
+      int      CRC16()         const { return crc16;         }
+      int      Evt_stat()      const { return evt_stat;      }
+      int      TTS()           const { return tts;           }
+      int      C()             const { return c;             }
+      int      F()             const { return f;             }
+      int      T()             const { return t;             }
+      int      R()             const { return r;             }
+      int      Format_Errors() const { return format_errors; }
+      uint64_t Dataword()      const { return dataword;      }
       
     private:
-      int  evt_lgth;
-      int  crc16;
-      int  evt_stat;
-      int  tts; 
-      int  c;
-      int  f;
-      int  t;
-      int  r;
-      int  format_errors;
+      int evt_lgth;
+      int crc16;
+      int evt_stat;
+      int tts; 
+      int c;
+      int f;
+      int t;
+      int r;
+      int format_errors;
       uint64_t dataword; 
       
     }; // End class AMC13Trailer

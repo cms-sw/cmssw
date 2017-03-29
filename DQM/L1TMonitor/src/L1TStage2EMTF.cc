@@ -2,7 +2,7 @@
 
 
 L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps) 
-    : emtfToken(consumes<l1t::EMTFOutputCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+    : emtfToken(consumes<l1t::EMTFDaqOutCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
@@ -263,32 +263,32 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   if (verbose) edm::LogInfo("L1TStage2EMTF") << "L1TStage2EMTF: analyze..." << std::endl;
 
-  edm::Handle<l1t::EMTFOutputCollection> EMTFOutputCollection;
-  e.getByToken(emtfToken, EMTFOutputCollection);
+  edm::Handle<l1t::EMTFDaqOutCollection> EMTFDaqOutCollection;
+  e.getByToken(emtfToken, EMTFDaqOutCollection);
 
   int nTracks = 0;
  
-  for (std::vector<l1t::EMTFOutput>::const_iterator EMTFOutput = EMTFOutputCollection->begin(); EMTFOutput != EMTFOutputCollection->end(); ++EMTFOutput) {
+  for (std::vector<l1t::EMTFDaqOut>::const_iterator EMTFDaqOut = EMTFDaqOutCollection->begin(); EMTFDaqOut != EMTFDaqOutCollection->end(); ++EMTFDaqOut) {
 
     // Event Record Header
-    l1t::emtf::EventHeader EventHeader = EMTFOutput->GetEventHeader();
+    l1t::emtf::EventHeader EventHeader = EMTFDaqOut->GetEventHeader();
     int Endcap = EventHeader.Endcap();
     int Sector = EventHeader.Sector();
     int RDY = EventHeader.Rdy(); //For csctferrors, check if FMM Signal was good
 
     // ME Data Record (LCTs)
-    l1t::emtf::MECollection MECollection = EMTFOutput->GetMECollection();
+    l1t::emtf::MECollection MECollection = EMTFDaqOut->GetMECollection();
 
     for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection.begin(); ME != MECollection.end(); ++ME) {
       int CSCID = ME->CSC_ID();
       int Station = ME->Station();
       int CSCID_offset = (Sector - 1) * 9;
-      int strip = ME->CLCT_key_half_strip();
-      int wire = ME->Key_wire_group();
+      int strip = ME->Strip();
+      int wire = ME->Wire();
       int CSCID_offset_ring1 = CSCID + (3 * (Sector-1)) + 1; 
       int CSCID_offset_ring2 = CSCID + (6 * (Sector-1)) - 2;
       int ring = 0;
-      int bx = ME->Tbin_num() - 3;
+      int bx = ME->TBIN() - 3;
       bool SE = ME->SE();
       bool SM = ME->SM();
       bool BXE = ME->BXE();
@@ -508,16 +508,17 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     // SP Output Data Record
-    l1t::emtf::SPCollection SPCollection = EMTFOutput->GetSPCollection();
+    l1t::emtf::SPCollection SPCollection = EMTFDaqOut->GetSPCollection();
 
     for (std::vector<l1t::emtf::SP>::const_iterator SP = SPCollection.begin(); SP != SPCollection.end(); ++SP) {
-      int Quality = SP->Quality();
+      int Mode = SP->Mode();
       float Eta_GMT = SP->Eta_GMT();
-      float Phi_GMT_global_rad = SP->Phi_GMT_global() * (M_PI/180);
+      float Phi_GMT_local_rad = (SP->Phi_GMT() * M_PI/288) + (M_PI/576);
+      float Phi_GMT_global_rad = Phi_GMT_local_rad + (M_PI/12) + (Sector-1)*(M_PI/3);
       if (Phi_GMT_global_rad > M_PI) Phi_GMT_global_rad -= 2*M_PI;
       
 
-      switch (Quality) {
+      switch (Mode) {
         case 0: {
           emtfnLCTs->Fill(0);
           break;
@@ -540,8 +541,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         }
       }
 
-      emtfTrackBX->Fill(Endcap * Sector, SP->TBIN_num() - 3);
-      emtfTrackPt->Fill(SP->Pt());
+      emtfTrackBX->Fill(Endcap * Sector, SP->TBIN() - 3);
+      emtfTrackPt->Fill( (SP->Pt_GMT() - 1) * 0.5 );
       emtfTrackEta->Fill(Eta_GMT);
       emtfTrackPhi->Fill(Phi_GMT_global_rad);
       emtfTrackOccupancy->Fill(Eta_GMT, Phi_GMT_global_rad);

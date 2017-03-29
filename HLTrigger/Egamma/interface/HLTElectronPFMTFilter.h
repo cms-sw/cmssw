@@ -27,8 +27,6 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 
-
-
 //
 // class declaration
 //
@@ -50,10 +48,8 @@ class HLTElectronPFMTFilter : public HLTFilter {
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputEleToken_;
       double lowerMTCut_;
       double upperMTCut_;
-      bool   relaxed_;
       int    minN_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
+      edm::InputTag l1EGTag_;
       
 };
 

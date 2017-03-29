@@ -33,6 +33,18 @@ HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibrat
       |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
 }
 
+HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(HcalCalibration) {
+  id_|=(dt<<17);
+  id_|=value&0xFF;
+}
+
+HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3)  : HcalOtherDetId(HcalCalibration) {
+  id_|=(dt<<17);
+  id_|=(value1&0x3F)<<10;
+  id_|=(value2&0x1F)<<5;
+  id_|=(value3&0x1F);
+}
+
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
     throw cms::Exception("Invalid DetId") << "Cannot initialize HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
@@ -89,6 +101,13 @@ std::string HcalCalibDetId::cboxChannelString() const {
   }
 }
 
+int HcalCalibDetId::channel() const { return (calibFlavor()==uMNqie)?(id_&0xFF):(id_&0x1F); }
+
+int HcalCalibDetId::fiber() const { return (calibFlavor()==CastorRadFacility)?((id_>>5)&0x1F):(0); }
+
+int HcalCalibDetId::rm() const { return (calibFlavor()==CastorRadFacility)?((id_>>10)&0x3F):(0); }
+
+
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   std::string sd;
   switch (id.hcalSubdet()) {
@@ -105,6 +124,10 @@ std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   case(HcalCalibDetId::HOCrosstalk):
     return s << "(HOCrosstalk "  << id.ieta() << "," << id.iphi() 
 	     << ')';
+  case (HcalCalibDetId::uMNqie):
+    return s << "(uMNqie " << id.channel() << ')';
+  case (HcalCalibDetId::CastorRadFacility):
+    return s << "(CastorRadFacility " << id.rm() << " / " << id.fiber() << " / " << id.channel() << ')';
   default: return s;
   };
 }

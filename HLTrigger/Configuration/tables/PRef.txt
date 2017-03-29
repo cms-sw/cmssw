@@ -126,7 +126,7 @@ HLT_L1MinimumBiasHF2AND_v*					# CMSHLT-684
 HLT_L1MinimumBiasHF1OR_v*					# CMSHLT-684
 HLT_L1MinimumBiasHF2ORNoBptxGating_v*				# CMSHLT-684
 
-AlCa_EcalPhiSym_v*						# CMSHLT-684
+#AlCa_EcalPhiSym_v*						# CMSHLT-684 removed due to added pp L1T seed not available
 AlCa_LumiPixels_Random_v*					# CMSHLT-684
 AlCa_LumiPixels_ZeroBias_v*					# CMSHLT-684
 

@@ -33,9 +33,8 @@ namespace l1t {
     int32_t metEtaMax_;
     int32_t metEtaMax2_;
     int32_t ettEtaMax_;
-
+	
   };
-
 }
 
 #endif

@@ -31,9 +31,7 @@ namespace l1t {
     int32_t httJetThresholdHw_;
     int32_t mhtEtaMax_;
     int32_t httEtaMax_;
-
   };
-
 }
 
 #endif

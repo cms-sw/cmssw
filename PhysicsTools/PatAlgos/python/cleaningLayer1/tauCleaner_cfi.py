@@ -8,7 +8,7 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
         'tauID("decayModeFinding") > 0.5 &'
         ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
         ' tauID("againstMuonTight3") > 0.5 &'
-        ' tauID("againstElectronVLooseMVA5") > 0.5'
+        ' tauID("againstElectronVLooseMVA6") > 0.5'
     ),
 
     # overlap checking configurables

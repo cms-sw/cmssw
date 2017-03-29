@@ -29,7 +29,7 @@ void OMTFGhostBuster::select(std::vector<AlgoMuon> & refHitCands, int charge){
     it2 != refHitCleanCands.end(); ++it2){
       //do not accept candidates with similar phi (any charge combination)
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
-      if(std::abs(it1->getPhi() - it2->getPhi())<5/360.0*OMTFConfiguration::instance()->nPhiBins){
+      if(std::abs(it1->getPhi() - it2->getPhi())<5/360.0*nPhiBins){
         isGhost=true;
         break;
       }

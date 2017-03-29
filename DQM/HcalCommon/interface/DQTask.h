@@ -10,23 +10,24 @@
 #include "DQM/HcalCommon/interface/DQModule.h"
 #include "DQM/HcalCommon/interface/ContainerI.h"
 #include "DQM/HcalCommon/interface/ContainerS.h"
+#include "DQM/HcalCommon/interface/ContainerXXX.h"
 
 namespace hcaldqm
 {
 	enum UpdateFreq
 	{
 		fEvent = 0,
-		fLS = 1,
+		f1LS = 1,
 		f10LS = 2,
 		f50LS = 3,
 		f100LS = 4,
-
 		nUpdateFreq = 5
 	};
-
 	class DQTask : public DQMEDAnalyzer, public DQModule
 	{
 		public:
+
+			//	constructor
 			DQTask(edm::ParameterSet const&);
 			virtual ~DQTask(){}
 
@@ -56,6 +57,12 @@ namespace hcaldqm
 
 			//	counters
 			int			_procLSs;
+
+			//	container of quality masks from conddb
+			ContainerXXX<uint32_t> _xQuality;
+			//	vector of Electronics raw Ids of HCAL FEDs 
+			//	registered at cDAQ for the Run
+			std::vector<uint32_t> _vcdaqEids;
 
 			//	Tags and corresponding Tokens
 			edm::InputTag		_tagRaw;

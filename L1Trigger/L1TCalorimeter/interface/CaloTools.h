@@ -102,6 +102,8 @@ namespace l1t {
     static l1t::Jet    jetP4MP(l1t::Jet&);
     static l1t::EtSum  etSumP4MP(l1t::EtSum&);
 
+	static const int32_t cos_coeff[72];
+	static const int32_t sin_coeff[72];
 
   private:
     // trigger tower eta boundaries

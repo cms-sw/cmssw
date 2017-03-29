@@ -10,7 +10,7 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
   exclusive_ = settingsPtr->flag("ResonanceDecayFilter:exclusive");
   eMuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:eMuAsEquivalent");
   eMuTauAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:eMuTauAsEquivalent");
-  allNuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:allNuAsEquivalent_");
+  allNuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:allNuAsEquivalent");
   mothers_ = settingsPtr->mvec("ResonanceDecayFilter:mothers");
   daughters_ = settingsPtr->mvec("ResonanceDecayFilter:daughters");
   

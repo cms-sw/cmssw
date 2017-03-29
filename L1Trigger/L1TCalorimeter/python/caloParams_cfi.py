@@ -83,21 +83,27 @@ caloParams = cms.ESProducer(
     tauPUSParams                  = cms.vdouble(1,4,27),
 
     # jets
-    jetRegionMask         = cms.int32(0),
-    jetLsb                = cms.double(0.5),
-    jetSeedThreshold      = cms.double(0.),
-    jetNeighbourThreshold = cms.double(0.),
-    jetPUSType            = cms.string("None"),
-    jetPUSParams          = cms.vdouble(),
-    jetCalibrationType    = cms.string("None"),
-    jetCalibrationParams  = cms.vdouble(),
-    jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
+    jetRegionMask            = cms.int32(0),
+    jetLsb                   = cms.double(0.5),
+    jetSeedThreshold         = cms.double(0.),
+    jetNeighbourThreshold    = cms.double(0.),
+    jetPUSType               = cms.string("None"),
+    jetCalibrationType       = cms.string("None"),
+    jetCalibrationParams     = cms.vdouble(),
+    jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
+    jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt"),
+    jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt"),
 
     # sums
-    etSumLsb                = cms.double(0.5),
-    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
-    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
-    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.),
+    etSumLsb                 = cms.double(0.5),
+    etSumEtaMin              = cms.vint32(-999, -999, -999, -999),
+    etSumEtaMax              = cms.vint32(999,  999,  999,  999),
+    etSumEtThreshold         = cms.vdouble(0.,  0.,   0.,   0.),
+    etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+
 
     # HI
     centralityNodeVersion = cms.int32(1),

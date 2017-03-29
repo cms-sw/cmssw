@@ -21,19 +21,21 @@ class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
 
       typedef boost::shared_ptr<L1TMuonOverlapParams> ReturnType;
 
-      ReturnType produce(const L1TMuonOverlapParamsRcd&);
+      ReturnType produceParams(const L1TMuonOverlapParamsRcd&);
+
+      ReturnType producePatterns(const L1TMuonOverlapParamsRcd&);
 
    private:
 
       ///Read Golden Patters from single XML file.
-      bool readPatternsXML(XMLConfigReader *aReader);
+      ///XMLConfigReader  state is modified, as it hold
+      ///cache of the Golden Patters read from XML file.
+      bool readPatternsXML(XMLConfigReader  & aReader);
 
       ///Read Connections from single XML file.
-      bool readConnectionsXML(XMLConfigReader *aReader);
+      bool readConnectionsXML(const XMLConfigReader & aReader);
 
-      L1TMuonOverlapParams m_params;
-
-      OMTFConfiguration *myOMTFConfig;
-
+      L1TMuonOverlapParams params;
+      L1TMuonOverlapParams patterns;
 };
 

@@ -16,22 +16,44 @@ namespace hcaldqm
 		double const PROBLEMATIC = 0.95;
 		double const LOW = 0.75;
 		double const VERY_LOW = 0.5;
+		double const VERY_LOW_XXX = 0;
 		double const NOT_APPLICABLE = -1;
+		double const DELTA = 0.005;
 
 		/*
 		 *	Electronics Constants
 		 */
+		//	FED2Crate array and CRATE2FED array
+		//	use conversion functions in Utilities.h
+		//	For fast look up
+		//	This is for uTCA Crates/FEDs only - no other way...
+		int const FED_uTCA_MAX_REAL = 50;
+		uint16_t const FED2CRATE[FED_uTCA_MAX_REAL] = {
+			24, 0, 20, 0, 21, 0, 25, 0, 31, 0,
+			35, 0, 37, 0, 34, 0, 30, 0, 22, 0,
+			29, 0, 32, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 36, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+		uint16_t const CRATE2FED[50] = {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1102, 1104, 1118, 0, 1100, 1106, 0, 0, 0, 1120,
+			1116, 1108, 1122, 0, 1114, 1110, 1132, 1112, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
 
-		//	FEDs
-		int const FED_VME_MIN = 700;
-		int const FED_VME_MAX = 731;
+		//	FEDs use the first 50 uTCA FED numbers only everywhere
+		int const FED_VME_MIN = FEDNumbering::MINHCALFEDID;
+		int const FED_VME_MAX = FEDNumbering::MAXHCALFEDID;
 		int const FED_VME_DELTA = 1;
 		int const FED_VME_NUM = FED_VME_MAX-FED_VME_MIN+1;
 
-		int const FED_uTCA_MIN = 1100;
-		int const FED_uTCA_MAX = 1122;
-		int const FED_uTCA_NUM = 12;
-		int const FED_uTCA_DELTA = 2;
+		int const FED_uTCA_MIN = FEDNumbering::MINHCALuTCAFEDID;
+//		int const FED_uTCA_MAX = FEDNumbering::MAXHCALuTCAFEDID;
+		int const FED_uTCA_MAX = FED_uTCA_MIN + FED_uTCA_MAX_REAL-1;
+		int const FED_uTCA_NUM = FED_uTCA_MAX - FED_uTCA_MIN + 1;
+		int const FED_uTCA_DELTA = 1;
 		int const FED_TOTAL_NUM = FED_VME_NUM+FED_uTCA_NUM;
 		
 		//	Crates
@@ -44,6 +66,7 @@ namespace hcaldqm
 		int const CRATE_uTCA_MAX = 37;
 		int const CRATE_uTCA_DELTA = 1;
 		int const CRATE_uTCA_NUM = CRATE_uTCA_MAX-CRATE_uTCA_MIN+1;
+		int const CRATE_TOTAL_NUM = CRATE_VME_NUM + CRATE_uTCA_NUM;
 
 		//	Slots
 		int const SLOT_uTCA_MIN = 1;
@@ -51,12 +74,12 @@ namespace hcaldqm
 		int const SLOT_uTCA_DELTA = 1;
 		int const SLOT_uTCA_NUM = SLOT_uTCA_MAX-SLOT_uTCA_MIN+1;
 
-		int const SLOT_VME_MIN = 2;
-		int const SLOT_VME_MIN1 = 7;
+		int const SLOT_VME_MIN1 = 2;
+		int const SLOT_VME_MAX1 = 7;
 		int const SLOT_VME_MIN2 = 13;
-		int const SLOT_VME_MAX = 18;
-		int const SLOT_VME_NUM1 = SLOT_VME_MIN1-SLOT_VME_MIN+1;
-		int const SLOT_VME_NUM2 = SLOT_VME_MAX-SLOT_VME_MIN2+1;
+		int const SLOT_VME_MAX2 = 18;
+		int const SLOT_VME_NUM1 = SLOT_VME_MAX1-SLOT_VME_MIN1+1;
+		int const SLOT_VME_NUM2 = SLOT_VME_MAX2-SLOT_VME_MIN2+1;
 		int const SLOT_VME_NUM = SLOT_VME_NUM1+SLOT_VME_NUM2;
 
 		int const SPIGOT_MIN = 0;
@@ -67,13 +90,33 @@ namespace hcaldqm
 		int const FIBER_VME_MIN = 1;
 		int const FIBER_VME_MAX = 8;
 		int const FIBER_VME_NUM = FIBER_VME_MAX-FIBER_VME_MIN+1;
-		int const FIBER_uTCA_MIN = 2;
-		int const FIBER_uTCA_MAX = 21;
-		int const FIBER_uTCA_NUM = FIBER_uTCA_MAX-FIBER_uTCA_MIN+1;
+		int const FIBER_uTCA_MIN1 = 2;
+		int const FIBER_uTCA_MAX1 = 9;
+		int const FIBER_uTCA_MIN2 = 14;
+		int const FIBER_uTCA_MAX2 = 21;
+		int const FIBER_uTCA_NUM = FIBER_uTCA_MAX1-FIBER_uTCA_MIN1+1 + 
+			FIBER_uTCA_MAX2-FIBER_uTCA_MIN2+1;
 
 		int const FIBERCH_MIN = 0;
 		int const FIBERCH_MAX = 2;
 		int const FIBERCH_NUM = FIBERCH_MAX-FIBERCH_MIN+1;
+
+		//	TP SLBs, Fibers
+		int const SLB_MIN = 1;
+		int const SLB_MAX = 6;
+		int const SLB_NUM = SLB_MAX-SLB_MIN+1;
+
+		int const TPFIBER_MIN = 0;
+		int const TPFIBER_MAX = 5;
+		int const TPFIBER_NUM = TPFIBER_MAX-TPFIBER_MIN+1;
+
+		int const SLBCH_MIN = 0;
+		int const SLBCH_MAX = 3;
+		int const SLBCH_NUM = SLBCH_MAX-SLBCH_MIN+1;
+
+		int const TPFIBERCH_MIN = 0;
+		int const TPFIBERCH_MAX = 7;
+		int const TPFIBERCH_NUM = TPFIBERCH_MAX-TPFIBERCH_MIN+1;
 
 		/*
 		 *	Detector Constants
@@ -86,6 +129,7 @@ namespace hcaldqm
 		int const HF = 4;
 		int const SUBDET_NUM = 4;
 		int const TPSUBDET_NUM = 2;
+		int const DIGISIZE[SUBDET_NUM] = {10, 10, 10, 4};
 		std::string const SUBDET_NAME[SUBDET_NUM]={"HB", "HE", "HO", "HF"};
 		std::string const SUBDETPM_NAME[2*SUBDET_NUM] = { "HBM", "HBP",
 			"HEM", "HEP", "HOM", "HOP", "HFM", "HFP"};

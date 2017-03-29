@@ -25,8 +25,8 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -53,7 +53,7 @@ class HLTScoutingPFProducer : public edm::global::EDProducer<> {
         const edm::EDGetTokenT<reco::JetTagCollection> pfJetTagCollection_;
         const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollection_;
         const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
-        const edm::EDGetTokenT<reco::METCollection> metCollection_;
+        const edm::EDGetTokenT<reco::PFMETCollection> metCollection_;
         const edm::EDGetTokenT<double> rho_;
 
         const double pfJetPtCut;
@@ -73,7 +73,7 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet& iConfig):
     pfJetTagCollection_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("pfJetTagCollection"))),
     pfCandidateCollection_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandidateCollection"))),
     vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
-    metCollection_(consumes<reco::METCollection>(iConfig.getParameter<edm::InputTag>("metCollection"))),
+    metCollection_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("metCollection"))),
     rho_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     pfJetPtCut(iConfig.getParameter<double>("pfJetPtCut")),
     pfJetEtaCut(iConfig.getParameter<double>("pfJetEtaCut")),
@@ -118,7 +118,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     }
 
     //get MET
-    Handle<reco::METCollection> metCollection;
+    Handle<reco::PFMETCollection> metCollection;
     std::auto_ptr<double> outMetPt(new double(-999));
     std::auto_ptr<double> outMetPhi(new double(-999));
     if(doMet && iEvent.getByToken(metCollection_, metCollection)){

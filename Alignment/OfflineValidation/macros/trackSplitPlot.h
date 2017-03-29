@@ -57,6 +57,8 @@ Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false
 
 TList *stufftodelete = new TList();
 
+TString subdetector = "PIXEL";
+
 /***********************************
 Table Of Contents
 0. Track Split Plot

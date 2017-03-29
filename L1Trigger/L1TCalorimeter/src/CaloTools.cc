@@ -10,6 +10,10 @@ const float l1t::CaloTools::kGTEtaLSB = 0.0435;
 const float l1t::CaloTools::kGTPhiLSB = 0.0435;
 const float l1t::CaloTools::kGTEtLSB = 0.5;
 
+const int l1t::CaloTools::cos_coeff[72] = {1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89, 0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019};
+
+const int l1t::CaloTools::sin_coeff[72] = {0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019, 1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89};
+
 
 
 bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower) {
@@ -196,8 +200,8 @@ int l1t::CaloTools::mpEta(int ieta) {
 // convert from internal MP ieta to calo ieta
 int l1t::CaloTools::caloEta(int mpEta) {
 
-  if (mpEta>kHFBegin) return mpEta+1;
-  else if (mpEta<-1*kHFBegin) return mpEta-1;
+  if (mpEta>=kHFBegin) return mpEta+1;
+  else if (mpEta<=-1*kHFBegin) return mpEta-1;
   else return mpEta;
 
 }

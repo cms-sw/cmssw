@@ -62,15 +62,12 @@ void L1TMuonOverlapTrackProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > candidates = m_Reconstruction.reconstruct(iEvent, evSetup);
 
   int bx = 0;
-  //dumpResultToXML = true;
   str<<" Number of candidates: "<<candidates->size(bx);
   edm::LogInfo("OMTFOMTFProducer")<<str.str();
 
   iEvent.put(candidates, "OMTF");
 }
-
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1TMuonOverlapTrackProducer);

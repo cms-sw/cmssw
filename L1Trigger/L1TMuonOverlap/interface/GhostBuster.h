@@ -15,7 +15,13 @@ class OMTFGhostBuster {
 
   public:
   
-    void select(std::vector<AlgoMuon> & refHitCands, int charge=0);   
+    void select(std::vector<AlgoMuon> & refHitCands, int charge=0);
+
+    void setNphiBins(unsigned int phiBins) {nPhiBins = phiBins;};
+
+ private:
+
+    unsigned int nPhiBins;
 
 };
 #endif

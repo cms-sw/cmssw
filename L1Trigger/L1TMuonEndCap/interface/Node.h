@@ -52,6 +52,7 @@ class Node
 
         void calcOptimumSplit();
         void filterEventsToDaughters();
+        Node* filterEventToDaughter(Event* e);
         void listEvents();
         void theMiracleOfChildBirth();
  

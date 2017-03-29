@@ -25,7 +25,7 @@ class XMLConfigWriter{
 
  public:
 
-  XMLConfigWriter();
+  XMLConfigWriter(const OMTFConfiguration* aOMTFConfig);
 
   void initialiseXMLDocument(const std::string & docName);
 
@@ -63,6 +63,8 @@ class XMLConfigWriter{
   xercesc::DOMImplementation* domImpl;
   xercesc::DOMElement* theTopElement;
   xercesc::DOMDocument* theDoc;
+
+  const OMTFConfiguration* myOMTFConfig;
 
 };
 

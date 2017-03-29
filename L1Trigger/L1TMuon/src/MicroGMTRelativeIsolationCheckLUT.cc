@@ -14,6 +14,20 @@ l1t::MicroGMTRelativeIsolationCheckLUT::MicroGMTRelativeIsolationCheckLUT(const 
   m_inputs.push_back(MicroGMTConfiguration::ENERGYSUM);
 }
 
+l1t::MicroGMTRelativeIsolationCheckLUT::MicroGMTRelativeIsolationCheckLUT(l1t::LUT* lut) : MicroGMTLUT(lut), m_energySumInWidth(5), m_ptInWidth(9)
+{
+  m_totalInWidth = m_ptInWidth + m_energySumInWidth;
+  m_outWidth = 1;
+
+  m_energySumMask = (1 << m_energySumInWidth) - 1;
+  m_ptMask = ((1 << m_ptInWidth) - 1) << m_energySumInWidth;
+
+  m_inputs.push_back(MicroGMTConfiguration::PT);
+  m_inputs.push_back(MicroGMTConfiguration::ENERGYSUM);
+
+  m_initialized = true;
+}
+
 int 
 l1t::MicroGMTRelativeIsolationCheckLUT::lookup(int energySum, int pt) const 
 {

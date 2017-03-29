@@ -37,6 +37,7 @@ import logging
 import cStringIO
 
 import pycurl
+import socket
 import copy
 
 
@@ -273,6 +274,8 @@ class ConditionsUploader(object):
         ''' init the server.
         '''
         self.http = HTTP()
+        if socket.getfqdn().strip().endswith('.cms'):
+            self.http.setProxy('https://cmsproxy.cms:3128/')
         self.http.setBaseUrl(self.urlTemplate % self.hostname)
         '''Signs in the server.
         '''

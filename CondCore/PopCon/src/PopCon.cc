@@ -15,15 +15,14 @@ namespace popcon {
     m_record(pset.getParameter<std::string> ("record")),
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     m_LoggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
-    m_IsDestDbCheckedInQueryLog( pset.getUntrackedParameter< bool >("IsDestDbCheckedInQueryLog",true)),
     m_close(pset.getUntrackedParameter< bool > ("closeIOV",false)),
     m_lastTill(pset.getUntrackedParameter< bool > ("lastTill",0))
     {
       //TODO set the policy (cfg or global configuration?)
       //Policy if corrupted data found
       
-      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) V4.0\n"
-			      << "Please report any problem and feature request through the savannah portal under the category conditions\n" ; 
+      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) v" << s_version << ".\n"
+                              << "Please report any problem and feature request through the JIRA project CMSCONDDB.\n" ; 
     }
   
   PopCon::~PopCon(){
@@ -53,30 +52,22 @@ namespace popcon {
       m_tagInfo.name = m_tag;
       m_tagInfo.size = iov.sequenceSize();
       if( m_tagInfo.size>0 ){
-	cond::Iov_t last = iov.getLast();
-	m_tagInfo.lastInterval = cond::ValidityInterval( last.since, last.till );
-	m_tagInfo.lastPayloadToken = last.payloadId;
+        cond::Iov_t last = iov.getLast();
+        m_tagInfo.lastInterval = cond::ValidityInterval( last.since, last.till );
+        m_tagInfo.lastPayloadToken = last.payloadId;
       }
 
-      //if( m_IsDestDbCheckedInQueryLog ) {
-      //m_dbService->queryLog().LookupLastEntryByTag( m_tag, connectionStr, m_logDBEntry );
-      //std::cout <<" ------ log info searched in the same db: "<< connectionStr << "------" <<std::endl;
-      //} else {
-      //m_dbService->queryLog().LookupLastEntryByTag( m_tag, m_logDBEntry );
-      //std::cout <<" ------ log info found in another db "<< "------" <<std::endl;
-      //}
-
-      edm::LogInfo ("PopCon") << "DB: " << connectionStr << "\n"
-			      << "TAG: " << m_tag 
-			      << ", last since/till: " <<  m_tagInfo.lastInterval.first
-			      << "/" << m_tagInfo.lastInterval.second
-			      << ", , size: " << m_tagInfo.size << "\n"
-			      << "Last writer: " <<  m_logDBEntry.provenance 
-			      << ", size: " << m_logDBEntry.payloadIdx+1 << std::endl;
+      edm::LogInfo ("PopCon") << "destination DB: " << connectionStr
+                              << ", target DB: " << ( m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString ) << "\n"
+                              << "TAG: " << m_tag
+                              << ", last since/till: " <<  m_tagInfo.lastInterval.first
+                              << "/" << m_tagInfo.lastInterval.second
+                              << ", size: " << m_tagInfo.size << "\n" << std::endl;
     } else {
-      edm::LogInfo ("PopCon") << "DB: " << connectionStr << "\n"
-			      << "TAG: " << m_tag 
-			      << "; First writer to this new tag." << std::endl; 
+      edm::LogInfo ("PopCon") << "destination DB: " << connectionStr
+                              << ", target DB: " << ( m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString ) << "\n"
+                              << "TAG: " << m_tag
+                              << "; First writer to this new tag." << std::endl;
     }
     return m_targetSession;
   }

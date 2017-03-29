@@ -9,7 +9,7 @@ class PhiMemoryImage{
   typedef PhiMemoryImage::value_type *value_ptr;
 
   static const int STATIONS = 4; // number of stations;
-  static const int UNITS    = 2; // number of value_types per station
+  static const int UNITS    = 3; // number of value_types per station
   static const int TOTAL_UNITS = UNITS * STATIONS;
 
 
@@ -17,8 +17,8 @@ class PhiMemoryImage{
   PhiMemoryImage();
   PhiMemoryImage(PhiMemoryImage::value_ptr buffer, int offset);
   
-  PhiMemoryImage (int z,int o,int tw, int th,int fo, int fi, int si,int se){
-  _buffer[0] = z;_buffer[1] = o;_buffer[2] = tw;_buffer[3] = th;_buffer[4] = fo;_buffer[5] = fi;_buffer[6] = si;_buffer[7] = se;
+  PhiMemoryImage (value_type s1a,value_type s1b,value_type s1c,value_type s2a, value_type s2b, value_type s2c, value_type s3a, value_type s3b, value_type s3c, value_type s4a,value_type s4b, value_type s4c){
+  _buffer[0] = s1a;_buffer[1] = s1b;_buffer[2] = s1c;_buffer[3] = s2a;_buffer[4] = s2b;_buffer[5] = s2c;_buffer[6] = s3a;_buffer[7] = s3b;_buffer[8] = s3c;_buffer[9] = s4a;_buffer[10] = s4b;_buffer[11] = s4c;
   }
 
   ///functions///

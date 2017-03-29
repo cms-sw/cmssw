@@ -22,7 +22,7 @@ class CSCConstants
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
 
-  enum MPC_stubs { maxStubs = 3 };
+  enum MPC_stubs { maxStubs = 18 };
 
 };
 
