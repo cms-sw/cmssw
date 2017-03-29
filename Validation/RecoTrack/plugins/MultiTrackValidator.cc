@@ -771,7 +771,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// ##############################################
 	// fill RecoAssociated SimTracks' histograms
 	// ##############################################
-	const reco::Track* matchedTrackPointer=0;
+	const reco::Track *matchedTrackPointer = nullptr;
+	const reco::Track *matchedSecondTrackPointer = nullptr;
         unsigned int selectsLoose = mvaCollections.size();
         unsigned int selectsHP = mvaCollections.size();
 	if(simRecColl.find(tpr) != simRecColl.end()){
@@ -780,6 +781,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    ats++; //This counter counts the number of simTracks that have a recoTrack associated
 	    // isRecoMatched = true; // UNUSED
 	    matchedTrackPointer = rt.begin()->first.get();
+	    if(rt.size() >= 2) {
+	      matchedSecondTrackPointer = (rt.begin()+1)->first.get();
+	    }
 	    LogTrace("TrackValidator") << "TrackingParticle #" << st
                                        << " with pt=" << sqrt(momentumTP.perp2())
                                        << " associated with quality:" << rt.begin()->second <<"\n";
@@ -829,6 +833,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
+
+        if(matchedTrackPointer && matchedSecondTrackPointer) {
+          histoProducerAlgo_->fill_duplicate_histos(w, *matchedTrackPointer, *matchedSecondTrackPointer);
+        }
+
           if(doSummaryPlots_) {
             if(dRtpSelectorNoPtCut(tp)) {
               h_simul_coll_allPt[ww]->Fill(www);

@@ -76,6 +76,9 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices);
 
+  void fill_duplicate_histos(int count,
+                             const reco::Track& track1,
+                             const reco::Track& track2);
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
@@ -242,6 +245,7 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> nrec_vs_nsim;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
+  std::vector<MonitorElement*> h_duplicates_oriAlgo_vs_oriAlgo;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;

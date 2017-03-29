@@ -48,6 +48,12 @@ namespace {
     }
   }
 
+  void setBinLabelsAlgo(MonitorElement *h, int axis=1) {
+    for(size_t i=0; i<reco::TrackBase::algoSize; ++i) {
+      h->setBinLabel(i+1, reco::TrackBase::algoName(static_cast<reco::TrackBase::TrackAlgorithm>(i)), axis);
+    }
+  }
+
   void fillMVAHistos(std::vector<MonitorElement *>& h_mva,
                      std::vector<MonitorElement *>& h_mvacut,
                      std::vector<MonitorElement *>& h_mva_hp,
@@ -378,6 +384,13 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
 
   nrecHit_vs_nsimHit_sim2rec.push_back( ibook.book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
+
+  // TODO: use the dynamic track algo priority order also here
+  constexpr auto nalgos = reco::TrackBase::algoSize;
+  h_duplicates_oriAlgo_vs_oriAlgo.push_back( ibook.book2D("duplicates_oriAlgo_vs_oriAlgo", "Duplicate tracks: originalAlgo vs originalAlgo",
+                                                          nalgos,0,nalgos, nalgos,0,nalgos) );
+  setBinLabelsAlgo(h_duplicates_oriAlgo_vs_oriAlgo.back(), 1);
+  setBinLabelsAlgo(h_duplicates_oriAlgo_vs_oriAlgo.back(), 2);
 
   if(useLogPt){
     BinLogX(h_assocpT.back()->getTH1F());
@@ -953,6 +966,12 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     }
   }
 
+}
+
+void MTVHistoProducerAlgoForTracker::fill_duplicate_histos(int count,
+                                                           const reco::Track& track1,
+                                                           const reco::Track& track2) {
+  h_duplicates_oriAlgo_vs_oriAlgo[count]->Fill(track1.originalAlgo(), track2.originalAlgo());
 }
 
 void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int numSimTracks){
