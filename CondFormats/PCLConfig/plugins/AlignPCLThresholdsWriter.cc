@@ -63,6 +63,8 @@ class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<>  {
       const std::string m_record;
       const unsigned int m_minNrecords;
       const std::vector<edm::ParameterSet> m_parameters;
+      AlignPCLThresholds* myThresholds;
+
 };
 
 //
@@ -74,11 +76,13 @@ AlignPCLThresholdsWriter::AlignPCLThresholdsWriter(const edm::ParameterSet& iCon
   m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("thresholds"))
 {
   //now do what ever initialization is needed
+  myThresholds = new AlignPCLThresholds();
 }
 
 
 AlignPCLThresholdsWriter::~AlignPCLThresholdsWriter()
 {
+  delete myThresholds;
 }
 
 //
@@ -91,7 +95,6 @@ AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
    using namespace edm;
   
-   AlignPCLThresholds* myThresholds = new AlignPCLThresholds();
    edm::LogInfo("AlignPCLThresholdsWriter")<<"Size of AlignPCLThresholds object "<< myThresholds->size() <<std::endl<<std::endl;
    
    // loop on the PSet and insert the conditions 
