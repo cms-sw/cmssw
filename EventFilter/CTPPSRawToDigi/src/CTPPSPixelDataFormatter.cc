@@ -167,7 +167,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     CTPPSPixelDigi testdigi;
     testdigi.init(modPixel.first, modPixel.second, adc);
 //    cout << " TestDigi contents: "<< testdigi.row() << " , " << testdigi.column()  << "  testdigiADC "<< testdigi.adc() << endl;
-
+    if(detDigis)
     (*detDigis).data.emplace_back( modPixel.first, modPixel.second, adc); 
  
   }
