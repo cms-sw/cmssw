@@ -164,57 +164,54 @@ class HcalNoiseSummary
 
  private:
 
-  // data members corresponding to the values above
-  int filterstatus_, noisetype_;
-  float emenergy_, hadenergy_, trackenergy_;
-  float min10_, max10_, rms10_;
-  float min25_, max25_, rms25_;
-  int cnthit10_, cnthit25_;
-  float mine2ts_, mine10ts_;
-  float maxe2ts_, maxe10ts_;
-  int maxzeros_;
-  int maxhpdhits_, maxhpdhitsnoother_, maxrbxhits_;
-  float minhpdemf_, minrbxemf_;
-  int nproblemRBXs_;
-  int nisolnoise_;
-  float isolnoisee_, isolnoiseet_;
-  int nflatnoise_;
-  float flatnoisee_, flatnoiseet_;
-  int nspikenoise_;
-  float spikenoisee_, spikenoiseet_;
-  int ntrianglenoise_;
-  float trianglenoisee_, trianglenoiseet_;
-  int nts4ts5noise_;
-  float ts4ts5noisee_, ts4ts5noiseet_;
-  int nnegativenoise_;
-  float negativenoisee_, negativenoiseet_;
-
-  int rechitCount_;
-  int rechitCount15_;
-  double rechitEnergy_;
-  double rechitEnergy15_;
-  double calibCharge_;
-
   bool hasBadRBXTS4TS5_;
   bool hasBadRBXRechitR45Loose_;
   bool hasBadRBXRechitR45Tight_;
   bool goodJetFoundInLowBVRegion_;
 
+  // data members corresponding to the values above
+  int filterstatus_, noisetype_;  
+  int cnthit10_, cnthit25_;  
+  int maxzeros_;
+  int maxhpdhits_, maxhpdhitsnoother_, maxrbxhits_;  
+  int nproblemRBXs_;
+  int nisolnoise_;  
+  int nflatnoise_;  
+  int nspikenoise_;  
+  int ntrianglenoise_;  
+  int nts4ts5noise_;  
+  int nnegativenoise_;
+  int rechitCount_;
+  int rechitCount15_;
   int calibCountTS45_;
   int calibCountgt15TS45_;
-  double calibChargeTS45_;
-  double calibChargegt15TS45_;
-
   int calibCountHF_; // calibration channels only in HF; no threshold used for determining HF noise
-  double calibChargeHF_;
-
   int hitsInLaserRegion_;
   int hitsInNonLaserRegion_;
+
+  float emenergy_, hadenergy_, trackenergy_;
+  float min10_, max10_, rms10_;
+  float min25_, max25_, rms25_;
+  float mine2ts_, mine10ts_;
+  float maxe2ts_, maxe10ts_;
+  float minhpdemf_, minrbxemf_;
+  float isolnoisee_, isolnoiseet_;
+  float flatnoisee_, flatnoiseet_;
+  float spikenoisee_, spikenoiseet_;
+  float trianglenoisee_, trianglenoiseet_;
+  float ts4ts5noisee_, ts4ts5noiseet_;
+  float negativenoisee_, negativenoiseet_;
+  
+  double rechitEnergy_;
+  double rechitEnergy15_;
+  double calibCharge_;
+  double calibChargeTS45_;
+  double calibChargegt15TS45_;
+  double calibChargeHF_;
   double energyInLaserRegion_;
   double energyInNonLaserRegion_;
 
   edm::RefVector<reco::CaloJetCollection> problemjets_;
-
   edm::RefVector<CaloTowerCollection> loosenoisetwrs_;
   edm::RefVector<CaloTowerCollection> tightnoisetwrs_;
   edm::RefVector<CaloTowerCollection> hlnoisetwrs_;
