@@ -171,7 +171,8 @@ const string CTPPSPixelDAQMappingESSourceXML::tagRPPot = "rp_detector_set";
 const string CTPPSPixelDAQMappingESSourceXML::tagRPixPlane = "rpix_plane";
 
 
-static const unsigned int offsetROCinDetId = 13, maskROCinDetId = 0x3;
+static const unsigned int offsetROCinDetId = 13;
+//static const unsigned int maskROCinDetId = 0x3;
 
 CTPPSPixelDAQMappingESSourceXML::CTPPSPixelDAQMappingESSourceXML(const edm::ParameterSet& conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
