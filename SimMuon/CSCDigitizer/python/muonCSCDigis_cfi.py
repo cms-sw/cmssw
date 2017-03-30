@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     strips = cms.PSet(
         peakTimeSigma = cms.double(3.0),
-        timeBitForBxZero = cms.int32(6),
+	#shift the central BX of wire digi from 6 to 7, make sure simulation consistent with data, by tao.huang@cern.ch
+        timeBitForBxZero = cms.int32(7),
         doNoise = cms.bool(True),
         nScaBins = cms.int32(8),
         doCrosstalk = cms.bool(True),
@@ -63,7 +64,9 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         peakTimeSigma = cms.double(0.0),
         shapingTime = cms.int32(30),
         readBadChannels = cms.bool(False),
-        timeBitForBxZero = cms.int32(6),
+
+	#shift the central BX of wire digi from 6 to 8, make sure simulation consistent with data, by tao.huang@cern.ch
+        timeBitForBxZero = cms.int32(8),
         samplingTime = cms.double(5.0),
         # bunchTimingOffsets - comments for strips (above) also apply
         bunchTimingOffsets = cms.vdouble(0.00, 21.64, 21.64, 28.29, 29.36, 29.33, 28.57, 28.61, 28.83, 29.09, 28.22),
