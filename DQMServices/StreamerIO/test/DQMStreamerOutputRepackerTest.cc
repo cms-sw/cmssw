@@ -50,25 +50,22 @@ class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
       edm::LuminosityBlockForOutput const&) override{};
 
  private:
-  void openFile();
+  void openFile(uint32_t run, uint32_t lumi);
   void closeFile();
 
  private:
   std::string streamLabel_;
   std::string outputPath_;
 
-  unsigned int runNumber_;
-  unsigned int eventsPerFile_;
-
-  std::unique_ptr<StreamerOutputFile> stream_writer_events_;
   std::unique_ptr<uint8_t[]> init_message_cache_;
+  std::unique_ptr<StreamerOutputFile> streamFile_;
+  uint32_t streamRun_;
+  uint32_t streamLumi_;
 
-  long eventsProcessedTotal_;
-  long eventsProcessedFile_;
-  int currentFileIndex_;
+  uint32_t eventsProcessedFile_;
+  uint32_t eventsProcessedTotal_;
 
   std::string currentFileBase_;
-
   std::string currentFilePath_;
   std::string currentJsonPath_;
 };  // end-of-class-def
@@ -79,29 +76,25 @@ DQMStreamerOutputRepackerTest::DQMStreamerOutputRepackerTest(
       edm::StreamerOutputModuleBase(ps) {
   outputPath_ = ps.getUntrackedParameter<std::string>("outputPath");
   streamLabel_ = ps.getUntrackedParameter<std::string>("streamLabel");
-  runNumber_ = ps.getUntrackedParameter<unsigned int>("runNumber");
-  eventsPerFile_ = ps.getUntrackedParameter<unsigned int>("eventsPerFile");
 
   eventsProcessedTotal_ = 0;
   eventsProcessedFile_ = 0;
-  currentFileIndex_ = 0;
 }
 
 DQMStreamerOutputRepackerTest::~DQMStreamerOutputRepackerTest() {}
 
-void DQMStreamerOutputRepackerTest::openFile() {
-  if (stream_writer_events_) {
+void DQMStreamerOutputRepackerTest::openFile(uint32_t run, uint32_t lumi) {
+  if (streamFile_) {
     closeFile();
   }
 
-  currentFileIndex_ += 1;
   eventsProcessedFile_ = 0;
 
-  currentFileBase_ = str(boost::format("run%06d_ls%04d_stream%s_local") %
-                         runNumber_ % currentFileIndex_ % streamLabel_);
+  currentFileBase_ = str(boost::format("run%06d_ls%04d_stream%s_local") % run %
+                         lumi % streamLabel_);
 
   boost::filesystem::path p = outputPath_;
-  p /= str(boost::format("run%06d") % runNumber_);
+  p /= str(boost::format("run%06d") % run);
 
   boost::filesystem::create_directories(p);
 
@@ -109,13 +102,15 @@ void DQMStreamerOutputRepackerTest::openFile() {
   currentJsonPath_ = (p / currentFileBase_).string() + ".jsn";
 
   edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing file: "
-                                                << currentFilePath_;
+                                                    << currentFilePath_;
 
-  stream_writer_events_.reset(new StreamerOutputFile(currentFilePath_));
+  streamFile_.reset(new StreamerOutputFile(currentFilePath_));
+  streamRun_ = run;
+  streamLumi_ = lumi;
 
   if (init_message_cache_) {
     InitMsgView iview(init_message_cache_.get());
-    stream_writer_events_->write(iview);
+    streamFile_->write(iview);
   } else {
     edm::LogWarning("DQMStreamerOutputRepackerTest")
         << "Open file called before init message.";
@@ -124,7 +119,7 @@ void DQMStreamerOutputRepackerTest::openFile() {
 
 void DQMStreamerOutputRepackerTest::closeFile() {
   edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing json: "
-                                                << currentJsonPath_;
+                                                    << currentJsonPath_;
   size_t fsize = boost::filesystem::file_size(currentFilePath_);
 
   using namespace boost::property_tree;
@@ -152,7 +147,7 @@ void DQMStreamerOutputRepackerTest::closeFile() {
   write_json(json_tmp, pt);
   ::rename(json_tmp.c_str(), currentJsonPath_.c_str());
 
-  stream_writer_events_.reset();
+  streamFile_.reset();
 }
 
 void DQMStreamerOutputRepackerTest::start() {}
@@ -167,22 +162,24 @@ void DQMStreamerOutputRepackerTest::doOutputHeader(
   uint8_t* x = new uint8_t[init_message_bldr.size()];
   std::memcpy(x, init_message_bldr.startAddress(), init_message_bldr.size());
   init_message_cache_.reset(x);
-  openFile();
 }
 
-void DQMStreamerOutputRepackerTest::doOutputEvent(EventMsgBuilder const& msg_bldr) {
-  if (eventsProcessedFile_ >= eventsPerFile_) {
-    openFile();
+void DQMStreamerOutputRepackerTest::doOutputEvent(
+    EventMsgBuilder const& msg_bldr) {
+  EventMsgView view(msg_bldr.startAddress());
+
+  auto run = view.run();
+  auto lumi = view.lumi();
+
+  if ((!streamFile_) || (streamRun_ != run) || (streamLumi_ != lumi)) {
+    openFile(run, lumi);
   }
 
-  eventsProcessedTotal_ += 1;
   eventsProcessedFile_ += 1;
+  eventsProcessedTotal_ += 1;
+  edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing event.";
 
-  edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing event: "
-                                                << eventsProcessedTotal_;
-
-  EventMsgView view(msg_bldr.startAddress());
-  stream_writer_events_->write(view);
+  streamFile_->write(view);
 }
 
 void DQMStreamerOutputRepackerTest::fillDescriptions(
@@ -190,16 +187,11 @@ void DQMStreamerOutputRepackerTest::fillDescriptions(
   edm::ParameterSetDescription desc;
   edm::StreamerOutputModuleBase::fillDescription(desc);
 
-  desc.addUntracked<std::string>("outputPath")->setComment("File output path.");
+  desc.addUntracked<std::string>("outputPath", "./output/")
+      ->setComment("File output path.");
 
-  desc.addUntracked<std::string>("streamLabel")
+  desc.addUntracked<std::string>("streamLabel", "DQM")
       ->setComment("Stream label used in json discovery.");
-
-  desc.addUntracked<unsigned int>("runNumber")
-      ->setComment("Run number passed via configuration file.");
-
-  desc.addUntracked<unsigned int>("eventsPerFile")
-      ->setComment("Number of events per file.");
 
   descriptions.add("DQMStreamerOutputRepackerTest", desc);
 }
@@ -209,5 +201,6 @@ void DQMStreamerOutputRepackerTest::fillDescriptions(
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef dqmservices::DQMStreamerOutputRepackerTest DQMStreamerOutputRepackerTest;
+typedef dqmservices::DQMStreamerOutputRepackerTest
+    DQMStreamerOutputRepackerTest;
 DEFINE_FWK_MODULE(DQMStreamerOutputRepackerTest);
