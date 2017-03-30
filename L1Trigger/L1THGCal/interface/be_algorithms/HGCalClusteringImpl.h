@@ -14,6 +14,7 @@ public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
 
+
     /* dR-algorithms */
     bool isPertinent( const l1t::HGCalTriggerCell & tc, 
                       const l1t::HGCalCluster & clu, 
@@ -24,14 +25,26 @@ public:
         );
 
     /* NN-algorithms */
+    bool isPertinent( const l1t::HGCalTriggerCell & tc1, 
+                      const l1t::HGCalTriggerCell & tc2, 
+                      edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const;
+
     bool isPertinent( const l1t::HGCalTriggerCell & tc, 
                       const l1t::HGCalCluster & clu, 
                       edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const;
+    
+    bool isPertinent( const l1t::HGCalCluster & clu1, 
+                      const l1t::HGCalCluster & clu2, 
+                      edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const;
+    
+    void mergeClusters( l1t::HGCalCluster & main_cluster, 
+                        l1t::HGCalCluster & secondary_cluster ) const;
     
     void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
                        l1t::HGCalClusterBxCollection & clusters,
                        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry 
         );
+
 
 private:
     
