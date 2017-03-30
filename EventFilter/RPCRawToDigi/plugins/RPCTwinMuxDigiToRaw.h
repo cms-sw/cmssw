@@ -24,13 +24,13 @@ class RPCTwinMuxDigiToRaw
     : public edm::stream::EDProducer<>
 {
 public:
-    RPCTwinMuxDigiToRaw(edm::ParameterSet const & _config);
+    RPCTwinMuxDigiToRaw(edm::ParameterSet const & config);
     ~RPCTwinMuxDigiToRaw();
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
+    static void fillDescriptions(edm::ConfigurationDescriptions & descs);
 
-    void beginRun(edm::Run const & _run, edm::EventSetup const & _setup) override;
-    void produce(edm::Event & _event, edm::EventSetup const & _setup) override;
+    void beginRun(edm::Run const & run, edm::EventSetup const & setup) override;
+    void produce(edm::Event & event, edm::EventSetup const & setup) override;
 
 protected:
     edm::EDGetTokenT<RPCDigiCollection> digi_token_;

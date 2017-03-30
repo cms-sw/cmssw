@@ -14,11 +14,11 @@ class RPCLBPacker
 {
 public:
     /* https://twiki.cern.ch/twiki/bin/viewauth/CMS/DtUpgradeTwinMux#RPC_payload RPC_optical_links_data_format.pdf */
-    static void getRPCLBRecords(RPCInverseLBLinkMap const & _lb_map
-                                , int _min_bx, int _max_bx, unsigned int _bcn
-                                , RPCDigiCollection const & _digis
-                                , std::map<RPCLBLink, std::vector<std::pair<int, RPCLBRecord> > > & _mlb_bx_lbrecord
-                                , bool _ignore_eod = false);
+    static void getRPCLBRecords(RPCInverseLBLinkMap const & lb_map
+                                , int min_bx, int max_bx, unsigned int bcn
+                                , RPCDigiCollection const & digis
+                                , std::map<RPCLBLink, std::vector<std::pair<int, RPCLBRecord> > > & mlb_bx_lbrecord
+                                , bool ignore_eod = false);
 };
 
 #endif // EventFilter_RPCRawToDigi_RPCLBPacker_h

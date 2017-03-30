@@ -1,8 +1,8 @@
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 
-std::string RPCAMCLinkCounters::getTypeName(unsigned int _type)
+std::string RPCAMCLinkCounters::getTypeName(unsigned int type)
 {
-    switch (_type) {
+    switch (type) {
         // from FED CDF Header and Trailer
     case fed_event_:
         return std::string("Event"); break;

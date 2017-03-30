@@ -27,17 +27,17 @@ public:
     static unsigned int const partition_data_offset_ = 0;
 
 public:
-    RPCLBRecord(std::uint32_t const _record = 0x0);
-    RPCLBRecord(unsigned int _bcn
-                , bool _bc0
-                , unsigned int _link_board
-                , bool _eod
-                , unsigned int _delay
-                , unsigned int _connector
-                , unsigned int _partition
-                , std::uint8_t _data);
+    RPCLBRecord(std::uint32_t const record = 0x0);
+    RPCLBRecord(unsigned int bcn
+                , bool bc0
+                , unsigned int link_board
+                , bool eod
+                , unsigned int delay
+                , unsigned int connector
+                , unsigned int partition
+                , std::uint8_t data);
 
-    void set(std::uint32_t const _record = 0x0);
+    void set(std::uint32_t const record = 0x0);
     void reset();
 
     std::uint32_t const & getRecord() const;
@@ -51,16 +51,16 @@ public:
     unsigned int getPartition() const;
     std::uint8_t getPartitionData() const;
 
-    void setBCN(unsigned int _bcn);
-    void setBC0(bool _bc0);
-    void setLinkBoard(unsigned int _link_board);
-    void setEOD(bool _eod);
-    void setDelay(unsigned int _delay);
-    void setConnector(unsigned int _connector);
-    void setPartition(unsigned int _partition);
-    void setPartitionData(std::uint8_t _data);
+    void setBCN(unsigned int bcn);
+    void setBC0(bool bc0);
+    void setLinkBoard(unsigned int link_board);
+    void setEOD(bool eod);
+    void setDelay(unsigned int delay);
+    void setConnector(unsigned int connector);
+    void setPartition(unsigned int partition);
+    void setPartitionData(std::uint8_t data);
 
-    bool operator<(RPCLBRecord const & _rhs) const;
+    bool operator<(RPCLBRecord const & rhs) const;
 
 protected:
     std::uint32_t record_;

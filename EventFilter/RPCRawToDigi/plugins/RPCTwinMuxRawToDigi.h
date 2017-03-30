@@ -31,46 +31,46 @@ class RPCTwinMuxRawToDigi
     : public edm::stream::EDProducer<>
 {
 public:
-    RPCTwinMuxRawToDigi(edm::ParameterSet const & _config);
+    RPCTwinMuxRawToDigi(edm::ParameterSet const & config);
     ~RPCTwinMuxRawToDigi();
 
-    static void compute_crc_64bit(std::uint16_t & _crc, std::uint64_t const & _word);
+    static void compute_crc_64bit(std::uint16_t & crc, std::uint64_t const & word);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
+    static void fillDescriptions(edm::ConfigurationDescriptions & descs);
 
-    void beginRun(edm::Run const & _run, edm::EventSetup const & _setup) override;
-    void produce(edm::Event & _event, edm::EventSetup const & _setup) override;
+    void beginRun(edm::Run const & run, edm::EventSetup const & setup) override;
+    void produce(edm::Event & event, edm::EventSetup const & setup) override;
 
 protected:
-    bool processCDFHeaders(int _fed
-                           , std::uint64_t const * & _word, std::uint64_t const * & _word_end
-                           , std::uint16_t & _crc
-                           , RPCAMCLinkCounters & _counters) const;
-    bool processCDFTrailers(int _fed, unsigned int _nwords
-                            , std::uint64_t const * & _word, std::uint64_t const * & _word_end
-                            , std::uint16_t & _crc
-                            , RPCAMCLinkCounters & _counters) const;
-    bool processBlock(int _fed
-                      , std::uint64_t const * & _word, std::uint64_t const * _word_end
-                      , std::uint16_t & _crc
-                      , RPCAMCLinkCounters & _counters
-                      , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const;
-    bool processTwinMux(int _fed, unsigned int _amc_number, unsigned int _size
-                        , std::uint64_t const * & _word, std::uint64_t const * _word_end
-                        , std::uint16_t & _crc
-                        , RPCAMCLinkCounters & _counters
-                        , std::set<std::pair<RPCDetId, RPCDigi> > & _digis) const;
-    void processRPCRecord(int _fed, unsigned int _amc_number
-                          , unsigned int _bx_counter
-                          , rpctwinmux::RPCRecord const & _record
-                          , RPCAMCLinkCounters & _counters
-                          , std::set<std::pair<RPCDetId, RPCDigi> > & _digis
-                          , int _bx_min, int _bx_max
-                          , unsigned int _link, unsigned int _link_max) const;
-    void putRPCDigis(edm::Event & _event
-                     , std::set<std::pair<RPCDetId, RPCDigi> > const & _digis);
-    void putCounters(edm::Event & _event
-                     , std::unique_ptr<RPCAMCLinkCounters> _counters);
+    bool processCDFHeaders(int fed
+                           , std::uint64_t const * & word, std::uint64_t const * & word_end
+                           , std::uint16_t & crc
+                           , RPCAMCLinkCounters & counters) const;
+    bool processCDFTrailers(int fed, unsigned int nwords
+                            , std::uint64_t const * & word, std::uint64_t const * & word_end
+                            , std::uint16_t & crc
+                            , RPCAMCLinkCounters & counters) const;
+    bool processBlock(int fed
+                      , std::uint64_t const * & word, std::uint64_t const * word_end
+                      , std::uint16_t & crc
+                      , RPCAMCLinkCounters & counters
+                      , std::set<std::pair<RPCDetId, RPCDigi> > & digis) const;
+    bool processTwinMux(int fed, unsigned int amc_number, unsigned int size
+                        , std::uint64_t const * & word, std::uint64_t const * word_end
+                        , std::uint16_t & crc
+                        , RPCAMCLinkCounters & counters
+                        , std::set<std::pair<RPCDetId, RPCDigi> > & digis) const;
+    void processRPCRecord(int fed, unsigned int amc_number
+                          , unsigned int bx_counter
+                          , rpctwinmux::RPCRecord const & record
+                          , RPCAMCLinkCounters & counters
+                          , std::set<std::pair<RPCDetId, RPCDigi> > & digis
+                          , int bx_min, int bx_max
+                          , unsigned int link, unsigned int link_max) const;
+    void putRPCDigis(edm::Event & event
+                     , std::set<std::pair<RPCDetId, RPCDigi> > const & digis);
+    void putCounters(edm::Event & event
+                     , std::unique_ptr<RPCAMCLinkCounters> counters);
 
 protected:
     edm::EDGetTokenT<FEDRawDataCollection> raw_token_;

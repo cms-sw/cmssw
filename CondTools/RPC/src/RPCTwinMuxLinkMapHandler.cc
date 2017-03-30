@@ -10,21 +10,21 @@
 
 #include "CondTools/RPC/interface/RPCLBLinkNameParser.h"
 
-RPCTwinMuxLinkMapHandler::RPCTwinMuxLinkMapHandler(edm::ParameterSet const & _config)
-    : id_(_config.getParameter<std::string>("identifier"))
-    , data_tag_(_config.getParameter<std::string>("dataTag"))
-    , since_run_(_config.getParameter<unsigned long long>("sinceRun"))
-    , input_file_(_config.getParameter<edm::FileInPath>("inputFile").fullPath())
-    , wheel_fed_(_config.getParameter<std::vector<int> >("wheelFED"))
+RPCTwinMuxLinkMapHandler::RPCTwinMuxLinkMapHandler(edm::ParameterSet const & config)
+    : id_(config.getParameter<std::string>("identifier"))
+    , data_tag_(config.getParameter<std::string>("dataTag"))
+    , since_run_(config.getParameter<unsigned long long>("sinceRun"))
+    , input_file_(config.getParameter<edm::FileInPath>("inputFile").fullPath())
+    , wheel_fed_(config.getParameter<std::vector<int> >("wheelFED"))
     , wheel_sector_amc_(std::vector<std::vector<int> >(5, std::vector<int>(12, 0)))
-    , txt_file_(_config.getUntrackedParameter<std::string>("txtFile", ""))
+    , txt_file_(config.getUntrackedParameter<std::string>("txtFile", ""))
 {
-    std::vector<long long> _wheel_sector_amc_packed(_config.getParameter<std::vector<long long> >("wheelSectorAMC"));
-    std::vector<std::vector<int> >::iterator _sector_amc = wheel_sector_amc_.begin();
-    for (std::vector<long long>::const_iterator _sector_amc_packed = _wheel_sector_amc_packed.begin()
-             ; _sector_amc_packed != _wheel_sector_amc_packed.end() ; ++_sector_amc_packed, ++_sector_amc)
-        for (unsigned int _sector = 0 ; _sector < 12 ; ++_sector)
-            _sector_amc->at(_sector) = ((*_sector_amc_packed) >> (11*4-4*_sector)) & 0xf;
+    std::vector<long long> wheel_sector_amc_packed(config.getParameter<std::vector<long long> >("wheelSectorAMC"));
+    std::vector<std::vector<int> >::iterator sector_amc = wheel_sector_amc_.begin();
+    for (std::vector<long long>::const_iterator sector_amc_packed = wheel_sector_amc_packed.begin()
+             ; sector_amc_packed != wheel_sector_amc_packed.end() ; ++sector_amc_packed, ++sector_amc)
+        for (unsigned int sector = 0 ; sector < 12 ; ++sector)
+            sector_amc->at(sector) = ((*sector_amc_packed) >> (11*4-4*sector)) & 0xf;
 }
 
 RPCTwinMuxLinkMapHandler::~RPCTwinMuxLinkMapHandler()
@@ -33,66 +33,66 @@ RPCTwinMuxLinkMapHandler::~RPCTwinMuxLinkMapHandler()
 void RPCTwinMuxLinkMapHandler::getNewObjects()
 {
     edm::LogInfo("RPCTwinMuxLinkMapHandler") << "getNewObjects";
-    cond::TagInfo const & _tag_info = tagInfo();
-    if (since_run_ < _tag_info.lastInterval.first)
+    cond::TagInfo const & tag_info = tagInfo();
+    if (since_run_ < tag_info.lastInterval.first)
         throw cms::Exception("RPCTwinMuxLinkMapHandler") << "Refuse to create RPCTwinMuxLinkMap for run " << since_run_
-                                                         << ", older than most recent tag" << _tag_info.lastInterval.first;
+                                                         << ", older than most recent tag" << tag_info.lastInterval.first;
 
-    std::string _tm_name, _link_name;
-    int _wheel, _fed, _sector, _amc_number, _tm_input;
+    std::string tm_name, link_name;
+    int wheel, fed, sector, amc_number, tm_input;
 
-    RPCAMCLinkMap * _twinmux_link_map_object = new RPCAMCLinkMap();
-    RPCAMCLinkMap::map_type & _twinmux_link_map
-        = _twinmux_link_map_object->getMap();
-    RPCLBLink _lb_link;
+    RPCAMCLinkMap * twinmux_link_map_object = new RPCAMCLinkMap();
+    RPCAMCLinkMap::map_type & twinmux_link_map
+        = twinmux_link_map_object->getMap();
+    RPCLBLink lb_link;
 
-    std::string _line;
-    std::istringstream _conv;
+    std::string line;
+    std::istringstream conv;
 
-    std::ifstream _input_file(input_file_);
+    std::ifstream input_file(input_file_);
 
-    _input_file >> _tm_name >> _tm_name >> _tm_input >> _link_name;
-    std::getline(_input_file, _line);
+    input_file >> tm_name >> tm_name >> tm_input >> link_name;
+    std::getline(input_file, line);
 
-    while (_input_file) {
+    while (input_file) {
         // parse AMC Slot Name - no checking: failure is an error
-        std::string::size_type _pos(2), _next(2);
-        _next = _tm_name.find_first_not_of("+-0123456789", _pos);
-        _conv.clear();
-        _conv.str(_tm_name.substr(_pos, _next - _pos));
-        _conv >> _wheel;
+        std::string::size_type pos(2), next(2);
+        next = tm_name.find_first_not_of("+-0123456789", pos);
+        conv.clear();
+        conv.str(tm_name.substr(pos, next - pos));
+        conv >> wheel;
 
-        _pos = _next + 2;
-        _next = _tm_name.find_first_not_of("+-0123456789", _pos);
-        if (_next == std::string::npos)
-            _next = _tm_name.size();
-        _conv.clear();
-        _conv.str(_tm_name.substr(_pos, _next - _pos));
-        _conv >> _sector;
+        pos = next + 2;
+        next = tm_name.find_first_not_of("+-0123456789", pos);
+        if (next == std::string::npos)
+            next = tm_name.size();
+        conv.clear();
+        conv.str(tm_name.substr(pos, next - pos));
+        conv >> sector;
 
-        _fed = wheel_fed_.at(_wheel + 2);
-        _amc_number = wheel_sector_amc_.at(_wheel + 2).at(_sector - 1);
+        fed = wheel_fed_.at(wheel + 2);
+        amc_number = wheel_sector_amc_.at(wheel + 2).at(sector - 1);
 
-        RPCLBLinkNameParser::parse(_link_name, _lb_link);
+        RPCLBLinkNameParser::parse(link_name, lb_link);
 
-        _twinmux_link_map.insert(std::pair<RPCAMCLink, RPCLBLink>(RPCAMCLink(_fed, _amc_number, _tm_input)
-                                                                  , _lb_link));
+        twinmux_link_map.insert(std::pair<RPCAMCLink, RPCLBLink>(RPCAMCLink(fed, amc_number, tm_input)
+                                                                 , lb_link));
 
-        _input_file >> _tm_name >> _tm_name >> _tm_input >> _link_name;
-        std::getline(_input_file, _line);
+        input_file >> tm_name >> tm_name >> tm_input >> link_name;
+        std::getline(input_file, line);
     }
-    _input_file.close();
+    input_file.close();
 
     if (!txt_file_.empty()) {
         edm::LogInfo("RPCTwinMuxLinkMapHandler") << "Fill txtFile";
-        std::ofstream _ofstream(txt_file_);
-        for (auto const & _link : _twinmux_link_map) {
-            _ofstream << _link.first << ": " << _link.second << std::endl;
+        std::ofstream ofstream(txt_file_);
+        for (auto const & link : twinmux_link_map) {
+            ofstream << link.first << ": " << link.second << std::endl;
         }
     }
 
     edm::LogInfo("RPCTwinMuxLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(_twinmux_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(twinmux_link_map_object, since_run_));
 }
 
 std::string RPCTwinMuxLinkMapHandler::id() const

@@ -3,9 +3,9 @@
 
 #include "EventFilter/RPCRawToDigi/interface/RPCLBRecord.h"
 
-inline void RPCLBRecord::set(std::uint32_t const _record)
+inline void RPCLBRecord::set(std::uint32_t const record)
 {
-    record_ = _record;
+    record_ = record;
 }
 
 inline void RPCLBRecord::reset()
@@ -58,61 +58,61 @@ inline std::uint8_t RPCLBRecord::getPartitionData() const
     return (record_ & partition_data_mask_) >> partition_data_offset_;
 }
 
-inline void RPCLBRecord::setBCN(unsigned int _bcn)
+inline void RPCLBRecord::setBCN(unsigned int bcn)
 {
     record_ &= ~bcn_mask_;
-    record_ |= (((std::uint32_t)(_bcn) << bcn_offset_) & bcn_mask_);
+    record_ |= (((std::uint32_t)(bcn) << bcn_offset_) & bcn_mask_);
 }
 
-inline void RPCLBRecord::setBC0(bool _bc0)
+inline void RPCLBRecord::setBC0(bool bc0)
 {
-    if (_bc0)
+    if (bc0)
         record_ |= bc0_mask_;
     else
         record_ &= ~(bc0_mask_);
 }
 
-inline void RPCLBRecord::setLinkBoard(unsigned int _link_board)
+inline void RPCLBRecord::setLinkBoard(unsigned int link_board)
 {
     record_ &= ~link_board_mask_;
-    record_ |= (((std::uint32_t)(_link_board) << link_board_offset_) & link_board_mask_);
+    record_ |= (((std::uint32_t)(link_board) << link_board_offset_) & link_board_mask_);
 }
 
-inline void RPCLBRecord::setEOD(bool _eod)
+inline void RPCLBRecord::setEOD(bool eod)
 {
-    if (_eod)
+    if (eod)
         record_ |= eod_mask_;
     else
         record_ &= ~(eod_mask_);
 }
 
-inline void RPCLBRecord::setDelay(unsigned int _delay)
+inline void RPCLBRecord::setDelay(unsigned int delay)
 {
     record_ &= ~delay_mask_;
-    record_ |= (((std::uint32_t)(_delay) << delay_offset_) & delay_mask_);
+    record_ |= (((std::uint32_t)(delay) << delay_offset_) & delay_mask_);
 }
 
-inline void RPCLBRecord::setConnector(unsigned int _connector)
+inline void RPCLBRecord::setConnector(unsigned int connector)
 {
     record_ &= ~connector_mask_;
-    record_ |= (((std::uint32_t)(_connector) << connector_offset_) & connector_mask_);
+    record_ |= (((std::uint32_t)(connector) << connector_offset_) & connector_mask_);
 }
 
-inline void RPCLBRecord::setPartition(unsigned int _partition)
+inline void RPCLBRecord::setPartition(unsigned int partition)
 {
     record_ &= ~partition_mask_;
-    record_ |= (((std::uint32_t)(_partition) << partition_offset_) & partition_mask_);
+    record_ |= (((std::uint32_t)(partition) << partition_offset_) & partition_mask_);
 }
 
-inline void RPCLBRecord::setPartitionData(std::uint8_t _data)
+inline void RPCLBRecord::setPartitionData(std::uint8_t data)
 {
     record_ &= ~partition_data_mask_;
-    record_ |= (((std::uint32_t)(_data) << partition_data_offset_) & partition_data_mask_);
+    record_ |= (((std::uint32_t)(data) << partition_data_offset_) & partition_data_mask_);
 }
 
-inline bool RPCLBRecord::operator<(RPCLBRecord const & _rhs) const
+inline bool RPCLBRecord::operator<(RPCLBRecord const & rhs) const
 {
-    return record_ < _rhs.record_;
+    return record_ < rhs.record_;
 }
 
 #endif // EventFilter_RPCRawToDigi_RPCLBRecord_icc

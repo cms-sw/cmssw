@@ -1,25 +1,25 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCLBRecord.h"
 
-RPCLBRecord::RPCLBRecord(std::uint32_t const _record)
-    : record_(_record)
+RPCLBRecord::RPCLBRecord(std::uint32_t const record)
+    : record_(record)
 {}
 
-RPCLBRecord::RPCLBRecord(unsigned int _bcn
-                         , bool _bc0
-                         , unsigned int _link_board
-                         , bool _eod
-                         , unsigned int _delay
-                         , unsigned int _connector
-                         , unsigned int _partition
-                         , std::uint8_t _data)
+RPCLBRecord::RPCLBRecord(unsigned int bcn
+                         , bool bc0
+                         , unsigned int link_board
+                         , bool eod
+                         , unsigned int delay
+                         , unsigned int connector
+                         , unsigned int partition
+                         , std::uint8_t data)
     : record_(0x00)
 {
-    setBCN(_bcn);
-    setBC0(_bc0);
-    setLinkBoard(_link_board);
-    setEOD(_eod);
-    setDelay(_delay);
-    setConnector(_connector);
-    setPartition(_partition);
-    setPartitionData(_data);
+    setBCN(bcn);
+    setBC0(bc0);
+    setLinkBoard(link_board);
+    setEOD(eod);
+    setDelay(delay);
+    setConnector(connector);
+    setPartition(partition);
+    setPartitionData(data);
 }

@@ -52,19 +52,19 @@ public:
     static unsigned int const input_min_                    = 200;
     static unsigned int const input_max_                    = 206;
 
-    static std::string getTypeName(unsigned int _type);
+    static std::string getTypeName(unsigned int type);
 
 public:
     RPCAMCLinkCounters();
 
-    void add(unsigned int _type, RPCAMCLink const & _link, unsigned int _count = 1);
+    void add(unsigned int type, RPCAMCLink const & link, unsigned int count = 1);
     void reset();
-    void reset(unsigned int _type);
-    void reset(unsigned int _type, RPCAMCLink const & _link);
+    void reset(unsigned int type);
+    void reset(unsigned int type, RPCAMCLink const & link);
 
     std::pair<const_iterator, const_iterator> getCounters() const;
-    std::pair<const_iterator, const_iterator> getCounters(unsigned int _type) const;
-    std::pair<const_iterator, const_iterator> getCounters(unsigned int _lower_type, unsigned int _upper_type) const;
+    std::pair<const_iterator, const_iterator> getCounters(unsigned int type) const;
+    std::pair<const_iterator, const_iterator> getCounters(unsigned int lower_type, unsigned int upper_type) const;
 
 protected:
     map_type type_link_count_;
