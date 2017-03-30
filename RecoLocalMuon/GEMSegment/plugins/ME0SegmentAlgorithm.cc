@@ -344,7 +344,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Chamber * chamber, const HitAnd
   if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
   timeUncrt = sqrt(timeUncrt);
 
-  const float dPhi = ME0Segment::computeDeltaPhi(chamber,protoIntercept,protoDirection);
+  const float dPhi = chamber->computeDeltaPhi(protoIntercept,protoDirection);
 
   // save all information inside GEMCSCSegment
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";

@@ -4,8 +4,6 @@
 
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/CSCRecHit"/>
-<use   name="Geometry/GEMGeometry"/>
-<use   name="root"/>
 <use   name="rootrflx"/>
 
 <export>
