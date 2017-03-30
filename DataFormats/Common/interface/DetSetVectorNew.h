@@ -6,11 +6,8 @@
 #include "DataFormats/Common/interface/traits.h"
 
 
-#include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
-#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -20,11 +17,14 @@
 #endif
 
 #include <atomic>
-#include <thread>
 #include <memory>
-
-#include<vector>
+#include <vector>
 #include <cassert>
+
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <utility>
 
 class TestDetSet;
 
