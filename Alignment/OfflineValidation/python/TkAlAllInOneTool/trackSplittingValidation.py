@@ -6,7 +6,7 @@ from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidationData, ParallelValidation, ValidationWithPlotsSummary, ValidationForPresentation):
+class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlTrackSplitting"
     scriptBaseName = "TkAlTrackSplitting"
     crabCfgBaseName = "TkAlTrackSplitting"

@@ -392,7 +392,12 @@ class GenericValidationData(GenericValidation):
                 "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
                 "outputFiles": addIndex(outputfile, self.NJobs),
                 "finalOutputFile": outputfile,
+                "Bookkeeping": self.Bookkeeping,
+                "LoadBasicModules": self.LoadBasicModules,
+                "TrackSelectionRefitting": self.TrackSelectionRefitting,
+                "ValidationConfig": self.cfgTemplate,
                 "FileOutputTemplate": self.FileOutputTemplate,
+                "DefinePath": self.DefinePath,
                 })
         return result
 
@@ -461,8 +466,29 @@ class GenericValidationData(GenericValidation):
         return super(GenericValidationData, self).createCrabCfg( crabCfg, path )
 
     @property
+    def Bookkeeping(self):
+        return configTemplates.Bookkeeping
+    @property
+    def LoadBasicModules(self):
+        return configTemplates.LoadBasicModules
+    @abstractproperty
+    def TrackSelectionRefitting(self):
+        pass
+    @property
     def FileOutputTemplate(self):
         return configTemplates.FileOutputTemplate
+    @abstractproperty
+    def DefinePath(self):
+        pass
+
+class GenericValidationData_CTSR(GenericValidationData):
+    #common track selection and refitting
+    @property
+    def TrackSelectionRefitting(self):
+        return configTemplates.CommonTrackSelectionRefitting
+    @property
+    def DefinePath(self):
+        return configTemplates.DefinePath_CommonSelectionRefitting
 
 class ParallelValidation(GenericValidation):
     @classmethod
