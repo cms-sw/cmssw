@@ -209,7 +209,6 @@ XMLDocument::~XMLDocument()
 		writer->write( doc, outputDesc.get());
 	} catch(...) {
 		std::remove(fileName.c_str());
-		throw;
 	}
 }
 

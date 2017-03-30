@@ -115,9 +115,11 @@ public:
   bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
   bool                      isPlan1ToBeMergedId(const HcalDetId& id) const { return detIdSp_.find(id) != detIdSp_.end(); };
   bool                      isPlan1MergedId(const HcalDetId& id) const { return detIdSpR_.find(id) != detIdSpR_.end(); };
+  const HcalDDDSimConstants* dddConstants() const {return &hcons;}
        
 private:
-  void                      getOneEtaBin(int subdet, int ieta, int zside,
+
+  void                      getOneEtaBin(HcalSubdetector subdet, int ieta, int zside,
 					 std::vector<std::pair<int,double>>& phis,
 					 std::map<int,int>& layers, bool planOne,
 					 std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const;
@@ -125,6 +127,8 @@ private:
   unsigned int              layerGroupSize(int eta) const;
   unsigned int              layerGroup(int eta, int i) const;
 
+  static const int           maxLayer_=18;
+  static const int           maxLayerHB_=16;
   const HcalParameters      *hpar;
   const HcalDDDSimConstants &hcons;
   std::vector<std::pair<int,int> > etaSimValu; // eta ranges at Sim stage

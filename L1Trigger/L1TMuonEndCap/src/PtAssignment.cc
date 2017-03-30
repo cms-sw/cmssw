@@ -17,6 +17,7 @@
 using namespace l1t;
 using namespace std;
 using namespace L1TMuon;
+using namespace emtf;
 
 EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):
   allowedModes_({3,5,9,6,10,12,7,11,13,14,15}){

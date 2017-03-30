@@ -63,9 +63,13 @@ namespace edm {
 
     ProductProvenance const* branchIDToProvenance(BranchID const& bid) const;
 
+    ProductProvenance const* branchIDToProvenanceForProducedOnly(BranchID const& bid) const;
+    
     void insertIntoSet(ProductProvenance const& provenanceProduct) const;
 
     void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
+
+    void mergeParentProcessRetriever(ProductProvenanceRetriever const& provRetriever);
 
     void deepCopy(ProductProvenanceRetriever const&);
     
@@ -82,6 +86,7 @@ namespace edm {
     mutable tbb::concurrent_unordered_set<ProductProvenance, ProductProvenanceHasher, ProductProvenanceEqual> entryInfoSet_;
     mutable std::atomic<const std::set<ProductProvenance>*> readEntryInfoSet_;
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
+    edm::propagate_const<ProductProvenanceRetriever const*> parentProcessRetriever_;
     std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;
   };

@@ -18,7 +18,9 @@ numWFIB.extend([20421.0,20434.0,20446.0,20453.0]) #2023D10
 numWFIB.extend([21221.0,21234.0,21246.0,21253.0]) #2023D4
 numWFIB.extend([23221.0,23234.0,23246.0,23253.0]) #2023D8
 numWFIB.extend([23621.0,23634.0,23646.0,23653.0]) #2023D9
-numWFIB.extend([24034.0])#2023D11 TTbar only 
+numWFIB.extend([24034.0])#2023D11 TTbar only
+numWFIB.extend([24434.0])#2023D12 TTbar only
+numWFIB.extend([24834.0])#2023D13 TTbar only
 for i,key in enumerate(upgradeKeys[2023]):
     numWF=numWFAll[2023][i]
     for frag in upgradeFragments:

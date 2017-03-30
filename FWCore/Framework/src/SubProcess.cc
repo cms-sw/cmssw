@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -43,6 +44,7 @@ namespace edm {
                          std::shared_ptr<ProductRegistry const> parentProductRegistry,
                          std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+                         SubProcessParentageHelper const& parentSubProcessParentageHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
@@ -155,6 +157,10 @@ namespace edm {
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_ = items.preg();
+
+    subProcessParentageHelper_ = items.subProcessParentageHelper();
+    subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
+
     //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.
@@ -184,6 +190,7 @@ namespace edm {
                                  preg_,
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 *subProcessParentageHelper_,
                                  esController,
                                  *items.actReg_,
                                  newToken,
@@ -352,12 +359,14 @@ namespace edm {
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     BranchListIndexes bli(principal.branchListIndexes());
     branchIDListHelper_->fixBranchListIndexes(bli);
+    bool deepCopyRetriever = false;
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry,
                           std::move(esids),
                           std::move(bli),
                           *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
-                          principal.reader());
+                          principal.reader(),
+                          deepCopyRetriever);
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     

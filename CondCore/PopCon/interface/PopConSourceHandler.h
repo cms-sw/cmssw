@@ -163,7 +163,10 @@ namespace popcon {
     }
     
   protected:
-    
+
+    cond::persistency::Session& dbSession() const {
+      return m_session;
+    }
     
     int add(value_type * payload, Summary * summary, Time_t time) {
       Triplet t = {payload,summary,time};

@@ -108,7 +108,22 @@ trackingPhase2PU140.toModify(initialStepHitTriplets,
     produceSeedingHitSets = False,
     produceIntermediateHitTriplets = True,
 )
-trackingPhase1.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+_initialStepSeedsConsecutiveHitsTripletOnly = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "initialStepHitTriplets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
+        FilterAtHelixStage = cms.bool(False),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
+    ),
+)
+trackingPhase1QuadProp.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly)
+trackingPhase1.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly.clone(
+        seedingHitSets = "initialStepHitQuadruplets"
+))
 trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
 
 # temporary...

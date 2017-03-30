@@ -57,7 +57,7 @@ HcalRecNumberingTester::~HcalRecNumberingTester() {}
 void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<HcalDDDRecConstants> pHSNDC;
-  iSetup.get<HcalRecNumberingRecord>().get( pHSNDC );
+  iSetup.get<HcalRecNumberingRecord>().get(pHSNDC);
 
   if (pHSNDC.isValid()) {
     std::cout << "about to de-reference the edm::ESHandle<HcalDDDRecConstants> pHSNDC" << std::endl;
@@ -160,6 +160,38 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       std::vector<HcalDDDRecConstants::HcalActiveLength> act = hdc.getThickActive(type);
       std::cout << "Hcal type " << type << " has " << act.size() 
 		<< " eta/depth segment " << std::endl;
+    }
+
+    // Test merging
+    std::vector<int> phiSp;
+    HcalSubdetector  subdet = HcalSubdetector(hdc.dddConstants()->ldMap()->validDet(phiSp));
+    if (subdet == HcalBarrel || subdet == HcalEndcap) {
+      int type = (int)(subdet-1);
+      std::pair<int,int> etas = hdc.getEtaRange(type);
+      for (int eta=etas.first; eta<=etas.second; ++eta) {
+	for (unsigned int k=0; k<phiSp.size(); ++k) {
+	  int zside = (phiSp[k]>0) ? 1 : -1;
+	  int iphi  = (phiSp[k]>0) ? phiSp[k] : -phiSp[k];
+	  /*
+	  std::cout << "Look for Subdet " << subdet << " Zside " << zside
+		    << " Eta " << eta << " Phi " << iphi << " depths "
+		    << hdc.getMinDepth(type,eta,iphi,zside) << ":"
+		    << hdc.getMaxDepth(type,eta,iphi,zside) << std::endl;
+	  */
+	  std::vector<HcalDetId> ids;
+	  for (int depth=hdc.getMinDepth(type,eta,iphi,zside);
+	       depth <= hdc.getMaxDepth(type,eta,iphi,zside); ++depth) {
+	    HcalDetId id(subdet,zside*eta,iphi,depth);
+	    HcalDetId hid = hdc.mergedDepthDetId(id);
+	    hdc.unmergeDepthDetId(hid,ids);
+	    std::cout << "Input ID " << id << " Merged ID " << hid
+		      << " containing " << ids.size() << " IDS:";
+	    for (unsigned int i=0; i<ids.size(); ++i) 
+	      std::cout << " " << ids[i];
+	    std::cout << std::endl;
+	  }
+	}
+      }
     }
   } else {
     std::cout << "No record found with HcalDDDRecConstants" << std::endl;

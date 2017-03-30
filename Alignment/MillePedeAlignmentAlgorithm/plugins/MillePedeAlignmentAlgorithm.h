@@ -87,7 +87,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
   /// called at begin of run
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  virtual void beginRun(const edm::Run& run,
+                        const edm::EventSetup& setup,
+                        bool changed) override;
 
   // TODO: This method does NOT match endRun() in base class! Nobody is
   //       calling this?
@@ -233,6 +235,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// add measurement data from PXB survey
   void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
 
+  //
+  bool areIOVsSpecified() const;
+
   //--------------------------------------------------------
   // Data members
   //--------------------------------------------------------
@@ -260,8 +265,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
-  const AlignmentAlgorithmBase::RunNumber firstIOV_;
+  const align::RunNumber firstIOV_;
   const bool ignoreFirstIOVCheck_;
+  const bool enableAlignableUpdates_;
   int                       theLastWrittenIov; // keeping track for output trees...
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
@@ -273,6 +279,12 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   const bool                runAtPCL_;
   const bool                ignoreHitsWithoutGlobalDerivatives_;
+  const bool                skipGlobalPositionRcdCheck_;
+
+  const align::RunRanges uniqueRunRanges_;
+  const bool enforceSingleIOVInput_;
+  std::vector<align::RunNumber> cachedRuns_;
+  align::RunNumber lastProcessedRun_;
 };
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,

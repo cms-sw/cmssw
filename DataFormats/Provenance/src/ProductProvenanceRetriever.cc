@@ -14,6 +14,7 @@ namespace edm {
       entryInfoSet_(),
       readEntryInfoSet_(),
       nextRetriever_(),
+      parentProcessRetriever_(nullptr),
       provenanceReader_(),
       transitionIndex_(iTransitionIndex){
   }
@@ -22,6 +23,7 @@ namespace edm {
       entryInfoSet_(),
       readEntryInfoSet_(),
       nextRetriever_(),
+      parentProcessRetriever_(nullptr),
       provenanceReader_(reader.release()),
       transitionIndex_(std::numeric_limits<unsigned int>::max())
   {
@@ -86,6 +88,7 @@ namespace edm {
     if(nextRetriever_) {
       nextRetriever_->reset();
     }
+    parentProcessRetriever_ = nullptr;
   }
 
   void
@@ -102,11 +105,19 @@ namespace edm {
     nextRetriever_ = other;
   }
 
+  void
+  ProductProvenanceRetriever::mergeParentProcessRetriever(ProductProvenanceRetriever const& provRetriever) {
+    parentProcessRetriever_ = &provRetriever;
+  }
+
   ProductProvenance const*
   ProductProvenanceRetriever::branchIDToProvenance(BranchID const& bid) const {
     ProductProvenance ei(bid);
     auto it = entryInfoSet_.find(ei);
     if(it == entryInfoSet_.end()) {
+      if (parentProcessRetriever_) {
+        return parentProcessRetriever_->branchIDToProvenance(bid);
+      }
       //check in source
       readProvenance();
       auto ptr =readEntryInfoSet_.load();
@@ -118,6 +129,22 @@ namespace edm {
       }
       if(nextRetriever_) {
         return nextRetriever_->branchIDToProvenance(bid);
+      }
+      return nullptr;
+    }
+    return &*it;
+  }
+
+  ProductProvenance const*
+  ProductProvenanceRetriever::branchIDToProvenanceForProducedOnly(BranchID const& bid) const {
+    ProductProvenance ei(bid);
+    auto it = entryInfoSet_.find(ei);
+    if(it == entryInfoSet_.end()) {
+      if (parentProcessRetriever_) {
+        return parentProcessRetriever_->branchIDToProvenanceForProducedOnly(bid);
+      }
+      if(nextRetriever_) {
+        return nextRetriever_->branchIDToProvenanceForProducedOnly(bid);
       }
       return nullptr;
     }

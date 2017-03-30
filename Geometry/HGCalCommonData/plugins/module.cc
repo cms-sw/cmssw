@@ -4,6 +4,7 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalModule.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalModuleAlgo.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalNoTaperEndcap.h"
+#include "Geometry/HGCalCommonData/plugins/DDAHcalModuleAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalEEAlgo, "hgcal:DDHGCalEEAlgo");
@@ -12,3 +13,4 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalWaferAlgo, "hgcal:DDHGCalWaferAlgo
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalModule, "hgcal:DDHGCalModule");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalModuleAlgo, "hgcal:DDHGCalModuleAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalNoTaperEndcap, "hgcal:DDHGCalNoTaperEndcap");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDAHcalModuleAlgo, "hgcal:DDAHcalModuleAlgo");

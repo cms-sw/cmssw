@@ -41,9 +41,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"))),
+  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
   theHOResponse(new CaloHitResponse(theParameterMap, theShapes)),   
-  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
+  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
   theHFQIE10Response(new CaloHitResponse(theParameterMap, theShapes)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
@@ -141,7 +141,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   }
   if(doHOSiPM) {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
     theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
@@ -244,6 +243,8 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHBHEQIE11Amplifier;
   delete theCoderFactory;
   if (theRelabeller)           delete theRelabeller;
+  if(theTimeSlewSim) delete theTimeSlewSim;
+  if(theIonFeedback) delete theIonFeedback;
 }
 
 
@@ -449,7 +450,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
     new QIE11DigiCollection(
       theHBHEQIE11DetIds.size()>0 ? 
-      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
+//      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
       QIE11DigiCollection::MAXSAMPLES
     )
   );

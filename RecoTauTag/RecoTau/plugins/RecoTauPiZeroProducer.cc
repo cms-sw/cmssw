@@ -69,12 +69,17 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
     //consumes interface
     edm::EDGetTokenT<reco::CandidateView> cand_token;
 
+    double minJetPt_;
+    double maxJetAbsEta_;
+
     int verbosity_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
 {
   cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
+  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get the mass hypothesis for the pizeros
@@ -148,6 +153,9 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // Loop over our jets
   BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
+
+    if(jet->pt() - minJetPt_ < 1e-5) continue;
+    if(std::abs(jet->eta()) - maxJetAbsEta_ > -1e-5) continue;
     // Build our global list of RecoTauPiZero
     PiZeroList dirtyPiZeros;
 

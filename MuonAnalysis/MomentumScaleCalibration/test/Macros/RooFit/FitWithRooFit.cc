@@ -83,6 +83,8 @@ public:
   // Plot and fit a RooDataHist fitting signal and background
   void fit(TH1 * histo, const TString signalType, const TString backgroundType, const double & xMin = 0., const double & xMax = 0., bool sumW2Error = false)
   {
+    reinitializeParameters();
+
     rooPair imported = importTH1(histo, xMin, xMax);
     RooRealVar x(imported.first);
     RooDataHist * dh = imported.second;

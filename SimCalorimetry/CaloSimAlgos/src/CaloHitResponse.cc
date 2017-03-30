@@ -58,7 +58,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMaxBunch = maxBunch;
 }
 
-void CaloHitResponse::run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
+void CaloHitResponse::run(const MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
 
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr) {
@@ -102,14 +102,7 @@ void CaloHitResponse::add(const CaloSamples & signal)
     theAnalogSignalMap[id] = signal;
 
   } else  {
-    // need a "+=" to CaloSamples
-    int sampleSize =  oldSignal->size();
-    assert(sampleSize <= signal.size());
-    assert(signal.presamples() == oldSignal->presamples());
-
-    for(int i = 0; i < sampleSize; ++i) {
-      (*oldSignal)[i] += signal[i];
-    }
+    (*oldSignal) += signal;
   }
 }
 

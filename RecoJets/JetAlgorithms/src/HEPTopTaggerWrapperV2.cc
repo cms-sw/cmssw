@@ -140,9 +140,10 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
 	qtags++;
 	m_sum += tagger.t().m();
 	m2_sum += tagger.t().m() * tagger.t().m();
-	if (tagger.q_weight() > weight_q1)
+	if (tagger.q_weight() > weight_q1) {
 	  best_tagger = tagger;
-	  weight_q1=tagger.q_weight();             
+	  weight_q1=tagger.q_weight();     
+	}        
       }
     }
     

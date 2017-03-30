@@ -157,6 +157,8 @@ using namespace edm;
 
 void TotemRPDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
 {
+  ibooker.setCurrentFolder("CTPPS/TrackingStrip");
+
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
 
@@ -476,10 +478,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       if (! tr1.isValid())
         continue;
   
-      unsigned int rpId1 = ds1.detId();
-      unsigned int arm1 = rpId1 / 100;
-      unsigned int stNum1 = (rpId1 / 10) % 10;
-      unsigned int rpNum1 = rpId1 % 10;
+      CTPPSDetId rpId1(ds1.detId());
+      unsigned int arm1 = rpId1.arm();
+      unsigned int stNum1 = rpId1.station();
+      unsigned int rpNum1 = rpId1.rp();
       if (stNum1 != 0 || (rpNum1 != 2 && rpNum1 != 3))
         continue;
       unsigned int idx1 = arm1*2 + rpNum1-2;
@@ -491,10 +493,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
           if (! tr2.isValid())
             continue;
         
-          unsigned int rpId2 = ds2.detId();
-          unsigned int arm2 = rpId2 / 100;
-          unsigned int stNum2 = (rpId2 / 10) % 10;
-          unsigned int rpNum2 = rpId2 % 10;
+          CTPPSDetId rpId2(ds2.detId());
+          unsigned int arm2 = rpId2.arm();
+          unsigned int stNum2 = rpId2.station();
+          unsigned int rpNum2 = rpId2.rp();
           if (stNum2 != 0 || (rpNum2 != 2 && rpNum2 != 3))
             continue;
           unsigned int idx2 = arm2*2 + rpNum2-2;
@@ -575,11 +577,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   // plane efficiency plots
   for (auto &ds : *tracks)
   {
-    unsigned int rpDecId = ds.detId();
-    unsigned int armIdx = rpDecId / 100;
-    unsigned int stIdx = (rpDecId / 10) % 10;
-    unsigned int rpIdx = rpDecId % 10;
-    TotemRPDetId rpId(armIdx, stIdx, rpIdx);
+    CTPPSDetId rpId(ds.detId());
 
     for (auto &ft : ds)
     {
@@ -590,7 +588,8 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
       for (unsigned int plNum = 0; plNum < 10; ++plNum)
       {
-        TotemRPDetId plId(armIdx, stIdx, rpIdx, plNum);
+        TotemRPDetId plId = rpId;
+        plId.setPlane(plNum);
 
         double ft_z = ft.getZ0();
         double ft_x = ft.getX0() + ft.getTx() * (ft_z - rp_z);
@@ -700,11 +699,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   // recognized pattern histograms
   for (auto &ds : *patterns)
   {
-    unsigned int rpDecId = ds.detId();
-    unsigned int armIdx = rpDecId / 100;
-    unsigned int stIdx = (rpDecId / 10) % 10;
-    unsigned int rpIdx = rpDecId % 10;
-    TotemRPDetId rpId(armIdx, stIdx, rpIdx);
+    CTPPSDetId rpId(ds.detId());
 
     PotPlots &pp = potPlots[rpId];
 
@@ -737,8 +732,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     unsigned int pl_v = planes_v[rpId].size();
 
     // process pattern data for this pot
-    unsigned int rpDecId = rpId.getRPDecimalId();
-    const auto &rp_pat_it = patterns->find(rpDecId);
+    const auto &rp_pat_it = patterns->find(rpId);
 
     unsigned int pat_u = 0, pat_v = 0;
     if (rp_pat_it != patterns->end())
@@ -779,11 +773,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   // RP track-fit plots
   for (auto &ds : *tracks)
   {
-    unsigned int rpDecId = ds.detId();
-    unsigned int armIdx = rpDecId / 100;
-    unsigned int stIdx = (rpDecId / 10) % 10;
-    unsigned int rpIdx = rpDecId % 10;
-    TotemRPDetId rpId(armIdx, stIdx, rpIdx);
+    CTPPSDetId rpId(ds.detId());
 
     PotPlots &pp = potPlots[rpId];
 
@@ -856,15 +846,9 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
     for (auto &ds : *tracks)
     {
-      unsigned int rpDecId = ds.detId();
-      unsigned int armIdx = rpDecId / 100;
-      unsigned int stIdx = (rpDecId / 10) % 10;
-      unsigned int rpIdx = rpDecId % 10;
-      TotemRPDetId rpId(armIdx, stIdx, rpIdx);
-
+      CTPPSDetId rpId(ds.detId());
       unsigned int rpNum = rpId.rp();
-
-      TotemRPDetId armId = rpId.getArmId();
+      CTPPSDetId armId = rpId.getArmId();
 
       for (auto &tr : ds)
       {
@@ -895,14 +879,14 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         if (! tr1.isValid())
           continue;
   
-        unsigned int rpDecId1 = ds1.detId();
-        unsigned int arm1 = rpDecId1 / 100;
-        unsigned int stNum1 = (rpDecId1 / 10) % 10;
-        unsigned int rpNum1 = rpDecId1 % 10;
+        CTPPSDetId rpId1(ds1.detId());
+        unsigned int arm1 = rpId1.arm();
+        unsigned int stNum1 = rpId1.station();
+        unsigned int rpNum1 = rpId1.rp();
         unsigned int idx1 = stNum1/2 * 7 + rpNum1;
         bool hor1 = (rpNum1 == 2 || rpNum1 == 3);
   
-        TotemRPDetId armId(arm1, 0);
+        CTPPSDetId armId = rpId1.getArmId();
         ArmPlots &ap = armPlots[armId];
   
         for (auto &ds2 : *tracks)
@@ -912,10 +896,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
             if (! tr2.isValid())
               continue;
           
-            unsigned int rpDecId2 = ds2.detId();
-            unsigned int arm2 = rpDecId2 / 100;
-            unsigned int stNum2 = (rpDecId2 / 10) % 10;
-            unsigned int rpNum2 = rpDecId2 % 10;
+            CTPPSDetId rpId2(ds2.detId());
+            unsigned int arm2 = rpId2.arm();
+            unsigned int stNum2 = rpId2.station();
+            unsigned int rpNum2 = rpId2.rp();
             unsigned int idx2 = stNum2/2 * 7 + rpNum2;
             bool hor2 = (rpNum2 == 2 || rpNum2 == 3);
     

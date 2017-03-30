@@ -25,8 +25,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 # loading DB constants
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_Candidate_2016_05_12_11_59_51'
+process.GlobalTag.globaltag = "80X_dataRun2_Prompt_v15_forTkAlNovCamp_multiIOV_v1"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -34,27 +33,27 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 # configure the database file - use survey one for default
 from CondCore.CondDB.CondDB_cfi import *
 
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-             tag = cms.string('TrackerAlignment_Run2016A_PseudoPCL_v1'),
-             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-             ),
-
-    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-             tag = cms.string('TrackerSurfaceDeformations_2015-EOY_v1_RunD'),
-             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-             ),
-
-    cms.PSet(record = cms.string('GlobalPositionRcd'),
-             tag = cms.string('GlobalAlignment_2009_v2_express'),
-             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-            ),
-
-    cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-             tag = cms.string('TrackerIdealGeometryErrorsExtended210_mc'),
-             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-             ),
-    )
+#process.GlobalTag.toGet = cms.VPSet(
+#    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+#             tag = cms.string('Alignments'),
+#             connect = cms.string('sqlite_file:/afs/cern.ch/work/u/usarica/scratch-dimuon3/CMSSW_8_0_20/src/Alignment/HIPAlignmentAlgorithm/hp30112016_all_v2/alignments_iter2.db')
+#             ),
+#
+#    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+#             tag = cms.string('TrackerSurfaceDeformations_2015-EOY_v1_RunD'),
+#             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#             ),
+#
+#    cms.PSet(record = cms.string('GlobalPositionRcd'),
+#             tag = cms.string('GlobalAlignment_2009_v2_express'),
+#             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#            ),
+#
+#    cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+#             tag = cms.string('TrackerIdealGeometryErrorsExtended210_mc'),
+#             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#             ),
+#    )
 
 process.AlignmentProducer.applyDbAlignment = True
 
@@ -77,26 +76,26 @@ process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBHalfBarrel,111111',
-        'TrackerTPEHalfCylinder,111111',
-        'TrackerTIBHalfBarrel,111111',
-        'TrackerTOBHalfBarrel,111111',
-        'TrackerTIDEndcap,111111',
-        'TrackerTECEndcap,111111',
+#        'TrackerTPBHalfBarrel,111111',
+#        'TrackerTPEHalfCylinder,111111',
+#        'TrackerTIBHalfBarrel,111111',
+#        'TrackerTOBHalfBarrel,111111',
+#        'TrackerTIDEndcap,111111',
+#        'TrackerTECEndcap,111111',
 
-#      'TrackerTPBModule,101101',
-#      'TrackerTPEModule,111111',
+      'TrackerTPBModule,101101',
+      'TrackerTPEModule,111111',
+
+# Do either one of these, use Module usually
 #      'TrackerTIBModuleUnit,101111',
 #      'TrackerTOBModuleUnit,101111',
 #      'TrackerTIDModuleUnit,111111',
 #      'TrackerTECModuleUnit,111111'
 
-#      'TrackerTPBModule,101101',
-#      'TrackerTPEModule,111111',
-#      'TrackerTIBModule,101111',
-#      'TrackerTOBModule,101111',
-#      'TrackerTIDModule,110111',
-#      'TrackerTECModule,110111'
+      'TrackerTIBModule,101111',
+      'TrackerTOBModule,101111',
+      'TrackerTIDModule,110111',
+      'TrackerTECModule,110111'
 
 #      'TrackerTPBLadder,111111',
 #      'TrackerTPEPanel,111111',

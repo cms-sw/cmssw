@@ -116,19 +116,8 @@ process.reconstruction = cms.Sequence(
     *process.siPixelClusterShapeCachePreSplitting
     *process.trackingGlobalReco)
 
-# load tracker seed validator
-process.load('Validation.RecoTrack.TrackerSeedValidator_cfi')
-process.trackerSeedValidator.associators = ['quickTrackAssociatorByHits']
-process.trackerSeedValidator.label = cms.VInputTag(
-    cms.InputTag("initialStepSeeds"),
-    cms.InputTag("detachedTripletStepSeeds"),
-    cms.InputTag("lowPtTripletStepSeeds"),
-    cms.InputTag("pixelPairStepSeeds"),
-    cms.InputTag("mixedTripletStepSeeds"),
-    cms.InputTag("pixelLessStepSeeds"),
-    cms.InputTag("tobTecStepSeeds"))
 # redefine validation paths
 process.prevalidation = cms.Sequence(process.tracksPreValidation)
-process.validation = cms.Sequence(process.trackingTruthValid + process.tracksValidation + process.trackerSeedValidator)
+process.validation = cms.Sequence(process.trackingTruthValid + process.tracksValidation)
 
 # END MODIFICATIONS

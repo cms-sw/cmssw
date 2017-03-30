@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
+import RecoLocalCalo.HcalRecProducers.HBHEMethod0Parameters_cfi as method0
 import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
 import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
@@ -45,6 +46,7 @@ hbheprereco = cms.EDProducer(
         # Parameters for "Method 3" (non-keyword arguments have to go first)
         method3.m3Parameters,
         method2.m2Parameters,
+        method0.m0Parameters,
 
         Class = cms.string("SimpleHBHEPhase1Algo"),
 
@@ -53,9 +55,6 @@ hbheprereco = cms.EDProducer(
 
         # Parameters for "Method 0"
         firstSampleShift = cms.int32(0),
-        samplesToAdd = cms.int32(2),
-        correctForPhaseContainment = cms.bool(True),
-        correctionPhaseNS = cms.double(6.0),
 
         # Use "Method 2"?
         useM2 = cms.bool(True),

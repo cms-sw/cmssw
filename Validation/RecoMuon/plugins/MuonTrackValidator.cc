@@ -16,6 +16,7 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 
 #include "TMath.h"
 #include <TF1.h>
@@ -369,9 +370,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	    vertexTP = tp->vertex();
 	    TrackingParticle::Vector momentum = Lhc_parametersDefinerTP->momentum(event,setup,tpr);
 	    TrackingParticle::Point vertex = Lhc_parametersDefinerTP->vertex(event,setup,tpr);
-	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
-	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y()) /
-	                          sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+	    dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
+	    dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
 	  }
 	//for cosmics get the momentum and vertex at PCA
 	else if(parametersDefiner=="CosmicParametersDefinerForTP")
@@ -380,9 +380,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	    if(! cosmictpSelector(tpr,&bs,event,setup)) continue;	
 	    momentumTP = Cosmic_parametersDefinerTP->momentum(event,setup,tpr);
 	    vertexTP = Cosmic_parametersDefinerTP->vertex(event,setup,tpr);
-	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
-	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y()) /
-	                            sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
+	    dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
+	    dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
 	  }
 	edm::LogVerbatim("MuonTrackValidator") <<"--------------------Selected TrackingParticle #"<<tpr.key();
 	edm::LogVerbatim("MuonTrackValidator") <<"momentumTP: pt = "<<sqrt(momentumTP.perp2())<<", pz = "<<momentumTP.z() 
@@ -722,9 +721,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	double thetaSim = momentumTP.theta();
 	double lambdaSim = M_PI/2-momentumTP.theta();
 	double phiSim = momentumTP.phi();
-	double dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
-	double dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y()) /
-	                               sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
+	double dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
+	double dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
 	
 	// removed unused variable, left this in case it has side effects
 	track->parameters();

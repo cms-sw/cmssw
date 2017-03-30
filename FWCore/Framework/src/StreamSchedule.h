@@ -76,6 +76,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -176,6 +178,12 @@ namespace edm {
     void processOneStream(typename T::MyPrincipal& principal,
                           EventSetup const& eventSetup,
                           bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneStreamAsync(WaitingTaskHolder iTask,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
 
     void beginStream();
     void endStream();
@@ -413,6 +421,81 @@ namespace edm {
     sentry.allowThrow();
   }
 
+  template <typename T>
+  void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
+                                             typename T::MyPrincipal& ep,
+                                             EventSetup const& es,
+                                             bool cleaningUpAfterException) {
+    ServiceToken token = ServiceRegistry::instance().presentToken();
+
+    T::setStreamContext(streamContext_, ep);
+
+    auto id = ep.id();
+    auto doneTask = make_waiting_task(tbb::task::allocate_root(),
+                                      [this,iHolder, id,cleaningUpAfterException,token](std::exception_ptr const* iPtr) mutable
+    {
+      ServiceRegistry::Operate op(token);
+      std::exception_ptr excpt;
+      if(iPtr) {
+        excpt = *iPtr;
+        //add context information to the exception and print message
+        try {
+          convertException::wrap([&]() {
+            std::rethrow_exception(excpt);
+          });
+        } catch(cms::Exception& ex) {
+          //TODO: should add the transition type info
+          std::ostringstream ost;
+          if(ex.context().empty()) {
+            ost<<"Processing "<<T::transitionName()<<" "<<id;
+          }
+          addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
+          excpt = std::current_exception();
+        }
+        
+        actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
+      }
+      
+      try {
+        T::postScheduleSignal(actReg_.get(), &streamContext_);
+      } catch(...) {
+        if(not excpt) {
+          excpt = std::current_exception();
+        }
+      }
+      iHolder.doneWaiting(excpt);
+      
+    });
+    
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,cleaningUpAfterException,token] () mutable {
+      ServiceRegistry::Operate op(token);
+      T::preScheduleSignal(actReg_.get(), &streamContext_);
+      WaitingTaskHolder h(doneTask);
+
+      workerManager_.resetAll();
+      for(auto& p : end_paths_) {
+        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+      }
+
+      for(auto& p : trig_paths_) {
+        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+      }
+      
+      workerManager_.processOneOccurrenceAsync<T>(doneTask,
+                                                  ep, es, streamID_, &streamContext_, &streamContext_);
+    });
+    
+    if(streamID_.value() == 0) {
+      //Enqueueing will start another thread if there is only
+      // one thread in the job. Having stream == 0 use spawn
+      // avoids starting up another thread when there is only one stream.
+      tbb::task::spawn( *task);
+    } else {
+      tbb::task::enqueue( *task);
+    }
+  }
+  
+  
   template <typename T>
   bool
   StreamSchedule::runTriggerPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {

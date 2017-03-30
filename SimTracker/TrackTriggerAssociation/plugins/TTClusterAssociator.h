@@ -14,7 +14,7 @@
 #define L1_TRACK_TRIGGER_CLUSTER_ASSOCIATOR_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,9 +23,6 @@
 
 #include "L1Trigger/TrackTrigger/interface/classNameFinder.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-//#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -44,7 +41,7 @@
 #include <vector>
 
 template< typename T >
-class TTClusterAssociator : public edm::EDProducer
+class TTClusterAssociator : public edm::stream::EDProducer<>
 {
   /// NOTE since pattern hit correlation must be performed within a stacked module, one must store
   /// Clusters in a proper way, providing easy access to them in a detector/member-wise way

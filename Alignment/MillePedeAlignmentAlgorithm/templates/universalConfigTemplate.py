@@ -47,6 +47,7 @@ setupCosmicsDecoMode  = False
 setupCosmicsZeroTesla = False
 setupPrimaryWidth     = -1.0
 setupJson             = "placeholder_json"
+setupRunStartGeometry = -1
 
 ################################################################################
 # Variables edited by MPS (mps_setup and mps_merge). Be careful.
@@ -166,4 +167,5 @@ else:
     import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.PedeSetup as pede
     pede.setup(process,
                binary_files = merge_binary_files,
-               tree_files = merge_tree_files)
+               tree_files = merge_tree_files,
+               run_start_geometry = setupRunStartGeometry)

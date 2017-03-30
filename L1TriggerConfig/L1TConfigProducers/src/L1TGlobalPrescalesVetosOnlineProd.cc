@@ -131,26 +131,26 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
   for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
     triggerMasks.push_back(1);
 
-    l1t::XmlConfigParser xmlReader_mask_finor;
-    l1t::TriggerSystem ts_mask_finor;
-    ts_mask_finor.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
-
-    // run the parser 
-    xmlReader_mask_finor.readDOMFromString( xmlPayload_mask_finor ); // initialize it
-    xmlReader_mask_finor.readRootElement( ts_mask_finor, "uGT" ); // extract all of the relevant context
-    ts_mask_finor.setConfigured();
-
-    const std::map<std::string, l1t::Parameter>& settings_mask_finor = ts_mask_finor.getParameters("uGtProcessor");
-
-    std::vector<unsigned int> algo_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("algo");
-    std::vector<unsigned int> mask_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("mask");
-
-    for(unsigned int row=0; row<algo_mask_finor.size(); row++){
-      unsigned int algoBit = algo_mask_finor[row];
-      unsigned int mask    = mask_mask_finor[row];
-      if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
-    }
-
+  l1t::XmlConfigParser xmlReader_mask_finor;
+  l1t::TriggerSystem ts_mask_finor;
+  ts_mask_finor.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
+  
+  // run the parser 
+  xmlReader_mask_finor.readDOMFromString( xmlPayload_mask_finor ); // initialize it
+  xmlReader_mask_finor.readRootElement( ts_mask_finor, "uGT" ); // extract all of the relevant context
+  ts_mask_finor.setConfigured();
+  
+  const std::map<std::string, l1t::Parameter>& settings_mask_finor = ts_mask_finor.getParameters("uGtProcessor");
+  
+  std::vector<unsigned int> algo_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("algo");
+  std::vector<unsigned int> mask_mask_finor = settings_mask_finor.at("finorMask").getTableColumn<unsigned int>("mask");
+  
+  for(unsigned int row=0; row<algo_mask_finor.size(); row++){
+    unsigned int algoBit = algo_mask_finor[row];
+    unsigned int mask    = mask_mask_finor[row];
+    if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
+  }
+  
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // veto mask
@@ -158,24 +158,24 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
   for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
     triggerVetoMasks.push_back(0);
   
-    l1t::XmlConfigParser xmlReader_mask_veto;
-    l1t::TriggerSystem ts_mask_veto;
-    ts_mask_veto.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
-
-    // run the parser 
-    xmlReader_mask_veto.readDOMFromString( xmlPayload_mask_veto ); // initialize it
-    xmlReader_mask_veto.readRootElement( ts_mask_veto, "uGT" ); // extract all of the relevant context
-    ts_mask_veto.setConfigured();
-
-    const std::map<std::string, l1t::Parameter>& settings_mask_veto = ts_mask_veto.getParameters("uGtProcessor");
-    std::vector<unsigned int> algo_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("algo");
-    std::vector<unsigned int> veto_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("veto");
-
-    for(unsigned int row=0; row<algo_mask_veto.size(); row++){
-      unsigned int algoBit = algo_mask_veto[row];
-      unsigned int veto    = veto_mask_veto[row];
-      if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
-    }
+  l1t::XmlConfigParser xmlReader_mask_veto;
+  l1t::TriggerSystem ts_mask_veto;
+  ts_mask_veto.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
+  
+  // run the parser 
+  xmlReader_mask_veto.readDOMFromString( xmlPayload_mask_veto ); // initialize it
+  xmlReader_mask_veto.readRootElement( ts_mask_veto, "uGT" ); // extract all of the relevant context
+  ts_mask_veto.setConfigured();
+  
+  const std::map<std::string, l1t::Parameter>& settings_mask_veto = ts_mask_veto.getParameters("uGtProcessor");
+  std::vector<unsigned int> algo_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("algo");
+  std::vector<unsigned int> veto_mask_veto = settings_mask_veto.at("vetoMask").getTableColumn<unsigned int>("veto");
+  
+  for(unsigned int row=0; row<algo_mask_veto.size(); row++){
+    unsigned int algoBit = algo_mask_veto[row];
+    unsigned int veto    = veto_mask_veto[row];
+    if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

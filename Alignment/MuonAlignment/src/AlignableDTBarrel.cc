@@ -21,7 +21,7 @@ AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWh
   theDTWheels.insert( theDTWheels.end(), dtWheels.begin(), dtWheels.end() );
 
   setSurface( computeSurface() );
-   
+  compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
       
 

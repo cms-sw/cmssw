@@ -284,6 +284,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
     ] #end of vpset
 ) #end of clone
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [

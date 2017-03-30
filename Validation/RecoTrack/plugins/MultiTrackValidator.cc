@@ -22,6 +22,7 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -688,14 +689,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    //Calcualte the impact parameters w.r.t. PCA
 	    const TrackingParticle::Vector& momentum = std::get<TrackingParticle::Vector>(momVert);
 	    const TrackingParticle::Point& vertex = std::get<TrackingParticle::Point>(momVert);
-	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
-	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
-	      * momentum.z()/sqrt(momentum.perp2());
+	    dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
+	    dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
 
             if(theSimPVPosition) {
-              // As in TrackBase::dxy(Point) and dz(Point)
-              dxyPVSim = -(vertex.x()-theSimPVPosition->x())*sin(momentum.phi()) + (vertex.y()-theSimPVPosition->y())*cos(momentum.phi());
-              dzPVSim = vertex.z()-theSimPVPosition->z() - ( (vertex.x()-theSimPVPosition->x()) + (vertex.y()-theSimPVPosition->y()) )/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+              dxyPVSim = TrackingParticleIP::dxy(vertex, momentum, *theSimPVPosition);
+              dzPVSim = TrackingParticleIP::dz(vertex, momentum, *theSimPVPosition);
             }
 	  }
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
@@ -703,9 +702,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  {
 	    momentumTP = std::get<TrackingParticle::Vector>(momVert);
 	    vertexTP = std::get<TrackingParticle::Point>(momVert);
-	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
-	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
-	      * momentumTP.z()/sqrt(momentumTP.perp2());
+	    dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
+	    dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
 
             // Do dxy and dz vs. PV make any sense for cosmics? I guess not
 	  }

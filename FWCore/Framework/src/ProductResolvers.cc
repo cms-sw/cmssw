@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 
@@ -168,25 +169,6 @@ namespace edm {
   }
 
   
-  template<typename F>
-  class FunctorTask : public tbb::task {
-  public:
-    explicit FunctorTask( F f): func_(f) {}
-    
-    task* execute() override {
-      func_();
-      return nullptr;
-    };
-    
-  private:
-    F func_;
-  };
-  
-  template< typename ALLOC, typename F>
-  FunctorTask<F>* make_functor_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorTask<F>(f);
-  }
-
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
@@ -605,7 +587,7 @@ namespace edm {
   }
   
   ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
-    return provRetriever_? provRetriever_->branchIDToProvenance(bd_->branchID()): nullptr;
+    return provRetriever_? provRetriever_->branchIDToProvenance(bd_->originalBranchID()): nullptr;
   }
   
   void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {
@@ -626,7 +608,28 @@ namespace edm {
     << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
-  
+
+  void ParentProcessProductResolver::throwNullRealProduct() const {
+    // In principle, this ought to be fixed. I noticed one hits this error
+    // when in a SubProcess and calling the Event::getProvenance function
+    // with a BranchID to a branch from an earlier SubProcess or the top
+    // level process and this branch is not kept in this SubProcess. It might
+    // be possible to hit this in other contexts. I say it ought to be
+    // fixed because one does not encounter this issue if the SubProcesses
+    // are split into genuinely different processes (in principle that
+    // ought to give identical behavior and results). No user has ever
+    // reported this issue which has been around for some time and it was only
+    // noticed when testing some rare corner cases after modifying Core code.
+    // After discussing this with Chris we decided that at least for the moment
+    // there are higher priorities than fixing this ... I converted it so it
+    // causes an exception instead of a seg fault. The issue that may need to
+    // be addressed someday is how ProductResolvers for non-kept branches are
+    // connected to earlier SubProcesses.
+    throw Exception(errors::LogicError)
+      << "ParentProcessProductResolver::throwNullRealProduct RealProduct pointer not set in this context.\n"
+      << "Contact a Framework developer\n";
+  }
+
   NoProcessProductResolver::
   NoProcessProductResolver(std::vector<ProductResolverIndex> const&  matchingHolders,
                            std::vector<bool> const& ambiguous) :

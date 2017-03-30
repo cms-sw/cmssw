@@ -159,7 +159,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
                                              recoPrimaryVertex &v);
   void fillResolutionAndPullHistograms(const std::string &,
                                        int,
-                                       recoPrimaryVertex &v);
+                                       recoPrimaryVertex &v,
+                                       bool);
 
   void calculatePurityAndFillHistograms(const std::string&,
                                         std::vector<recoPrimaryVertex>&,

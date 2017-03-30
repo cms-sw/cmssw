@@ -33,7 +33,7 @@ class Trajectory;
 // class TsosVectorCollection;
 // class TkFittedLasBeamCollection;
 // class AliClusterValueMap;
-#include "CondCore/CondDB/interface/Time.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
@@ -48,10 +48,6 @@ typedef std::vector< ConstTrajTrackPair >                ConstTrajTrackPairs;
 
 typedef std::vector<IntegratedCalibrationBase*> Calibrations;
 
-typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
-typedef std::pair<RunNumber,RunNumber>            RunRange;
-typedef std::vector<RunRange>                     RunRanges;
-
 
 
 class AlignmentAlgorithmBase
@@ -65,8 +61,8 @@ public:
   // in other files.
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector< ConstTrajTrackPair >  ConstTrajTrackPairCollection;
-  typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
-  typedef std::pair<RunNumber,RunNumber> RunRange;
+  using RunNumber = align::RunNumber;
+  using RunRange = align::RunRange;
 
   /// define event information passed to algorithms
   class EventInfo {
@@ -149,7 +145,7 @@ public:
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
 
   /// called at begin of run
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup &setup) {};
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&, bool changed) {};
 
   /// called at end of run - order of arguments like in EDProducer etc.
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {};

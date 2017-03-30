@@ -2634,7 +2634,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  double maxV = cut.getMaximum().value;
 	  
 	  //Scale down very large numbers out of xml
-	  if(maxV > 1.0e6) maxV = 1.0e6;
+	  if(maxV > 1.0e8) maxV = 1.0e8;
 	  
 	  if(cut.getCutType() == esCutType::DeltaEta) {
 	     //std::cout << "DeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;

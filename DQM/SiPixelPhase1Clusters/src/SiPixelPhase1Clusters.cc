@@ -19,7 +19,7 @@
 
 
 SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig) 
+  SiPixelPhase1Base(iConfig)
 {
   srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("src"));
 }
@@ -29,12 +29,12 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
 
-  bool hasClusters=false;  
+  bool hasClusters=false;
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
-  
+
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     auto id = DetId(it->detId());
@@ -44,6 +44,9 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
     for(SiPixelCluster const& cluster : *it) {
       int row = cluster.x()-0.5, col = cluster.y()-0.5;
+      //// Uncomment to activate trigger filtering if statement
+      //// Any logical operation between trigger should be handled manually here
+      // if( checktrigger(iEvent,iSetup,FLAG_HLT) )
       histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent, col, row);
@@ -77,4 +80,3 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Clusters);
-

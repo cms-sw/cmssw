@@ -57,4 +57,35 @@ namespace edm {
     }
     return os;
   }
+  
+  void exceptionContext(std::ostream& os, GlobalContext const& gc) {
+    os << "Processing ";
+    switch (gc.transition()) {
+      case GlobalContext::Transition::kBeginJob:
+        os << "begin Job";
+        break;
+      case GlobalContext::Transition::kBeginRun:
+        os << "global begin Run " <<RunID(gc.luminosityBlockID().run());
+        break;
+      case GlobalContext::Transition::kBeginLuminosityBlock:
+        os << "global begin LuminosityBlock "<<gc.luminosityBlockID();
+        break;
+      case GlobalContext::Transition::kEndLuminosityBlock:
+        os << "global end LuminosityBlock "<<gc.luminosityBlockID();
+        break;
+      case GlobalContext::Transition::kEndRun:
+        os << "global end Run "<<RunID(gc.luminosityBlockID().run());
+        break;
+      case GlobalContext::Transition::kEndJob:
+        os << "endJob";
+        break;
+      case GlobalContext::Transition::kWriteRun:
+        os << "write Run "<<RunID(gc.luminosityBlockID().run());
+        break;
+      case GlobalContext::Transition::kWriteLuminosityBlock:
+        os << "write LuminosityBlock "<<gc.luminosityBlockID();
+        break;
+    }
+  }
+
 }

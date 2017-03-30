@@ -155,6 +155,13 @@ parser.add_argument('--max-events',
                     default = defaults.events,
                     metavar = 'EVENTS',
                     help    = 'Run on EVENTS events (-1 for unlimited)' )
+parser.add_argument('--setup',
+                    dest    = 'setup',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.setup,
+                    metavar = 'STORE',
+                    help    = 'If set, download setup_cff from the specified configuration and load it.' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -216,8 +223,6 @@ group.add_argument('--offline',
 parser.add_argument('--help',
                     action  = 'help',
                     help    = 'Show this help message and exit' )
-
-
 
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())

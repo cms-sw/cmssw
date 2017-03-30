@@ -33,8 +33,11 @@
 // STL headers 
 #include <vector>
 #include <iostream>
+#include <mutex>
 
 //#define DebugLog
+
+static std::once_flag initializeOnce;
 
 FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) 
   : fast(p) {
@@ -57,12 +60,15 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
   hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
   
-  // Geant4 particles
-  G4DecayPhysics decays;
-  decays.ConstructParticle();  
+  //only one thread can be allowed to setup the G4 physics table.
+  std::call_once(initializeOnce,[]() {
+      // Geant4 particles
+      G4DecayPhysics decays;
+      decays.ConstructParticle();  
+      G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+      partTable->SetReadiness();
+    });
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  partTable->SetReadiness();
-
   hfshower->initRun(partTable, hcalConstants); // init particle code
 }
 
