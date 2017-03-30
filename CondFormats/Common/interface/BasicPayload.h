@@ -9,10 +9,9 @@ namespace cond {
   */
   class BasicPayload {
   public:
-    static const size_t vecSize = 100; 
-    BasicPayload():m_data0(0.),m_data1(0.),m_vec(vecSize,0){
+    BasicPayload():m_data0(0.),m_data1(0.),m_vec(){
     }
-    BasicPayload( float d0, float d1):m_data0(d0),m_data1(d1),m_vec(vecSize,0){
+    BasicPayload( float d0, float d1, size_t vecSize):m_data0(d0),m_data1(d1),m_vec(vecSize,0){
       for(size_t i=0;i<vecSize;i++) m_vec[i] = d0*i+d1;
     }
     virtual ~BasicPayload(){}
