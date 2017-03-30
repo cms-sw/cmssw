@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h" 
 
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include<cassert>
 
@@ -43,8 +43,6 @@ TrackMVAClassifierBase::TrackMVAClassifierBase( const edm::ParameterSet & cfg ) 
 
 }
 
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
 void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es ) {
 
   // Get tracks 
