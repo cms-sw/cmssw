@@ -15,6 +15,7 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
 }
 
 
+/* dR-algorithms */
 bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc, 
                                        const l1t::HGCalCluster & clu, 
                                        double distXY ) const 
@@ -35,9 +36,10 @@ bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc,
 }
 
 
-bool HGCalClusteringImpl::isPertinentNN( const l1t::HGCalTriggerCell & tc, 
-                                         const l1t::HGCalCluster & clu, 
-                                         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const 
+/* NN-algorithm */
+bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc, 
+                                       const l1t::HGCalCluster & clu, 
+                                       edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const 
 {
 
     HGCalDetId tcDetId( tc.detId() );
@@ -68,6 +70,7 @@ bool phiOrder( const edm::Ptr<l1t::HGCalTriggerCell> A, const edm::Ptr<l1t::HGCa
 }
 
 
+/* dR-algorithms */
 void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters
     ){
@@ -127,7 +130,8 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
 }
 
 
-void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+/* NN-algorithms */
+void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters,
                                       edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry
     ){
@@ -167,7 +171,7 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
         int iclu=0;
         vector<int> tcPertinentClusters; 
         for( std::vector<l1t::HGCalCluster>::iterator clu = clustersTmp.begin(); clu != clustersTmp.end(); ++clu,++iclu ){
-            if( this->isPertinentNN(**tc, *clu, triggerGeometry) ){
+            if( this->isPertinent(**tc, *clu, triggerGeometry) ){
                 tcPertinentClusters.push_back(iclu);
             }
         }

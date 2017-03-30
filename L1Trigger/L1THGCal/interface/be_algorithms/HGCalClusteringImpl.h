@@ -14,19 +14,21 @@ public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
 
+    /* dR-algorithms */
     bool isPertinent( const l1t::HGCalTriggerCell & tc, 
                       const l1t::HGCalCluster & clu, 
                       double distXY) const;
-
-    bool isPertinentNN( const l1t::HGCalTriggerCell & tc, 
-                      const l1t::HGCalCluster & clu, 
-                      edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const;
 
     void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
                      l1t::HGCalClusterBxCollection & clusters 
         );
 
-    void clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+    /* NN-algorithms */
+    bool isPertinent( const l1t::HGCalTriggerCell & tc, 
+                      const l1t::HGCalCluster & clu, 
+                      edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const;
+    
+    void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
                        l1t::HGCalClusterBxCollection & clusters,
                        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry 
         );

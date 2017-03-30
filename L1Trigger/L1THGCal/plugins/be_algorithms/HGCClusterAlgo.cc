@@ -151,7 +151,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
 
     /* call to clustering */
     //clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
-    clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, triggerGeometry_ );
+    clustering_.clusterize( triggerCellsPtrs, *cluster_product_, triggerGeometry_ );
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
