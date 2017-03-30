@@ -2,12 +2,13 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"    
 
 using namespace HGCalTriggerBackend;
 
@@ -59,6 +60,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             cluster_product_.reset( new l1t::HGCalClusterBxCollection );
             multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
         }
+
     
     private:
     
@@ -74,7 +76,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         /* handles to the detector topologies */
         edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
         edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
-        
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+
         /* algorithms instances */
         HGCalTriggerCellCalibration calibration_;
         HGCalClusteringImpl clustering_;
@@ -91,6 +94,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
  
     es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
     es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
+    es.get<IdealGeometryRecord>().get("", triggerGeometry_);
 
     for( const auto& digi : coll ){
         
@@ -123,7 +127,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
                 trgcell_product_->push_back( 0, calibratedtriggercell );
-            }
+
+            }           
         
         }
     
@@ -145,7 +150,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
 
     /* call to clustering */
-    clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
+    //clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
+    clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, triggerGeometry_ );
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
