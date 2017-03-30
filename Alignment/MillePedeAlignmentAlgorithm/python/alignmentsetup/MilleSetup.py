@@ -51,3 +51,4 @@ def setup(process, input_files, collection,
     # --------------------------------------------------------------------------
     process.p = cms.Path(process.TrackRefittingSequence*
                          process.AlignmentProducer)
+    if hasattr(process, "mps_filters"): process.p.insert(0, process.mps_filters)
