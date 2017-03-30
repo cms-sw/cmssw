@@ -10,7 +10,8 @@ def getSequence(process, collection,
                 openMassWindow = False,
                 cosmicsDecoMode = False,
                 cosmicsZeroTesla = True,
-                momentumConstraint = None):
+                momentumConstraint = None,
+                cosmicTrackSplitting = False):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
     subsequent processing steps.
@@ -33,6 +34,8 @@ def getSequence(process, collection,
     - `momentumConstraint`: If you want to apply a momentum constraint for the
                             track refitting, e.g. for CRUZET data, you need
                             to provide here the name of the constraint module.
+    - `cosmicTrackSplitting`: If set to 'True' cosmic tracks are split before the
+                              second track refitter.
     """
 
 
@@ -124,6 +127,9 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1
                 })
+        if cosmicTrackSplitting:
+            options["TrackSplitting"]["TrackSplitting"].update({ #placeholder
+                    })
     elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
@@ -175,8 +181,10 @@ def getSequence(process, collection,
                 "minimumHits": 10,
                 })
     else:
-        print "Unknown input track collection:", collection
-        sys.exit(1)
+        raise ValueError("Unknown input track collection: {}".format(collection))
+
+    if cosmicTrackSplitting and not isCosmics:
+        raise ValueError("Can only do cosmic track splitting for cosmics.")
 
 
 
@@ -185,6 +193,8 @@ def getSequence(process, collection,
     ####################
 
     if saveCPU:
+        if cosmicTrackSplitting:
+            raise ValueError("Can't turn on both saveCPU and cosmicTrackSplitting at the same time")
         mods = [("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackRefitter", "First", {"method": "load",
                                             "clone": True}),
@@ -197,11 +207,17 @@ def getSequence(process, collection,
                 ("TrackRefitter", "First", {"method": "load",
                                             "clone": True}),
                 ("TrackHitFilter", "Tracker", {"method": "load"}),
+                "track splitting goes here"
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackRefitter", "Second", {"method": "load",
                                              "clone": True})]
         if isCosmics: mods = mods[1:]
+        if cosmicTrackSplitting:
+            tracksplittingindex = mods.index("track splitting goes here")
+            mods[tracksplittingindex] = ("TrackSplitting", "TrackSplitting", {"method": "load"})
+        else:
+            mods.remove("track splitting goes here")
 
 
 
@@ -224,10 +240,11 @@ def getSequence(process, collection,
 
     modules = []
     src = collection
+    prevsrc = None
     for mod in mods[:-1]:
-        src = _getModule(process, src, mod[0], "".join(reversed(mod[:-1])),
-                         options[mod[0]][mod[1]], isCosmics = isCosmics,
-                         **(mod[2]))
+        src, prevsrc = _getModule(process, src, mod[0], "".join(reversed(mod[:-1])),
+                                  options[mod[0]][mod[1]], isCosmics = isCosmics, prevsrc = prevsrc
+                                  **(mod[2])), src
         modules.append(getattr(process, src))
     else:
         if mods[-1][-1]["method"] is "load" and \
@@ -272,10 +289,10 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
 
     objTuple = globals()["_"+modType](kwargs)
     method = kwargs.get("method")
-    if method is "import":
+    if method == "import":
         __import__(objTuple[0])
         obj = getattr(sys.modules[objTuple[0]], objTuple[1]).clone(src=src)
-    elif method is "load":
+    elif method == "load":
         process.load(objTuple[0])
         if kwargs.get("clone", False):
             obj = getattr(process, objTuple[1]).clone(src=src)
@@ -286,6 +303,12 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
     else:
         print "Unknown method:", method
         sys.exit(1)
+
+    if modType == "TrackSplitting":
+        #track splitting takes the TrackSelector as tracks
+        # and the first TrackRefitter as tjTkAssociationMapTag
+        _customSetattr(obj, "tracks", src)
+        _customSetattr(obj, "tjTkAssociationMapTag", prevsrc)
 
     for option in options:
         _customSetattr(obj, option, options[option])
@@ -347,6 +370,10 @@ def _TrackRefitter(kwargs):
     else:
         return ("RecoTracker.TrackProducer.TrackRefitters_cff",
                 "TrackRefitter")
+
+def _TrackSplitting(kwargs):
+    return ("RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi",
+            "cosmicTrackSplitter")
 
 
 def _customSetattr(obj, attr, val):
