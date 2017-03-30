@@ -24,6 +24,9 @@ if 'es_prefer_GlobalTag' in process.__dict__:
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
+# Required for EMTF emulation
+process.load('Configuration.StandardSequences.MagneticField_cff')
+
 #--------------------------------------------------
 # DQM Environment
 
