@@ -17,10 +17,6 @@ namespace l1t {
       track_counter(-99), orbit_counter(-99), rpc_counter(-99), format_errors(0), dataword(-99) 
 	{};
       
-    Counters(int int_track_counter, int int_orbit_counter, int int_rpc_counter) :
-      track_counter(int_track_counter), orbit_counter(int_orbit_counter), rpc_counter(int_rpc_counter), format_errors(0), dataword(-99)
-    	{};
-      
       virtual ~Counters() {};
       
       void set_track_counter(int bits) { track_counter = bits; }
@@ -29,11 +25,11 @@ namespace l1t {
       void add_format_error()          { format_errors += 1;   }
       void set_dataword(uint64_t bits) { dataword = bits;      }
       
-      int      Track_counter() const { return track_counter; }
-      int      Orbit_counter() const { return orbit_counter; }
-      int      RPC_counter()   const { return rpc_counter;   }
-      int      Format_Errors() const { return format_errors; }
-      uint64_t Dataword()      const { return dataword;      }      
+      int Track_counter() const { return track_counter; }
+      int Orbit_counter() const { return orbit_counter; }
+      int RPC_counter()   const { return rpc_counter;   }
+      int Format_errors() const { return format_errors; }
+      uint64_t Dataword() const { return dataword;      }      
       
     private:
       int track_counter;
