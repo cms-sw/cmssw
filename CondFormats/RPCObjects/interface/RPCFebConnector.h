@@ -19,10 +19,10 @@ public:
     static unsigned int bit_count(std::uint16_t);
 
 public:
-    RPCFebConnector(RPCDetId const & _rpc_det_id = RPCDetId(0, 0, 1, 1, 1, 1, 0)
-                    , unsigned int _first_strip = 1
-                    , int _slope = 1
-                    , std::uint16_t _channels = 0x0);
+    RPCFebConnector(RPCDetId const & rpc_det_id = RPCDetId(0, 0, 1, 1, 1, 1, 0)
+                    , unsigned int first_strip = 1
+                    , int slope = 1
+                    , std::uint16_t channels = 0x0);
 
     void reset();
 
@@ -31,17 +31,17 @@ public:
     int getSlope() const;
     std::uint16_t getChannels() const;
 
-    RPCFebConnector & setRPCDetId(RPCDetId const & _rpc_det_id);
-    RPCFebConnector & setFirstStrip(unsigned int _strip);
-    RPCFebConnector & setSlope(int _slope);
-    RPCFebConnector & setChannels(std::uint16_t _channels);
+    RPCFebConnector & setRPCDetId(RPCDetId const & rpc_det_id);
+    RPCFebConnector & setFirstStrip(unsigned int strip);
+    RPCFebConnector & setSlope(int slope);
+    RPCFebConnector & setChannels(std::uint16_t channels);
 
-    bool isActive(unsigned int _channel) const;
+    bool isActive(unsigned int channel) const;
     unsigned int getNChannels() const;
-    unsigned int getStrip(unsigned int _channel) const;
+    unsigned int getStrip(unsigned int channel) const;
 
-    bool hasStrip(unsigned int _strip) const;
-    unsigned int getChannel(unsigned int _strip) const;
+    bool hasStrip(unsigned int strip) const;
+    unsigned int getChannel(unsigned int strip) const;
 
     std::string getString() const;
 
@@ -55,7 +55,7 @@ protected:
     COND_SERIALIZABLE;
 };
 
-std::ostream & operator<<(std::ostream & _ostream, RPCFebConnector const & _connector);
+std::ostream & operator<<(std::ostream & ostream, RPCFebConnector const & connector);
 
 #include "CondFormats/RPCObjects/interface/RPCFebConnector.icc"
 

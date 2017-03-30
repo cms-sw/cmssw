@@ -18,7 +18,7 @@ class RPCTwinMuxLinkMapHandler
     : public popcon::PopConSourceHandler<RPCAMCLinkMap>
 {
 public:
-    RPCTwinMuxLinkMapHandler(edm::ParameterSet const & _config);
+    RPCTwinMuxLinkMapHandler(edm::ParameterSet const & config);
     ~RPCTwinMuxLinkMapHandler();
 
     void getNewObjects();

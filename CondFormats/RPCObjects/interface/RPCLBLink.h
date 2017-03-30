@@ -61,24 +61,24 @@ protected:
 
 public:
     RPCLBLink();
-    RPCLBLink(std::uint32_t const & _id);
-    RPCLBLink(int _region
-              , int _yoke
-              , int _sector = wildcard_
-              , int _side = wildcard_
-              , int _wheelordisk = wildcard_
-              , int _fibre = wildcard_
-              , int _radial = wildcard_
-              , int _linkboard = wildcard_
-              , int _connector = wildcard_);
+    RPCLBLink(std::uint32_t const & id);
+    RPCLBLink(int region
+              , int yoke
+              , int sector = wildcard_
+              , int side = wildcard_
+              , int wheelordisk = wildcard_
+              , int fibre = wildcard_
+              , int radial = wildcard_
+              , int linkboard = wildcard_
+              , int connector = wildcard_);
 
     std::uint32_t getId() const;
     operator std::uint32_t() const;
     std::uint32_t getMask() const;
 
-    bool matches(RPCLBLink const & _rhs) const;
+    bool matches(RPCLBLink const & rhs) const;
 
-    void setId(std::uint32_t const & _id);
+    void setId(std::uint32_t const & id);
     void reset();
 
     /** @{ */
@@ -98,25 +98,25 @@ public:
     /** Field Setters
      * A cms::Exception("OutOfRange") is thrown for out-of-range input values.
      **/
-    RPCLBLink & setRegion(int _region = wildcard_);
-    RPCLBLink & setYoke(int _yoke = wildcard_);
-    RPCLBLink & setSector(int _sector = wildcard_);
-    RPCLBLink & setSide(int _side = wildcard_);
-    RPCLBLink & setWheelOrDisk(int _wheelordisk = wildcard_);
-    RPCLBLink & setFibre(int _fibre = wildcard_);
-    RPCLBLink & setRadial(int _radial = wildcard_);
-    RPCLBLink & setLinkBoard(int _linkboard = wildcard_);
-    RPCLBLink & setConnector(int _connector = wildcard_);
+    RPCLBLink & setRegion(int region = wildcard_);
+    RPCLBLink & setYoke(int yoke = wildcard_);
+    RPCLBLink & setSector(int sector = wildcard_);
+    RPCLBLink & setSide(int side = wildcard_);
+    RPCLBLink & setWheelOrDisk(int wheelordisk = wildcard_);
+    RPCLBLink & setFibre(int fibre = wildcard_);
+    RPCLBLink & setRadial(int radial = wildcard_);
+    RPCLBLink & setLinkBoard(int linkboard = wildcard_);
+    RPCLBLink & setConnector(int connector = wildcard_);
     /** @} */
 
     std::string getName() const;
 
-    bool operator<(RPCLBLink const & _rhs) const;
-    bool operator==(RPCLBLink const & _rhs) const;
-    bool operator!=(RPCLBLink const & _rhs) const;
-    bool operator<(std::uint32_t const & _rhs) const;
-    bool operator==(std::uint32_t const & _rhs) const;
-    bool operator!=(std::uint32_t const & _rhs) const;
+    bool operator<(RPCLBLink const & rhs) const;
+    bool operator==(RPCLBLink const & rhs) const;
+    bool operator!=(RPCLBLink const & rhs) const;
+    bool operator<(std::uint32_t const & rhs) const;
+    bool operator==(std::uint32_t const & rhs) const;
+    bool operator!=(std::uint32_t const & rhs) const;
 
     RPCLBLink & operator++();
     RPCLBLink operator++(int);
@@ -124,9 +124,9 @@ public:
     RPCLBLink operator--(int);
 
 protected:
-    int bf_get(int const _min, std::uint32_t const _mask, int const _pos) const;
-    RPCLBLink & bf_set(int const _min, int const _max, std::uint32_t const _mask, int const _pos, int const _value);
-    std::ostream & bf_stream(std::ostream & _ostream, int const _min, std::uint32_t const _mask, int const _pos) const;
+    int bf_get(int const min, std::uint32_t const mask, int const pos) const;
+    RPCLBLink & bf_set(int const min, int const max, std::uint32_t const mask, int const pos, int const value);
+    std::ostream & bf_stream(std::ostream & ostream, int const min, std::uint32_t const mask, int const pos) const;
 
 protected:
     std::uint32_t id_;
@@ -134,7 +134,7 @@ protected:
     COND_SERIALIZABLE;
 };
 
-std::ostream & operator<<(std::ostream & _ostream, RPCLBLink const & _link);
+std::ostream & operator<<(std::ostream & ostream, RPCLBLink const & link);
 
 #include "CondFormats/RPCObjects/interface/RPCLBLink.icc"
 
