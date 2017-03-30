@@ -36,6 +36,16 @@ def setup(process, input_files, collection,
         = trackRefitter.getSequence(process, collection, **kwargs)
 
 
+    # Ensure the correct APV mode for cosmics
+    # --------------------------------------------------------------------------
+    if collection in ("ALCARECOTkAlCosmicsCTF0T",
+                      "ALCARECOTkAlCosmicsInCollisions"):
+        process.load("Alignment.CommonAlignment.apvModeFilter_cfi")
+        process.apvModeFilter.apvMode = "deco" if cosmics_deco_mode else "peak"
+        import helper
+        helper.add_filter(process, process.apvModeFilter)
+
+
     # Configure the input data
     # --------------------------------------------------------------------------
     process.source = cms.Source("PoolSource", fileNames  = input_files)

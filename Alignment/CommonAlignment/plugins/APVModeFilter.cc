@@ -100,6 +100,10 @@ constexpr APVModeFilter::BitMask APVModeFilter::multi_;
 //
 APVModeFilter::APVModeFilter(const edm::ParameterSet& iConfig) :
   mode_(convertMode(iConfig.getUntrackedParameter<std::string>("apvMode"))) {
+  edm::LogInfo("Alignment")
+    << "@SUB=APVModeFilter::APVModeFilter"
+    << "Selecting events with APV mode '"
+    << iConfig.getUntrackedParameter<std::string>("apvMode") << "'.";
 }
 
 
