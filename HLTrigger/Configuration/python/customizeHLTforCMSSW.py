@@ -50,10 +50,9 @@ def customiseFor17792(process):
     return process
 
 def customiseFor18118(process):
-    hbhereconames = ['hltHbhePhase1Reco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded']
-    for hbhereconame in hbhereconames:
-        if hasattr(process,hbhereconame):
-            getattr(process,hbhereconame).saveEffectivePedestal = cms.bool(False)
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        if not hasattr(producer, "saveEffectivePedestal"):
+            producer.saveEffectivePedestal = cms.bool(False)
     return process
 
 # CMSSW version specific customizations
