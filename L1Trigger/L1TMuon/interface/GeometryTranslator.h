@@ -19,8 +19,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
 
-#include "MuonTriggerPrimitive.h"
-
 // forwards
 namespace edm {  
   class EventSetup;
@@ -30,8 +28,10 @@ class RPCGeometry;
 class CSCGeometry;
 class CSCLayer;
 class DTGeometry;
+class MagneticField;
 
 namespace L1TMuon{
+  class TriggerPrimitive;
 
   class GeometryTranslator {
   public:
@@ -40,17 +40,28 @@ namespace L1TMuon{
 
     double calculateGlobalEta(const TriggerPrimitive&) const;
     double calculateGlobalPhi(const TriggerPrimitive&) const;
-    double calculateBendAngle(const TriggerPrimitive&) const;    
+    double calculateBendAngle(const TriggerPrimitive&) const;
+
+    GlobalPoint getGlobalPoint(const TriggerPrimitive&) const;
 
     void checkAndUpdateGeometry(const edm::EventSetup&);
+
+    const RPCGeometry& getRPCGeometry() const { return *_georpc; }
+    const CSCGeometry& getCSCGeometry() const { return *_geocsc; }
+    const DTGeometry&  getDTGeometry()  const { return *_geodt;  }
+
+    const MagneticField& getMagneticField() const { return *_magfield; }
 
   private:
     // pointers to the current geometry records
     unsigned long long _geom_cache_id;
-    edm::ESHandle<RPCGeometry> _georpc;    
-    edm::ESHandle<CSCGeometry> _geocsc;    
-    edm::ESHandle<DTGeometry>  _geodt;    
-    
+    edm::ESHandle<RPCGeometry> _georpc;
+    edm::ESHandle<CSCGeometry> _geocsc;
+    edm::ESHandle<DTGeometry>  _geodt;
+
+    unsigned long long _magfield_cache_id;
+    edm::ESHandle<MagneticField> _magfield;
+
     GlobalPoint getRPCSpecificPoint(const TriggerPrimitive&) const;
     double calcRPCSpecificEta(const TriggerPrimitive&) const;
     double calcRPCSpecificPhi(const TriggerPrimitive&) const;

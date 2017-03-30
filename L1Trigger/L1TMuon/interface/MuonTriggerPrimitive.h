@@ -1,7 +1,7 @@
 #ifndef __L1TMUON_TRIGGERPRIMITIVE_H__
 #define __L1TMUON_TRIGGERPRIMITIVE_H__
 //
-// Class: L1TwinMux::TriggerPrimitive
+// Class: L1TMuon::TriggerPrimitive
 //
 // Info: This class implements a unifying layer between DT, CSC and RPC
 //       trigger primitives (TPs) such that TPs from different subsystems
@@ -17,7 +17,7 @@
 // Author: L. Gray (FNAL)
 //
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <vector>
 #include <iostream>
 
@@ -53,10 +53,12 @@ namespace L1TMuon {
     // within a subsystem
     // for RPCs you have to unroll the digi-link and raw det-id
     struct RPCData {
-      RPCData() : strip(0), layer(0), bx(0) {}
-      unsigned strip;
-      unsigned layer;
-      uint16_t bx;
+      RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0) {}
+      uint16_t strip;
+      uint16_t strip_low;
+      uint16_t strip_hi;
+      uint16_t layer;
+      int16_t bx;
     };
 
     struct CSCData {
@@ -123,9 +125,9 @@ namespace L1TMuon {
 		     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
-		     const unsigned strip,
-		     const unsigned layer,
-		     const uint16_t bx);
+                     const unsigned strip,
+                     const unsigned layer,
+                     const int bx);
 
     //copy
     TriggerPrimitive(const TriggerPrimitive&);
@@ -160,9 +162,17 @@ namespace L1TMuon {
       IDType detId() const { return IDType(_id); }
 
     // accessors to raw subsystem data
+    void setDTData(const DTData& dt) { _dt = dt; }
+    void setCSCData(const CSCData& csc) { _csc = csc; }
+    void setRPCData(const RPCData& rpc) { _rpc = rpc; }
+
     const DTData  getDTData()  const { return _dt;  }
     const CSCData getCSCData() const { return _csc; }
     const RPCData getRPCData() const { return _rpc; }
+
+    DTData&  accessDTData()  { return _dt; }
+    CSCData& accessCSCData() { return _csc; }
+    RPCData& accessRPCData() { return _rpc; }
 
     // consistent accessors to common information
     const int getBX() const;
@@ -200,7 +210,7 @@ namespace L1TMuon {
 
     unsigned _globalsector; // [1,6] in 60 degree sectors
     unsigned _subsector; // [1,2] in 30 degree partitions of a sector
-    double _eta,_phi,_rho; // global pseudorapidity, phi
+    double _eta,_phi,_rho; // global pseudorapidity, phi, rho
     double _theta; // bend angle with respect to ray from (0,0,0)
   };
 
