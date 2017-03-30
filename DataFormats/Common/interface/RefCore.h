@@ -6,8 +6,6 @@
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/refcore_implementation.h"
 
@@ -17,6 +15,8 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 
 namespace edm {
   class RefCoreWithIndex;
+  class EDProductGetter;
+  class WrapperBase;
   
   class RefCore {
     //RefCoreWithIndex is a specialization of RefCore done for performance

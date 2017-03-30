@@ -8,8 +8,6 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
     implementation to RefCore.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/refcore_implementation.h"
@@ -20,7 +18,10 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 
 #include <atomic>
 
-namespace edm {  
+namespace edm {
+  class EDProductGetter;
+  class WrapperBase;
+
   class RefCoreWithIndex {
   public:
     RefCoreWithIndex() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
