@@ -28,7 +28,7 @@ namespace ecaldqm {
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
-    int bxBinEdges_[nBXBins + 1];
+    std::array<int,nBXBins+1> bxBinEdges_;
     double bxBin_;
 
     float chi2ThresholdEB_;
