@@ -1065,6 +1065,16 @@ plotter.append("packedCandidateLostTracks", _trackingFolders("PackedCandidate/lo
                PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
                           purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate (lostTracks)"))
 
+# HLT
+_hltFolder = [
+    "DQMData/Run 1/HLT/Run summary/Tracking/ValidationWRTtp",
+]
+plotterHLT = Plotter()
+plotterHLTExt = Plotter()
+_common = dict(purpose=PlotPurpose.HLT, page="hlt")
+plotterHLT.append("hlt", _hltFolder, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+plotterHLTExt.append("hlt", _hltFolder, TrackingPlotFolder(*_extendedPlots, **_common))
+
 # Timing
 class Iteration:
     def __init__(self, name, clusterMasking=None, seeding=None, building=None, fit=None, selection=None, other=[]):
