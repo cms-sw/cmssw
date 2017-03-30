@@ -4,8 +4,6 @@
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
-
 #include "GTSetup.h"
 
 namespace l1t {
@@ -43,7 +41,7 @@ namespace l1t {
                PackerFactory::get()->make("stage2::GTJetPacker"),
                PackerFactory::get()->make("stage2::GTTauPacker"),
                PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-               PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
+               //PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
             };
 
          }
@@ -75,7 +73,7 @@ namespace l1t {
       GTSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
 
-         auto muon_unp = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto muon_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
          auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
          auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
          auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
@@ -83,8 +81,6 @@ namespace l1t {
          auto alg_unp = UnpackerFactory::get()->make("stage2::GlobalAlgBlkUnpacker");
          auto ext_unp = UnpackerFactory::get()->make("stage2::GlobalExtBlkUnpacker");
 
-         muon_unp->setAlgoVersion(fw);
-         muon_unp->setFedNumber(fed);
 
          UnpackerMap res;
 

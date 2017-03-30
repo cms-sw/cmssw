@@ -17,11 +17,6 @@ namespace l1t {
                regionalMuonCandsOMTF_(new RegionalMuonCandBxCollection()),
                regionalMuonCandsEMTF_(new RegionalMuonCandBxCollection()),
                muons_(new MuonBxCollection()),
-               muonsSet2_(new MuonBxCollection()),
-               muonsSet3_(new MuonBxCollection()),
-               muonsSet4_(new MuonBxCollection()),
-               muonsSet5_(new MuonBxCollection()),
-               muonsSet6_(new MuonBxCollection()),
                imdMuonsBMTF_(new MuonBxCollection()),
                imdMuonsEMTFNeg_(new MuonBxCollection()),
                imdMuonsEMTFPos_(new MuonBxCollection()),
@@ -33,7 +28,7 @@ namespace l1t {
             inline RegionalMuonCandBxCollection* getRegionalMuonCandsBMTF() { return regionalMuonCandsBMTF_.get(); };
             inline RegionalMuonCandBxCollection* getRegionalMuonCandsOMTF() { return regionalMuonCandsOMTF_.get(); };
             inline RegionalMuonCandBxCollection* getRegionalMuonCandsEMTF() { return regionalMuonCandsEMTF_.get(); };
-            MuonBxCollection* getMuons(const unsigned int set);
+            inline MuonBxCollection* getMuons() { return muons_.get(); };
             inline MuonBxCollection* getImdMuonsBMTF() { return imdMuonsBMTF_.get(); };
             inline MuonBxCollection* getImdMuonsEMTFNeg() { return imdMuonsEMTFNeg_.get(); };
             inline MuonBxCollection* getImdMuonsEMTFPos() { return imdMuonsEMTFPos_.get(); };
@@ -45,11 +40,6 @@ namespace l1t {
             std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
             std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsEMTF_;
             std::unique_ptr<MuonBxCollection> muons_;
-            std::unique_ptr<MuonBxCollection> muonsSet2_;
-            std::unique_ptr<MuonBxCollection> muonsSet3_;
-            std::unique_ptr<MuonBxCollection> muonsSet4_;
-            std::unique_ptr<MuonBxCollection> muonsSet5_;
-            std::unique_ptr<MuonBxCollection> muonsSet6_;
             std::unique_ptr<MuonBxCollection> imdMuonsBMTF_;
             std::unique_ptr<MuonBxCollection> imdMuonsEMTFNeg_;
             std::unique_ptr<MuonBxCollection> imdMuonsEMTFPos_;

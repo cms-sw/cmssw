@@ -94,7 +94,7 @@ namespace l1t {
 	
 	if ( (res->at(iOut)).HasEventTrailer() == true )
 	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an EventTrailer object?"; goto write_Event; }
-	if (EventTrailer_.Format_Errors() > 0) goto write_Event;
+	if (EventTrailer_.Format_errors() > 0) goto write_Event;
 
 	EventTrailer_.set_l1a       ( GetHexBits(TR1a,  0,  7) );
 	EventTrailer_.set_ddcsr_lf  ( GetHexBits(TR1a,  8, 11, TR1b,  8, 11) );
