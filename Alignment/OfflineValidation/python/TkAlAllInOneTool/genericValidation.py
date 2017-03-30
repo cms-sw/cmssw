@@ -391,7 +391,8 @@ class GenericValidationData(GenericValidation):
                 "finalResultFile": resultfile,
                 "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
                 "outputFiles": addIndex(outputfile, self.NJobs),
-                "finalOutputFile": outputfile
+                "finalOutputFile": outputfile,
+                "FileOutputTemplate": self.FileOutputTemplate,
                 })
         return result
 
@@ -458,6 +459,10 @@ class GenericValidationData(GenericValidation):
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return super(GenericValidationData, self).createCrabCfg( crabCfg, path )
+
+    @property
+    def FileOutputTemplate(self):
+        return configTemplates.FileOutputTemplate
 
 class ParallelValidation(GenericValidation):
     @classmethod

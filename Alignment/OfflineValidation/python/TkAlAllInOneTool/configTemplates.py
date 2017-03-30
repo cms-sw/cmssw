@@ -125,6 +125,64 @@ echo "done."
 
 ######################################################################
 ######################################################################
+cfgTemplate="""
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process(".oO[ProcessName]Oo.")
+
+.oO[datasetDefinition]Oo.
+
+process.options = cms.untracked.PSet(
+   wantSummary = cms.untracked.bool(False),
+   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+)
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
+reportEvery = cms.untracked.int32(1000) # every 1000th only
+))
+process.MessageLogger.statistics.append('cout')
+
+import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+process.seqTrackselRefit = trackselRefit.getSequence(process,
+                                                     TTRHBuilder='.oO[ttrhbuilder]Oo.',
+                                                     usePixelQualityFlag='.oO[usepixelqualityflag]Oo.',
+                                                     openMassWindow='.oO[openmasswindow]Oo.',
+                                                     cosmicsDecoMode='.oO[cosmicsdecomode]Oo.',
+                                                     cosmicsZeroTesla='.oO[cosmics0T]Oo.',
+                                                     momentumConstraint=.oO[momentumconstraint]Oo.,
+                                                     cosmicTrackSplitting=.oO[istracksplitting]Oo.,
+                                                    )
+
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
+
+.oO[LoadGlobalTagTemplate]Oo.
+.oO[condLoad]Oo.
+
+.oO[ValidationConfig]Oo.
+
+.oO[FileOutputTemplate]Oo.
+
+process.p = cms.Path(
+process.offlineBeamSpot*process.FinalTrackRefitter*.oO[ValidationSequence]Oo.)
+
+"""
+
+
+######################################################################
+######################################################################
+FileOutputTemplate = """
+process.TFileService.fileName = '.oO[outputFile]Oo.'
+"""
+
+
+######################################################################
+######################################################################
 mergeTemplate="""
 #!/bin/bash
 eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
