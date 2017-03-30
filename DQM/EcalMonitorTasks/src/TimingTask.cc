@@ -13,7 +13,7 @@ namespace ecaldqm
 {
   TimingTask::TimingTask() :
     DQWorkerTask(),
-    bxBinEdges_{1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565},
+    bxBinEdges_{ {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565} },
     bxBin_(0.),
     chi2ThresholdEB_(0.),
     chi2ThresholdEE_(0.),
@@ -62,8 +62,8 @@ namespace ecaldqm
   TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&  _es)
   {
     using namespace std;
-    int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
-    bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
+    int* pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
+    bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
   }
 
   void 
