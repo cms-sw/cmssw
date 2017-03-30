@@ -154,8 +154,8 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
       int quality = trigIt->quality();
 
       if(quality>-1 && quality<7 &&
-	 quality>phCodeBestDDU[wh+3][st][sec]) {
-	phCodeBestDDU[wh+3][st][sec]=quality;
+	 quality>phCodeBestDDU[wh+wheelArrayShift][st][sec]) {
+	phCodeBestDDU[wh+wheelArrayShift][st][sec]=quality;
       }
     }
   }

@@ -49,7 +49,8 @@ double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
   G4StepPoint* point = aStep->GetPreStepPoint();
   if (initialize_) initialize(point);
   double destep = aStep->GetTotalEnergyDeposit();
-  double weight = 1;
+  double wt2    = aStep->GetTrack()->GetWeight();
+  double weight = (wt2 > 0.0) ? wt2 : 1.0;
   if (useBirk_ && matScin_ == point->GetMaterial()) {
     weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   }
@@ -57,7 +58,7 @@ double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
   std::cout << "HGCalTB16SD01: Detector " 
 	    << point->GetTouchable()->GetVolume()->GetName() << " with "
 	    << point->GetMaterial()->GetName() << " weight " << weight 
-	    << std::endl;
+	    << ":" << wt2 << std::endl;
 #endif
   return weight*destep;
 }

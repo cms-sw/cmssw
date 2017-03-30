@@ -115,6 +115,7 @@ public:
   bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
   bool                      isPlan1ToBeMergedId(const HcalDetId& id) const { return detIdSp_.find(id) != detIdSp_.end(); };
   bool                      isPlan1MergedId(const HcalDetId& id) const { return detIdSpR_.find(id) != detIdSpR_.end(); };
+  const HcalDDDSimConstants* dddConstants() const {return &hcons;}
        
 private:
 

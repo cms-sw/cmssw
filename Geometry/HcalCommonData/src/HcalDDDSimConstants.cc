@@ -258,6 +258,8 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
 						    int depth, int lay) {
 
   //Modify the depth index
+  if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
+    etaR = 18;
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
   } else if (det == static_cast<int>(HcalOuter)) {
     depth = 4;
@@ -286,8 +288,6 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
       }
     }
   }
-  if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
-    etaR = 18;
   return std::pair<int,int>(etaR,depth);
 }
 
