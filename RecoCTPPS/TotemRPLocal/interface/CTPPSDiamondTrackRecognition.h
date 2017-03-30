@@ -19,7 +19,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include "TF1.h"
 
 /**
@@ -49,7 +49,7 @@ class CTPPSDiamondTrackRecognition
       float width;
     };
     typedef std::vector<HitParameters> HitParametersVector;
-    typedef std::map<int,HitParametersVector> HitParametersVectorMap;
+    typedef std::unordered_map<int,HitParametersVector> HitParametersVectorMap;
 
     /// Default hit function accounting for the pad spatial efficiency
     static const std::string pixelEfficiencyDefaultFunction_;
@@ -67,7 +67,7 @@ class CTPPSDiamondTrackRecognition
     /// Function for pad efficiency
     TF1 hit_f_;
     HitParametersVectorMap hitParametersVectorMap_;
-    std::map<int,int> mhMap_;
+    std::unordered_map<int,int> mhMap_;
 };
 
 #endif

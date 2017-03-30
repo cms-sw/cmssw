@@ -68,10 +68,7 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
   // workaround to retrieve the detset for 4-5 without losing the reference
   edm::DetSet<CTPPSDiamondLocalTrack>& tracks45 = pOut->operator[]( id_45 );
 
-  // first remove all hits from previous event
-  trk_algo_45_.clear();
-  trk_algo_56_.clear();
-
+  // feed hits to the track producers
   for ( edm::DetSetVector<CTPPSDiamondRecHit>::const_iterator vec = recHits->begin(); vec != recHits->end(); ++vec )
   {
     const CTPPSDiamondDetId detid( vec->detId() );
@@ -91,10 +88,15 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
     }
   }
 
+  // retrieve the tracks for both arms
   trk_algo_45_.produceTracks( tracks45 );
   trk_algo_56_.produceTracks( tracks56 );
 
   iEvent.put( std::move( pOut ) );
+
+  // remove all hits from the track producers to prepare for the next event
+  trk_algo_45_.clear();
+  trk_algo_56_.clear();
 }
 
 void
