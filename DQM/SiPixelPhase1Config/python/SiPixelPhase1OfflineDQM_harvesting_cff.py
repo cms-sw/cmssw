@@ -20,3 +20,4 @@ siPixelPhase1OfflineDQM_harvesting_cosmics = siPixelPhase1OfflineDQM_harvesting.
 ])
 
 siPixelPhase1OfflineDQM_harvesting_cosmics.replace(RunQTests_offline, RunQTests_cosmics)
+siPixelPhase1OfflineDQM_harvesting_cosmics.replace(SiPixelPhase1Summary_Offline, SiPixelPhase1Summary_Cosmics)
