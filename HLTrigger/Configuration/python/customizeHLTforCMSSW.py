@@ -6,7 +6,6 @@ from HLTrigger.Configuration.common import *
 # add one customisation function per PR
 # - put the PR number into the name of the function
 # - add a short comment
-
 # for example:
 
 # CCCTF tuning
@@ -17,6 +16,16 @@ from HLTrigger.Configuration.common import *
 #                 if not hasattr(pset,'minGoodStripCharge'):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
+
+# Matching ECAL selective readout in particle flow, need a new input with online Selective Readout Flags
+def customiseFor17794(process):
+     for edproducer in producers_by_type(process, "PFRecHitProducer"):
+          if hasattr(edproducer,'producers'):
+               for pset in edproducer.producers:
+                    if (pset.name == 'PFEBRecHitCreator' or pset.name == 'PFEERecHitCreator'):
+                         if not hasattr(pset,'srFlags'):
+                              pset.srFlags = cms.InputTag('hltEcalDigis')
+     return process
 
 
 # Dynamic track algo priority order
@@ -46,5 +55,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor17771(process)
     process = customiseFor17792(process)
+    process = customiseFor17794(process)
 
     return process
