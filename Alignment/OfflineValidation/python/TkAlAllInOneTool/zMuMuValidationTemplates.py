@@ -1,42 +1,4 @@
 ZMuMuValidationTemplate="""
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("ONLYHISTOS")
-
-
-# Messages
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
-
-
-########### DATA FILES  ####################################
-.oO[datasetDefinition]Oo.
-# process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
-
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-#process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
-
-########### standard includes ##############################
-process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-
-
-########### DATABASE conditions ############################
-.oO[LoadGlobalTagTemplate]Oo.
-
-.oO[condLoad]Oo.
-
-########### TRACK REFITTER #################################
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
-process.TrackRefitter.TrajectoryInEvent = True
-process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
-process.TrackRefitter.NavigationSchool = ""
 
 ###### MuSclFit SETTINGS  ##############################################
 
@@ -204,12 +166,24 @@ process.looper = cms.Looper(
     debug = cms.untracked.int32(0),
 )
 
-###### FINAL SEQUENCE ##############################################
+"""
 
+
+####################################################################
+####################################################################
+LoadMuonModules = """
+process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
+"""
+
+
+####################################################################
+####################################################################
+ZMuMuPath = """
 process.p = cms.Path(
     process.offlineBeamSpot*process.TrackRefitter
     )
-    
 """
 
 

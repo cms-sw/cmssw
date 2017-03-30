@@ -6,7 +6,7 @@ from helperFunctions import replaceByMap, addIndex
 from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
-class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary, ValidationForPresentation):
+class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlOfflineValidation"
     scriptBaseName = "TkAlOfflineValidation"
     crabCfgBaseName = "TkAlOfflineValidation"

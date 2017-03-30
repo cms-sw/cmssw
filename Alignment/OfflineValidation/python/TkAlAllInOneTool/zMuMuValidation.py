@@ -65,8 +65,21 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
             "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
+            "TrackCollection": "ALCARECOTkAlZMuMu",
                 })
         return repMap
+
+    @property
+    def LoadBasicModules(self):
+        return super(ZMuMuValidation, self).LoadBasicModules + configTemplates.LoadMuonModules
+
+    @property
+    def TrackSelectionRefitting(self):
+        return configTemplates.SingleTrackRefitter
+
+    @property
+    def DefinePath(self):
+        return configTemplates.ZMuMuPath
 
     def appendToPlots(self):
         """
