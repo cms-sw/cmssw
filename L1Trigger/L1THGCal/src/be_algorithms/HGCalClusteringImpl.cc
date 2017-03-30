@@ -34,6 +34,7 @@ bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc,
 
 }
 
+
 bool HGCalClusteringImpl::isPertinentNN( const l1t::HGCalTriggerCell & tc, 
                                          const l1t::HGCalCluster & clu, 
                                          edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry ) const 
@@ -50,10 +51,8 @@ bool HGCalClusteringImpl::isPertinentNN( const l1t::HGCalTriggerCell & tc,
     const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC = clu.triggercells();
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator it_tc=pertinentTC.begin(); it_tc<pertinentTC.end(); it_tc++){
         HGCalDetId tcInCluDetId( (*it_tc)->detId() );
-        std::cout << "tc in clu " << clu.seedDetId() << "   " <<tcInCluDetId << std::endl;
         const auto neighbors = triggerGeometry->getNeighborsFromTriggerCell( tcInCluDetId );
         if( !( neighbors.find(tcDetId) == neighbors.end() ) ){ 
-            std::cout << "  ---> it is taken " << tcDetId << std::endl;
             return true;
         }
     }
@@ -61,6 +60,7 @@ bool HGCalClusteringImpl::isPertinentNN( const l1t::HGCalTriggerCell & tc,
     return false;
 
 }
+
 
 bool phiOrder( const edm::Ptr<l1t::HGCalTriggerCell> A, const edm::Ptr<l1t::HGCalTriggerCell> B)
 {    
@@ -71,7 +71,6 @@ bool phiOrder( const edm::Ptr<l1t::HGCalTriggerCell> A, const edm::Ptr<l1t::HGCa
 void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters
     ){
-    /* sort in phi the trigger-cell collection */
 
     bool isSeed[triggerCellsPtrs.size()];
     
@@ -151,12 +150,6 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
     /* search for cluster seeds */
     int itc=0;
     for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPhiOrdPtrs.begin(); tc != triggerCellsPhiOrdPtrs.end(); ++tc, ++itc ){
-        HGCalDetId det( (*tc)->detId() );
-        std::cout << det << " x,y = " << (*tc)->position().x() 
-                  <<", " << (*tc)->position().y()
-                  <<"  eta,phi = " << (*tc)->position().eta()
-                  <<", " << (*tc)->position().phi() <<  std::endl;
-        
         isSeed[itc] = ( (*tc)->mipPt() > seedThreshold_) ? true : false;
     }
     
