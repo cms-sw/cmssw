@@ -1,0 +1,6 @@
+#setenv ROOTSYS /opt/root-5.26.00b
+setenv ROOTSYS /opt/root-5.14.00
+setenv TOTEMRPSIMREC `pwd`
+setenv PATH ${ROOTSYS}/bin:${TOTEMRPSIMREC}/bin:${PATH}:/home/totrpsim/tot_prot_transport
+setenv LD_LIBRARY_PATH ${ROOTSYS}/lib:/usr/local/lib:/afs/cern.ch/sw/lcg/external/XercesC/2.8.0/x86_64-slc5-gcc41-opt/lib:${TOTEMRPSIMREC}/lib:/afs/cern.ch/sw/lcg/external/clhep/2.0.4.6/x86_64-slc5-gcc41-opt/lib
+setenv XERCESCROOT /afs/cern.ch/sw/lcg/external/XercesC/2.8.0/x86_64-slc5-gcc41-opt
