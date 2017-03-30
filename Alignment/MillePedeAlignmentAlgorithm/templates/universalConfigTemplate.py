@@ -144,6 +144,19 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # helper.set_pede_option(process, "entries 50 10 2")
 
 
+#################
+## add filters ##
+#################
+
+# # please add any EDFilter here that should run before processing the event,
+# # e.g. add the following lines to ensure that only 3.8T events are selected
+#
+# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
+# process.load("Alignment.CommonAlignment.magneticFieldFilter_cfi")
+# process.magneticFieldFilter.magneticField = 38 # in units of kGauss (=0.1T)
+# helper.add_filter(process, process.magneticFieldFilter)
+
+
 ################################################################################
 # Mille-procedure
 # ------------------------------------------------------------------------------
