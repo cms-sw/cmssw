@@ -59,6 +59,15 @@ namespace l1t {
       double seedMipPt()   const { return seedMipPt_; }
       uint32_t seedDetId() const { return seedDetId_; }
 
+      bool containsSeed(double seedThr_MipT){ 
+          for(edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggercells_.begin(); tc != triggercells_.end(); ++tc){
+              if( (*tc)->mipPt() > seedThr_MipT ){
+                  return true;
+              }
+          }    
+          return false;
+      }
+      
       double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
       
       const GlobalPoint& centre() const { return centre_; }
