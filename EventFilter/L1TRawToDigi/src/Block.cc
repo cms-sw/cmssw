@@ -29,7 +29,7 @@ namespace l1t {
    {
       if (type_ == MP7) {
          LogTrace("L1T") << "Writing MP7 link header";
-         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((capID_ & capID_mask) << capID_shift) | ((flags_ & flags_mask) << flags_shift);
+         return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((capID_ & capID_mask) << capID_shift);
       }
       // if (type_ == MTF7) {
       //    LogTrace("L1T") << "Writing MTF7 link header";
