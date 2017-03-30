@@ -138,7 +138,7 @@ namespace {
 		g.theLayers[i].theInnerLayerPairs.clear();
 		g.theLayers[i].theOuterLayers.clear();
 		g.theLayers[i].theOuterLayerPairs.clear();
-
+		for (auto & v : g.theLayers[i].isOuterHitOfCell) v.clear();
 	}
 
   }
@@ -234,6 +234,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
         hitQuadruplets(region, result, hitDoubletsPtr, g, es);
         theLayerCache.clear();
 }
+
 void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                                               std::vector<OrderedHitSeeds>& result,
                                               const edm::EventSetup& es,
@@ -292,7 +293,8 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
 	ca.findNtuplets(foundQuadruplets, numberOfHitsInNtuplet);
 
-
+	auto & allCells = ca.getAllCells();
+	
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
  	// re-used thoughout
@@ -321,13 +323,13 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     		};
     		for(unsigned int i = 0; i< 3; ++i)
     		{
-        		auto const& ahit = foundQuadruplets[quadId][i]->getInnerHit();
+        		auto const& ahit = allCells[foundQuadruplets[quadId][i]].getInnerHit();
         		gps[i] = ahit->globalPosition();
         		ges[i] = ahit->globalPositionError();
         		barrels[i] = isBarrel(ahit->geographicalId().subdetId());
     		}
 
-    		auto const& ahit = foundQuadruplets[quadId][2]->getOuterHit();
+    		auto const& ahit = allCells[foundQuadruplets[quadId][2]].getOuterHit();
     		gps[3] = ahit->globalPosition();
     		ges[3] = ahit->globalPositionError();
     		barrels[3] = isBarrel(ahit->geographicalId().subdetId());
@@ -336,10 +338,10 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
  	     		const auto fourthLayerId = tTopo->layer(ahit->geographicalId());
             		const auto sideId = tTopo->side(ahit->geographicalId());
             		const auto subDetId = ahit->geographicalId().subdetId();
-    			const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
+    			const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0] ==  previousCellIds[0]) && (foundQuadruplets[quadId][1] ==  previousCellIds[1]);
    			const auto isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
 
-    			previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
+    			previousCellIds = {{foundQuadruplets[quadId][0], foundQuadruplets[quadId][1]}};
     			previousfourthLayerId = fourthLayerId;
 
 
@@ -362,7 +364,9 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     		const float thisMaxChi2 = maxChi2Eval.value(abscurv);
     		if (theComparitor)
     		{
-      			SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+      			SeedingHitSet tmpTriplet(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+						 allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+						 allCells[foundQuadruplets[quadId][2]].getOuterHit());
 
 
       			if (!theComparitor->compatible(tmpTriplet) )
@@ -417,13 +421,19 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     				{
     					result[index].pop_back();
     				}
-	    			result[index].emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(),foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+	    			result[index].emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+							   allCells[foundQuadruplets[quadId][1]].getInnerHit(),
+							   allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+							   allCells[foundQuadruplets[quadId][2]].getOuterHit());
 	    			hasAlreadyPushedACandidate = true;
     			}
    		}
     		else
     		{
-	       		result[index].emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+		  result[index].emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+					     allCells[foundQuadruplets[quadId][1]].getInnerHit(),
+					     allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+					     allCells[foundQuadruplets[quadId][2]].getOuterHit());
     		}
         }
 	index++;
@@ -433,7 +443,7 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
 void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
                                               OrderedHitSeeds & result,
-                                              std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
+                                              std::vector<const HitDoublets *>& hitDoublets, CAGraph& g,
                                               const edm::EventSetup& es) {
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHand;
@@ -452,6 +462,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 	ca.findNtuplets(foundQuadruplets, numberOfHitsInNtuplet);
 
+	auto & allCells = ca.getAllCells();
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
@@ -481,13 +492,13 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
     };
     for(unsigned int i = 0; i< 3; ++i)
     {
-        auto const& ahit = foundQuadruplets[quadId][i]->getInnerHit();
+        auto const& ahit = allCells[foundQuadruplets[quadId][i]].getInnerHit();
         gps[i] = ahit->globalPosition();
         ges[i] = ahit->globalPositionError();
         barrels[i] = isBarrel(ahit->geographicalId().subdetId());
     }
 
-    auto const& ahit = foundQuadruplets[quadId][2]->getOuterHit();
+    auto const& ahit = allCells[foundQuadruplets[quadId][2]].getOuterHit();
     gps[3] = ahit->globalPosition();
     ges[3] = ahit->globalPositionError();
     barrels[3] = isBarrel(ahit->geographicalId().subdetId());
@@ -497,10 +508,10 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 	    const auto fourthLayerId = tTopo->layer(ahit->geographicalId());
             const auto sideId = tTopo->side(ahit->geographicalId());
             const auto subDetId = ahit->geographicalId().subdetId();
-    	    const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
+    	    const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0] ==  previousCellIds[0]) && (foundQuadruplets[quadId][1] ==  previousCellIds[1]);
             const auto isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
 
-	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
+	    previousCellIds = {{foundQuadruplets[quadId][0], foundQuadruplets[quadId][1]}};
 	    previousfourthLayerId = fourthLayerId;
 
 
@@ -526,7 +537,9 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     if (theComparitor)
     {
-      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+      SeedingHitSet tmpTriplet(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+			       allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+			       allCells[foundQuadruplets[quadId][2]].getOuterHit());
 
 
       if (!theComparitor->compatible(tmpTriplet) )
@@ -587,16 +600,21 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 			result.pop_back();
 
 		}
-		result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(),
-				foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+   
+		result.emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+				    allCells[foundQuadruplets[quadId][1]].getInnerHit(),
+				    allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+				    allCells[foundQuadruplets[quadId][2]].getOuterHit());
 		hasAlreadyPushedACandidate = true;
-
+		
 	    }
     }
     else
     {
-
-       result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+      result.emplace_back(allCells[foundQuadruplets[quadId][0]].getInnerHit(),
+			  allCells[foundQuadruplets[quadId][1]].getInnerHit(),
+			  allCells[foundQuadruplets[quadId][2]].getInnerHit(),
+			  allCells[foundQuadruplets[quadId][2]].getOuterHit());
     }
      
   }
