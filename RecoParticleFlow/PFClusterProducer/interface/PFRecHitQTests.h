@@ -392,56 +392,56 @@ class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
   PFRecHitQTestECALMultiThreshold() {
 
   }
-  
- PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
-  PFRecHitQTestBase(iConfig)
-  { 
-    thresholds_ = iConfig.getParameter<std::vector<double> >("thresholds");
-  }
 
-  void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    CaloSubdetectorGeometry const* endcapGeometry = pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    endcapGeometrySet_=false;
-    if (endcapGeometry) {
-      EcalRingCalibrationTools::setCaloGeometry(&(*pG));
-      endcapGeometrySet_=true;
+  PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      thresholds_ = iConfig.getParameter<std::vector<double> >("thresholds");
     }
-  }
 
-  bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
-    return fullReadOut || pass(hit);
-  }
-  bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
-    return true;
-  }
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+      edm::ESHandle<CaloGeometry> pG;
+      iSetup.get<CaloGeometryRecord>().get(pG);
+      CaloSubdetectorGeometry const* endcapGeometry = pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+      endcapGeometrySet_=false;
+      if (endcapGeometry) {
+        EcalRingCalibrationTools::setCaloGeometry(&(*pG));
+        endcapGeometrySet_=true;
+      }
+    }
 
-  bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
-    return true;
-  }
-  bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
-    return true;
-  }
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
+      return fullReadOut || pass(hit);
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
+      return true;
+    }
 
-  bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
-    return true;
-  }
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
+      return true;
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
+      return true;
+    }
 
-  bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean){
-    return true;
-  }
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
+      return true;
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean){
+      return true;
+    }
 
  protected:
-  std::vector<double> thresholds_;
-  bool endcapGeometrySet_;
+    std::vector<double> thresholds_;
+    bool endcapGeometrySet_;
 
-  bool pass(const reco::PFRecHit& hit){
-
-    // this is to skip endcap ZS for Phase2 until there is a defined geometry
-    // apply the loosest ZS threshold, for the first eta-ring in EE
-    DetId detId(hit.detId());
-    if(!endcapGeometrySet_) {
+    bool pass(const reco::PFRecHit& hit){
+      
+      // this is to skip endcap ZS for Phase2 until there is a defined geometry
+      // apply the loosest ZS threshold, for the first eta-ring in EB
+      DetId detId(hit.detId());
+      if(!endcapGeometrySet_) {
 
         // there is only ECAL EB in Phase 2
         if(detId.subdetId() != EcalBarrel) return true;
@@ -451,13 +451,13 @@ class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
         // 209-247: EE+ eta rings
         int firstEBRing = 0;
         return (hit.energy() > thresholds_[firstEBRing]);
+      }
+
+      int iring = EcalRingCalibrationTools::getRingIndex(detId);
+      if (  hit.energy() > thresholds_[iring] ) return true;
+
+      return false;
     }
-    
-    int iring = EcalRingCalibrationTools::getRingIndex(detId);
-    if (  hit.energy() > thresholds_[iring] ) return true;
-    
-    return false;
-  }
 };
 
 
