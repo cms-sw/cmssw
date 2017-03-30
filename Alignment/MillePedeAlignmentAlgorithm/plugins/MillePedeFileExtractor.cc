@@ -2,6 +2,7 @@
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <zlib.h>
 
