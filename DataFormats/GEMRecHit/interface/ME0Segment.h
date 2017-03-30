@@ -15,7 +15,6 @@
 
 #include <iosfwd>
 
-class ME0Chamber;
 class ME0DetId;
 
 class ME0Segment final : public RecSegment {
@@ -75,7 +74,6 @@ class ME0Segment final : public RecSegment {
   float timeErr() const { return theTimeUncrt; }
 
   float deltaPhi() const { return theDeltaPhi; }
-  static float computeDeltaPhi(const ME0Chamber * chamber, const LocalPoint& position, const LocalVector& direction );
 
   void print() const;		
     

@@ -285,7 +285,7 @@ void ME0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments, s
 
 		std::vector<const ME0RecHit*> bareRHs; bareRHs.reserve(currentProtoSegment.size());
 		for(const auto* rh : currentProtoSegment) bareRHs.push_back(rh->rh);
-		const float dPhi = ME0Segment::computeDeltaPhi(theChamber,current_fit->intercept(),current_fit->localdir());
+		const float dPhi = theChamber->computeDeltaPhi(current_fit->intercept(),current_fit->localdir());
 		ME0Segment temp(bareRHs, current_fit->intercept(),
 				current_fit->localdir(), current_fit->covarianceMatrix(), current_fit->chi2(), averageTime, timeUncrt, dPhi);
 		segments.push_back(temp);

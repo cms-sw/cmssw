@@ -78,3 +78,23 @@ const ME0EtaPartition* ME0Chamber::etaPartition(int isl) const {
   }
   return 0;
 }
+
+float ME0Chamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction ) const {
+	auto extrap = [] (const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+	    double extX = point.x()+extZ*dir.x()/dir.z();
+	    double extY = point.y()+extZ*dir.y()/dir.z();
+	    return LocalPoint(extX,extY,extZ);
+	  };
+	if(nLayers() < 2){return 0;}
+
+	const float beginOfChamber  = layer(1)->position().z();
+	const float centerOfChamber = this->position().z();
+	const float endOfChamber    = layer(nLayers())->position().z();
+
+	LocalPoint projHigh = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) * ( endOfChamber-  centerOfChamber));
+	LocalPoint projLow = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) *( beginOfChamber-  centerOfChamber));
+    auto globLow  = toGlobal(projLow );
+	auto globHigh = toGlobal(projHigh);
+	return  globHigh.phi() - globLow.phi(); //Geom::phi automatically normalizes to [-pi, pi]
+
+}
