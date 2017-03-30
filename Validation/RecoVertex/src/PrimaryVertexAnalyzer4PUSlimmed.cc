@@ -1290,9 +1290,15 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
+  if (!TPCollectionH.isValid()) 
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "TPCollectionH is not valid";
 
   edm::Handle<TrackingVertexCollection> TVCollectionH;
   iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
+  if (!TVCollectionH.isValid())
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "TVCollectionH is not valid";
 
   // TODO(rovere) the idea is to put in case a track-selector in front
   // of this module and then use its label to get the selected tracks
@@ -1301,16 +1307,28 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
 
   edm::Handle<reco::SimToRecoCollection> simToRecoH;
   iEvent.getByToken(simToRecoAssociationToken_, simToRecoH);
+  if ( simToRecoH.isValid() )
+    s2r_ = simToRecoH.product();
+  else
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "simToRecoH is not valid";
 
   edm::Handle<reco::RecoToSimCollection> recoToSimH;
   iEvent.getByToken(recoToSimAssociationToken_, recoToSimH);
-
-  s2r_ = simToRecoH.product();
-  r2s_ = recoToSimH.product();
+  if ( recoToSimH.isValid() )
+    r2s_ = recoToSimH.product();
+  else
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "recoToSimH is not valid";
 
   // Vertex associator
   edm::Handle<reco::VertexToTrackingVertexAssociator> vertexAssociatorH;
   iEvent.getByToken(vertexAssociatorToken_, vertexAssociatorH);
+  if (!vertexAssociatorH.isValid()) {
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "vertexAssociatorH is not valid";
+    return;
+  }
   const reco::VertexToTrackingVertexAssociator& vertexAssociator = *(vertexAssociatorH.product());
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
@@ -1348,24 +1366,25 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       }
       continue;
     }
-    // check upfront that refs to track are (likely) to be valid
+
     {
+      // check upfront that refs to track are (likely) to be valid
       bool ok = true;
       for(const auto& v: *recVtxs) {
-        if(v.tracksSize() > 0) {
-          const auto& ref = v.trackRefAt(0);
-          if(ref.isNull() || !ref.isAvailable()) {
-            if(!errorPrintedForColl_[iToken]) {
-              edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
-                << "Skipping vertex collection: " << label << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
-              errorPrintedForColl_[iToken] = true;
-            }
-            ok = false;
-          }
-        }
+	if(v.tracksSize() > 0) {
+	  const auto& ref = v.trackRefAt(0);
+	  if(ref.isNull() || !ref.isAvailable()) {
+	    if(!errorPrintedForColl_[iToken]) {
+	      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+		<< "Skipping vertex collection: " << label << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	      errorPrintedForColl_[iToken] = true;
+	    }
+	    ok = false;
+	  }
+	}
       }
       if(!ok)
-        continue;
+	continue;
     }
 
     reco::VertexRecoToSimCollection vertex_r2s = vertexAssociator.associateRecoToSim(recVtxs, TVCollectionH);
