@@ -11,6 +11,6 @@ postProcessorHLTmuonTrackingSummary = _PostProcessorTracker_cfi.postProcessorTra
 )
 
 postProcessorHLTmuonTrackingSequence = (
-    postProcessorHLTmuonTrackingSequence +
+    postProcessorHLTmuonTracking +
     postProcessorHLTmuonTrackingSummary
 )
