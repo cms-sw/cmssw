@@ -98,6 +98,14 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meSubdetHit_= ib.book1D("Hit10","Subdetectors in HCal",  50,0.,50.);
       meDepthHit_ = ib.book1D("Hit11","Depths in HCal",        20,0.,20.);
       meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          101,-50.5,50.5);
+      meEtaPhiHit_   = ib.book2D("Hit12b","Eta-phi in HCal",          101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd1_ = ib.book2D("Hit12d1","Eta-phi in HCal d1",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd2_ = ib.book2D("Hit12d2","Eta-phi in HCal d2",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd3_ = ib.book2D("Hit12d3","Eta-phi in HCal d3",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd4_ = ib.book2D("Hit12d4","Eta-phi in HCal d4",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd5_ = ib.book2D("Hit12d5","Eta-phi in HCal d5",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd6_ = ib.book2D("Hit12d6","Eta-phi in HCal d6",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
+      meEtaPhiHitd7_ = ib.book2D("Hit12d7","Eta-phi in HCal d7",      101,-50.5,50.5,iphi_bins,iphi_min,iphi_max);
       //KC: There are different phi segmentation schemes, this plot uses wider bins to represent the most sparse segmentation
       mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  iphi_bins,iphi_min,iphi_max);
       mePhiHitb_  = ib.book1D("Hit13b","Phi in HCal (HE,HF)", iphi_bins,iphi_min,iphi_max);
@@ -268,8 +276,15 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meSubdetHit_->Fill(double(subdet));
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
+	meEtaPhiHit_->Fill(double(eta),double(phi));
+	if (depth==1) meEtaPhiHitd1_->Fill(double(eta),double(phi));
+	if (depth==2) meEtaPhiHitd2_->Fill(double(eta),double(phi));
+	if (depth==3) meEtaPhiHitd3_->Fill(double(eta),double(phi));
+	if (depth==4) meEtaPhiHitd4_->Fill(double(eta),double(phi));
+	if (depth==5) meEtaPhiHitd5_->Fill(double(eta),double(phi));
+	if (depth==6) meEtaPhiHitd6_->Fill(double(eta),double(phi));
+	if (depth==7) meEtaPhiHitd7_->Fill(double(eta),double(phi));
 
-        
 
 	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
 	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
