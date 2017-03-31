@@ -45,6 +45,10 @@ def makePFTauAnalyzer(monitorModule):
 
     _addEfficiencies("L2", [("Et", "E_{T}"),
                             ("Phi", "#phi")], "%sTrigMET%sEff", "MET")
+    _addEfficiencies("tau", [("Et", "E_{T}")], "%s%sEff", titleObject="")
+    _addEfficiencies("muon", [("Et", "E_{T}")], "%s%sEff", titleObject="")
+    _addEfficiencies("electron", [("Et", "E_{T}")], "%s%sEff", titleObject="")
+    _addEfficiencies("met", [("Et", "E_{T}")], "%s%sEff", titleObject="")
 
     for level in ["L2", "L3"]:
         _addEfficiencies(level, [("Et", "p_{T}"),
@@ -62,7 +66,10 @@ def makePFTauAnalyzer(monitorModule):
 
 (HLTTauPostAnalysis_Inclusive, HLTTauPostAnalysis_Inclusive2) = makeInclusiveAnalyzer(hltTauOfflineMonitor_Inclusive)
 (HLTTauPostAnalysis_PFTaus, HLTTauPostAnalysis_PFTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PFTaus)
+(HLTTauPostAnalysis_TP, HLTTauPostAnalysis_TP2) = makePFTauAnalyzer(hltTauOfflineMonitor_TagAndProbe)
+
 HLTTauPostSeq = cms.Sequence(
     HLTTauPostAnalysis_Inclusive+HLTTauPostAnalysis_Inclusive2+
-    HLTTauPostAnalysis_PFTaus+HLTTauPostAnalysis_PFTaus2
+    HLTTauPostAnalysis_PFTaus+HLTTauPostAnalysis_PFTaus2+
+    HLTTauPostAnalysis_TP+HLTTauPostAnalysis_TP2
 )

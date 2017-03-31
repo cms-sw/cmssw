@@ -33,13 +33,16 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
-  if(ps.exists("L1Plotter")) {
+  if(ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
     l1Plotter_.reset(new HLTTauDQML1Plotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
                                             nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_));
   }
   if(ps.exists("PathSummaryPlotter")) {
     pathSummaryPlotter_.reset(new HLTTauDQMPathSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
                                                               doRefAnalysis_, dqmBaseFolder_, hltMatchDr_));
+  }
+  if(ps.exists("TagAndProbe")) {
+    tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
   }
 
   if(doRefAnalysis_) {
@@ -74,20 +77,45 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
       }
       std::sort(foundPaths.begin(), foundPaths.end());
 
-      // Construct path plotters
-      std::vector<const HLTTauDQMPath *> pathObjects;
-      pathPlotters_.reserve(foundPaths.size());
-      pathObjects.reserve(foundPaths.size());
-      for(const std::string& pathName: foundPaths) {
-        pathPlotters_.emplace_back(pathName, HLTCP_, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins_, nEtaBins_, nPhiBins_, ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_);
-        if(pathPlotters_.back().isValid()) {
-          pathObjects.push_back(pathPlotters_.back().getPathObject());
-        }
-      }
 
-      // Update paths to the summary plotter
-      if(pathSummaryPlotter_) {
-        pathSummaryPlotter_->setPathObjects(pathObjects);
+      if(tagAndProbePaths.size() > 0) {
+        tagandprobePlotters_.reserve(tagAndProbePaths.size());
+        for(const edm::ParameterSet& tpset: tagAndProbePaths) {
+
+          const boost::regex tagpath(tpset.getUntrackedParameter<std::string>("tag"));
+          const boost::regex probepath(tpset.getUntrackedParameter<std::string>("probe"));
+          std::string xvariable = tpset.getUntrackedParameter<std::string>("xvariable");
+
+          std::string pathNameNum = "";
+          std::string pathNameDen = "";
+          boost::smatch what;
+          for(const std::string& p: HLTCP_.triggerNames()) {
+            if(boost::regex_search(p, what, tagpath) && pathNameDen.length() == 0) {
+              pathNameDen = p;
+            }
+            if(boost::regex_search(p, what, probepath) && pathNameNum.length() == 0) {
+              pathNameNum = p;
+            }
+          }
+          tagandprobePlotters_.emplace_back(pathNameNum, pathNameDen, HLTCP_, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins_, ptMax_,xvariable);
+        }
+      }else{
+
+        // Construct path plotters
+        std::vector<const HLTTauDQMPath *> pathObjects;
+        pathPlotters_.reserve(foundPaths.size());  
+        pathObjects.reserve(foundPaths.size());
+        for(const std::string& pathName: foundPaths) {  
+          pathPlotters_.emplace_back(pathName, HLTCP_, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins_, nEtaBins_, nPhiBins_, ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_);
+          if(pathPlotters_.back().isValid()) {
+            pathObjects.push_back(pathPlotters_.back().getPathObject());
+          }
+        }
+
+        // Update paths to the summary plotter
+        if(pathSummaryPlotter_) {
+          pathSummaryPlotter_->setPathObjects(pathObjects);
+        }
       }
     }
   } else {
@@ -102,6 +130,9 @@ void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, const ed
   }
   for(auto& pathPlotter: pathPlotters_) {
     pathPlotter.bookHistograms(iBooker);
+  }
+  for(auto& tpPlotter: tagandprobePlotters_) {
+    tpPlotter.bookHistograms(iBooker);
   }
   if(pathSummaryPlotter_) {
     pathSummaryPlotter_->bookHistograms(iBooker);
@@ -167,6 +198,13 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         if(l1Plotter_ && l1Plotter_->isValid()) {
           l1Plotter_->analyze(iEvent, iSetup, refC);
         }
+
+        //Tag and probe plotters
+        for(auto& tpPlotter: tagandprobePlotters_) {
+          if(tpPlotter.isValid())
+            tpPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+        }
+
     } else {
         counterEvt_++;
     }

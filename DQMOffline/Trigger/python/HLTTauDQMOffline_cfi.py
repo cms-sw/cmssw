@@ -110,3 +110,85 @@ hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
         matchFilters          = cms.untracked.VPSet(),
     )
 )
+
+hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TauOffline/TagAndProbe"),
+    Matching = cms.PSet(                                                                                                                                                                             
+        doMatching            = cms.untracked.bool(True),                                                                                                                                            
+        matchFilters          = cms.untracked.VPSet(                                                                                                                                                 
+                                    cms.untracked.PSet(                                                                                                                                              
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","PFTaus"),
+                                        matchObjectID     = cms.untracked.int32(15),                          
+                                    ),                                                                        
+                                    cms.untracked.PSet(                                                       
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","Electrons"),
+                                        matchObjectID     = cms.untracked.int32(11),                             
+                                    ),                                                                           
+                                    cms.untracked.PSet(                                                          
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","Muons"),    
+                                        matchObjectID     = cms.untracked.int32(13),                             
+                                    ),                                                                           
+                                    cms.untracked.PSet(                                                          
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),                              
+                                    ),                                                                           
+                                ),                                                                               
+    ),                                                                                                           
+    TagAndProbe = cms.untracked.VPSet(
+        cms.untracked.PSet(           
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v'), 
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v'),  
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_v'),
+            xvariable = cms.untracked.string('Tau'),   
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_VLooseIsoPFTau140_Trk50_eta2p1_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v'),
+            probe     = cms.untracked.string('HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v'),
+            probe     = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_Ele25_eta2p1_WPTight_Gsf_v'),
+            probe     = cms.untracked.string('HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_v'),
+            xvariable = cms.untracked.string('Tau'),
+        ),
+        cms.untracked.PSet(
+            tag       = cms.untracked.string('HLT_LooseIsoPFTau50_Trk30_eta2p1_v'),
+            probe     = cms.untracked.string('HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v'),
+            xvariable = cms.untracked.string('MET'),
+        ),
+    ),
+)
