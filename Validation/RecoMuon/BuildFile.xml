@@ -12,6 +12,7 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimMuon/MCTruth"/>
 <use   name="SimTracker/Records"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <use   name="DQMServices/Core"/>
