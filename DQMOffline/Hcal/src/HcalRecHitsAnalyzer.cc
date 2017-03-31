@@ -160,7 +160,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     else {  
       for(int depth = 1; depth <= maxDepthAll_; depth++){
         sprintf  (histo, "emap_depth%d",depth );
-        emap.push_back( ibooker.book2D(histo, histo, 84, -41.5, 42.5, 72, 0., 72.) );
+        emap.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       } 
 
       //The mean energy histos are drawn, but not the RMS or emean seq
