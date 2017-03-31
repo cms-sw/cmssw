@@ -13,12 +13,6 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-/***For CTPPS FastSim*/
-#include "DataFormats/CTPPSReco/interface/CTPPSFastTrack.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSFastTrackContainer.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSFastRecHit.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSFastRecHitContainer.h"
-/***/
 
 
 #include <vector>
@@ -73,16 +67,6 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
     edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
 
-    //--- fastsim objects
-    CTPPSFastTrack xxxxt;
-    edm::CTPPSFastTrackContainer sxxxxt;
-    edm::Wrapper<edm::CTPPSFastTrackContainer> dummy1;
-    std::vector<const CTPPSFastTrack*> dummy2;
-
-    CTPPSFastRecHit xxxxr;
-    edm::CTPPSFastRecHitContainer sxxxxr;
-    edm::Wrapper<edm::CTPPSFastRecHitContainer> dummy3;
-    std::vector<const CTPPSFastRecHit*> dummy4;
 
 
   };
