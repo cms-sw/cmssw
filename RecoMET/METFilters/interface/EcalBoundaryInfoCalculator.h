@@ -30,14 +30,14 @@ public:
 
     BoundaryInformation boundaryRecHits(const edm::Handle<EcalRecHitCollection>&, const EcalRecHit*,
                                         const edm::ESHandle<CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                        const edm::ESHandle<CaloGeometry> geometry);
+                                        const edm::ESHandle<CaloGeometry> geometry) const;
 
     BoundaryInformation gapRecHits(const edm::Handle<EcalRecHitCollection>&, const EcalRecHit*, const edm::ESHandle<
                                    CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus, const edm::ESHandle<
-                                   CaloGeometry> geometry);
+                                   CaloGeometry> geometry) const;
 
     bool checkRecHitHasDeadNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, std::vector<
-                                     int> &stati) {
+                                     int> &stati) const {
 
         stati.clear();
         EcalDetId hitdetid = EcalDetId(hit.id());
@@ -133,7 +133,7 @@ public:
 
     }
 
-    bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) {
+    bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) const {
         //// return true, if *direct* neighbour is invalid
 
         EcalDetId hitdetid = EcalDetId(hit.id());
@@ -203,7 +203,7 @@ public:
 
 private:
 
-    EcalDetId makeStepInDirection(CdOrientation direction, CaloNavigator<EcalDetId> * theNavi) {
+    EcalDetId makeStepInDirection(CdOrientation direction, CaloNavigator<EcalDetId> * theNavi) const {
         EcalDetId next;
         switch (direction) {
         case north: {
@@ -232,7 +232,7 @@ private:
         return next;
     }
 
-    CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev) {
+    CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev, CaloNavigator<EcalDetId> * theEcalNav) const {
         std::map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
         CdOrientation oppDirection=none;
         if (oIt != oppositeDirs.end()) {
@@ -244,7 +244,7 @@ private:
         return oppDirection;
     }
 
-    CdOrientation turnRight(CdOrientation currDirection, bool reverseOrientation) {
+    CdOrientation turnRight(CdOrientation currDirection, bool reverseOrientation) const {
         //read nextDirection
         std::map<CdOrientation, CdOrientation> turnMap = nextDirs;
         if (reverseOrientation)
@@ -258,7 +258,7 @@ private:
         return nextDirection;
     }
 
-    CdOrientation turnLeft(CdOrientation currDirection, bool reverseOrientation) {
+    CdOrientation turnLeft(CdOrientation currDirection, bool reverseOrientation) const {
         //read nextDirection
         std::map<CdOrientation, CdOrientation> turnMap = prevDirs;
         if (reverseOrientation)
@@ -272,32 +272,24 @@ private:
         return nextDirection;
     }
 
-    void initializeEcalNavigator(DetId startE, const edm::ESHandle<CaloTopology> theCaloTopology,
-                                 EcalSubdetector ecalSubDet) {
+    CaloNavigator<EcalDetId> * initializeEcalNavigator(DetId startE, const edm::ESHandle<CaloTopology> theCaloTopology,
+                                 EcalSubdetector ecalSubDet) const {
+        CaloNavigator<EcalDetId> * theEcalNav = NULL;
         if (ecalSubDet == EcalBarrel) {
-            if (theEcalNav != 0) {
-                delete theEcalNav;
-                theEcalNav = 0;
-            }
             theEcalNav = new CaloNavigator<EcalDetId> ((EBDetId) startE, (theCaloTopology->getSubdetectorTopology(
                              DetId::Ecal, ecalSubDet)));
         } else if (ecalSubDet == EcalEndcap) {
-            if (theEcalNav != 0) {
-                delete theEcalNav;
-                theEcalNav = 0;
-            }
             theEcalNav = new CaloNavigator<EcalDetId> ((EEDetId) startE, (theCaloTopology->getSubdetectorTopology(
                              DetId::Ecal, ecalSubDet)));
         } else {
             std::cout << "initializeEcalNavigator not implemented for subDet: " << ecalSubDet << std::endl;
         }
-
+        return theEcalNav;
     }
 
     std::map<CdOrientation, CdOrientation> nextDirs;
     std::map<CdOrientation, CdOrientation> prevDirs;
     std::map<CdOrientation, CdOrientation> oppositeDirs;
-    CaloNavigator<EcalDetId> * theEcalNav;
     bool debug;
 
 };
@@ -322,18 +314,16 @@ template<class EcalDetId> EcalBoundaryInfoCalculator<EcalDetId>::EcalBoundaryInf
     oppositeDirs[east] = west;
     oppositeDirs[west] = east;
 
-    theEcalNav = 0;
     debug = false;
 
 }
 
 template<class EcalDetId> EcalBoundaryInfoCalculator<EcalDetId>::~EcalBoundaryInfoCalculator() {
-    delete theEcalNav;
 }
 
 template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(const edm::Handle<
         EcalRecHitCollection>& RecHits, const EcalRecHit* hit, const edm::ESHandle<CaloTopology> theCaloTopology,
-        edm::ESHandle<EcalChannelStatus> ecalStatus, edm::ESHandle<CaloGeometry> geometry) {
+        edm::ESHandle<EcalChannelStatus> ecalStatus, edm::ESHandle<CaloGeometry> geometry) const {
 
     //initialize boundary information
     std::vector<EcalRecHit> boundaryRecHits;
@@ -369,7 +359,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     }
 
     //initialize navigator
-    initializeEcalNavigator(hitdetid, theCaloTopology, EcalDetId::subdet());
+    auto theEcalNav = initializeEcalNavigator(hitdetid, theCaloTopology, EcalDetId::subdet());
     CdOrientation currDirection = north;
     bool reverseOrientation = false;
 
@@ -534,7 +524,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
 
 template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm::Handle<
         EcalRecHitCollection>& RecHits, const EcalRecHit* hit, const edm::ESHandle<CaloTopology> theCaloTopology,
-        edm::ESHandle<EcalChannelStatus> ecalStatus, edm::ESHandle<CaloGeometry> geometry) {
+        edm::ESHandle<EcalChannelStatus> ecalStatus, edm::ESHandle<CaloGeometry> geometry) const {
 
     //initialize boundary information
     std::vector<EcalRecHit> gapRecHits;
@@ -569,7 +559,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     }
 
     //initialize navigator
-    initializeEcalNavigator(hitdetid, theCaloTopology, EcalDetId::subdet());
+    auto theEcalNav = initializeEcalNavigator(hitdetid, theCaloTopology, EcalDetId::subdet());
     CdOrientation currDirection = north;
     bool reverseOrientation = false;
 

@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,14 +57,14 @@
 #include "RecoMET/METFilters/interface/EcalBoundaryInfoCalculator.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 
-class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
+class EcalDeadCellBoundaryEnergyFilter: public edm::global::EDFilter<> {
    public:
       explicit EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet&);
       ~EcalDeadCellBoundaryEnergyFilter();
 
    private:
       virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       virtual void endJob() override;
 
       // ----------member data ---------------------------
@@ -80,16 +80,6 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       const bool skimDead_;
 
       const double cutBoundEnergyGapEE, cutBoundEnergyGapEB, cutBoundEnergyDeadCellsEB, cutBoundEnergyDeadCellsEE;
-
-      int i_EBDead, i_EEDead, i_EBGap, i_EEGap;
-      float * enNeighboursGap_EB;
-      float * enNeighboursGap_EE;
-
-      std::vector<BoundaryInformation> v_enNeighboursGap_EB;
-      std::vector<BoundaryInformation> v_enNeighboursGap_EE;
-
-      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
-      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
 
       EcalBoundaryInfoCalculator<EBDetId> ebBoundaryCalc;
       EcalBoundaryInfoCalculator<EEDetId> eeBoundaryCalc;
@@ -138,25 +128,14 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
 
    maxBoundaryEnergy_ = cutBoundEnergyDeadCellsEB;
 
-   i_EBDead = 0;
-   i_EEDead = 0;
-   i_EBGap = 0;
-   i_EEGap = 0;
-
-   v_enNeighboursGap_EB.clear();
-   v_enNeighboursGap_EE.clear();
-   v_enNeighboursGap_EB.reserve(50);
-   v_enNeighboursGap_EE.reserve(50);
-
-   v_boundaryInfoDeadCells_EB.reserve(50);
-   v_boundaryInfoDeadCells_EE.reserve(50);
-   v_boundaryInfoDeadCells_EB.clear();
-   v_boundaryInfoDeadCells_EE.clear();
-
    if (skimGap_ && debug_ ) std::cout << "Skim Gap!" << std::endl;
    if (skimDead_ && debug_ ) std::cout << "Skim Dead!" << std::endl;
 
-   if( debug_ ) std::cout << "Constructor EcalAnomalousEvent" << std::endl;
+   if( debug_ ) {
+      std::cout << "Constructor EcalAnomalousEvent" << std::endl;
+      ebBoundaryCalc.setDebugMode();
+      eeBoundaryCalc.setDebugMode();
+   }
 
    produces<bool>();
 
@@ -168,16 +147,20 @@ EcalDeadCellBoundaryEnergyFilter::~EcalDeadCellBoundaryEnergyFilter() {
 }
 
 // ------------ method called on each new Event  ------------
-bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
    using namespace edm;
 
    //int eventno = (int) iEvent.eventAuxiliary().event();
 
-   v_enNeighboursGap_EB.clear();
-   v_enNeighboursGap_EE.clear();
+   std::vector<BoundaryInformation> v_enNeighboursGap_EB;
+   std::vector<BoundaryInformation> v_enNeighboursGap_EE;
+   v_enNeighboursGap_EB.reserve(50);
+   v_enNeighboursGap_EE.reserve(50);
 
-   v_boundaryInfoDeadCells_EB.clear();
-   v_boundaryInfoDeadCells_EE.clear();
+   std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
+   std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
+   v_boundaryInfoDeadCells_EB.reserve(50);
+   v_boundaryInfoDeadCells_EE.reserve(50);
 
    // Get the Ecal RecHits
    Handle<EcalRecHitCollection> EBRecHits;
@@ -197,10 +180,10 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 //   int DeadChannelsCounterEB = 0;
 //   int DeadChannelsCounterEE = 0;
 
-   i_EBDead = 0;
-   i_EEDead = 0;
-   i_EBGap = 0;
-   i_EEGap = 0;
+   int i_EBDead = 0;
+   int i_EEDead = 0;
+   int i_EBGap = 0;
+   int i_EEGap = 0;
 
    std::vector<DetId> sameFlagDetIds;
 
@@ -247,8 +230,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && ebBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus)) {
 
-            if (debug_)
-               ebBoundaryCalc.setDebugMode();
             BoundaryInformation gapinfo = ebBoundaryCalc.gapRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EBRecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -273,8 +254,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEB_.size() == 0
                && deadNeighbourStati.size() > 0))) {
 
-            if (debug_)
-               ebBoundaryCalc.setDebugMode();
             BoundaryInformation boundinfo = ebBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EBRecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -346,8 +325,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus) && std::abs(eta) < 1.6) {
 
-            if (debug_)
-               eeBoundaryCalc.setDebugMode();
             BoundaryInformation gapinfo = eeBoundaryCalc.gapRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EERecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -372,8 +349,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEE_.size() == 0
                && deadNeighbourStati.size() > 0))) {
 
-            if (debug_)
-               eeBoundaryCalc.setDebugMode();
             BoundaryInformation boundinfo = eeBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EERecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
