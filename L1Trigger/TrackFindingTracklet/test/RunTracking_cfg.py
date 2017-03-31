@@ -62,6 +62,10 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('Ntuple
 # Path definitions & schedule
 ############################################################
 
+# beamspot 
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.BS = cms.Path(process.offlineBeamSpot)
+ 
 # run cluster+stubs associators
 #process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 process.TTClusterStubAssociator = cms.Path(process.TrackTriggerAssociatorClustersStubs)
@@ -71,6 +75,7 @@ process.TTTracks = cms.EDProducer("L1TrackProducer",
 				 SimVertexSource = cms.InputTag("g4SimHits"),
 				 TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
 				 TTStubMCTruthSource = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
+                 BeamSpotSource = cms.InputTag("offlineBeamSpot"),
 #                 asciiFileName = cms.untracked.string("evlist.txt"),
     )
 process.TrackTriggerTTTracks = cms.Sequence(process.TTTracks)
@@ -130,5 +135,5 @@ process.FEVToutput_step = cms.EndPath(process.out)
 
 #process.schedule = cms.Schedule(process.TT_step,process.TTAssociator_step,process.ana)
 #process.schedule = cms.Schedule(process.TT_step)
-process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.TT_step,process.TTAssociator,process.ana)
+process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator,process.ana)
 

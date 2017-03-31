@@ -161,12 +161,16 @@ private:
   edm::InputTag simVertexSrc_;
   edm::InputTag ttStubSrc_;
   edm::InputTag ttStubMCTruthSrc_;
+
+  edm::InputTag bsSrc_;
   
   const edm::EDGetTokenT< edm::SimTrackContainer > simTrackToken_;
   const edm::EDGetTokenT< edm::SimVertexContainer > simVertexToken_;
   
   const edm::EDGetTokenT< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > ttStubToken_;
   const edm::EDGetTokenT< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > ttStubMCTruthToken_;
+
+  const edm::EDGetTokenT< reco::BeamSpot > bsToken_;
   
 
   /// ///////////////// ///
@@ -185,10 +189,14 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) :
   simVertexSrc_(config.getParameter<edm::InputTag>("SimVertexSource")),
   ttStubSrc_(config.getParameter<edm::InputTag>("TTStubSource")),
   ttStubMCTruthSrc_(config.getParameter<edm::InputTag>("TTStubMCTruthSource")),
+  bsSrc_(config.getParameter<edm::InputTag>("BeamSpotSource")),
+
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
   simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_)),
   ttStubToken_(consumes< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >(ttStubSrc_)),
-  ttStubMCTruthToken_(consumes< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >(ttStubMCTruthSrc_))
+  ttStubMCTruthToken_(consumes< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >(ttStubMCTruthSrc_)),
+  bsToken_(consumes< reco::BeamSpot >(bsSrc_))
+
 {
 
   produces< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
@@ -259,15 +267,12 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////////////
   // GET BS //
   ////////////
-  //edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  //iEvent.getByLabel("BeamSpotFromSim","BeamSpot",recoBeamSpotHandle);
-  //math::XYZPoint bsPosition=recoBeamSpotHandle->position();
-
-  GlobalPoint bsPosition(0.0,0.0,0.0);
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  iEvent.getByToken( bsToken_, beamSpotHandle );
+  math::XYZPoint bsPosition=beamSpotHandle->position();
 
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
-
 
   SLHCEvent ev;
   ev.setIPx(bsPosition.x());
