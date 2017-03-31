@@ -28,7 +28,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -46,7 +46,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 // class declaration
 //
 
-class HcalLaserEventFilter : public edm::EDFilter {
+class HcalLaserEventFilter : public edm::stream::EDFilter<> {
    public:
       explicit HcalLaserEventFilter(const edm::ParameterSet&);
       ~HcalLaserEventFilter();
@@ -54,9 +54,7 @@ class HcalLaserEventFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
 
   std::vector<int>  GetCMSSWVersion(std::string const&);
   bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&);
@@ -142,6 +140,18 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
     }
   errorcount=0;
   produces<bool>();
+
+  // Specify the minimum release that has the rechit counts in the HcalNoiseSummary object.
+  // If current release >= that release, then HcalNoiseSummary will be used.  Otherwise, Rechit collection will be used.
+  std::string minRelease="\"CMSSW_5_2_0\"";
+
+  minVersion_=GetCMSSWVersion(minRelease);
+  std::vector <int> currentVersion=GetCMSSWVersion(edm::getReleaseVersion());
+
+  if (IsGreaterThanMinCMSSWVersion(currentVersion)) // current Version is >= minVersion_
+    useHcalNoiseSummary_=true;
+  else
+    useHcalNoiseSummary_=false;
 }
 
 
@@ -251,28 +261,6 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(std::make_unique<bool>(filterDecision));
 
    return taggingMode_ || filterDecision;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-HcalLaserEventFilter::beginJob()
-{
-  // Specify the minimum release that has the rechit counts in the HcalNoiseSummary object.
-  // If current release >= that release, then HcalNoiseSummary will be used.  Otherwise, Rechit collection will be used.
-  std::string minRelease="\"CMSSW_5_2_0\"";
-
-  minVersion_=GetCMSSWVersion(minRelease);
-  std::vector <int> currentVersion=GetCMSSWVersion(edm::getReleaseVersion());
-
-  if (IsGreaterThanMinCMSSWVersion(currentVersion)) // current Version is >= minVersion_
-    useHcalNoiseSummary_=true;
-  else
-    useHcalNoiseSummary_=false;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-HcalLaserEventFilter::endJob() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
