@@ -4,7 +4,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FastSimulation/CTPPSFastGeometry"/>
-<use   name="DataFormats/CTPPSReco"/>
+<use   name="FastSimDataFormats/CTPPSFastSim"/>
 <use   name="DataFormats/Common"/>
 <use   name="clhep"/>
 <use   name="hector"/>
