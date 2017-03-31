@@ -39,6 +39,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
     testNumber_= iConfig.getParameter<bool>("TestNumber");
+    hep17_     = iConfig.getUntrackedParameter<std::string>("hep17","unset");
 
     // register for data access
     if (iConfig.exists("simHits"))
