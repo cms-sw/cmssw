@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,7 +27,7 @@
 #include "FWCore/Utilities/interface/typelookup.h"  ///// added as a try for CaloTopology
 
 
-class EcalLaserCorrFilter : public edm::EDFilter {
+class EcalLaserCorrFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -36,7 +36,7 @@ class EcalLaserCorrFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
     edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
@@ -63,7 +63,7 @@ EcalLaserCorrFilter::EcalLaserCorrFilter(const edm::ParameterSet & iConfig)
 }
 
 
-bool EcalLaserCorrFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
    using namespace edm;
    using namespace reco;
