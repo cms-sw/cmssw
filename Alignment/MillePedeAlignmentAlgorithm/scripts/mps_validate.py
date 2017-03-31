@@ -2,7 +2,7 @@
 
 ##########################################################################
 # Create histograms out of treeFile_merge.root . The pede.dump.gz file is
-# paresed. The histograms are plotted as PNG files. The output data is
+# parsed. The histograms are plotted as PNG files. The output data is
 # created as PDF, HTML, ...
 ##
 
@@ -13,11 +13,9 @@ import os
 import shutil
 import sys
 
-from ROOT import PyConfig
-PyConfig.IgnoreCommandLineOptions = True
-
-from ROOT import (TH1F, TCanvas, TFile, TImage, TPaveLabel, TPaveText, TTree,
-                  gROOT, gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import (additionalparser, beamerCreator, bigModule,
                          bigStructure, dumpparser, htmlCreator, monitorPlot,
@@ -32,9 +30,6 @@ def main():
     # config logging module
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(asctime)s (%(pathname)s line %(lineno)d): %(message)s", datefmt="%H:%M:%S")
     logger = logging.getLogger("mpsvalidate")
-    
-    # run ROOT in batchmode
-    gROOT.SetBatch()
     
     # ArgumentParser
     parser = argparse.ArgumentParser(description="Validate your Alignment.")
@@ -95,7 +90,7 @@ def main():
 
     # open root file and get TTree MillePedeUser_X
     logger.info("try to open the root file: {0}".format(os.path.join(config.jobDataPath, "treeFile_merge.root")))
-    treeFile = TFile(os.path.join(config.jobDataPath, "treeFile_merge.root"))
+    treeFile = ROOT.TFile(os.path.join(config.jobDataPath, "treeFile_merge.root"))
     MillePedeUser = treeFile.Get("MillePedeUser_{0}".format(config.jobTime))
     if not MillePedeUser:
         logger.error("Could not open TTree File MillePedeUser_{0} in {1}".format(
