@@ -60,6 +60,9 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 #include <fstream>
@@ -195,6 +198,15 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
+  //Retrieve the thresolds cuts from DB for the PCL
+  if (runAtPCL_) {
+    edm::ESHandle<AlignPCLThresholds> thresholdHandle;
+    setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
+    theThresholds = thresholdHandle.product();
+  } else {
+    theThresholds = new AlignPCLThresholds();
+  }
+
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
@@ -328,8 +340,13 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
 {
   if (isMode(myPedeRunBit)) {
     if (runAtPCL_) {
+
+      auto myThresholds = new AlignPCLThresholds();
+      myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
+
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
-                                   thePedeLabels);
+				   thePedeLabels,
+				   std::shared_ptr<const AlignPCLThresholds>(myThresholds));
       mpReader.read();
       return mpReader.storeAlignments();
     } else {

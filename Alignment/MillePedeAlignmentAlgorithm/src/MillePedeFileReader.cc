@@ -18,20 +18,12 @@
 
 MillePedeFileReader
 ::MillePedeFileReader(const edm::ParameterSet& config,
-                      const std::shared_ptr<const PedeLabelerBase>& pedeLabeler) :
+                      const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
+		      const std::shared_ptr<const AlignPCLThresholds>& theThresholds) :
   pedeLabeler_(pedeLabeler),
+  theThresholds_(theThresholds),
   millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
-  millePedeResFile_(config.getParameter<std::string>("millePedeResFile")),
-
-  sigCut_     (config.getParameter<double>("sigCut")),
-  Xcut_       (config.getParameter<double>("Xcut")),
-  tXcut_      (config.getParameter<double>("tXcut")),
-  Ycut_       (config.getParameter<double>("Ycut")),
-  tYcut_      (config.getParameter<double>("tYcut")),
-  Zcut_       (config.getParameter<double>("Zcut")),
-  tZcut_      (config.getParameter<double>("tZcut")),
-  maxMoveCut_ (config.getParameter<double>("maxMoveCut")),
-  maxErrorCut_(config.getParameter<double>("maxErrorCut"))
+  millePedeResFile_(config.getParameter<std::string>("millePedeResFile"))
 {
 }
 
@@ -70,7 +62,7 @@ void MillePedeFileReader
         std::string trash;
         iss >> trash >> trash >> Nrec_;
 
-        if (Nrec_ < 25000) {
+        if (Nrec_ < theThresholds_->getNrecords() ) {
           updateDB_   = false;
         }
       }
@@ -87,6 +79,22 @@ void MillePedeFileReader
 void MillePedeFileReader
 ::readMillePedeResultFile()
 {
+  
+  // cutoffs by coordinate and by alignable 
+  
+  std::map<std::string,std::array<float, 6 > > cutoffs_; 
+  std::map<std::string,std::array<float, 6 > > significances_;
+  std::map<std::string,std::array<float, 6 > > thresholds_;
+  std::map<std::string,std::array<float, 6 > > errors_;
+  
+  std::vector<std::string> alignables_ = theThresholds_->getAlignableList();
+  for (auto ali : alignables_){
+    cutoffs_[ali]       = theThresholds_->getCut(ali);
+    significances_[ali] = theThresholds_->getSigCut(ali);
+    thresholds_[ali]    = theThresholds_->getMaxMoveCut(ali);
+    errors_[ali]        = theThresholds_->getMaxErrorCut(ali);
+  }
+
   updateDB_ = false;
   std::ifstream resFile;
   resFile.open(millePedeResFile_.c_str());
@@ -116,49 +124,51 @@ void MillePedeFileReader
         double ObsErr  = std::stof(tokens[4]) * multiplier_[alignableIndex];
 
         auto det = getHLS(alignable);
+	int detIndex = static_cast<int>(det);
+	std::string detLabel = getStringFromHLS(det);
 
         if (det != PclHLS::NotInPCL) {
           switch (alignableIndex) {
           case 0:
-            Xobs_[static_cast<int>(det)] = ObsMove;
-            XobsErr_[static_cast<int>(det)] = ObsErr;
+            Xobs_[detIndex] = ObsMove;
+            XobsErr_[detIndex] = ObsErr;
             break;
           case 1:
-            Yobs_[static_cast<int>(det)] = ObsMove;
-            YobsErr_[static_cast<int>(det)] = ObsErr;
+            Yobs_[detIndex] = ObsMove;
+            YobsErr_[detIndex] = ObsErr;
             break;
           case 2:
-            Zobs_[static_cast<int>(det)] = ObsMove;
-            ZobsErr_[static_cast<int>(det)] = ObsErr;
+            Zobs_[detIndex] = ObsMove;
+            ZobsErr_[detIndex] = ObsErr;
             break;
           case 3:
-            tXobs_[static_cast<int>(det)] = ObsMove;
-            tXobsErr_[static_cast<int>(det)] = ObsErr;
+            tXobs_[detIndex] = ObsMove;
+            tXobsErr_[detIndex] = ObsErr;
             break;
           case 4:
-            tYobs_[static_cast<int>(det)] = ObsMove;
-            tYobsErr_[static_cast<int>(det)] = ObsErr;
+            tYobs_[detIndex] = ObsMove;
+            tYobsErr_[detIndex] = ObsErr;
             break;
           case 5:
-            tZobs_[static_cast<int>(det)] = ObsMove;
-            tZobsErr_[static_cast<int>(det)] = ObsErr;
+            tZobs_[detIndex] = ObsMove;
+            tZobsErr_[detIndex] = ObsErr;
             break;
           }
         } else {
           continue;
         }
 
-        if (std::abs(ObsMove) > maxMoveCut_) {
+        if (std::abs(ObsMove) > thresholds_[detLabel][alignableIndex]) {
           updateDB_    = false;
           break;
 
-        } else if (std::abs(ObsMove) > cutoffs_[alignableIndex]) {
+        } else if (std::abs(ObsMove) > cutoffs_[detLabel][alignableIndex]) {
 
-          if (std::abs(ObsErr) > maxErrorCut_) {
+          if (std::abs(ObsErr) > errors_[detLabel][alignableIndex]) {
             updateDB_    = false;
             break;
           } else {
-            if (std::abs(ObsMove/ObsErr) < sigCut_) {
+            if (std::abs(ObsMove/ObsErr) < significances_[detLabel][alignableIndex]) {
               continue;
             }
           }
@@ -223,6 +233,21 @@ MillePedeFileReader::PclHLS MillePedeFileReader
   default: return PclHLS::NotInPCL;
   }
 }
+
+std::string 
+MillePedeFileReader::getStringFromHLS(MillePedeFileReader::PclHLS HLS){
+  switch (HLS)
+    {
+    case PclHLS::TPBHalfBarrelXminus         : return "TPBHalfBarrelXminus";
+    case PclHLS::TPBHalfBarrelXplus          : return "TPBHalfBarrelXplus";
+    case PclHLS::TPEHalfCylinderXminusZminus : return "TPEHalfCylinderXminusZminus";
+    case PclHLS::TPEHalfCylinderXplusZminus  : return "TPEHalfCylinderXplusZminus";
+    case PclHLS::TPEHalfCylinderXminusZplus  : return "TPEHalfCylinderXminusZplus";
+    case PclHLS::TPEHalfCylinderXplusZplus   : return "TPEHalfCylinderXplusZplus";
+    default: return "None";
+    }
+}
+
 
 //=============================================================================
 //===   STATIC CONST MEMBER DEFINITION                                      ===
