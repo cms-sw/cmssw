@@ -54,7 +54,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float> >& plotData ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -73,7 +73,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float,float> >& plotData ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
