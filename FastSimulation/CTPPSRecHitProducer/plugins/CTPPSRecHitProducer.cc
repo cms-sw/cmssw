@@ -43,7 +43,7 @@ Implementation:
 #include <vector>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSFastRecHitContainer.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
 #include "SimTransport/CTPPSHectorProducer/interface/CTPPSHectorParameters.h"
 

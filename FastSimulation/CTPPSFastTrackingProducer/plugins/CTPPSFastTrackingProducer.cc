@@ -400,21 +400,21 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                 math::XYZVector momentum (pxx,pyy,pzz);
                 math::XYZPoint vertex (x0,y0,0);
 
-                track.setP(momentum);
-                track.setVertex(vertex);
-                track.setT(t);
-                track.setXi(xi);
-                track.setX1(X1d);
-                track.setY1(Y1d);
-                track.setX2(X2d);
-                track.setY2(Y2d);
+                track.setp(momentum);
+                track.setvertex(vertex);
+                track.sett(t);
+                track.setxi(xi);
+                track.setx1(X1d);
+                track.sety1(Y1d);
+                track.setx2(X2d);
+                track.sety2(Y2d);
                 if (matchCellId) {
-                    track.setCellId(cellId);
-                    track.setTof(recTof);
+                    track.setcellid(cellId);
+                    track.settof(recTof);
                 } 
                 else {
-                    track.setCellId(0);
-                    track.setTof(0.);
+                    track.setcellid(0);
+                    track.settof(0.);
                 } 
                 theCTPPSFastTrack.push_back(track);
             }

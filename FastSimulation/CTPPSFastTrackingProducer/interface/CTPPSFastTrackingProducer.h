@@ -13,12 +13,12 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSFastRecHit.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSFastRecHitContainer.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHit.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/CTPPSReco/interface/CTPPSFastTrack.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSFastTrackContainer.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastTrack.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastTrackContainer.h"
 
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSTrkDetector.h"
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
