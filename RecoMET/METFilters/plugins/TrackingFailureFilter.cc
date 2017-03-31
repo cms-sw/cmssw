@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/View.h"
@@ -9,7 +9,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 
 
-class TrackingFailureFilter : public edm::EDFilter {
+class TrackingFailureFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -18,7 +18,7 @@ class TrackingFailureFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     edm::EDGetTokenT<edm::View<reco::Jet> > jetSrcToken_;
     edm::EDGetTokenT<std::vector<reco::Track> > trackSrcToken_;
@@ -45,7 +45,7 @@ TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig)
 }
 
 
-bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool TrackingFailureFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetSrcToken_, jets);
