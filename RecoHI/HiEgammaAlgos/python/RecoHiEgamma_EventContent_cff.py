@@ -57,7 +57,7 @@ RecoHiEgammaRECO = cms.PSet(
     'keep EcalRecHitsSorted_ecalRecHit_*_*',
     'keep EcalRecHitsSorted_ecalPreshowerRecHit_*_*',
     'keep EBSrFlagsSorted_ecalDigis__*',
-    'keep EESrFlagsSorted_ecalDigis__*'
+    'keep EESrFlagsSorted_ecalDigis__*',
     #'keep floatedmValueMap_*_*_*',  # isolation not created yet in RECO step, but in case it is later
     'keep floatedmValueMap_hiDetachedTripletStepQual_MVAVals_*',        
     'keep floatedmValueMap_hiDetachedTripletStepSelector_MVAVals_*',    
