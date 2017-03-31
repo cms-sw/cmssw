@@ -10,7 +10,7 @@
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
-
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h" 
 
 class MillePedeFileReader {
 
@@ -18,7 +18,9 @@ class MillePedeFileReader {
   public: //====================================================================
 
     explicit MillePedeFileReader(const edm::ParameterSet&,
-                                 const std::shared_ptr<const PedeLabelerBase>&);
+                                 const std::shared_ptr<const PedeLabelerBase>&,
+				 const std::shared_ptr<const AlignPCLThresholds>&);
+
     virtual ~MillePedeFileReader() = default;
 
     void read();
@@ -57,6 +59,7 @@ class MillePedeFileReader {
     void readMillePedeLogFile();
     void readMillePedeResultFile();
     PclHLS getHLS(const Alignable*);
+    std::string getStringFromHLS(PclHLS HLS);
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -64,19 +67,13 @@ class MillePedeFileReader {
     // pede labeler plugin
     const std::shared_ptr<const PedeLabelerBase> pedeLabeler_;
 
+    // thresholds from DB
+    const std::shared_ptr<const AlignPCLThresholds> theThresholds_;
+
     // file-names
     const std::string millePedeLogFile_;
     const std::string millePedeResFile_;
-
-    // signifiance of movement must be above
-    const double sigCut_;
-    // cutoff in micro-meter & micro-rad
-    const double Xcut_, tXcut_;
-    const double Ycut_, tYcut_;
-    const double Zcut_, tZcut_;
-    // maximum movement in micro-meter/rad
-    const double maxMoveCut_, maxErrorCut_;
-
+ 
     // conversion factors: cm to um & rad to urad
     static constexpr std::array<double, 6> multiplier_ = {{ 10000.,      // X
                                                             10000.,      // Y
@@ -84,9 +81,6 @@ class MillePedeFileReader {
                                                             1000000.,    // tX
                                                             1000000.,    // tY
                                                             1000000. }}; // tZ
-
-    const std::array<double, 6> cutoffs_ = {{ Xcut_,  Ycut_,  Zcut_,
-                                              tXcut_, tYcut_, tZcut_}};
 
     bool updateDB_{false};
     int Nrec_{0};

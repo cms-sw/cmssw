@@ -28,7 +28,9 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-
+/*** Thresholds from DB ***/
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+ 
 
 MillePedeDQMModule
 ::MillePedeDQMModule(const edm::ParameterSet& config) :
@@ -108,6 +110,13 @@ void MillePedeDQMModule
   edm::ESHandle<PTrackerParameters> ptp;
   setup.get<PTrackerParametersRcd>().get(ptp);
 
+  edm::ESHandle<AlignPCLThresholds> thresholdHandle;
+  setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
+  const AlignPCLThresholds* theThresholds = thresholdHandle.product();
+
+  auto myThresholds = new AlignPCLThresholds();
+  myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
+
   TrackerGeomBuilderFromGeometricDet builder;
 
   const auto trackerGeometry = builder.build(&(*geometricDet), *ptp, &(*tTopo));
@@ -125,7 +134,8 @@ void MillePedeDQMModule
               labelerConfig)
   };
 
-  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler);
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds)); 
+
 }
 
 
