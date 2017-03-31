@@ -18,5 +18,7 @@ AlignmentMonitorMuonSystemMap1D = cms.untracked.PSet(
     doDT = cms.bool(True),
     doCSC = cms.bool(True),
     useStubPosition = cms.bool(False),
-    createNtuple = cms.bool(False)
+    createNtuple = cms.bool(False),
+    createLayerNtupleDT = cms.bool(False),
+    createLayerNtupleCSC = cms.bool(False)
 )

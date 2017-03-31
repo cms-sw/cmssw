@@ -14,5 +14,7 @@ AlignmentMonitorSegmentDifferences = cms.untracked.PSet(
     minDT2Hits = cms.int32(4),
     minCSCHits = cms.int32(6),
     doDT = cms.bool(True),
-    doCSC = cms.bool(True)
+    doCSC = cms.bool(True),
+    createLayerNtupleDT = cms.bool(False),
+    createLayerNtupleCSC = cms.bool(False)
 )
