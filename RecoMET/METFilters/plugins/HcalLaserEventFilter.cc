@@ -28,7 +28,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -46,7 +46,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 // class declaration
 //
 
-class HcalLaserEventFilter : public edm::stream::EDFilter<> {
+class HcalLaserEventFilter : public edm::global::EDFilter<> {
    public:
       explicit HcalLaserEventFilter(const edm::ParameterSet&);
       ~HcalLaserEventFilter();
@@ -54,10 +54,10 @@ class HcalLaserEventFilter : public edm::stream::EDFilter<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::vector<int>  GetCMSSWVersion(std::string const&);
-  bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&);
+  std::vector<int>  GetCMSSWVersion(std::string const&) const;
+  bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&) const;
 
       // ----------member data ---------------------------
 
@@ -83,10 +83,6 @@ class HcalLaserEventFilter : public edm::stream::EDFilter<> {
   edm::EDGetTokenT<HcalNoiseSummary> hcalNoiseSummaryToken_;
 
   const bool taggingMode_;
-
-  // Control maximum number of error messages to display
-  int errorcount;
-  int maxerrormessage_;
 
   // Decide whether to use the HcalNoiseSummary to get the RecHit info, or to use the RecHit Collection itself
   bool useHcalNoiseSummary_;
@@ -116,11 +112,9 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   , reverseFilter_              (iConfig.getUntrackedParameter<bool>("reverseFilter",false))
   , hbheInputLabel_             (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
   , hbheToken_             (mayConsume<HBHERecHitCollection>(hbheInputLabel_))
-
   , hcalNoiseSummaryLabel_      (iConfig.getUntrackedParameter<edm::InputTag>("hcalNoiseSummaryLabel",edm::InputTag("hcalnoise")))
   , hcalNoiseSummaryToken_      (mayConsume<HcalNoiseSummary>(hcalNoiseSummaryLabel_))
   , taggingMode_                (iConfig.getParameter<bool>("taggingMode"))
-  , maxerrormessage_            (iConfig.getUntrackedParameter<int>("maxerrormessage",1))
   , forceUseRecHitCollection_   (iConfig.getUntrackedParameter<bool>("forceUseRecHitCollection",false))
   , forceUseHcalNoiseSummary_   (iConfig.getUntrackedParameter<bool>("forceUseHcalNoiseSummary",false))
 
@@ -138,7 +132,6 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
       edm::EventNumber_t evt=temprunevt[i+1];
       RunEventData_.push_back(std::make_pair(run,evt));
     }
-  errorcount=0;
   produces<bool>();
 
   // Specify the minimum release that has the rechit counts in the HcalNoiseSummary object.
@@ -170,7 +163,7 @@ HcalLaserEventFilter::~HcalLaserEventFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
 
@@ -222,9 +215,7 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     }
 	   else
 	     {
-	       if (debug_ && errorcount<maxerrormessage_)
-		 std::cout <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found"<<std::endl;
-	       ++errorcount;
+	       if (debug_) std::cout <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found"<<std::endl;
 	     }
 	 }
 
@@ -247,9 +238,7 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     }
 	   else
 	     {
-	       if (debug_ && errorcount<maxerrormessage_)
-		 std::cout <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found"<<std::endl;
-	       ++errorcount;
+	       if (debug_) std::cout <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found"<<std::endl;
 	     }
 	 }
      }// if (vetoByHBHEOccupancy_)
@@ -273,7 +262,7 @@ HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring)
+std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring) const
 {
   std::vector <int> temp;
 
@@ -305,7 +294,7 @@ std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instr
   return temp;
 }
 
-bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> const& currentVersion)
+bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> const& currentVersion) const
 {
   // Returns false if current version is less than min version
   // Otherwise, returns true
