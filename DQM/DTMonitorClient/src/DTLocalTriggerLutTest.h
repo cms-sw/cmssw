@@ -38,6 +38,8 @@ protected:
   void runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
+  const int wheelArrayShift = 3;
+
  private:
 
   /// Perform Lut Test logical operations

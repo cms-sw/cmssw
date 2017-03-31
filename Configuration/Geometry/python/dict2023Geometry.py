@@ -13,13 +13,13 @@ commonDict = {
             'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
             'Geometry/CMSCommonData/data/cmsMother.xml',
             'Geometry/CMSCommonData/data/cmsTracker.xml',
-            'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
+            'Geometry/CMSCommonData/data/caloBase/2023/v1/caloBase.xml',
             'Geometry/CMSCommonData/data/cmsCalo.xml',
             'Geometry/CMSCommonData/data/muonBase/2023/v1/muonBase.xml',
             'Geometry/CMSCommonData/data/cmsMuon.xml',
             'Geometry/CMSCommonData/data/mgnt.xml',
-            'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
-            'Geometry/CMSCommonData/data/PostLS2/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/beampipe/2023/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2023/v1/cmsBeam.xml',
             'Geometry/CMSCommonData/data/muonMB.xml',
             'Geometry/CMSCommonData/data/muonMagnet.xml',
             'Geometry/CMSCommonData/data/cavern.xml',
@@ -38,13 +38,13 @@ commonDict = {
             'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
             'Geometry/CMSCommonData/data/cmsMother.xml',
             'Geometry/CMSCommonData/data/cmsTracker.xml',
-            'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
+            'Geometry/CMSCommonData/data/caloBase/2023/v1/caloBase.xml',
             'Geometry/CMSCommonData/data/cmsCalo.xml',
             'Geometry/CMSCommonData/data/muonBase/2023/v2/muonBase.xml',
             'Geometry/CMSCommonData/data/cmsMuon.xml',
             'Geometry/CMSCommonData/data/mgnt.xml',
-            'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
-            'Geometry/CMSCommonData/data/PostLS2/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/beampipe/2023/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2023/v1/cmsBeam.xml',
             'Geometry/CMSCommonData/data/muonMB.xml',
             'Geometry/CMSCommonData/data/muonMagnet.xml',
             'Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml',
@@ -568,7 +568,8 @@ detectorVersionDict = {
     ("O1","T3","C2","M1","F1","I2") : "D8",
     ("O1","T3","C1","M2","F1","I1") : "D9",
     ("O1","T5","C2","M1","F1","I1") : "D11",
-    ("O2","T3","C2","M2","F2","I1") : "D12"
+    ("O2","T3","C2","M2","F2","I1") : "D12",
+    ("O1","T3","C3","M2","F1","I1") : "D13"
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]

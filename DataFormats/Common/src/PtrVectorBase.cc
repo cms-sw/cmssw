@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

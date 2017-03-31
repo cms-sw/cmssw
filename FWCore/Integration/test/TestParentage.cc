@@ -26,9 +26,11 @@ namespace {
                     edm::BranchID const& branchID,
                     std::set<edm::BranchID>& ancestors) {
     edm::Provenance prov = e.getProvenance(branchID);
-    for (auto const& parent : prov.productProvenance()->parentage().parents()) {
-      ancestors.insert(parent);
-      getAncestors(e, parent, ancestors);
+    if (prov.productProvenance()) {
+      for (auto const& parent : prov.productProvenance()->parentage().parents()) {
+        ancestors.insert(parent);
+        getAncestors(e, parent, ancestors);
+      }
     }
   }
 
