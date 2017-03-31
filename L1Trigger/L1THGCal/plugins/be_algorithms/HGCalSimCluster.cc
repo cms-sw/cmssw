@@ -1,7 +1,7 @@
 // HGCal Trigger 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-//#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 // HGCalClusters and detId
@@ -147,8 +147,8 @@ namespace HGCalTriggerBackend{
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
-		            const edm::EventSetup& es,
-		            const edm::Event&evt
+                           const edm::EventSetup& es,
+                           edm::Event&evt
                     )
             {
                 //0.5. Get Digis, construct a map, detid -> energy
@@ -273,7 +273,7 @@ namespace HGCalTriggerBackend{
                             }
 
                             l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                            calibration_.calibrate(calibratedtriggercell, cellThickness); 
+                            calibration_.calibrateInGeV(calibratedtriggercell, cellThickness); 
                             //uint32_t digiEnergy = data.payload; 
                             //auto digiEnergy=triggercell.p4().E();  
                             // using calibrated energy instead
@@ -363,5 +363,8 @@ namespace HGCalTriggerBackend{
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
 //
 typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodec,HGCalTriggerCellBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
+typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellThresholdCodec,HGCalTriggerCellThresholdDataPayload> HGCalTriggerSimClusterThreshold;
+
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
+DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterThreshold,"HGCalTriggerSimClusterThreshold");
 

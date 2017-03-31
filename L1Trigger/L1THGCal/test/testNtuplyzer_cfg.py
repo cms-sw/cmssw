@@ -1,9 +1,8 @@
-import FWCore.ParameterSet.Config as cms 
+import FWCore.ParameterSet.Config as cms
+
 from Configuration.StandardSequences.Eras import eras
 
-
-
-process = cms.Process('DIGI',eras.Phase2C2)
+process = cms.Process('ntuple',eras.Phase2C2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -15,7 +14,7 @@ process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
+process.load('Configuration.StandardSequences.VtxSmearedNoSmear_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -23,49 +22,16 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
+process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
-)
+    input = cms.untracked.int32(-1)
+    )
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_0_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/1A2085DB-1AFD-E611-8744-0025905B860C.root') )
-
-process.options = cms.untracked.PSet(
-
-)
-
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.20 $'),
-    annotation = cms.untracked.string('SingleElectronPt10_cfi nevts:10'),
-    name = cms.untracked.string('Applications')
-)
-
-# Output definition
-
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring(
-        'keep *_*_HGCHitsEE_*',
-        'keep *_*_HGCHitsHEback_*',
-        'keep *_*_HGCHitsHEfront_*',
-        'keep *_mix_*_*',
-        'keep *_genParticles_*_*',
-        'keep *_hgcalTriggerPrimitiveDigiProducer_*_*'
-    ),
-    fileName = cms.untracked.string('file:test.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
+    secondaryFileNames = cms.untracked.vstring(),
+    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
 )
 
 # Additional output definition
@@ -74,11 +40,10 @@ process.TFileService = cms.Service(
     fileName = cms.string("ntuple.root")
     )
 
-# Other statements
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+# Path and EndPath definitions
+process.digitisation_step = cms.Path(process.pdigi_valid)
+process.L1simulation_step = cms.Path(process.SimL1Emulator)
 
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Remove best choice selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
@@ -89,6 +54,15 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
         2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
 )
 
+# Adjust the max-dR for 2D-clustering
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.dR_cluster = cms.double(3.)
+
+trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
+                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                              )
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
@@ -98,21 +72,24 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
-
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives ) 
+process.digi2raw_step = cms.Path( process.DigiToRaw )
 
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-
+process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
-process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
-
+process.ntuple_step = cms.Path(process.hgcalTriggerNtuples) 
+                                   
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
+process.schedule = cms.Schedule( process.hgcl1tpg_step, 
+                                 #process.digi2raw_step,
+                                 process.ntuple_step, # create the persistent event 
+                                 process.endjob_step
+                                 )
 
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
+# filter all path with the production filter sequence
+for path in process.paths:
+        getattr(process,path)._seq
 
