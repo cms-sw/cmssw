@@ -9,7 +9,7 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
 
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('no'),
+    mc                        = cms.untracked.string('yes'),
 
     TestNumber                = cms.bool(False)
 )
