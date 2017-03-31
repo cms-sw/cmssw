@@ -193,7 +193,7 @@ namespace pat {
       if(!iOther.m_) {
         delete m_.exchange(nullptr);
        } else {
-        if(!track_) {
+        if(!m_) {
           m_.store( new reco::Track::CovarianceMatrix(*iOther.m_));
         } else {
           *m_ = *(iOther.m_);
