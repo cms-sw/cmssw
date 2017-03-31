@@ -69,9 +69,11 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   auto mvas  = std::make_unique<MVACollection>(tracks.size(),-99.f);
   auto quals = std::make_unique<QualityMaskCollection>(tracks.size(),0);
 
-  if ( hVtx.isValid() && !ignoreVertices_ )
+  if ( hVtx.isValid() && !ignoreVertices_ ) {
     computeMVA(tracks,*hBsp,*hVtx,forest,*mvas);
-  else {
+  } else {
+    if ( !ignoreVertices_ ) 
+      edm::LogWarning("TrackMVAClassifierBase") << "ignoreVertices is set to False in the configuration, but the vertex collection is not valid"; 
     std::vector<reco::Vertex> vertices;
     computeMVA(tracks,*hBsp,vertices,forest,*mvas);
   }    
