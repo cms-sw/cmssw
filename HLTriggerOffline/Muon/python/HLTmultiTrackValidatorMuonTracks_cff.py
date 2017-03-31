@@ -3,11 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTrack.HLTmultiTrackValidator_cfi import *
 hltMuonTrackValidator = hltMultiTrackValidator.clone(
     label = [
-        "hltIter0HighPtTkMuMerged2016Tk",
+        "hltIter0HighPtTkMuPixelTracks",
+        "hltIter0HighPtTkMuTrackSelectionHighPurity",
+        "hltIter2HighPtTkMuTrackSelectionHighPurity",
+        "hltIter2HighPtTkMuMerged",
     ],
     label_tp_effic           = "trackingParticlesMuon",
     label_tp_effic_refvector = True,
-    dirName                  = 'HLT/EG/Tracking/ValidationWRTtp/',
+    dirName                  = 'HLT/Muon/Tracking/ValidationWRTtp/',
     ## eta range driven by ECAL acceptance
     histoProducerAlgoBlock = dict(
         TpSelectorForEfficiencyVsEta  = dict(ptMin = 24),
