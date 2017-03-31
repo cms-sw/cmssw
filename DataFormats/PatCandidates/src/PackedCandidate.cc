@@ -85,15 +85,15 @@ void pat::PackedCandidate::unpack() const {
 
 }*/
 
-void pat::PackedCandidate::packCovariance(bool unpackAfterwards){
-    packedCovariance_.dptdpt = packCovarianceElement(0,0);
-    packedCovariance_.detadeta = packCovarianceElement(1,1);
-    packedCovariance_.dphidphi = packCovarianceElement(2,2); 
-    packedCovariance_.dxydxy =packCovarianceElement(3,3);
-    packedCovariance_.dzdz = packCovarianceElement(4,4);
-    packedCovariance_.dxydz = packCovarianceElement(3,4);
-    packedCovariance_.dlambdadz = packCovarianceElement(1,4);
-    packedCovariance_.dphidxy = packCovarianceElement(2,3);
+void pat::PackedCandidate::packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards){
+    packedCovariance_.dptdpt = packCovarianceElement(m,0,0);
+    packedCovariance_.detadeta = packCovarianceElement(m,1,1);
+    packedCovariance_.dphidphi = packCovarianceElement(m,2,2); 
+    packedCovariance_.dxydxy =packCovarianceElement(m,3,3);
+    packedCovariance_.dzdz = packCovarianceElement(m,4,4);
+    packedCovariance_.dxydz = packCovarianceElement(m,3,4);
+    packedCovariance_.dlambdadz = packCovarianceElement(m,1,4);
+    packedCovariance_.dphidxy = packCovarianceElement(m,2,3);
    //unpack afterwards
    if(unpackAfterwards) unpackCovariance();
 }
@@ -102,14 +102,24 @@ void pat::PackedCandidate::unpackCovariance() const {
     const CovarianceParameterization & p=covarianceParameterization();
     if(p.isValid()) 
     {
-      unpackCovarianceElement(packedCovariance_.dptdpt,0,0);
-      unpackCovarianceElement(packedCovariance_.detadeta,1,1);
-      unpackCovarianceElement(packedCovariance_.dphidphi,2,2);
-      unpackCovarianceElement(packedCovariance_.dxydxy,3,3);
-      unpackCovarianceElement(packedCovariance_.dzdz,4,4);
-      unpackCovarianceElement(packedCovariance_.dxydz,3,4);
-      unpackCovarianceElement(packedCovariance_.dlambdadz,1,4);
-      unpackCovarianceElement(packedCovariance_.dphidxy,2,3);
+      auto m = std::make_unique<reco::TrackBase::CovarianceMatrix>() ;
+      for(int i=0;i<5;i++)
+        for(int j=0;j<5;j++){
+          (*m)(i,j)=0;
+      }
+      unpackCovarianceElement(*m,packedCovariance_.dptdpt,0,0);
+      unpackCovarianceElement(*m,packedCovariance_.detadeta,1,1);
+      unpackCovarianceElement(*m,packedCovariance_.dphidphi,2,2);
+      unpackCovarianceElement(*m,packedCovariance_.dxydxy,3,3);
+      unpackCovarianceElement(*m,packedCovariance_.dzdz,4,4);
+      unpackCovarianceElement(*m,packedCovariance_.dxydz,3,4);
+      unpackCovarianceElement(*m,packedCovariance_.dlambdadz,1,4);
+      unpackCovarianceElement(*m,packedCovariance_.dphidxy,2,3);
+      reco::TrackBase::CovarianceMatrix* expected = nullptr;
+      if( m_.compare_exchange_strong(expected,m.get()) ) {
+         m.release();
+      }
+
     } else {
   throw edm::Exception(edm::errors::UnimplementedFeature)
      << "You do not have a valid track parameters file loaded. "
@@ -162,11 +172,7 @@ float pat::PackedCandidate::dz(const Point &p) const {
 void pat::PackedCandidate::unpackTrk() const {
     maybeUnpackBoth();
     math::RhoEtaPhiVector p3(ptTrk(),etaAtVtx(),phiAtVtx());
-    for(int i=0;i<5;i++)
-      for(int j=0;j<5;j++){
-          m_(i,j)=0;
-    }
-    unpackCovariance();
+    maybeUnpackCovariance();
     int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
     int numberOfPixelHits = this->numberOfPixelHits();
     int numberOfHits = this->numberOfHits();
@@ -176,7 +182,7 @@ void pat::PackedCandidate::unpackTrk() const {
     int i=0;
     LostInnerHits innerLost = lostInnerHits();
     
-    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m_,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),*(m_.load()),reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
     // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){

@@ -3,7 +3,7 @@
 #include <TFile.h>
 #include <TH3D.h>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <TKey.h>
 class CompressionElement {
     public:
@@ -26,8 +26,8 @@ class CovarianceParameterization {
     public:
         static int index(int i, int j) {if(i>=j) return j+i*(i+1)/2; else return i+j*(j+1)/2 ; }
         struct CompressionSchema {
-             CompressionSchema() : elements(15,CompressionElement()) {}
-             std::vector<CompressionElement> elements;
+             CompressionSchema() {}
+             std::array<CompressionElement,15> elements;
              CompressionElement & operator()(int i,int j) {return elements[index(i,j)];}
              const CompressionElement & operator()(int i,int j) const {return elements[index(i,j)];}
         };
@@ -45,7 +45,7 @@ class CovarianceParameterization {
         void  addTheHistogram(std::vector<TH3D *> * HistoVector, std::string StringToAddInTheName, int i, int j, TFile & fileToRead);
         int loadedVersion_;
 	TFile * fileToRead_;
-        std::map<uint16_t,CompressionSchema> schemas; 
+        std::unordered_map<uint16_t,CompressionSchema> schemas; 
         std::vector<TH3D *>  cov_elements_pixelHit;
         std::vector<TH3D *>  cov_elements_noPixelHit;
 };
