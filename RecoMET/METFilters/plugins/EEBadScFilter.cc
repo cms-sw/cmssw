@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,7 @@
 
 #include "TVector3.h"
 
-class EEBadScFilter : public edm::EDFilter {
+class EEBadScFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -45,11 +45,11 @@ class EEBadScFilter : public edm::EDFilter {
 
   // main filter function
 
-  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
   // function to calculate 5x5 energy and check rechit flags
 
-  virtual void scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt);
+  virtual void scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt) const;
 
   // input parameters
 
@@ -83,7 +83,7 @@ EEBadScFilter::EEBadScFilter(const edm::ParameterSet & iConfig)
 }
 
 
-void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt)
+void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt) const
 {
 
   // function to compute:  total transverse energy in a given supercrystal (totEt)
@@ -133,7 +133,7 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
 
 
 
-bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
 
   // load required collections
