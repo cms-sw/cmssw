@@ -480,7 +480,7 @@ namespace cond {
 	  Base::m_plotData.resize( m_nxbins*m_nybins );
 	  for( size_t i=0;i<m_nybins;i++ ){
 	    for( size_t j=0;j<m_nxbins;j++ ){
-	      Base::m_plotData[i*m_nxbins+j] = std::make_tuple( m_xmin+i*m_xbinSize, m_ymin+j*m_ybinSize, 0 );
+	      Base::m_plotData[i*m_nxbins+j] = std::make_tuple( m_xmin+j*m_xbinSize, m_ymin+i*m_ybinSize, 0 );
 	    }
 	  }
 	}
