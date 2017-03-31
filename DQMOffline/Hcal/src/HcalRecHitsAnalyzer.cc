@@ -24,7 +24,6 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
   //HEP17 configuration
   hep17_        = conf.getUntrackedParameter<std::string>("hep17","unset");
-  std::cout << "hep17 param: " << hep17_ << std::endl;
 
   //Collections
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
