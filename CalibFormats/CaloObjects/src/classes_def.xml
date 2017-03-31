@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="CaloSamples" ClassVersion="3">
+  <class name="CaloSamples" ClassVersion="4">
+   <version ClassVersion="4" checksum="2007418822"/>
    <version ClassVersion="3" checksum="4242646275"/>
   </class>
   <class name="std::vector<CaloSamples>"/>

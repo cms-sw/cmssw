@@ -446,7 +446,9 @@ namespace edm {
         } catch(cms::Exception& ex) {
           //TODO: should add the transition type info
           std::ostringstream ost;
-          ost<<"Processing "<<T::transitionName()<<" "<<id;
+          if(ex.context().empty()) {
+            ost<<"Processing "<<T::transitionName()<<" "<<id;
+          }
           addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
           excpt = std::current_exception();
         }

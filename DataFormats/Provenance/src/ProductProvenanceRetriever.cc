@@ -135,6 +135,22 @@ namespace edm {
     return &*it;
   }
 
+  ProductProvenance const*
+  ProductProvenanceRetriever::branchIDToProvenanceForProducedOnly(BranchID const& bid) const {
+    ProductProvenance ei(bid);
+    auto it = entryInfoSet_.find(ei);
+    if(it == entryInfoSet_.end()) {
+      if (parentProcessRetriever_) {
+        return parentProcessRetriever_->branchIDToProvenanceForProducedOnly(bid);
+      }
+      if(nextRetriever_) {
+        return nextRetriever_->branchIDToProvenanceForProducedOnly(bid);
+      }
+      return nullptr;
+    }
+    return &*it;
+  }
+
   ProvenanceReaderBase::~ProvenanceReaderBase() {
   }
 }
