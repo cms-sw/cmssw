@@ -110,3 +110,8 @@ siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
  + SiPixelPhase1Summary_Online
 # + SiPixelPhase1GeometryDebugHarvester
 )
+
+siPixelPhase1OnlineDQM_timing_harvesting = siPixelPhase1OnlineDQM_harvesting.copyAndExclude([
+ RunQTests_online,
+ SiPixelPhase1Summary_Online,
+])
