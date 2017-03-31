@@ -1,33 +1,114 @@
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 using namespace l1t;
 
 HGCalCluster::HGCalCluster( const LorentzVector p4, 
-			     int pt,
-			     int eta,
-			     int phi)
-  : L1Candidate(p4, pt, eta, phi)
+                            int pt,
+                            int eta,
+                            int phi )
+   : L1Candidate(p4, pt, eta, phi),
+     seedDetId_(0),
+     centre_(0, 0, 0),
+     centreProj_(0., 0., 0.),
+     mipPt_(0),
+     seedMipPt_(0)
 {
-  
+
 }
 
-HGCalCluster::~HGCalCluster() 
+
+HGCalCluster::HGCalCluster( const edm::Ptr<l1t::HGCalTriggerCell> &tcSeed )
+    : seedDetId_( tcSeed->detId() ),
+      centre_(0., 0., 0.),
+      centreProj_(0., 0., 0.),
+      mipPt_(0.),
+      seedMipPt_(0.)
 {
-  
+    addTriggerCell( tcSeed );
 }
+
+
+HGCalCluster::~HGCalCluster()
+{
+
+}
+
+
+void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
+{
+    
+    if( triggercells_.size() == 0 ){ 
+        seedDetId_ = tc->detId();
+        seedMipPt_ = tc->mipPt();
+    }
+
+    /* update cluster positions */
+    Basic3DVector<float> tcVector( tc->position() );
+    Basic3DVector<float> centreVector( centre_ );
+
+    centreVector = centreVector*mipPt_ + tcVector*tc->mipPt();
+    centreVector = centreVector / ( mipPt_ + tc->mipPt() ) ;
+
+    centre_ = GlobalPoint( centreVector );
+    centreProj_= GlobalPoint( centreVector / centreVector.z() );
+
+    /* update cluster energies */
+    mipPt_ += tc->mipPt();
+
+    int hwPt = this->hwPt() + tc->hwPt();
+    this->setHwPt(hwPt);
+
+    math::PtEtaPhiMLorentzVector p4( ( this->p4() )  );
+    p4 += tc->p4(); 
+    this->setP4( p4 );
+
+    triggercells_.push_back( tc );
+}
+
+
+double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
+{
+
+    return ( tc.position() - centre_ ).mag();
+   
+}
+
+
+uint32_t HGCalCluster::subdetId()  const
+{
+
+    HGCalDetId seedDetId( seedDetId_ );
+    
+    return seedDetId.subdetId();
+
+}
+
+
+uint32_t HGCalCluster::layer() const
+{
+    
+    HGCalDetId seedDetId( seedDetId_ );    
+
+    return seedDetId.layer();
+
+}
+
+
+int32_t HGCalCluster::zside() const
+{
+    
+    HGCalDetId seedDetId( seedDetId_ );    
+    
+    return seedDetId.zside();
+
+}
+
 
 bool HGCalCluster::operator<(const HGCalCluster& cl) const
 {
-  bool res = false;
-  // Favour high pT
-  if(hwPt()<cl.hwPt()) res = true;
-  else if(hwPt()==cl.hwPt()) {
-    // Favour central clusters
-    if( abs(hwEta())>abs(cl.hwEta()) ) res = true;
-    else if( abs(hwEta())==abs(cl.hwEta()) ){
-      // Favour small phi (arbitrary)
-      if(hwPhi()>cl.hwPhi()) res = true;
-    }
-  }
-  return res;
+
+    /* Prioratize high pT */
+    return (mipPt() < cl.mipPt());
+
 }
