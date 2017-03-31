@@ -5,10 +5,12 @@
 // List of Geant4 basic particle names used in SIM step 
 
 #include "globals.hh"
+#include <vector>
 
-static const G4int numParticles = 44;
-static const G4String PartNames[numParticles] = 
-{ 
+namespace cmsparticlelist {
+
+  static const std::vector<G4String> PartNames = 
+    { 
         "gamma",            "e-",           "e+",           "mu+",        "mu-",
           "pi+",           "pi-",        "kaon+",         "kaon-",     "proton",
   "anti_proton",         "alpha",          "He3",    "GenericIon",         "B+",
@@ -18,8 +20,8 @@ static const G4String PartNames[numParticles] =
    "anti_xi_c+",      "anti_xi-",     "deuteron",     "lambda_c+",     "omega-",
      "sigma_c+",     "sigma_c++",       "sigma+",        "sigma-",       "tau+",
          "tau-",        "triton",        "xi_c+",           "xi-"
+    };
 };
-
 
 #endif
 

@@ -163,8 +163,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4double highEnergyLimit = 100*MeV;
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
-  for(G4int i=0; i<numParticles; ++i) {
-    G4String particleName = PartNames[i];
+  for(const auto& particleName : cmsparticlelist::PartNames) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {

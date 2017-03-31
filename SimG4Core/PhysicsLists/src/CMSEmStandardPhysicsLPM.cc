@@ -171,8 +171,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
     G4RegionStore::GetInstance()->GetRegion("HGCalRegion",false);
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
-  for(G4int i=0; i<numParticles; ++i) {
-    G4String particleName = PartNames[i];
+  for(const auto& particleName : cmsparticlelist::PartNames) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {

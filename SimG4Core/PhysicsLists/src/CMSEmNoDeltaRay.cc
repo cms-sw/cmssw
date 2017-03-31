@@ -134,8 +134,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
   }
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
-  for(G4int i=0; i<numParticles; ++i) {
-    G4String particleName = PartNames[i];
+  for(const auto& particleName : cmsparticlelist::PartNames) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
     if(verbose > 1)

@@ -149,8 +149,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
 
   // Add standard EM Processes
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
-  for(G4int i=0; i<numParticles; ++i) {
-    G4String particleName = PartNames[i];
+  for(const auto& particleName : cmsparticlelist::PartNames) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
