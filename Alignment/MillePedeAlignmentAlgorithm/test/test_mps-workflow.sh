@@ -4,7 +4,6 @@ MPS_TEST_DIR=/tmp/$(date '+%G-%m-%d_%H.%M.%S.%N')_${RANDOM}
 MPprod_dir=${MPS_TEST_DIR}/MPproduction
 
 check_for_success() {
-    echo "${@}"
     "${@}" && echo -e "\n ---> Passed test of '${@}'\n\n" || exit 1
 }
 
