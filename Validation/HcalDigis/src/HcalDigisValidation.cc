@@ -985,7 +985,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
         int sub = cell.subdet();
 
         //Is this in HEP17
-        bool isHEP17 = (iphi>=63)&&(iphi<=66)&&(ieta>0)&&(sub = 2); 
+        bool isHEP17 = (iphi>=63)&&(iphi<=66)&&(ieta>0)&&(sub == 2); 
 
 
         if(depth > maxDepth_[isubdet] && sub == isubdet){
