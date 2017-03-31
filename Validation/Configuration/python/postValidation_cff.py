@@ -16,6 +16,7 @@ from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.RecoVertex.PostProcessorVertex_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
+from Validation.L1T.postProcessorL1Gen_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
@@ -37,6 +38,7 @@ postValidation = cms.Sequence(
     + runTauEff + makeBetterPlots
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
+    + L1GenPostProcessor
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
