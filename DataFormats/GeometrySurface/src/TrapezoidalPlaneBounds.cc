@@ -28,9 +28,13 @@ bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p) const {
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p) const {
-  return fabs(p.y()) < hapothem &&
-    fabs(p.x())/fabs(p.y()+offset) < tan_a &&
-    fabs(p.z()) < hthickness;
+  if(hbotedge==htopedge) {
+    return fabs(p.y()) < hapothem && fabs(p.x())<htopedge && fabs(p.z()) < hthickness;
+  }  else {
+    return fabs(p.y()) < hapothem &&
+      fabs(p.x())/fabs(p.y()+offset) < tan_a &&
+      fabs(p.z()) < hthickness;
+  }
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p,
