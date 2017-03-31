@@ -16,6 +16,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMTagAndProbePlotter.h"
 
 #include <boost/regex.hpp>
 
@@ -55,6 +56,7 @@ private:
       edm::EDGetTokenT<LVColl> token;
     };
     std::vector<RefObject> refObjects_;
+    std::vector<edm::ParameterSet> tagAndProbePaths;
 
     //DQM Prescaler
     int counterEvt_;      //counter
@@ -64,6 +66,7 @@ private:
     std::unique_ptr<HLTTauDQML1Plotter> l1Plotter_;
     std::vector<HLTTauDQMPathPlotter> pathPlotters_;
     std::unique_ptr<HLTTauDQMPathSummaryPlotter> pathSummaryPlotter_;
+    std::vector<HLTTauDQMTagAndProbePlotter> tagandprobePlotters_;
 };
 
 #endif
