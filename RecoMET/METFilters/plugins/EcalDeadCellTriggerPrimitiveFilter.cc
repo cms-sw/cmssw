@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,20 +66,17 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "TFile.h"
 #include "TTree.h"
 
 using namespace std;
 
-class EcalDeadCellTriggerPrimitiveFilter : public edm::EDFilter {
+class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet&);
   ~EcalDeadCellTriggerPrimitiveFilter();
 
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
@@ -136,24 +133,8 @@ private:
 // Return value:  + : positive zside  - : negative zside
   int setEvtTPstatus(const double &tpCntCut, const int &chnStatus);
 
-  int evtProcessedCnt, totFilteredCnt;
-
-  const bool makeProfileRoot_;
-  const std::string profileRootName_;
-
   const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
   const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
-
-  TFile *profFile;
-  TTree *profTree;
-
-  std::vector<int> *cutFlowFlagTmpPtr;
-  std::vector<std::string> *cutFlowStrTmpPtr;
-
-  void loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  edm::RunNumber_t run;
-  edm::EventNumber_t event;
-  edm::LuminosityBlockNumber_t ls;
 
   bool getEventInfoForFilterOnce_;
 
@@ -196,8 +177,6 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , etValToBeFlagged_ (iConfig.getParameter<double>("etValToBeFlagged") )
   , tpDigiCollection_ (iConfig.getParameter<edm::InputTag>("tpDigiCollection") )
   , tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_))
-  , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot") )
-  , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName") )
   , useTTsum_ (iConfig.getParameter<bool>("useTTsum") )
   , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
 {
@@ -205,31 +184,10 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
   useTPmethod_ = true; useHITmethod_ = false;
 
-  if( makeProfileRoot_ ){
-
-     profFile = new TFile(profileRootName_.c_str(), "RECREATE");
-     profTree = new TTree("filter", "filter profile");
-     profTree->Branch("run", &run, "run/I");
-     profTree->Branch("event", &event, "event/I");
-     profTree->Branch("lumi", &ls, "lumi/I");
-     profTree->Branch("cutFlowFlag", &cutFlowFlagTmpPtr);
-     profTree->Branch("cutFlowStr", &cutFlowStrTmpPtr);
-
-  }
-
   produces<bool>();
 }
 
 EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
-
-  if( makeProfileRoot_ ){
-     profFile->cd();
-     profTree->Write();
-     delete profTree;
-     profFile->Close();
-     delete profFile;
-  }
-
 }
 
 void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
@@ -286,14 +244,6 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
 
 }
 
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   run = iEvent.id().run();
-   event = iEvent.id().event();
-   ls = iEvent.luminosityBlock();
-}
-
-
 void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   iEvent.getByToken(tpDigiCollectionToken_, pTPDigis);
@@ -330,13 +280,11 @@ void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
 // ------------ method called on each new Event  ------------
 bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  std::vector<int> cutFlowFlagTmpVec; std::vector<std::string> cutFlowStrTmpVec;
-
-  loadEventInfo(iEvent, iSetup);
+  edm::RunNumber_t run = iEvent.id().run();
+  edm::EventNumber_t event = iEvent.id().event();
+  edm::LuminosityBlockNumber_t ls = iEvent.luminosityBlock();
 
   if( !getEventInfoForFilterOnce_ ){ loadEventInfoForFilter(iEvent); }
-
-  evtProcessedCnt++;
 
   bool pass = true;
 
@@ -352,17 +300,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
      evtTagged = setEvtRecHitstatus(etValToBeFlagged_, 13, 13);
   }
 
-  if( evtTagged ){ pass = false; totFilteredCnt++; }
-
-  if( makeProfileRoot_ ){
-
-     cutFlowFlagTmpVec.push_back(evtTagged); cutFlowStrTmpVec.push_back("TP");
-
-     cutFlowFlagTmpPtr = &cutFlowFlagTmpVec;
-     cutFlowStrTmpPtr = &cutFlowStrTmpVec;
-
-     profTree->Fill();
-  }
+  if( evtTagged ){ pass = false; }
 
   if(debug_ && verbose_ >=2){
      int evtstatusABS = abs(evtTagged);
@@ -375,18 +313,8 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
   else return pass;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::beginJob() {
-  evtProcessedCnt = 0;
-  totFilteredCnt = 0;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::endJob() {
-}
-
 // ------------ method called once each run just before starting event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &run, const edm::EventSetup& iSetup) {
+void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &iRun, const edm::EventSetup& iSetup) {
 // Channel status might change for each run (data)
 // Event setup
   envSet(iSetup);
@@ -597,7 +525,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 }
 
 
-int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, const int &chnStatus){
+int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, const int &chnStatus) {
 
   if( debug_ && verbose_ >=2) std::cout<<"***begin setEvtTPstatus***"<<std::endl;
 
