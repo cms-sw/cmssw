@@ -7,7 +7,7 @@ hltMuonTrackValidator = hltMultiTrackValidator.clone(
     ],
     label_tp_effic           = "trackingParticlesMuon",
     label_tp_effic_refvector = True,
-    dirName                  = 'HLT/EG/Tracking/ValidationWRTtp/',
+    dirName                  = 'HLT/Muon/Tracking/ValidationWRTtp/',
     ## eta range driven by ECAL acceptance
     histoProducerAlgoBlock = dict(
         TpSelectorForEfficiencyVsEta  = dict(ptMin = 24),
