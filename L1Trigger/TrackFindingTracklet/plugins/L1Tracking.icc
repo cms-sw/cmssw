@@ -78,10 +78,10 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      L[0]->findMatches(L[2],phiWindowSF_,0.075,0.5);
-      L[0]->findMatches(L[3],phiWindowSF_,0.12,4.0);
-      L[0]->findMatches(L[4],phiWindowSF_,0.15,4.0);
-      L[0]->findMatches(L[5],phiWindowSF_,0.2,4.0);
+      L[0]->findMatches(L[2],phiWindowSF_,0.075,0.5); //0.075, 0.5
+      L[0]->findMatches(L[3],phiWindowSF_,0.12,3.0); //0.12, 4.0
+      L[0]->findMatches(L[4],phiWindowSF_,0.15,3.0); //0.15, 4.0
+      L[0]->findMatches(L[5],phiWindowSF_,0.2,3.0); //0.2, 4.0
 
       L[0]->findMatches(F[0],phiWindowSF_);
       L[0]->findMatches(F[1],phiWindowSF_);
@@ -110,10 +110,10 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      L[1]->findMatches(L[0],phiWindowSF_,0.04,0.5);
-      L[1]->findMatches(L[3],phiWindowSF_,0.075,4.0);
-      L[1]->findMatches(L[4],phiWindowSF_,0.1,4.0);
-      L[1]->findMatches(L[5],phiWindowSF_,0.15,4.0);
+      L[1]->findMatches(L[0],phiWindowSF_,0.04,0.5); 
+      L[1]->findMatches(L[3],phiWindowSF_,0.075,4.0); 
+      L[1]->findMatches(L[4],phiWindowSF_,0.1,4.0); 
+      L[1]->findMatches(L[5],phiWindowSF_,0.15,4.0); 
       L[1]->findMatches(F[0],phiWindowSF_);
       L[1]->findMatches(F[1],phiWindowSF_);
       L[1]->findMatches(F[2],phiWindowSF_);
@@ -141,10 +141,10 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      L[2]->findMatches(L[0],phiWindowSF_,0.025,5.0);
-      L[2]->findMatches(L[1],phiWindowSF_,0.025,3.0);
-      L[2]->findMatches(L[4],phiWindowSF_,0.03,8.0);
-      L[2]->findMatches(L[5],phiWindowSF_,0.05,10.0);
+      L[2]->findMatches(L[0],phiWindowSF_,0.025,5.0); //0.025, 5.0
+      L[2]->findMatches(L[1],phiWindowSF_,0.025,3.0); //0.025, 3.0
+      L[2]->findMatches(L[4],phiWindowSF_,0.03,7.0); //0.03, 8.0
+      L[2]->findMatches(L[5],phiWindowSF_,0.06,10.0); //0.05, 10.0
       L[2]->findMatches(F[0],phiWindowSF_);
       L[2]->findMatches(F[1],phiWindowSF_);
       L[2]->findMatches(F[2],phiWindowSF_);
@@ -201,10 +201,10 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      L[4]->findMatches(L[0],phiWindowSF_,0.025,10.0);
-      L[4]->findMatches(L[1],phiWindowSF_,0.025,10.0);
-      L[4]->findMatches(L[2],phiWindowSF_,0.03,8.0);
-      L[4]->findMatches(L[3],phiWindowSF_,0.05,6.0);
+      L[4]->findMatches(L[0],phiWindowSF_,0.025,10.0); //0.025, 10.0
+      L[4]->findMatches(L[1],phiWindowSF_,0.025,9.0); //0.025, 10.0
+      L[4]->findMatches(L[2],phiWindowSF_,0.02,7.0); //0.03, 8.0
+      L[4]->findMatches(L[3],phiWindowSF_,0.02,6.0); //0.05, 6.0
       //matchtimer.stop();
 
       //fittimer.start();
@@ -220,9 +220,9 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      F[0]->findMatches(F[2],phiWindowSF_,0.05,0.5,0.05);
-      F[0]->findMatches(F[3],phiWindowSF_,0.09,0.6,0.09);
-      F[0]->findMatches(F[4],phiWindowSF_,0.1,1.0,0.1);
+      F[0]->findMatches(F[2],phiWindowSF_,0.05,0.3,0.1,2.5); //0.05, 0.5, 0.05, 3.0
+      F[0]->findMatches(F[3],phiWindowSF_,0.09,0.6,0.1); //0.09, 0.6, 0.09, 3.0
+      F[0]->findMatches(F[4],phiWindowSF_,0.1,1.0,0.15); //0.1, 1.0, 0.1, 3.0
       F[0]->findBarrelMatches(L[0],phiWindowSF_);
       F[0]->findBarrelMatches(L[1],phiWindowSF_);
       F[0]->findBarrelMatches(L[2],phiWindowSF_);
@@ -268,9 +268,9 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      F[2]->findMatches(F[0],phiWindowSF_,0.05,0.5,0.05);
-      F[2]->findMatches(F[1],phiWindowSF_,0.04,0.5,0.04);
-      F[2]->findMatches(F[4],phiWindowSF_,0.05,0.5,0.05);
+      F[2]->findMatches(F[0],phiWindowSF_,0.05,0.3,0.05); //0.05, 0.5, 0.05, 3.0
+      F[2]->findMatches(F[1],phiWindowSF_,0.04,0.2,0.04); //0.04, 0.5, 0.04, 3.0
+      F[2]->findMatches(F[4],phiWindowSF_,0.04,0.3,0.05,2.5); //0.05, 0.5, 0.05, 3.0
       F[2]->findBarrelMatches(L[0],phiWindowSF_);
       F[2]->findBarrelMatches(L[1],phiWindowSF_);
       F[2]->findBarrelMatches(L[2],phiWindowSF_);
@@ -316,9 +316,9 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      B[0]->findMatches(B[2],phiWindowSF_,0.05,0.5,0.05);
-      B[0]->findMatches(B[3],phiWindowSF_,0.08,0.6,0.08);
-      B[0]->findMatches(B[4],phiWindowSF_,0.1,1.0,0.1);
+      B[0]->findMatches(B[2],phiWindowSF_,0.05,0.3,0.1,0.25); //0.05, 0.5, 0.05, 3.0
+      B[0]->findMatches(B[3],phiWindowSF_,0.08,0.6,0.1); //0.08, 0.6, 0.08, 3.0
+      B[0]->findMatches(B[4],phiWindowSF_,0.1,1.0,0.15); //0.1, 1.0, 0.1, 3.0
       B[0]->findBarrelMatches(L[0],phiWindowSF_);
       B[0]->findBarrelMatches(L[1],phiWindowSF_);
       B[0]->findBarrelMatches(L[2],phiWindowSF_);
@@ -364,9 +364,9 @@
       //tracklettimer.stop();
 
       //matchtimer.start();
-      B[2]->findMatches(B[0],phiWindowSF_,0.05,0.5,0.05);
-      B[2]->findMatches(B[1],phiWindowSF_,0.04,0.5,0.04);
-      B[2]->findMatches(B[4],phiWindowSF_,0.05,0.5,0.05);
+      B[2]->findMatches(B[0],phiWindowSF_,0.05,0.3,0.05); //0.05, 0.5, 0.05, 3.0
+      B[2]->findMatches(B[1],phiWindowSF_,0.04,0.2,0.04); //0.04, 0.5, 0.04, 3.0
+      B[2]->findMatches(B[4],phiWindowSF_,0.04,0.3,0.05,2.5); //0.05, 0.5, 0.05, 3.0
       B[2]->findBarrelMatches(L[0],phiWindowSF_);
       B[2]->findBarrelMatches(L[1],phiWindowSF_);
       B[2]->findBarrelMatches(L[2],phiWindowSF_);
