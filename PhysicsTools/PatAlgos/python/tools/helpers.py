@@ -460,7 +460,11 @@ def listDependencyChain(process, module, sources, verbose=False):
             if m2 in flatdeps and m1 in flatdeps[m2]:
                 raise RuntimeError, "BAD ORDER %s BEFORE %s" % (m1,m2)
     modules = [ getattr(process,p) for p in modulelist ]
-    return cms.Sequence(sum(modules[1:],modules[0]))
+    #return cms.Sequence(sum(modules[1:],modules[0]))
+    task = cms.Task()
+    for mod in modules: 
+        task.add(mod)
+    return task,cms.Sequence(task)
 
 def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
     """Add new keep statements to any PoolOutputModule of the process that has the old keep statements"""

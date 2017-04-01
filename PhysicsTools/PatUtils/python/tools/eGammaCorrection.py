@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.GuiBrowsers.ConfigToolBase import *
 #import PhysicsTools.PatAlgos.tools.helpers as configtools
 
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
 def eGammaCorrection(process,
                      electronCollection,
@@ -17,7 +18,10 @@ def eGammaCorrection(process,
                      postfix=""
                      ):
 
+    task = getPatAlgosToolsTask(process)
+
     process.load("PhysicsTools.PatAlgos.cleaningLayer1.photonCleaner_cfi")
+    task.add(process.cleanPatPhotons)
     #cleaning the bad collections
     cleanedPhotonCollection="cleanedPhotons"+postfix
     cleanPhotonProducer = getattr(process, "cleanPatPhotons").clone( 
@@ -67,12 +71,12 @@ def eGammaCorrection(process,
                                   )
 
 
-    setattr(process,cleanedPhotonCollection,cleanPhotonProducer)
-    setattr(process,cleanedCorPhotonCollection,cleanCorPhotonProducer)
-    setattr(process,matchPhotonCollection,matchPhotonProducer)
-    setattr(process,matchElectronCollection,matchElectronProducer)
-    setattr(process,correctionPhoton,corMETPhoton)
-    setattr(process,correctionElectron,corMETElectron)
+    addToProcessAndTask(cleanedPhotonCollection,cleanPhotonProducer, process, task)
+    addToProcessAndTask(cleanedCorPhotonCollection,cleanCorPhotonProducer, process, task)
+    addToProcessAndTask(matchPhotonCollection,matchPhotonProducer, process, task)
+    addToProcessAndTask(matchElectronCollection,matchElectronProducer, process, task)
+    addToProcessAndTask(correctionPhoton,corMETPhoton, process, task)
+    addToProcessAndTask(correctionElectron,corMETElectron, process, task)
 
     sequence=cms.Sequence()
     sequence+=getattr(process,cleanedPhotonCollection)
@@ -97,7 +101,7 @@ def eGammaCorrection(process,
                                                  cms.InputTag(correctionElectron),
                                                  )
                                           )
-            setattr(process,metCollection+postfix,corMETModule) #corMETModuleName
+            addToProcessAndTask(metCollection+postfix, corMETModule, process, task) #corMETModuleName
             sequence+=getattr(process,metCollection+postfix) #corMETModuleName
         else:
             print metCollection

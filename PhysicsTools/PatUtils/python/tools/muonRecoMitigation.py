@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+
 def muonRecoMitigation(process,
                        pfCandCollection,
                        runOnMiniAOD,
@@ -10,6 +12,8 @@ def muonRecoMitigation(process,
                        cleanCollName="cleanMuonsPFCandidates",
                        cleaningScheme="all",
                        postfix=""):
+
+    task = getPatAlgosToolsTask(process)
 
     sequence=cms.Sequence()    
 
@@ -28,12 +32,12 @@ def muonRecoMitigation(process,
 
         vtags=cms.VInputTag()
         if cleaningScheme in ["bad","all","computeAllApplyBad","computeAllApplyClone"]:
-            setattr(process, 'badGlobalMuonTagger'+typeFix+postfix, badMuModule.clone() )
+            addToProcessAndTask('badGlobalMuonTagger'+typeFix+postfix, badMuModule.clone(), process, task )
             sequence +=getattr(process,"badGlobalMuonTagger"+typeFix+postfix)
             if cleaningScheme in ["bad","computeAllApplyBad"]:
                 badMuonCollection = 'badGlobalMuonTagger'+typeFix+postfix+':bad'
         if cleaningScheme in ["clone","duplicated","all","computeAllApplyBad","computeAllApplyClone"]:
-            setattr(process, 'cloneGlobalMuonTagger'+typeFix+postfix, cloneMuModule.clone() )
+            addToProcessAndTask('cloneGlobalMuonTagger'+typeFix+postfix, cloneMuModule.clone(), process, task )
             sequence +=getattr(process,"cloneGlobalMuonTagger"+typeFix+postfix)
             if cleaningScheme in ["clone","duplicated","computeAllApplyClone"]:
                 badMuonCollection = 'cloneGlobalMuonTagger'+typeFix+postfix+':bad'
@@ -47,7 +51,7 @@ def muonRecoMitigation(process,
                     cms.InputTag('cloneGlobalMuonTagger'+typeFix+postfix,'bad'),
                     )
                 )
-            setattr(process,badMuonCollection,badMuonProducer)
+            addToProcessAndTask(badMuonCollection, badMuonProducer, process, task)
             sequence +=getattr(process, badMuonCollection )
     else:
         badMuonCollection="badMuons"+postfix
@@ -69,7 +73,7 @@ def muonRecoMitigation(process,
                                                veto = cms.InputTag(badMuonCollection)
                                          )
 
-    setattr(process,cleanedPFCandCollection,cleanedPFCandProducer) 
+        addToProcessAndTask(cleanedPFCandCollection, cleanedPFCandProducer, process, task) 
     sequence +=getattr(process, cleanedPFCandCollection )
 
     return sequence

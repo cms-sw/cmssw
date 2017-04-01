@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag,cloneProcessingSnippet,addKeepStatement
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
 def addExtraMETCollections(process, unCleanPFCandidateCollection,
                            cleanElectronCollection,
@@ -7,12 +8,14 @@ def addExtraMETCollections(process, unCleanPFCandidateCollection,
                            unCleanElectronCollection,
                            unCleanPhotonCollection ):
 
+    task = getPatAlgosToolsTask(process)
+
     # Muon/EGamma un/corrected pfMET ============
     from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncForMiniAODProduction
     
     # uncorrected MET
-    cloneProcessingSnippet(process, getattr(process,"makePatJets"),"BackupAllEvents")
+    cloneProcessingSnippet(process, getattr(process,"makePatJets"),"BackupAllEvents", addToTask = True )
     massSearchReplaceAnyInputTag(getattr(process,"makePatJetsBackupAllEvents"), "ak4PFJetsCHS", "ak4PFJetsCHSBackupAllEvents")
     massSearchReplaceAnyInputTag(getattr(process,"makePatJetsBackupAllEvents"), "pfCandidatesBadMuonsCleaned", "particleFlow")
     del process.patJetsBackupAllEvents.userData
@@ -43,6 +46,7 @@ def addExtraMETCollections(process, unCleanPFCandidateCollection,
         process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
         
     process.slimmedMETsUncorrected = process.slimmedMETs.clone()
+    task.add(process.slimmedMETs)
     process.slimmedMETsUncorrected.src = cms.InputTag("patPFMetT1Uncorrected")
     process.slimmedMETsUncorrected.rawVariation =  cms.InputTag("patPFMetUncorrected")
     process.slimmedMETsUncorrected.t1Uncertainties = cms.InputTag("patPFMetT1%sUncorrected") 
@@ -70,6 +74,7 @@ def addExtraMETCollections(process, unCleanPFCandidateCollection,
                         postfix="EGOnly"
                         )
     process.slimmedMETsEGClean = process.slimmedMETs.clone()
+    task.add(process.slimmedMETsEGClean)
     process.slimmedMETsEGClean.src = cms.InputTag("patPFMetT1UncorrectedEGOnly")
     process.slimmedMETsEGClean.rawVariation =  cms.InputTag("patPFMetRawUncorrectedEGOnly")
     process.slimmedMETsEGClean.t1Uncertainties = cms.InputTag("patPFMetT1%sUncorrectedEGOnly") 
@@ -96,6 +101,7 @@ def addExtraMETCollections(process, unCleanPFCandidateCollection,
                         postfix="MuEGClean"
                         )
     process.slimmedMETsMuEGClean = process.slimmedMETs.clone()
+    task.add(process.slimmedMETsMuEGClean)
     process.slimmedMETsMuEGClean.src = cms.InputTag("patPFMetT1MuEGClean")
     process.slimmedMETsMuEGClean.rawVariation =  cms.InputTag("patPFMetRawMuEGClean")
     process.slimmedMETsMuEGClean.t1Uncertainties = cms.InputTag("patPFMetT1%sMuEGClean") 
@@ -122,6 +128,8 @@ def addExtraPuppiMETCorrections(process,
                                 unCleanPhotonCollection
                                 ):
 
+    task = getPatAlgosToolsTask(process)
+
     from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
     #EG correction for puppi, muon correction done right above
     corMETFromMuonAndEG(process,
@@ -141,6 +149,7 @@ def addExtraPuppiMETCorrections(process,
 
     if not hasattr(process, "slimmedMETs"):
         process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+        task.add(process.slimmedMETs)
 
     process.slimmedMETsPuppi.src = cms.InputTag("patPFMetT1PuppiPuppiClean")
     process.slimmedMETsPuppi.rawVariation =  cms.InputTag("patPFMetRawPuppiPuppiClean")
@@ -160,16 +169,20 @@ def addExtraPuppiMETCorrections(process,
                         cms.InputTag("corMETPhotonPuppiClean"),
                         cms.InputTag("corMETElectronPuppiClean") )
                                            )
+    task.add(process.puppiMETEGCor)
 
     #Muon correction, restarting from PF candidates to take the weights
     process.puppiMuonCorrection = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                         srcOriginal = cms.InputTag(unCleanPFCandidateCollection),
                         srcShifted = cms.InputTag(cleanPFCandidateCollection),
                                   )
-    
+
+    task.add(process.puppiMuonCorrection)
+
     process.puppiMETMuCor = cms.EDProducer("CorrMETDataExtractor",
                     corrections = cms.VInputTag(
                         cms.InputTag("puppiMuonCorrection") )
                                            )
+    task.add(process.puppiMETMuCor)
     addKeepStatement(process, "keep *_slimmedMETsPuppi_*_*",
                     ["keep *_puppiMETEGCor_*_*", "keep *_puppiMETMuCor_*_*"])

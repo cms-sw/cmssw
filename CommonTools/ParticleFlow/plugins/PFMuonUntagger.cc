@@ -7,7 +7,7 @@
 //      and from bad to new and vice-versa
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -18,19 +18,19 @@
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
 
-class PFMuonUntagger : public edm::stream::EDProducer<> {
+class PFMuonUntagger : public edm::global::EDProducer<> {
     public:
         PFMuonUntagger(const edm::ParameterSet&);
         ~PFMuonUntagger() {};
 
-        void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 
     private:
         edm::EDGetTokenT<std::vector<reco::Muon> > muons_;
         std::vector<edm::EDGetTokenT<reco::CandidateView>> badmuons_;
 
         template<typename H1, typename H2>
-        void writeAssociation(edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) {
+        void writeAssociation(edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) const {
             typedef edm::Association<std::vector<reco::Muon>> AssoMap;
             std::unique_ptr<AssoMap> assomap(new AssoMap(to));
             typename AssoMap::Filler filler(*assomap);
@@ -40,7 +40,7 @@ class PFMuonUntagger : public edm::stream::EDProducer<> {
         }
 
         template<typename H1>
-        void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) {
+        void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) const {
             typedef edm::ValueMap<int> IntMap;
             std::unique_ptr<IntMap> intmap(new IntMap());
             typename IntMap::Filler filler(*intmap);
@@ -67,7 +67,7 @@ PFMuonUntagger::PFMuonUntagger(const edm::ParameterSet &iConfig) :
     produces<edm::Association<std::vector<reco::Muon>>>("newToBad");
 }
 
-void PFMuonUntagger::produce(edm::Event &iEvent, const edm::EventSetup&)
+void PFMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup&) const
 {
     edm::Handle<std::vector<reco::Muon>> muons;
     iEvent.getByToken(muons_, muons);
