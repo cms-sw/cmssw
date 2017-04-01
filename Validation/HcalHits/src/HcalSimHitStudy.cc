@@ -20,9 +20,13 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
 			  << hcalHits << " / "<< checkHit_ 
 			  << "   Output: " << outFile_;
 
+  msm_ = new std::map<std::string, MonitorElement*>();
+
 }
 
-HcalSimHitStudy::~HcalSimHitStudy() {}
+HcalSimHitStudy::~HcalSimHitStudy() {
+  delete msm_;
+}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run, edm::EventSetup const & es)
 {
@@ -33,6 +37,9 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
+  maxDepth_ = (maxDepthHB_ > maxDepthHE_ ? maxDepthHB_ : maxDepthHE_);
+  maxDepth_ = (maxDepth_   > maxDepthHF_ ? maxDepth_   : maxDepthHF_);
+  maxDepth_ = (maxDepth_   > maxDepthHO_ ? maxDepth_   : maxDepthHO_);
 
   //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
 
@@ -99,13 +106,14 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meDepthHit_ = ib.book1D("Hit11","Depths in HCal",        20,0.,20.);
       meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          ieta_bins_HF,ieta_min_HF,ieta_max_HF);
       meEtaPhiHit_   = ib.book2D("Hit12b","Eta-phi in HCal",          ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd1_ = ib.book2D("Hit12d1","Eta-phi in HCal d1",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd2_ = ib.book2D("Hit12d2","Eta-phi in HCal d2",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd3_ = ib.book2D("Hit12d3","Eta-phi in HCal d3",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd4_ = ib.book2D("Hit12d4","Eta-phi in HCal d4",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd5_ = ib.book2D("Hit12d5","Eta-phi in HCal d5",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd6_ = ib.book2D("Hit12d6","Eta-phi in HCal d6",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-      meEtaPhiHitd7_ = ib.book2D("Hit12d7","Eta-phi in HCal d7",      ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
+
+      Char_t histo[100];
+      HistLim ietaLim(ieta_bins_HF,ieta_min_HF,ieta_max_HF);
+      HistLim iphiLim(iphi_bins,iphi_min,iphi_max);     
+      for (int depth = 1; depth <= maxDepth_; depth++) {
+	sprintf(histo,"Eta-phi in HCal d%d", depth);
+	book2D(ib, histo, ietaLim, iphiLim);
+      }
       //KC: There are different phi segmentation schemes, this plot uses wider bins to represent the most sparse segmentation
       mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  iphi_bins,iphi_min,iphi_max);
       mePhiHitb_  = ib.book1D("Hit13b","Phi in HCal (HE,HF)", iphi_bins,iphi_min,iphi_max);
@@ -279,14 +287,8 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
 	meEtaPhiHit_->Fill(double(eta),double(phi));
-	if (depth==1) meEtaPhiHitd1_->Fill(double(eta),double(phi));
-	if (depth==2) meEtaPhiHitd2_->Fill(double(eta),double(phi));
-	if (depth==3) meEtaPhiHitd3_->Fill(double(eta),double(phi));
-	if (depth==4) meEtaPhiHitd4_->Fill(double(eta),double(phi));
-	if (depth==5) meEtaPhiHitd5_->Fill(double(eta),double(phi));
-	if (depth==6) meEtaPhiHitd6_->Fill(double(eta),double(phi));
-	if (depth==7) meEtaPhiHitd7_->Fill(double(eta),double(phi));
 
+	fill2D("Eta-phi in HCal d" + str(depth), double(eta), double(phi));
 
 	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
 	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
@@ -441,3 +443,16 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 
 }
 
+void HcalSimHitStudy::book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
+    if (!msm_->count(name)) (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+}
+
+void HcalSimHitStudy::fill2D(std::string name, double X, double Y, double weight) {
+    msm_->find(name)->second->Fill(X, Y, weight);
+}
+
+std::string HcalSimHitStudy::str(int x) {
+    std::stringstream out;
+    out << x;
+    return out.str();
+}
