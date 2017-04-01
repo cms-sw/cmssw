@@ -398,21 +398,12 @@ void ME0ReDigiProducer::getStripProperties(const ME0EtaPartition* etaPart, const
 }
 
 unsigned int ME0ReDigiProducer::fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const {
-	auto it1 = chDigiMap.find(bx);
+	DigiIndicies newIDX(bx,part,strip);
+	auto it1 = chDigiMap.find(newIDX);
 	if (it1 == chDigiMap.end()){
-		chDigiMap[bx][part][strip] = currentIDX;
+		chDigiMap[newIDX] = currentIDX;
 		return -1;
 	}
-	auto it2 = it1->second.find(part);
-	if (it2 == it1->second.end()){
-		it1->second[part][strip] = currentIDX;
-		return -1;
-	}
-	auto it3 = it2->second.find(strip);
-	if (it3 == it2->second.end()){
-		it2->second[strip] = currentIDX;
-		return -1;
-	}
-	return it3->second;
+	return it1->second;
 }
 
