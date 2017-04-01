@@ -1,4 +1,4 @@
-/****************************************************************************
+ /****************************************************************************
  *
  * 
  * Authors: 
@@ -7,7 +7,7 @@
  ****************************************************************************/
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 
 using namespace std;

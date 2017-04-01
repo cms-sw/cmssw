@@ -2,7 +2,7 @@
 #define CTPPS_PIXELINDICES_H
 
 #include <iostream>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 /**
  * Numbering of the pixels inside the readout chip (ROC).
  * There is a column index and a row index.
