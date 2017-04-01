@@ -82,6 +82,8 @@ private:
   MonitorElement *meHBEneHit2_, *meHEEneHit2_, *meHOEneHit2_, *meHFEneHit2_;
   MonitorElement *meHBL10Ene_, *meHEL10Ene_, *meHOL10Ene_, *meHFL10Ene_;
   MonitorElement *meHBL10EneP_, *meHEL10EneP_, *meHOL10EneP_, *meHFL10EneP_;
+  MonitorElement *meHEP17EneHit_, *meHEP17EneHit2_;
+
 
 };
 
