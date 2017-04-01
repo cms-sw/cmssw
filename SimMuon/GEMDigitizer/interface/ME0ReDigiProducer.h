@@ -73,7 +73,8 @@ private:
   void getStripProperties(const ME0EtaPartition* etaPart, const ME0DigiPreReco* inDigi, float& tof,int& strip, LocalPoint&  digiLocalPoint, LocalError&  digiLocalError) const;
   int getCustomStripProperties(const ME0DetId& detId, const ME0DigiPreReco* inDigi, float& tof,int& strip, LocalPoint&  digiLocalPoint, LocalError&  digiLocalError) const;
 
-  typedef std::map<unsigned int, std::map<unsigned int, std::map<unsigned int, unsigned int > > > ChamberDigiMap;
+  typedef std::tuple<unsigned int, unsigned int, unsigned int> DigiIndicies;
+  typedef std::map<DigiIndicies,unsigned int> ChamberDigiMap;
   //fills map...returns -1 if digi is not already in the map
   unsigned int fillDigiMap(ChamberDigiMap& chDigiMap, unsigned int bx, unsigned int part, unsigned int strip, unsigned int currentIDX) const;
 
