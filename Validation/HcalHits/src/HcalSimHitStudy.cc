@@ -127,6 +127,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meHFPhiHit_ = ib.book1D("Hit28","Phi in HF",            iphi_bins,iphi_min,iphi_max); 
       meHBEneHit_ = ib.book1D("Hit29","Energy in HB",         2000,0.,20.);
       meHEEneHit_ = ib.book1D("Hit30","Energy in HE",         500,0.,5.);
+      meHEP17EneHit_ = ib.book1D("Hit30b","Energy in HEP17",     500,0.,5.);
       meHOEneHit_ = ib.book1D("Hit31","Energy in HO",         500,0.,5.);
       meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1001,-0.5,1000.5);
 
@@ -154,6 +155,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       //These are the zoomed in energy ranges
       meHBEneHit2_ = ib.book1D("Hit37","Energy in HB 2",         100,0.,0.0001);
       meHEEneHit2_ = ib.book1D("Hit38","Energy in HE 2",         100,0.,0.0001);
+      meHEP17EneHit2_ = ib.book1D("Hit38b","Energy in HEP17 2",     100,0.,0.0001);
       meHOEneHit2_ = ib.book1D("Hit39","Energy in HO 2",         100,0.,0.0001);
       meHFEneHit2_ = ib.book1D("Hit40","Energy in HF 2",         100,0.5,100.5);
       meHBL10Ene_ = ib.book1D("Hit41","Log10Energy in HB", 140, -10., 4. );
@@ -319,8 +321,21 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHEDepHit_->Fill(double(depth));
 	  meHEEtaHit_->Fill(double(eta));
 	  meHEPhiHit_->Fill(double(phi));
-	  meHEEneHit_->Fill(energy);
-	  meHEEneHit2_->Fill(energy);
+
+	  bool isHEP17 = (phi>=63)&&(phi<=66)&&(eta>0); 
+	  if(hep17_ == "yes"){
+	    if(!isHEP17){
+	      meHEEneHit_->Fill(energy);
+	      meHEEneHit2_->Fill(energy);
+	    } else {
+	      meHEP17EneHit_->Fill(energy);
+	      meHEP17EneHit2_->Fill(energy);
+	    }
+	  } else {
+	    meHEEneHit_->Fill(energy);
+	    meHEEneHit2_->Fill(energy);
+	  }
+
 	  meHETimHit_->Fill(time);
 	  meHEL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHE[log10i] += energy;
