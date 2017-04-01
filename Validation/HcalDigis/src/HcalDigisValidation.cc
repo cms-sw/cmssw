@@ -187,6 +187,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim sime(200, 0., 1.0);
 
     HistLim digiAmp(360, -100., 7100.);
+    HistLim digiAmpWide(360, -10000., 710000.);
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
@@ -278,7 +279,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         if(hep17_ == "yes" && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_HEP17");
-           book1D(ib, histo, digiAmp);
+           book1D(ib, histo, digiAmpWide);
 	}
 	//
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
@@ -286,7 +287,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	  book1D(ib, histo, digiAmp);
            if(hep17_ == "yes" && bsubdet=="HE"){
               sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_HEP17", depth);
-	      book1D(ib, histo, digiAmp);
+	      book1D(ib, histo, digiAmpWide);
 	   }
         }
 
@@ -294,7 +295,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         book2D(ib, histo, nbin, digiAmp);
         if(hep17_ == "yes" && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_HEP17");
-           book2D(ib, histo, nbin, digiAmp);
+           book2D(ib, histo, nbin, digiAmpWide);
 	}
 
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
