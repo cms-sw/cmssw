@@ -318,7 +318,7 @@ void ApertureHistogramsEntity::AllocateHistograms(ApertureAnalysisConf &conf) {
 	debug_thx_thy_oryginal_dist = TH2F(name.c_str(), name.c_str(), 100, 0, 1e-6,
 			100, 0, 1e-6);
 	debug_thx_thy_oryginal_dist.SetDirectory(0);
-	debug_thx_thy_oryginal_dist.SetBit(TH2::kCanRebin);
+	debug_thx_thy_oryginal_dist.SetCanExtend(TH2::kAllAxes);
 	debug_thx_thy_oryginal_dist.SetXTitle("#Theta_{x} [rad]");
 	debug_thx_thy_oryginal_dist.SetYTitle("#Theta_{y} [rad]");
 
@@ -326,14 +326,14 @@ void ApertureHistogramsEntity::AllocateHistograms(ApertureAnalysisConf &conf) {
 	debug_x_y_oryginal_dist = TH2F(name.c_str(), name.c_str(), 100, 0, 1e-6,
 			100, 0, 1e-6);
 	debug_x_y_oryginal_dist.SetDirectory(0);
-	debug_x_y_oryginal_dist.SetBit(TH2::kCanRebin);
+	debug_x_y_oryginal_dist.SetCanExtend(TH2::kAllAxes);
 	debug_x_y_oryginal_dist.SetXTitle("x [m]");
 	debug_x_y_oryginal_dist.SetYTitle("y [m]");
 
 	name = aperture_name_ + std::string("_19_debug_xi_oryginal_dist");
 	debug_xi_oryginal_dist = TH1F(name.c_str(), name.c_str(), 100, 0, 1e-6);
 	debug_xi_oryginal_dist.SetDirectory(0);
-	debug_xi_oryginal_dist.SetBit(TH1::kCanRebin);
+	debug_xi_oryginal_dist.SetCanExtend(TH1::kAllAxes);
 	debug_xi_oryginal_dist.SetXTitle("#xi");
 	debug_xi_oryginal_dist.SetYTitle("Entries");
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include "TROOT.h"
+#include "TMath.h"
 #include <boost/shared_ptr.hpp>
 #include "CurrentMemoryUsage.h"
 
@@ -629,7 +630,7 @@ void LHCOpticsApproximator::AllocateErrorHists(TH1D *err_hists[4])
     err_hists[i]->SetXTitle(error_labels[i].c_str());
     err_hists[i]->SetYTitle("counts");
     err_hists[i]->SetDirectory(0);
-    err_hists[i]->SetBit(TH1::kCanRebin);
+    err_hists[i]->SetCanExtend(TH1::kAllAxes);
   }
 }
 
@@ -710,7 +711,7 @@ void LHCOpticsApproximator::AllocateErrorInputCorHists(TH2D *err_inp_cor_hists[4
       err_inp_cor_hists[eri][dati]->SetXTitle(error_labels[eri].c_str());
       err_inp_cor_hists[eri][dati]->SetYTitle(data_labels[dati].c_str());
       err_inp_cor_hists[eri][dati]->SetDirectory(0);
-      err_inp_cor_hists[eri][dati]->SetBit(TH2::kCanRebin);
+      err_inp_cor_hists[eri][dati]->SetCanExtend(TH2::kAllAxes);
     }
   }
 }
@@ -741,7 +742,7 @@ void LHCOpticsApproximator::AllocateErrorOutputCorHists(TH2D *err_out_cor_hists[
       err_out_cor_hists[eri][dati]->SetXTitle(error_labels[eri].c_str());
       err_out_cor_hists[eri][dati]->SetYTitle(data_labels[dati].c_str());
       err_out_cor_hists[eri][dati]->SetDirectory(0);
-      err_out_cor_hists[eri][dati]->SetBit(TH2::kCanRebin);
+      err_out_cor_hists[eri][dati]->SetCanExtend(TH2::kAllAxes);
     }
   }
 }

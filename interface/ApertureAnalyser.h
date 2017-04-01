@@ -163,7 +163,7 @@ class ApertureAnalyser
     
     std::vector<ApertureTrackInfo> aperture_tracks_;
     std::vector<ApertureTrackInfo> target_tracks_;
-    fstream out_file_;
+    std::fstream out_file_;
     
     std::vector<ApertureHistogramsEntity> aperture_hists_;
     std::vector<ApertureHistogramsEntity> all_aperture_hists_;

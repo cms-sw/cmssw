@@ -286,7 +286,7 @@ void FitData::readLost(std::string name) {
 
 void FitData::writeIn(std::string name) {
 	long int i;
-	ofstream ofs;
+	std::ofstream ofs;
 	std::string form2 = "%hd %le %le %le %le %le";
 	char ln2[200];
 	ofs.open(name.c_str(), std::ios_base::app);
@@ -305,7 +305,7 @@ void FitData::writeIn(std::string name) {
 
 void FitData::writeOut(std::string name) {
 	long int i;
-	ofstream ofs;
+	std::ofstream ofs;
 	std::string form2 = "%hd %le %le %le %le %le";
 	char ln2[200];
 	ofs.open(name.c_str(), std::ios_base::app);

@@ -3,6 +3,7 @@
 #include <fstream>
 #include "TTree.h"
 #include "TFile.h"
+#include "TMath.h"
 
 
 #include "TMultiDimFet.h"
@@ -68,7 +69,7 @@ struct Parametisation_configuration
   std::vector<Parametisation_aperture_configuration> inter_planes;
 };
 
-ostream & operator<<(ostream &s, const Parametisation_configuration &c);
+std::ostream & operator<<(std::ostream &s, const Parametisation_configuration &c);
 
 
 struct Parametisation_aperture_configuration
@@ -89,7 +90,7 @@ struct Parametisation_aperture_configuration
   bool common_terms;
 };
 
-ostream & operator<<(ostream &s, const Parametisation_aperture_configuration &c);
+std::ostream & operator<<(std::ostream &s, const Parametisation_aperture_configuration &c);
 
 
 class MADParamGenerator

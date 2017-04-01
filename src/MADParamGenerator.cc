@@ -1876,7 +1876,7 @@ void MADParamGenerator::IdentifyAperturesForAll(int dist_type) {
 	}
 }
 
-ostream & operator<<(ostream &s, const Parametisation_configuration &c) {
+std::ostream & operator<<(std::ostream &s, const Parametisation_configuration &c) {
 	s << "base_mad_conf_file " << c.base_mad_conf_file << std::endl;
 	s << "processed_mad_conf_file " << c.processed_mad_conf_file << std::endl;
 	s << "from_marker_name " << c.from_marker_name << std::endl;
@@ -1928,7 +1928,7 @@ ostream & operator<<(ostream &s, const Parametisation_configuration &c) {
 	s << "inter_planes " << c.inter_planes.size() << std::endl;
 }
 
-ostream & operator<<(ostream &s,
+std::ostream & operator<<(std::ostream &s,
 		const Parametisation_aperture_configuration &c) {
 	s << "to_marker_name " << c.to_marker_name << std::endl;
 	s << "ap_type " << c.ap_type << std::endl;
