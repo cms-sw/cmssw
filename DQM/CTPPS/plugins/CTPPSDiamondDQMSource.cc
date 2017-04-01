@@ -33,12 +33,9 @@
 #include <string>
 
 #include "TRandom3.h"
-const double SEC_PER_LUMI_SECTION = 23.31;
-const double HPTDC_BIN_WIDTH = 25e-9/1024;
 
 //----------------------------------------------------------------------------------------------------
 
- 
 class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 {
   public:
@@ -54,6 +51,8 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     void endRun( const edm::Run&, const edm::EventSetup& );
 
   private:
+    static const double SEC_PER_LUMI_SECTION;
+    static const double HPTDC_BIN_WIDTH;
 
     edm::EDGetTokenT< edm::DetSetVector<TotemVFATStatus> > tokenStatus_;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > tokenLocalTrack_;
@@ -72,10 +71,10 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to the whole system
     struct GlobalPlots
     {
-      MonitorElement *h_trackCorr_hor = NULL;
+      MonitorElement* h_trackCorr_hor = NULL;
 
-      GlobalPlots() {};
-      GlobalPlots(DQMStore::IBooker &ibooker);
+      GlobalPlots() {}
+      GlobalPlots( DQMStore::IBooker& ibooker );
     };
 
     GlobalPlots globalPlot_;
@@ -105,7 +104,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       MonitorElement* ec_check = NULL;
 
       MonitorElement* error_flags_cumulative = NULL;
-      
+
       MonitorElement* clock_Digi1_le = NULL;
       MonitorElement* clock_Digi1_te = NULL;
       MonitorElement* clock_Digi3_le = NULL;
@@ -117,7 +116,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 
     std::map<unsigned int, PotPlots> potPlots_;
     int diff_tmp_582_, diff_tmp_583_;
-    
+
     /// plots related to one Diamond plane
     struct PlanePlots
     {
@@ -134,7 +133,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     };
 
     std::map<unsigned int, PlanePlots> planePlots_;
-    
+
     /// plots related to one Diamond channel
     struct ChannelPlots
     {
@@ -150,7 +149,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       MonitorElement* channel_ec_check = NULL;
       unsigned long hitsCounterPerLumisection;
 
-      ChannelPlots() : hitsCounterPerLumisection(0) {}
+      ChannelPlots() : hitsCounterPerLumisection( 0 ) {}
       ChannelPlots( DQMStore::IBooker &ibooker, unsigned int id );
     };
 
@@ -159,19 +158,24 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker)
-{
-  ibooker.setCurrentFolder("CTPPS");
+const double CTPPSDiamondDQMSource::SEC_PER_LUMI_SECTION = 23.31;
+const double CTPPSDiamondDQMSource::HPTDC_BIN_WIDTH = 25e-9/1024;
 
-  h_trackCorr_hor = ibooker.book2D("track correlation all hor", "rp, all, hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
-  TH2F *hist = h_trackCorr_hor->getTH2F();
-  TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-  xa->SetBinLabel(6, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
-  xa->SetBinLabel(5, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
-  xa->SetBinLabel(4, "45, 220, cyl"); ya->SetBinLabel(3, "45, 220, cyl");
-  xa->SetBinLabel(3, "56, 210, near"); ya->SetBinLabel(4, "56, 210, near");
-  xa->SetBinLabel(2, "56, 210, far"); ya->SetBinLabel(5, "56, 210, far");
-  xa->SetBinLabel(1, "56, 220, cyl"); ya->SetBinLabel(6, "56, 220, cyl");
+//----------------------------------------------------------------------------------------------------
+
+CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots( DQMStore::IBooker& ibooker )
+{
+  ibooker.setCurrentFolder( "CTPPS" );
+
+  h_trackCorr_hor = ibooker.book2D( "track correlation all hor", "rp, all, hor", 6, -0.5, 5.5, 6, -0.5, 5.5 );
+  TH2F* hist = h_trackCorr_hor->getTH2F();
+  TAxis* xa = hist->GetXaxis(), *ya = hist->GetYaxis();
+  xa->SetBinLabel( 6, "45, 210, near" ); ya->SetBinLabel( 1, "45, 210, near" );
+  xa->SetBinLabel( 5, "45, 210, far" );  ya->SetBinLabel( 2, "45, 210, far" );
+  xa->SetBinLabel( 4, "45, 220, cyl" );  ya->SetBinLabel( 3, "45, 220, cyl" );
+  xa->SetBinLabel( 3, "56, 210, near" ); ya->SetBinLabel( 4, "56, 210, near" );
+  xa->SetBinLabel( 2, "56, 210, far" );  ya->SetBinLabel( 5, "56, 210, far" );
+  xa->SetBinLabel( 1, "56, 220, cyl" );  ya->SetBinLabel( 6, "56, 220, cyl" );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -199,7 +203,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 
   hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 9, -0.5, 4, 190, -1, 18 );
   hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 60, 0, 18 );
-  activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5);
+  activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5 );
 
   trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 95, -1, 18 );
   trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 60, 0, 18 );
@@ -216,21 +220,21 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   leadingEdgeCumulativePot = ibooker.book1D( "leading edge", title+" leading edge;leading edge (ns)", 201, -100, 100 );
   timeOverThresholdCumulativePot = ibooker.book1D( "time over threshold", title+" time over threshold;time over threshold (ns)", 201, -100, 100 );
   leadingTrailingCorrelationPot = ibooker.book2D( "leading trailing correlation", title+" leading trailing correlation;leading edge (ns);trailing edge (ns)", 201, -100, 100, 201, -100, 100 );
-  
+
   leading_without_trailing_cumulative_pot = ibooker.book1D( "leading edges without trailing", title+" leading edges without trailing;leading edges without trailing", 4, 0.5, 4.5 );
   leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel( 1, "Nothing" );
-  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(2, "Leading only");
-  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(3, "Trailing only");
-  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel(4, "Both");
+  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel( 2, "Leading only" );
+  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel( 3, "Trailing only" );
+  leading_without_trailing_cumulative_pot->getTH1F()->GetXaxis()->SetBinLabel( 4, "Both" );
 
-  ec_check = ibooker.book1D("optorxEC(8bit) - vfatEC", title+" EC Error;optorxEC-vfatEC",512,-256,256);
+  ec_check = ibooker.book1D( "optorxEC(8bit) - vfatEC", title+" EC Error;optorxEC-vfatEC", 512, -256, 256 );
 
   error_flags_cumulative = ibooker.book1D( "HPTDC Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index ) 
     error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( error_index, HPTDCErrorFlags::getHPTDCErrorName( error_index-1 ).c_str() );
   error_flags_cumulative->getTH1F()->GetXaxis()->SetBinLabel( 16, "MH" );
-  
-  
+
+
   ibooker.setCurrentFolder( path+"/clock/" );
   clock_Digi1_le = ibooker.book1D( "clock1 leading edge", title+" clock1;leading edge (ns)", 201, -100, 100 );
   clock_Digi1_te = ibooker.book1D( "clock1 trailing edge", title+" clock1;trailing edge (ns)", 201, -100, 100 );
@@ -288,7 +292,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
   stripTomography_far = ibooker.book2D( "tomography far", "tomography with strips far;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
   stripTomography_near = ibooker.book2D( "tomography near", "tomography with strips near;x + 50 OOT (mm);y (mm)", 50, 0, 50, 150, -50, 100 );
   
-  hit_rate = ibooker.book1D("hit rate", title+"hit rate;rate (Hz)", 100, 0, 1000);
+  hit_rate = ibooker.book1D( "hit rate", title+"hit rate;rate (Hz)", 100, 0, 1000 );
 }
 
 //----------------------------------------------------------------------------------------------------
