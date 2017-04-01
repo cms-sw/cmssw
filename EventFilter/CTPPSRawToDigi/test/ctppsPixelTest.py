@@ -23,8 +23,8 @@ process.source = cms.Source("PoolSource",
 labelRawDataLikeMC = cms.untracked.bool(False),
 fileNames =  cms.untracked.vstring(
 #"file:./PixelAlive_1294_153_RAW_v3.root"
-"file:/afs/cern.ch/work/k/kas/public/PXtrees/PixelAlive_1294_151_RAW_v2.root"
-
+#"file:/afs/cern.ch/work/k/kas/public/PXtrees/PixelAlive_1294_151_RAW_v2.root"
+'root://eoscms//eos/cms/store/user/jjhollar/012017_PixelDAQTests/PixelAlive_1294_151_RAW_v2.root'
  )
 )
 
