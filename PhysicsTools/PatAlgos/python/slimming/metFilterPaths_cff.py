@@ -86,5 +86,9 @@ metFilterPathsTask = cms.Task(
     toomanystripclus53X,
     logErrorTooManyClusters,
     chargedHadronTrackResolutionFilter,
-    muonBadTrackFilter
+    muonBadTrackFilter,
+    BadChargedCandidateFilter,
+    BadPFMuonFilter,
+    BadChargedCandidateSummer16Filter,
+    BadPFMuonSummer16Filter
 )
