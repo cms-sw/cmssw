@@ -36,8 +36,8 @@ void CTPPSPixelDAQMapping::insert(const CTPPSPixelFramePosition &fp, const CTPPS
   auto it = ROCMapping.find(fp);  
   if (it != ROCMapping.end())
     {
-      cerr << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: " << endl 
-	   << "    " << ROCMapping[fp] << "," << endl << "  new: " << endl << "    " << vi << ". " << endl;
+      edm::LogError("RPix") << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: " 
+	   << "    " << ROCMapping[fp] << ","  << "  new: "  << "    " << vi << ". ";
     }
 
   ROCMapping[fp] = vi;

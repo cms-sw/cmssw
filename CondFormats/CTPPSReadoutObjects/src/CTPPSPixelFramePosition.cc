@@ -27,7 +27,7 @@ std::ostream& operator << (std::ostream& s, const CTPPSPixelFramePosition &fp)
 
 void CTPPSPixelFramePosition::printXML()
 {
-  cout << "\" FEDId=\"" << getFEDId()
+  edm::LogInfo("printXML") << "\" FEDId=\"" << getFEDId()
        << "\" FMCId=\"" << getFMCId()
        << "\" ChannelIdx=\"" << getChannelIdx()
        << "\" ROC=\"" << getROC()
