@@ -1,27 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import me0PreRecoDigiCommonParameters
-
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
-    inputCollection = cms.string('simMuonME0Digis'),
-    timeResolution = cms.double(5), # in ns
-    minBunch = cms.int32(-5),
-    maxBunch = cms.int32(3),
-    smearTiming = cms.bool(True),
-    discretizeTiming = cms.bool(True),
-    radialResolution = cms.double(0.02), # in cm average resolution along radial
-    smearRadial = cms.bool(True),
-    oldXResolution = cms.double(0.00),
-    oldYResolution = cms.double(0.00),
-    newXResolution = cms.double(0.03),
-    newYResolution = cms.double(2.50),
-    discretizeX = cms.bool(False),
-    discretizeY = cms.bool(True),
-    verbose = cms.bool(False),
-    reDigitizeOnlyMuons = cms.bool(False),
-    reDigitizeNeutronBkg = cms.bool(True),
-    rateFact = me0PreRecoDigiCommonParameters.rateFact, # This must be synchronized with the default digitizer
-    instLumiDefault = me0PreRecoDigiCommonParameters.instLumi, # This must be synchronized with the default digitizer
-    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1
+    inputCollection    =cms.string('simMuonME0Digis'),
+    useBuiltinGeo      =cms.bool(True),   #Use CMSSW defined geometry for digitization, not custom strips and paritions
+    numberOfStrips     =cms.uint32(384), # If use custom: number of strips per partition                                             
+    numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
+    neutronAcceptance  =cms.double(2.0),   # fraction of neutron events to keep in event (>= 1 means no filtering)      
+    timeResolution     =cms.double(5),   # smear time by gaussian with this sigma (in ns)....negative for no smearing 
+    minBXReadout       =cms.int32(-1),  # Minimum BX to readout                                                      
+    maxBXReadout       =cms.int32(1), # Maximum BX to readout
+    layerReadout       =cms.vint32(1,1,1,1,1,1), # Don't readout layer if entry is 0 (Layer number 1 (near IP) in the numbering scheme is idx 0)                                                                                                       
+    mergeDigis         =cms.bool(True),   # Keep only one digi at the same chamber, strip, partition, and BX           
 )
