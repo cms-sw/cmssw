@@ -16,8 +16,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronNHitSeedFwd.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
@@ -109,7 +109,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     }else{ 
       for(reco::GsfTrackCollection::const_iterator trkIt =gsfTracksHandle->begin();trkIt!=gsfTracksHandle->end();++trkIt){
 	edm::RefToBase<TrajectorySeed> seed = trkIt->extra()->seedRef() ;
-	reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>() ;
+	reco::ElectronNHitSeedRef elseed = seed.castTo<reco::ElectronNHitSeedRef>() ;
 	edm::RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster() ;
 	reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>() ;
 	if(scRefFromTrk==scRef){
