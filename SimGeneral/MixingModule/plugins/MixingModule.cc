@@ -219,6 +219,9 @@ namespace edm {
     std::vector<std::string> digiNames = digiPSet.getParameterNames();
     for(auto const& digiName : digiNames) {
         ParameterSet const& pset = digiPSet.getParameterSet(digiName);
+	if(pset.existsAs<edm::InputTag>("HepMCProductLabel")) {
+	  consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCProductLabel"));
+	}
         std::auto_ptr<DigiAccumulatorMixMod> accumulator = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
         if(accumulator.get() != 0) {

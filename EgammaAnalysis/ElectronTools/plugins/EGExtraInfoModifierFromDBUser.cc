@@ -514,8 +514,11 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
   // std::cout << mean << " " << sigma << " ";
   // std::cout << std::endl;
 
-
-  // Correct the energy
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
+    
   const double ecor = mean*(raw_energy + raw_es_energy);
   const double sigmacor = sigma*ecor;
   
@@ -583,6 +586,11 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
     // std::cout << mean_trk << " " << sigma_trk << std::endl;
     
     // Final correction
+    // A negative energy means that the correction went
+    // outside the boundaries of the training. In this case uses raw.
+    // The resolution estimation, on the other hand should be ok.
+    if (mean_trk < 0.) mean_trk = 1.0;
+
     combinedEnergy = mean_trk*rawcomb;
     combinedEnergyError = sigma_trk*rawcomb;
   }
@@ -728,7 +736,11 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::Photon& pho) const {
   //   for (size_t i=0; i<4; i++) std::cout << meanoffset + meanscale*vdt::fast_sin(ph_forestH_mean_[i]->GetResponse(eval.data())) << " "; 
   //   std::cout << std::endl;
 
-  // Correct the energy
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
+
   const double ecor = mean*(raw_energy + raw_es_energy);
   const double sigmacor = sigma*ecor;
   
