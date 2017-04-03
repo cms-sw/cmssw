@@ -38,8 +38,8 @@ class EcalLaserCorrFilter : public edm::global::EDFilter<> {
 
     virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
-    edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
-    edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
+    const edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
+    const edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
 
     // thresholds to laser corr to set kPoorCalib
     const double EBLaserMIN_, EELaserMIN_, EBLaserMAX_, EELaserMAX_, EBEnegyMIN_, EEEnegyMIN_;
