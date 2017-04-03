@@ -63,6 +63,7 @@ void MillePedeFileReader
         iss >> trash >> trash >> Nrec_;
 
         if (Nrec_ < theThresholds_->getNrecords() ) {
+	  edm::LogInfo("MillePedeFileReader")<<"Number of records used "<<theThresholds_->getNrecords()<<std::endl;
           updateDB_   = false;
         }
       }
@@ -156,6 +157,15 @@ void MillePedeFileReader
         } else {
           continue;
         }
+
+	edm::LogVerbatim("MillePedeFileReader")<<" alignableLabel: "<< alignableLabel <<" with index "<<alignableIndex 
+					       <<" for detLabel: "<<detLabel<<" ("<<detIndex<<")\n"
+					       <<" has movement: "<<ObsMove<<" +/- "<<ObsErr<<"\n"
+					       <<" cutoff (cutoffs_["<<detLabel<<"]["<<alignableIndex<<"]): "<<  cutoffs_[detLabel][alignableIndex] <<"\n"  
+					       <<" significance (significances_["<<detLabel<<"]["<<alignableIndex<<"]): "<<  significances_[detLabel][alignableIndex] <<"\n"
+					       <<" error thresolds (errors_["<<detLabel<<"]["<<alignableIndex<<"]): "<< errors_[detLabel][alignableIndex] <<"\n"
+					       <<" max movement (thresholds_["<<detLabel<<"]["<<alignableIndex<<"]): "<< thresholds_[detLabel][alignableIndex] <<"\n"
+					       <<"============="<< std::endl;
 
         if (std::abs(ObsMove) > thresholds_[detLabel][alignableIndex]) {
           updateDB_    = false;
