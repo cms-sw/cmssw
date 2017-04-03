@@ -14,13 +14,12 @@
 
 
 // include files
-#include <iostream>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -193,9 +192,9 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventS
     // print some debug info
 
     if (debug_) {
-      std::cout << "EEBadScFilter.cc:  SCID=" <<  *scit << std::endl;
-      std::cout << "EEBadScFilter.cc:  ix=" << ix << " iy=" << iy << " iz=" << iz << std::endl;
-      std::cout << "EEBadScFilter.cc:  Et(5x5)=" << totEt << " nbadhits=" << nhits << std::endl;
+      edm::LogInfo("EEBadScFilter") << "SCID=" <<  *scit;
+      edm::LogInfo("EEBadScFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
+      edm::LogInfo("EEBadScFilter") << "Et(5x5)=" << totEt << " nbadhits=" << nhits;
     }
 
 
@@ -208,7 +207,7 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventS
   }
 
   // print the decision if event is bad
-  if (pass==false && debug_) std::cout << "EEBadScFilter.cc:  REJECT EVENT!!!" << std::endl;
+  if (pass==false && debug_) edm::LogInfo("EEBadScFilter") << "REJECT EVENT!!!";
 
 
   iEvent.put(std::make_unique<bool>(pass));

@@ -35,6 +35,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Use for HBHERecHitCollection
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -169,7 +170,7 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 
    bool filterDecision=true;
 
-   if (debug_) std::cout <<"<HcalLaserEventFilter> Run = "<<iEvent.id().run()<<" Event = "<<iEvent.id().event()<<std::endl;
+   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter> Run = "<<iEvent.id().run()<<" Event = "<<iEvent.id().event();
 
    // Veto events by run/event numbers
    if (vetoByRunEventNumber_)
@@ -179,7 +180,7 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 	   if (iEvent.id().run()==RunEventData_[i].first &&
 	       iEvent.id().event()==RunEventData_[i].second)
 	     {
-	       if (debug_) std::cout<<"\t<HcalLaserEventFilter> Filtering bad event;  Run "<<iEvent.id().run()<<" Event = "<<iEvent.id().event()<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter")<<"\t<HcalLaserEventFilter> Filtering bad event;  Run "<<iEvent.id().run()<<" Event = "<<iEvent.id().event();
 	       filterDecision=false;
 	       break;
 	     }
@@ -206,16 +207,16 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 	   edm::Handle<HBHERecHitCollection> hbheRecHits;
 	   if (iEvent.getByToken(hbheToken_,hbheRecHits))
 	     {
-	       if (debug_) std::cout <<"Rechit size = "<<hbheRecHits->size()<<"  threshold = "<<minOccupiedHBHE_<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"Rechit size = "<<hbheRecHits->size()<<"  threshold = "<<minOccupiedHBHE_;
 	       if (hbheRecHits->size()>=minOccupiedHBHE_)
 		 {
-		   if (debug_) std::cout <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size; "<<hbheRecHits->size()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_<<std::endl;
+		   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size; "<<hbheRecHits->size()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_;
 		   filterDecision=false;
 		 }
 	     }
 	   else
 	     {
-	       if (debug_) std::cout <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found"<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HBHERecHitCollection with label '"<<hbheInputLabel_<<"' found";
 	     }
 	 }
 
@@ -229,16 +230,16 @@ HcalLaserEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 	   Handle<HcalNoiseSummary> hSummary;
 	   if (iEvent.getByToken(hcalNoiseSummaryToken_,hSummary)) // get by label, usually with label 'hcalnoise'
 	     {
-	       if (debug_)  std::cout << " RECHIT SIZE (from HcalNoiseSummary) = "<<hSummary->GetRecHitCount()<<"  threshold = "<<minOccupiedHBHE_<<std::endl;
+	       if (debug_)  edm::LogInfo("HcalLaserEventFilter") << " RECHIT SIZE (from HcalNoiseSummary) = "<<hSummary->GetRecHitCount()<<"  threshold = "<<minOccupiedHBHE_;
 	       if (hSummary->GetRecHitCount() >= (int)minOccupiedHBHE_)
 		 {
-		   if (debug_) std::cout <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size in HcalNoiseSummary; "<<hSummary->GetRecHitCount()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_<<std::endl;
+		   if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter>  Filtering because of large HBHE rechit size in HcalNoiseSummary; "<<hSummary->GetRecHitCount()<<" rechits is greater than or equal to the allowed maximum of "<<minOccupiedHBHE_;
 		   filterDecision=false;
 		 }
 	     }
 	   else
 	     {
-	       if (debug_) std::cout <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found"<<std::endl;
+	       if (debug_) edm::LogInfo("HcalLaserEventFilter") <<"<HcalLaserEventFilter::Error> No valid HcalNoiseSummary with label '"<<hcalNoiseSummaryLabel_<<"' found";
 	     }
 	 }
      }// if (vetoByHBHEOccupancy_)

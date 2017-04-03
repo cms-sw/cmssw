@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
@@ -99,11 +100,11 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::
     if( energy>EEEnegyMIN_ && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_) ) {
       goodCalib = false;
       if(debug_) {
-	std::cout << "RecHit EE "
+         edm::LogInfo("EcalLaserCorrFilter")
+          << "RecHit EE "
 		  << iEvent.id().run()<< ":" << iEvent.luminosityBlock() <<":"<<iEvent.id().event()
 		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time
-		  << " ix, iy, z = " << jx << " " << jy  << " " << jz
-		  << std::endl;
+		  << " ix, iy, z = " << jx << " " << jy  << " " << jz;
       }
     }
 
@@ -128,11 +129,11 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::
     if (energy>EBEnegyMIN_ && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_) ) {
       goodCalib = false;
       if(debug_) {
-	std::cout << "RecHit EB "
+          edm::LogInfo("EcalLaserCorrFilter")
+          << "RecHit EB "
 		  << iEvent.id().run()<< ":" << iEvent.luminosityBlock() <<":"<<iEvent.id().event()
 		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time
-		  << " eta, phi, z = " << etarec << " " << phirec  << " " << zrec
-		  << std::endl;
+		  << " eta, phi, z = " << etarec << " " << phirec  << " " << zrec;
       }
     }
     //if (!goodCalib) break;
@@ -140,7 +141,6 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::
 
 
   bool result = goodCalib;
-  //std::cout << " *********** Result ******** " << result << std::endl;
 
   iEvent.put(std::make_unique<bool>(result));
 
