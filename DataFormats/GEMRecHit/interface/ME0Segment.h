@@ -26,10 +26,10 @@ class ME0Segment final : public RecSegment {
 	
   /// Constructor
   ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	     const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2);
+	     const LocalVector& direction, const AlgebraicSymMatrix& errors, float chi2);
 
   ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	     const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, float time, float timeErr, float deltaPhi);
+	     const LocalVector& direction, const AlgebraicSymMatrix& errors, float chi2, float time, float timeErr, float deltaPhi);
   
   /// Destructor
   virtual ~ME0Segment();
@@ -83,7 +83,7 @@ class ME0Segment final : public RecSegment {
   LocalPoint theOrigin;            // in chamber frame - the GeomDet local coordinate system
   LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
   AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-  double theChi2;                  // the Chi squared of the segment fit
+  float theChi2;                   // the Chi squared of the segment fit
   float theTimeValue;              // the best time estimate of the segment
   float theTimeUncrt;              // the uncertainty on the time estimation
   float theDeltaPhi;               // Difference in segment phi position: outer layer - inner lay
