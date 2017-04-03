@@ -56,9 +56,7 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
             setupFunction(process,item,patProducer,addUserData,task)
 
 # Supported data formats defined via "enum"
-class DataFormat:
-    AOD     = 1
-    MiniAOD = 2
+from PhysicsTools.SelectorUtils.tools.auxiliary_cff import DataFormat
 
 ####
 # Electrons
@@ -158,10 +156,10 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
-    process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
-    if task is not None:
-        task.add(process.egmPhotonIDTask)
+from RecoEgamma.PhotonIdentification.egmPhotonIDs_cff import  LoadEgmIdSequence
+def switchOnVIDPhotonIdProducer(process, dataFormat):
+    # Set up the ID sequence appropriate for this data format
+    LoadEgmIdSequence(process,dataFormat)
     #*always* reset to an empty configuration
     if( len(process.egmPhotonIDs.physicsObjectIDs) > 0 ):
         process.egmPhotonIDs.physicsObjectIDs = cms.VPSet()
@@ -174,6 +172,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
         # name appropriately, for the fragment we just loaded above. 
         process.egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
         dataFormatString = "MiniAOD"
+        
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
