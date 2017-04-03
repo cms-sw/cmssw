@@ -1042,8 +1042,7 @@ namespace gbl {
         // transformation local track to fit parameters
         matLocalToFit = matFitToLocal.inverse();
         // transformation external to fit parameters at inner (first) point
-        innerTransDer.emplace_back(std::move(
-                                             matLocalToFit * innerTransformations[iTraj]));
+        innerTransDer.emplace_back(matLocalToFit * innerTransformations[iTraj]);
         innerTransLab.push_back(firstLabels);
       }
     }
