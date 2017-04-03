@@ -20,7 +20,7 @@ namespace {
 
   class BasicPayload_data1 : public cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float> {
   public:
-    BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
+    BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Run-based Trend", "data0"){
     }
 
     float getFromPayload( cond::BasicPayload& payload ){
@@ -30,7 +30,7 @@ namespace {
 
   class BasicPayload_data2 : public cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float> {
   public:
-    BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
+    BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Time-based Trend", "data0"){
     }
 
     float getFromPayload( cond::BasicPayload& payload ){
