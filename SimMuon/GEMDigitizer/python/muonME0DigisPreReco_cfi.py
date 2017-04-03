@@ -23,7 +23,7 @@ me0PreRecoDigiCommonParameters = cms.PSet(
     minBunch = cms.int32(-5),                   # [x 25 ns], forms the readout window together with maxBunch,
     maxBunch = cms.int32(3),                    # we should think of shrinking this window ...
     instLumi = gemDigiCommonParameters.instLumi,# in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
-    rateFact = gemDigiCommonParameters.rateFact,# We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizers
+    rateFact = gemDigiCommonParameters.rateFact,# We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
     mixLabel = cms.string('mix'),
 )
 
