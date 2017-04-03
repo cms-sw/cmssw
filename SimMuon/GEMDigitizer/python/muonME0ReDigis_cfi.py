@@ -21,7 +21,7 @@ simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     verbose = cms.bool(False),
     reDigitizeOnlyMuons = cms.bool(False),
     reDigitizeNeutronBkg = cms.bool(True),
-    rateFact = me0PreRecoDigiCommonParameters.rateFact, # This must be synchronized with the default digitizer
-    instLumiDefault = me0PreRecoDigiCommonParameters.instLumi, # This must be synchronized with the default digitizer
-    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1
+    rateFact = me0PreRecoDigiCommonParameters.rateFact, # This must be synchronized with the default ME0 digitizer
+    instLumiDefault = me0PreRecoDigiCommonParameters.instLumi, # This must be synchronized with the default ME0 digitizer
+    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1. This is the value used downstream in the ME0 simulation.
 )
