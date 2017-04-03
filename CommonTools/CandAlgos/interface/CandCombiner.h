@@ -146,15 +146,13 @@ namespace reco {
     private:
       /// process an event
       void produce(edm::Event& evt, const edm::EventSetup& es) override {
-	using namespace std;
-	using namespace reco;
 	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	vector<edm::Handle<CandidateView> > colls(n);
+	std::vector<edm::Handle<CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i)
 	  evt.getByToken(tokens_[i], colls[i]);
 
-	unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
+	std::unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
 	if(setLongLived_ || setMassConstraint_ || setPdgId_) {
 	  typename OutputCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
