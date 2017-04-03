@@ -3,43 +3,75 @@
 
 /** \class EwkElecDQM
  *
- *  DQM offline for EWK Electrons
+ *  DQM offline for EWKMu
  *
  */
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
-
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 namespace reco {
+class Muon;
 class Jet;
 class MET;
+class Vertex;
+class Photon;
 class BeamSpot;
 }
 
 class DQMStore;
 class MonitorElement;
+
 class EwkElecDQM : public DQMEDAnalyzer {
  public:
   EwkElecDQM(const edm::ParameterSet&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  double calcDeltaPhi(double phi1, double phi2);
+  void init_histograms();
 
  private:
-  //  edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
   edm::EDGetTokenT<edm::TriggerResults> trigTag_;
@@ -49,8 +81,10 @@ class EwkElecDQM : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::View<reco::Vertex> > vertexTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   bool metIncludesMuons_;
+  int FindMassBin (double MassGrid[], double Mass, const int size);
+  int FindRapBin (double RapGrid[], double Rap, const int size);
+  double calcDeltaPhi(double phi1,double phi2);
 
-  //  const std::string muonTrig_;
   const std::vector<std::string> elecTrig_;
   double ptCut_;
   double etaCut_;
@@ -60,10 +94,6 @@ class EwkElecDQM : public DQMEDAnalyzer {
   double detainCutBarrel_;
   double detainCutEndcap_;
 
-  //  bool isRelativeIso_;
-  //  bool isCombinedIso_;
-
-  //  double isoCut03_;
   double ecalIsoCutBarrel_;
   double ecalIsoCutEndcap_;
   double hcalIsoCutBarrel_;
@@ -74,127 +104,87 @@ class EwkElecDQM : public DQMEDAnalyzer {
   double mtMax_;
   double metMin_;
   double metMax_;
-  //  double acopCut_;
-
-  //  double dxyCut_;
-  //  double normalizedChi2Cut_;
-  //  int trackerHitsCut_;
-  //  bool isAlsoTrackerMuon_;
-
-  //  double ptThrForZ1_;
-  //  double ptThrForZ2_;
-
   double eJetMin_;
   int nJetMax_;
 
   // PU dependence
   unsigned int PUMax_, PUBinCount_;
 
-  bool isValidHltConfig_;
-  HLTPrescaleProvider hltPrescaleProvider_;
-
+ 
   unsigned int nall;
   unsigned int nrec;
   unsigned int neid;
   unsigned int niso;
-  /*   unsigned int nhlt; */
-  /*   unsigned int nmet; */
   unsigned int nsel;
-
-  //  unsigned int nRecoElectrons;
   unsigned int nGoodElectrons;
 
-  MonitorElement* pt_before_;
-  MonitorElement* pt_after_;
+    MonitorElement* pt_before_;
+     MonitorElement* pt_after_;
+     MonitorElement* eta_before_;
+     MonitorElement* eta_after_;
+     MonitorElement* sieiebarrel_before_;
+     MonitorElement* sieiebarrel_after_;
+     MonitorElement* sieieendcap_before_;
+     MonitorElement* sieieendcap_after_;
+     MonitorElement* detainbarrel_before_;
+     MonitorElement* detainbarrel_after_;
+     MonitorElement* detainendcap_before_;
+     MonitorElement* detainendcap_after_;
+     MonitorElement* ecalisobarrel_before_;
+     MonitorElement* ecalisobarrel_after_;
+     MonitorElement* ecalisoendcap_before_;
+     MonitorElement* ecalisoendcap_after_;
+     MonitorElement* hcalisobarrel_before_;
+     MonitorElement* hcalisobarrel_after_;
+     MonitorElement* hcalisoendcap_before_;
+     MonitorElement* hcalisoendcap_after_;
+     MonitorElement* trkisobarrel_before_;
+     MonitorElement* trkisobarrel_after_;
+     MonitorElement* trkisoendcap_before_;
+     MonitorElement* trkisoendcap_after_;
+     MonitorElement* trig_before_;
+     MonitorElement* trig_after_;
+     MonitorElement* Phistar_;
+     MonitorElement* Phistar_after_;
+     MonitorElement* CosineThetaStar_;
+     MonitorElement* CosineThetaStar_afterZ_;
 
-  MonitorElement* eta_before_;
-  MonitorElement* eta_after_;
+     MonitorElement* CosineThetaStar_2D[3];
+     MonitorElement* CosineThetaStar_afterZ_2D[3];
+     MonitorElement* CosineThetaStar_Y_2D[3];
+     MonitorElement* CosineThetaStar_Y_afterZ_2D[3];
 
-  MonitorElement* sieiebarrel_before_;
-  MonitorElement* sieiebarrel_after_;
+     MonitorElement* deltaPhi_;
+     MonitorElement* deltaPhi_afterZ_;
 
-  MonitorElement* sieieendcap_before_;
-  MonitorElement* sieieendcap_after_;
-
-  MonitorElement* detainbarrel_before_;
-  MonitorElement* detainbarrel_after_;
-
-  MonitorElement* detainendcap_before_;
-  MonitorElement* detainendcap_after_;
-
-  /*   MonitorElement* dxy_before_; */
-  /*   MonitorElement* dxy_after_; */
-
-  /*   MonitorElement* chi2_before_; */
-  /*   MonitorElement* chi2_after_; */
-
-  /*   MonitorElement* nhits_before_; */
-  /*   MonitorElement* nhits_after_; */
-
-  /*   MonitorElement* tkmu_before_; */
-  /*   MonitorElement* tkmu_after_; */
-
-  MonitorElement* ecalisobarrel_before_;
-  MonitorElement* ecalisobarrel_after_;
-
-  MonitorElement* ecalisoendcap_before_;
-  MonitorElement* ecalisoendcap_after_;
-
-  MonitorElement* hcalisobarrel_before_;
-  MonitorElement* hcalisobarrel_after_;
-
-  MonitorElement* hcalisoendcap_before_;
-  MonitorElement* hcalisoendcap_after_;
-
-  MonitorElement* trkisobarrel_before_;
-  MonitorElement* trkisobarrel_after_;
-
-  MonitorElement* trkisoendcap_before_;
-  MonitorElement* trkisoendcap_after_;
-
-  MonitorElement* trig_before_;
-  MonitorElement* trig_after_;
-
-  MonitorElement* invmass_before_;
-  MonitorElement* invmass_after_;
-  MonitorElement* invmassPU_before_;
-  MonitorElement* invmassPU_afterZ_;
-
-  MonitorElement* npvs_before_;
-  // MonitorElement* npvs_afterW_;
-  MonitorElement* npvs_afterZ_;
-
-  MonitorElement* nelectrons_before_;
-  MonitorElement* nelectrons_after_;
-
-  MonitorElement* mt_before_;
-  MonitorElement* mt_after_;
-
-  MonitorElement* met_before_;
-  MonitorElement* met_after_;
-
-  /*   MonitorElement* acop_before_; */
-  /*   MonitorElement* acop_after_; */
-
-  /*   MonitorElement* nz1_before_; */
-  /*   MonitorElement* nz1_after_; */
-
-  /*   MonitorElement* nz2_before_; */
-  /*   MonitorElement* nz2_after_; */
-
-  MonitorElement* njets_before_;
-  MonitorElement* njets_after_;
-  MonitorElement* jet_et_before_;
-  MonitorElement* jet_et_after_;
-  MonitorElement* jet_eta_before_;
-  MonitorElement* jet_eta_after_;
-  /*   MonitorElement* jet2_et_before_; */
-  /*   MonitorElement* jet2_et_after_; */
+     MonitorElement* InVaMassJJ_;	
+     MonitorElement* InVaMassJJ_after_;
+     MonitorElement* invmass_before_;
+     MonitorElement* invpt_before_;
+     MonitorElement* invmass_after_;
+     MonitorElement* invpt_after_;
+     MonitorElement* invmassPU_before_;
+     MonitorElement* invmassPU_afterZ_;
+     MonitorElement* npvs_before_;
+     MonitorElement* npvs_afterZ_;
+     MonitorElement* nelectrons_before_;
+     MonitorElement* nelectrons_after_;
+     MonitorElement* mt_before_;
+     MonitorElement* mt_after_;
+     MonitorElement* met_before_;
+     MonitorElement* met_after_;
+     MonitorElement* njets_before_;
+     MonitorElement* njets_after_;
+     MonitorElement* jet_et_before_;
+     MonitorElement* jet_et_after_;
+     MonitorElement* jet2_et_before_;
+     MonitorElement* jet2_et_after_;
+     MonitorElement* jet3_et_before_;
+     MonitorElement* jet3_et_after_;
+     MonitorElement* jet_eta_before_;
+     MonitorElement* jet_eta_after_;
+  
+  const int ZMassBins = 4;
+  double ZMassGrid[4] = {60,80,100,120};
 };
-
 #endif
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
