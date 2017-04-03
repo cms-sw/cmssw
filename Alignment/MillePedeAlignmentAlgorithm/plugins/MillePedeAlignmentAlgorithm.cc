@@ -129,6 +129,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
 //____________________________________________________
 MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 {
+  delete theThresholds;
 }
 
 // Call at beginning of job ---------------------------------------------------
@@ -205,6 +206,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     theThresholds = thresholdHandle.product();
   } else {
     theThresholds = new AlignPCLThresholds();
+    edm::LogInfo("MillePedeAlignmentAlgorithm")<<"Creating a fake AlignPCLThresholds objects. Irrelevant since the running mode is not PCL"<<std::endl;
   }
 
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
@@ -341,12 +343,12 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
   if (isMode(myPedeRunBit)) {
     if (runAtPCL_) {
 
-      auto myThresholds = new AlignPCLThresholds();
+      auto myThresholds = std::unique_ptr<AlignPCLThresholds>(new AlignPCLThresholds());
       myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
 
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
 				   thePedeLabels,
-				   std::shared_ptr<const AlignPCLThresholds>(myThresholds));
+				   std::shared_ptr<const AlignPCLThresholds>(myThresholds.get()));
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
