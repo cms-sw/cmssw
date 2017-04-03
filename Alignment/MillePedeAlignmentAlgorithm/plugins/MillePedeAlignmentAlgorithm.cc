@@ -129,7 +129,6 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
 //____________________________________________________
 MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 {
-  delete theThresholds;
 }
 
 // Call at beginning of job ---------------------------------------------------
@@ -357,6 +356,9 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
   } else {
     return false;
   }
+
+  delete theThresholds;
+
 }
 
 //____________________________________________________

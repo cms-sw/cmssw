@@ -40,6 +40,9 @@ class MillePedeFileReader {
     const std::array<double, 6>& getZobsErr()  const { return ZobsErr_;  }
     const std::array<double, 6>& getTZobs()    const { return tZobs_;    }
     const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
+  
+    const AlignPCLThresholds::threshold_map& getTheThresolds() const { return theThresholds_.get()->getThreshold_Map(); }
+
 
   private:
   //========================= PRIVATE ENUMS ====================================
@@ -99,7 +102,7 @@ class MillePedeFileReader {
     std::array<double, 6> ZobsErr_  = {{0.,0.,0.,0.,0.,0.}};
     std::array<double, 6> tZobs_    = {{0.,0.,0.,0.,0.,0.}};
     std::array<double, 6> tZobsErr_ = {{0.,0.,0.,0.,0.,0.}};
-
+  
 };
 
 #endif /* ALIGNMENT_MILLEPEDEALIGNMENTALGORITHM_INTERFACE_MILLEPEDEFILEREADER_H_ */

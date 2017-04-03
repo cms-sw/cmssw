@@ -81,12 +81,11 @@ void MillePedeFileReader
 {
   
   // cutoffs by coordinate and by alignable 
-  
   std::map<std::string,std::array<float, 6 > > cutoffs_; 
   std::map<std::string,std::array<float, 6 > > significances_;
   std::map<std::string,std::array<float, 6 > > thresholds_;
   std::map<std::string,std::array<float, 6 > > errors_;
-  
+
   std::vector<std::string> alignables_ = theThresholds_->getAlignableList();
   for (auto ali : alignables_){
     cutoffs_[ali]       = theThresholds_->getCut(ali);
