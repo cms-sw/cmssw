@@ -74,10 +74,14 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    debug_ = iConfig.getUntrackedParameter<bool>("debug");
 
 
-   Towerblockformatter_ = new TowerBlockFormatter;
-   TCCblockformatter_   = new TCCBlockFormatter();
-   SRblockformatter_	= new SRBlockFormatter();
-   Headerblockformatter_= new BlockFormatter;
+  // Towerblockformatter_ = new TowerBlockFormatter;
+  // TCCblockformatter_   = new TCCBlockFormatter();
+ //  SRblockformatter_	= new SRBlockFormatter();
+  // Headerblockformatter_= new BlockFormatter;
+Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this));
+   TCCblockformatter_ = std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this));
+   SRblockformatter_ = std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this));
+   Headerblockformatter_ = std::unique_ptr<BlockFormatter>(new BlockFormatter(this));
 
    produces<FEDRawDataCollection>();
 
@@ -91,10 +95,10 @@ EcalDigiToRaw::~EcalDigiToRaw()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
- delete Towerblockformatter_;
- delete TCCblockformatter_;
- delete SRblockformatter_;
- delete Headerblockformatter_;
+// delete Towerblockformatter_;
+// delete TCCblockformatter_;
+// delete SRblockformatter_;
+// delete Headerblockformatter_;
 
 }
 
@@ -115,7 +119,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const EcalElectronicsMapping* TheMapping = ecalmapping.product();
 
    Towerblockformatter_ -> StartEvent();
-   SRblockformatter_ -> StartEvent();
+   auto header = SRblockformatter_ -> StartEvent();
 
   runnumber_ = iEvent.id().run();
 
@@ -132,7 +136,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto productRawData = std::make_unique<FEDRawDataCollection>();
 
 
-  Headerblockformatter_ -> DigiToRaw(productRawData.get());
+  Headerblockformatter_ -> DigiToRaw(productRawData.get(), runnumber_, orbit_number_, bx_, lv1_);
 
 
 // ---------   Now the Trigger Block part
@@ -165,7 +169,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 	   
 	   // adding the primitive to the block
-	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping);
+	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping, bx_, lv1_);
 
      }   // end loop on ecalTrigPrim
 
@@ -193,7 +197,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 		if (debug_) Headerblockformatter_ -> print(rawdata);
-		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
+		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx_, lv1_, header);
 
            }
 	}  // end DoBarrel
@@ -214,7 +218,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
                 int FEDid = FEDNumbering::MINECALFEDID + Dccid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
+                SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx_, lv1_, header);
            }
 	}  // end doEndCap
 
@@ -238,7 +242,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int DCCid = TheMapping -> DCCid(ebdetid);
         	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
+                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx_, lv1_-1);
         }
 
 	}
@@ -254,7 +258,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 int DCCid = elid.dccId() ;   
                 int FEDid = FEDNumbering::MINECALFEDID + DCCid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
+                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx_, lv1_-1);
         }
 	}
 
@@ -290,20 +294,16 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-EcalDigiToRaw::beginJob()
-{
-	Headerblockformatter_ -> SetParam(this);
-	Towerblockformatter_  -> SetParam(this);
-	TCCblockformatter_  -> SetParam(this);
-	SRblockformatter_   -> SetParam(this);
+ void  EcalDigiToRaw::beginStream(edm::StreamID)
+ {
+ }
+//
+// // ------------ method called once each job just after ending the event loop  ------------
+ void 
+ EcalDigiToRaw::endStream() {
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalDigiToRaw::endJob() {
-}
-
+//
+//
 
 
 

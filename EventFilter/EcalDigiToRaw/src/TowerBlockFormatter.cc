@@ -12,9 +12,6 @@
 using namespace std;
 
 
-TowerBlockFormatter::TowerBlockFormatter() {
-
-}
 
 TowerBlockFormatter::~TowerBlockFormatter() {
 
@@ -23,12 +20,12 @@ TowerBlockFormatter::~TowerBlockFormatter() {
 
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
-					 const EcalElectronicsMapping* TheMapping)
+					 const EcalElectronicsMapping* TheMapping, int bx, int lv1)
 
 {
 
- int bx = *pbx_;
- int lv1 = *plv1_ - 1;
+ //int bx = *pbx_;
+ //int lv1 = *plv1_ - 1;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
@@ -400,7 +397,7 @@ void TowerBlockFormatter::StartEvent() {
 
 
 
-void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping)
+void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1)
 
 	// -- now that we have the EcalElectronicsMapping, this method could probably be
 	//    merged with DigiToRaw(EBdataframe).
@@ -409,8 +406,8 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
  // debug_ = false;
 
- int bx = *pbx_;
- int lv1 = *plv1_;
+// int bx = *pbx_;
+// int lv1 = *plv1_;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64

@@ -15,15 +15,14 @@
 
 class SRBlockFormatter : public BlockFormatter {
  public :
-
-	SRBlockFormatter();
+        SRBlockFormatter(EcalDigiToRaw* es): BlockFormatter(es) {};
 	~SRBlockFormatter();
-        void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata);
+        void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata, int bx, int lv1, std::map<int, int> header_) const;
 
-	void StartEvent();
+	std::map<int, int> StartEvent();
 
  private :
-	std::map<int, int> header_;
+	//std::map<int, int> header_;
 };
 
 
