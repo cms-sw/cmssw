@@ -66,8 +66,6 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "TTree.h"
-
 using namespace std;
 
 class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
