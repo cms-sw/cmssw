@@ -33,14 +33,13 @@ ROOTLIBS      += `$(ROOTCONF) --glibs`
 ROOTINCL      = -I`$(ROOTCONF) --incdir`
 
 
-# AFS resources - headers
-#CMSINCL       += -I/afs/cern.ch/sw/lcg/external/XercesC/2.8.0/x86_64-slc5-gcc41-opt/include
-#CMSINCL       += -I/afs/cern.ch/sw/lcg/external/clhep/2.0.4.6/x86_64-slc5-gcc41-opt/include
-#CMSINCL       += -I/opt/boost_1_36_0
+# AFS resources (lxplus6, without CMSSW env) - headers
+CMSINCL       += -I/afs/cern.ch/sw/lcg/external/XercesC/3.1.1/x86_64-slc6-gcc47-opt/include
+CMSINCL       += -I/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc48-opt/include
 
-# AFS resources - libs
-#CMSLIB        += -L/afs/cern.ch/sw/lcg/external/XercesC/2.8.0/x86_64-slc5-gcc41-opt/lib -lxerces-c -lxerces-depdom
-#CMSLIB        += -L/afs/cern.ch/sw/lcg/external/clhep/2.0.4.6/x86_64-slc5-gcc41-opt/lib -lCLHEP-2.0.4.6 -lCLHEP-Vector-2.0.4.6
+# AFS resources (lxplus6, without CMSSW env) - libs
+CMSLIB        += -L/afs/cern.ch/sw/lcg/external/XercesC/3.1.1/x86_64-slc6-gcc47-opt/lib
+CMSLIB        += -L/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc48-opt/lib -lCLHEP-2.2.0.4 -lCLHEP-Vector-2.2.0.4
 
 # local resources - libs
 CMSLIB        += -lxerces-c
@@ -50,7 +49,7 @@ CMSINCL       += $(ROOTINCL)
 
 # Linux
 CXX           = g++
-CXXFLAGS      = -O3  -fPIC  -pthread #-pedantic -Wall 
+CXXFLAGS      = -O3  -fPIC  -pthread -std=c++11 #-pedantic -Wall
 LD            = g++
 LDFLAGS       = -O3
 SOFLAGS       = -shared
@@ -103,10 +102,10 @@ LINK_OPTS = $(LDFLAGS) $(ROOTLIBS) $(CMSLIB)
 all: $(PROJECT_NEEDED_DIRECTORIES) $(PROJECT_TEST_DEP) $(PROJECT_TEST_OBJ) $(PROJ_DEPS) $(PROJECT_OBJS) \
 		$(PROJECT_TEST_BIN) library
 
-directory: $(PROJECT_NEEDED_DIRECTORIES)	
+directory: $(PROJECT_NEEDED_DIRECTORIES)
 
 library: $(MAIN_LIB_PATH)/libFit.$(DllSuf)
-	
+
 clean_deps:
 	@rm -f $(PROJECT_DEPS_READY)
 
@@ -143,7 +142,7 @@ $(MAIN_DEP_PATH)/$(CINT_OUT_FILE_BASE).$(DepSuf): $(MAIN_SRC_PATH)/$(CINT_OUT_FI
 	@rm -f $(addsuffix .$(ObjSuf), $(basename $@))
 
 
-%.$(ObjSuf): 
+%.$(ObjSuf):
 	@echo file to prepere: $@
 	$(CXX) $(COMP_OPTS) -c $(join $(patsubst %$(OBJ_SUB_DIR)/, %$(SRC_SUB_DIR)/, $(dir $@)), $(addsuffix .$(SrcSuf), $(basename $(notdir $@)))) -o $@
 
@@ -161,7 +160,7 @@ $(PROJECT_TEST_BIN): $(PROJECT_OBJS)
 	$(LD) $(LINK_OPTS) $(PROJECT_OBJS_READY) $(join $(patsubst %$(BIN_SUB_DIR)/, %$(TEST_SUB_DIR)/, $(dir $@)), $(addsuffix .$(ObjSuf), $(notdir $@))) -o $@
 
 
-$(PROJECT_TEST_OBJ): 
+$(PROJECT_TEST_OBJ):
 	@echo file to prepere: $@
 	$(CXX) $(COMP_OPTS) -c $(addsuffix .$(SrcSuf), $(basename $@)) -o $@
 

@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TMath.h>
 #include <TRandom2.h>
 #include <vector>
 #include <string>
