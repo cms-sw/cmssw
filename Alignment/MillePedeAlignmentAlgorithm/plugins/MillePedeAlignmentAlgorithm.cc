@@ -342,12 +342,12 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
   if (isMode(myPedeRunBit)) {
     if (runAtPCL_) {
 
-      auto myThresholds = std::unique_ptr<AlignPCLThresholds>(new AlignPCLThresholds());
+      auto myThresholds = new AlignPCLThresholds();
       myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
 
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
 				   thePedeLabels,
-				   std::shared_ptr<const AlignPCLThresholds>(myThresholds.get()));
+				   std::shared_ptr<const AlignPCLThresholds>(myThresholds));
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
@@ -356,9 +356,6 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
   } else {
     return false;
   }
-
-  delete theThresholds;
-
 }
 
 //____________________________________________________

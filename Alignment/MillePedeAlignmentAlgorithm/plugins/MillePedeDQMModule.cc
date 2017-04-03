@@ -43,6 +43,7 @@ MillePedeDQMModule
 MillePedeDQMModule
 ::~MillePedeDQMModule()
 {
+  delete theThresholds;
 }
 
 //=============================================================================
@@ -57,12 +58,12 @@ void MillePedeDQMModule
   booker.cd();
   booker.setCurrentFolder("AlCaReco/SiPixelAli/");
 
-  h_xPos = booker.book1D("Xpos",   "#Delta X;;#mu m", 10, 0, 10.);
-  h_xRot = booker.book1D("Xrot",   "#Delta #theta_{X};;#mu rad", 10, 0, 10.);
-  h_yPos = booker.book1D("Ypos",   "#Delta Y;;#mu m", 10, 0., 10.);
-  h_yRot = booker.book1D("Yrot",   "#Delta #theta_{Y};;#mu rad", 10, 0, 10.);
-  h_zPos = booker.book1D("Zpos",   "#Delta Z;;#mu m", 10, 0., 10.);
-  h_zRot = booker.book1D("Zrot",   "#Delta #theta_{Z};;#mu rad", 10, 0, 10.);
+  h_xPos = booker.book1D("Xpos",   "#Delta X;;#mu m", 30, 0., 30.);
+  h_xRot = booker.book1D("Xrot",   "#Delta #theta_{X};;#mu rad", 30, 0., 30.);
+  h_yPos = booker.book1D("Ypos",   "#Delta Y;;#mu m", 30, 0., 30.);
+  h_yRot = booker.book1D("Yrot",   "#Delta #theta_{Y};;#mu rad", 30, 0., 30.);
+  h_zPos = booker.book1D("Zpos",   "#Delta Z;;#mu m", 30, 0., 30.);
+  h_zRot = booker.book1D("Zrot",   "#Delta #theta_{Z};;#mu rad", 30, 0., 30.);
 
   booker.cd();
 }
@@ -102,9 +103,9 @@ void MillePedeDQMModule
 
   edm::ESHandle<AlignPCLThresholds> thresholdHandle;
   setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-  const AlignPCLThresholds* theThresholds = thresholdHandle.product();
+  theThresholds = thresholdHandle.product();
 
-  auto myThresholds = std::unique_ptr<AlignPCLThresholds>(new AlignPCLThresholds());
+  auto myThresholds = new AlignPCLThresholds();
   myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
@@ -124,7 +125,8 @@ void MillePedeDQMModule
               labelerConfig)
   };
 
-  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds.get())); 
+
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds)); 
 
 }
 
@@ -132,6 +134,7 @@ void MillePedeDQMModule
 void MillePedeDQMModule
 ::fillExpertHistos()
 {
+ 
   std::array<double, 6> Xcut_,  sigXcut_,  maxMoveXcut_,  maxErrorXcut_; 
   std::array<double, 6> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
                                                     
@@ -141,7 +144,10 @@ void MillePedeDQMModule
   std::array<double, 6> Zcut_,  sigZcut_,  maxMoveZcut_,  maxErrorZcut_; 
   std::array<double, 6> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
-  auto myMap = mpReader_->getTheThresolds();
+  auto myMap = theThresholds->getThreshold_Map(); ;
+
+  //auto myMap = mpReader_-> getTheThresolds();
+  theThresholds->printAll();
 
   std::vector<std::string> alignablesList;
   for(auto it = myMap.begin(); it != myMap.end() ; ++it){
@@ -210,23 +216,23 @@ void MillePedeDQMModule
 
   for (size_t i = 0; i < obs.size(); ++i) {
     histo_0->SetBinContent(i+1, obs[i]);
-    histo_0->SetBinError(i+1, obsErr[i]);
+    histo_0->SetBinError(i+1, obsErr[i]); 
   }
 
   for (size_t i = obs.size(); i < obs.size()*2; ++i) {
-    histo_0->SetBinContent(i+1, cut[i]);
+    histo_0->SetBinContent(i+1, cut[i-obs.size()]); 	
   }
 
   for (size_t i = obs.size()*2; i < obs.size()*3; ++i) {
-    histo_0->SetBinContent(i+1, sigCut[i]);
+    histo_0->SetBinContent(i+1, sigCut[i-obs.size()*2]);
   }
 
   for (size_t i = obs.size()*3; i < obs.size()*4; ++i) {
-    histo_0->SetBinContent(i+1, maxMoveCut[i]);
+    histo_0->SetBinContent(i+1, maxMoveCut[i-obs.size()*3]);	
   }
 
   for (size_t i = obs.size()*4; i < obs.size()*5; ++i) {
-    histo_0->SetBinContent(i+1, maxErrorCut[i]);
+    histo_0->SetBinContent(i+1, maxErrorCut[i-obs.size()*4]);
   }
 
 }
