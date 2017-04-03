@@ -203,7 +203,7 @@ public:
 
 private:
 
-    EcalDetId makeStepInDirection(CdOrientation direction, CaloNavigator<EcalDetId> * theNavi) const {
+    EcalDetId makeStepInDirection(CdOrientation direction, const CaloNavigator<EcalDetId> * theNavi) const {
         EcalDetId next;
         switch (direction) {
         case north: {
@@ -272,15 +272,15 @@ private:
         return nextDirection;
     }
 
-    CaloNavigator<EcalDetId> * initializeEcalNavigator(DetId startE, const edm::ESHandle<CaloTopology> theCaloTopology,
+    std::unique_ptr<CaloNavigator<EcalDetId>> initializeEcalNavigator(DetId startE, const edm::ESHandle<CaloTopology> theCaloTopology,
                                  EcalSubdetector ecalSubDet) const {
-        CaloNavigator<EcalDetId> * theEcalNav = NULL;
+        std::unique_ptr<CaloNavigator<EcalDetId>> theEcalNav(nullptr);
         if (ecalSubDet == EcalBarrel) {
-            theEcalNav = new CaloNavigator<EcalDetId> ((EBDetId) startE, (theCaloTopology->getSubdetectorTopology(
-                             DetId::Ecal, ecalSubDet)));
+            theEcalNav.reset(new CaloNavigator<EcalDetId> ((EBDetId) startE, (theCaloTopology->getSubdetectorTopology(
+                             DetId::Ecal, ecalSubDet))));
         } else if (ecalSubDet == EcalEndcap) {
-            theEcalNav = new CaloNavigator<EcalDetId> ((EEDetId) startE, (theCaloTopology->getSubdetectorTopology(
-                             DetId::Ecal, ecalSubDet)));
+            theEcalNav.reset(new CaloNavigator<EcalDetId> ((EEDetId) startE, (theCaloTopology->getSubdetectorTopology(
+                             DetId::Ecal, ecalSubDet))));
         } else {
             std::cout << "initializeEcalNavigator not implemented for subDet: " << ecalSubDet << std::endl;
         }
@@ -372,7 +372,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     bool startAlgo = false;
     int noDirs = 0;
     while (!startAlgo) {
-        next = makeStepInDirection(currDirection, theEcalNav);
+        next = makeStepInDirection(currDirection, theEcalNav.get());
         theEcalNav->setHome(current);
         theEcalNav->home();
         EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
@@ -405,7 +405,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         int status = 0;
         noDirs = 0;
         while (!nextStepFound) {
-            next = makeStepInDirection(currDirection, theEcalNav);
+            next = makeStepInDirection(currDirection, theEcalNav.get());
             theEcalNav->setHome(current);
             theEcalNav->home();
             EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
@@ -443,7 +443,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         }
 
         // make next step
-        next = makeStepInDirection(currDirection, theEcalNav);
+        next = makeStepInDirection(currDirection, theEcalNav.get());
 
         if (next == start) {
             nextIsStart = true;
@@ -515,10 +515,6 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     boundInfo.nextToBorder = nextToBorder;
     boundInfo.channelStatus = stati;
 
-    if (theEcalNav != 0) {
-        delete theEcalNav;
-        theEcalNav = 0;
-    }
     return boundInfo;
 }
 
@@ -571,7 +567,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     bool startAlgo = false;
     int noDirs = 0;
     while (!startAlgo) {
-        next = makeStepInDirection(currDirection, theEcalNav);
+        next = makeStepInDirection(currDirection, theEcalNav.get());
         theEcalNav->setHome(start);
         theEcalNav->home();
         if (next == EcalDetId(0)) {
@@ -603,7 +599,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         int status = 0;
         noDirs = 0;
         while (!nextStepFound) {
-            next = makeStepInDirection(currDirection, theEcalNav);
+            next = makeStepInDirection(currDirection, theEcalNav.get());
             theEcalNav->setHome(current);
             theEcalNav->home();
             EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
@@ -632,7 +628,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         }
 
         // make next step
-        next = makeStepInDirection(currDirection, theEcalNav);
+        next = makeStepInDirection(currDirection, theEcalNav.get());
         current = next;
 
         if (next == start) {
@@ -685,7 +681,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             int status = 0;
             noDirs = 0;
             while (!nextStepFound) {
-                next = makeStepInDirection(currDirection, theEcalNav);
+                next = makeStepInDirection(currDirection, theEcalNav.get());
                 theEcalNav->setHome(current);
                 theEcalNav->home();
                 EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
@@ -714,7 +710,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             }
 
             // make next step
-            next = makeStepInDirection(currDirection, theEcalNav);
+            next = makeStepInDirection(currDirection, theEcalNav.get());
             current = next;
 
             if (debug) {
@@ -762,10 +758,6 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     std::vector<int> stati;
     gapInfo.channelStatus = stati;
 
-    if (theEcalNav != 0) {
-        delete theEcalNav;
-        theEcalNav = 0;
-    }
     return gapInfo;
 }
 
