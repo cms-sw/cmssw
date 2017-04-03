@@ -101,6 +101,7 @@ void MillePedeDQMModule
   edm::ESHandle<PTrackerParameters> ptp;
   setup.get<PTrackerParametersRcd>().get(ptp);
 
+  // take the thresholds from DB
   edm::ESHandle<AlignPCLThresholds> thresholdHandle;
   setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
   theThresholds = thresholdHandle.product();
@@ -145,8 +146,6 @@ void MillePedeDQMModule
   std::array<double, 6> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
   auto myMap = theThresholds->getThreshold_Map(); ;
-
-  //auto myMap = mpReader_-> getTheThresolds();
   theThresholds->printAll();
 
   std::vector<std::string> alignablesList;
@@ -214,22 +213,32 @@ void MillePedeDQMModule
   histo_0->SetMinimum(-(max_));
   histo_0->SetMaximum(  max_);
 
+  // first 6 bins for movements
+
   for (size_t i = 0; i < obs.size(); ++i) {
     histo_0->SetBinContent(i+1, obs[i]);
     histo_0->SetBinError(i+1, obsErr[i]); 
   }
 
+  // next 6 bins for cutoffs
+
   for (size_t i = obs.size(); i < obs.size()*2; ++i) {
     histo_0->SetBinContent(i+1, cut[i-obs.size()]); 	
   }
+
+  // next 6 bins for significances
 
   for (size_t i = obs.size()*2; i < obs.size()*3; ++i) {
     histo_0->SetBinContent(i+1, sigCut[i-obs.size()*2]);
   }
 
+  // next 6 bins for maximum movements
+
   for (size_t i = obs.size()*3; i < obs.size()*4; ++i) {
     histo_0->SetBinContent(i+1, maxMoveCut[i-obs.size()*3]);	
   }
+
+  // final 6 bins for maximum errors
 
   for (size_t i = obs.size()*4; i < obs.size()*5; ++i) {
     histo_0->SetBinContent(i+1, maxErrorCut[i-obs.size()*4]);
