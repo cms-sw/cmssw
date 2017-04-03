@@ -25,12 +25,14 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('pixelPairStepClusters')
     )
 )
-# only layers covering the region not covered by quadruplets
-# (so it is just acting as backup of triplets)
 _layerListForPhase1 = [
+    # layers covering the region not covered by quadruplets (so it is
+    # just acting as backup of triplets)
     'BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
     'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
-    'BPix2+FPix1_pos', 'BPix2+FPix1_neg'
+    'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
+    # recovery of holes
+    'BPix1+BPix4',
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
