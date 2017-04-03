@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 
 
 process = cms.Process("EwkDQM")
-process.load("DQM.Physics.ewkElecDQM_cfi")
+process.load("ewkElecDQM_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -19,7 +19,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
+process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v4'
 #process.GlobalTag.globaltag = 'START70_V2::All'
 
 process.maxEvents = cms.untracked.PSet(
@@ -35,13 +35,14 @@ process.source = cms.Source("PoolSource",
 #    '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/196/3C9489A4-B5E8-DE11-A475-001D09F2A465.root',
     #'/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/188/34641279-B5E8-DE11-A475-001D09F2910A.root',
 
+'/store/relval/CMSSW_9_0_0_pre6/RelValZEE_13/MINIAODSIM/90X_mcRun2_asymptotic_v4_FastSim-v1/00000/6CD31C8F-7501-E711-A340-0025905B85DA.root'
 # Real data
         #'/store/data/Run2012B/SingleElectron/AOD/22Jan2013-v1/30000/FE93DA20-837E-E211-8A41-002481E73676.root'
        # 'file:12251709-D77E-E211-96C8-003048F118FE.root' # data
        #   , 'file:5072427B-407E-E211-88EF-003048F237FE.root' #data
         #  'file:DEC5AD62-280C-E311-89A7-002618FDA216.root'
     # 'file:/tmp/andriusj/ZeePU.root'
-     'file:/tmp/andriusj/Data2012D_DoubleEl.root'
+#     'file:/tmp/andriusj/Data2012D_DoubleEl.root'
      )
 )
 
@@ -70,6 +71,12 @@ process.MessageLogger = cms.Service("MessageLogger",
             #threshold = cms.untracked.string('ERROR')
     )
 )
+process.TFileService = cms.Service("TFileService",
+   fileName = cms.string('outputZEE.root'
+   )
+)
+
+
 #process.ana = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.ewkElecDQM+process.dqmSaver)
 
