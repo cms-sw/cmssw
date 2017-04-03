@@ -1,9 +1,11 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
+#include "SimG4Core/PhysicsLists/interface/CMSParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
 #include "G4RegionStore.hh"
 
 #include "G4ComptonScattering.hh"
@@ -70,7 +72,12 @@
 
 CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
-  G4LossTableManager::Instance();
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
 }
 
@@ -141,10 +148,9 @@ void CMSEmStandardPhysics95::ConstructProcess()
   G4hMultipleScattering* hmsc = nullptr;
 
   // Add standard EM Processes
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
-    G4String particleName = particle->GetParticleName();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  for(const auto& particleName : cmsparticlelist::PartNames) {
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
 	     << particleName << G4endl;
@@ -283,12 +289,4 @@ void CMSEmStandardPhysics95::ConstructProcess()
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
-
-  // Setup options
-  //
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  // ApplyCuts
-  //
-  opt.SetApplyCuts(true);
 }

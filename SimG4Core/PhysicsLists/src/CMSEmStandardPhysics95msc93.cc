@@ -1,10 +1,12 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
 #include "G4RegionStore.hh"
 
 #include "G4ComptonScattering.hh"
@@ -64,11 +66,19 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
+#include "G4BuilderType.hh"
 #include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysics95msc93::CMSEmStandardPhysics95msc93(const G4String& name, 
 							 G4int ver, std::string reg)
 : G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
+  SetPhysicsType(bElectromagnetic);
   G4LossTableManager::Instance();
 }
 
@@ -140,11 +150,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
   // Multiple scattering by Urban for all particles
   // except e+e- for which the Urban93 model is used
 
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  for(const auto& particleName : cmsparticlelist::PartNames) {
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
 	     << particleName << " at " << particle << G4endl;
@@ -277,13 +286,4 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       pmanager->AddProcess(new G4hIonisation,   -1, 2, 2);
     }
   }
-
-  // Setup options
-  //
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  //  opt.SetPolarAngleLimit(CLHEP::pi);
-  // ApplyCuts
-  //
-  opt.SetApplyCuts(true);
 }

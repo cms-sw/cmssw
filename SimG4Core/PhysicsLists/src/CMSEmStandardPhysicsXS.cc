@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSParticleList.h"
+#include "G4EmParameters.hh"
+#include "G4ParticleTable.hh"
 
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
@@ -170,10 +173,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4Region* bRegion = 
     G4RegionStore::GetInstance()->GetRegion("HGCalRegion",false);
 
-  aParticleIterator->reset();
-  while( (*aParticleIterator)() ){
-    G4ParticleDefinition* particle = aParticleIterator->value();
-    G4String particleName = particle->GetParticleName();
+  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  for(const auto& particleName : cmsparticlelist::PartNames) {
+    G4ParticleDefinition* particle = table->FindParticle(particleName);
 
     if (particleName == "gamma") {
 
