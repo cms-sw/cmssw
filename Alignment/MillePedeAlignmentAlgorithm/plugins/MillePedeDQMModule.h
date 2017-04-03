@@ -49,10 +49,6 @@ class MillePedeDQMModule : public DQMEDHarvester {
     MillePedeDQMModule(const edm::ParameterSet&);
     virtual ~MillePedeDQMModule();
 
-
-
-
-
     virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
 
   //========================= PRIVATE METHODS ==================================
@@ -78,6 +74,7 @@ class MillePedeDQMModule : public DQMEDHarvester {
     //========================== PRIVATE DATA ====================================
     //============================================================================
 
+    const AlignPCLThresholds* theThresholds; 
     const edm::ParameterSet mpReaderConfig_;
     std::unique_ptr<AlignableTracker> tracker_;
     std::unique_ptr<MillePedeFileReader> mpReader_;
