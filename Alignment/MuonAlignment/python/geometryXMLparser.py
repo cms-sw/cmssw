@@ -57,7 +57,7 @@ class Alignable:
     def pos(self):
         return self.x, self.y, self.z
     def covariance(self):
-        return (self.xx, self.xy, self.xz, self.xa, self.xb, self.xc), (self.xy, self.yy, self.yz), (self.xz, self.yz, self.zz)
+        return (self.xx, self.xy, self.xz, self.xa, self.xb, self.xc), (self.xy, self.yy, self.yz, self.ya, self.yb, self.yc), (self.xz, self.yz, self.zz, self.za, self.zb, self.zc), (self.xa, self.ya, self.za, self.aa, self.ab, self.ac), (self.xb, self.yb, self.zb, self.ab, self.bb, self.bc), (self.xc, self.yc, self.zc, self.ac, self.ac, self.cc)
 
 class DTAlignable:
     def index(self):
