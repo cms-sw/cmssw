@@ -11,14 +11,7 @@
 
 using namespace std;
 
-BlockFormatter::BlockFormatter() {
-}
-
-BlockFormatter::~BlockFormatter() {
-}
-
-
-void BlockFormatter::SetParam(EcalDigiToRaw* base) {
+BlockFormatter::BlockFormatter(EcalDigiToRaw* base) {
 
  pcounter_ = (base -> GetCounter());
  debug_   = base -> GetDebug();
@@ -32,16 +25,23 @@ void BlockFormatter::SetParam(EcalDigiToRaw* base) {
  doTCC_ = base -> GetDoTCC();
  doSR_ = base -> GetDoSR();
  doTower_ = base -> GetDoTower();
+}
 
+BlockFormatter::~BlockFormatter() {
 }
 
 
-void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
+//void BlockFormatter::SetParam(EcalDigiToRaw* base) {
 
- int run_number = *prunnumber_;
- int orbit_number_ = *porbit_number_;
- int bx = *pbx_;
- int lv1 = *plv1_;
+//}
+
+
+void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number_, int bx, int lv1) const {
+
+// int run_number = run_number;
+// int orbit_number_ = orbit_number;
+// int bx = bx;
+// int lv1 = lv1;
 
  if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
@@ -106,7 +106,7 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
 
 
 
-void BlockFormatter::print(FEDRawData& rawdata) {
+void BlockFormatter::print(FEDRawData& rawdata) const{
         int size = rawdata.size();
         cout << "Print RawData  size " << dec << size << endl;
         unsigned char* pData = rawdata.data();

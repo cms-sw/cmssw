@@ -27,7 +27,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,14 +47,14 @@
 // class decleration
 //
 
-class EcalDigiToRaw : public edm::EDProducer {
+class EcalDigiToRaw : public edm::stream::EDProducer<> {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
        virtual ~EcalDigiToRaw();
 
-      void beginJob();
-      void produce(edm::Event& e, const edm::EventSetup& c);
-      void endJob() ;
+      void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+      void endStream() override;
 
       typedef long long Word64;
       typedef unsigned int Word32;
@@ -107,10 +107,14 @@ class EcalDigiToRaw : public edm::EDProducer {
 	std::string instanceNameEB_;
 	std::string instanceNameEE_;
 
-        TowerBlockFormatter* Towerblockformatter_;
-        TCCBlockFormatter*   TCCblockformatter_;
-	BlockFormatter*	     Headerblockformatter_;
-	SRBlockFormatter*    SRblockformatter_;
+        //TowerBlockFormatter* Towerblockformatter_;
+        //TCCBlockFormatter*   TCCblockformatter_;
+	//BlockFormatter*	     Headerblockformatter_;
+	//SRBlockFormatter*    SRblockformatter_;
+        std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
+        std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
+	std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
+	std::unique_ptr<SRBlockFormatter>    SRblockformatter_;
 
 
 };

@@ -20,12 +20,12 @@ class BlockFormatter {
         typedef uint64_t Word64;
         typedef uint16_t Word16;
 
-	BlockFormatter();
+	BlockFormatter(EcalDigiToRaw* base);
 	~BlockFormatter();
-	void SetParam(EcalDigiToRaw* base);
+//	void SetParam(EcalDigiToRaw* base);
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-	void DigiToRaw(FEDRawDataCollection* productRawData);
-	void print(FEDRawData& rawdata);
+	void DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number, int bx, int lv1) const;
+	void print(FEDRawData& rawdata) const;
 	// void CleanUp(FEDRawDataCollection* productRawData);
 	void CleanUp(FEDRawDataCollection* productRawData,
 			std::map<int, std::map<int,int> >* FEDorder);
