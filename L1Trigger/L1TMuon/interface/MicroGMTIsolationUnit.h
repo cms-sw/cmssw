@@ -35,6 +35,8 @@ namespace l1t {
       void extrapolateMuons(MicroGMTConfiguration::InterMuonList&) const;
 
     private:
+      int m_fwVersion;
+
       std::shared_ptr<MicroGMTExtrapolationLUT> m_BEtaExtrapolation;
       std::shared_ptr<MicroGMTExtrapolationLUT> m_BPhiExtrapolation;
       std::shared_ptr<MicroGMTExtrapolationLUT> m_OEtaExtrapolation;
