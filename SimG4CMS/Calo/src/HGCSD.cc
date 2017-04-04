@@ -67,7 +67,8 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 			<< "\n"
 			<< "**************************************************";
 #endif
-  edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
+  edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit
+			 << " for " << nameX << " subdet " << myFwdSubdet_;
 }
 
 HGCSD::~HGCSD() { 
@@ -107,7 +108,10 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 } 
 
 double HGCSD::getEnergyDeposit(G4Step* aStep) {
-  double destep = aStep->GetTotalEnergyDeposit();
+  double wt1    = getResponseWt(aStep->GetTrack());
+  double wt2    = aStep->GetTrack()->GetWeight();
+  double destep = wt1*(aStep->GetTotalEnergyDeposit());
+  if (wt2 > 0) destep *= wt2;
   return destep;
 }
 
@@ -137,16 +141,30 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
       module = -1;
       cell   = -1;
 #ifdef DebugLog
-      std::cout << "Depths: " << touch->GetHistoryDepth() << " name " 
-		<< touch->GetVolume(0)->GetLogicalVolume()->GetName() 
-		<< " layer:module:cell " << layer << ":" << module << ":" 
-		<< cell << std::endl;
+      edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+			     << " name " << touch->GetVolume(0)->GetName() 
+			     << " layer:module:cell " << layer << ":" 
+			     << module << ":" << cell << std::endl;
 #endif
     } else {
       layer  = touch->GetReplicaNumber(2);
       module = touch->GetReplicaNumber(1);
       cell   = touch->GetReplicaNumber(0);
     }
+#ifdef DebugLog
+    edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() <<" name "
+			   << touch->GetVolume(0)->GetName() 
+			   << ":" << touch->GetReplicaNumber(0) << "   "
+			   << touch->GetVolume(1)->GetName() 
+			   << ":" << touch->GetReplicaNumber(1) << "   "
+			   << touch->GetVolume(2)->GetName() 
+			   << ":" << touch->GetReplicaNumber(2) << "   "
+			   << " layer:module:cell " << layer << ":" << module 
+			   << ":" << cell <<" Material " << mat->GetName()<<":"
+			   << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen()
+			   << std::endl;
+#endif
+    if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
   }
 
   return setDetUnitId (subdet, layer, module, cell, iz, localpos);

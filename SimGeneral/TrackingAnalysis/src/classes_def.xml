@@ -2,4 +2,15 @@
   <class name="std::pair<TrackingParticleRef, TrackPSimHitRef>" persistent="true" /> 
   <class name="std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> >" persistent="true" /> 
   <class name="edm::Wrapper<std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> > >" />
+  <class name="edm::Ptr<TrackingParticle>" />
+  <class name="std::vector<edm::Ptr<TrackingParticle>>" />
+
+  <class name="std::pair< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > >, edm::Ptr< TrackingParticle > >" />
+  <class name="std::pair< edm::Ptr< TrackingParticle >, vector< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > >, allocator< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > > > > >" />
+
+  <class name="std::pair<const edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, edm::Ptr<TrackingParticle> >" />
+  
+  <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, std::allocator<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > > >" />
+
+
 </lcgdict>

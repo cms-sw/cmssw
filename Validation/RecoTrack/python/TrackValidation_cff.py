@@ -392,7 +392,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     dirName = "Tracking/TrackAllTPEffic/",
     label = [x for x in trackValidator.label.value() if "Pt09" not in x],
     doSimPlots = False,
-    doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+    doRecoTrackPlots = True, # Fake rate of all tracks vs. all TPs is already included in trackValidator, but we want the reco plots for other reasons
     doPVAssociationPlots = False,
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False

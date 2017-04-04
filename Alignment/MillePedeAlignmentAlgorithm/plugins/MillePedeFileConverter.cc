@@ -2,6 +2,7 @@
 //         Created:  Thu, 19 Mar 2015 18:12:35 GMT
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"

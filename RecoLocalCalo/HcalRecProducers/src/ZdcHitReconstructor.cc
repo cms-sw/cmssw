@@ -22,6 +22,12 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<int>("recoMethod"),
 	conf.getParameter<int>("lowGainOffset"),
 	conf.getParameter<double>("lowGainFrac")),
+  saturationFlagSetter_(nullptr),
+  HFTimingTrustFlagSetter_(nullptr),
+  hbheHSCPFlagSetter_(nullptr),
+  hbheTimingShapedFlagSetter_(nullptr),
+  hfrechitbit_(nullptr),
+  hfdigibit_(nullptr),
   det_(DetId::Hcal),
   correctTiming_(conf.getParameter<bool>("correctTiming")),
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
@@ -30,8 +36,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
-  myobject(0),
-  theTopology(0)
+  myobject(nullptr),
+  theTopology(nullptr)
   
 { 
   tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
@@ -59,8 +65,11 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   
 }
 
-ZdcHitReconstructor::~ZdcHitReconstructor() {;
+ZdcHitReconstructor::~ZdcHitReconstructor()
+{
+    delete saturationFlagSetter_;
 }
+
 void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
    edm::ESHandle<HcalLongRecoParams> p;

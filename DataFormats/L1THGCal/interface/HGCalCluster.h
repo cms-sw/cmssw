@@ -3,9 +3,10 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
 namespace l1t {
-  
+
   class HGCalCluster : public L1Candidate {
     public:
       HGCalCluster(){}
@@ -35,6 +36,8 @@ namespace l1t {
       uint32_t module()  const {return module_;}
 
       uint32_t hOverE() const {return hOverE_;}
+
+      ClusterShapes shapes ;
 
       bool operator<(const HGCalCluster& cl) const;
       bool operator>(const HGCalCluster& cl) const {return  cl<*this;};

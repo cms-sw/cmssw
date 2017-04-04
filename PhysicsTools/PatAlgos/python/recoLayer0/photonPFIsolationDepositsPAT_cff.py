@@ -10,10 +10,12 @@ phPFIsoDepositNeutralPAT    = _m.phPFIsoDepositNeutralPFBRECO.clone()
 phPFIsoDepositPUPAT         = _m.phPFIsoDepositPUPFBRECO.clone()
 phPFIsoDepositGammaPAT      = _m.phPFIsoDepositGammaPFBRECO.clone()
 
-photonPFIsolationDepositsPATSequence = cms.Sequence(
-    phPFIsoDepositChargedPAT+
-    phPFIsoDepositChargedAllPAT+
-    phPFIsoDepositGammaPAT+
-    phPFIsoDepositNeutralPAT+
+photonPFIsolationDepositsPATTask = cms.Task(
+    phPFIsoDepositChargedPAT,
+    phPFIsoDepositChargedAllPAT,
+    phPFIsoDepositGammaPAT,
+    phPFIsoDepositNeutralPAT,
     phPFIsoDepositPUPAT
     )
+
+photonPFIsolationDepositsPATSequence = cms.Sequence(photonPFIsolationDepositsPATTask)

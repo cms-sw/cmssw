@@ -85,7 +85,7 @@ HLLHCEvtVtxGenerator::~HLLHCEvtVtxGenerator()
 }
 
 
-HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
 
   double imax=intensity(0.,0.,0.,0.);
 
@@ -110,10 +110,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engin
   
   if (count>9999) edm::LogError("Too many tries ") 
                     << " count : "<<count<<endl;
-  
-  if(fVertex == 0)
-    fVertex = new HepMC::FourVector();
-  
+    
   //---convert to mm
   x*=1000.0;
   y*=1000.0;
@@ -125,9 +122,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engin
   z+=fMeanZ;
   t+=fTimeOffset;
   
-  fVertex->set( x, y, z, t );
-  
-  return fVertex;
+  return HepMC::FourVector( x, y, z, t );
 }
 
 

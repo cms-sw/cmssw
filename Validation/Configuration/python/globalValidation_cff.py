@@ -38,6 +38,7 @@ from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.L1T.L1Validator_cfi import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
+from Validation.RecoB.BDHadronTrackValidation_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -91,6 +92,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
+                                 + bdHadronTrackValidationSeq
 )
 
 

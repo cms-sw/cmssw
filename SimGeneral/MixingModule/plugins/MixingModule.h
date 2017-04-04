@@ -98,6 +98,7 @@ namespace edm {
       std::vector<MixingWorkerBase *> workersObjects_;
       std::vector<std::string> wantedBranches_;
       bool useCurrentProcessOnly_;
+      bool wrapLongTimes_;
 
       // Digi-producing algorithms
       Accumulators digiAccumulators_ ;

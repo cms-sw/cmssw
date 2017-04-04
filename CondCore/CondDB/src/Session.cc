@@ -105,6 +105,13 @@ namespace cond {
       return proxy;
     }
 
+    bool Session::getIovRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			    std::vector<std::tuple<cond::Time_t,cond::Hash> >& range ){
+      m_session->openIovDb();
+      boost::posix_time::ptime snapshotTime;
+      return m_session->iovSchema().iovTable().getRange( tag, begin, end, snapshotTime, range );
+    }
+
     IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, 
 				  cond::SynchronizationType synchronizationType ){
       m_session->openDb();
@@ -198,6 +205,20 @@ namespace cond {
 				    cond::Binary& streamerInfoData ){
       m_session->openIovDb();
       return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
+    }
+
+    RunInfoProxy Session::getRunInfo( cond::Time_t start, cond::Time_t end ){
+      if(!m_session->transaction.get()) 
+	throwException( "The transaction is not active.","Session::getRunInfo" );
+      RunInfoProxy proxy( m_session );
+      proxy.load( start, end );
+      return proxy;
+    }
+
+    RunInfoEditor Session::editRunInfo(){
+      RunInfoEditor editor(m_session);
+      editor.init();
+      return editor;
     }
 
     std::string Session::connectionString(){

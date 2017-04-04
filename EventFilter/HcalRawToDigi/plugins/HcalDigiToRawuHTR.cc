@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -151,8 +151,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int presamples = qiedf.presamples();
 
       if( ! uhtrs.exist(uhtrIndex) ){
-        //special setting to keep flag word for QIE11 premixing
-        uhtrs.newUHTR( uhtrIndex , presamples , true );
+	uhtrs.newUHTR( uhtrIndex , presamples );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }

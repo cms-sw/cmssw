@@ -28,6 +28,9 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
@@ -59,7 +62,7 @@ public:
   
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
-private:
+private:  
   // parameters
   const double superClusterThreshold_, neutralEMThreshold_, neutralHADThreshold_;
   const bool useTiming_;
@@ -68,6 +71,7 @@ private:
   const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
+  const edm::EDGetTokenT<reco::MuonCollection> muons_;  
   const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcGsfTrackTime_, srcGsfTrackTimeError_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
@@ -75,7 +79,8 @@ private:
   const edm::EDGetTokenT<CaloParticleCollection> caloParticles_;
   const edm::EDGetTokenT<std::vector<reco::PFCluster> > simClusters_;
   // tracking particle associators by order of preference
-  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;     
+  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;
+
 };
 
 DEFINE_FWK_MODULE(SimPFProducer);
@@ -98,6 +103,7 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
   gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
+  muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
   srcTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
   srcTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
   srcGsfTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
@@ -136,7 +142,16 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   edm::Handle<edm::View<reco::Track> > TrackCollectionH;
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
- 
+
+  edm::Handle<reco::MuonCollection> muons;
+  evt.getByToken(muons_,muons);
+  std::unordered_set<unsigned> MuonTrackToGeneralTrack;
+  for (auto const& mu : *muons.product()){
+    reco::TrackRef muTrkRef = mu.track();
+    if (muTrkRef.isNonnull())
+      MuonTrackToGeneralTrack.insert(muTrkRef.key());
+  }
+
   // get timing, if enabled
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, gsfTrackTimeH, gsfTrackTimeErrH;
   if (useTiming_) {
@@ -277,6 +292,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     auto& candidate = candidates->back();
 
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
+    
     if (useTiming_) candidate.setTime( (*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef] );
     
     // bind to cluster if there is one and try to gather conversions, etc
@@ -314,7 +330,9 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
       }
     }
     usedTrack[tkRef.key()] = true;    
-
+    // remove tracks already used by muons
+    if( MuonTrackToGeneralTrack.count(itk) || absPdgId == 13)
+      candidates->pop_back();
   }
 
   // now loop over the non-collected clusters in blocks 

@@ -32,6 +32,7 @@
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/Statistics"/>
+<use   name="RecoTracker/Record"/>
 <use   name="clhep"/>
 <use   name="roottmva"/>
 <library   file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">

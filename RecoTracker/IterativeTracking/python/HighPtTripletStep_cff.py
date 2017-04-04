@@ -48,8 +48,8 @@ trackingPhase2PU140.toModify(highPtTripletStepSeedLayers,
                  'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
                  'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
                  'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
+                 'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
 #  removed as redunant and covering effectively only eta>4   (here for documentation, to be optimized after TDR)
-#                 'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
 #                 'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg']
      ]
 )
@@ -119,6 +119,14 @@ highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFil
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
 )
 
+highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.clone(
+    minimumNumberOfHits = 4,
+    seedExtension = 1,
+    strictSeedExtension = False, # allow inactive
+    pixelSeedExtension = False,
+)
+
+
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = 'highPtTripletStepChi2Est',
@@ -150,10 +158,12 @@ highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkf
 )
 trackingPhase1PU70.toModify(highPtTripletStepTrajectoryBuilder,
     MeasurementTrackerName = '',
-    maxCand = 4,
+    maxCand = 3,
 )
 trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
-    maxCand = 5,
+    inOutTrajectoryFilter = dict(refToPSet_ = "highPtTripletStepTrajectoryFilterInOut"),
+    useSameTrajFilter = False,
+    maxCand = 3,
 )
 
 # MAKING OF TRACK CANDIDATES

@@ -15,11 +15,11 @@ hltMETmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedE
 hltMETmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
 hltMETmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
-hltMETmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
+#hltMETmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 hltMETmonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND
 hltMETmonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
 hltMETmonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*") # HLT_ZeroBias_v*
-hltMETmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("EXO_HLT_MET")
+#hltMETmonitoring.numGenericTriggerEventPSet.hltDBKey      = cms.string("EXO_HLT_MET")
 hltMETmonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltMETmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
 

@@ -22,11 +22,18 @@ import RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi
 import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 _phase1_hbherecoMB = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     dropZSmarkedPassed = cms.bool(False),
-    recoParamsFromDB = cms.bool(False),
     algorithm = dict(
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
+    setNegativeFlagsQIE8 = cms.bool(False),
+    setNegativeFlagsQIE11 = cms.bool(False),
+    setNoiseFlagsQIE8 = cms.bool(True),
+    setNoiseFlagsQIE11 = cms.bool(False),
+    setPulseShapeFlagsQIE8 = cms.bool(False),
+    setPulseShapeFlagsQIE11 = cms.bool(False),
+    setLegacyFlagsQIE8 = cms.bool(False),
+    setLegacyFlagsQIE11 = cms.bool(False)
 )
 hfprerecoMB = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
     dropZSmarkedPassed = cms.bool(False)

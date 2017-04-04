@@ -60,8 +60,8 @@ StandardSpecifications1D_Num.append(
   )
 
   
-# Configure Phase1 DQM for Phase0 data
-SiPixelPhase1Geometry.upgradePhase = 0
+# To Configure Phase1 DQM for Phase0 data
+SiPixelPhase1Geometry.upgradePhase = 1
 
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
@@ -92,6 +92,8 @@ from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
 
 from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 
+#Summary maps
+from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
@@ -104,5 +106,12 @@ siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
    SiPixelPhase1DigisHarvester 
  + SiPixelPhase1ClustersHarvester
  + SiPixelPhase1RawDataHarvester
+ + RunQTests_online
+ + SiPixelPhase1Summary_Online
 # + SiPixelPhase1GeometryDebugHarvester
 )
+
+siPixelPhase1OnlineDQM_timing_harvesting = siPixelPhase1OnlineDQM_harvesting.copyAndExclude([
+ RunQTests_online,
+ SiPixelPhase1Summary_Online,
+])

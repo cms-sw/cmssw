@@ -27,6 +27,7 @@
 #include "TProfile.h"
 
 // user include files
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
