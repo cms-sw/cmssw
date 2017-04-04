@@ -18,6 +18,8 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMTagAndProbePlotter.h"
 
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
 #include <boost/regex.hpp>
 
 //
@@ -57,6 +59,9 @@ private:
     };
     std::vector<RefObject> refObjects_;
     std::vector<edm::ParameterSet> tagAndProbePaths;
+
+    GenericTriggerEventFlag* num_genTriggerEventFlag_;
+    GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
     //DQM Prescaler
     int counterEvt_;      //counter

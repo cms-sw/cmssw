@@ -43,6 +43,13 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   }
   if(ps.exists("TagAndProbe")) {
     tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
+        tagandprobePlotters_.reserve(tagAndProbePaths.size()); 
+        for(const edm::ParameterSet& tpset: tagAndProbePaths) {
+          num_genTriggerEventFlag_ = new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("numerator"),consumesCollector(), *this);
+          den_genTriggerEventFlag_ = new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("denominator"),consumesCollector(), *this);
+      
+          tagandprobePlotters_.emplace_back(tpset,num_genTriggerEventFlag_,den_genTriggerEventFlag_,dqmBaseFolder_);
+        }
   }
 
   if(doRefAnalysis_) {
@@ -77,30 +84,7 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
       }
       std::sort(foundPaths.begin(), foundPaths.end());
 
-
-      if(tagAndProbePaths.size() > 0) {
-        tagandprobePlotters_.reserve(tagAndProbePaths.size());
-        for(const edm::ParameterSet& tpset: tagAndProbePaths) {
-
-          const boost::regex tagpath(tpset.getUntrackedParameter<std::string>("tag"));
-          const boost::regex probepath(tpset.getUntrackedParameter<std::string>("probe"));
-          std::string xvariable = tpset.getUntrackedParameter<std::string>("xvariable");
-
-          std::string pathNameNum = "";
-          std::string pathNameDen = "";
-          boost::smatch what;
-          for(const std::string& p: HLTCP_.triggerNames()) {
-            if(boost::regex_search(p, what, tagpath) && pathNameDen.length() == 0) {
-              pathNameDen = p;
-            }
-            if(boost::regex_search(p, what, probepath) && pathNameNum.length() == 0) {
-              pathNameNum = p;
-            }
-          }
-          tagandprobePlotters_.emplace_back(pathNameNum, pathNameDen, HLTCP_, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins_, ptMax_,xvariable);
-        }
-      }else{
-
+      if(tagAndProbePaths.size() == 0) {
         // Construct path plotters
         std::vector<const HLTTauDQMPath *> pathObjects;
         pathPlotters_.reserve(foundPaths.size());  
@@ -132,7 +116,7 @@ void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, const ed
     pathPlotter.bookHistograms(iBooker);
   }
   for(auto& tpPlotter: tagandprobePlotters_) {
-    tpPlotter.bookHistograms(iBooker);
+    tpPlotter.bookHistograms(iBooker,iRun,iSetup);
   }
   if(pathSummaryPlotter_) {
     pathSummaryPlotter_->bookHistograms(iBooker);
@@ -202,7 +186,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         //Tag and probe plotters
         for(auto& tpPlotter: tagandprobePlotters_) {
           if(tpPlotter.isValid())
-            tpPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+            tpPlotter.analyze(iEvent,iSetup,refC);
         }
 
     } else {

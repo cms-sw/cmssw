@@ -111,6 +111,19 @@ hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
     )
 )
 
+def TriggerSelectionParameters(hltpaths):
+    genericTriggerSelectionParameters = cms.PSet(
+                andOr          = cms.bool( False ),#specifies the logical combination of the single filters' (L1, HLT and DCS) decisions at top level (True=OR)
+                dbLabel        = cms.string("PFTauDQMTrigger"),#specifies the label under which the DB payload is available from the ESSource or Global Tag
+                andOrHlt       = cms.bool(True),#specifies the logical combination of the single HLT paths' decisions (True=OR)
+                hltInputTag    = cms.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
+                hltPaths       = hltpaths,#Lists logical expressions of HLT paths, which should have accepted the event (fallback in case DB unaccessible)
+                errorReplyHlt  = cms.bool(False),#specifies the desired return value of the HLT filter and the single HLT path filter in case of certain errors
+                verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
+    )
+    return genericTriggerSelectionParameters
+
+
 hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
     DQMBaseFolder = cms.untracked.string("HLT/TauOffline/TagAndProbe"),
     Matching = cms.PSet(                                                                                                                                                                             
@@ -135,60 +148,95 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
                                 ),                                                                               
     ),                                                                                                           
     TagAndProbe = cms.untracked.VPSet(
-        cms.untracked.PSet(           
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v'),
-            xvariable = cms.untracked.string('Tau'),
+        cms.untracked.PSet(
+            name        = cms.string('LooseIsoPFTau20_SingleL1'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v'), 
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('LooseIsoPFTau50_Trk30_eta2p1_SingleL1'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('MediumIsoPFTau32_Trk1_eta2p1_Reg'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v'),  
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('TightCombinedIsoPFTau32_Trk1_eta2p1_Reg'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_IsoMu21_eta2p1_TightCombinedIsoPFTau32_Trk1_eta2p1_Reg_v'),
-            xvariable = cms.untracked.string('Tau'),   
+            name        = cms.string('VLooseIsoPFTau140_Trk50_eta2p1'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_VLooseIsoPFTau140_Trk50_eta2p1_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_IsoMu22_eta2p1_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_IsoMu22_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_VLooseIsoPFTau140_Trk50_eta2p1_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('LooseIsoPFTau28'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele22_eta2p1_WPLoose_Gsf_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v'),
-            probe     = cms.untracked.string('HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('LooseIsoPFTau29'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele22_eta2p1_WPLoose_Gsf_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v'),
-            probe     = cms.untracked.string('HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('LooseIsoPFTau30'),
+            xvariable   = cms.string('Tau'),
+            nbins       = cms.int32(20),
+            xmin        = cms.double(0.),
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_Ele25_eta2p1_WPTight_Gsf_v*'))
         ),
         cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_Ele25_eta2p1_WPTight_Gsf_v'),
-            probe     = cms.untracked.string('HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_v'),
-            xvariable = cms.untracked.string('Tau'),
+            name        = cms.string('MET90'),
+            xvariable   = cms.string('MET'),
+            nbins       = cms.int32(20),  
+            xmin        = cms.double(0.),  
+            xmax        = cms.double(200.),
+            numerator   = TriggerSelectionParameters(cms.vstring('HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v*')),
+            denominator = TriggerSelectionParameters(cms.vstring('HLT_LooseIsoPFTau50_Trk30_eta2p1_v*'))
         ),
-        cms.untracked.PSet(
-            tag       = cms.untracked.string('HLT_LooseIsoPFTau50_Trk30_eta2p1_v'),
-            probe     = cms.untracked.string('HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v'),
-            xvariable = cms.untracked.string('MET'),
-        ),
-    ),
+    )
 )
