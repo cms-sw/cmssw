@@ -211,11 +211,13 @@ bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 {
-	if (heprup_.IDBMUP != other.heprup_.IDBMUP ||
+
+  if (heprup_.IDBMUP != other.heprup_.IDBMUP ||
 	    heprup_.EBMUP != other.heprup_.EBMUP ||
 	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
 	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
 	    heprup_.IDWTUP != other.heprup_.IDWTUP) {
+        
 	  return false;	
 	}
 
@@ -231,14 +233,34 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 		std::copy(headers_begin(), headers_end(),
 		          std::inserter(headers, headers.begin()));
 
+    std::vector<std::string> runcard_v2;
+    for(std::vector<LHERunInfoProduct::Header>::const_iterator
+      header2 = headers_.begin();
+      header2 != headers_.end(); ++header2) {
+        if(header2->tag()=="MGRunCard" || header2->tag() == "mgruncard"){
+          runcard_v2 = header2->lines();
+          break;
+        }
+    }
+
 		bool failed = false;
 		for(std::vector<LHERunInfoProduct::Header>::const_iterator
 					header = other.headers_begin();
 		    header != other.headers_end(); ++header) {
+          
 			if (headers.count(*header)) {
 				continue;
 			}
-
+      
+      if(header->tag()=="MGRunCard" || header->tag() == "mgruncard"){
+        std::vector<std::string> runcard_v1 = header->lines();
+        runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), [](const std::string& x) { return x.find("iseed") != std::string::npos; } ), runcard_v1.end() );        
+        runcard_v2.erase( std::remove_if( runcard_v2.begin(), runcard_v2.end(), [](const std::string& x) { return x.find("iseed") != std::string::npos; } ), runcard_v2.end() );
+        if(std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2.begin())){
+          continue;
+        }
+      }
+      
 			if(isTagComparedInMerge(header->tag())) {
 				failed = true;
 			} else {
@@ -255,12 +277,13 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 
 	// still not compatible after fixups
 	if (!compatibleHeaders) {
-	  return false;
+    return false;
 	}
 
 	// it is exactly the same, so merge
-	if (heprup_ == other.heprup_)
-		return true;
+	if (heprup_ == other.heprup_){
+    return true;
+  }
 
 	// the input files are different ones, presumably generation
 	// of the same process in different runs with identical run number
