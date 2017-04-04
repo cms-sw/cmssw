@@ -58,12 +58,12 @@ void MillePedeDQMModule
   booker.cd();
   booker.setCurrentFolder("AlCaReco/SiPixelAli/");
 
-  h_xPos = booker.book1D("Xpos",   "#Delta X;;#mu m", 30, 0., 30.);
-  h_xRot = booker.book1D("Xrot",   "#Delta #theta_{X};;#mu rad", 30, 0., 30.);
-  h_yPos = booker.book1D("Ypos",   "#Delta Y;;#mu m", 30, 0., 30.);
-  h_yRot = booker.book1D("Yrot",   "#Delta #theta_{Y};;#mu rad", 30, 0., 30.);
-  h_zPos = booker.book1D("Zpos",   "#Delta Z;;#mu m", 30, 0., 30.);
-  h_zRot = booker.book1D("Zrot",   "#Delta #theta_{Z};;#mu rad", 30, 0., 30.);
+  h_xPos = booker.book1D("Xpos",   "Alignment fit #DeltaX;;#mum", 30, 0., 30.);
+  h_xRot = booker.book1D("Xrot",   "Alignment fit #Delta#theta_{X};;#murad", 30, 0., 30.);
+  h_yPos = booker.book1D("Ypos",   "Alignment fit #DeltaY;;#mum", 30, 0., 30.);
+  h_yRot = booker.book1D("Yrot",   "Alignment fit #Delta#theta_{Y};;#murad", 30, 0., 30.);
+  h_zPos = booker.book1D("Zpos",   "Alignment fit #DeltaZ;;#mum", 30, 0., 30.);
+  h_zRot = booker.book1D("Zrot",   "Alignment fit #Delta#theta_{Z};;#murad", 30, 0., 30.);
 
   booker.cd();
 }
