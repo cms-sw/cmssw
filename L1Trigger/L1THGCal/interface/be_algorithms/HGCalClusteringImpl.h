@@ -40,6 +40,15 @@ public:
     void mergeClusters( l1t::HGCalCluster & main_cluster, 
                         l1t::HGCalCluster & secondary_cluster ) const;
     
+    void NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>> ( &reshuffledTriggerCells )[2][40],
+                   l1t::HGCalClusterBxCollection & clusters,
+                   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry,
+                   int endcap, 
+                   int layer                                
+        );
+        
+
+
     void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
                        l1t::HGCalClusterBxCollection & clusters,
                        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry 
@@ -51,6 +60,10 @@ private:
     double seedThreshold_;
     double triggerCellThreshold_;
     double dr_;
+    void triggerCellReshuffling_( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+                                  std::vector<edm::Ptr<l1t::HGCalTriggerCell>> ( &reshuffledTriggerCells )[2][40] );
+
+
 
 };
 
