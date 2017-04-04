@@ -70,8 +70,7 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig,
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
   vertexToken_       = iColl.consumes<reco::VertexCollection>(
       iConfig.getParameter<edm::ParameterSet>("PVFitter")
-      .getUntrackedParameter<edm::InputTag>("VertexCollection",
-                                            edm::InputTag("offlinePrimaryVertices")));
+      .getUntrackedParameter<edm::InputTag>("VertexCollection", edm::InputTag("offlinePrimaryVertices")));
   do3DFit_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Apply3DFit");
   //writeTxt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("WriteAscii");
   //outputTxt_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("AsciiFileName");
@@ -87,6 +86,8 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig,
   errorScale_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("errorScale");
   sigmaCut_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("nSigmaCut");
   fFitPerBunchCrossing=iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("FitPerBunchCrossing");
+  useOnlyFirstPV_    = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("useOnlyFirstPV");
+  minSumPt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("minSumPt");
 
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
@@ -139,7 +140,9 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   if ( hasPVs ) {
 
       for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv ) {
-
+           if (useOnlyFirstPV_){
+		      if (pv != PVCollection->begin()) break;
+           }
 
            //for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
@@ -148,7 +151,18 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           if ( pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize()<2*minVtxWgt_ )  continue;
           //---
 
-          hPVx->Fill( pv->x(), pv->z() );
+		  if (pv->tracksSize() < minVtxTracks_ ) continue;
+		  
+		  float sumPt=0;
+		  for(auto iTrack = pv->tracks_begin(); iTrack != pv->tracks_end(); ++iTrack)
+		  {
+             const auto pt = (*iTrack)->pt();
+			 sumPt += pt;
+		  }
+		  if (sumPt < minSumPt_) continue;
+		  
+		  
+		  hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
           //
@@ -429,7 +443,8 @@ bool PVFitter::runFitter() {
       vector<double> errors  ;
       results = ierr.UserParameters().Params() ;					       \
       errors  = ierr.UserParameters().Errors() ;					       \
-      
+		
+		
       fcn->setLimits(results[0]-sigmaCut_*results[3],
                      results[0]+sigmaCut_*results[3],
                      results[1]-sigmaCut_*results[5],
