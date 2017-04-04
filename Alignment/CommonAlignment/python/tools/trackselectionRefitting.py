@@ -11,7 +11,8 @@ def getSequence(process, collection,
                 cosmicsDecoMode = False,
                 cosmicsZeroTesla = True,
                 momentumConstraint = None,
-                cosmicTrackSplitting = False):
+                cosmicTrackSplitting = False,
+                used0cut = True):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
     subsequent processing steps.
@@ -130,6 +131,11 @@ def getSequence(process, collection,
         if cosmicTrackSplitting:
             options["TrackSplitting"] = {}
             options["TrackSplitting"]["TrackSplitting"] = {}
+        if not used0cut:
+            options["TrackSelector"]["Alignment"].update({
+                    "d0Min": -99999.0,
+                    "d0Max": 99999.0,
+                    })
     elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
