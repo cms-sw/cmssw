@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("bphAnalysis")
+
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
@@ -14,6 +17,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+patAlgosToolsTask.add(process.MEtoEDMConverter)
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
@@ -24,11 +28,11 @@ process.CandidateSelectedTracks = cms.EDProducer( "ConcreteChargedCandidateProdu
 
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 process.patSelectedTracks = patGenericParticles.clone(src=cms.InputTag("CandidateSelectedTracks"))
+patAlgosToolsTask.add(process.patSelectedTracks)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 #
@@ -81,5 +85,4 @@ process.p = cms.Path(
     process.bphWriteSpecificDecay
 )
 
-process.e = cms.EndPath(process.out)
-
+process.e = cms.EndPath(process.out, patAlgosToolsTask)

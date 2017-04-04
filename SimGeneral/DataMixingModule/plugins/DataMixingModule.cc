@@ -136,6 +136,13 @@ namespace edm
       produces<QIE10DigiCollection>("HFQIE10DigiCollection");
       produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
+      if(ps.getParameter<bool>("debugCaloSamples")){
+        produces<CaloSamplesCollection>("HcalSamples");
+      }
+      if(ps.getParameter<bool>("injectTestHits")){
+        produces<edm::PCaloHitContainer>("HcalHits");
+      }
+
       if(MergeHcalDigisProd_) HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
       else HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
 

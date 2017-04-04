@@ -37,23 +37,14 @@ const double
 CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 
 template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader() 
+CaloGeometryLoader<T>::CaloGeometryLoader() :
+m_filter(DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
+                                                "EcalSensitiveDetector",
+				                0                        )},
+         DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
+   				                T::hitString(),
+				                0              )})
 {
-   m_filter.setCriteria( DDValue( "SensitiveDetector",
-				  "EcalSensitiveDetector",
-				  0                        ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                               ) ;
-
-   m_filter.setCriteria( DDValue( "ReadOutName",
-				  T::hitString(),
-				  0                  ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                       ) ;
 }
 
 template <class T>
@@ -79,8 +70,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 				     const Alignments*     alignments ,
 				     const Alignments*     globals      )
 {
-   DDFilteredView fv0 ( *cpv ) ;
-   fv0.addFilter( m_filter ) ;
+   DDFilteredView fv0 ( *cpv, m_filter ) ;
 
    fillNamedParams( fv0, geom ) ;
 
@@ -88,8 +78,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
 		      T::k_NumberOfParametersPerShape ) ;
 
-   DDFilteredView fv( *cpv ) ;
-   fv.addFilter( m_filter ) ;
+   DDFilteredView fv( *cpv, m_filter ) ;
  
    unsigned int counter ( 0 ) ;
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )

@@ -24,7 +24,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # take your favourite global tag
 from Configuration.AlCa.GlobalTag import GlobalTag 
 process.GlobalTag = GlobalTag(process.GlobalTag, "GLOBALTAG")     
-usedGlobalTag = process.GlobalTag.globaltag._value 
+usedGlobalTag = process.GlobalTag.globaltag.value()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.LOGFILE = cms.untracked.PSet(
@@ -68,6 +68,17 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         #  'TrackerTECModuleUnit,101111'
         )
     )
+
+# explicitely specify run ranges to convince algorithm that multi-IOV input is fine
+process.AlignmentProducer.RunRangeSelection = [
+    cms.PSet(
+        RunRanges = cms.vstring("RUNNUMBER"),
+        selector = process.AlignmentProducer.ParameterBuilder.Selector.alignParams
+    )
+] # end of process.AlignmentProducer.RunRangeSelection
+
+# enable alignable updates to convince algorithm that multi-IOV input is fine
+process.AlignmentProducer.enableAlignableUpdates = True
 
 process.AlignmentProducer.doMisalignmentScenario = False #True
 process.AlignmentProducer.applyDbAlignment = True # either globalTag or trackerAlignment

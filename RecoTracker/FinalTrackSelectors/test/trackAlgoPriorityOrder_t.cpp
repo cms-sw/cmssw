@@ -1,4 +1,4 @@
-#include "RecoTracker/FinalTrackSelectors/plugins/trackAlgoPriorityOrder.h"
+#include "RecoTracker/FinalTrackSelectors/src/trackAlgoPriorityOrder.h"
 
 #include <iostream>
 

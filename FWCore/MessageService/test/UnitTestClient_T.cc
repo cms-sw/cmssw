@@ -1,6 +1,7 @@
 #include "FWCore/MessageService/test/UnitTestClient_T.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include <iostream>
 #include <string>

@@ -1,6 +1,9 @@
 <use   name="CondCore/CondDB"/>
+<use   name="CondCore/Utilities"/>
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 <bin   file="testBasicPayload.cpp" name="testBasicPayload">
+</bin>
+<bin   file="testHistograms.cpp" name="testHistograms">
 </bin>

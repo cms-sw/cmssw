@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+# The following 2 imports are provided for backward compatibility reasons.
+# The functions used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+from FWCore.ParameterSet.MassReplace import massReplaceParameter as MassReplaceParameter
+
 def ProcessName(process):
 #   processname modifications
 
@@ -108,24 +113,6 @@ def HLTDropPrevious(process):
     
     return(process)
 
-
-def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
-#   replace InputTag values (adapted from Configuration/Applications/python/ConfigBuilder.py)
-    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-    for s in process.paths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s),old,new,verbose,moduleLabelOnly,skipLabelTest)
-    for s in process.endpaths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s),old,new,verbose,moduleLabelOnly,skipLabelTest)
-    return(process)
-
-def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
-#   replace values of named parameters
-    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
-    for s in process.paths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
-    for s in process.endpaths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
-    return(process)
 
 def L1REPACK(process,sequence="Full"):
 

@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 
 namespace edm {

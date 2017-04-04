@@ -64,6 +64,7 @@ class TTCluster
     /// Average cluster coordinates
     MeasurementPoint findHitLocalCoordinates( unsigned int hitIdx ) const;
     MeasurementPoint findAverageLocalCoordinates() const;
+    MeasurementPoint findAverageLocalCoordinatesCentered() const;
 
     /// Information
     std::string print( unsigned int i = 0 ) const;

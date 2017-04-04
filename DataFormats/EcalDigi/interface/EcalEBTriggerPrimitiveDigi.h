@@ -4,12 +4,12 @@
 #include <ostream>
 #include <vector>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
+#include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveSample.h"
 
 
 
 /** \class EcalEBTriggerPrimitiveDigi
-
+\author N. Marinelli - Univ. of Notre Dame
 
 
 */
@@ -31,36 +31,24 @@ class EcalEBTriggerPrimitiveDigi {
   const EBDetId& id() const { return id_; }
   int size() const { return size_; }
     
-  const EcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
-  const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
+  const EcalEBTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
+  const EcalEBTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
     
   void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam);
+  void setSample(int i, const EcalEBTriggerPrimitiveSample& sam);
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
 
-  /// get the encoded/compressed Et of interesting sample
-  int compressedEt() const; 
+  /// get the 10 bits Et of interesting sample
+  int encodedEt() const; 
   
-  
-  /// get the fine-grain bit of interesting sample
-  bool fineGrain() const; 
-  
-  /// get the Trigger tower Flag of interesting sample
-  int ttFlag() const; 
+  /// Spike flag
+  bool l1aSpike() const;
 
-  /// Gets the "strip fine grain veto bit" (sFGVB) used as L1A spike detection
-  /// @return 0 spike like pattern
-  ///         1 EM shower like pattern
-  int sFGVB() const;
+  /// Time info
+  int time() const;
 
-  /// Gets the L1A spike detection flag. Beware the flag is inverted.
-  /// Deprecated, use instead sFGVB() method, whose name is less missleading
-  /// @return 0 spike like pattern
-  ///         1 EM shower like pattern
-  int l1aSpike() const { return sFGVB(); }
-  
   /// True if debug mode (# of samples > 1)
   bool isDebug() const;
 
@@ -70,7 +58,8 @@ class EcalEBTriggerPrimitiveDigi {
 private:
   EBDetId id_;
   int size_;
-  std::vector<EcalTriggerPrimitiveSample> data_;
+  std::vector<EcalEBTriggerPrimitiveSample> data_;
+
 };
 
 

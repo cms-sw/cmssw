@@ -22,7 +22,7 @@ namespace ecaldqm
     //     HLTMuonPath_(""),
     //     HLTCaloBit_(false),
     //     HLTMuonBit_(false),
-    bxBinEdges_{1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565},
+    bxBinEdges_{ {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565} },
     bxBin_(0.),
     towerReadouts_()
   {
@@ -76,8 +76,8 @@ namespace ecaldqm
     //     HLTCaloBit_ = false;
     //     HLTMuonBit_ = false;
 
-    int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
-    bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
+    int* pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
+    bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
 
     edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
     _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd_);

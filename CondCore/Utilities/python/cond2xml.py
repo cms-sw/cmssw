@@ -99,6 +99,7 @@ buildFileTemplate = """
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondFormats/MFObjects"/>
+<use   name="CondFormats/PCLConfig"/>
 <export>
   <lib   name="1"/>
 </export>

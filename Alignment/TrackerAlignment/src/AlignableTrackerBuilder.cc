@@ -25,10 +25,10 @@
 AlignableTrackerBuilder
 ::AlignableTrackerBuilder(const TrackerGeometry* trackerGeometry,
                           const TrackerTopology* trackerTopology) :
-  trackerGeometry(trackerGeometry),
-  trackerTopology(trackerTopology),
+  trackerGeometry_(trackerGeometry),
+  trackerTopology_(trackerTopology),
   alignableObjectId_(trackerGeometry, nullptr, nullptr),
-  alignableMap(nullptr),
+  alignableMap_(nullptr),
   trackerAlignmentLevelBuilder_(trackerTopology, trackerGeometry)
 {
   std::ostringstream ss;
@@ -49,14 +49,17 @@ AlignableTrackerBuilder
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
-::buildAlignables(AlignableTracker* trackerAlignables)
+::buildAlignables(AlignableTracker* trackerAlignables, bool update)
 {
-  alignableMap = &trackerAlignables->alignableMap;
+  alignableMap_ = &trackerAlignables->alignableMap_;
 
   // first, build Alignables on module-level (AlignableDetUnits)
-  buildAlignableDetUnits();
+  buildAlignableDetUnits(update);
+
   // now build the composite Alignables (Ladders, Layers etc.)
-  buildAlignableComposites();
+  buildAlignableComposites(update);
+
+  if (update) return;           // everything else not needed for the update
 
   // create pixel-detector
   buildPixelDetector(trackerAlignables);
@@ -64,7 +67,7 @@ void AlignableTrackerBuilder
   buildStripDetector(trackerAlignables);
 
   // tracker itself is of course also an Alignable
-  alignableMap->get("Tracker").push_back(trackerAlignables);
+  alignableMap_->get("Tracker").push_back(trackerAlignables);
   // id is the id of first component (should be TPBBarrel)
   trackerAlignables->theId = trackerAlignables->components()[0]->id();
 }
@@ -77,60 +80,66 @@ void AlignableTrackerBuilder
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
-::buildAlignableDetUnits()
+::buildAlignableDetUnits(bool update)
 {
   // PixelBarrel
   convertGeomDetsToAlignables(
-    trackerGeometry->detsPXB(), alignableObjectId_.idToString(align::TPBModule)
+    trackerGeometry_->detsPXB(), alignableObjectId_.idToString(align::TPBModule),
+    update
   );
 
   // PixelEndcap
   convertGeomDetsToAlignables(
-    trackerGeometry->detsPXF(), alignableObjectId_.idToString(align::TPEModule)
+    trackerGeometry_->detsPXF(), alignableObjectId_.idToString(align::TPEModule),
+    update
   );
 
   // TIB
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTIB(), alignableObjectId_.idToString(align::TIBModule)
+    trackerGeometry_->detsTIB(), alignableObjectId_.idToString(align::TIBModule),
+    update
   );
 
   // TID
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTID(), alignableObjectId_.idToString(align::TIDModule)
+    trackerGeometry_->detsTID(), alignableObjectId_.idToString(align::TIDModule),
+    update
   );
 
   // TOB
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTOB(), alignableObjectId_.idToString(align::TOBModule)
+    trackerGeometry_->detsTOB(), alignableObjectId_.idToString(align::TOBModule),
+    update
   );
 
   // TEC
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTEC(), alignableObjectId_.idToString(align::TECModule)
+    trackerGeometry_->detsTEC(), alignableObjectId_.idToString(align::TECModule),
+    update
   );
 }
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
 ::convertGeomDetsToAlignables(const TrackingGeometry::DetContainer& geomDets,
-                              const std::string& moduleName)
+                              const std::string& moduleName, bool update)
 {
   numDetUnits = 0;
 
-  auto& alignables = alignableMap->get(moduleName);
-  alignables.reserve(geomDets.size());
+  auto& alignables = alignableMap_->get(moduleName);
+  if (!update) alignables.reserve(geomDets.size());
 
   // units are added for each moduleName, which are at moduleName + "Unit"
   // in the pixel Module and ModuleUnit are equivalent
-  auto & aliUnits = alignableMap->get(moduleName+"Unit");
-  aliUnits.reserve(geomDets.size()); // minimal number space needed
+  auto & aliUnits = alignableMap_->get(moduleName+"Unit");
+  if (!update) aliUnits.reserve(geomDets.size()); // minimal number space needed
 
   for (auto& geomDet : geomDets) {
     int subdetId = geomDet->geographicalId().subdetId(); //don't check det()==Tracker
 
     if (subdetId == PixelSubdetector::PixelBarrel ||
         subdetId == PixelSubdetector::PixelEndcap) {
-      buildPixelDetectorAlignable(geomDet, subdetId, alignables, aliUnits);
+      buildPixelDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
 
     } else if (subdetId == SiStripDetId::TIB ||
                subdetId == SiStripDetId::TID ||
@@ -138,7 +147,7 @@ void AlignableTrackerBuilder
                subdetId == SiStripDetId::TEC) {
       // for strip we create also <TIB/TID/TOB/TEC>ModuleUnit list
       // for 1D components of 2D layers
-      buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits);
+      buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
 
     } else {
       throw cms::Exception("LogicError")
@@ -163,7 +172,8 @@ void AlignableTrackerBuilder
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
 ::buildPixelDetectorAlignable(const GeomDet* geomDetUnit, int subdetId,
-                              Alignables& aliDets, Alignables& aliDetUnits)
+                              Alignables& aliDets, Alignables& aliDetUnits,
+                              bool update)
 {
   // treat all pixel dets in same way with one AlignableDetUnit
   if (!geomDetUnit->isLeaf()) {
@@ -172,15 +182,39 @@ void AlignableTrackerBuilder
       << ") is not a GeomDetUnit.";
   }
 
-  aliDets.push_back(new AlignableDetUnit(geomDetUnit));
-  aliDetUnits.push_back(aliDets.back());
+  if (update) {
+    auto ali =
+      std::find_if(aliDets.cbegin(), aliDets.cend(),
+                   [&geomDetUnit](const auto& i) {
+                     return i->id() == geomDetUnit->geographicalId().rawId(); });
+    if (ali != aliDets.end()) {
+      // add dynamic cast here to get AlignableDetUnit!
+      auto aliDetUnit = dynamic_cast<AlignableDetUnit*>(*ali);
+      if (aliDetUnit) {
+        aliDetUnit->update(geomDetUnit);
+      } else {
+        throw cms::Exception("LogicError")
+          << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
+          << "cast to 'AlignableDetUnit*' failed while it should not\n";
+      }
+    } else {
+      throw cms::Exception("GeometryMismatch")
+        << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
+        << "GeomDet with DetId " << geomDetUnit->geographicalId().rawId()
+        << " not found in current geometry.\n";
+    }
+  } else {
+    aliDets.push_back(new AlignableDetUnit(geomDetUnit));
+    aliDetUnits.push_back(aliDets.back());
+  }
   numDetUnits += 1;
 }
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
 ::buildStripDetectorAlignable(const GeomDet* geomDet, int subdetId,
-                              Alignables& aliDets, Alignables& aliDetUnits)
+                              Alignables& aliDets, Alignables& aliDetUnits,
+                              bool update)
 {
   // In strip we have:
   // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDetUnit
@@ -201,17 +235,42 @@ void AlignableTrackerBuilder
       }
 
       // components (AlignableDetUnits) constructed within
-      aliDets.push_back(new AlignableSiStripDet(gluedGeomDet));
+      if (update) {
+        auto ali =
+          std::find_if(aliDets.cbegin(), aliDets.cend(),
+                       [&gluedGeomDet](const auto& i) {
+                         return i->id() == gluedGeomDet->geographicalId().rawId(); });
+        if (ali != aliDets.end()) {
+          auto aliSiStripDet = dynamic_cast<AlignableSiStripDet*>(*ali);
+          if (aliSiStripDet) {
+            aliSiStripDet->update(gluedGeomDet);
+          } else {
+            throw cms::Exception("LogicError")
+              << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
+              << "cast to 'AlignableSiStripDet*' failed while it should not\n";
+          }
+        } else {
+          throw cms::Exception("GeometryMismatch")
+            << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
+            << "GeomDet with DetId " << gluedGeomDet->geographicalId().rawId()
+            << " not found in current geometry.\n";
+        }
+      } else {
+        aliDets.push_back(new AlignableSiStripDet(gluedGeomDet));
+      }
       const auto& addAliDetUnits = aliDets.back()->components();
       const auto& nAddedUnits = addAliDetUnits.size();
-      // reserve space for the additional units:
-      aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits -1);
-      aliDetUnits.insert(aliDetUnits.end(), addAliDetUnits.begin(), addAliDetUnits.end());
+
+      if (!update) {
+        // reserve space for the additional units:
+        aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits -1);
+        aliDetUnits.insert(aliDetUnits.end(), addAliDetUnits.begin(), addAliDetUnits.end());
+      }
       numDetUnits += nAddedUnits;
 
     } else {
       // no components: pure 1D-module
-      buildPixelDetectorAlignable(geomDet, subdetId, aliDets, aliDetUnits);
+      buildPixelDetectorAlignable(geomDet, subdetId, aliDets, aliDetUnits, update);
     }
   } // no else: glued components of AlignableDet constructed within
     // AlignableSiStripDet -> AlignableDet, see above
@@ -221,7 +280,7 @@ void AlignableTrackerBuilder
 
 //_____________________________________________________________________________
 void AlignableTrackerBuilder
-::buildAlignableComposites()
+::buildAlignableComposites(bool update)
 {
   unsigned int numCompositeAlignables = 0;
 
@@ -230,7 +289,7 @@ void AlignableTrackerBuilder
   // to get the namespace w/o building the levels
   auto trackerLevels = trackerAlignmentLevelBuilder_.build();
   TrackerAlignableIndexer trackerIndexer{trackerAlignmentLevelBuilder_.trackerNameSpace()};
-  AlignableCompositeBuilder compositeBuilder{trackerTopology, trackerGeometry, trackerIndexer};
+  AlignableCompositeBuilder compositeBuilder{trackerTopology_, trackerGeometry_, trackerIndexer};
 
   for (auto& trackerSubLevels: trackerLevels) {
     // first add all levels of the current subdetector to the builder
@@ -238,7 +297,7 @@ void AlignableTrackerBuilder
       compositeBuilder.addAlignmentLevel(std::move(level));
     }
     // now build this tracker-level
-    numCompositeAlignables += compositeBuilder.buildAll(*alignableMap);
+    numCompositeAlignables += compositeBuilder.buildAll(*alignableMap_, update);
     // finally, reset the builder
     compositeBuilder.clearAlignmentLevels();
   }
@@ -257,9 +316,9 @@ void AlignableTrackerBuilder
   const std::string& pxeName   = alignableObjectId_.idToString(align::TPEEndcap);
   const std::string& pixelName = alignableObjectId_.idToString(align::Pixel);
 
-  auto& pxbAlignables   = alignableMap->find(pxbName);
-  auto& pxeAlignables   = alignableMap->find(pxeName);
-  auto& pixelAlignables = alignableMap->get (pixelName);
+  auto& pxbAlignables   = alignableMap_->find(pxbName);
+  auto& pxeAlignables   = alignableMap_->find(pxeName);
+  auto& pixelAlignables = alignableMap_->get (pixelName);
 
   pixelAlignables.push_back(
     new AlignableComposite(pxbAlignables[0]->id(), align::Pixel, align::RotationType())
@@ -287,11 +346,11 @@ void AlignableTrackerBuilder
   const std::string& tecName   = alignableObjectId_.idToString(align::TECEndcap);
   const std::string& stripName = alignableObjectId_.idToString(align::Strip);
 
-  auto& tibAlignables   = alignableMap->find(tibName);
-  auto& tidAlignables   = alignableMap->find(tidName);
-  auto& tobAlignables   = alignableMap->find(tobName);
-  auto& tecAlignables   = alignableMap->find(tecName);
-  auto& stripAlignables = alignableMap->get (stripName);
+  auto& tibAlignables   = alignableMap_->find(tibName);
+  auto& tidAlignables   = alignableMap_->find(tidName);
+  auto& tobAlignables   = alignableMap_->find(tobName);
+  auto& tecAlignables   = alignableMap_->find(tecName);
+  auto& stripAlignables = alignableMap_->get (stripName);
 
   stripAlignables.push_back(
     new AlignableComposite(tibAlignables[0]->id(), align::Strip, align::RotationType())

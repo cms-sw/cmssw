@@ -31,6 +31,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( AlignmentErrorsExtended )
       FETCH_PAYLOAD_CASE( AlignmentSurfaceDeformations )
       FETCH_PAYLOAD_CASE( Alignments )
+      FETCH_PAYLOAD_CASE( AlignPCLThresholds )	
       FETCH_PAYLOAD_CASE( BeamSpotObjects )
       FETCH_PAYLOAD_CASE( CSCBadChambers )
       FETCH_PAYLOAD_CASE( CSCBadStrips )

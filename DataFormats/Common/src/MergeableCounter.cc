@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <ostream>
 
 namespace edm 
 {

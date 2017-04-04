@@ -5,6 +5,8 @@
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
+#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
+
 namespace DataFormats {
   namespace L1THGCal {
     l1t::HGCFETriggerDigi hgcfetd;
@@ -27,5 +29,7 @@ namespace DataFormats {
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
     edm::Wrapper<l1t::HGCalClusterBxCollection> w_hgcalClusterBxColl;
     edm::Wrapper<l1t::HGCalTriggerCellBxCollection>   w_hgcalTriggerCellBxColl;
+
+    l1t::ClusterShapes clusterShapes;
   }
 }

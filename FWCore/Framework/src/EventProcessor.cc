@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
@@ -26,6 +27,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
@@ -569,6 +571,7 @@ namespace edm {
                                  preg(),
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 SubProcessParentageHelper(),
                                  *espController_,
                                  *actReg_,
                                  token,

@@ -1,6 +1,7 @@
 <export>
   <lib   name="1"/>
 </export>
+<use   name="CondCore/CondDB"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/TrackingRecHit"/>

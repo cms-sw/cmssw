@@ -115,10 +115,10 @@ StreamContext: StreamID = 0 transition = BeginRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: begin run for module: stream = 0 label = 'intProducerU' id = 4
-++++++ finished: begin run for module: stream = 0 label = 'intProducerU' id = 4
 ++++++ starting: begin run for module: stream = 0 label = 'intVectorProducer' id = 5
 ++++++ finished: begin run for module: stream = 0 label = 'intVectorProducer' id = 5
+++++++ starting: begin run for module: stream = 0 label = 'intProducerU' id = 4
+++++++ finished: begin run for module: stream = 0 label = 'intProducerU' id = 4
 ++++++ starting: begin run for module: stream = 0 label = 'intProducer' id = 2
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
@@ -203,10 +203,10 @@ StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: begin lumi for module: stream = 0 label = 'intProducerU' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'intProducerU' id = 4
 ++++++ starting: begin lumi for module: stream = 0 label = 'intVectorProducer' id = 5
 ++++++ finished: begin lumi for module: stream = 0 label = 'intVectorProducer' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'intProducerU' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'intProducerU' id = 4
 ++++++ starting: begin lumi for module: stream = 0 label = 'intProducer' id = 2
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0

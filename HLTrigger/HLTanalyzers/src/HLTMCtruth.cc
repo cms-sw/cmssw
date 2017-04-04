@@ -104,6 +104,21 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     int npvtrue = 0; 
     int npuvert = 0;
 
+    if(PupInfo.isValid()) {
+      std::vector<PileupSummaryInfo>::const_iterator PVI;  
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
+	
+	int BX = PVI->getBunchCrossing();  
+	npvtrue = PVI->getTrueNumInteractions();  
+	npuvert = PVI->getPU_NumInteractions();
+	
+	if(BX == 0)  
+	  {  
+	    npubx0+=npvtrue; 
+	    npuvertbx0+=npuvert;
+	  } 
+      }
+    }
 
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {
@@ -123,20 +138,6 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	if (abs(z)>400.) continue; // I think units are cm here
 	mu3 += 1;
 	break;
-      }
-
-      std::vector<PileupSummaryInfo>::const_iterator PVI;  
-      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
-	
-	int BX = PVI->getBunchCrossing();  
-	npvtrue = PVI->getTrueNumInteractions();  
-	npuvert = PVI->getPU_NumInteractions();
-	
-	if(BX == 0)  
-	  {  
-	    npubx0+=npvtrue; 
-	    npuvertbx0+=npuvert;
-	  } 
       }
 
     }

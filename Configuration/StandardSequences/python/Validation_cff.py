@@ -31,8 +31,8 @@ from Validation.RecoParticleFlow.miniAODValidation_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 
-prevalidationNoHLT = cms.Sequence( globalPrevalidation * metPreValidSeq * jetPreValidSeq * cms.SequencePlaceholder("mix") )
-prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq * cms.SequencePlaceholder("mix") )
+prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * metPreValidSeq * jetPreValidSeq )
+prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
 prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
@@ -49,7 +49,7 @@ validationNoHLT = cms.Sequence(
                                *globalhitsanalyze
                                *globalrechitsanalyze
                                *globalValidation)
-
+validationNoHLT.remove(condDataValidation) # foca d'ovatta !
 validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
 
@@ -88,7 +88,6 @@ for _entry in [hltvalidation_preprod]:
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validation_preprod,_validation_preprod_fastsim)
 
-validation.remove(condDataValidation)
 validation_prodNoHLT = cms.Sequence(
              genvalid_all
             )

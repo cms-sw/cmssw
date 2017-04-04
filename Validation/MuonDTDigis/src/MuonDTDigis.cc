@@ -28,11 +28,11 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   // the name of the Digi collection
   DigiToken_ = consumes<DTDigiCollection> (pset.getParameter<edm::InputTag>(("DigiLabel")));
 
-  hDigis_global = new hDigis("Global");
-  hDigis_W0 = new hDigis("Wheel0");
-  hDigis_W1 = new hDigis("Wheel1");
-  hDigis_W2 = new hDigis("Wheel2");
-  hAllHits = new hHits("AllHits");
+  hDigis_global = std::make_unique<hDigis>("Global");
+  hDigis_W0 = std::make_unique<hDigis>("Wheel0");
+  hDigis_W1 = std::make_unique<hDigis>("Wheel1");
+  hDigis_W2 = std::make_unique<hDigis>("Wheel2");
+  hAllHits = std::make_unique<hHits>("AllHits");
 }
 
 MuonDTDigis::~MuonDTDigis(){
@@ -318,11 +318,11 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 hDigis* MuonDTDigis::WheelHistos(int wheel){
   switch(abs(wheel)){
 
-    case 0: return  hDigis_W0;
+    case 0: return  hDigis_W0.get();
 
-    case 1: return  hDigis_W1;
+    case 1: return  hDigis_W1.get();
 
-    case 2: return  hDigis_W2;
+    case 2: return  hDigis_W2.get();
 
     default: return NULL;
   }

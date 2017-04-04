@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 def _label(tag):
-    t = cms.InputTag(tag)
+    if hasattr(tag, "getModuleLabel"):
+        t = tag
+    else:
+        t = cms.InputTag(tag)
     return t.getModuleLabel()+t.getProductInstanceLabel()
 
 def customiseTrackingNtuple(process):
@@ -10,8 +13,14 @@ def customiseTrackingNtuple(process):
         fileName = cms.string('trackingNtuple.root')
     )
 
-    if process.trackingNtuple.includeSeeds.value() and not hasattr(process, "reconstruction_step"):
-        raise Exception("TrackingNtuple includeSeeds=True needs reconstruction which is missing")
+    if process.trackingNtuple.includeSeeds.value():
+        if not hasattr(process, "reconstruction_step"):
+            raise Exception("TrackingNtuple includeSeeds=True needs reconstruction which is missing")
+
+        # enable seed stopping reason in track candidate producer
+        for trkCand in process.trackingNtuple.trackCandidates.value():
+            producer = getattr(process, cms.InputTag(trkCand).getModuleLabel())
+            producer.produceSeedStopReasons = True
 
     # Replace validation_step with ntuplePath
     if not hasattr(process, "validation_step"):
