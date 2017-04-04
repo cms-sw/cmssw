@@ -201,22 +201,24 @@ const TrackerGeomDet *
 TrackerGeometry::idToDetUnit(DetId s)const
 {
   mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
-  if (p != theMapUnit.end())
+  if (p != theMapUnit.end()) {
     return static_cast<const TrackerGeomDet *>(p->second);
-  edm::LogError("TrackerGeometry") << "Invalid DetID: no GeomDetUnit associated with raw ID "
-				   << s.rawId() << " of subdet ID " << s.subdetId();
-  return nullptr;
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
+					       << s.rawId() << " of subdet ID " << s.subdetId();
+  }
 }
 
 const TrackerGeomDet* 
 TrackerGeometry::idToDet(DetId s)const
 {
   mapIdToDet::const_iterator p=theMap.find(s.rawId());
-  if (p != theMap.end())
+  if (p != theMap.end()) {
     return static_cast<const TrackerGeomDet *>(p->second);
-  edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDet associated with raw ID "
-				  << s.rawId() << " of subdet ID " << s.subdetId();
-  return nullptr;
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
+					       << s.rawId() << " of subdet ID " << s.subdetId();
+  }
 }
 
 const GeomDetEnumerators::SubDetector 
