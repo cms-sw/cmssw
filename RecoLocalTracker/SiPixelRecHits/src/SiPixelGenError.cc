@@ -1,10 +1,11 @@
 //
-//  SiPixelGenError.cc  Version 1.00
+//  SiPixelGenError.cc  Version 2.00
 //
 //  Object stores Lorentz widths, bias corrections, and errors for the Generic Algorithm
 //  
 //  Created by Morris Swartz on 10/27/06.
 //  Add some debugging messages. d.k. 5/14
+//  Update for Phase 1 FPix, M.S. 1/15/17
 //
 
 //#include <stdlib.h>
@@ -460,7 +461,7 @@ int SiPixelGenError::qbin(int id) {
 }
   //-----------------------------------------------------------------------
   // Full method 
-int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, 
+int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, 
 			  float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, 
 			  float& sx2, float& dx2)
@@ -521,22 +522,57 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    // for some cosmics, the ususal gymnastics are incorrect
    
-   float cotb; bool flip_y;
-   if(thePixelTemp_[index].head.Dtype == 0) {
-      cotb = acotb;
-      flip_y = false;
-      if(cotbeta < 0.f) {flip_y = true;}
-   } else {
-      if(locBz < 0.f) {
-         cotb = cotbeta;
-         flip_y = false;
-      } else {
-         cotb = -cotbeta;
-         flip_y = true;
-      }
-   }
+   float cota = cotalpha;
+   float cotb = acotb;; 
+   bool flip_y; bool flip_x;
+// for some cosmics, the ususal gymnastics are incorrect   
+	flip_x = false;
+	flip_y = false;
+	switch(thePixelTemp_[index_id_].head.Dtype) {
+	   case 0:
+		  if(cotbeta < 0.f) {flip_y = true;}
+		  break;
+	   case 1:
+	      if(locBz < 0.f) {
+			  cotb = cotbeta;
+		  } else {
+			  cotb = -cotbeta;
+			  flip_y = true;
+		  }	
+		  break;
+	   case 2:
+	   case 3:
+	   case 4:
+	      if(locBx*locBz < 0.f) {
+	         cota = -cotalpha;
+	         flip_x = true;
+	      }
+	      if(locBx > 0.f) {
+	         cotb = cotbeta;
+	      } else {
+	         cotb = -cotbeta;
+	         flip_y = true;
+	      }
+	      break;
+	   default:
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+		  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#else
+	      std::cout << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#endif
+	} 
    
    // Copy the charge scaling factor to the private variable
+   
+   if(flip_y) { 
+      lorybias_ = -lorybias_; 
+      lorywidth_ = -lorywidth_;
+   }
+   if(flip_x) { 
+      lorxbias_ = -lorxbias_; 
+      lorxwidth_ = -lorxwidth_;
+   }
+
    
    auto qscale = thePixelTemp_[index].head.qscale;
    
@@ -657,7 +693,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       auto j = std::lower_bound(templ.cotalphaX,templ.cotalphaX+Nxx,cotalpha);
       if (j==templ.cotalphaX+Nxx) { --j;  xxratio = 1.f; }
       else if (j==templ.cotalphaX) { ++j; xxratio = 0.f;}
-      else { xxratio = (cotalpha - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+      else { xxratio = (cota - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
       
       ihigh = j-templ.cotalphaX;
       ilow = ihigh-1;
@@ -666,8 +702,10 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
+   if(flip_x) {dx1 = -dx1;}
    sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
    dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
+   if(flip_x) {dx2 = -dx2;}
    sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
    
    // pixmax is the maximum allowed pixel charge (used for truncation)
@@ -677,6 +715,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
    +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+   if(flip_x) {xavggen = -xavggen;}
    
    auto xrmsgen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
    +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);

@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v9.00)
+//  SiPixelTemplate.h (v10.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -69,6 +69,9 @@
 //  V8.33 - Fix small type conversion warnings
 //  V8.40 - Incorporate V.I. optimizations
 //  V9.00 - Expand header to include multi and single dcol thresholds, LA biases, and (variable) Qbin definitions
+//  V9.01 - Protect against negative error squared
+//  V10.00 - Update to work with Phase 1 FPix.  Fix some code problems introduced by other maintainers.
+
 
 // Created by Morris Swartz on 10/27/06.
 //
@@ -243,9 +246,11 @@ class SiPixelTemplate {
   static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from db
 #endif
   
-  // initialize the rest;
+// initialize the rest;
   static void postInit(std::vector< SiPixelTemplateStore > & thePixelTemp_);
-
+   
+// Interpolate input alpha and beta angles to produce a working template for each individual hit.
+   bool interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx);
 	
 // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
   bool interpolate(int id, float cotalpha, float cotbeta, float locBz);
@@ -286,11 +291,9 @@ class SiPixelTemplate {
 // Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
   
-// Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm. 
-//  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-//           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
-	
-// Overload for backward compatibility. 
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+	     
   int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
 	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
 	
@@ -299,7 +302,7 @@ class SiPixelTemplate {
 	
 // Overload to keep legacy interface 
   int qbin(int id, float cotbeta, float qclus);
-	
+	  	
 // Method to return template errors for fastsim
   void temperrors(int id, float cotalpha, float cotbeta, int qBin, float& sigmay, float& sigmax, float& sy1, float& sy2, float& sx1, float& sx2);
 	
