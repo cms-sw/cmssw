@@ -40,10 +40,19 @@ void PtAssignment::process(
   for (; best_tracks_it != best_tracks_end; ++best_tracks_it) {
     EMTFTrack& track = *best_tracks_it;  // pass by reference
 
-    address_t address = pt_assign_engine_->calculate_address(track);
-    float     xmlpt   = pt_assign_engine_->calculate_pt(address);
-    float     pt      = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
-    pt *= 1.4;  // multiply by 1.4 to keep efficiency above 90% when the L1 trigger pT cut is applied
+    address_t address;
+    float     xmlpt;
+    float     pt;
+    if (track.NumHits() == 1) {
+      address = 0;
+      xmlpt = 0;
+      pt = 5.5 / cosh( fabs(track.Eta()) );
+    } else {
+      address = pt_assign_engine_->calculate_address(track);
+      xmlpt   = pt_assign_engine_->calculate_pt(address);
+      pt      = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
+      pt *= 1.4;  // multiply by 1.4 to keep efficiency above 90% when the L1 trigger pT cut is applied
+    }
 
     int gmt_pt = aux().getGMTPt(pt);            // Encode integer pT in GMT format
     pt = (gmt_pt <= 0) ?  0 : (gmt_pt-1) * 0.5; // Decode integer pT (result is in 0.5 GeV step)
@@ -67,14 +76,27 @@ void PtAssignment::process(
       gmt_eta = (gmt_eta < 0) ? ~(-gmt_eta) : gmt_eta;
     }
 
-    int gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp());
+    int gmt_quality;
+    if (track.NumHits() == 1)
+      gmt_quality = log2( track.Mode() );  // 8 --> 3, 4 --> 2, 2 --> 1, 1 --> 0
+    else
+      gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp());
 
-    std::vector<int> phidiffs;
-    for (int i = 0; i < NUM_STATION_PAIRS; ++i) {
-      int phidiff = (track.PtLUT().sign_ph[i] == 1) ? track.PtLUT().delta_ph[i] : -track.PtLUT().delta_ph[i];
-      phidiffs.push_back(phidiff);
+    std::pair<int, int> gmt_charge = std::make_pair(0, 0);
+    if (track.NumHits() == 1) {
+      int CLCT = track.Hits().at(0).Pattern();
+      if (CLCT != 10) {
+	if (endcap_ == 1) gmt_charge = std::make_pair( (CLCT % 2) == 0 ? 0 : 1, 1);
+	else              gmt_charge = std::make_pair( (CLCT % 2) == 0 ? 1 : 0, 1);
+      }
+    } else {
+      std::vector<int> phidiffs;
+      for (int i = 0; i < NUM_STATION_PAIRS; ++i) {
+	int phidiff = (track.PtLUT().sign_ph[i] == 1) ? track.PtLUT().delta_ph[i] : -track.PtLUT().delta_ph[i];
+	phidiffs.push_back(phidiff);
+      }
+      gmt_charge = aux().getGMTCharge(track.Mode(), phidiffs);
     }
-    std::pair<int, int> gmt_charge = aux().getGMTCharge(track.Mode(), phidiffs);
 
     // _________________________________________________________________________
     // Output
