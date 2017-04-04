@@ -252,6 +252,8 @@ class GenericValidationData(GenericValidation):
                 "end": "",
                 "JSON": "",
                 "dasinstance": "prod/global",
+                "ttrhbuilder":"WithAngleAndTemplate",
+                "usepixelqualityflag": "True",
                }
     optionals = {"magneticfield"}
     
@@ -392,10 +394,11 @@ class GenericValidationData(GenericValidation):
                 "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
                 "outputFiles": addIndex(outputfile, self.NJobs),
                 "finalOutputFile": outputfile,
+                "ProcessName": self.ProcessName,
                 "Bookkeeping": self.Bookkeeping,
                 "LoadBasicModules": self.LoadBasicModules,
                 "TrackSelectionRefitting": self.TrackSelectionRefitting,
-                "ValidationConfig": self.cfgTemplate,
+                "ValidationConfig": self.ValidationTemplate,
                 "FileOutputTemplate": self.FileOutputTemplate,
                 "DefinePath": self.DefinePath,
                 })
@@ -405,9 +408,16 @@ class GenericValidationData(GenericValidation):
     def cfgName(self):
         return "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                    self.alignmentToValidate.name )
+    @abstractproperty
+    def ProcessName(self):
+        pass
+
+    @property
+    def cfgTemplate(self):
+        return configTemplates.cfgTemplate
 
     @abstractproperty
-    def cfgTemplate(self):
+    def ValidationTemplate(self):
         pass
 
     @property
@@ -483,12 +493,42 @@ class GenericValidationData(GenericValidation):
 
 class GenericValidationData_CTSR(GenericValidationData):
     #common track selection and refitting
+    defaults = {
+        "momentumconstraint": "None",
+        "openmasswindow": "False",
+        "cosmicsdecomode": "True",
+    }
+    def getRepMap(self):
+        result = super(GenericValidationData_CTSR, self).getRepMap()
+        from trackSplittingValidation import TrackSplittingValidation
+        result.update({
+            "ValidationSequence": self.ValidationSequence,
+            "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
+            "cosmics0T": str(self.cosmics0T),
+        })
+        return result
     @property
     def TrackSelectionRefitting(self):
         return configTemplates.CommonTrackSelectionRefitting
     @property
     def DefinePath(self):
         return configTemplates.DefinePath_CommonSelectionRefitting
+    @abstractproperty
+    def ValidationSequence(self):
+        pass
+    @property
+    def cosmics0T(self):
+        if "Cosmics" not in self.general["trackcollection"]: return False
+        Bfield = self.dataset.magneticFieldForRun()
+        if Bfield < 0.5: return True
+        if isinstance(Bfield, str):
+            if "unknown " in Bfield:
+                msg = Bfield.replace("unknown ","",1)
+            elif "Bfield" is "unknown":
+                msg = "Can't get the B field for %s." % self.dataset.name()
+            raise AllInOneError(msg + "\n"
+                                "To use this data set, specify magneticfield = [value] in your .ini config file.")
+        return False
 
 class ParallelValidation(GenericValidation):
     @classmethod

@@ -1,7 +1,7 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
+from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap, addIndex
 from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
@@ -16,7 +16,6 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
         "offlineModuleLevelHistsTransient": "False",
         "offlineModuleLevelProfiles": "True",
         "stripYResiduals": "False",
-        "usePixelQualityFlag": "True",
         }
     deprecateddefaults = {
         "DMRMethod":"",
@@ -43,8 +42,20 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
             raise AllInOneError(msg)
 
     @property
-    def cfgTemplate(self):
+    def ProcessName(self):
+        return "OfflineValidator"
+
+    @property
+    def ValidationTemplate(self):
         return configTemplates.offlineTemplate
+
+    @property
+    def ValidationSequence(self):
+        return configTemplates.OfflineValidationSequence
+
+    @property
+    def FileOutputTemplate(self):
+        return configTemplates.offlineFileOutputTemplate
 
     def createScript(self, path):
         return super(OfflineValidation, self).createScript(path)

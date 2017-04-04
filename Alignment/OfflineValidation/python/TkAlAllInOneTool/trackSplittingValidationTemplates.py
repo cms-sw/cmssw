@@ -13,14 +13,15 @@ process.cosmicValidation = cms.EDAnalyzer("CosmicSplitterValidation",
     originalTracks = cms.InputTag("TrackRefitter1","","splitter"),
     originalGlobalMuons = cms.InputTag("muons","","Rec")
 )
-
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.AlignmentTrackSelector*process.cosmicTrackSplitter*process.HitFilteredTracks*process.TrackRefitter2*process.cosmicValidation)
 """
 
+######################################################################
+######################################################################
+TrackSplittingSequence = "process.cosmicValidation"
+
 
 ######################################################################
 ######################################################################
-
 trackSplitPlotExecution="""
 #make track splitting plots
 
