@@ -1,14 +1,17 @@
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
-import Utilities.General.cmssw_das_client as das_client
 import bisect
 import datetime
 import json
 import os
 import re
 import sys
+
+import Utilities.General.cmssw_das_client as das_client
 from FWCore.PythonUtilities.LumiList import LumiList
+
+from helperFunctions import cache
 from TkAlExceptions import AllInOneError
 
 
@@ -20,17 +23,11 @@ class Dataset(object):
         self.__origName = datasetName
         self.__dasLimit = dasLimit
         self.__dasinstance = dasinstance
-        self.__fileList = None
-        self.__fileInfoList = None
-        self.__runList = None
-        self.__alreadyStored = False
         self.__cmssw = cmssw
         self.__cmsswrelease = cmsswrelease
         self.__firstusedrun = None
         self.__lastusedrun = None
         self.__parentDataset = None
-        self.__parentFileList = None
-        self.__parentFileInfoList = None
 
         # check, if dataset name matches CMS dataset naming scheme
         if re.match( r'/.+/.+/.+', self.__name ):
@@ -558,6 +555,7 @@ class Dataset(object):
             except TypeError:
                 return lastrunB
 
+    @cache
     def __getFileInfoList( self, dasLimit, parent = False ):
         if self.__predefined:
             if parent:
@@ -575,11 +573,6 @@ class Dataset(object):
                     if extendstring in line and "[" in line and "]" not in line:
                         copy = True
             return files
-
-        if self.__fileInfoList and not parent:
-            return self.__fileInfoList
-        if self.__parentFileInfoList and parent:
-            return self.__parentFileInfoList
 
         if parent:
             searchdataset = self.parentDataset()
@@ -619,15 +612,10 @@ class Dataset(object):
                          }
             fileInformationList.append( fileDict )
         fileInformationList.sort( key=lambda info: self.__findInJson(info,"name") )
-        if parent:
-            self.__parentFileInfoList = fileInformationList
-        else:
-            self.__fileInfoList = fileInformationList
         return fileInformationList
 
+    @cache
     def __getRunList( self ):
-        if self.__runList:
-            return self.__runList
         dasQuery_runs = ( 'run dataset=%s instance=%s | grep run.run_number,'
                           'run.creation_time'%( self.__name, self.__dasinstance ) )
         print "Requesting run information for '%s' from DAS..."%( self.__name ),
@@ -636,7 +624,6 @@ class Dataset(object):
         print "Done."
         data = [ self.__findInJson(entry,"run") for entry in data ]
         data.sort( key = lambda run: self.__findInJson(run, "run_number") )
-        self.__runList = data
         return data
 
     def __datetime(self, stringForDas):
@@ -797,11 +784,9 @@ class Dataset(object):
                 print "This may be inconvenient in the future, but will not cause a problem for this validation."
         return datasetSnippet
 
+    @cache
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
                   end = None, firstRun = None, lastRun = None, parent = False ):
-        if self.__alreadyStored:
-            return
-        self.__alreadyStored = True
         if outName == None:
             outName = "Dataset" + self.__name.replace("/", "_")
         packageName = os.path.join( "Alignment", "OfflineValidation" )
@@ -894,18 +879,14 @@ class Dataset(object):
 
         return result
 
+    @cache
     def fileList(self, parent=False, firstRun=None, lastRun=None, forcerunselection=False):
-        if self.__fileList and not parent:
-            return self.__fileList
-        if self.__parentFileList and parent:
-            return self.__parentFileList
-
         fileList = [ self.__findInJson(fileInfo,"name")
                      for fileInfo in self.fileInfoList(parent) ]
 
         if firstRun or lastRun:
-            if firstRun: firstRun = -1
-            if lastRun: lastRun = float('infinity')
+            if not firstRun: firstRun = -1
+            if not lastRun: lastRun = float('infinity')
             unknownfilenames, reasons = [], set()
             for filename in fileList[:]:
                 try:
@@ -926,10 +907,6 @@ class Dataset(object):
                 for reason in reasons:
                     print "    "+reason
                 print "Using the files anyway.  The runs will be filtered at the CMSSW level."
-        if not parent:
-            self.__fileList = fileList
-        else:
-            self.__parentFileList = fileList
         return fileList
 
     def fileInfoList( self, parent = False ):
@@ -941,9 +918,8 @@ class Dataset(object):
     def predefined( self ):
         return self.__predefined
 
+    @cache
     def runList( self ):
-        if self.__runList:
-            return self.__runList
         return self.__getRunList()
 
 
