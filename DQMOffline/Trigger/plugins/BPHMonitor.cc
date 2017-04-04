@@ -24,6 +24,7 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , muoSelection_ref ( iConfig.getParameter<std::string>("muoSelection_ref") )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
 {
 
@@ -172,7 +173,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if ( int(muoHandle->size()) < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) ) muons.push_back(m);
+    if ( muoSelection_ref( m ) ) muons.push_back(m);
   }
   if ( int(muons.size()) < nmuons_ ) return;
   for (int i=0;i<(int(muons.size())+1) ;i++) {
@@ -197,6 +198,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   for (int i=0;i<int((muons.size())+1);i++) {
+    if(!muoSelection_(muons[i]))continue;
     muPhi_.numerator->Fill(muons[i].phi());
     muEta_.numerator->Fill(muons[i].eta());
     muPt_.numerator ->Fill(muons[i].pt());
@@ -238,6 +240,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "beamSpot",edm::InputTag("offlineBeamSpot") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   desc.add<std::string>("muoSelection", "abs(eta)<1.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
+  desc.add<std::string>("muoSelection_ref", "isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0");
   desc.add<int>("nmuons",     1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
