@@ -191,7 +191,7 @@ void MillePedeFileReader
             }
           }
           updateDB_ = true;
-	  edm::LogWarning("MillePedeFileReader")<<"This correction will trigger a new payload!";
+	  edm::LogWarning("MillePedeFileReader")<<"This correction: "<<ObsMove<<"+/-" <<ObsErr<<" for "<< detLabel <<"("<<coord<<") will trigger a new Tracker Alignment payload!";
         }
       }
     }
