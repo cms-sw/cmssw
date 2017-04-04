@@ -173,6 +173,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process, '.oO[trackcollecti
                                                      cosmicsZeroTesla=.oO[cosmics0T]Oo.,
                                                      momentumConstraint=.oO[momentumconstraint]Oo.,
                                                      cosmicTrackSplitting=.oO[istracksplitting]Oo.,
+                                                     used0cut=.oO[used0cut]Oo.,
                                                     )
 """
 

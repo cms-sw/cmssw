@@ -505,6 +505,7 @@ class GenericValidationData_CTSR(GenericValidationData):
             "ValidationSequence": self.ValidationSequence,
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
             "cosmics0T": str(self.cosmics0T),
+            "used0cut": str("Cosmics" not in self.general["trackcollection"]),  #use it for collisions only
         })
         return result
     @property
@@ -524,10 +525,12 @@ class GenericValidationData_CTSR(GenericValidationData):
         if isinstance(Bfield, str):
             if "unknown " in Bfield:
                 msg = Bfield.replace("unknown ","",1)
-            elif "Bfield" is "unknown":
+            elif Bfield == "unknown":
                 msg = "Can't get the B field for %s." % self.dataset.name()
+            else:
+                msg = "B field = {}???".format(Bfield)
             raise AllInOneError(msg + "\n"
-                                "To use this data set, specify magneticfield = [value] in your .ini config file.")
+                                "To use this dataset, specify magneticfield = [value] in your .ini config file.")
         return False
 
 class ParallelValidation(GenericValidation):
