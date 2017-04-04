@@ -6,7 +6,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNS.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
 
