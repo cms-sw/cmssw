@@ -80,7 +80,7 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
   if( qual[0] != "" ) convQuality_ =StringToEnumValue<reco::Conversion::ConversionQuality>(qual);
 
   convSelectionCuts_ = ps.getParameter<std::string>("convSelection");
-  
+  wantSummary_ = ps.getUntrackedParameter<bool>("wantSummary", false);
   produces<pat::CompositeCandidateCollection>("conversions");
 
   total_conversions = 0;
@@ -95,7 +95,6 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
   final_conversion = 0;
   store_conversion = 0;
 }
-
 
 void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
 
@@ -381,23 +380,25 @@ reco::Candidate::LorentzVector OniaPhotonConversionProducer::convertVector(const
 }
 
 
-void OniaPhotonConversionProducer::endJob(){
-   std::cout << "############################" << std::endl;
-   std::cout << "Conversion Candidate producer report" << std::endl;
-   std::cout << "############################" << std::endl;
-   std::cout << "Total examined conversions: " << total_conversions << std::endl;
-   std::cout << "Selection fail candidates:  " << selection_fail << std::endl;
-   std::cout << "Algo fail candidates:       " << algo_fail << std::endl;
-   std::cout << "Quality fail candidates:    " << flag_fail << std::endl;
-   std::cout << "Pi0 fail:                   " << pizero_fail << std::endl;
-   std::cout << "Total duplicates found:     " << duplicates << std::endl;
-   std::cout << "Vertex compatibility fail:  " << TkVtxC << std::endl;
-   std::cout << "Compatible inner hits fail: " << CInnerHits << std::endl;
-   std::cout << "Highpurity Subset fail:     " << highpurity_count << std::endl;
-   std::cout << "############################" << std::endl;
-   std::cout << "Final number of conversions:  " << final_conversion << std::endl;
-   std::cout << "Stored number of conversions: " << store_conversion << std::endl;
-   std::cout << "############################" << std::endl;
+void OniaPhotonConversionProducer::endStream() {
+  if (wantSummary_) {
+     std::cout << "############################" << std::endl;
+     std::cout << "Conversion Candidate producer report" << std::endl;
+     std::cout << "############################" << std::endl;
+     std::cout << "Total examined conversions: " << total_conversions << std::endl;
+     std::cout << "Selection fail candidates:  " << selection_fail << std::endl;
+     std::cout << "Algo fail candidates:       " << algo_fail << std::endl;
+     std::cout << "Quality fail candidates:    " << flag_fail << std::endl;
+     std::cout << "Pi0 fail:                   " << pizero_fail << std::endl;
+     std::cout << "Total duplicates found:     " << duplicates << std::endl;
+     std::cout << "Vertex compatibility fail:  " << TkVtxC << std::endl;
+     std::cout << "Compatible inner hits fail: " << CInnerHits << std::endl;
+     std::cout << "Highpurity Subset fail:     " << highpurity_count << std::endl;
+     std::cout << "############################" << std::endl;
+     std::cout << "Final number of conversions:  " << final_conversion << std::endl;
+     std::cout << "Stored number of conversions: " << store_conversion << std::endl;
+     std::cout << "############################" << std::endl;
+  }
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(OniaPhotonConversionProducer);
