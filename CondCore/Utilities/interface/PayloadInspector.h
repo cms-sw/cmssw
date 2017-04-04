@@ -191,7 +191,7 @@ namespace cond {
       }
 
       std::string processData( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
-	fill( iovs, m_plotData );
+	fill( iovs );
 	return serializeData();
       }
 
@@ -199,7 +199,7 @@ namespace cond {
       	return PlotBase::fetchPayload<PayloadType>( payloadHash );
       }
 
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<X,Y> >& plotData  ) = 0;
+      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) = 0;
     protected:
       std::vector<std::tuple<X,Y> > m_plotData;
     };
@@ -221,7 +221,7 @@ namespace cond {
       }
 
       std::string processData( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
-	fill( iovs, m_plotData );
+	fill( iovs );
 	return serializeData();
       }
 
@@ -229,7 +229,7 @@ namespace cond {
       	return PlotBase::fetchPayload<PayloadType>( payloadHash );
       }
 
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<X,Y,Z> >& plotData ) = 0;
+      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) = 0;
     protected:
       std::vector<std::tuple<X,Y,Z> > m_plotData;
     };
@@ -242,12 +242,12 @@ namespace cond {
 	Base( "History", title, "iov_since" , yLabel ){
       }
 
-      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<unsigned long long,Y> >& plotData ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
 	    Y value = getFromPayload( *payload );
-	    plotData.push_back( std::make_tuple(std::get<0>(iov),value));
+	    Base::m_plotData.push_back( std::make_tuple(std::get<0>(iov),value));
 	  }
 	}
 	return true;
@@ -265,7 +265,7 @@ namespace cond {
         Base( "RunHistory", title, "iov_since" , yLabel ){
       }
 
-      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<std::tuple<float,std::string>,Y> >& plotData ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
         // for the lumi iovs we need to count the number of lumisections in every runs
 	std::map<cond::Time_t,unsigned int> runs;
 	if( Base::tagTimeType()==cond::lumiid ){
@@ -316,7 +316,7 @@ namespace cond {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
             Y value = getFromPayload( *payload );
-            plotData.push_back( std::make_tuple(std::make_tuple(ind,label),value));
+	    Base::m_plotData.push_back( std::make_tuple(std::make_tuple(ind,label),value));
           }
 	}
         return true;
@@ -334,7 +334,7 @@ namespace cond {
 	Base( "TimeHistory", title, "iov_since" , yLabel ){
       }
 
-      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<std::tuple<unsigned long long,std::string>,Y> >& plotData ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	cond::persistency::RunInfoProxy runInfo;
 	if(  Base::tagTimeType()==cond::lumiid ||  Base::tagTimeType()==cond::runnumber){
 	  cond::Time_t min = std::get<0>(iovs.front());
@@ -371,7 +371,7 @@ namespace cond {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
 	    Y value = getFromPayload( *payload );
-	    plotData.push_back( std::make_tuple(std::make_tuple( cond::time::from_boost(time),label),value));
+	    Base::m_plotData.push_back( std::make_tuple(std::make_tuple( cond::time::from_boost(time),label),value));
 	  }
 	}
 	return true;
@@ -389,12 +389,12 @@ namespace cond {
 	Base( "Scatter", title, xLabel , yLabel ){
       }
 
-      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<X,Y> >& plotData ) override {
+      bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
 	    std::tuple<X,Y> value = getFromPayload( *payload );
-	    plotData.push_back( value );
+	    Base::m_plotData.push_back( value );
 	  }
 	}
 	return true;
@@ -436,7 +436,7 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float> >& plotData ) override {
+      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
@@ -480,7 +480,7 @@ namespace cond {
 	  Base::m_plotData.resize( m_nxbins*m_nybins );
 	  for( size_t i=0;i<m_nybins;i++ ){
 	    for( size_t j=0;j<m_nxbins;j++ ){
-	      Base::m_plotData[i*m_nxbins+j] = std::make_tuple( m_xmin+i*m_xbinSize, m_ymin+j*m_ybinSize, 0 );
+	      Base::m_plotData[i*m_nxbins+j] = std::make_tuple( m_xmin+j*m_xbinSize, m_ymin+i*m_ybinSize, 0 );
 	    }
 	  }
 	}
@@ -497,7 +497,7 @@ namespace cond {
       }
 
       // this one can ( and in general should ) be overridden - the implementation should use fillWithValue
-      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float,float> >& plotData ) override {
+      virtual bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	for( auto iov : iovs ) {
 	  std::shared_ptr<PayloadType> payload = Base::fetchPayload( std::get<1>(iov) );
           if( payload.get() ){
