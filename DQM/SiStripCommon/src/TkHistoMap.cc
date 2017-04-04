@@ -155,7 +155,7 @@ void TkHistoMap::createTkHistoMap(DQMStore::IBooker & ibooker , std::string& pat
 						0.0, 0.0);
     }
     if(bookTH2F==true){
-        me  = dqmStore_->book2D(fullName.c_str(),fullName.c_str(),
+        me  = ibooker.book2D(fullName.c_str(),fullName.c_str(),
                                                    nchX,lowX,highX,
                                                    nchY,lowY,highY);
 
