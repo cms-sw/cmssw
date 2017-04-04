@@ -9,7 +9,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HcalNumberingScheme::HcalNumberingScheme() : CaloNumberingScheme(0) {
   edm::LogInfo("HcalSim") << "Creating HcalNumberingScheme" << std::endl;
