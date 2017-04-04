@@ -10,8 +10,7 @@
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-#include "Rivet/RivetAIDA.hh"
-#include "LWH/AIManagedObject.h"
+#include "Rivet/Tools/RivetYODA.hh"
 #include "FWCore/Utilities/interface/tinyxml.h"
 
 #include <string>
@@ -100,26 +99,17 @@ void RivetHarvesting::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
   _analysisHandler.init(*myGenEvent);
   //gain access to the histogram factory and change the histograms
+  /*
   AIDA::ITree & tree = _analysisHandler.tree();
   tree.ls(".", true);
 
-  /*
-  map<string, vector<DPSXYPoint> > existingHistos;
-  vector<string>::const_iterator iFile;
-  vector<string>::const_iterator iFileBeg = _fileNames.begin(); 
-  vector<string>::const_iterator iFileEnd = _fileNames.end();
-  for (iFile = iFileBeg; iFile != iFileEnd; ++iFile) {
-    map<string, vector<DPSXYPoint> > thisFileHistos = getDPSXYValsErrs(*iFile);
-    map<string, vector<DPSXYPoint> >::const_iterator iMap;
-    map<string, vector<DPSXYPoint> >::const_iterator iMapBeg = thisFileHistos.begin();
-    map<string, vector<DPSXYPoint> >::const_iterator iMapEnd = thisFileHistos.end();
-    for (iMap = iMapBeg; iMap != iMapEnd; ++iMap){
-      std::cout << iMap->first << " found in the original file " << *iFile << std::endl;
-      existingHistos[iMap->first] = iMap->second;
-    }
-    //existingHistos.insert(existingHistos.end(), thisFileHistos.begin(), thisFileHistos.end());
-  }
-  */
+  //from Analysis.hh (cls 18Feb2014)
+  /// List of registered analysis data objects
+  //const vector<AnalysisObjectPtr>& analysisObjects() const {
+  //return _analysisobjects;
+  //}
+
+
 
   for (std::vector<std::string>::const_iterator iAna = _analysisNames.begin(); iAna != _analysisNames.end(); ++iAna){
     std::vector<std::string> listOfNames = tree.listObjectNames("./"+(*iAna), true);
@@ -148,7 +138,8 @@ void RivetHarvesting::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
         name.replace(name.find(tostrip),tostrip.length(),"");
         name.replace(name.find("/"),1,"");
         cout << name << endl;
-        vector<DPSXYPoint> original = getDPSXYValsErrs(*iFile, *iAna, name);
+        //vector<DPSXYPoint> original = getDPSXYValsErrs(*iFile, *iAna, name);
+        vector<Point2D> original = getPoint2DValsErrs(*iFile, *iAna, name);
         if (histo){
           const string tmppath = tmpdir + "/" + name;
           cout << tmppath << endl;
@@ -174,7 +165,7 @@ void RivetHarvesting::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
   }
 
   tree.ls(".", true);
-
+  */
   _isFirstEvent = false;
 }
 
@@ -188,8 +179,9 @@ void RivetHarvesting::endJob(){
   _analysisHandler.writeData(_outFileName);
 }
 
-vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::string path, std::string name) {
-    // Open AIDA XML file
+vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, std::string path, std::string name) {
+  
+    // Open YODA XML file
     TiXmlDocument doc(filename);
     doc.LoadFile();
     if (doc.Error()) {
@@ -200,13 +192,13 @@ vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::
     }
 
     // Return value, to be populated
-    vector<DPSXYPoint> rtn;
-
+    vector<Point2D> rtn;
+    
     try {
       // Walk down tree to get to the <paper> element
-      const TiXmlNode* aidaN = doc.FirstChild("aida");
-      if (!aidaN) throw cms::Exception("RivetHarvesting") << "Couldn't get <aida> root element";
-      for (const TiXmlNode* dpsN = aidaN->FirstChild("dataPointSet"); dpsN; dpsN = dpsN->NextSibling()) {
+      const TiXmlNode* yodaN = doc.FirstChild("yoda");
+      if (!yodaN) throw cms::Exception("RivetHarvesting") << "Couldn't get <yoda> root element";
+      for (const TiXmlNode* dpsN = yodaN->FirstChild("dataPointSet"); dpsN; dpsN = dpsN->NextSibling()) {
         const TiXmlElement* dpsE = dpsN->ToElement();
         const string plotname = dpsE->Attribute("name");
         const string plotpath = dpsE->Attribute("path");
@@ -219,7 +211,7 @@ vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::
         //}
 
         /// @todo Check that "path" matches filename
-        vector<DPSXYPoint> points;
+        vector<Point2D> points;
         for (const TiXmlNode* dpN = dpsN->FirstChild("dataPoint"); dpN; dpN = dpN->NextSibling()) {
           const TiXmlNode* xMeasN = dpN->FirstChild("measurement");
           const TiXmlNode* yMeasN = xMeasN->NextSibling();
@@ -245,7 +237,7 @@ vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::
             xssC >> xcentre; xssP >> xerrplus; xssM >> xerrminus;
             yssC >> ycentre; yssP >> yerrplus; yssM >> yerrminus;
             //cout << "  " << centre << " + " << errplus << " - " << errminus << endl;
-            DPSXYPoint pt(xcentre, xerrminus, xerrplus, ycentre, yerrminus, yerrplus);
+            Point2D pt(xcentre, xerrminus, xerrplus, ycentre, yerrminus, yerrplus);
             points.push_back(pt);
           } else {
             cerr << "Couldn't get <measurement> tag" << endl;
@@ -265,7 +257,9 @@ vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::
     }
 
     throw cms::Exception("RivetHarvesting") << "could not find " << path << "/" << name << " in file " << filename;
+  
     return rtn;
+  
 }
 
 DEFINE_FWK_MODULE(RivetHarvesting);
