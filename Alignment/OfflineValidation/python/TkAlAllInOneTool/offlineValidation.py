@@ -130,8 +130,10 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
     def presentationsubsections(cls):
         return [
             SubsectionOnePage('chi2', r'$\chi^2$ plots'),
+            SubsectionSubdetectors('DmedianY*R_[^_]*.eps$', 'DMR'),
             SubsectionSubdetectors('DmedianY*R.*plain.eps$', 'DMR'),
             SubsectionSubdetectors('DmedianY*R.*split.eps$','Split DMR'),
+            SubsectionSubdetectors('DrmsNY*R_[^_]*.eps$', 'DRnR'),
             SubsectionSubdetectors('DrmsNY*R.*plain.eps$', 'DRnR'),
             SubsectionSubdetectors('SurfaceShape', 'Surface Shape'),
         ]
