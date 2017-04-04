@@ -23,8 +23,13 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
 
  protected:
   virtual void dqmBeginRun (const edm::Run&, const edm::EventSetup &) override;
-  virtual void beginLuminosityBlock (const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void bookHistograms (DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock (const edm::LuminosityBlock&,
+				     const edm::EventSetup&);
+  virtual void endLuminosityBlock (const edm::LuminosityBlock&,
+				   const edm::EventSetup&);
+  virtual void bookHistograms (DQMStore::IBooker&,
+			       const edm::Run&,
+			       const edm::EventSetup&) override;
   virtual void analyze (const edm::Event&, const edm::EventSetup&) override;
 
  private:
@@ -66,29 +71,23 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   std::string monitorDir;
 
   enum summaryVars {
-    // NEVENTS = 1,  // number of events
     EVENTGOOD = 1,    // number of good events (100% agreement)
-    // EVENTBAD,     // number of bad events (some type of disagreement)
-    // NJETS_S,      // number of jets founds in events
-    JETGOOD_S,    // number of jets in agreement (energy and pos)
-    // NEGS_S,       // number of e/g found in events
-    EGGOOD_S,     // number of e/g in agremeent (energy and pos)
-    // NTAUS_S,      // number of taus found in events
-    TAUGOOD_S,    // number of taus in agremenet (energy and pos)
-    // NSUMS_S,	  // total number of sum objects across all events
-    SUMGOOD_S     // number of good sums across all events
+    JETGOOD_S,        // number of jets in agreement (energy and pos)
+    EGGOOD_S,         // number of e/g in agremeent (energy and pos)
+    TAUGOOD_S,        // number of taus in agremenet (energy and pos)
+    SUMGOOD_S         // number of good sums across all events
   };
 
   enum jetVars {
-    NJETS = 1,
-    JETGOOD,
+    // NJETS = 1,
+    JETGOOD = 1,
     JETPOSOFF,
     JETETOFF
   };
 
   enum egVars {
-    NEGS = 1,
-    EGGOOD,
+    // NEGS = 1,
+    EGGOOD = 1,
     EGPOSOFF,
     EGETOFF,
     ISOEGGOOD,
@@ -97,8 +96,8 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   };
 
   enum tauVars {
-    NTAUS = 1,
-    TAUGOOD,
+    // NTAUS = 1,
+    TAUGOOD = 1,
     TAUPOSOFF,
     TAUETOFF,
     ISOTAUGOOD,
@@ -107,14 +106,13 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   };
 
   enum sumVars {
-    NSUMS = 1,
-    SUMGOOD,
-    NVECTORSUMS,
-    VECTORSUMGOOD,
-    NSCALARSUMS,
-    SCALARSUMGOOD,
-    NFEATURESUMS,
-    FEATURESUMGOOD
+    SUMGOOD = 1,
+    ETTSUMGOOD,
+    HTTSUMGOOD,
+    METSUMGOOD,
+    MHTSUMGOOD,
+    MBHFSUMGOOD,
+    TOWCOUNTGOOD
   };
 
   /*
@@ -145,6 +143,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement * sumSummary;
   MonitorElement * mpSummary;
 
+  // add histograms to store the properties of mismatched objects
   MonitorElement * jetEt;
   MonitorElement * jetEta;
   MonitorElement * jetPhi;
@@ -163,20 +162,54 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement * isoTauEta;
   MonitorElement * isoTauPhi;
 
-  // add histograms to store the properties of mismatched 
+  // histograms for mismatched sums
 
   bool verbose;
+  bool notProcessed = true;
 
   int totalEvents = 0;
   int goodEvents = 0;
+
   int totalJets = 0;
   int goodJets = 0;
+  int posOffJets = 0;
+  int etOffJets = 0;
+
   int totalEGs = 0;
   int goodEGs = 0;
+  int posOffEGs = 0;
+  int etOffEGs = 0;
+  int totalIsoEGs = 0;
+  int goodIsoEGs = 0;
+  int posOffIsoEGs = 0;
+  int etOffIsoEGs = 0;
+
   int totalTaus = 0;
   int goodTaus = 0;
+  int posOffTaus = 0;
+  int etOffTaus = 0;
+  int totalIsoTaus = 0;
+  int goodIsoTaus = 0;
+  int posOffIsoTaus = 0;
+  int etOffIsoTaus = 0;
+
   int totalSums = 0;
   int goodSums = 0;
+
+  int totalETTSums = 0;
+  int goodETTSums = 0;
+  int totalHTTSums = 0;
+  int goodHTTSums = 0;
+
+  int totalMETSums = 0;
+  int goodMETSums = 0;
+  int totalMHTSums = 0;
+  int goodMHTSums = 0;
+
+  int totalMBHFSums = 0;
+  int goodMBHFSums = 0;
+  int totalTowCountSums = 0;
+  int goodTowCountSums = 0;
 
   const unsigned int currBx = 0;
 };
