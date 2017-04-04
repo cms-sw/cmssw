@@ -120,23 +120,31 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 
 
 
-    //Fix needed for HF
+    //Fix needed for HF.  Here, we find the (up to) five companion rechits 
+    //to work in conjunction with the neighbours4() implementation below for the full HF surrounding energy
     float compsumE = 0.0;
-    if ((hitlayer==12 or hitlayer==11))
+    if ((hitlayer==PFLayer::HF_EM || hitlayer==PFLayer::HF_HAD))
 	{
+
+	int comp = 1;
+    	if (hitlayer==PFLayer::HF_EM) comp = 2;
+
 	int predphi =2;
 
-	int comp = std::abs(hitlayer-13);
+	//int comp1 = std::abs(hitlayer-13);
+
 	const HcalDetId& detid = (HcalDetId)rechit.detId();
-	std::vector<uint32_t> RawDetIds;
+	std::vector<uint32_t> rawDetIds;
 	int heta = detid.ieta();
 	int hphi = detid.iphi();
 	
+	//At eta>39, phi segmentation changes 
 	if (std::abs(heta)>39) predphi=4;
 
  	int curphiL = hphi-predphi;
 	int curphiH = hphi+predphi;
 
+	//HcalDetId valid phi range (1-72)
 	if (predphi>abs(hphi) or predphi>abs(72-hphi))
 		{
 		while (curphiL-predphi<0) curphiL+=72;
@@ -146,19 +154,21 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	std::pair<std::vector<int>, std::vector<int>>  phietas({heta,heta+1,heta-1,heta,heta},{hphi,hphi,hphi,curphiL,curphiH});
 	for(int in=0;in<5;in++)	
 		{
-        	HcalDetId TempID (HcalForward, phietas.first[in], phietas.second[in], comp);
-		RawDetIds.push_back(TempID.rawId());
+        	HcalDetId tempID (HcalForward, phietas.first[in], phietas.second[in], comp);
+		rawDetIds.push_back(tempID.rawId());
 		}
 
 	for( const auto& jdx : ordered_hits ) 
 		{
 			const unsigned j = jdx;
 			const reco::PFRecHit& matchrechit = hits[j];
-  			for( const auto& iID : RawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
+  			for( const auto& iID : rawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
 
 		}
 
 	}
+
+
 
 
 
