@@ -14,94 +14,61 @@ namespace {
   }
 }
 
-HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const std::string& pathNameNum, const std::string& pathNameDen, const HLTConfigProvider& HLTCP,
-                                           bool doRefAnalysis, const std::string& dqmBaseFolder,
-                                           const std::string& hltProcess, int nbins,
-                                           double xmax,
-                                           std::string& xvariableName):
-  HLTTauDQMPlotter(stripVersion(pathNameNum), dqmBaseFolder),
-  nbins_(nbins),
-  xmax_(xmax),
-  doRefAnalysis_(doRefAnalysis),
-  xvariable(xvariableName),
-  hltDenominatorPath_(pathNameDen, hltProcess, doRefAnalysis_, HLTCP),
-  hltNumeratorPath_(pathNameNum, hltProcess, doRefAnalysis_, HLTCP)
+HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, GenericTriggerEventFlag* numFlag, GenericTriggerEventFlag* denFlag, const std::string& dqmBaseFolder) :
+  HLTTauDQMPlotter(stripVersion(iConfig.getParameter<std::string>("name")), dqmBaseFolder),
+  nbins_(iConfig.getParameter<int>("nbins")),
+  xmin_(iConfig.getParameter<double>("xmin")),
+  xmax_(iConfig.getParameter<double>("xmax")),
+  xvariable(iConfig.getParameter<std::string>("xvariable"))
 {
-  configValid_ = configValid_ && hltDenominatorPath_.isValid() && hltNumeratorPath_.isValid();
+  num_genTriggerEventFlag_ = numFlag;
+  den_genTriggerEventFlag_ = denFlag;
+
   boost::algorithm::to_lower(xvariable);
 }
 
 #include <algorithm>
-void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker) {
+void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker,edm::Run const &iRun, edm::EventSetup const &iSetup) {
   if(!isValid())
     return;
 
-  // Book histograms
+  // Initialize the GenericTriggerEventFlag
+  if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
+  if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
 
   // Efficiency helpers
-  if(doRefAnalysis_) {
-    iBooker.setCurrentFolder(triggerTag()+"/helpers");
-    h_num = iBooker.book1D(xvariable+"EtEffNum",    "", nbins_, 0, xmax_);
-    h_den = iBooker.book1D(xvariable+"EtEffDenom",    "", nbins_, 0, xmax_);
-    iBooker.setCurrentFolder(triggerTag());
-  }
+  iBooker.setCurrentFolder(triggerTag()+"/helpers");
+  h_num = iBooker.book1D(xvariable+"EtEffNum",    "", nbins_, xmin_, xmax_);
+  h_den = iBooker.book1D(xvariable+"EtEffDenom",    "", nbins_, xmin_, xmax_);
+  iBooker.setCurrentFolder(triggerTag());
 }
 
 
-HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() {}
+HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() {
+  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
+  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+}
 
-void HLTTauDQMTagAndProbePlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
+void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, const HLTTauDQMOfflineObjects& refCollection) {
 
-  if(doRefAnalysis_) {
+  std::vector<LV> offlineObjects;
+  if(xvariable == "tau")      offlineObjects = refCollection.taus;
+  if(xvariable == "muon")     offlineObjects = refCollection.muons;
+  if(xvariable == "electron") offlineObjects = refCollection.electrons;
+  if(xvariable == "met")      offlineObjects = refCollection.met;
 
-    if(xvariable == "tau"){
-      for(const LV& offlineObject: refCollection.taus) {
-        double xvar = offlineObject.pt();
-        if(hltDenominatorPath_.fired(triggerResults)) {
-          h_den->Fill(xvar);
-          if(hltNumeratorPath_.fired(triggerResults)) {
-            h_num->Fill(xvar);
-          }
-        }
-      }
-    }
+  for(const LV& offlineObject: offlineObjects) {
+    double xvar = offlineObject.pt();
 
-    if(xvariable == "muon"){
-      for(const LV& offlineObject: refCollection.muons) {
-        double xvar = offlineObject.pt();
-        if(hltDenominatorPath_.fired(triggerResults)) {
-          h_den->Fill(xvar);
-          if(hltNumeratorPath_.fired(triggerResults)) {
-            h_num->Fill(xvar);
-          }
-        }
-      }
-    }
+    // Filter out events if Trigger Filtering is requested
+    if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
-    if(xvariable == "electron"){
-      for(const LV& offlineObject: refCollection.electrons) {
-        double xvar = offlineObject.pt();
-        if(hltDenominatorPath_.fired(triggerResults)) {
-          h_den->Fill(xvar);
-          if(hltNumeratorPath_.fired(triggerResults)) {
-            h_num->Fill(xvar);
-          }
-        }
-      }
-    }
+    h_den->Fill(xvar);
 
-    if(xvariable == "met"){
-      for(const LV& offlineObject: refCollection.met) {
-        double xvar = offlineObject.pt();
-        if(hltDenominatorPath_.fired(triggerResults)) {
-          h_den->Fill(xvar);
-          if(hltNumeratorPath_.fired(triggerResults)) {
-            h_num->Fill(xvar);
-          }
-        }
-      }
-    }
 
+    // applying selection for numerator
+    if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+    h_num->Fill(xvar);
   }
-
 }

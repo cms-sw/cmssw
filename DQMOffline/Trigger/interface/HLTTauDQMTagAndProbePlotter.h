@@ -5,6 +5,8 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
 
 namespace edm {
   class Event;
@@ -20,31 +22,24 @@ class HLTConfigProvider;
 
 class HLTTauDQMTagAndProbePlotter: private HLTTauDQMPlotter {
 public:
-  HLTTauDQMTagAndProbePlotter(const std::string& pathNameNum, const std::string& pathNameDen, const HLTConfigProvider& HLTCP,
-                       bool doRefAnalysis, const std::string& dqmBaseFolder,
-                       const std::string& hltProcess, int nbins,
-                       double xmax,
-                       std::string& xvariableName);
+  HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, GenericTriggerEventFlag* numFlag, GenericTriggerEventFlag* denFlag, const std::string& dqmBaseFolder);
   ~HLTTauDQMTagAndProbePlotter();
 
   using HLTTauDQMPlotter::isValid;
 
-  void bookHistograms(DQMStore::IBooker &iBooker);
+  void bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup);
 
-  void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, const HLTTauDQMOfflineObjects& refCollection);
+
 
 private:
   const int nbins_;
+  const double xmin_;
   const double xmax_;
-  const bool doRefAnalysis_;
   std::string xvariable;
 
-
-  HLTTauDQMPath hltDenominatorPath_;
-  HLTTauDQMPath hltNumeratorPath_;
-
-  std::string pathNameDen;
-  std::string pathNameNum;
+  GenericTriggerEventFlag* num_genTriggerEventFlag_;
+  GenericTriggerEventFlag* den_genTriggerEventFlag_;
 
   MonitorElement *h_num;
   MonitorElement *h_den;

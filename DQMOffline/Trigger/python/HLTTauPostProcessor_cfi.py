@@ -23,7 +23,8 @@ def makeInclusiveAnalyzer(monitorModule):
 def makePFTauAnalyzer(monitorModule):
     (m1, m2) = makeInclusiveAnalyzer(monitorModule)
     m1.subDirs.extend([monitorModule.DQMBaseFolder.value()+"/HLT_.*",
-                       monitorModule.DQMBaseFolder.value()+"/"+monitorModule.L1Plotter.DQMFolder.value()])
+                       monitorModule.DQMBaseFolder.value()+"/"+monitorModule.L1Plotter.DQMFolder.value(),
+                       monitorModule.DQMBaseFolder.value()+"/.*"])
 
     def _addEfficiencies(level, quantities, nameFormat, titleObject="#tau", postfix=""):
         if postfix != "":
