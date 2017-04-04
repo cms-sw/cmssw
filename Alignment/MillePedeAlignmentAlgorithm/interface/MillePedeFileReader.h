@@ -102,4 +102,11 @@ class MillePedeFileReader {
   
 };
 
+#include<iostream>
+const std::array<std::string,8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};
+inline std::ostream & operator<<(std::ostream & os, const AlignPCLThresholds::coordType& c) {
+  if (c >= AlignPCLThresholds::endOfTypes || c < 0) return os << "unrecongnized coordinate";
+  return os << coord_str[c];
+}
+
 #endif /* ALIGNMENT_MILLEPEDEALIGNMENTALGORITHM_INTERFACE_MILLEPEDEFILEREADER_H_ */
