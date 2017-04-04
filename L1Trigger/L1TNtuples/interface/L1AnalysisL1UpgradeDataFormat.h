@@ -50,6 +50,7 @@ namespace L1Analysis
       egFootprintEt.clear();
       egNTT.clear();
       egShape.clear();
+      egTowerHoE.clear();
 
       nTaus = 0;
       tauEt.clear();
@@ -96,6 +97,8 @@ namespace L1Analysis
       muonIEt.clear();
       muonIEta.clear();
       muonIPhi.clear();
+      muonIEtaAtVtx.clear();
+      muonIPhiAtVtx.clear();
       muonIDEta.clear();
       muonIDPhi.clear();
       muonChg.clear();
@@ -130,6 +133,7 @@ namespace L1Analysis
     std::vector<short int> egFootprintEt;
     std::vector<short int> egNTT;
     std::vector<short int> egShape;
+    std::vector<short int> egTowerHoE;
  
     unsigned short int nTaus;
     std::vector<float> tauEt;
@@ -176,6 +180,8 @@ namespace L1Analysis
     std::vector<short int>   muonIEt;
     std::vector<short int>   muonIEta;
     std::vector<short int>   muonIPhi;
+    std::vector<short int>   muonIEtaAtVtx;
+    std::vector<short int>   muonIPhiAtVtx;
     std::vector<short int>   muonIDEta;
     std::vector<short int>   muonIDPhi;
     std::vector<short int>      muonChg;
