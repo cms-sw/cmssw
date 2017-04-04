@@ -46,6 +46,8 @@ namespace {
     virtual bool checkStart(char) const = 0;
 
     virtual EvaluatorInfo createEvaluator(std::string::const_iterator, std::string::const_iterator) const = 0;
+
+    virtual ~ExpressionElementFinderBase() = default;
   };
 
   std::string::const_iterator findMatchingParenthesis(std::string::const_iterator iBegin, std::string::const_iterator iEnd) {
