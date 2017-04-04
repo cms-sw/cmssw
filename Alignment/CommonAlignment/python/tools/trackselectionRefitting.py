@@ -128,8 +128,8 @@ def getSequence(process, collection,
                 "maxMultiplicity": 1
                 })
         if cosmicTrackSplitting:
-            options["TrackSplitting"]["TrackSplitting"].update({ #placeholder
-                    })
+            options["TrackSplitting"] = {}
+            options["TrackSplitting"]["TrackSplitting"] = {}
     elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
@@ -202,23 +202,25 @@ def getSequence(process, collection,
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"})]
         options["TrackSelector"]["Alignment"].update(
             options["TrackSelector"]["HighPurity"])
+    elif cosmicTrackSplitting:
+        mods = [("TrackRefitter", "First", {"method": "load",
+                                            "clone": True}),
+                ("TrackHitFilter", "Tracker", {"method": "load"}),
+                ("TrackSelector", "Alignment", {"method": "load"}),
+                ("TrackSplitting", "TrackSplitting", {"method": "load"}),
+                ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
+                ("TrackRefitter", "Second", {"method": "load",
+                                             "clone": True})]
     else:
         mods = [("TrackSelector", "HighPurity", {"method": "import"}),
                 ("TrackRefitter", "First", {"method": "load",
                                             "clone": True}),
                 ("TrackHitFilter", "Tracker", {"method": "load"}),
-                "track splitting goes here"
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackRefitter", "Second", {"method": "load",
                                              "clone": True})]
         if isCosmics: mods = mods[1:]
-        if cosmicTrackSplitting:
-            tracksplittingindex = mods.index("track splitting goes here")
-            mods[tracksplittingindex] = ("TrackSplitting", "TrackSplitting", {"method": "load"})
-        else:
-            mods.remove("track splitting goes here")
-
 
 
     ################################
@@ -243,7 +245,7 @@ def getSequence(process, collection,
     prevsrc = None
     for mod in mods[:-1]:
         src, prevsrc = _getModule(process, src, mod[0], "".join(reversed(mod[:-1])),
-                                  options[mod[0]][mod[1]], isCosmics = isCosmics, prevsrc = prevsrc
+                                  options[mod[0]][mod[1]], isCosmics = isCosmics, prevsrc = prevsrc,
                                   **(mod[2])), src
         modules.append(getattr(process, src))
     else:
@@ -291,14 +293,13 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
     method = kwargs.get("method")
     if method == "import":
         __import__(objTuple[0])
-        obj = getattr(sys.modules[objTuple[0]], objTuple[1]).clone(src=src)
+        obj = getattr(sys.modules[objTuple[0]], objTuple[1]).clone()
     elif method == "load":
         process.load(objTuple[0])
         if kwargs.get("clone", False):
             obj = getattr(process, objTuple[1]).clone(src=src)
         else:
             obj = getattr(process, objTuple[1])
-            obj.src = src
             moduleName = objTuple[1]
     else:
         print "Unknown method:", method
@@ -308,7 +309,9 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
         #track splitting takes the TrackSelector as tracks
         # and the first TrackRefitter as tjTkAssociationMapTag
         _customSetattr(obj, "tracks", src)
-        _customSetattr(obj, "tjTkAssociationMapTag", prevsrc)
+        _customSetattr(obj, "tjTkAssociationMapTag", kwargs["prevsrc"])
+    else:
+        obj.src = src
 
     for option in options:
         _customSetattr(obj, option, options[option])

@@ -165,28 +165,12 @@ process.MessageLogger.statistics.append('cout')
 ######################################################################
 CommonTrackSelectionRefitting = """
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process,
+process.seqTrackselRefit = trackselRefit.getSequence(process, '.oO[trackcollection]Oo.',
                                                      TTRHBuilder='.oO[ttrhbuilder]Oo.',
-                                                     usePixelQualityFlag='.oO[usepixelqualityflag]Oo.',
-                                                     openMassWindow='.oO[openmasswindow]Oo.',
-                                                     cosmicsDecoMode='.oO[cosmicsdecomode]Oo.',
-                                                     cosmicsZeroTesla='.oO[cosmics0T]Oo.',
-                                                     momentumConstraint=.oO[momentumconstraint]Oo.,
-                                                     cosmicTrackSplitting=.oO[istracksplitting]Oo.,
-                                                    )
-"""
-
-
-######################################################################
-######################################################################
-CommonTrackSelectionRefitting = """
-import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-process.seqTrackselRefit = trackselRefit.getSequence(process,
-                                                     TTRHBuilder='.oO[ttrhbuilder]Oo.',
-                                                     usePixelQualityFlag='.oO[usepixelqualityflag]Oo.',
-                                                     openMassWindow='.oO[openmasswindow]Oo.',
-                                                     cosmicsDecoMode='.oO[cosmicsdecomode]Oo.',
-                                                     cosmicsZeroTesla='.oO[cosmics0T]Oo.',
+                                                     usePixelQualityFlag=.oO[usepixelqualityflag]Oo.,
+                                                     openMassWindow=.oO[openmasswindow]Oo.,
+                                                     cosmicsDecoMode=.oO[cosmicsdecomode]Oo.,
+                                                     cosmicsZeroTesla=.oO[cosmics0T]Oo.,
                                                      momentumConstraint=.oO[momentumconstraint]Oo.,
                                                      cosmicTrackSplitting=.oO[istracksplitting]Oo.,
                                                     )
@@ -216,7 +200,9 @@ process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 ######################################################################
 ######################################################################
 FileOutputTemplate = """
-process.TFileService.fileName = '.oO[outputFile]Oo.'
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('.oO[outputFile]Oo.')
+)
 """
 
 
@@ -224,7 +210,7 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
 ######################################################################
 DefinePath_CommonSelectionRefitting = """
 process.p = cms.Path(
-process.offlineBeamSpot*process.FinalTrackRefitter*.oO[ValidationSequence]Oo.)
+process.offlineBeamSpot*process.seqTrackselRefit*.oO[ValidationSequence]Oo.)
 """
 
 ######################################################################

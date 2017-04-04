@@ -13,7 +13,6 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
     outputBaseName  = "PrimaryVertexValidation"
     defaults = {
                 "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
-                "ttrhbuilder":"WithAngleAndTemplate",
                 "doBPix":"True",
                 "doFPix":"True"
                }
@@ -29,7 +28,7 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
                                 "Please set parallelJobs = 1.")
 
     @property
-    def cfgTemplate(self):
+    def ValidationTemplate(self):
         return configTemplates.PrimaryVertexValidationTemplate
 
     def createScript(self, path):

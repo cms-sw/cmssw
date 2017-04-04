@@ -1,6 +1,6 @@
 import os
 import configTemplates
-from genericValidation import GenericValidationData, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
+from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
 from helperFunctions import replaceByMap
 from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
@@ -16,8 +16,16 @@ class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, V
     valType = "split"
 
     @property
-    def cfgTemplate(self):
+    def ValidationTemplate(self):
         return configTemplates.TrackSplittingTemplate
+
+    @property
+    def ValidationSequence(self):
+        return configTemplates.TrackSplittingSequence
+
+    @property
+    def ProcessName(self):
+        return "splitter"
 
     def createScript(self, path):
         return super(TrackSplittingValidation, self).createScript(path)

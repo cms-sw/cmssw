@@ -44,7 +44,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
         return {self.defaultReferenceName: replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", self.getRepMap())}
 
     @property
-    def cfgTemplate(self):
+    def ValidationTemplate(self):
         return configTemplates.ZMuMuValidationTemplate
 
     def createScript(self, path):
