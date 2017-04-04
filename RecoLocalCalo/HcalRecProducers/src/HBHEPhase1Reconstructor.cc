@@ -485,7 +485,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             auto s(frame[ts]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
-            //optionally increase pedestal mean to account for dark current + crosstalk
+            //optionally store "effective" pedestal = QIE contribution (default, from calib.pedestal()) + SiPM contribution (dark current + crosstalk)
+            //only done for pedestal mean, to be used for pedestal subtraction downstream
             const double pedestal = calib.pedestal(capid) + (saveEffectivePedestal_ ? darkCurrent * 25. / (1. - lambda) : 0.);
             const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
