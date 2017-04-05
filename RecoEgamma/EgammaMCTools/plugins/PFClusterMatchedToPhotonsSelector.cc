@@ -82,6 +82,16 @@ PFClusterMatchedToPhotonsSelector::PFClusterMatchedToPhotonsSelector(const edm::
 
 
 void PFClusterMatchedToPhotonsSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("pfClustersTag", edm::InputTag("particleFlowClusterECAL"));
+  desc.add<edm::InputTag>("trackingParticleTag", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("genParticleTag", edm::InputTag("genParticles"));
+  desc.add<double>("maxDR", 0.3);
+  desc.add<double>("volumeZ_EB", 304.5);
+  desc.add<double>("volumeRadius_EB", 123.8);
+  desc.add<double>("volumeZ_EE", 317.0);
+  descriptions.add("pfClusterMatchedToPhotonsSelector", desc);
+
 }
 
 void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

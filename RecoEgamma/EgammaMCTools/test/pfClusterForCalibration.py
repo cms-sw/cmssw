@@ -30,6 +30,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '81X_upgrade2017_realistic_v26'
 process.MessageLogger.cerr.threshold = 'ERROR'
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
+
 # This is where users have some control.
 # Define which collections to save and which dataformat we are using
 savedCollections = cms.untracked.vstring('drop *',
@@ -98,6 +100,7 @@ process.pfclusters_step = cms.Path(process.bunchSpacingProducer *
                                    process.particleFlowClusterECAL)
 
 # Select the PFClusters we want to calibrate
+process.particleFlowClusterECALMatchedToPhotons = process.pfClusterMatchedToPhotonsSelector.clone()
 process.selection_step = cms.Path(process.particleFlowClusterECALMatchedToPhotons)
 
 # Ends job and writes our output
