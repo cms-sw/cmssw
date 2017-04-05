@@ -1,7 +1,7 @@
 #ifndef SimTransport_CTPPSHectorProducer_H
 #define SimTransport_CTPPSHectorProducer_H
  
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
