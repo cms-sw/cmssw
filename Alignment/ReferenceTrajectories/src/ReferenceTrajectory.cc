@@ -6,6 +6,7 @@
 #include <memory>
 #include <limits>
 #include <cmath>
+#include <cstdlib>
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
@@ -953,7 +954,7 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
   SlopeToLocal[2][1] = 1.;
 
   // GBL uses Eigen matrices as interface
-  Eigen::Matrix2d covariance, measPrecision, scatPrecision, proLocalToMeas;
+  Eigen::Matrix2d covariance, scatPrecision, proLocalToMeas;
   Matrix5d jacPointToPoint;
   auto identity = Matrix5d::Identity();
   Eigen::Vector2d measurement, measPrecDiag;
@@ -983,7 +984,7 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
     clhep2eigen(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
 
     // GBL add measurement to point
-    if (covariance(0,1) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(covariance(0,1)) < std::numeric_limits<double>::epsilon()) {
       // covariance matrix is diagonal, independent measurements
       for (unsigned int row = 0; row < 2; ++row) {
         measPrecDiag(row) = ( 0. < covariance(row,row) ? 1.0/covariance(row,row) : 0. );
@@ -991,9 +992,8 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
       aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecDiag, minPrec);
     } else
     {
-    // covariance matrix needs diagonalization
-      measPrecision = covariance.inverse();
-      aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecision, minPrec);
+      // covariance matrix needs diagonalization
+      aGblPoint.addMeasurement(proLocalToMeas, measurement, covariance.inverse(), minPrec);
     }
 
     // GBL multiple scattering (full matrix in local system)
@@ -1039,7 +1039,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
   AlgebraicMatrix JacOffsetToMeas, tempMSCov;
 
   // GBL uses Eigen matrices as interface
-  Eigen::Matrix2d covariance, measPrecision, proLocalToMeas;
+  Eigen::Matrix2d covariance, proLocalToMeas;
   Matrix5d jacPointToPoint, firstLocalToCurv;
   Eigen::Vector2d measurement, measPrecDiag, scatPrecDiag;
   auto scatterer = Eigen::Vector2d::Zero();
@@ -1073,7 +1073,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     clhep2eigen(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
 
     // GBL add measurement to point
-    if (covariance(0,1) == 0.) {
+    if (std::abs(covariance(0,1)) < std::numeric_limits<double>::epsilon()) {
       // covariance matrix is diagonal, independent measurements
       for (unsigned int row = 0; row < 2; ++row) {
         measPrecDiag(row) = ( 0. < covariance(row,row) ? 1.0/covariance(row,row) : 0. );
@@ -1082,8 +1082,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     } else
     {
       // covariance matrix needs diagonalization
-      measPrecision = covariance.inverse();
-      aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecision, minPrec);
+      aGblPoint.addMeasurement(proLocalToMeas, measurement, covariance.inverse(), minPrec);
     }
 
     // GBL multiple scattering (diagonal matrix in curvilinear system)
