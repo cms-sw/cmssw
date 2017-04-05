@@ -177,6 +177,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
   if ( int(muons.size()) < nmuons_ ) return;
   for (int i=0;i<(int(muons.size())+1) ;i++) {
+    if(!muoSelection_ref(muons[i]))continue;
     muPhi_.denominator->Fill(muons[i].phi());
     muEta_.denominator->Fill(muons[i].eta());
     muPt_.denominator ->Fill(muons[i].pt());
