@@ -203,10 +203,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     edm::ESHandle<AlignPCLThresholds> thresholdHandle;
     setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
     theThresholds = thresholdHandle.product();
-  } else {
-    theThresholds = new AlignPCLThresholds();
-    edm::LogInfo("MillePedeAlignmentAlgorithm")<<"Creating a fake AlignPCLThresholds objects. Irrelevant since the running mode is not PCL"<<std::endl;
-  }
+  } 
 
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
   theAlignmentParameterStore = store;
