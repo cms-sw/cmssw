@@ -7,10 +7,7 @@ def addBoostedTaus(process):
 
     process.load("RecoTauTag.Configuration.boostedHPSPFTaus_cff")
     patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-    patAlgosToolsTask.add(process.pfPileUpForBoostedTaus)
-    patAlgosToolsTask.add(process.pfNoPileUpForBoostedTaus)
-    patAlgosToolsTask.add(process.ca8PFJetsCHSprunedForBoostedTaus)
-    patAlgosToolsTask.add(process.boostedTauSeeds)
+    patAlgosToolsTask.add(process.boostedHPSPFTausTask)
 
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.ptau = cms.Path( process.PFTau )
