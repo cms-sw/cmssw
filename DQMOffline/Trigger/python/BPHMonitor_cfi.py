@@ -15,19 +15,19 @@ hltBPHmonitoring.histoPSet.phiPSet = cms.PSet(
   xmax  = cms.double(3.2),
 )
 hltBPHmonitoring.histoPSet.etaPSet = cms.PSet(
-  nbins = cms.int32 (  52  ),
-  xmin  = cms.double(   -2.6),
-  xmax  = cms.double(2.6),
+  nbins = cms.int32 (  48  ),
+  xmin  = cms.double(   -2.4),
+  xmax  = cms.double(2.4),
 )
 hltBPHmonitoring.histoPSet.d0PSet = cms.PSet(
-  nbins = cms.int32 (  100  ),
-  xmin  = cms.double(   0),
-  xmax  = cms.double(100),
+  nbins = cms.int32 (  200  ),
+  xmin  = cms.double(   -5.),
+  xmax  = cms.double(5),
 )
 hltBPHmonitoring.histoPSet.z0PSet = cms.PSet(
-  nbins = cms.int32 (  150  ),
-  xmin  = cms.double(   0),
-  xmax  = cms.double(150),
+  nbins = cms.int32 (  300 ),
+  xmin  = cms.double(   -15),
+  xmax  = cms.double(15),
 )
 
 hltBPHmonitoring.tracks       = cms.InputTag("generalTracks") # tracks??
