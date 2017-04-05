@@ -42,6 +42,8 @@ class MillePedeFileReader {
     const std::array<double, 6>& getTZobs()    const { return tZobs_;    }
     const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
 
+    const AlignPCLThresholds::threshold_map getThresholdMap() const {return theThresholds_.get()->getThreshold_Map (); }   
+
   private:
   //========================= PRIVATE ENUMS ====================================
   //============================================================================
