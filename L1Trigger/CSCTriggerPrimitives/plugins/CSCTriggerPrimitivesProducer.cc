@@ -135,8 +135,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     lctBuilder_->setConfigParameters(conf.product());
   }
   
-  // temporary hack to run on data
-  lctBuilder_->runOnData(ev.eventAuxiliary().isRealData());
   
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;

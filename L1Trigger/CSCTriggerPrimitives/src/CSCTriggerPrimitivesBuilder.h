@@ -53,9 +53,6 @@ class CSCTriggerPrimitivesBuilder
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
   void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
 
-  /* temporary function to check if running on data */
-  void runOnData(bool runOnData) {runOnData_ = runOnData;}
-
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
