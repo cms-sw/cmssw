@@ -145,6 +145,11 @@ if __name__ == '__main__':
                       dest='step1Only',
                       default=False
                       )
+    parser.add_option('--maxSteps',
+                      help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
+                      dest='maxSteps',
+                      default=9999
+                      )
     parser.add_option('--fromScratch',
                       help='Coma separated list of wf to be run without recycling. all is not supported as default.',
                       dest='fromScratch',
