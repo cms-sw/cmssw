@@ -18,6 +18,7 @@ from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_Client_cff import *
 
 from DQMOffline.Trigger.ExoticaMonitoring_Client_cff import *
+<<<<<<< HEAD
 from DQMOffline.Trigger.SusyMonitoring_Client_cff import *
 from DQMOffline.Trigger.B2GMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPhysicsMonitoring_Client_cff import *
@@ -26,6 +27,9 @@ from DQMOffline.Trigger.StandardModelMonitoring_Client_cff import *
 from DQMOffline.Trigger.TopMonitoring_Client_cff import *
 
 from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
+=======
+from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
+>>>>>>> mydev1
 
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
@@ -39,11 +43,15 @@ hltOfflineDQMClient = cms.Sequence(
     dqmOfflineHLTCert *
     hltInclusiveVBFClient *
     exoticaClient *
+<<<<<<< HEAD
     susyClient *
     b2gClient *
     higgsClient *
     smpClient *
     topClient *
     btaggingClient
+=======
+    bphClient
+>>>>>>> mydev1
     )
 
