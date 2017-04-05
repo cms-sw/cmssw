@@ -13,6 +13,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -26,23 +27,30 @@ process.load('RecoEgamma.EgammaMCTools.pfClusterMatchedToPhotonsSelector_cfi')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '81X_upgrade2017_realistic_v26', '')
 
+process.MessageLogger.cerr.threshold = 'ERROR'
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
 # This is where users have some control.
 # Define which collections to save and which dataformat we are using
 savedCollections = cms.untracked.vstring('drop *',
-                                         'keep EcalRecHitsSorted_*_*_*',
-                                         'keep recoPFClusters_*_*_*',
-                                         'keep recoCaloClusters_*_*_*',
-                                         'keep recoSuperClusters_*_*_*', 
-                                         'keep recoGsfElectron*_*_*_*',
-                                         'keep recoPhoton*_*_*_*',
+# The commented ones are large collections that can be kept for debug
+#                                         'keep EcalRecHitsSorted_*_*_*',
+#                                         'keep recoPFClusters_*_*_*',
+#                                         'keep recoCaloClusters_*_*_*',
+#                                         'keep recoSuperClusters_*_*_*', 
+#                                         'keep recoGsfElectron*_*_*_*',
+#                                         'keep recoPhoton*_*_*_*',
+#                                         'keep *_mix_MergedTrackTruth_*',
+                                         'keep *_reducedEcalRecHits*_*_*',
                                          'keep double_fixedGridRho*_*_*',
                                          'keep recoGenParticles_*_*_*',
                                          'keep GenEventInfoProduct_*_*_*',
                                          'keep PileupSummaryInfos_*_*_*',
                                          'keep *_ecalDigis_*_*',
-                                         'keep *_mix_MergedTrackTruth_*')
+                                         'keep *_offlinePrimaryVertices_*_*',
+                                         'keep *_particleFlowCluster*_*_*')
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(15))
 
 process.source = cms.Source("PoolSource",                 
                             fileNames = cms.untracked.vstring(
@@ -71,13 +79,12 @@ process.PFCLUSTERoutput = cms.OutputModule("PoolOutputModule",
                                            splitLevel = cms.untracked.int32(0)
                                            )
 
-# Make tracking particles
-from SimGeneral.MixingModule.trackingTruthProducer_cfi import trackingParticles
-process.mix.digitizers.mergedtruth = cms.PSet(trackingParticles)
-process.tp_step = cms.Path(process.mix)
+# Run the digitizer to make the trackingparticles
+process.mix.digitizers = cms.PSet(process.theDigitizersValid)
+process.trackingtruth_step = cms.Path(process.pdigi_valid)
 
 # Remake the PFClusters
-process.pfclusters_step = cms.Path(process.bunchSpacingProducer * 
+process.pfclusters_step = cms.Path(process.bunchSpacingProducer *
                                    process.ecalDigis * 
                                    process.ecalPreshowerDigis * 
                                    process.ecalPreshowerRecHit *
@@ -98,6 +105,6 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.PFCLUSTERoutput)
 
 # Schedule definition, rebuilding rechits
-process.schedule = cms.Schedule(process.tp_step,process.pfclusters_step,process.selection_step,process.endjob_step,process.output_step)
+process.schedule = cms.Schedule(process.trackingtruth_step,process.pfclusters_step,process.selection_step,process.endjob_step,process.output_step)
 
 
