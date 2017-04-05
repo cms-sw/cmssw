@@ -14,7 +14,7 @@
 class HcalSiPMRadiationDamage {
 	public:
 		HcalSiPMRadiationDamage();
-		HcalSiPMRadiationDamage(std::vector<double> darkCurrentBase_, const edm::ParameterSet & p);
+		HcalSiPMRadiationDamage(std::vector<double> darkCurrentBase, const edm::ParameterSet & p);
 		~HcalSiPMRadiationDamage() {}
 		
 		//accessors
@@ -22,13 +22,13 @@ class HcalSiPMRadiationDamage {
 
 	private:
 		//members
-		std::vector<double> darkCurrentBase;
-		double temperatureBase;
-		double temperatureNew;
-		double intlumiOffset;
-		double depVsTemp;
-		double intlumiToNeutrons;
-		std::vector<double> depVsNeutrons;
+		std::vector<double> darkCurrentBase_;
+		double temperatureBase_;
+		double temperatureNew_;
+		double intlumiOffset_;
+		double depVsTemp_;
+		double intlumiToNeutrons_;
+		std::vector<double> depVsNeutrons_;
 };
 
 #endif // HBHERecalibration_h

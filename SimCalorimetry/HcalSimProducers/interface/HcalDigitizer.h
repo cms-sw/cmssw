@@ -156,9 +156,9 @@ private:
   int theHOSiPMCode;
   
   double deliveredLumi;
-  HBHEDarkening* m_HBDarkening;
-  HBHEDarkening* m_HEDarkening;
-  HFRecalibration* m_HFRecalibration;
+  std::unique_ptr<HBHEDarkening> m_HBDarkening;
+  std::unique_ptr<HBHEDarkening> m_HEDarkening;
+  std::unique_ptr<HFRecalibration> m_HFRecalibration;
 
   std::vector<double> injectedHitsEnergy_;
   std::vector<double> injectedHitsTime_;

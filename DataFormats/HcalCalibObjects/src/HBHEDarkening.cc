@@ -16,28 +16,28 @@
 #include <cassert>
 
 HBHEDarkening::HBHEDarkening(const edm::ParameterSet & p) : 
-	ieta_shift(p.getParameter<int>("ieta_shift")), drdA(p.getParameter<double>("drdA")), drdB(p.getParameter<double>("drdB"))
+	ieta_shift_(p.getParameter<int>("ieta_shift")), drdA_(p.getParameter<double>("drdA")), drdB_(p.getParameter<double>("drdB"))
 {
 	//initialize dose maps
 	std::vector<edm::ParameterSet> p_dosemaps = p.getParameter<std::vector<edm::ParameterSet>>("dosemaps");
 	for(const auto& p_dosemap : p_dosemaps){
 		edm::FileInPath fp = p_dosemap.getParameter<edm::FileInPath>("file");
 		int file_energy = p_dosemap.getParameter<int>("energy");
-		dosemaps.emplace(file_energy,readDoseMap(fp.fullPath()));
+		dosemaps_.emplace(file_energy,readDoseMap(fp.fullPath()));
 	}
 	
 	//initialize years
 	std::vector<edm::ParameterSet> p_years = p.getParameter<std::vector<edm::ParameterSet>>("years");
-	years.reserve(p_years.size());
+	years_.reserve(p_years.size());
 	for(const auto& p_year : p_years){
-		years.emplace_back(p_year);
+		years_.emplace_back(p_year);
 	}
-	std::sort(years.begin(),years.end());
+	std::sort(years_.begin(),years_.end());
 	//sum up int lumi
 	double sumlumi = 0.0;
-	for(auto& year : years){
-		sumlumi += year.intlumi;
-		year.sumlumi = sumlumi;
+	for(auto& year : years_){
+		sumlumi += year.intlumi_;
+		year.sumlumi_ = sumlumi;
 	}
 }
 
@@ -61,8 +61,8 @@ std::vector<std::vector<double>> HBHEDarkening::readDoseMap(const std::string& f
 
 double HBHEDarkening::dose(int ieta, int lay, int energy) const {
 	//existence check
-	const auto dosemapIt = dosemaps.find(energy);
-	if(dosemapIt == dosemaps.end()) return 0.0;
+	const auto dosemapIt = dosemaps_.find(energy);
+	if(dosemapIt == dosemaps_.end()) return 0.0;
 
 	//bounds check
 	const auto& dosemap = dosemapIt->second;
@@ -77,24 +77,24 @@ double HBHEDarkening::dose(int ieta, int lay, int energy) const {
 
 std::string HBHEDarkening::getYearForLumi(double intlumi) const {
 	//compare based on sum lumi value
-	auto lb = std::lower_bound(years.begin(),years.end(),intlumi,LumiYearComp());
-	if(lb == years.end() or lb->sumlumi < intlumi) {
+	auto lb = std::lower_bound(years_.begin(),years_.end(),intlumi,LumiYearComp());
+	if(lb == years_.end() or lb->sumlumi_ < intlumi) {
 		throw cms::Exception("ValueError") << "HBHEDarkening: insufficient LHC run information provided to simulate " << intlumi << "/fb - check the python config" << std::endl;
 	}
-	return lb->year;
+	return lb->year_;
 }
 
 double HBHEDarkening::degradationYear(const LumiYear& year, double intlumi, int ieta, int lay) const {
-	double doseToUse = dose(ieta,lay,year.energy);
+	double doseToUse = dose(ieta,lay,year.energy_);
 	if(doseToUse==0.0) return 1.0;
 	
 	//apply dose rate dependence model to the provided year
 	//get krad/hr from Mrad/fb-1 and fb-1/hr
-	double decayConst = drdA*std::pow(1000*doseToUse*year.lumirate,drdB);
+	double decayConst = drdA_*std::pow(1000*doseToUse*year.lumirate_,drdB_);
 	
 	//determine if this is a partial year
-	double intlumiToUse = year.intlumi;
-	if(intlumi < year.sumlumi) intlumiToUse = year.sumlumi - intlumi;
+	double intlumiToUse = year.intlumi_;
+	if(intlumi < year.sumlumi_) intlumiToUse = year.sumlumi_ - intlumi;
 	
 	//calculate degradation
 	return std::exp(-(intlumiToUse*doseToUse)/decayConst);
@@ -103,7 +103,7 @@ double HBHEDarkening::degradationYear(const LumiYear& year, double intlumi, int 
 double HBHEDarkening::degradation(double intlumi, int ieta, int lay) const {
 	ieta = abs(ieta);
 	//shift ieta tower index to act as array index
-	ieta -= ieta_shift;
+	ieta -= ieta_shift_;
 	//shift layer index by 1 to act as array index
 	lay -= 1;
 	
@@ -112,9 +112,9 @@ double HBHEDarkening::degradation(double intlumi, int ieta, int lay) const {
 	std::string yearForLumi = getYearForLumi(intlumi);
 	assert(yearForLumi.size());
 	
-	for(const auto& year : years){
+	for(const auto& year : years_){
 		response *= degradationYear(year,intlumi,ieta,lay);
-		if(year.year==yearForLumi) break;
+		if(year.year_==yearForLumi) break;
 	}
 	
 	return response;

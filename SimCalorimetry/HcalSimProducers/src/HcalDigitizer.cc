@@ -90,9 +90,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
-  m_HBDarkening(0),
-  m_HEDarkening(0),
-  m_HFRecalibration(0),
+  m_HBDarkening(nullptr),
+  m_HEDarkening(nullptr),
+  m_HFRecalibration(nullptr),
   injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
   injectedHitsTime_(ps.getParameter<std::vector<double>>("injectTestHitsTime")),
   injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells"))
@@ -210,9 +210,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
-  if(agingFlagHB) m_HBDarkening = new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HBDarkeningParameters"));
-  if(agingFlagHE) m_HEDarkening = new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HEDarkeningParameters"));
-  if(agingFlagHF) m_HFRecalibration = new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+  if(agingFlagHB) m_HBDarkening.reset(new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HBDarkeningParameters")));
+  if(agingFlagHE) m_HEDarkening.reset(new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HEDarkeningParameters")));
+  if(agingFlagHF) m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
 }
 
 
@@ -248,9 +248,6 @@ HcalDigitizer::~HcalDigitizer() {
   if (theRelabeller)           delete theRelabeller;
   if(theTimeSlewSim) delete theTimeSlewSim;
   if(theIonFeedback) delete theIonFeedback;
-  if(m_HBDarkening) delete m_HBDarkening;
-  if(m_HEDarkening) delete m_HEDarkening;
-  if(m_HFRecalibration) delete m_HFRecalibration;
 }
 
 
