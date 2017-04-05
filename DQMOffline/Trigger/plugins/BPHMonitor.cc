@@ -276,13 +276,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
   histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
   histoPSet.add<edm::ParameterSetDescription>("z0PSet", z0PSet);
-  std::vector<double> bins = {0.,20.,40.,60.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,220.,240.,260.,280.,300.,350.,400.,450.,1000.};
-  histoPSet.add<std::vector<double> >("metBinning", bins);
-
-  edm::ParameterSetDescription lsPSet;
-  fillHistoLSPSetDescription(lsPSet);
-  histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
-
+  
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
 
   descriptions.add("bphMonitoring", desc);
