@@ -71,7 +71,7 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger a
 patTriggerFull.onlyStandAlone = True
 patTrigger = cms.EDProducer("TriggerObjectFilterByCollection",
     src = cms.InputTag("patTriggerFull"),
-    collections = cms.vstring("hltL1extraParticles", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands"),
+    collections = cms.vstring("hltL1extraParticles", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands", "hltTracksIter"),
 ) 
 #patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 #    src = cms.InputTag("patTriggerFull"),
@@ -110,6 +110,7 @@ muonMatchHLTL3T = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltG
 muonMatchHLTCtfTrack  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTrackJpsiCtfTrackCands")'),    maxDeltaR = 0.1, maxDPtRel = 10.0)  #maxDeltaR Changed accordingly to Zoltan tuning. 
 muonMatchHLTCtfTrack2 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTrackJpsiEffCtfTrackCands")'), maxDeltaR = 0.1, maxDPtRel = 10.0)  #maxDeltaR Changed accordingly to Zoltan tuning. 
 muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTkMuJpsiTrackerMuonCands")'), maxDeltaR = 0.1, maxDPtRel = 10.0) #maxDeltaR Changed accordingly to Zoltan tuning. 
+muonMatchHLTTrackIt  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltTracksIter")'), maxDeltaR = 0.1, maxDPtRel = 1.0) #maxDeltaR Changed accordingly to Zoltan tuning. 
 
 patTriggerMatchers1Mu = cms.Sequence(
       #muonMatchHLTL1 +   # keep off by default, since it is slow and usually not needed
@@ -128,12 +129,14 @@ patTriggerMatchers1MuInputTags = [
 patTriggerMatchers2Mu = cms.Sequence(
     muonMatchHLTCtfTrack  +
     muonMatchHLTCtfTrack2 +
-    muonMatchHLTTrackMu
+    muonMatchHLTTrackMu +
+    muonMatchHLTTrackIt
 )
 patTriggerMatchers2MuInputTags = [
     cms.InputTag('muonMatchHLTCtfTrack'),
     cms.InputTag('muonMatchHLTCtfTrack2'),
     cms.InputTag('muonMatchHLTTrackMu'),
+    cms.InputTag('muonMatchHLTTrackIt'),
 ]
 
 ## ==== Embed ====
@@ -168,6 +171,7 @@ def switchOffAmbiguityResolution(process):
     process.muonMatchHLTL3.resolveAmbiguities = False
     process.muonMatchHLTCtfTrack.resolveAmbiguities = False
     process.muonMatchHLTTrackMu.resolveAmbiguities  = False
+    process.muonMatchHLTTrackIt.resolveAmbiguities  = False
 
 def changeTriggerProcessName(process, triggerProcessName, oldProcessName="HLT"):
     "Change the process name under which the trigger was run"
