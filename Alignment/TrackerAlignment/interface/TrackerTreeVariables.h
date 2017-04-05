@@ -13,13 +13,13 @@ struct TrackerTreeVariables{
   
   void clear(){
     rawId = subdetId = layer = side = half = rod = ring = petal = blade = panel = outerInner = module = rodAl = bladeAl = nStrips = 0;
-    isDoubleSide = isRPhi = false;
+    isDoubleSide = isRPhi = isStereo = false;
     uDirection = vDirection = wDirection = 0;
     posR = posPhi = posEta = posX = posY = posZ = -999.F;
   }
   
   UInt_t rawId, subdetId, layer, side, half, rod, ring, petal, blade, panel, outerInner, module, rodAl, bladeAl, nStrips;
-  Bool_t isDoubleSide, isRPhi;
+  Bool_t isDoubleSide, isRPhi, isStereo;
   Int_t uDirection, vDirection, wDirection;
   Float_t posR, posPhi, posEta, posX, posY, posZ;
 };

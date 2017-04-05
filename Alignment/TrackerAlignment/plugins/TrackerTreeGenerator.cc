@@ -38,20 +38,12 @@
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -161,106 +153,6 @@ TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      tkTreeVar.rawId    = rawId;
      tkTreeVar.subdetId = detId.subdetId();
      
-     if(tkTreeVar.subdetId == PixelSubdetector::PixelBarrel){
-       PXBDetId pxbId(rawId);
-       unsigned int whichHalfBarrel(1), ladderAl(0);  //DetId does not know about halfBarrels is PXB ...
-       if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
-       tkTreeVar.layer  = pxbId.layer();
-       tkTreeVar.half   = whichHalfBarrel;
-       tkTreeVar.rod    = pxbId.ladder();     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer!
-       tkTreeVar.module = pxbId.module();
-       if(tkTreeVar.layer==1){
-         if(tkTreeVar.half==2)ladderAl = tkTreeVar.rod -5;
-         else if(tkTreeVar.rod>15)ladderAl = tkTreeVar.rod -10;
-         else ladderAl = tkTreeVar.rod;
-       }else if(tkTreeVar.layer==2){
-         if(tkTreeVar.half==2)ladderAl = tkTreeVar.rod -8;
-         else if(tkTreeVar.rod>24)ladderAl = tkTreeVar.rod -16;
-         else ladderAl = tkTreeVar.rod;
-       }else if(tkTreeVar.layer==3){
-         if(tkTreeVar.half==2)ladderAl = tkTreeVar.rod -11;
-         else if(tkTreeVar.rod>33)ladderAl = tkTreeVar.rod -22;
-         else ladderAl = tkTreeVar.rod;
-       }
-       tkTreeVar.rodAl = ladderAl;}
-     else if(tkTreeVar.subdetId == PixelSubdetector::PixelEndcap){
-       PXFDetId pxfId(rawId);
-       unsigned int whichHalfCylinder(1), bladeAl(0);  //DetId does not kmow about halfCylinders in PXF
-       if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
-       tkTreeVar.layer  = pxfId.disk();
-       tkTreeVar.side   = pxfId.side();
-       tkTreeVar.half   = whichHalfCylinder;
-       tkTreeVar.blade  = pxfId.blade();
-       tkTreeVar.panel  = pxfId.panel();
-       tkTreeVar.module = pxfId.module();
-       if(tkTreeVar.half==2)bladeAl = tkTreeVar.blade -6;
-       else if(tkTreeVar.blade>18)bladeAl = tkTreeVar.blade -12;
-       else bladeAl = tkTreeVar.blade;
-       tkTreeVar.bladeAl = bladeAl;}
-     else if(tkTreeVar.subdetId == StripSubdetector::TIB){
-       TIBDetId tibId(rawId);
-       unsigned int whichHalfShell(1), stringAl(0);  //DetId does not kmow about halfShells in TIB
-       if( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
-           (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
-	   (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
-	   (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
-       tkTreeVar.layer        = tibId.layer();
-       tkTreeVar.side         = tibId.string()[0];
-       tkTreeVar.half         = whichHalfShell;
-       tkTreeVar.rod          = tibId.string()[2];
-       tkTreeVar.outerInner   = tibId.string()[1];
-       tkTreeVar.module       = tibId.module();
-       tkTreeVar.isDoubleSide = tibId.isDoubleSide();
-       tkTreeVar.isRPhi       = tibId.isRPhi();
-       if(tkTreeVar.half==2){
-         if(tkTreeVar.layer==1){
-           if(tkTreeVar.outerInner==1)stringAl = tkTreeVar.rod -13;
-	   else if(tkTreeVar.outerInner==2)stringAl = tkTreeVar.rod -15;
-         }
-         if(tkTreeVar.layer==2){
-           if(tkTreeVar.outerInner==1)stringAl = tkTreeVar.rod -17;
-	   else if(tkTreeVar.outerInner==2)stringAl = tkTreeVar.rod -19;
-         }
-         if(tkTreeVar.layer==3){
-           if(tkTreeVar.outerInner==1)stringAl = tkTreeVar.rod -22;
-	   else if(tkTreeVar.outerInner==2)stringAl = tkTreeVar.rod -23;
-         }
-         if(tkTreeVar.layer==4){
-           if(tkTreeVar.outerInner==1)stringAl = tkTreeVar.rod -26;
-	   else if(tkTreeVar.outerInner==2)stringAl = tkTreeVar.rod -28;
-         }
-       }
-       else stringAl = tkTreeVar.rod;
-       tkTreeVar.rodAl = stringAl;}
-     else if(tkTreeVar.subdetId == StripSubdetector::TID){
-       TIDDetId tidId(rawId);
-       tkTreeVar.layer        = tidId.wheel();
-       tkTreeVar.side         = tidId.side();
-       tkTreeVar.ring         = tidId.ring();
-       tkTreeVar.outerInner   = tidId.module()[0];
-       tkTreeVar.module       = tidId.module()[1];
-       tkTreeVar.isDoubleSide = tidId.isDoubleSide();
-       tkTreeVar.isRPhi       = tidId.isRPhi();}
-     else if(tkTreeVar.subdetId == StripSubdetector::TOB){
-       TOBDetId tobId(rawId);
-       tkTreeVar.layer        = tobId.layer();
-       tkTreeVar.side         = tobId.rod()[0];
-       tkTreeVar.rod          = tobId.rod()[1];
-       tkTreeVar.module       = tobId.module();
-       tkTreeVar.isDoubleSide = tobId.isDoubleSide();
-       tkTreeVar.isRPhi       = tobId.isRPhi();}
-     else if(tkTreeVar.subdetId == StripSubdetector::TEC){
-       TECDetId tecId(rawId);
-       tkTreeVar.layer        = tecId.wheel();
-       tkTreeVar.side         = tecId.side();
-       tkTreeVar.ring         = tecId.ring();
-       tkTreeVar.petal        = tecId.petal()[1];
-       tkTreeVar.outerInner   = tecId.petal()[0];
-       tkTreeVar.module       = tecId.module();
-       tkTreeVar.isDoubleSide = tecId.isDoubleSide();
-       tkTreeVar.isRPhi       = tecId.isRPhi();}
-     
-     
      LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.), lWDirection(0.,0.,1.);
      GlobalPoint gPModule    = surface.toGlobal(lPModule),
                  gUDirection = surface.toGlobal(lUDirection),
@@ -296,6 +188,97 @@ TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      tkTreeVar.posX         = gPModule.x();
      tkTreeVar.posY         = gPModule.y();
      tkTreeVar.posZ         = gPModule.z();
+       
+     
+     if(tkTreeVar.subdetId == PixelSubdetector::PixelBarrel){
+      unsigned int whichHalfBarrel(1);  //DetId does not know about halfBarrels is PXB ...
+       // The easiest thing is to get the half barrel from the x-position.
+       // This way we can run on both Phase 0 and Phase I without having to change the generator
+       if( tkTreeVar.posX < 0. ) whichHalfBarrel=2;
+       
+       // Hard coded Id ranges. Might be useful in case of very strongly misaligned scenarios
+       // Phase 0
+       // if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
+       // Phase I
+       // if( (rawId>=303054852 && rawId<303075370) || (rawId>=304119812 && rawId<304173090) || (rawId>=305184772 && rawId<305270820) || (rawId>=306253828 && rawId<306380840) ) whichHalfBarrel=2;
+       
+       tkTreeVar.layer  = tTopo->pxbLayer(*(&detId));
+       tkTreeVar.half   = whichHalfBarrel;
+       tkTreeVar.rod    = tTopo->pxbLadder(*(&detId));     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer!
+       tkTreeVar.module = tTopo->pxbModule(*(&detId));
+      }
+     else if(tkTreeVar.subdetId == PixelSubdetector::PixelEndcap){
+       unsigned int whichHalfCylinder(1);  //DetId does not know about halfCylinders in PXF
+       if( tkTreeVar.posX < 0. ) whichHalfCylinder=2;
+       
+       // Phase 0
+       // if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
+       // Phase I       
+       // if( (rawId>=352613380 && rawId<352655370) || (rawId>=352715780 && rawId<352782350) || (rawId>=352875524 && rawId<352917510) ||
+       // (rawId>=352977924 && rawId<353044490) || (rawId>=353137668 && rawId<353179660) || (rawId>=353240068 && rawId<353306630) ||
+       // (rawId>=344224772 && rawId<344266760) || (rawId>=344327172 && rawId<344393740) || (rawId>=344486916 && rawId<344528910) || 
+       // (rawId>=344589316 && rawId<344655880) || (rawId>=344749060 && rawId<344791050) || (rawId>=344851460 && rawId<344918030) )whichHalfCylinder=2;
+       
+       tkTreeVar.layer  = tTopo->pxfDisk(*(&detId));
+       tkTreeVar.side   =tTopo->pxfSide(*(&detId));
+       tkTreeVar.half   = whichHalfCylinder;
+       tkTreeVar.blade  = tTopo->pxfBlade(*(&detId));
+       tkTreeVar.panel  = tTopo->pxfPanel(*(&detId));
+       tkTreeVar.module = tTopo->pxfModule(*(&detId));
+     }
+     else if(tkTreeVar.subdetId == StripSubdetector::TIB){
+       unsigned int whichHalfShell(1);  //DetId does not know about halfShells in TIB
+       if( tkTreeVar.posY < 0. ) whichHalfShell=2;
+       
+       // if( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
+       // (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
+	   // (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
+	   // (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
+       
+       tkTreeVar.layer        = tTopo->tibLayer(*(&detId)); 
+       tkTreeVar.side         = tTopo->tibStringInfo(*(&detId))[0];
+       tkTreeVar.half         = whichHalfShell;
+       tkTreeVar.rod          = tTopo->tibStringInfo(*(&detId))[2];
+       tkTreeVar.outerInner   = tTopo->tibStringInfo(*(&detId))[1];
+       tkTreeVar.module       = tTopo->tibModule(*(&detId));
+       tkTreeVar.isDoubleSide = tTopo->tibIsDoubleSide(*(&detId));
+       tkTreeVar.isRPhi       = tTopo->tibIsRPhi(*(&detId));
+       tkTreeVar.isStereo       = tTopo->tibIsStereo(*(&detId));
+     }
+     else if(tkTreeVar.subdetId == StripSubdetector::TID){
+       tkTreeVar.layer        = tTopo->tidWheel(*(&detId));
+       tkTreeVar.side         = tTopo->tidSide(*(&detId));
+       tkTreeVar.ring         = tTopo->tidRing(*(&detId));
+       tkTreeVar.outerInner   = tTopo->tidModuleInfo(*(&detId))[0]; 
+       tkTreeVar.module       = tTopo->tidModuleInfo(*(&detId))[1]; 
+       tkTreeVar.isDoubleSide = tTopo->tidIsDoubleSide(*(&detId));
+       tkTreeVar.isRPhi       = tTopo->tidIsRPhi(*(&detId));
+       tkTreeVar.isStereo       = tTopo->tidIsStereo(*(&detId));
+      } 
+     else if(tkTreeVar.subdetId == StripSubdetector::TOB){
+       tkTreeVar.layer        = tTopo->tobLayer(*(&detId)); 
+       tkTreeVar.side         = tTopo->tobRodInfo(*(&detId))[0];
+       tkTreeVar.rod          = tTopo->tobRodInfo(*(&detId))[1]; 
+       tkTreeVar.module       = tTopo->tobModule(*(&detId));
+       tkTreeVar.isDoubleSide = tTopo->tobIsDoubleSide(*(&detId));
+       tkTreeVar.isRPhi       = tTopo->tobIsRPhi(*(&detId));
+       tkTreeVar.isStereo       = tTopo->tobIsStereo(*(&detId));
+     }
+     else if(tkTreeVar.subdetId == StripSubdetector::TEC){
+       tkTreeVar.layer        = tTopo->tecWheel(*(&detId));
+       tkTreeVar.side         = tTopo->tecSide(*(&detId));
+       tkTreeVar.ring         = tTopo->tecRing(*(&detId)); 
+       tkTreeVar.petal        = tTopo->tecPetalInfo(*(&detId))[1]; 
+       tkTreeVar.outerInner   = tTopo->tecPetalInfo(*(&detId))[0]; 
+       tkTreeVar.module       = tTopo->tecModule(*(&detId));
+       tkTreeVar.isDoubleSide = tTopo->tecIsDoubleSide(*(&detId));
+       if ( tkTreeVar.ring == 1 || tkTreeVar.ring == 2 ||tkTreeVar.ring == 5 )
+       { 
+       tkTreeVar.isRPhi       = tTopo->tecIsRPhi(*(&detId));
+       tkTreeVar.isStereo       = tTopo->tecIsStereo(*(&detId));
+	   }
+     }
+     
      
      
      if(dynamic_cast<const StripGeomDetUnit*>(&geomDet)){  //is it a single physical module?
@@ -325,9 +308,11 @@ TrackerTreeGenerator::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TrackerTreeGenerator::endJob() {
+   //~ UInt_t rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
+          //~ blade(999), panel(999), outerInner(999), module(999), rodAl(999), bladeAl(999), nStrips(999);
    UInt_t rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
-          blade(999), panel(999), outerInner(999), module(999), rodAl(999), bladeAl(999), nStrips(999);
-   Bool_t isDoubleSide(false), isRPhi(false);
+          blade(999), panel(999), outerInner(999), module(999), nStrips(999);
+   Bool_t isDoubleSide(false), isRPhi(false), isStereo(false);
    Int_t uDirection(999), vDirection(999), wDirection(999);
    Float_t posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F);
    edm::Service<TFileService> fileService;
@@ -346,11 +331,10 @@ TrackerTreeGenerator::endJob() {
    trackerTree->Branch("Panel", &panel, "Panel/i");			      // PXF
    trackerTree->Branch("OuterInner", &outerInner, "OuterInner/i");            // front/back String,Ring,Petal
    trackerTree->Branch("Module", &module, "Module/i");		              // Module ID
-   trackerTree->Branch("RodAl", &rodAl, "RodAl/i");                           // Different for AlignmentHierarchy from TrackerHierarchy (TPB, TIB)
-   trackerTree->Branch("BladeAl", &bladeAl, "BladeAl/i");                     // Different for AlignmentHierarchy from TrackerHierarchy (TPF)
    trackerTree->Branch("NStrips", &nStrips, "NStrips/i");
    trackerTree->Branch("IsDoubleSide", &isDoubleSide, "IsDoubleSide/O");
    trackerTree->Branch("IsRPhi", &isRPhi, "IsRPhi/O");
+   trackerTree->Branch("IsStereo", &isStereo, "IsStereo/O");
    trackerTree->Branch("UDirection", &uDirection, "UDirection/I");
    trackerTree->Branch("VDirection", &vDirection, "VDirection/I");
    trackerTree->Branch("WDirection", &wDirection, "WDirection/I");
@@ -374,11 +358,10 @@ TrackerTreeGenerator::endJob() {
      panel        = (*iTree).panel;
      outerInner   = (*iTree).outerInner;
      module       = (*iTree).module;
-     rodAl        = (*iTree).rodAl;
-     bladeAl      = (*iTree).bladeAl;
      nStrips      = (*iTree).nStrips;
      isDoubleSide = (*iTree).isDoubleSide;
      isRPhi       = (*iTree).isRPhi;
+     isStereo       = (*iTree).isStereo;
      uDirection   = (*iTree).uDirection;
      vDirection   = (*iTree).vDirection;
      wDirection   = (*iTree).wDirection;

@@ -127,6 +127,9 @@ elif options.sample == 'zmumu20':
     isMc = True
 elif options.sample == 'zmumu50':
     isMc = True
+elif "MC" in options.sample:
+    isMc = True
+    print options.sample
 else:
     print 'ERROR --- incorrect data sammple: ', options.sample
     exit(8888)
@@ -159,6 +162,7 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 #process.source.duplicateCheckMode = cms.untracked.string("checkAllFilesOpened")   # default value
 
 
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
 ##
 ## Whole Refitter Sequence
@@ -168,20 +172,12 @@ process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
 if isParticleGun:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 elif isMc:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
     
-    ##### To be used when running on Phys14MC with a CMSSW version > 72X
-    # process.GlobalTag.toGet = cms.VPSet(
-		# cms.PSet(
-			# record = cms.string("BeamSpotObjectsRcd"),
-			# tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
-			# connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-		# )
-	# )
-
 
 elif isData:
-    #~ process.GlobalTag.globaltag = 'GR_P_V56'
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
@@ -189,28 +185,18 @@ elif isData:
 
 ## Alignment and APE
 ##
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 ## Choose Alignment (w/o touching APE)
 if options.alignRcd=='design':
+	pass
+
+  
+elif options.alignRcd == 'misalTest':
   process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
     connect = 'frontier://FrontierProd/CMS_CONDITIONS',
     toGet = cms.VPSet(
       cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerAlignment_Ideal62X_mc')
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-
-  
-elif options.alignRcd == 'misalTest':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/user/c/cschomak/CMSSW_7_4_1/src/Alignment/APEEstimation/test/geometry_MisalignmentScenario_20mu_fromDESRUN2_74_V4.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
+        tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
       )
     )
   )
