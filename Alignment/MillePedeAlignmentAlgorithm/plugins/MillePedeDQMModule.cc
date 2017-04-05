@@ -103,9 +103,9 @@ void MillePedeDQMModule
   // take the thresholds from DB
   edm::ESHandle<AlignPCLThresholds> thresholdHandle;
   setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-  thresholds_ = thresholdHandle.product();
+  auto thresholds_ = thresholdHandle.product();
 
-  auto myThresholds = new AlignPCLThresholds();
+  auto myThresholds = std::make_shared<AlignPCLThresholds>(); 
   myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(),thresholds_->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
@@ -144,8 +144,7 @@ void MillePedeDQMModule
   std::array<double, 6> Zcut_,  sigZcut_,  maxMoveZcut_,  maxErrorZcut_; 
   std::array<double, 6> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
-  auto myMap = thresholds_->getThreshold_Map(); ;
-  thresholds_->printAll();
+  auto myMap = mpReader_->getThresholdMap();
 
   std::vector<std::string> alignablesList;
   for(auto it = myMap.begin(); it != myMap.end() ; ++it){

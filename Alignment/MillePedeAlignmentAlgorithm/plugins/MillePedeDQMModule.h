@@ -74,7 +74,6 @@ class MillePedeDQMModule : public DQMEDHarvester {
     //========================== PRIVATE DATA ====================================
     //============================================================================
 
-    const AlignPCLThresholds* thresholds_; 
     const edm::ParameterSet mpReaderConfig_;
     std::unique_ptr<AlignableTracker> tracker_;
     std::unique_ptr<MillePedeFileReader> mpReader_;
