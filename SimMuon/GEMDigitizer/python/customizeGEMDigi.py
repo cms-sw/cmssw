@@ -5,6 +5,7 @@ from SimGeneral.MixingModule.aliases_cfi import *
 # from SimGeneral.MixingModule.digitizers_cfi import *
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
+from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 # from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 
 # PSet of mixObjects that only keeps muon collections (and SimTracks with SimVertices)
@@ -191,6 +192,9 @@ def customize_mix_nocalo(process):
        strip = cms.PSet(
            stripDigitizer
        ),
+       puVtx = cms.PSet(
+           pileupVtxDigitizer
+       ),
     )
     process.mix.theDigitizersValid = cms.PSet(
         pixel = cms.PSet(
@@ -198,7 +202,10 @@ def customize_mix_nocalo(process):
             ),
         strip = cms.PSet(
             stripDigitizer
-            )
+            ),
+       puVtx = cms.PSet(
+            pileupVtxDigitizer
+            ),
     )
     # delete some contents of SimGeneral/MixingModule/python/aliases_cfi.py
     # i was not able to delete these processes in a different way
@@ -263,6 +270,7 @@ def customize_digi_addGEM_nocalo(process):
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
+        process.addPileupInfo *
         process.muonDigi
     )
     # process.pdigi.remove(simCastorDigis)
@@ -449,6 +457,7 @@ def append_GEMDigi_event(process):
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('drop *')
             # getattr(process,b).outputCommands.append('keep *_mix_*_*')
+            getattr(process,b).outputCommands.append('keep int_*_bunchSpacing_*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits__*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits_Muon*_*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits_Tracker*_*')
