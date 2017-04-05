@@ -226,7 +226,7 @@ namespace hcaldqm
 			{fEt_128,128},
 			{fFG,2},
 			{fRatio,100},
-			{fDigiSize,20},
+			{fDigiSize,21},
 			{fAroundZero,100},
 			{fRatio2,100},
 			{fdEtRatio,100},
