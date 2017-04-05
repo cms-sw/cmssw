@@ -913,7 +913,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 		HcalDetId did = digi.detid();
-		int digiSizeToUse = floor(digi.size()/constants::CAPS_NUM)*
+		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
 		nHF++;
 		for (int i=0; i<digiSizeToUse; i++)
