@@ -73,6 +73,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
   virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
 
+  virtual bool storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap);
+
   /// Called at end of job
   virtual void terminate(const edm::EventSetup& iSetup) override;
   /// Called at end of job
@@ -263,7 +265,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::unique_ptr<PedeSteerer>           thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase*> theCalibrations;
-  const AlignPCLThresholds* theThresholds; 
+  std::shared_ptr<AlignPCLThresholds> theThresholds; 
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
