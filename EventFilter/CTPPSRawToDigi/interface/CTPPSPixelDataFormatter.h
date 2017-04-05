@@ -70,8 +70,8 @@ private:
 
   RPixErrorChecker errorcheck;
 
-  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift;
-  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask;
+  int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
+  Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
   int maxROCIndex;
   
 
