@@ -1,5 +1,5 @@
-#ifndef CTPPSPixelDataFormatter_H
-#define CTPPSPixelDataFormatter_H
+#ifndef CTPPS_CTPPSRawToDigi_CTPPSPixelDataFormatter_h
+#define CTPPS_CTPPSRawToDigi_CTPPSPixelDataFormatter_h
 /** \class CTPPSPixelDataFormatter
  *
  *  Transform CTPPSPixel raw data of a given  FED to digi

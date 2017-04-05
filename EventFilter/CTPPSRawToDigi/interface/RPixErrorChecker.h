@@ -1,5 +1,5 @@
-#ifndef RPixErrorChecker_H
-#define RPixErrorChecker_H
+#ifndef CTPPS_CTPPSRawToDigi_RPixErrorChecker_h
+#define CTPPS_CTPPSRawToDigi_RPixErrorChecker_h
 /** \class RPixErrorChecker
  *
  *  RPix == CTPPS Pixel detector (Roman Pot Pixels)

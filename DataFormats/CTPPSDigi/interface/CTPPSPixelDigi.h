@@ -1,5 +1,5 @@
-#ifndef CTPPS_PIXEL_DIGI_H
-#define CTPPS_PIXEL_DIGI_H
+#ifndef CTPPS_CTPPSDigi_CTPPSPixelDigi_h
+#define CTPPS_CTPPSDigi_CTPPSPixelDigi_h
 /**
  * Persistent digi for CTPPS Pixels.
  * Author: F.Ferro ferro@ge.infn.it
