@@ -14,7 +14,7 @@ namespace hcaldqm
 				return;
 
 		//      TEMPORARY FIX
-		if (_ptype == fLocal) {
+		if (_ptype != fOffline) { // hidefed2crate
 			_vhashFEDs.clear();
 			_vcdaqEids.clear();
 		}
@@ -25,7 +25,7 @@ namespace hcaldqm
 		es.get<HcalDbRecord>().get(dbs);
 		_emap = dbs->getHcalMapping();
 
-		if (_ptype == fLocal) {
+		if (_ptype != fOffline) { // hidefed2crate
 			_vFEDs = utilities::getFEDList(_emap);
 			for (std::vector<int>::const_iterator it=_vFEDs.begin();
 				it!=_vFEDs.end(); ++it)

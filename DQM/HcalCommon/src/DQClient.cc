@@ -23,7 +23,7 @@ namespace hcaldqm
 		es.get<HcalDbRecord>().get(dbs);
 		_emap = dbs->getHcalMapping();
 
-		if (_ptype==fOnline) {
+		if (_ptype != fOffline) { // hidefed2crate
 			_vFEDs = utilities::getFEDList(_emap);
 			for (std::vector<int>::const_iterator it=_vFEDs.begin();
 				it!=_vFEDs.end(); ++it)
