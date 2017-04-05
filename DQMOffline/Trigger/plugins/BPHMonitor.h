@@ -94,8 +94,7 @@ private:
 
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::BeamSpot>        bsToken_;
-  edm::EDGetTokenT<reco::VertexCollection>        PVsToken_;
-
+  
   std::vector<double> met_variable_binning_;
   MEbinning           met_binning_;
   MEbinning           phi_binning_;
