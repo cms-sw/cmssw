@@ -15,7 +15,7 @@ hltBPHmonitoring.histoPSet.phiPSet = cms.PSet(
   xmax  = cms.double(3.2),
 )
 hltBPHmonitoring.histoPSet.etaPSet = cms.PSet(
-  nbins = cms.int32 (  48  ),
+  nbins = cms.int32 (  24  ),
   xmin  = cms.double(   -2.4),
   xmax  = cms.double(2.4),
 )
