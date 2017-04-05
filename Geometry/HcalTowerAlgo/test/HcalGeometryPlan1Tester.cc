@@ -24,12 +24,12 @@ public:
 
 private:
   edm::ParameterSet ps0_;
-  bool              geomDB_;
+  bool              geomES_;
 };
 
 HcalGeometryPlan1Tester::HcalGeometryPlan1Tester( const edm::ParameterSet& iConfig ) :
   ps0_(iConfig) {
-  geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
+  geomES_ = iConfig.getParameter<bool>("GeometryFromES");
 }
 
 void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/, 
@@ -42,7 +42,7 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
   HcalGeometry* geom(0);
-  if (geomDB_) {
+  if (geomES_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* geo = pG.product();
@@ -57,16 +57,17 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
   std::cout << "Special RBX Flag " << ok << " with " << idsp.size()
 	    << " ID's" << std::endl;
   int nall(0), ngood(0);
-  for (unsigned int k=0; k<idsp.size(); ++k) {
-    if (topology.valid(idsp[k])) {
+  for (std::vector<HcalDetId>::const_iterator itr=idsp.begin();
+       itr != idsp.end(); ++itr) {
+    if (topology.valid(*itr)) {
       ++nall;
-      HcalDetId idnew = hcons.mergedDepthDetId(idsp[k]);
-      GlobalPoint pt1 = geom->getGeometry(idsp[k])->getPosition();
+      HcalDetId idnew = hcons.mergedDepthDetId(*itr);
+      GlobalPoint pt1 = geom->getGeometry(*itr)->getPosition();
       GlobalPoint pt2 = geom->getPosition(idnew);
       double     deta = pt1.eta() - pt2.eta();
       double     dphi = pt1.phi() - pt2.phi();
       ok              = (std::abs(deta)<0.00001) && (std::abs(dphi)<0.00001);
-      std::cout << "Unmerged ID " << idsp[k] << " (" << pt1.eta() << ", " 
+      std::cout << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " 
 		<< pt1.phi() << ", " << pt1.z() << ") Merged ID " << idnew
 		<< " (" << pt2.eta() << ", " << pt2.phi() << ", " << pt2.z()
 		<< ") ";

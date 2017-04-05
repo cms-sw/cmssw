@@ -12,6 +12,6 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.hga = cms.EDAnalyzer("HcalGeometryPlan1Tester",
-                             GeometryFromDB = cms.bool(False))
+                             GeometryFromES = cms.bool(False))
 
 process.p1 = cms.Path(process.hga)
