@@ -7,9 +7,9 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               VertexLabel     = cms.InputTag("offlinePrimaryVertices"),
                               BeamSpotLabel   = cms.InputTag("offlineBeamSpot"),                              
 
-                              etaBin = cms.int32(400),
-                              etaBBin = cms.int32(400),
-                              etaEBin = cms.int32(200),
+                              etaBin = cms.int32(30),
+                              etaBBin = cms.int32(30),
+                              etaEBin = cms.int32(30),
                               
                               etaBMin = cms.double(0.),
                               etaBMax = cms.double(1.1),
@@ -18,8 +18,8 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               
                               LowMassMin = cms.double(2.0),
                               LowMassMax = cms.double(55.0),
-                              HighMassMin = cms.double(55.0),
-                              HighMassMax = cms.double(155.0),
+                              HighMassMin = cms.double(60.0),
+                              HighMassMax = cms.double(120.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
 diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
@@ -27,9 +27,9 @@ diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       VertexLabel     = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                       BeamSpotLabel   = cms.InputTag("offlineBeamSpot"),                              
                                       
-                                      etaBin = cms.int32(400),
-                                      etaBBin = cms.int32(400),
-                                      etaEBin = cms.int32(200),
+                                      etaBin = cms.int32(30),
+                                      etaBBin = cms.int32(30),
+                                      etaEBin = cms.int32(30),
                                       
                                       etaBMin = cms.double(0.),
                                       etaBMax = cms.double(1.1),
@@ -38,8 +38,8 @@ diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       
                                       LowMassMin = cms.double(2.0),
                                       LowMassMax = cms.double(55.0),
-                                      HighMassMin = cms.double(55.0),
-                                      HighMassMax = cms.double(155.0),
+                                      HighMassMin = cms.double(60.0),
+                                      HighMassMax = cms.double(120.0),
                                       folder = cms.string("Muons_miniAOD/diMuonHistograms")
                                       )
 
