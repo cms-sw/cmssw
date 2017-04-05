@@ -29,6 +29,9 @@
 #include <vector>
 #include <string>
 
+namespace reco{
+  class GenParticle; 
+}
 
 namespace edm
 {
@@ -61,11 +64,15 @@ namespace edm
       edm::InputTag BunchSpacingInputTag_ ;     // InputTag for bunch spacing int
       edm::InputTag CFPlaybackInputTag_   ;   // InputTag for CrossingFrame Playback information
 
+      std::vector<edm::InputTag> GenPUProtonsInputTags_ ;
    
       CrossingFramePlaybackInfoNew CrossingFramePlaybackStorage_;
 
       std::vector<PileupSummaryInfo> PileupSummaryStorage_;
       int bsStorage_;
+
+      std::vector<std::string> GenPUProtons_labels_;
+      std::vector<std::vector<reco::GenParticle> > GenPUProtons_;
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
