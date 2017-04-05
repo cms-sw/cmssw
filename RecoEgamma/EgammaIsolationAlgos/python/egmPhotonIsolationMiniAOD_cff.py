@@ -10,5 +10,6 @@ egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
 
 # The sequence defined here contains only one module. This is to keep the structure
 # uniform with the AOD case where there are more modules in the analogous sequence.
-egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolation )
+egmPhotonIsolationMiniAODTask = cms.Task( egmPhotonIsolation )
+egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolationMiniAODTask )
 
