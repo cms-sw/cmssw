@@ -1,6 +1,14 @@
 __init__.py
 *.pyc
 .*.swp
+*.swo
 .#*
 #*#
 *~
+*.root
+*.pdf
+
+#parametrisation
+#simulations
+
+#test_reconstruction
