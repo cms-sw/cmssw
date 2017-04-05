@@ -102,9 +102,9 @@ protected:
 private:
   HcalDbHardcode dbHardcode;
   double iLumi;
-  HBHERecalibration* hb_recalibration;
-  HBHERecalibration* he_recalibration;
-  HFRecalibration* hf_recalibration;  
+  std::unique_ptr<HBHERecalibration> hb_recalibration;
+  std::unique_ptr<HBHERecalibration> he_recalibration;
+  std::unique_ptr<HFRecalibration> hf_recalibration;  
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;

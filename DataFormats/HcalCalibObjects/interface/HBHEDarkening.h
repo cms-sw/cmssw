@@ -31,27 +31,27 @@ class HBHEDarkening {
 		struct LumiYear {
 			//constructors
 			LumiYear() : 
-				year(""), intlumi(0.), lumirate(0.), energy(0), sumlumi(0.) {}
-			LumiYear(std::string year_, double intlumi_, double lumirate_, int energy_) : 
-				year(year_), intlumi(intlumi_), lumirate(lumirate_), energy(energy_), sumlumi(0.) {}
+				year_(""), intlumi_(0.), lumirate_(0.), energy_(0), sumlumi_(0.) {}
+			LumiYear(std::string year, double intlumi, double lumirate, int energy) : 
+				year_(year), intlumi_(intlumi), lumirate_(lumirate), energy_(energy), sumlumi_(0.) {}
 			LumiYear(const edm::ParameterSet & p) : 
-				year(p.getParameter<std::string>("year")), intlumi(p.getParameter<double>("intlumi")), lumirate(p.getParameter<double>("lumirate")), energy(p.getParameter<int>("energy")), sumlumi(0.) {}
+				year_(p.getParameter<std::string>("year")), intlumi_(p.getParameter<double>("intlumi")), lumirate_(p.getParameter<double>("lumirate")), energy_(p.getParameter<int>("energy")), sumlumi_(0.) {}
 			
 			//sorting
 			bool operator<(const LumiYear& yr) const {
-				return year < yr.year;
+				return year_ < yr.year_;
 			}
 			
 			//member variables
-			std::string year;
-			double intlumi;
-			double lumirate;
-			int energy;
-			double sumlumi;
+			std::string year_;
+			double intlumi_;
+			double lumirate_;
+			int energy_;
+			double sumlumi_;
 		};
 		struct LumiYearComp {
 			bool operator()(const LumiYear& yr, const double& lum) const {
-				return yr.sumlumi < lum;
+				return yr.sumlumi_ < lum;
 			}
 		};
 
@@ -62,10 +62,10 @@ class HBHEDarkening {
 		double degradationYear(const LumiYear& year, double intlumi, int ieta, int lay) const;
 	
 		//member variables
-		int ieta_shift;
-		double drdA, drdB;
-		std::map<int,std::vector<std::vector<double>>> dosemaps; //one map for each center of mass energy
-		std::vector<LumiYear> years;
+		int ieta_shift_;
+		double drdA_, drdB_;
+		std::map<int,std::vector<std::vector<double>>> dosemaps_; //one map for each center of mass energy
+		std::vector<LumiYear> years_;
 };
 
 #endif // HBHEDarkening_h

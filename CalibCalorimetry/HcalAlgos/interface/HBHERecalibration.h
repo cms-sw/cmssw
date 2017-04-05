@@ -13,27 +13,27 @@
 
 class HBHERecalibration {
 	public:
-		HBHERecalibration(double intlumi_, double cutoff_, const edm::ParameterSet & p);
+		HBHERecalibration(double intlumi, double cutoff, const edm::ParameterSet & p);
 		~HBHERecalibration();
 		
 		//accessors
 		double getCorr(int ieta, int depth) const;
 		void setDsegm(const std::vector<std::vector<int>>& m_segmentation);
-		int maxDepth() const { return max_depth; }
+		int maxDepth() const { return max_depth_; }
 
 	private:
 		//helper
 		void initialize();
 		
 		//members
-		double intlumi;
-		double cutoff;
-		int ieta_shift;
-		int max_depth;
-		HBHEDarkening darkening;
-		std::vector<std::vector<int>> dsegm;
-		std::vector<std::vector<double>> meanenergies;
-		std::vector<std::vector<double>> corr;
+		double intlumi_;
+		double cutoff_;
+		int ieta_shift_;
+		int max_depth_;
+		HBHEDarkening darkening_;
+		std::vector<std::vector<int>> dsegm_;
+		std::vector<std::vector<double>> meanenergies_;
+		std::vector<std::vector<double>> corr_;
 };
 
 #endif // HBHERecalibration_h

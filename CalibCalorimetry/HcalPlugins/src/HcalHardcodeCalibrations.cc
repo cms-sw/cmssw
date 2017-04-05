@@ -124,7 +124,7 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
-	hb_recalibration(0), he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
+	hb_recalibration(nullptr), he_recalibration(nullptr), hf_recalibration(nullptr), setHEdsegm(false), setHBdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -158,12 +158,12 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(hb_recalib) {
-      hb_recalibration = new HBHERecalibration(iLumi,iConfig.getParameter<double>("HBreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters"));
+      hb_recalibration.reset(new HBHERecalibration(iLumi,iConfig.getParameter<double>("HBreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters")));
     }
     if(he_recalib) {
-      he_recalibration = new HBHERecalibration(iLumi,iConfig.getParameter<double>("HEreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters"));
+      he_recalibration.reset(new HBHERecalibration(iLumi,iConfig.getParameter<double>("HEreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters")));
     }
-    if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+    if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration.reset(new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
     
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
@@ -294,9 +294,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 
 HcalHardcodeCalibrations::~HcalHardcodeCalibrations()
 {
-  if (hb_recalibration) delete hb_recalibration;
-  if (he_recalibration) delete he_recalibration;
-  if (hf_recalibration) delete hf_recalibration;
 }
 
 //
