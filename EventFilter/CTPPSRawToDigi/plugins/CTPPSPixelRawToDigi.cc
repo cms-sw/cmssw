@@ -59,30 +59,24 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByToken(FEDRawDataCollection_, buffers);
 
-// create product (digis & errors)
+/// create product (digis & errors)
   auto collection = std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>();
-
-//    HERE PUT OUR OWN FORMATTER
 
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   bool errorsInEvent = false; 
   for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
     int fedId = *aFed;
-//    int FMC = 0;
-//cout << "FEDID:   " << fedId << endl;
  
     edm::LogInfo("CTPPSPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  dec <<fedId << endl;
 
-  //get event data for this fed
+/// get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
-
     formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection);
-
   }
 
-//send digis and errors back to framework 
+///send digis and errors back to framework 
   ev.put(std::move(collection));
 
 }

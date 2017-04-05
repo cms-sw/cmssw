@@ -60,16 +60,14 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
 void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection & digis)
 {
 
-//cout << "Inside interpretRawData" << endl;
-
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
-// check CRC bit
+/// check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
   if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer)) return;
 
-// check headers
+/// check headers
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
   bool moreHeaders = true;
   while (moreHeaders) {
@@ -79,7 +77,7 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     moreHeaders = headerStatus;
   }
 
-// check trailers
+/// check trailers
   bool moreTrailers = true;
   trailer++;
   while (moreTrailers) {
@@ -89,13 +87,12 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
     moreTrailers = trailerStatus;
   }
 
-// data words
+/// data words
   theWordCounter += 2*(nWords-2);
   LogTrace("")<<"data words: "<< (trailer-header-1);
 
   int link = -1;
   int roc  = -1;
-//  int layer = 0;
 
   bool skipROC=false;
 
@@ -139,7 +136,6 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
       if (skipROC) continue;
 
       auto rawId = rocp.rawId();
-//    cout << "+++++++++++++++++++++++++++++ rawId for new ROC  " << rawId << endl;
 
       detDigis = &digis.find_or_insert(rawId);
       if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
@@ -151,8 +147,6 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
     int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
-//       cout<<" raw2digi nlink "<<link<<" roc: "<<roc<<"  dcol: "<<dcol<<"  pxid: "<<pxid<<"  adc: "<<adc<<" layer: "<<layer<<endl;
-
 
     std::pair<int,int> rocPixel;
     std::pair<int,int> modPixel;
@@ -161,11 +155,8 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     modPixel = rocp.toGlobalfromDcol(rocPixel);
 
-  //   cout << " Global coordinates: "<< modPixel.first << " , " << modPixel.second << endl;
-
-
     CTPPSPixelDigi testdigi(modPixel.first, modPixel.second, adc);
-//    cout << " TestDigi contents: "<< testdigi.row() << " , " << testdigi.column()  << "  testdigiADC "<< testdigi.adc() << endl;
+
     if(detDigis)
     (*detDigis).data.emplace_back( modPixel.first, modPixel.second, adc); 
  
