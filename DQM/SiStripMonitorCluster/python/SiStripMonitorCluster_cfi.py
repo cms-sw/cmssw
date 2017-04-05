@@ -334,6 +334,25 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ymax = cms.double(90*262144),
         globalswitchon = cms.bool(True)
         ),
+    NumberOfClusterPerRingVsTrendVarTH2 = cms.PSet(
+	Nbinsx = cms.int32(1000),
+	xmin = cms.double(0.),
+	xmax = cms.double(150.),
+	Nbinsy = cms.int32(9),
+	ymin = cms.double(0.5),
+	ymax = cms.double(9.5),
+	globalswitchon = cms.bool(True),
+	),
+
+    NumberOfClusterPerLayerTrendVarTH2 = cms.PSet(
+	Nbinsx = cms.int32(1000),
+	xmin = cms.double(0.),
+	xmax = cms.double(150.),
+	Nbinsy = cms.int32(11),
+	ymin = cms.double(0.5),
+	ymax = cms.double(11.5),
+	globalswitchon = cms.bool(True),
+	),
 
     ClusWidthVsAmpTH2 = cms.PSet(
         Nbinsx = cms.int32(2000),
