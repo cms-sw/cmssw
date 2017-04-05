@@ -36,10 +36,9 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h" 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "FWCore/Utilities/interface/typedefs.h"
-
 #include "EventFilter/CTPPSRawToDigi/interface/RPixErrorChecker.h"
 
+#include <cstdint>
 #include <vector>
 #include <map>
 
@@ -54,8 +53,8 @@ public:
   typedef std::map<int, FEDRawData> RawData;
   typedef std::vector<CTPPSPixelDigi> DetDigis;
 
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
   CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping);
 

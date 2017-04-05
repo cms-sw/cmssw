@@ -5,7 +5,7 @@
  *  RPix == CTPPS Pixel detector (Roman Pot Pixels)
  */
 
-#include "FWCore/Utilities/interface/typedefs.h"
+#include <cstdint>
 
 #include <vector>
 #include <map>
@@ -16,8 +16,8 @@ class RPixErrorChecker {
 
 public:
 
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
 
 
