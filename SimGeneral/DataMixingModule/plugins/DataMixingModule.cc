@@ -24,6 +24,7 @@
 //
 //
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataMixingModule.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -234,6 +235,13 @@ namespace edm
       produces< std::vector<PileupSummaryInfo> >();
       produces< int >("bunchSpacing");
       produces<CrossingFramePlaybackInfoNew>();
+
+      std::vector<edm::InputTag> GenPUProtonsInputTags;
+      if( ps.exists("GenPUProtonsInputTags") )
+         GenPUProtonsInputTags = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
+      for(std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags.begin(); 
+                                                     it_InputTag != GenPUProtonsInputTags.end(); ++it_InputTag) 
+         produces< std::vector<reco::GenParticle> >( it_InputTag->label() );
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
