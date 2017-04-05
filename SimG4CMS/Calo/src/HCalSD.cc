@@ -47,7 +47,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   hcalConstants(0), numberingFromDDD(0), numberingScheme(0), showerLibrary(0), 
   hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
-  m_HFDarkening(0), depth_(1) {
+  m_HFDarkening(0), hcalTestNS_(0), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
@@ -77,6 +77,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
   std::string file = m_HC.getUntrackedParameter<std::string>("WtFile","None");
+  testNS_          = m_HC.getUntrackedParameter<bool>("TestNS",false);
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut             = m_HF.getParameter<bool>("ApplyFiducialCut");
 
@@ -369,6 +370,7 @@ HCalSD::~HCalSD() {
   if (showerBundle)     delete showerBundle;
   if (m_HEDarkening)    delete m_HEDarkening;
   if (m_HFDarkening)    delete m_HFDarkening;
+  if (hcalTestNS_)      delete hcalTestNS_;
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -598,6 +600,9 @@ void HCalSD::update(const BeginOfJob * job) {
   for (unsigned int ig=0; ig<gpar.size(); ig++)
     edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
 			    << gpar[ig]/cm << " cm";
+
+  //Test Hcal Numbering Scheme
+  if (testNS_) hcalTestNS_ = new HcalTestNS(es);
 }
  
 void HCalSD::initRun() {
@@ -647,6 +652,7 @@ uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int
 uint32_t HCalSD::setDetUnitId (HcalNumberingFromDDD::HcalID& tmp) { 
   modifyDepth(tmp);
   uint32_t id = (numberingScheme) ? numberingScheme->getUnitID(tmp) : 0;
+  if ((!testNumber) && hcalTestNS_) hcalTestNS_->compare(tmp,id);
   return id;
 }
 
