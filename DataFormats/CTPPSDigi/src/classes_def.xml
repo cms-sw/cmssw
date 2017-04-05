@@ -50,11 +50,11 @@
     <version ClassVersion="3" checksum="508529379"/>
   </class>
   
-  <class name="CTPPSPixelDigi" ClassVersion="5">
-    <version ClassVersion="5" checksum="125589380"/>
+  <class name="CTPPSPixelDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="125589380"/>
   </class>
-  <class name="CTPPSPixelDigiCollection" ClassVersion="5">
-    <version ClassVersion="5" checksum="913646850"/>
+  <class name="CTPPSPixelDigiCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="913646850"/>
   </class>
   <class name="edm::DetSet<CTPPSPixelDigi>"/>
   <class name="std::vector<CTPPSPixelDigi>"/>
