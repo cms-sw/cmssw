@@ -71,6 +71,17 @@
   <class name="reco::BoostedDoubleSVTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::BoostedDoubleSVTagInfoCollection>"/>
 
+  <class name="reco::ShallowTagInfo" ClassVersion="3">
+		<version ClassVersion="3" checksum="3904302444"/>
+  </class>
+  <class name="reco::ShallowTagInfoCollection"/>
+  <class name="reco::ShallowTagInfoRef"/>
+  <class name="reco::ShallowTagInfoFwdRef"/>
+  <class name="reco::ShallowTagInfoRefProd"/>
+  <class name="reco::ShallowTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::ShallowTagInfoCollection>"/>
+  <class name="edm::Wrapper<std::vector<reco::ShallowTagInfo> >"/>
+
   <class name="reco::CombinedTauTagInfo" ClassVersion="11">
    <version ClassVersion="11" checksum="224969361"/>
    <version ClassVersion="10" checksum="3920242404"/>
@@ -318,6 +329,8 @@
   <class name="edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
@@ -349,6 +362,8 @@
   <class name="edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>" />
+  <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>" />
