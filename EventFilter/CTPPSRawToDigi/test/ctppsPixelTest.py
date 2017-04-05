@@ -9,8 +9,8 @@ process.ctppsPixelDAQMappingESSourceXML.configuration = cms.VPSet(
     # example configuration block:
     cms.PSet(
         validityRange = cms.EventRange("1:min - 999999999:max"),
-        mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_mapping_220_far_TEST.xml"),
-        maskFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_channel_mask_TEST.xml")
+        mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_mapping_220_far.xml"),
+        maskFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/rpix_channel_mask_220_far.xml")
         )
     )
 
@@ -24,8 +24,10 @@ labelRawDataLikeMC = cms.untracked.bool(False),
 fileNames =  cms.untracked.vstring(
 #"file:./PixelAlive_1294_153_RAW_v3.root"
 #"file:/afs/cern.ch/work/k/kas/public/PXtrees/PixelAlive_1294_151_RAW_v2.root"
-'root://eoscms//eos/cms/store/user/jjhollar/012017_PixelDAQTests/PixelAlive_1294_151_RAW_v2.root'
- )
+'root://eoscms//eos/cms/store/user/jjhollar/012017_PixelDAQTests/PixelAlive_1462_2_RAW.root',
+'root://eoscms//eos/cms/store/user/jjhollar/012017_PixelDAQTests/PixelAlive_1463_2_RAW.root'
+ ),
+duplicateCheckMode = cms.untracked.string("checkEachFile")
 )
 
 process.load("EventFilter.CTPPSRawToDigi.ctppsPixelRawToDigi_cfi")
@@ -39,7 +41,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName =  cms.untracked.string('file:digis_PixelAlive_1294_151_RAW_v2.root'),
+#    fileName =  cms.untracked.string('file:digis_PixelAlive_1462_2_RAW.root'),
+    fileName =  cms.untracked.string('file:digis_PixelAlive_P5_2_RAW.root'),
+
     outputCommands = cms.untracked.vstring("keep *")
 )
 
