@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <top>
   <arm id="0">
     <station id="2">
@@ -6,19 +6,6 @@
       <!--45 220 hor far-->
       <rp_detector_set id="3" doCorrelations="0">
         <rpix_plane id="0">
-          <roc fullMask="no" id="0">
-            <pixel row="10" col="20" />
-            <pixel row="10" col="18" />
-            <pixel row="10" col="11" />
-          </roc>
-          <roc fullMask="no" id="1">
-            <pixel row="11" col="18" />
-            <pixel row="11" col="11" />
-          </roc>
-          <roc fullMask="no" id="4">
-            <pixel row="13" col="18" />
-            <pixel row="13" col="11" />
-          </roc>
         </rpix_plane>
         <rpix_plane id="1"></rpix_plane>
         <rpix_plane id="2"></rpix_plane>
