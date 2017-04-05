@@ -597,7 +597,6 @@ void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
 
 bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
 					 std::vector<HcalDetId>& ids) const {
-  ids.clear();
   if (tobemerged) {
     std::map<HcalDetId,HcalDetId>::const_iterator itr;
     for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr) 
