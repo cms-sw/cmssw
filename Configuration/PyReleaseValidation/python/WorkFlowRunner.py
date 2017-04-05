@@ -7,7 +7,7 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, step1Only=False, maxSteps=9999):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, maxSteps=9999):
         Thread.__init__(self)
         self.wf = wf
 
@@ -21,7 +21,6 @@ class WorkFlowRunner(Thread):
         self.dasOptions=dasOptions
         self.jobReport=jobReport
         self.nThreads=nThreads
-        self.step1Only=step1Only
         self.maxSteps = maxSteps
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
@@ -88,7 +87,6 @@ class WorkFlowRunner(Thread):
             # das query.
             isInputOk=True
             istep=istepmone+1
-            if istep>self.maxSteps: break
             cmd = preamble
             if aborted:
                 self.npass.append(0)
@@ -156,7 +154,7 @@ class WorkFlowRunner(Thread):
                   cmd += ' --nThreads %s' % self.nThreads
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
-                if self.step1Only:
+                if istep>self.maxSteps:
                    p = Popen("echo 'step%s:%s' >> %s/wf_steps.txt" % (istep, cmd, self.wfDir), shell=True)
                    os.waitpid(p.pid, 0)[1]
                 else: retStep = self.doCmd(cmd)
