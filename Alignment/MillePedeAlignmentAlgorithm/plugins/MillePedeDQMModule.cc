@@ -43,7 +43,6 @@ MillePedeDQMModule
 MillePedeDQMModule
 ::~MillePedeDQMModule()
 {
-  delete theThresholds;
 }
 
 //=============================================================================
@@ -104,10 +103,10 @@ void MillePedeDQMModule
   // take the thresholds from DB
   edm::ESHandle<AlignPCLThresholds> thresholdHandle;
   setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-  theThresholds = thresholdHandle.product();
+  thresholds_ = thresholdHandle.product();
 
   auto myThresholds = new AlignPCLThresholds();
-  myThresholds->setAlignPCLThresholds(theThresholds->getNrecords(),theThresholds->getThreshold_Map());
+  myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(),thresholds_->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
 
@@ -145,8 +144,8 @@ void MillePedeDQMModule
   std::array<double, 6> Zcut_,  sigZcut_,  maxMoveZcut_,  maxErrorZcut_; 
   std::array<double, 6> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
-  auto myMap = theThresholds->getThreshold_Map(); ;
-  theThresholds->printAll();
+  auto myMap = thresholds_->getThreshold_Map(); ;
+  thresholds_->printAll();
 
   std::vector<std::string> alignablesList;
   for(auto it = myMap.begin(); it != myMap.end() ; ++it){
