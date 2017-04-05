@@ -741,7 +741,7 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
-    desc.add<bool>("saveEffectivePedestal");
+    desc.add<bool>("saveEffectivePedestal",false);
     desc.add<bool>("setNegativeFlagsQIE8");
     desc.add<bool>("setNegativeFlagsQIE11");
     desc.add<bool>("setNoiseFlagsQIE8");
