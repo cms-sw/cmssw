@@ -4,6 +4,7 @@ from PhysicsTools.PatAlgos.tools.helpers import MassSearchReplaceAnyInputTagVisi
 from PhysicsTools.PatAlgos.slimming.extraJets_MuEGFixMoriond2017 import backupJetsFirstStep, backupJetsSecondStep
 #from RecoEgamma.EgammaTools.egammaGainSwitchFixToolsForPAT_cff import customizeGSFixForPAT
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+import sys
 
 def addBadMuonFilters(process):
 
@@ -57,7 +58,7 @@ def cleanPFCandidates(process, badMuons, verbose=False):
         process.pfEGammaToCandidateRemapper.electron2pf = cms.InputTag("particleBasedIsolationGSFixed","gedGsfElectrons")
         process.pfEGammaToCandidateRemapper.photon2pf   = cms.InputTag("particleBasedIsolationGSFixed","gedPhotons")
     else:
-        print "WARNING : attempt to use gain switch corrected electron/photon collection gedGsfElectronsFixed, but the current process does not contain such collection"
+        sys.stderr.write("WARNING : attempt to use gain switch corrected electron/photon collection gedGsfElectronsFixed, but the current process does not contain such collection")
 
 def addDiscardedPFCandidates(process, inputCollection, verbose=False):
 
