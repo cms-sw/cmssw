@@ -21,9 +21,12 @@ public:
 
 CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
     theIndices = new CTPPSPixelIndices();
-  } 
-
-
+  }
+  
+  ~CTPPSPixelROC(){
+    delete theIndices;
+  }
+  
   /// ctor with DetUnit id, 
   /// ROC number in DU (given by token passage), 
   /// ROC number in Link (given by token passage),
