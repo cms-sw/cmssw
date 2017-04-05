@@ -74,7 +74,7 @@ ctppsPixelDAQMappingESSourceXML = cms.ESSource("CTPPSPixelDAQMappingESSourceXML"
 )
 
 from EventFilter.CTPPSRawToDigi.ctppsPixelRawToDigi_cfi import ctppsPixelDigis
-ctppsPixelDigis.rawDataTag = cms.InputTag("rawDataCollector")
+ctppsPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 # raw-to-digi sequence
 ctppsRawToDigi = cms.Sequence(
