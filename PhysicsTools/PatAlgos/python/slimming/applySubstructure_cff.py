@@ -26,11 +26,6 @@ def applySubstructure( process, postfix="" ) :
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop
     addToProcessAndTask('ak8PFJetsCHSPruned'+postfix, ak8PFJetsCHSPruned.clone(), process, task)
     addToProcessAndTask('ak8PFJetsCHSSoftDrop'+postfix, ak8PFJetsCHSSoftDrop.clone(), process, task)
-    #process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    #task.add(process.ak8PFJetsCHSPrunedMass)
-    #task.add(process.ak8PFJetsCHSTrimmedMass)
-    #task.add(process.ak8PFJetsCHSFilteredMass)
-    #task.add(process.ak8PFJetsCHSSoftDropMass)
     from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedMass, ak8PFJetsCHSTrimmedMass, ak8PFJetsCHSFilteredMass, ak8PFJetsCHSSoftDropMass
     addToProcessAndTask('ak8PFJetsCHSPrunedMass'+postfix, ak8PFJetsCHSPrunedMass.clone(), process, task)
     addToProcessAndTask('ak8PFJetsCHSTrimmedMass'+postfix, ak8PFJetsCHSTrimmedMass.clone(), process, task)
@@ -56,12 +51,9 @@ def applySubstructure( process, postfix="" ) :
 
 
     #add AK8 from PUPPI
-    #process.load('RecoJets.JetProducers.ak8PFJetsPuppi_cfi')
     from RecoJets.JetProducers.ak8PFJetsPuppi_cfi import ak4PFJetsPuppi, ak8PFJetsPuppi
     addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
-    #task.add(process.ak4PFJetsPuppi)
-    #task.add(process.ak8PFJetsPuppi)
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop 
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
     getattr(process,"ak8PFJetsPuppi").doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
@@ -83,21 +75,17 @@ def applySubstructure( process, postfix="" ) :
                                       j2tParametersVX.clone( coneSize = cms.double(0.8) ),
                                       jets = cms.InputTag("ak8PFJetsPuppi") ),
                         process, task)
-    #task.add(process.ak8PFJetsPuppiTracksAssociatorAtVertex)
     addToProcessAndTask('patJetAK8PuppiCharge'+postfix, cms.EDProducer("JetChargeProducer",
                                      src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
                                      var = cms.string('Pt'),
                                      exp = cms.double(1.0) ), 
                         process, task)
-    #task.add(process.patJetAK8PuppiCharge)
 
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
-    #process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
     from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
     addToProcessAndTask('ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone(), process, task)
-    #task.add(process.ak8PFJetsPuppiSoftDropMass)
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass'+postfix]
     getattr(process,"patJetsAK8Puppi"+postfix).addTagInfos = cms.bool(False)
 
@@ -133,7 +121,7 @@ def applySubstructure( process, postfix="" ) :
                                                 'pt','eta','phi','mass'
                                             ]) ),
                         process, task)
-    #task.add(process.ak8PFJetsCHSValueMap)
+
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += [
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'ak8PFJetsCHSPrunedMass'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'ak8PFJetsCHSSoftDropMass'),
@@ -212,7 +200,6 @@ def applySubstructure( process, postfix="" ) :
                              modifierConfig = cms.PSet( modifications = cms.VPSet() )
                                        ),
                         process, task)
-    #task.add(process.slimmedJetsAK8PFPuppiSoftDropSubjets)
 
     
     ## Establish references between PATified fat jets and subjets using the BoostedJetMerger
@@ -222,7 +209,6 @@ def applySubstructure( process, postfix="" ) :
                                subjetSrc=cms.InputTag("slimmedJetsAK8PFPuppiSoftDropSubjets")
                                        ),
                         process, task )
-    #task.add(process.slimmedJetsAK8PFPuppiSoftDropPacked)
 
     
     addToProcessAndTask("packedPatJetsAK8"+postfix, cms.EDProducer("JetSubstructurePacker",
@@ -238,7 +224,6 @@ def applySubstructure( process, postfix="" ) :
                                           packedPFCandidates = cms.InputTag("packedPFCandidates"+postfix),
                                                                    ),
                         process, task)
-    #task.add(process.packedPatJetsAK8)
 
     # switch off daughter re-keying since it's done in the JetSubstructurePacker (and can't be done afterwards)
     process.slimmedJetsAK8.rekeyDaughters = "0"
