@@ -15,7 +15,6 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )  
   , bsToken_              ( mayConsume<reco::BeamSpot>             (iConfig.getParameter<edm::InputTag>("beamSpot")))
-  , PVsToken_             ( mayConsume<reco::VertexCollection>     (iConfig.getParameter<edm::InputTag>("offlinePVs")))
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
   , pt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
@@ -129,15 +128,15 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
   histname = "muEta"; histtitle = "mu_Eta";
   bookME(ibooker,muEta_,histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-  setMETitle(muEta_," mu_#eta","events / ");
+  setMETitle(muEta_," mu_#eta","events/ ");
 
   histname = "mu_d0"; histtitle = "mu_d0";
   bookME(ibooker,mud0_,histname,histtitle, d0_binning_.nbins,d0_binning_.xmin, d0_binning_.xmax);
-  setMETitle(mud0_," mu_d0","events /1cm ");
+  setMETitle(mud0_," mu_d0","events/bin ");
 
   histname = "mu_z0"; histtitle = "mu_z0";
   bookME(ibooker,muz0_,histname,histtitle, z0_binning_.nbins,z0_binning_.xmin, z0_binning_.xmax);
-  setMETitle(muz0_," mu_z0","events /1cm ");
+  setMETitle(muz0_," mu_z0","events/bin ");
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
