@@ -11,6 +11,9 @@ class CMSParticleList {
 
 public:
 
+  CMSParticleList() {};
+  ~CMSParticleList() {};
+
   static const std::vector<G4String>& PartNames();
 
 private:
