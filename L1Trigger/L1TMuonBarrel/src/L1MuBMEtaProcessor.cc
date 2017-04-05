@@ -13,6 +13,8 @@
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
+//Modifications:
+// G.Karathanasis     U.Athens
 //
 //--------------------------------------------------
 
@@ -375,8 +377,8 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
 
     // assign coarse eta value
     if ( !m_mask ) m_eta[i] = theQualPatternLUT.getCoarseEta(sp,adr);
-    if ( m_eta[i] == 99 ) m_eta[i] = 32;
-    if ( m_eta[i] > 31 ) m_eta[i] -= 64;
+    //  if ( m_eta[i] == 99 ) m_eta[i] = 32;
+    // if ( m_eta[i] > 31 ) m_eta[i] -= 64;
     //m_eta[i] += 32;
 
     if ( m_foundPattern.empty() ) continue;
@@ -394,8 +396,8 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
         // assign fine eta value
         m_fine[i] = true;
         m_eta[i]  = p.eta();  // improved eta
-        if ( m_eta[i] == 99 ) m_eta[i] = 32;
-        if ( m_eta[i] > 31 ) m_eta[i] -= 64;
+	//  if ( m_eta[i] == 99 ) m_eta[i] = 32;
+	//  if ( m_eta[i] > 31 ) m_eta[i] -= 64;
         //m_eta[i] += 32;
         m_pattern[i] = (*f_iter);
         break;
