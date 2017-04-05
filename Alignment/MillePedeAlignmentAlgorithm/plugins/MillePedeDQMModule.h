@@ -61,12 +61,12 @@ class MillePedeDQMModule : public DQMEDHarvester {
     void fillExpertHistos();
 
     void fillExpertHisto(MonitorElement* histo,
-			 std::array<double, 6> cut, 
-			 std::array<double, 6> sigCut, 
-			 std::array<double, 6> maxMoveCut, 
-			 std::array<double, 6> maxErrorCut,
-                         std::array<double, 6> obs,
-                         std::array<double, 6> obsErr);
+			 const std::array<double,6>& cut, 
+			 const std::array<double,6>& sigCut, 
+			 const std::array<double,6>& maxMoveCut, 
+			 const std::array<double,6>& maxErrorCut,
+                         const std::array<double,6>& obs,
+                         const std::array<double,6>& obsErr);
 
     bool setupChanged(const edm::EventSetup&);
     int getIndexFromString(const std::string& alignableId);

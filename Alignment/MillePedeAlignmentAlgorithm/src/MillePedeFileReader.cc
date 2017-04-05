@@ -88,7 +88,7 @@ void MillePedeFileReader
   std::map<std::string,std::array<float, 6 > > errors_;
 
   std::vector<std::string> alignables_ = theThresholds_->getAlignableList();
-  for (auto ali : alignables_){
+  for (auto &ali : alignables_){
     cutoffs_[ali]       = theThresholds_->getCut(ali);
     significances_[ali] = theThresholds_->getSigCut(ali);
     thresholds_[ali]    = theThresholds_->getMaxMoveCut(ali);
@@ -191,7 +191,7 @@ void MillePedeFileReader
             }
           }
           updateDB_ = true;
-	  edm::LogWarning("MillePedeFileReader")<<"This correction: "<<ObsMove<<"+/-" <<ObsErr<<" for "<< detLabel <<"("<<coord<<") will trigger a new Tracker Alignment payload!";
+	  edm::LogInfo("MillePedeFileReader")<<"This correction: "<<ObsMove<<"+/-" <<ObsErr<<" for "<< detLabel <<"("<<coord<<") will trigger a new Tracker Alignment payload!";
         }
       }
     }
@@ -263,7 +263,10 @@ MillePedeFileReader::getStringFromHLS(MillePedeFileReader::PclHLS HLS){
     case PclHLS::TPEHalfCylinderXplusZminus  : return "TPEHalfCylinderXplusZminus";
     case PclHLS::TPEHalfCylinderXminusZplus  : return "TPEHalfCylinderXminusZplus";
     case PclHLS::TPEHalfCylinderXplusZplus   : return "TPEHalfCylinderXplusZplus";
-    default: return "None";
+    default: 
+      throw cms::Exception("LogicError")
+        << "@SUB=MillePedeFileReader::getStringFromHLS\n"
+        << "Found an alignable structure not possible to map in the default AlignPCLThresholds partitions";
     }
 }
 
