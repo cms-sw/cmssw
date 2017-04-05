@@ -13,8 +13,6 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-
-
 #include <vector>
 
 namespace DataFormats_CTPPSReco {
@@ -66,8 +64,5 @@ namespace DataFormats_CTPPSReco {
     std::vector<CTPPSLocalTrackLite> v_cltl;
     edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
     edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
-
-
-
   };
 }
