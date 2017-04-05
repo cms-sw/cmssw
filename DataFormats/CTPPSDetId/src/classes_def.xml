@@ -1,5 +1,14 @@
 <lcgdict>
-  <class name="TotemRPDetId" ClassVersion="2">
-    <version ClassVersion="2" checksum="1856701727"/>
+  <class name="CTPPSDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="2579437464"/>
   </class>
+  <class name="TotemRPDetId" ClassVersion="3">
+    <version ClassVersion="2" checksum="1856701727"/>
+    <version ClassVersion="3" checksum="2940094261"/>
+  </class>
+
+  <class name="CTPPSDiamondDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="4277652856"/>
+  </class>
+
 </lcgdict>

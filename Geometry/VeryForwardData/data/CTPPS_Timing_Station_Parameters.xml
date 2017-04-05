@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="CTPPS_Timing_Station_Parameters.xml" eval="true">
+
+    <!--Positions calculated from the wall closer to IP point-->
+    <Constant name="Beam_Hole_Diam" value="80*mm"/>
+    <Constant name="Device_Length_y" value="112*mm"/>
+    <Constant name="Device_Envelope_Radius" value="450*mm"/>
+    <Constant name="Station_Length" value="3360*mm"/> <!-- total size (2 beamline arms+RP) -->
+    <Constant name="Station_Pipe_Length" value="1605*mm"/> <!-- single beamline length -->
+    <Constant name="Timing_Hole_Diam" value="[Station_Length]-2*[Station_Pipe_Length]"/> <!-- longitudinal RP opening -->
+
+    <Constant name="Wall_Thickness" value="2*mm"/> <!-- beamline arm transverse thickness -->
+    <Constant name="Hor_Closed_Wall_Thick_Int" value="2*mm"/>
+
+    <Constant name="Hor_Vac_Length" value="[Device_Envelope_Radius]+[Device_Length_y]/2-[Hor_Closed_Wall_Thick_Int]"/>
+
+  </ConstantsSection>
+</DDDefinition>

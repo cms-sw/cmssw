@@ -17,7 +17,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -67,7 +66,6 @@ class GeometryInfoModule : public edm::one::EDAnalyzer<>
     bool printRPInfo, printSensorInfo, printMeanSensorInfo;
 
     edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry;
-    edm::ESWatcher<VeryForwardMeasuredGeometryRecord> watcherMeasuredGeometry;
     edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry;
     edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry;
 
@@ -121,16 +119,6 @@ void GeometryInfoModule::analyze(const edm::Event& event, const edm::EventSetup&
     if (watcherIdealGeometry.check(es))
     {
       es.get<IdealGeometryRecord>().get(geometry);
-      PrintGeometry(*geometry, event);
-    }
-    return;
-  }
-
-  if (!geometryType.compare("measured"))
-  {
-    if (watcherMeasuredGeometry.check(es))
-    {
-      es.get<VeryForwardMeasuredGeometryRecord>().get(geometry);
       PrintGeometry(*geometry, event);
     }
     return;
@@ -198,7 +186,7 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
       double dx = 0., dy = 0.;
       geometry.GetReadoutDirection(it->first, dx, dy);
   
-      printf("%4i  |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f |\n", id.detectorDecId(), x, y, z, dx, dy);
+      printf("%4i  |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f |\n", id.getPlaneDecimalId(), x, y, z, dx, dy);
     }
   }
   
@@ -211,9 +199,9 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
 
     for (TotemRPGeometry::mapType::const_iterator it = geometry.beginDet(); it != geometry.endDet(); ++it)
     {
-      unsigned int decId = TotemRPDetId::rawToDecId(it->first);
-      unsigned int rpId = decId / 10;
-      bool uDirection = TotemRPDetId::isStripsCoordinateUDirection(decId);
+      TotemRPDetId plId(it->first);
+      unsigned int rpDecId = plId.getRPDecimalId();
+      bool uDirection = plId.isStripsCoordinateUDirection();
   
       double x = it->second->translation().x();
       double y = it->second->translation().y();
@@ -222,7 +210,7 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
       double dx = 0., dy = 0.;
       geometry.GetReadoutDirection(it->first, dx, dy);
   
-      data[rpId].Fill(x, y, z, uDirection, dx, dy);
+      data[rpDecId].Fill(x, y, z, uDirection, dx, dy);
     }
 
     printf("RPId |                center                |      U direction    |      V direction    |\n");

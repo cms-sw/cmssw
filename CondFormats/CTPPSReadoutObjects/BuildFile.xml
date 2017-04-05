@@ -1,4 +1,5 @@
 <use name="FWCore/Framework"/>
+<use name="DataFormats/CTPPSDetId"/>
 
 <export>
 	<lib name="1"/>
