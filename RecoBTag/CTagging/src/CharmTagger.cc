@@ -101,6 +101,7 @@ float CharmTagger::discriminator(const TagInfoHelper & tagInfo) const {
 	}
 
 	//get the MVA output
-	float tag = mvaID_->evaluate(inputs);
+	bool notracks = (vars.get(reco::btau::jetNTracks,0) == 0);	
+	float tag = !notracks ? mvaID_->evaluate(inputs) : -2; // if no tracks available, put value at -2
 	return tag;
 }
