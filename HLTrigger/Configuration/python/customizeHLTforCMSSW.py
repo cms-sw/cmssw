@@ -49,12 +49,6 @@ def customiseFor17792(process):
             producer.produceSeedStopReasons = cms.bool(False)
     return process
 
-def customiseFor18118(process):
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        if not hasattr(producer, "saveEffectivePedestal"):
-            producer.saveEffectivePedestal = cms.bool(False)
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
@@ -62,6 +56,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor17771(process)
     process = customiseFor17792(process)
     process = customiseFor17794(process)
-    process = customiseFor18118(process)
 
     return process
