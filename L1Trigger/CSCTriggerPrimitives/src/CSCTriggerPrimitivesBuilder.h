@@ -89,9 +89,6 @@ class CSCTriggerPrimitivesBuilder
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
 
-  /// temporary flag to run on data
-  bool runOnData_;
-
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
