@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoSequence
+from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoTask
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import pfAllChargedHadrons
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cfi import pfAllNeutralHadronsAndPhotons
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import IsoConeDefinitions
@@ -13,5 +13,8 @@ egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
                                      isolationConeDefinitions = IsoConeDefinitions
                                      )	
 
-egmPhotonIsolationAODSequence = cms.Sequence(pfNoPileUpIsoSequence + pfNoPileUpCandidates + egmPhotonIsolation)
-
+egmPhotonIsolationAODTask = cms.Task()
+egmPhotonIsolationAODTask.add( pfNoPileUpIsoTask )
+egmPhotonIsolationAODTask.add( cms.Task(pfNoPileUpCandidates) )
+egmPhotonIsolationAODTask.add( cms.Task(egmPhotonIsolation) )
+egmPhotonIsolationAODSequence = cms.Sequence(egmPhotonIsolationAODTask)
