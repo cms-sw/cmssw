@@ -194,7 +194,7 @@ class HGCalImagingAlgo
   // The verbosity level
   VerbosityLevel verbosity;
 
-  // initialized
+  // initialization bool
   bool initialized;
 
   struct Hexel {
