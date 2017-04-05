@@ -335,6 +335,7 @@ for type in plot_types:
             efficiency_strings.append(efficiency_string(obj,type,trig))
 
 efficiency_strings = get_reco_strings(efficiency_strings)
+efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
 
 hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
 hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
