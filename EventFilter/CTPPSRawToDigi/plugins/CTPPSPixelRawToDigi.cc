@@ -29,13 +29,13 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi( const edm::ParameterSet& conf )
 
 {
 
-  tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
+  FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
 
 // Products
   produces< edm::DetSetVector<CTPPSPixelDigi> >();
 
 //CablingMap could have a label //Tav
-  mappingLabel = config_.getParameter<std::string> ("mappingLabel"); //RPix
+  mappingLabel_ = config_.getParameter<std::string> ("mappingLabel"); //RPix
 
 }
 
@@ -50,14 +50,14 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 {
 
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-  es.get<CTPPSPixelDAQMappingRcd>().get(mappingLabel, mapping);
+  es.get<CTPPSPixelDAQMappingRcd>().get(mappingLabel_, mapping);
 
 
 
-  fedIds   = mapping->fedIds();
+  fedIds_   = mapping->fedIds();
 
   edm::Handle<FEDRawDataCollection> buffers;
-  ev.getByToken(tFEDRawDataCollection, buffers);
+  ev.getByToken(FEDRawDataCollection_, buffers);
 
 // create product (digis & errors)
   auto collection = std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>();
@@ -67,7 +67,7 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   bool errorsInEvent = false; 
-  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
+  for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
     int fedId = *aFed;
 //    int FMC = 0;
 //cout << "FEDID:   " << fedId << endl;

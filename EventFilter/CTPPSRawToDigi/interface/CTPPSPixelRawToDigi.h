@@ -35,13 +35,12 @@ private:
 
   edm::ParameterSet config_;
 
-  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_; 
 
-  std::set<unsigned int> fedIds;
+  std::set<unsigned int> fedIds_;
 
-
-  edm::InputTag label;
+  edm::InputTag label_;
  
-  std::string mappingLabel;
+  std::string mappingLabel_;
 };
 #endif
