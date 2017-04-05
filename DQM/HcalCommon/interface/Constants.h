@@ -137,7 +137,7 @@ namespace hcaldqm
 		int const HF = 4;
 		int const SUBDET_NUM = 4;
 		int const TPSUBDET_NUM = 2;
-		int const DIGISIZE[SUBDET_NUM] = {10, 10, 10, 4};
+		int const DIGISIZE[SUBDET_NUM] = {10, 10, 10, 3};
 		std::string const SUBDET_NAME[SUBDET_NUM]={"HB", "HE", "HO", "HF"};
 		std::string const SUBDETPM_NAME[2*SUBDET_NUM] = { "HBM", "HBP",
 			"HEM", "HEP", "HOM", "HOP", "HFM", "HFP"};
