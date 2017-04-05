@@ -46,4 +46,12 @@
 <class name="MuonDigiCollection<ME0DetId,int>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,int> >" splitLevel="0"/> 
 
+<class name="ME0PadDigi" ClassVersion="10">
+ <version ClassVersion="10" checksum="1975346469"/>
+</class>
+<class name="std::vector<ME0PadDigi>"/>
+<class name="std::map<ME0DetId,std::vector<ME0PadDigi> >"/>
+<class name="MuonDigiCollection<ME0DetId,ME0PadDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0PadDigi> >" splitLevel="0"/> 
+
 </lcgdict>
