@@ -17,11 +17,11 @@ using namespace std;
 using namespace edm;
 
 namespace {
-  constexpr int LINK_bits = 6;
-  constexpr int ROC_bits  = 5;
-  constexpr int DCOL_bits = 5;
-  constexpr int PXID_bits = 8;
-  constexpr int ADC_bits  = 8;
+  constexpr int m_LINK_bits = 6;
+  constexpr int m_ROC_bits  = 5;
+  constexpr int m_DCOL_bits = 5;
+  constexpr int m_PXID_bits = 8;
+  constexpr int m_ADC_bits  = 8;
 }
 
 CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping)  :  theWordCounter(0), mapping_(mapping)
@@ -39,21 +39,21 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
   }
 
 
-  ADC_shift  = 0;
-  PXID_shift = ADC_shift + ADC_bits;
-  DCOL_shift = PXID_shift + PXID_bits;
-  ROC_shift  = DCOL_shift + DCOL_bits;
+  m_ADC_shift  = 0;
+  m_PXID_shift = m_ADC_shift + m_ADC_bits;
+  m_DCOL_shift = m_PXID_shift + m_PXID_bits;
+  m_ROC_shift  = m_DCOL_shift + m_DCOL_bits;
 
 
-  LINK_shift = ROC_shift + ROC_bits;
-  LINK_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << LINK_bits);
-  ROC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << ROC_bits);    
+  m_LINK_shift = m_ROC_shift + m_ROC_bits;
+  m_LINK_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_LINK_bits);
+  m_ROC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ROC_bits);    
 
   maxROCIndex=3; 
 
-  DCOL_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << DCOL_bits);
-  PXID_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << PXID_bits);
-  ADC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << ADC_bits);
+  m_DCOL_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_DCOL_bits);
+  m_PXID_mask = ~(~CTPPSPixelDataFormatter::Word32(0) << m_PXID_bits);
+  m_ADC_mask  = ~(~CTPPSPixelDataFormatter::Word32(0) << m_ADC_bits);
 
 }
 
@@ -109,8 +109,8 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     auto ww = *word;
     if unlikely(ww==0) { theWordCounter--; continue;}
-    int nlink = (ww >> LINK_shift) & LINK_mask; 
-    int nroc  = (ww >> ROC_shift) & ROC_mask;
+    int nlink = (ww >> m_LINK_shift) & m_LINK_mask; 
+    int nroc  = (ww >> m_ROC_shift) & m_ROC_mask;
 
     int FMC = 0;
 
@@ -146,11 +146,11 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
     }
   
-    int adc  = (ww >> ADC_shift) & ADC_mask;
+    int adc  = (ww >> m_ADC_shift) & m_ADC_mask;
  
 
-    int dcol = (ww >> DCOL_shift) & DCOL_mask;
-    int pxid = (ww >> PXID_shift) & PXID_mask;
+    int dcol = (ww >> m_DCOL_shift) & m_DCOL_mask;
+    int pxid = (ww >> m_PXID_shift) & m_PXID_mask;
 //       cout<<" raw2digi nlink "<<link<<" roc: "<<roc<<"  dcol: "<<dcol<<"  pxid: "<<pxid<<"  adc: "<<adc<<" layer: "<<layer<<endl;
 
 
