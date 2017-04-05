@@ -38,15 +38,6 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   mud0_.denominator   = nullptr;
   muz0_.numerator   = nullptr;
   muz0_.denominator = nullptr;
-
-  JpsiPhi_.numerator   = nullptr;
-  JpsiPhi_.denominator = nullptr;
-  JpsiEta_.numerator   = nullptr;
-  JpsiEta_.denominator = nullptr;
-  JpsiPt_.numerator   = nullptr;
-  JpsiPt_.denominator = nullptr;
-  JpsiM_.numerator   = nullptr;
-  JpsiM_.denominator = nullptr;
 }
 
 BPHMonitor::~BPHMonitor()
