@@ -121,14 +121,8 @@ private:
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
-
-//  StringCutObjectSelector<reco::MET,true>         metSelection_;
-//  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
-// StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_ref;
-//  int njets_;
-//  int nelectrons_;
   int nmuons_;
 
 };
