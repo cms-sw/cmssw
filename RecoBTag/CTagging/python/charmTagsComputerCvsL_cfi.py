@@ -14,7 +14,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    slComputerCfg = cms.PSet(
       **sl_cfg.candidateCombinedSecondaryVertexSoftLeptonComputer.parameters_()
       ),
-   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_sklearn.weight.xml'),
+   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'),
    variables = c_vs_l_vars_vpset,
    computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer'),
    tagInfos = cms.VInputTag(
@@ -30,4 +30,4 @@ charmTagsComputerCvsL = cms.ESProducer(
    useAdaBoost = cms.bool(False)
    )
 
-charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
+charmTagsComputerCvsL.slComputerCfg.correctVertexMass = True
