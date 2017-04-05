@@ -439,7 +439,10 @@ class ConfigBuilder(object):
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
-
+	       
+	       if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+		       self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
+		       
 	##drop LHEXMLStringProduct on input to save memory if appropriate
 	if 'GEN' in self.stepMap.keys():
         	if self._options.inputCommands:
