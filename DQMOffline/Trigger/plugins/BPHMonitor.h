@@ -113,11 +113,6 @@ private:
   METME mud0_;
   METME muz0_;
 
-  METME JpsiPhi_;
-  METME JpsiEta_;
-  METME JpsiPt_;
-  METME JpsiM_;
-
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
