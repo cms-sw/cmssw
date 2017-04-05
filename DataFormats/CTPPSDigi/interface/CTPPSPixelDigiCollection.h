@@ -1,5 +1,5 @@
-#ifndef CTPPS_TRACKERDIGICOLLECTION_H
-#define CTPPS_TRACKERDIGICOLLECTION_H
+#ifndef CTPPS_CTPPSDigi_CTPPSPixelDigiCollection_h
+#define CTPPS_CTPPSDigi_CTPPSPixelDigiCollection_h
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include <vector>

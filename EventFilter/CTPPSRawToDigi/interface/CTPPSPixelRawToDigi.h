@@ -1,5 +1,5 @@
-#ifndef CTPPSPixelRawToDigi_H
-#define CTPPSPixelRawToDigi_H
+#ifndef CTPPS_CTPPSPixelRawToDigi_CTPPSPixelRawToDigi_h
+#define CTPPS_CTPPSPixelRawToDigi_CTPPSPixelRawToDigi_h
 
 /** \class CTPPSPixelRawToDigi_H
  *  Plug-in module that performs Raw data to digi conversion 
