@@ -5,7 +5,7 @@
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <string>
 
 /** \class PixelROC
