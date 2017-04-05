@@ -443,20 +443,20 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	{
 		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
 		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, 
-			digi.size()-1);
+			digi.samples()-1);
 		if (sumQ<_lowHF)
 			continue;
 		HcalDetId did = digi.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
 		_xTimingSum2.get(did)+=aveTS*aveTS;
 		_xEntries.get(did)++;
 
-		for (unsigned int i=0; i<digi.size(); i++)
+		for (int i=0; i<digi.samples(); i++)
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cShapeCut_FEDSlot.fill(eid, (int)i, constants::adc2fC[digi[i].adc()]-2.5);

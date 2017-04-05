@@ -357,13 +357,13 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=chf->end(); ++it)
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.size()-1);
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		if (sumQ<_lowHF)
 			continue;
 		HcalDetId did = digi.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -371,8 +371,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		_xEntries.get(did)++;
 
 		if (_ptype != fOffline) { // hidefed2crate
-			for (unsigned int i = 0; i < digi.size(); ++i) {
-				_cShapeCut_FEDSlot.fill(eid, (int)i, constants::adc2fC[digi[i].adc()]);
+			for (int i = 0; i < digi.samples(); ++i) {
+				_cShapeCut_FEDSlot.fill(eid, i, constants::adc2fC[digi[i].adc()]);
 				// Note: this used to be digi.sample(i).nominal_fC() - 2.5, but this branch doesn't exist in QIE10DataFrame.
 				// Instead, use lookup table.
 			}
