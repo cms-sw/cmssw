@@ -97,13 +97,16 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
        else if ( mvaOpt_string == "DBnewDMwLT"  ) mvaOpt_ = kDBnewDMwLT;
        else if ( mvaOpt_string == "PWoldDMwLT"  ) mvaOpt_ = kPWoldDMwLT;
        else if ( mvaOpt_string == "PWnewDMwLT"  ) mvaOpt_ = kPWnewDMwLT;
+       else if ( mvaOpt_string == "DBoldDMwLTwGJ" ) mvaOpt_ = kDBoldDMwLTwGJ;
+       else if ( mvaOpt_string == "DBnewDMwLTwGJ" ) mvaOpt_ = kDBnewDMwLTwGJ;
        else throw cms::Exception("PATTauDiscriminationByMVAIsolationRun2")
          << " Invalid Configuration Parameter 'mvaOpt' = " << mvaOpt_string << " !!\n";
 		    
        if      ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) mvaInput_ = new float[6];
        else if ( mvaOpt_ == kOldDMwLT  || mvaOpt_ == kNewDMwLT  ) mvaInput_ = new float[12];
        else if ( mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kDBnewDMwLT ||
-                 mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kPWnewDMwLT) mvaInput_ = new float[23];
+                 mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kPWnewDMwLT ||
+                 mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ) mvaInput_ = new float[23];
        else assert(0);
 
        chargedIsoPtSums_ = cfg.getParameter<std::string>("srcChargedIsoPtSum");
@@ -142,7 +145,7 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
     bool loadMVAfromDB_;
     edm::FileInPath inputFileName_;
     const GBRForest* mvaReader_;
-    enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT, kDBoldDMwLT, kDBnewDMwLT, kPWoldDMwLT, kPWnewDMwLT };
+    enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT, kDBoldDMwLT, kDBnewDMwLT, kPWoldDMwLT, kPWnewDMwLT, kDBoldDMwLTwGJ, kDBnewDMwLTwGJ };
     int mvaOpt_;
     float* mvaInput_;
 
@@ -185,8 +188,8 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
 	
   int tauDecayMode = tau->decayMode();
 	
-  if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT || mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kPWoldDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
-     ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWnewDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10)) ) {
+  if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT || mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kDBoldDMwLTwGJ) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
+       ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWnewDMwLT || mvaOpt_ == kDBnewDMwLTwGJ) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10 || tauDecayMode == 11)) ) {
 	
     float chargedIsoPtSum = tau->tauID(chargedIsoPtSums_);
     float neutralIsoPtSum = tau->tauID(neutralIsoPtSums_);
@@ -209,6 +212,17 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
     // ---
     float leadingTrackChi2 = tau->leadingTrackNormChi2();
     float eRatio = clusterVariables_.tau_Eratio(*tau);
+
+    // Difference between measured and maximally allowed Gottfried-Jackson angle
+    float gjAngleDiff = -999;
+    if ( tauDecayMode == 10 ) {
+        double mTau = 1.77682;
+        double mAOne = tau->p4().M();
+        double pAOneMag = tau->p();
+        double thetaGJmax = TMath::ASin( (TMath::Power(mTau,2) - TMath::Power(mAOne,2) ) / ( 2 * mTau * pAOneMag ) );
+        double thetaGJmeasured = TMath::ACos( ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * TMath::Sqrt(decayDistMag) ) );
+        gjAngleDiff = thetaGJmeasured - thetaGJmax;
+    }
 		
     if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
       mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
@@ -278,6 +292,30 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[20]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
       mvaInput_[22] = std::min((float)10., tau->flightLengthSig());
+    } else if ( mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ ) {
+      mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
+      mvaInput_[1]  = std::fabs(tau->eta());
+      mvaInput_[2]  = std::log(std::max((float)1.e-2, chargedIsoPtSum));
+      mvaInput_[3]  = std::log(std::max((float)1.e-2, neutralIsoPtSum));
+      mvaInput_[4]  = std::log(std::max((float)1.e-2, puCorrPtSum));
+      mvaInput_[5]  = std::log(std::max((float)1.e-2, photonPtSumOutsideSignalCone));
+      mvaInput_[6]  = tauDecayMode;
+      mvaInput_[7]  = std::min((float)30., nPhoton);
+      mvaInput_[8]  = std::min((float)0.5, ptWeightedDetaStrip);
+      mvaInput_[9]  = std::min((float)0.5, ptWeightedDphiStrip);
+      mvaInput_[10] = std::min((float)0.5, ptWeightedDrSignal);
+      mvaInput_[11] = std::min((float)0.5, ptWeightedDrIsolation);
+      mvaInput_[12] = std::min((float)1., eRatio);
+      mvaInput_[13]  = TMath::Sign((float)+1., tau->dxy());
+      mvaInput_[14]  = std::sqrt(std::min((float)1., std::fabs(tau->dxy())));
+      mvaInput_[15]  = std::min((float)10., std::fabs(tau->dxy_Sig()));
+      mvaInput_[16]  = TMath::Sign((float)+1., tau->ip3d());
+      mvaInput_[17]  = std::sqrt(std::min((float)1., std::fabs(tau->ip3d())));
+      mvaInput_[18]  = std::min((float)10., std::fabs(tau->ip3d_Sig()));
+      mvaInput_[19]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
+      mvaInput_[20] = std::sqrt(decayDistMag);
+      mvaInput_[21] = std::min((float)10., tau->flightLengthSig());
+      mvaInput_[22] = std::max((float)-1., gjAngleDiff);
     }
 		
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
