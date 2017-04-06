@@ -231,7 +231,7 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
         double mAOne = tau->p4().M();
         double pAOneMag = tau->p();
         double thetaGJmax = TMath::ASin( (TMath::Power(mTau,2) - TMath::Power(mAOne,2) ) / ( 2 * mTau * pAOneMag ) );
-        double thetaGJmeasured = TMath::ACos( ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * TMath::Sqrt(decayDistMag) ) );
+        double thetaGJmeasured = TMath::ACos( ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * decayDistMag ) );
         gjAngleDiff = thetaGJmeasured - thetaGJmax;
     }
 
