@@ -1,3 +1,6 @@
+//
+//
+
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -359,6 +362,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
+    // (only available for PFTaus)
     if( aTau.isPFTau() ) {
       edm::Handle<reco::PFTauCollection> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
@@ -366,7 +370,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
       float ecalEnergy = 0;
       float hcalEnergy = 0;
-      float sumPhiTimesEnergy = 0.;
       float sumEtaTimesEnergy = 0.;
       float sumEnergy = 0.;
       float leadChargedCandPt = -99;
@@ -375,8 +378,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       for(std::vector<reco::PFCandidatePtr>::const_iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
         const reco::PFCandidatePtr& icand = *it;
         ecalEnergy += icand->ecalEnergy();
-        hcalEnergy += icand->hcalEnergy();
-	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();			
+        hcalEnergy += icand->hcalEnergy();		
 	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
         sumEnergy += icand->energy();	 
 	const reco::Track* track = 0;
@@ -397,11 +399,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTauPFEssential.ptLeadChargedCand_ = leadChargedCandPt;      
       aTauPFEssential.etaAtEcalEntranceLeadChargedCand_ = leadChargedCandEtaAtEcalEntrance;
       if (sumEnergy != 0.) {
-	aTauPFEssential.phiAtEcalEntrance_ = sumPhiTimesEnergy/sumEnergy;
         aTauPFEssential.etaAtEcalEntrance_ = sumEtaTimesEnergy/sumEnergy;
       }
       else {
-	aTauPFEssential.phiAtEcalEntrance_ = -99.;
         aTauPFEssential.etaAtEcalEntrance_ = -99.;
       }	
       float leadingTrackNormChi2 = 0;
