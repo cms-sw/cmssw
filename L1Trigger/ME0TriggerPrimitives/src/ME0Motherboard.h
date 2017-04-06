@@ -30,7 +30,7 @@ class ME0Motherboard
   /** Clears LCTs. */
   void clear();
 
- protected:
+ private:
 
   /** Verbosity level: 0: no print (default).
    *                   1: print LCTs found. */
