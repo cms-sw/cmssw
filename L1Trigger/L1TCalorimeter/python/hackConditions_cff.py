@@ -42,7 +42,7 @@ if stage2L1Trigger.isChosen():
         from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi import *    
     else:
         print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
-        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_cfi import *    
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2017_v0_0_cfi import *    
     
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #
