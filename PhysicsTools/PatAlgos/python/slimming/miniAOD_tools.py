@@ -277,9 +277,24 @@ def miniAOD_customizeCommon(process):
         exp = cms.double(1.0)
     )
 
+    import copy
+    _pfCandidates = 'particleFlow'
+    _discriminatorSources = copy.deepcopy(process.patJets.discriminatorSources)
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+    if process.isUsingModifier( phase2_common ):
+        _pfCandidates = 'puppi'
+        _discriminatorSources.extend([
+            cms.InputTag('pfDeepCSVJetTags:probudsg')
+           ,cms.InputTag('pfDeepCSVJetTags:probc')
+           ,cms.InputTag('pfDeepCSVJetTags:probcc')
+           ,cms.InputTag('pfDeepCSVJetTags:probb')
+           ,cms.InputTag('pfDeepCSVJetTags:probbb')
+        ])
+
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
-                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    pfCandidates = cms.InputTag(_pfCandidates),
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value(), _discriminatorSources)
                     )
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
