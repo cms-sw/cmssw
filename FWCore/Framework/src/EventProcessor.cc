@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/EventSetupsController.h"

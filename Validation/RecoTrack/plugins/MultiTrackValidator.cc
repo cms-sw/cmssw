@@ -65,7 +65,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
 {
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
-  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, doSeedPlots_, consumesCollector());
+  edm::InputTag beamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
+  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, beamSpotTag, doSeedPlots_, consumesCollector());
 
   dirName_ = pset.getParameter<std::string>("dirName");
   UseAssociators = pset.getParameter< bool >("UseAssociators");
@@ -147,6 +148,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
                                                  psetVsPhi.getParameter<bool>("chargedOnly"),
                                                  psetVsPhi.getParameter<bool>("stableOnly"),
                                                  psetVsPhi.getParameter<std::vector<int> >("pdgId"));
+
+  dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi, beamSpotTag, consumesCollector());
 
   useGsf = pset.getParameter<bool>("useGsf");
 
@@ -355,6 +358,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     parametersDefinerTP->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
+  dRTrackSelector->init(event, setup);
+  histoProducerAlgo_->init(event, setup);
 
   const reco::Vertex::Point *thePVposition = nullptr;
   const TrackingVertex::LorentzVector *theSimPVPosition = nullptr;
@@ -515,6 +520,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   //calculate dR for TPs
   float dR_tPCeff[tPCeff.size()];
+  size_t n_selTP_dr = 0;
   {
     float etaL[tPCeff.size()], phiL[tPCeff.size()];
     for(size_t iTP: selected_tPCeff) {
@@ -524,22 +530,22 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
       phiL[iTP] = atan2f(p.y(),p.x());
     }
-    auto i=0U;
-    for ( auto const & tpr : tPCeff) {
-      auto const& tp = *tpr;
+    for(size_t iTP1: selected_tPCeff) {
+      auto const& tp = *(tPCeff[iTP1]);
       double dR = std::numeric_limits<double>::max();
       if(dRtpSelector(tp)) {//only for those needed for efficiency!
+        ++n_selTP_dr;
         auto  && p = tp.momentum();
         float eta = etaFromXYZ(p.x(),p.y(),p.z());
         float phi = atan2f(p.y(),p.x());
-        for(size_t iTP: selected_tPCeff) {
+        for(size_t iTP2: selected_tPCeff) {
           //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-	  if (i==iTP) {continue;}
-          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP], phiL[iTP]);
+	  if (iTP1==iTP2) {continue;}
+          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP2], phiL[iTP2]);
           if (dR_tmp<dR) dR=dR_tmp;
         }  // ttp2 (iTP)
       }
-      dR_tPCeff[i++] = std::sqrt(dR);
+      dR_tPCeff[iTP1] = std::sqrt(dR);
     }  // tp
   }
 
@@ -661,8 +667,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       LogTrace("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
       int ats(0);  	  //This counter counts the number of simTracks that are "associated" to recoTracks
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
-      unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut
-      unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
 
       //loop over already-selected TPs for tracking efficiency
       for(size_t i=0; i<selected_tPCeff.size(); ++i) {
@@ -708,11 +712,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             // Do dxy and dz vs. PV make any sense for cosmics? I guess not
 	  }
 	//---------- THE PART ABOVE HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
-
-        //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) ), but only for in-time TPs
-        if(tp.eventId().bunchCrossing() == 0) {
-          st++;
-        }
 
 	// in the coming lines, histos are filled using as input
 	// - momentumTP
@@ -783,9 +782,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, mvaValues, selectsLoose, selectsHP);
         mvaValues.clear();
-          sts++;
-          if(matchedTrackPointer)
-            asts++;
           if(doSummaryPlots_) {
             if(dRtpSelectorNoPtCut(tp)) {
               h_simul_coll_allPt[ww]->Fill(www);
@@ -822,6 +818,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int at(0); //This counter counts the number of recoTracks that are associated to SimTracks
       int rT(0); //This counter counts the number of recoTracks in general
       int seed_fit_failed = 0;
+      size_t n_selTrack_dr = 0;
 
       //calculate dR for tracks
       const edm::View<Track> *trackCollectionDr = &trackCollection;
@@ -860,6 +857,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         auto track = trackCollection.refAt(i);
 	rT++;
         if(trackFromSeedFitFailed(*track)) ++seed_fit_failed;
+        if((*dRTrackSelector)(*track)) ++n_selTrack_dr;
  
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
@@ -970,15 +968,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       mvaCollections.clear();
       qualityMaskCollections.clear();
 
-      histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
+      histoProducerAlgo_->fill_trackBased_histos(w,at,rT, n_selTrack_dr, n_selTP_dr);
       // Fill seed-specific histograms
       if(doSeedPlots_) {
         histoProducerAlgo_->fill_seed_histos(www, seed_fit_failed, trackCollection.size());
       }
 
 
-      LogTrace("TrackValidator") << "Total Simulated: " << st << "\n"
-                                 << "Total Associated (simToReco): " << ats << "\n"
+      LogTrace("TrackValidator") << "Collection " << www << "\n"
+                                 << "Total Simulated (selected): " << n_selTP_dr << "\n"
+                                 << "Total Reconstructed (selected): " << n_selTrack_dr << "\n"
                                  << "Total Reconstructed: " << rT << "\n"
                                  << "Total Associated (recoToSim): " << at << "\n"
                                  << "Total Fakes: " << rT-at << "\n";
