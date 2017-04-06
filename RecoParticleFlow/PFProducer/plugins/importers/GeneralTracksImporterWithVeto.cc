@@ -142,7 +142,6 @@ importToBlock( const edm::Event& e,
     if( !mask[idx] ) continue; 
     muonref = reco::MuonRef();
     pftrackref = reco::PFRecTrackRef(tracks,idx);    
-    if( vetoed.count(pftrackref->trackRef().key()) ) continue;
     // Get the eventual muon associated to this track
     const int muId = muAssocToTrack( pftrackref->trackRef(), muons );
     bool thisIsAPotentialMuon = false;
@@ -161,7 +160,9 @@ importToBlock( const edm::Event& e,
       if ( useTiming_ ) {
         trkElem->setTime( (*timeH)[pftrackref->trackRef()], (*timeErrH)[pftrackref->trackRef()] );
       }
-      elems.emplace_back(trkElem);
+      if( vetoed.count(pftrackref->trackRef().key()) == 0 || muonref.isNonnull()){
+	elems.emplace_back(trkElem);
+      }
     }
   }
   elems.shrink_to_fit();

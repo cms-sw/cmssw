@@ -60,7 +60,8 @@ private:
   unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 
   typename T::NumberingScheme m_scheme;
-  DDSpecificsFilter  m_filter;
+  DDAndFilter<DDSpecificsMatchesValueFilter,
+              DDSpecificsMatchesValueFilter> m_filter;
 };
 
 #endif

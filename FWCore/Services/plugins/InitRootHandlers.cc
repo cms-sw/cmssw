@@ -105,7 +105,11 @@ namespace edm {
       virtual void willBeUsingThreads() override;
       virtual void initializeThisThreadForUse() override;
 
-      void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
+      void cachePidInfoHandler(unsigned int, unsigned int) {
+        //this is called only on a fork, so the thread doesn't
+        // actually exist anymore
+        helperThread_.reset();
+        cachePidInfo();}
       void cachePidInfo();
       static void stacktraceHelperThread();
 
@@ -871,6 +875,10 @@ namespace edm {
       if(debugLevel >0) {
 	gDebug = debugLevel;
       }
+
+      // Enable Root implicit multi-threading
+      bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
+      if (imt) ROOT::EnableImplicitMT();
     }
 
     InitRootHandlers::~InitRootHandlers () {
@@ -913,6 +921,8 @@ namespace edm {
           ->setComment("If True, enables automatic loading of data dictionaries.");
       desc.addUntracked<bool>("LoadAllDictionaries",false)
           ->setComment("If True, loads all ROOT dictionaries.");
+      desc.addUntracked<bool>("EnableIMT",false)
+          ->setComment("If True, calls ROOT::EnableImplicitMT().");
       desc.addUntracked<bool>("AbortOnSignal",true)
           ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       desc.addUntracked<int>("DebugLevel",0)
@@ -940,6 +950,12 @@ namespace edm {
     void
     InitRootHandlers::cachePidInfo()
     {
+      if(helperThread_) {
+        //Another InitRootHandlers was initialized in this job, possibly
+        // because multiple EventProcessors are being used.
+        //In that case, we are already all setup
+        return;
+      }
       if (snprintf(pidString_, pidStringLength_-1, "gdb -quiet -p %d 2>&1 <<EOF |\n"
         "set width 0\n"
         "set height 0\n"

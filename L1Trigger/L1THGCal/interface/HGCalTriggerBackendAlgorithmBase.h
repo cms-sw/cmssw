@@ -29,10 +29,12 @@
 
 class HGCalTriggerBackendAlgorithmBase { 
  public:    
-  HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf) : 
+  // Allow HGCalTriggerBackend to be passed a consume collector
+  HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) : 
     geometry_(nullptr),
     name_(conf.getParameter<std::string>("AlgorithmName"))
     {}
+
   virtual ~HGCalTriggerBackendAlgorithmBase() {}
 
   const std::string& name() const { return name_; } 
@@ -42,7 +44,10 @@ class HGCalTriggerBackendAlgorithmBase {
   //runs the trigger algorithm, storing internally the results
   virtual void setProduces(edm::EDProducer& prod) const = 0;
 
-  virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) = 0;
+  virtual void run(const l1t::HGCFETriggerDigiCollection& coll, 
+		   const edm::EventSetup& es,
+		   const edm::Event &e
+		   ) = 0;
 
   virtual void putInEvent(edm::Event& evt) = 0;
 
@@ -61,9 +66,9 @@ namespace HGCalTriggerBackend {
   template<typename FECODEC>
   class Algorithm : public HGCalTriggerBackendAlgorithmBase { 
   public:
-    Algorithm(const edm::ParameterSet& conf) :  
-    HGCalTriggerBackendAlgorithmBase(conf),
-    codec_(conf.getParameterSet("FECodec")){ }
+    Algorithm(const edm::ParameterSet& conf, edm::ConsumesCollector &cc ) :
+    	HGCalTriggerBackendAlgorithmBase(conf, cc), 
+    	codec_(conf.getParameterSet("FECodec")){ }
 
     virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) override final {
       HGCalTriggerBackendAlgorithmBase::setGeometry(geom);
@@ -76,6 +81,6 @@ namespace HGCalTriggerBackend {
 }
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< HGCalTriggerBackendAlgorithmBase* (const edm::ParameterSet&) > HGCalTriggerBackendAlgorithmFactory;
+typedef edmplugin::PluginFactory< HGCalTriggerBackendAlgorithmBase* (const edm::ParameterSet&,edm::ConsumesCollector & ) > HGCalTriggerBackendAlgorithmFactory;
 
 #endif

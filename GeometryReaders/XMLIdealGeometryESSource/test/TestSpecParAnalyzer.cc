@@ -100,16 +100,8 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    const DDCompactView& cpv(*pDD);
    if ( specStrValue_ != "frederf" ) {
      std::cout << "specName = " << specName_ << " and specStrValue = " << specStrValue_ << std::endl;
-     DDValue fval(specName_, specStrValue_, 0.0);
-     DDSpecificsFilter filter;
-     filter.setCriteria(fval, // name & value of a variable 
-			DDCompOp::equals,
-			DDLogOp::AND, 
-			true, // compare strings otherwise doubles
-			true // use merged-specifics or simple-specifics
-			);
-     DDFilteredView fv(cpv);
-     fv.addFilter(filter);
+     DDSpecificsMatchesValueFilter filter{DDValue(specName_, specStrValue_, 0.0)};
+     DDFilteredView fv(cpv,filter);
      bool doit = fv.firstChild();
      std::vector<const DDsvalues_type *> spec = fv.specifics();
      std::vector<const DDsvalues_type *>::const_iterator spit = spec.begin();

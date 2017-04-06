@@ -427,17 +427,70 @@ namespace edm {
                                              EventSetup const& es,
                                              bool cleaningUpAfterException) {
     ServiceToken token = ServiceRegistry::instance().presentToken();
-    
-    auto task = make_functor_task(tbb::task::allocate_root(), [this,iHolder,&ep,&es,cleaningUpAfterException,token] () mutable {
+
+    T::setStreamContext(streamContext_, ep);
+
+    auto id = ep.id();
+    auto doneTask = make_waiting_task(tbb::task::allocate_root(),
+                                      [this,iHolder, id,cleaningUpAfterException,token](std::exception_ptr const* iPtr) mutable
+    {
       ServiceRegistry::Operate op(token);
-      try {
-        this->processOneStream<T>(ep,es,cleaningUpAfterException);
-      } catch(...) {
-        iHolder.doneWaiting(std::current_exception());
+      std::exception_ptr excpt;
+      if(iPtr) {
+        excpt = *iPtr;
+        //add context information to the exception and print message
+        try {
+          convertException::wrap([&]() {
+            std::rethrow_exception(excpt);
+          });
+        } catch(cms::Exception& ex) {
+          //TODO: should add the transition type info
+          std::ostringstream ost;
+          ost<<"Processing "<<T::transitionName()<<" "<<id;
+          addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
+          excpt = std::current_exception();
+        }
+        
+        actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
       }
+      
+      try {
+        T::postScheduleSignal(actReg_.get(), &streamContext_);
+      } catch(...) {
+        if(not excpt) {
+          excpt = std::current_exception();
+        }
+      }
+      iHolder.doneWaiting(excpt);
+      
     });
     
-    tbb::task::enqueue( *task);
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,cleaningUpAfterException,token] () mutable {
+      ServiceRegistry::Operate op(token);
+      T::preScheduleSignal(actReg_.get(), &streamContext_);
+      WaitingTaskHolder h(doneTask);
+
+      workerManager_.resetAll();
+      for(auto& p : end_paths_) {
+        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+      }
+
+      for(auto& p : trig_paths_) {
+        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+      }
+      
+      workerManager_.processOneOccurrenceAsync<T>(doneTask,
+                                                  ep, es, streamID_, &streamContext_, &streamContext_);
+    });
+    
+    if(streamID_.value() == 0) {
+      //Enqueueing will start another thread if there is only
+      // one thread in the job. Having stream == 0 use spawn
+      // avoids starting up another thread when there is only one stream.
+      tbb::task::spawn( *task);
+    } else {
+      tbb::task::enqueue( *task);
+    }
   }
   
   

@@ -84,6 +84,7 @@ namespace edm {
     void OutputModuleBase::configure(OutputModuleDescription const& desc) {
       remainingEvents_ = maxEvents_ = desc.maxEvents_;
       origBranchIDLists_ = desc.branchIDLists_;
+      subProcessParentageHelper_ = desc.subProcessParentageHelper_;
     }
     
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,

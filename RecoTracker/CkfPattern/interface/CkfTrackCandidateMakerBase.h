@@ -50,6 +50,7 @@ namespace cms
     bool doSeedingRegionRebuilding;
     bool cleanTrajectoryAfterInOut;
     bool reverseTrajectories;
+    bool produceSeedStopReasons_;
 
     unsigned int theMaxNSeeds;
 

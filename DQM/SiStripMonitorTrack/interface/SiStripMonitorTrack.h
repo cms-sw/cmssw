@@ -91,13 +91,15 @@ private:
   MonitorElement * bookMETrend(DQMStore::IBooker & , const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es);
-  void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
-  void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
-  void trajectoryStudy(const reco::Track& track, const edm::EventSetup& es, bool track_ok);
+  void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::Event&ev, const edm::EventSetup& es);
+  void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::Event& ev, const edm::EventSetup& es);
+  void trajectoryStudy(const reco::Track& track, const edm::Event& ev, const edm::EventSetup& es, bool track_ok);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   bool trackFilter(const reco::Track& track);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
-  void hitStudy(const edm::EventSetup& es,
+  void hitStudy(
+    const edm::Event&      ev,
+    const edm::EventSetup& es,
 		const ProjectedSiStripRecHit2D* projhit,
 		const SiStripMatchedRecHit2D*   matchedhit,
 		const SiStripRecHit2D*          hit2D,
@@ -113,9 +115,10 @@ private:
     const Det2MEs& MEs ,
     const TrackerTopology* tTopo,
     const SiStripGain*     stripGain,
-    const SiStripQuality*  stripQuality
+    const SiStripQuality*  stripQuality,
+    const edm::DetSetVector<SiStripDigi>& digilist
   );
-  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup&, bool ok);
+  template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::Event&, const edm::EventSetup&, bool ok);
 
   // fill monitorables
 //  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, const uint32_t detid, const LocalVector LV);
@@ -233,6 +236,7 @@ private:
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
 
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 
