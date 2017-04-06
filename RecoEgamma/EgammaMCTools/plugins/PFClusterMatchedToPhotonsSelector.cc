@@ -20,6 +20,7 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <limits>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -124,10 +125,11 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
       if (trackingParticle.pdgId() != 22) continue;
       if (trackingParticle.status() != 1) continue;
       matchedKey = trackingParticle.genParticles().at(0).key();
-      float DR2 = reco::deltaR2(trackingParticle, pfCluster.position());
-      float DE = 1. - trackingParticle.genParticles().at(0)->energy()/pfCluster.energy();
-      if (DR2 > matchMaxDR2_) continue; 
-      if ((DR2 + DE*DE) > matchMaxDEDR2_) continue; 
+      float dR2 = reco::deltaR2(trackingParticle, pfCluster.position());
+      if (dR2 > matchMaxDR2_) continue; 
+      // assigns a large value for pathological cases
+      float dE = pfCluster.energy() > 0 ? (1. - trackingParticle.genParticles().at(0)->energy()/pfCluster.energy()) : std::numeric_limits<float>::infinity();
+      if ((dR2 + dE*dE) > matchMaxDEDR2_) continue; 
 
       bool isConversion = false;
       for (auto&& vertRef : trackingParticle.decayVertices()) {
