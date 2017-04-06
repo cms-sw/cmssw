@@ -7,8 +7,5 @@ l1tGlobalSummary = cms.EDAnalyzer("L1TGlobalSummary",
 		                  ## ExtInputTag = cms.InputTag("gtExtFakeProd"),
 		                  MinBx          = cms.int32(-2),
 		                  MaxBx          = cms.int32(2),
-		                  DumpRecord   = cms.bool(False), # print raw uGT record
-                                  DumpTrigResults= cms.bool(False),
-                                  DumpTrigSummary= cms.bool(True),
-                                  ReadPrescalesFromFile= cms.bool(False)
+		                  DumpRecord   = cms.bool(False) # print raw uGT record
 )
