@@ -50,11 +50,12 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
         // if bad channel or low stat skip
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id)){
+            
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
+            
         }
        
-
         ped.mean_x6=oldped.mean_x6;
         ped.rms_x6=oldped.rms_x6;
         ped.mean_x1=oldped.mean_x1;
@@ -93,12 +94,11 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     }
 
 
-    std::cout << "Getting Pool service " << std::endl;
+    std::cout << "Writing to DB file ... " << std::endl;
 
     // write out pedestal record
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-    std::cout << "Got Pool service " << std::endl;
     if( poolDbService.isAvailable() )
         poolDbService->writeOne( &pedestals, poolDbService->currentTime(),
                                  "EcalPedestalsRcd"  );
