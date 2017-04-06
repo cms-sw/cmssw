@@ -9,7 +9,7 @@ castorDigitizer = cms.PSet(
     castor = cms.PSet(
         readoutFrameSize = cms.int32(6),
         binOfMaximum = cms.int32(5),
-        samplingFactor = cms.double(0.060135), ## GeV/pe
+        samplingFactor = cms.double(0.062577), ## GeV/pe
 
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(4.009),
