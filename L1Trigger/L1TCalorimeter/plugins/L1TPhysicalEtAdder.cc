@@ -19,10 +19,70 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
-#include <stdio.h>
+namespace {
 
-double getPhysicalEta(int etaIndex, bool forward = false);
-double getPhysicalPhi(int phiIndex);
+int getRegionEta(int gtEta, bool forward)
+{
+  // backwards conversion is
+  // unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+  // return (((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+  int centralGtEta[] = {11, 12, 13, 14, 15, 16, 17, -100, 10, 9, 8, 7, 6, 5, 4};
+  int forwardGtEta[] = {18, 19, 20, 21, -100, -100, -100, -100, 3, 2, 1, 0};
+
+  //printf("%i, %i\n",gtEta,forward);
+
+  int regionEta;
+
+  if(!forward)
+  {
+    regionEta = centralGtEta[gtEta];
+  } else
+    regionEta = forwardGtEta[gtEta];
+
+  if(regionEta == -100)
+    edm::LogError("EtaIndexError")
+      << "Bad eta index passed to L1TPhysicalEtAdder::getRegionEta, " << gtEta << std::endl;
+
+  return regionEta;
+}
+
+// adapted these from the UCT2015 codebase.
+double getPhysicalEta(int gtEta, bool forward = false)
+{
+  int etaIndex = getRegionEta(gtEta, forward);
+
+  const double rgnEtaValues[11] = {
+     0.174, // HB and inner HE bins are 0.348 wide
+     0.522,
+     0.870,
+     1.218,
+     1.566,
+     1.956, // Last two HE bins are 0.432 and 0.828 wide
+     2.586,
+     3.250, // HF bins are 0.5 wide
+     3.750,
+     4.250,
+     4.750
+  };
+  if(etaIndex < 11) {
+    return -rgnEtaValues[-(etaIndex - 10)]; // 0-10 are negative eta values
+  }
+  else if (etaIndex < 22) {
+    return rgnEtaValues[etaIndex - 11]; // 11-21 are positive eta values
+  }
+  return -9;
+}
+
+double getPhysicalPhi(int phiIndex)
+{
+  if (phiIndex < 10)
+    return 2. * M_PI * phiIndex / 18.;
+  if (phiIndex < 18)
+    return -M_PI + 2. * M_PI * (phiIndex - 9) / 18.;
+  return -9;
+}
+
+}
 
 using namespace l1t;
 
@@ -53,7 +113,7 @@ L1TPhysicalEtAdder::~L1TPhysicalEtAdder() {
 
 // ------------ method called to produce the data  ------------
 void
-L1TPhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   // store new collections which include physical quantities
   std::unique_ptr<EGammaBxCollection> new_egammas (new EGammaBxCollection);
@@ -278,51 +338,6 @@ L1TPhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(new_hfcounts),"HFBitCounts");
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TPhysicalEtAdder::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TPhysicalEtAdder::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-  void
-  L1TPhysicalEtAdder::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  L1TPhysicalEtAdder::endRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  L1TPhysicalEtAdder::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
-  t&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  L1TPhysicalEtAdder::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
-  )
-  {
-  }
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 L1TPhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -336,63 +351,3 @@ L1TPhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& description
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TPhysicalEtAdder);
 
-int getRegionEta(int gtEta, bool forward)
-{
-  // backwards conversion is
-  // unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
-  // return (((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
-  int centralGtEta[] = {11, 12, 13, 14, 15, 16, 17, -100, 10, 9, 8, 7, 6, 5, 4};
-  int forwardGtEta[] = {18, 19, 20, 21, -100, -100, -100, -100, 3, 2, 1, 0};
-
-  //printf("%i, %i\n",gtEta,forward);
-
-  int regionEta;
-
-  if(!forward)
-  {
-    regionEta = centralGtEta[gtEta];
-  } else
-    regionEta = forwardGtEta[gtEta];
-
-  if(regionEta == -100)
-    edm::LogError("EtaIndexError")
-      << "Bad eta index passed to L1TPhysicalEtAdder::getRegionEta, " << gtEta << std::endl;
-
-  return regionEta;
-}
-
-// adapted these from the UCT2015 codebase.
-double getPhysicalEta(int gtEta, bool forward)
-{
-  int etaIndex = getRegionEta(gtEta, forward);
-
-  const double rgnEtaValues[11] = {
-     0.174, // HB and inner HE bins are 0.348 wide
-     0.522,
-     0.870,
-     1.218,
-     1.566,
-     1.956, // Last two HE bins are 0.432 and 0.828 wide
-     2.586,
-     3.250, // HF bins are 0.5 wide
-     3.750,
-     4.250,
-     4.750
-  };
-  if(etaIndex < 11) {
-    return -rgnEtaValues[-(etaIndex - 10)]; // 0-10 are negative eta values
-  }
-  else if (etaIndex < 22) {
-    return rgnEtaValues[etaIndex - 11]; // 11-21 are positive eta values
-  }
-  return -9;
-}
-
-double getPhysicalPhi(int phiIndex)
-{
-  if (phiIndex < 10)
-    return 2. * M_PI * phiIndex / 18.;
-  if (phiIndex < 18)
-    return -M_PI + 2. * M_PI * (phiIndex - 9) / 18.;
-  return -9;
-}
