@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-me0TriggerPrimitiveDigis = cms.EDProducer("ME0TriggerPrimitivesProducer",
+me0TriggerDigis = cms.EDProducer("ME0TriggerProducer",
     ME0PadDigiProducer = cms.InputTag("simMuonME0PadDigis"),
     tmbParam = cms.PSet()
 )

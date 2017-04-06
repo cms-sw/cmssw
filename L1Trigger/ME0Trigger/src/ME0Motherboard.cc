@@ -1,4 +1,4 @@
-#include <L1Trigger/ME0TriggerPrimitives/src/ME0Motherboard.h>
+#include <L1Trigger/ME0Trigger/src/ME0Motherboard.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 ME0Motherboard::ME0Motherboard(unsigned endcap, unsigned chamber,
