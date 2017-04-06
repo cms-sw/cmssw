@@ -801,9 +801,9 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
-  bool momQuality = muon.muonBestTrack()->ptError()/muon.muonBestTrack()->pt() < 0.3;
+  bool momQuality = muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3;
 
-  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.bestTrack()->dz(vtx.position())) < 0.5;
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
   
   return muID && hits && momQuality && ip;
 
