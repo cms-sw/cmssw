@@ -5,6 +5,7 @@
 #include "DataFormats/Luminosity/interface/LumiInfoRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiInfo.h"
 #include "DataFormats/Luminosity/interface/BeamCurrentInfo.h"
+#include "DataFormats/Luminosity/interface/PCC.h"
 
 namespace DataFormats_Luminosity {
    struct dictionary {
@@ -14,5 +15,7 @@ namespace DataFormats_Luminosity {
       edm::Wrapper<LumiInfoRunHeader> lumiinforunheaderobj;
       edm::Wrapper<LumiInfo> lumiinfoobj;
       edm::Wrapper<BeamCurrentInfo> beamcurrentinfoobj;
+      reco::PCC b;
+      edm::Wrapper<reco::PCC> b_w;
    };
 }
