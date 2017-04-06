@@ -168,15 +168,8 @@ void GEMTrackMatch::setGeometry(const GEMGeometry& geom)
   gem_geom_ = &geom;
   GEMDetId chId(gem_geom_->chambers().front()->id());
 
-  bool isEvenOK = true;
-  bool isOddOK  = true;
-  useRoll_=1;
-  if ( geom.etaPartition( GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),chId.roll()) ) == nullptr) isOddOK = false;
-  if ( geom.etaPartition( GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber()+1,chId.roll()) ) == nullptr) isEvenOK = false;
-  if ( !isEvenOK || !isOddOK) useRoll_=2;
-
   const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),useRoll_)));
-  const int nEtaPartitions(geom.chamber(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),useRoll_))->nEtaPartitions());
+  const int nEtaPartitions(gem_geom_->chambers().front()->nEtaPartitions());
   const auto bottom_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
