@@ -9,6 +9,17 @@ SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
     # 0000, 0001, 0002,...
     outputBinaryFile = cms.string('pedeBinary%04d.dat'))
 
+# Ugly as hell, but that's life
+from CondCore.CondDB.CondDB_cfi import *
+CondDB.connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS')
+PoolDBESSource = cms.ESSource("PoolDBESSource",
+                              CondDB,
+                              toGet = cms.VPSet(cms.PSet(record = cms.string('AlignPCLThresholdsRcd'),
+                                                         tag = cms.string('SiPixelAliThresholds_test_v0')
+                                                         )
+                                                )
+                              )
+
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
 SiPixelAliPedeAlignmentProducer = copy.deepcopy(AlignmentProducer)
@@ -24,7 +35,6 @@ SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     )
 
 SiPixelAliPedeAlignmentProducer.doMisalignmentScenario = False #True
-
 
 SiPixelAliPedeAlignmentProducer.checkDbAlignmentValidity = False
 SiPixelAliPedeAlignmentProducer.applyDbAlignment = True

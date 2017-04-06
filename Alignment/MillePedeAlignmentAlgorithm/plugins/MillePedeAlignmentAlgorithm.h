@@ -20,6 +20,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h" 
 
 #include <vector>
 #include <string>
@@ -71,6 +72,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual bool supportsCalibrations() override;
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
   virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
+
+  virtual bool storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap);
 
   /// Called at end of job
   virtual void terminate(const edm::EventSetup& iSetup) override;
@@ -262,6 +265,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::unique_ptr<PedeSteerer>           thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase*> theCalibrations;
+  std::shared_ptr<AlignPCLThresholds> theThresholds; 
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
