@@ -626,14 +626,17 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
              break;
          case HcalGenericDetId::HcalGenEndcap:
              {
-                HcalDetId id(cell);
-                if (id.ietaAbs() >= 28)
+	         HcalDetId id(cell);
+	         if (id.ietaAbs() >= 28)
                    rcalib = 1.188;
                 else
                    rcalib = 1.117;
-             }
+		// granularity is equal to 1 only for |ieta| == 17
+		if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) granularity = 2;
+		else if(id.ietaAbs() >=27 && id.ietaAbs() <= 29) granularity = 5;
+	     }
              break;
-         case HcalGenericDetId::HcalGenForward:
+        case HcalGenericDetId::HcalGenForward:
              rcalib = 1.02;
              break;
          default:
@@ -641,7 +644,24 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
        }
 
        if (cell.isHcalTrigTowerDetId()) {
-          rcalib = 0.;
+	  rcalib = 0.;
+	  HcalTrigTowerDetId id(cell);
+	  if(id.ietaAbs() <= 17) {
+	    granularity = 1;
+	    threshold = 4;
+	  }
+	  else if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) {
+	    granularity = 2;
+	    threshold = 2;
+	  }
+	  else if(id.ietaAbs() >= 27 && id.ietaAbs() <= 28) {
+	    granularity = 5;
+	    threshold = 1;
+	  }
+	  else {
+	    granularity = 0;
+	    threshold = 0;
+	  }
        }
     }
 

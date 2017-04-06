@@ -154,6 +154,14 @@
   <class name="edm::Wrapper<std::vector<l1extra::L1ParticleMap> >"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1HFRings> >"/>
 
+  <class name="HOTPDigiTwinMux" ClassVersion="14">
+    <version ClassVersion="14" checksum="66417560"/>
+  </class>
+  <class name="std::vector<HOTPDigiTwinMux>"/>
+  <class name="edm::SortedCollection<HOTPDigiTwinMux,edm::StrictWeakOrdering<HOTPDigiTwinMux> >"/>
+  <class name="edm::StrictWeakOrdering<HOTPDigiTwinMux>"/>
+  <class name="edm::Wrapper<edm::SortedCollection<HOTPDigiTwinMux,edm::StrictWeakOrdering<HOTPDigiTwinMux> > >" splitLevel="0"/>
+
   <class name="edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
   <class name="edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>

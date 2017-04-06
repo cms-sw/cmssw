@@ -58,7 +58,7 @@ public:
   virtual void finalizeHits(CLHEP::HepRandomEngine*) {}
 
   /// Complete cell digitization.
-  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*);
+  virtual void run(const MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*);
 
   /// process a single SimHit
   virtual void add(const PCaloHit & hit, CLHEP::HepRandomEngine*);

@@ -19,9 +19,9 @@
 class CMSDarkPairProduction : public G4PairProductionRelModel
 {
 public:
-  CMSDarkPairProduction(const G4ParticleDefinition* p = 0,
-		      const G4double df = 1E0,
-                      const G4String& nam = "BetheHeitlerLPM");
+  CMSDarkPairProduction(const G4ParticleDefinition* p = nullptr,
+		        G4double df = 1.0,
+                        const G4String& nam = "BetheHeitlerLPM");
 
   virtual ~CMSDarkPairProduction();
 
@@ -33,11 +33,8 @@ public:
                       G4double cut=0.,
                       G4double emax=DBL_MAX);
 
-  void SampleSecondaries(std::vector<G4DynamicParticle*>* fvect,
-               	      const G4MaterialCutsCouple* couple,
-               	      const G4DynamicParticle* aDynamicGamma,
-                      G4double e1,
-                      G4double e2); 
+private:
 
+  G4double dark_factor;
 };
 #endif

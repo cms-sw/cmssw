@@ -11,6 +11,11 @@ set iovfile = `basename $3`
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
 set queue = cmscaf1nd                   # pick queue to run on
 set startdir = `pwd`
+
+set collectwaitcondition = ""
+set requeuewaitcondition = ""
+set requeuejob = ""
+
 ## Submit jobs and iterate
 
 cp $3 $odir
@@ -18,7 +23,7 @@ set k = 0
 
 foreach line ( "`cat $odir/$iovfile`" )
 	@ k++
-  echo $line
+	echo $line
 	cmsRun $odir/main/initial_cfg_$k.py >& $odir/main/initial_$line.out
 	set lastrun = $line
 end
@@ -41,6 +46,11 @@ while ($i <= $iter)
 
   echo Running iteration $i
 
+  set collectwaitcondition = ""
+  set requeuewaitcondition = ""
+  set requeuejob = ""
+
+
   if ($jobs > 0) then
 #    @ j = 0 # job index
     echo "submit parallel jobs..."
@@ -62,7 +72,7 @@ while ($i <= $iter)
     foreach j (`seq 1 $jobarrays`)
         set id = `bjobs -J $name/align"$i"_$j | tail -n1 | awk '{print $1}'`
         echo "ID=$id"
-        if ( ! $?collectwaitcondition ) then
+        if ( "$collectwaitcondition" == "" ) then
             set collectwaitcondition = "done($id)"
             set requeuewaitcondition = "numexit($id, > 0)"
             set requeuejob = "brequeue -e $id"

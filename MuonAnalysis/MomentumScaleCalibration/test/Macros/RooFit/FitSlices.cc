@@ -15,9 +15,53 @@
 class FitSlices
 {
 public:
-  FitSlices() :
+
+  double xMean;
+  double xMin;
+  double xMax;
+  double sigma;
+  double sigmaMin;
+  double sigmaMax;
+  TString signalType;
+  TString backgroundType;
+
+  unsigned int rebinX;
+  unsigned int rebinY;
+  unsigned int rebinZ;
+  double sigma2, sigma2Min, sigma2Max;
+  bool useChi2;
+
+  FitXslices fitXslices;
+
+  FitSlices(
+    double xMean_,
+    double xMin_,
+    double xMax_,
+    double sigma_,
+    double sigmaMin_,
+    double sigmaMax_,
+    TString signalType_,
+    TString backgroundType_
+    ) :
+    xMean(xMean_),
+    xMin(xMin_),
+    xMax(xMax_),
+    sigma(sigma_),
+    sigmaMin(sigmaMin_),
+    sigmaMax(sigmaMax_),
+    signalType(signalType_),
+    backgroundType(backgroundType_),
     rebinX(2), rebinY(2), rebinZ(2), sigma2(0.1), sigma2Min(0.), sigma2Max(10.), useChi2(false)
-  {}
+  {
+    // Initialize fitXslices to some defaults, nothing un-overridable
+    fitXslices.fitter()->useChi2_ = useChi2;
+    fitXslices.fitter()->initMean(xMean, xMin, xMax);
+    fitXslices.fitter()->initSigma(sigma, sigmaMin, sigmaMax);
+    fitXslices.fitter()->initSigma2(sigma2, sigma2Min, sigma2Max);
+    fitXslices.fitter()->initAlpha(1.5, 0.05, 10.);
+    fitXslices.fitter()->initN(1, 0.01, 100.);
+    fitXslices.fitter()->initFGCB(0.4, 0., 1.);
+  }
 
   // virtual void fit(const TString & inputFileName = "0_MuScleFit.root", const TString & outputFileName = "BiasCheck_0.root",
   // 		   const TString & signalType = "gaussian", const TString & backgroundType = "exponential",
@@ -25,28 +69,15 @@ public:
   // 		   const double & sigma = 0.03, const double & sigmaMin = 0., const double & sigmaMax = 0.1,
   // 		   const TString & histoBaseName = "hRecBestResVSMu", const TString & histoBaseTitle = "MassVs") = 0;
 
-  void fitSlice(const TString & histoName, const TString & dirName,
-    const double & xMean, const double & xMin, const double & xMax,
-    const double & sigma, const double & sigmaMin, const double & sigmaMax,
-    const TString & signalType, const TString & backgroundType,
-    TFile * inputFile, TDirectory * outputFile)
-  {
-    FitXslices fitXslices;
-    fitXslices.fitter()->useChi2_ = useChi2;
-    fitXslices.fitter()->initMean(xMean, xMin, xMax);
-    fitXslices.fitter()->initSigma(sigma, sigmaMin, sigmaMax);
-    fitXslices.fitter()->initSigma2(sigma2, sigma2Min, sigma2Max);
-
-    fitXslices.fitter()->initAlpha(1.5, 0.05, 10.);
-    fitXslices.fitter()->initN(1, 0.01, 100.);
-    fitXslices.fitter()->initFGCB(0.4, 0., 1.);
-
-    std::cout << "Fit slices: initialization complete" << std::endl;
-
+  void fitSlice(
+    const TString & histoName, const TString & dirName,
+    TFile * inputFile, TDirectory * outputFile
+    ){
     //r.c. patch --------------
-    if (histoName=="hRecBestResVSMu_MassVSEtaPhiPlus" || histoName=="hRecBestResVSMu_MassVSEtaPhiMinus" ||
-      histoName=="hRecBestResVSMu_MassVSPhiPlusPhiMinus" || histoName=="hRecBestResVSMu_MassVSEtaPlusEtaMinus")
-    {
+    if (
+      histoName=="hRecBestResVSMu_MassVSEtaPhiPlus" || histoName=="hRecBestResVSMu_MassVSEtaPhiMinus" ||
+      histoName=="hRecBestResVSMu_MassVSPhiPlusPhiMinus" || histoName=="hRecBestResVSMu_MassVSEtaPlusEtaMinus"
+      ){
       TH3* histoPt3 = (TH3*)inputFile->FindObjectAny(histoName);
       outputFile->mkdir(dirName);
       outputFile->cd(dirName);
@@ -60,7 +91,7 @@ public:
       //	(histoPt3->DoProject2D())->RebinX(rebinX);
       //	(histoPt3->DoProject2D())->RebinY(rebinY);
     }
-    else  {
+    else{
       TH2* histoPt2 = (TH2*)inputFile->FindObjectAny(histoName);
       histoPt2->RebinX(rebinX);
       histoPt2->RebinY(rebinY);
@@ -71,14 +102,8 @@ public:
       fitXslices(histoPt2, xMin, xMax, signalType, backgroundType, rebinZ);
     }
   }
-  unsigned int rebinX;
-  unsigned int rebinY;
-  unsigned int rebinZ;
-  double sigma2, sigma2Min, sigma2Max;
-  bool useChi2;
 
-  TH3* rebin3D(const TH3* histo3D)
-  {
+  TH3* rebin3D(const TH3* histo3D){
     unsigned int zbins=histo3D->GetNbinsZ();
     // std::cout<< "number of bins in z (and tempHisto) --> "<<zbins<<std::endl;
     std::map<unsigned int, TH2*> twoDprojection;

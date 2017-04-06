@@ -5,6 +5,10 @@
 //////
 //////
 
+#ifndef ADD_Matching
+#define ADD_Matching
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
@@ -181,3 +185,5 @@ std::vector<MatchingOutput> PhiMatching_Hold(std::vector<SortingOutput> Sout){
   return output;
 }
 
+
+#endif

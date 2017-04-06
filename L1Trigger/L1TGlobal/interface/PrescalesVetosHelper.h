@@ -33,7 +33,7 @@ namespace l1t {
 
   class PrescalesVetosHelper {
   public:
-    enum {VERSION = 1};
+    enum {VERSION_ = 1};
     
     ~PrescalesVetosHelper();
 

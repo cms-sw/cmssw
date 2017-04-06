@@ -43,6 +43,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
@@ -98,10 +99,17 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   firstIOV_(cfg.getUntrackedParameter<AlignmentAlgorithmBase::RunNumber>("firstIOV")),
   ignoreFirstIOVCheck_(cfg.getUntrackedParameter<bool>("ignoreFirstIOVCheck")),
+  enableAlignableUpdates_(cfg.getUntrackedParameter<bool>("enableAlignableUpdates")),
   theLastWrittenIov(0),
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
   runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
-  ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives"))
+  ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives")),
+  skipGlobalPositionRcdCheck_(cfg.getParameter<bool>("skipGlobalPositionRcdCheck")),
+  uniqueRunRanges_
+  (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
+                              cond::timeTypeSpecs[cond::runnumber].beginValue)),
+  enforceSingleIOVInput_(!(enableAlignableUpdates_ && areIOVsSpecified())),
+  lastProcessedRun_(cond::timeTypeSpecs[cond::runnumber].beginValue)
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -131,47 +139,53 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 				 << "Running with AlignabeMuon not yet tested.";
   }
 
-  // temporary fix to avoid corrupted database output
-  if (!runAtPCL_) {
-    const auto MIN_VAL{cond::timeTypeSpecs[cond::runnumber].beginValue};
-    const auto MAX_VAL{cond::timeTypeSpecs[cond::runnumber].endValue};
+  if (!runAtPCL_ && enforceSingleIOVInput_) {
+    const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
     const auto& iov_alignments =
       setup.get<TrackerAlignmentRcd>().validityInterval();
     const auto& iov_surfaces =
       setup.get<TrackerSurfaceDeformationRcd>().validityInterval();
     const auto& iov_errors =
       setup.get<TrackerAlignmentErrorExtendedRcd>().validityInterval();
+
+    std::ostringstream message;
+    bool throwException{false};
     if (iov_alignments.first().eventID().run() != MIN_VAL ||
-	iov_alignments.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_alignments.first().eventID().run() << " - "
-      << iov_alignments.last().eventID().run();
+        iov_alignments.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_alignments.first().eventID().run() << " - "
+        << iov_alignments.last().eventID().run() << "\n";
+      throwException = true;
     }
     if (iov_surfaces.first().eventID().run() != MIN_VAL ||
-	iov_surfaces.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply "
-      << setup.get<TrackerSurfaceDeformationRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_surfaces.first().eventID().run() << " - "
-      << iov_surfaces.last().eventID().run();
+        iov_surfaces.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply "
+        << setup.get<TrackerSurfaceDeformationRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_surfaces.first().eventID().run() << " - "
+        << iov_surfaces.last().eventID().run() << "\n";
+      throwException = true;
     }
     if (iov_errors.first().eventID().run() != MIN_VAL ||
-	iov_errors.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply "
-      << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_errors.first().eventID().run() << " - "
-      << iov_errors.last().eventID().run();
+        iov_errors.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply "
+        << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_errors.first().eventID().run() << " - "
+        << iov_errors.last().eventID().run() << "\n";
+      throwException = true;
+    }
+    if (throwException) {
+      throw cms::Exception("DatabaseError")
+        << "@SUB=MillePedeAlignmentAlgorithm::initialize" << message.str();
     }
   }
 
@@ -331,7 +345,11 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 {
   if (this->isMode(myPedeReadBit)) {
     // restore initial positions, rotations and deformations
-    theAlignmentParameterStore->restoreCachedTransformations();
+    if (enableAlignableUpdates_) {
+      theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
+    } else {
+      theAlignmentParameterStore->restoreCachedTransformations();
+    }
 
     // Needed to shut up later warning from checkAliParams:
     theAlignmentParameterStore->resetParameters();
@@ -349,6 +367,7 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
   
   return true;
 }
+
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
@@ -379,6 +398,26 @@ void MillePedeAlignmentAlgorithm::terminate()
 
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
+  if (this->isMode(myPedeReadBit) && enableAlignableUpdates_) {
+    if (lastProcessedRun_ < uniqueRunRanges_.back().first) {
+      throw cms::Exception("BadConfig")
+	<< "@SUB=MillePedeAlignmentAlgorithm::terminate\n"
+	<< "Last IOV of 'RunRangeSelection' has not been processed. "
+	<< "Please reconfigure your source to process the runs at least up to "
+	<< uniqueRunRanges_.back().first << ".";
+    }
+    auto lastCachedRun = uniqueRunRanges_.front().first;
+    for (const auto& runRange: uniqueRunRanges_) {
+      const auto run = runRange.first;
+      if (std::find(cachedRuns_.begin(), cachedRuns_.end(), run) == cachedRuns_.end()) {
+	theAlignmentParameterStore->restoreCachedTransformations(lastCachedRun);
+	theAlignmentParameterStore->cacheTransformations(run);
+      } else {
+	lastCachedRun = run;
+      }
+    }
+    theAlignmentParameterStore->restoreCachedTransformations();
+  }
 
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
   if (this->isMode(myPedeRunBit)) {
@@ -587,12 +626,91 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
 
 
 void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
-                                           const edm::EventSetup& setup) {
+                                           const edm::EventSetup& setup,
+                                           bool changed) {
   if (run.run() < firstIOV_ && !ignoreFirstIOVCheck_) {
     throw cms::Exception("Alignment")
       << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n"
       << "Using data (run = " << run.run()
       << ") prior to the first defined IOV (" << firstIOV_ << ").";
+  }
+
+  lastProcessedRun_ = run.run();
+
+  if (changed && enableAlignableUpdates_) {
+    const auto runNumber = run.run();
+    auto firstRun = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    for (auto runRange = uniqueRunRanges_.crbegin();
+         runRange != uniqueRunRanges_.crend(); ++runRange) {
+      if (runNumber >= runRange->first) {
+        firstRun = runRange->first;
+        break;
+      }
+    }
+    if (std::find(cachedRuns_.begin(), cachedRuns_.end(), firstRun)
+        != cachedRuns_.end()) {
+      const auto& geometryRcd  = setup.get<IdealGeometryRecord>();
+      const auto& globalPosRcd = setup.get<GlobalPositionRcd>();
+      const auto& alignmentRcd = setup.get<TrackerAlignmentRcd>();
+      const auto& surfaceRcd   = setup.get<TrackerSurfaceDeformationRcd>();
+      const auto& errorRcd     = setup.get<TrackerAlignmentErrorExtendedRcd>();
+
+      std::ostringstream message;
+      bool throwException{false};
+      message
+        << "Trying to cache tracker alignment payloads for a run (" << runNumber
+        << ") in an IOV (" << firstRun << ") that was already cached.\n"
+        << "The following records in your input database tag have an IOV "
+        << "boundary that does not match your IOV definition:\n";
+      if (geometryRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - IdealGeometryRecord '" << geometryRcd.key().name()
+          << "' (since "
+          << geometryRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (globalPosRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - GlobalPositionRecord '" << globalPosRcd.key().name()
+          << "' (since "
+          << globalPosRcd.validityInterval().first().eventID().run() << ")";
+        if (skipGlobalPositionRcdCheck_) {
+          message << " --> ignored\n";
+        } else {
+          message << "\n";
+          throwException = true;
+        }
+      }
+      if (alignmentRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerAlignmentRcd '" << alignmentRcd.key().name()
+          << "' (since "
+          << alignmentRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (surfaceRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerSurfaceDeformationRcd '" << surfaceRcd.key().name()
+          << "' (since "
+          << surfaceRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (errorRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerAlignmentErrorExtendedRcd '" << errorRcd.key().name()
+          << "' (since "
+          << errorRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+
+      if (throwException) {
+        throw cms::Exception("Alignment")
+          << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n" << message.str();
+      }
+    } else {
+      cachedRuns_.push_back(firstRun);
+      theAlignmentParameterStore->cacheTransformations(firstRun);
+    }
   }
 }
 
@@ -1571,3 +1689,16 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	outfile.close();
 }
 
+
+bool MillePedeAlignmentAlgorithm::areIOVsSpecified() const {
+  const auto runRangeSelection =
+    theConfig.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection");
+
+  if (runRangeSelection.empty()) return false;
+
+  const auto runRanges =
+    align::makeNonOverlappingRunRanges(runRangeSelection,
+                                       cond::timeTypeSpecs[cond::runnumber].beginValue);
+
+  return !(runRanges.empty());
+}

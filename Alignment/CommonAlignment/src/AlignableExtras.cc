@@ -86,6 +86,7 @@ AlignmentErrorsExtended* AlignableExtras::alignmentErrors( void ) const
   return m_alignmentErrors;
 }
 
+//______________________________________________________________________________
 void AlignableExtras::initializeBeamSpot(double x, double y, double z,
 					 double dxdz, double dydz)
 {
@@ -96,5 +97,19 @@ void AlignableExtras::initializeBeamSpot(double x, double y, double z,
   } else {
     edm::LogError("AlignableExtras") 
       << " AlignableBeamSpot not available. Cannot initialize!" << std::endl;
+  }
+}
+
+//______________________________________________________________________________
+void AlignableExtras::resetBeamSpot()
+{
+  align::Alignables& alis = beamSpot();
+  AlignableBeamSpot * aliBS = dynamic_cast<AlignableBeamSpot*>(alis.back());
+  if (aliBS) {
+    aliBS->reset();
+  } else {
+    edm::LogWarning("AlignableExtras")
+      << "@SUB=AlignableExtras::resetBeamSpot"
+      << "AlignableBeamSpot not available. Cannot reset!" << std::endl;
   }
 }
