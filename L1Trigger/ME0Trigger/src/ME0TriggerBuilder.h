@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ME0Motherboard;
+class ME0Geometry;
 
 class ME0TriggerBuilder
 {
@@ -28,6 +29,9 @@ class ME0TriggerBuilder
   /** Build Triggers in each chamber and fill them into output collections. */
   void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
   
+  /** set geometry for the matching needs */
+  void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 
    */
@@ -39,6 +43,8 @@ class ME0TriggerBuilder
   static const int max_endcap;
   static const int min_chamber;
   static const int max_chamber;
+
+  const ME0Geometry* me0_g;
 
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<ME0Motherboard> tmb_[MAX_ENDCAPS][MAX_CHAMBERS];

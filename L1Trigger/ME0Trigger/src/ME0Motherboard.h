@@ -5,6 +5,8 @@
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class ME0Geometry;
+
 class ME0Motherboard
 {
  public:
@@ -18,6 +20,9 @@ class ME0Motherboard
   /** Default destructor. */
   ~ME0Motherboard();
 
+  /** set geometry for the matching needs */
+  void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+  
   /** Run function for normal usage. */
   void run(const ME0PadDigiCollection*);
 
@@ -39,6 +44,8 @@ class ME0Motherboard
   /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
   const unsigned theChamber;
+
+  const ME0Geometry* me0_g;
 
   /** Maximum number of time bins. */
   enum {MAX_TRIGGER_BINS = 1, MAX_TRIGGERS = 8};
