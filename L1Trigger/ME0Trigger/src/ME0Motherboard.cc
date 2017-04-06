@@ -20,9 +20,9 @@ ME0Motherboard::~ME0Motherboard() {
 
 void ME0Motherboard::clear() 
 {
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
-    for (int i = 0; i < MAX_LCTS; i++) {
-      LCTs[bx][i].clear();
+  for (int bx = 0; bx < MAX_TRIGGER_BINS; bx++) {
+    for (int i = 0; i < MAX_TRIGGERS; i++) {
+      Triggers[bx][i].clear();
     }
   }
 }
@@ -33,42 +33,42 @@ ME0Motherboard::run(const ME0PadDigiCollection*)
   clear();
 }
 
-// Returns vector of read-out correlated LCTs, if any.  Starts with
-// the vector of all found LCTs and selects the ones in the read-out
+// Returns vector of read-out correlated Triggers, if any.  Starts with
+// the vector of all found Triggers and selects the ones in the read-out
 // time window.
-std::vector<ME0TriggerDigi> ME0Motherboard::readoutLCTs() 
+std::vector<ME0TriggerDigi> ME0Motherboard::readoutTriggers() 
 {
   std::vector<ME0TriggerDigi> tmpV;
   
-  std::vector<ME0TriggerDigi> all_lcts = getLCTs();
-  for (auto plct = all_lcts.begin(); plct != all_lcts.end(); plct++) {
-    tmpV.push_back(*plct);
+  std::vector<ME0TriggerDigi> all_trigs = getTriggers();
+  for (auto ptrig = all_trigs.begin(); ptrig != all_trigs.end(); ptrig++) {
+    tmpV.push_back(*ptrig);
   }
   return tmpV;
 }
 
-// Returns vector of all found correlated LCTs, if any.
-std::vector<ME0TriggerDigi> ME0Motherboard::getLCTs() 
+// Returns vector of all found correlated Triggers, if any.
+std::vector<ME0TriggerDigi> ME0Motherboard::getTriggers() 
 {
   std::vector<ME0TriggerDigi> tmpV;
   
-  // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
-    for (int i = 0; i < MAX_LCTS; i++) {
-      tmpV.push_back(LCTs[bx][i]);
+  // Do not report Triggers found in ME1/A if mpc_block_me1/a is set.
+  for (int bx = 0; bx < MAX_TRIGGER_BINS; bx++) {
+    for (int i = 0; i < MAX_TRIGGERS; i++) {
+      tmpV.push_back(Triggers[bx][i]);
     }
   }
   return tmpV;
 }
 
-// compare LCTs by quality
-bool ME0Motherboard::sortByQuality(const ME0TriggerDigi& lct1, const ME0TriggerDigi& lct2) 
+// compare Triggers by quality
+bool ME0Motherboard::sortByQuality(const ME0TriggerDigi& trig1, const ME0TriggerDigi& trig2) 
 { 
-  return lct1.getQuality() > lct2.getQuality();
+  return trig1.getQuality() > trig2.getQuality();
 }
 
-// compare LCTs by GEM bending angle
-bool ME0Motherboard::sortByME0Dphi(const ME0TriggerDigi& lct1, const ME0TriggerDigi& lct2) 
+// compare Triggers by GEM bending angle
+bool ME0Motherboard::sortByME0Dphi(const ME0TriggerDigi& trig1, const ME0TriggerDigi& trig2) 
 { 
   return true;
 }

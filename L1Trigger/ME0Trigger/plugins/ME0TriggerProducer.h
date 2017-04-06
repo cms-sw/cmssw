@@ -30,7 +30,7 @@ class ME0TriggerProducer : public edm::one::EDProducer<edm::one::SharedResources
   edm::InputTag me0PadDigiProducer_;
   edm::EDGetTokenT<ME0PadDigiCollection> me0_pad_token_;
  
-  std::unique_ptr<ME0TriggerBuilder> lctBuilder_;
+  std::unique_ptr<ME0TriggerBuilder> trigBuilder_;
 };
 
 #endif
