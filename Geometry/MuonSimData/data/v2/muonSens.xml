@@ -42,7 +42,7 @@
       <Parameter name="ReadOutName" value="MuonCSCHits"/>
     </SpecPar>
     <SpecPar name="gem">
-      <PartSelector path="//GHA.*"/>
+      <PartSelector path="//GHA1..*"/>
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
       <Parameter name="ReadOutName" value="MuonGEMHits"/>
     </SpecPar>
