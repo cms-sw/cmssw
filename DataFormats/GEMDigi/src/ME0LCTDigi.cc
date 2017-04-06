@@ -50,12 +50,12 @@ bool ME0LCTDigi::operator==(const ME0LCTDigi &rhs) const {
 void ME0LCTDigi::print() const {
   if (getPattern()==0) {
     edm::LogVerbatim("ME0LCTDigi")
-              << "CSC LCT #"        << getTrknmb() 
-	      << ": Quality = "      << getQuality()
-	      << " Strip = "        << getStrip()
-              << " Pattern = "      << getPattern()
-	      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
-	      << " BX = "           << getBX();
+      << "ME0 LCT #"        << getTrknmb() 
+      << ": Quality = "      << getQuality()
+      << " Strip = "        << getStrip()
+      << " Pattern = "      << getPattern()
+      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
+      << " BX = "           << getBX();
   }
   else {
     edm::LogVerbatim("ME0LCTDigi") << "Not a valid ME0 LCT.";
@@ -64,7 +64,7 @@ void ME0LCTDigi::print() const {
 
 std::ostream & operator<<(std::ostream & o,
 			  const ME0LCTDigi& digi) {
-  return o << "CSC LCT #"   << digi.getTrknmb()
+  return o << "ME0 LCT #"   << digi.getTrknmb()
            << ": Quality = " << digi.getQuality()
            <<"  Strip = "    << digi.getStrip()
 	   << " Pattern = " << digi.getPattern()
