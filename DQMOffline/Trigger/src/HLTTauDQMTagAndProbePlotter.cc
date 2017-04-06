@@ -14,15 +14,15 @@ namespace {
   }
 }
 
-HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, GenericTriggerEventFlag* numFlag, GenericTriggerEventFlag* denFlag, const std::string& dqmBaseFolder) :
+HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, std::unique_ptr<GenericTriggerEventFlag> numFlag, std::unique_ptr<GenericTriggerEventFlag> denFlag, const std::string& dqmBaseFolder) :
   HLTTauDQMPlotter(stripVersion(iConfig.getParameter<std::string>("name")), dqmBaseFolder),
   nbins_(iConfig.getParameter<int>("nbins")),
   xmin_(iConfig.getParameter<double>("xmin")),
   xmax_(iConfig.getParameter<double>("xmax")),
   xvariable(iConfig.getParameter<std::string>("xvariable"))
 {
-  num_genTriggerEventFlag_ = numFlag;
-  den_genTriggerEventFlag_ = denFlag;
+  num_genTriggerEventFlag_ = std::move(numFlag);
+  den_genTriggerEventFlag_ = std::move(denFlag);
 
   boost::algorithm::to_lower(xvariable);
 }
@@ -45,8 +45,6 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker,edm:
 
 
 HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() {
-  if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
 void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, const HLTTauDQMOfflineObjects& refCollection) {

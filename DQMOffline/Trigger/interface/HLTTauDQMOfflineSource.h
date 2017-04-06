@@ -60,8 +60,8 @@ private:
     std::vector<RefObject> refObjects_;
     std::vector<edm::ParameterSet> tagAndProbePaths;
 
-    GenericTriggerEventFlag* num_genTriggerEventFlag_;
-    GenericTriggerEventFlag* den_genTriggerEventFlag_;
+    std::vector<std::unique_ptr<GenericTriggerEventFlag> > num_genTriggerEventFlag_;
+    std::vector<std::unique_ptr<GenericTriggerEventFlag> > den_genTriggerEventFlag_;
 
     //DQM Prescaler
     int counterEvt_;      //counter
@@ -71,7 +71,7 @@ private:
     std::unique_ptr<HLTTauDQML1Plotter> l1Plotter_;
     std::vector<HLTTauDQMPathPlotter> pathPlotters_;
     std::unique_ptr<HLTTauDQMPathSummaryPlotter> pathSummaryPlotter_;
-    std::vector<HLTTauDQMTagAndProbePlotter> tagandprobePlotters_;
+    std::vector<std::unique_ptr<HLTTauDQMTagAndProbePlotter> > tagandprobePlotters_;
 };
 
 #endif

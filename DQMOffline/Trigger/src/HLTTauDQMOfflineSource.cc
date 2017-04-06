@@ -43,13 +43,12 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   }
   if(ps.exists("TagAndProbe")) {
     tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
-        tagandprobePlotters_.reserve(tagAndProbePaths.size()); 
-        for(const edm::ParameterSet& tpset: tagAndProbePaths) {
-          num_genTriggerEventFlag_ = new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("numerator"),consumesCollector(), *this);
-          den_genTriggerEventFlag_ = new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("denominator"),consumesCollector(), *this);
-      
-          tagandprobePlotters_.emplace_back(tpset,num_genTriggerEventFlag_,den_genTriggerEventFlag_,dqmBaseFolder_);
-        }
+    //    tagandprobePlotters_.reserve(tagAndProbePaths.size()); 
+    for(const edm::ParameterSet& tpset: tagAndProbePaths) {
+      num_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("numerator"),consumesCollector(), *this));
+      den_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("denominator"),consumesCollector(), *this));
+      tagandprobePlotters_.emplace_back( new HLTTauDQMTagAndProbePlotter(tpset,std::move(num_genTriggerEventFlag_.back()),std::move(den_genTriggerEventFlag_.back()),dqmBaseFolder_));
+    }
   }
 
   if(doRefAnalysis_) {
@@ -116,7 +115,7 @@ void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, const ed
     pathPlotter.bookHistograms(iBooker);
   }
   for(auto& tpPlotter: tagandprobePlotters_) {
-    tpPlotter.bookHistograms(iBooker,iRun,iSetup);
+    tpPlotter->bookHistograms(iBooker,iRun,iSetup);
   }
   if(pathSummaryPlotter_) {
     pathSummaryPlotter_->bookHistograms(iBooker);
@@ -185,8 +184,8 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
 
         //Tag and probe plotters
         for(auto& tpPlotter: tagandprobePlotters_) {
-          if(tpPlotter.isValid())
-            tpPlotter.analyze(iEvent,iSetup,refC);
+          if(tpPlotter->isValid())
+	    tpPlotter->analyze(iEvent,iSetup,refC);
         }
 
     } else {
