@@ -7,8 +7,8 @@
  *
  */
 
-#include "DataFormats/ME0Digi/interface/ME0LCTDigiCollection.h"
-#include "DataFormats/ME0Digi/interface/ME0PadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ME0Motherboard;
@@ -26,9 +26,8 @@ class ME0TriggerPrimitivesBuilder
   ~ME0TriggerPrimitivesBuilder();
 
   /** Build LCTs in each chamber and fill them into output collections. */
-  void build(const ME0PadDigiCollection* me0Pads,
-	     ME0LCTDigiCollection& oc_lct);
-
+  void build(const ME0PadDigiCollection* me0Pads, ME0LCTDigiCollection& oc_lct);
+  
   /** Max values of trigger labels for all ME0s; used to construct TMB
    *  processors. */
   enum trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
