@@ -176,13 +176,15 @@ HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& eventS
              it != digi->end(); ++it)
         {
             const QIE10DataFrame& frame(*it);
+            const HcalDetId cell(frame.id());
+            if (cell.subdet() != HcalSubdetector::HcalForward)
+                continue;
 
             // Check zero suppression
             if (dropZSmarkedPassed_)
                 if (frame.zsMarkAndPass())
                     continue;
 
-            const HcalDetId cell(it->id());
             const HcalCalibrations& calibrations(conditions->getHcalCalibrations(cell));
             const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
             const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
