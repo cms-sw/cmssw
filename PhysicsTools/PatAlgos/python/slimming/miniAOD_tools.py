@@ -194,6 +194,10 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
 
+    ## Quark Gluon Likelihood
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
+    process.patJets.userData.userFloats.src += ['QGTagger:qgLikelihood']
+
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
          src = process.patJets.jetSource,
