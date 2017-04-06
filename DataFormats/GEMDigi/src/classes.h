@@ -19,8 +19,8 @@
 #include <DataFormats/GEMDigi/interface/ME0PadDigi.h>
 #include <DataFormats/GEMDigi/interface/ME0PadDigiCollection.h>
 
-#include <DataFormats/GEMDigi/interface/ME0LCTDigi.h>
-#include <DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h>
+#include <DataFormats/GEMDigi/interface/ME0TriggerDigi.h>
+#include <DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h>
 
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
@@ -75,10 +75,10 @@ namespace DataFormats_GEMDigi {
     ME0PadDigiCollection mpcol;
     edm::Wrapper<ME0PadDigiCollection> wmp;
 
-    ME0LCTDigi ml;
-    std::vector<ME0LCTDigi>  vml;
-    std::vector<std::vector<ME0LCTDigi> >  vvml;
-    ME0LCTDigiCollection mlcol;
-    edm::Wrapper<ME0LCTDigiCollection> wml;
+    ME0TriggerDigi ml;
+    std::vector<ME0TriggerDigi>  vml;
+    std::vector<std::vector<ME0TriggerDigi> >  vvml;
+    ME0TriggerDigiCollection mlcol;
+    edm::Wrapper<ME0TriggerDigiCollection> wml;
   };
 }

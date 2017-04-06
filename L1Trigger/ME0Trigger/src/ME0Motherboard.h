@@ -1,7 +1,7 @@
 #ifndef L1Trigger_ME0TriggerPrimitives_ME0Motherboard_h
 #define L1Trigger_ME0TriggerPrimitives_ME0Motherboard_h
 
-#include "DataFormats/GEMDigi/interface/ME0LCTDigi.h"
+#include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,10 +22,10 @@ class ME0Motherboard
   void run(const ME0PadDigiCollection*);
 
   /** Returns vector of LCTs in the read-out time window, if any. */
-  std::vector<ME0LCTDigi> readoutLCTs();
+  std::vector<ME0TriggerDigi> readoutLCTs();
 
   /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<ME0LCTDigi> getLCTs();
+  std::vector<ME0TriggerDigi> getLCTs();
 
   /** Clears LCTs. */
   void clear();
@@ -44,10 +44,10 @@ class ME0Motherboard
   enum {MAX_LCT_BINS = 1, MAX_LCTS = 8};
 
   /** Container for LCTs. */
-  ME0LCTDigi LCTs[MAX_LCT_BINS][MAX_LCTS];
+  ME0TriggerDigi LCTs[MAX_LCT_BINS][MAX_LCTS];
 
   // utilities for sorting
-  static bool sortByQuality(const ME0LCTDigi&, const ME0LCTDigi&); 
-  static bool sortByME0Dphi(const ME0LCTDigi&, const ME0LCTDigi&); 
+  static bool sortByQuality(const ME0TriggerDigi&, const ME0TriggerDigi&); 
+  static bool sortByME0Dphi(const ME0TriggerDigi&, const ME0TriggerDigi&); 
 };
 #endif

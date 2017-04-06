@@ -33,7 +33,7 @@ ME0TriggerBuilder::~ME0TriggerBuilder()
 }
 
 void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
-					ME0LCTDigiCollection& oc_lct)
+					ME0TriggerDigiCollection& oc_lct)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
@@ -46,7 +46,7 @@ void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
       
       tmb->run(gemPads);
       
-      std::vector<ME0LCTDigi> lctV = tmb->readoutLCTs();
+      std::vector<ME0TriggerDigi> lctV = tmb->readoutLCTs();
       
       if (!lctV.empty()) {
 	LogTrace("L1ME0Trigger")

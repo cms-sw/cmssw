@@ -1,16 +1,16 @@
-/**\class ME0LCTDigi
+/**\class ME0TriggerDigi
  *
  * Digi for ME0 LCT trigger primitives.
  *
  * Sven Dildick (TAMU)
  */
 
-#include "DataFormats/GEMDigi/interface/ME0LCTDigi.h"
+#include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 /// Constructors
-ME0LCTDigi::ME0LCTDigi(const int itrknmb,
+ME0TriggerDigi::ME0TriggerDigi(const int itrknmb,
 		       const int iquality,
 		       const int istrip,
 		       const int ipattern, 
@@ -25,12 +25,12 @@ ME0LCTDigi::ME0LCTDigi(const int itrknmb,
 {}
 
 /// Default
-ME0LCTDigi::ME0LCTDigi() {
+ME0TriggerDigi::ME0TriggerDigi() {
   clear(); // set contents to zero
 }
 
 /// Clears this LCT.
-void ME0LCTDigi::clear() {
+void ME0TriggerDigi::clear() {
   trknmb  = 0;
   quality = 0;
   strip   = 0;
@@ -40,16 +40,16 @@ void ME0LCTDigi::clear() {
 }
 
 /// Comparison
-bool ME0LCTDigi::operator==(const ME0LCTDigi &rhs) const {
+bool ME0TriggerDigi::operator==(const ME0TriggerDigi &rhs) const {
   return ((trknmb == rhs.trknmb) && (quality == rhs.quality) &&
 	  (strip == rhs.strip)   && (pattern == rhs.pattern) && 
 	  (bend == rhs.bend)     && (bx == rhs.bx) );
 }
 
 /// Debug
-void ME0LCTDigi::print() const {
+void ME0TriggerDigi::print() const {
   if (getPattern()==0) {
-    edm::LogVerbatim("ME0LCTDigi")
+    edm::LogVerbatim("ME0TriggerDigi")
       << "ME0 LCT #"        << getTrknmb() 
       << ": Quality = "      << getQuality()
       << " Strip = "        << getStrip()
@@ -58,12 +58,12 @@ void ME0LCTDigi::print() const {
       << " BX = "           << getBX();
   }
   else {
-    edm::LogVerbatim("ME0LCTDigi") << "Not a valid ME0 LCT.";
+    edm::LogVerbatim("ME0TriggerDigi") << "Not a valid ME0 LCT.";
   }
 }
 
 std::ostream & operator<<(std::ostream & o,
-			  const ME0LCTDigi& digi) {
+			  const ME0TriggerDigi& digi) {
   return o << "ME0 LCT #"   << digi.getTrknmb()
            << ": Quality = " << digi.getQuality()
            <<"  Strip = "    << digi.getStrip()
