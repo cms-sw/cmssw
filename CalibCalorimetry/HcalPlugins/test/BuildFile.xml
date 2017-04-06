@@ -1,7 +1,8 @@
 <environment>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
-  <use name="DataFormats/HcalCalibObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/HcalObjects"/>
   <use   name="CalibFormats/HcalObjects"/>
   <use   name="CalibCalorimetry/HcalAlgos"/>
   <library   file="HcalDbAnalyzer.cc" name="HcalDbAnalyzer">

@@ -4,15 +4,18 @@
 #include <cmath>
 
 //reuse parsing function to read mean energy table
-HBHERecalibration::HBHERecalibration(double intlumi, double cutoff, const edm::ParameterSet & p) :
-	intlumi_(intlumi), cutoff_(cutoff), ieta_shift_(p.getParameter<int>("ieta_shift")), max_depth_(0), darkening_(p), 
-	meanenergies_(HBHEDarkening::readDoseMap(p.getParameter<edm::FileInPath>("meanenergies").fullPath()))
+HBHERecalibration::HBHERecalibration(double intlumi, double cutoff, std::string meanenergies) :
+	intlumi_(intlumi), cutoff_(cutoff), ieta_shift_(0), max_depth_(0),
+	meanenergies_(HBHEDarkening::readDoseMap(meanenergies)), darkening_(NULL)
 {}
 
 HBHERecalibration::~HBHERecalibration() {}
 
-void HBHERecalibration::setDsegm(const std::vector<std::vector<int>>& m_segmentation) 
+void HBHERecalibration::setup(const std::vector<std::vector<int>>& m_segmentation, const HBHEDarkening* darkening)
 {
+	darkening_ = darkening;
+	ieta_shift_ = darkening_->get_ieta_shift();
+
 	//infer eta bounds
 	int min_ieta = ieta_shift_ - 1;
 	int max_ieta = min_ieta + meanenergies_.size();
@@ -58,7 +61,7 @@ void HBHERecalibration::initialize() {
 		for(unsigned int ilay = 0; ilay < std::min(meanenergies_[ieta].size(),dsegm_[ieta].size()); ++ilay) {
 			int depth = dsegm_[ieta][ilay] - 1; // depth = 0 - not used!
 			nval[ieta][depth] += meanenergies_[ieta][ilay];
-			dval[ieta][depth] += meanenergies_[ieta][ilay]*darkening_.degradation(intlumi_,ieta+ieta_shift_,ilay+1); //be careful of eta and layer numbering
+			dval[ieta][depth] += meanenergies_[ieta][ilay]*darkening_->degradation(intlumi_,ieta+ieta_shift_,ilay+1); //be careful of eta and layer numbering
 		}
 
 		//compute factors, w/ safety checks

@@ -1,7 +1,5 @@
-#ifndef HcalCalibObjects_HBHEDarkening_h
-#define HcalCalibObjects_HBHEDarkening_h
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#ifndef CondFormats_HcalObjects_HBHEDarkening_h
+#define CondFormats_HcalObjects_HBHEDarkening_h
 
 #include <vector>
 #include <string>
@@ -18,15 +16,6 @@
 
 class HBHEDarkening {
 	public:
-		HBHEDarkening(const edm::ParameterSet & p);
-		~HBHEDarkening() {}
-		
-		//public accessor
-		double degradation(double intlumi, int ieta, int lay) const;
-		
-		//helper function
-		static std::vector<std::vector<double>> readDoseMap(const std::string& fullpath);
-
 		//helper classes
 		struct LumiYear {
 			//constructors
@@ -34,8 +23,6 @@ class HBHEDarkening {
 				year_(""), intlumi_(0.), lumirate_(0.), energy_(0), sumlumi_(0.) {}
 			LumiYear(std::string year, double intlumi, double lumirate, int energy) : 
 				year_(year), intlumi_(intlumi), lumirate_(lumirate), energy_(energy), sumlumi_(0.) {}
-			LumiYear(const edm::ParameterSet & p) : 
-				year_(p.getParameter<std::string>("year")), intlumi_(p.getParameter<double>("intlumi")), lumirate_(p.getParameter<double>("lumirate")), energy_(p.getParameter<int>("energy")), sumlumi_(0.) {}
 			
 			//sorting
 			bool operator<(const LumiYear& yr) const {
@@ -54,6 +41,16 @@ class HBHEDarkening {
 				return yr.sumlumi_ < lum;
 			}
 		};
+
+		HBHEDarkening(int ieta_shift, double drdA, double drdB, const std::map<int,std::vector<std::vector<double>>>& dosemaps, const std::vector<LumiYear>& years);
+		~HBHEDarkening() {}
+		
+		//public accessors
+		double degradation(double intlumi, int ieta, int lay) const;
+		int get_ieta_shift() const { return ieta_shift_; }
+
+		//helper function
+		static std::vector<std::vector<double>> readDoseMap(const std::string& fullpath);
 
 	private:
 		//helper functions

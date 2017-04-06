@@ -2,7 +2,7 @@
 #define CalibCalorimetry_HcalSiPMRadiationDamage_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HcalCalibObjects/interface/HBHEDarkening.h"
+#include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 
 #include <vector>
 

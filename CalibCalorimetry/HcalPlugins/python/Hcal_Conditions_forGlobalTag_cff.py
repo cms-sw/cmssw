@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 ## Recalibration Parameters
 from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
-from DataFormats.HcalCalibObjects.HBHEDarkeningParameters_cff import *
 
 hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
@@ -16,10 +15,10 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     iLumi = cms.double(-1.),                      # for Upgrade: fb-1
     HBRecalibration = cms.bool(False),            # True for Upgrade
     HBreCalibCutoff = cms.double(20.),            # if above is True
-    HBDarkeningParameters = HBDarkeningParameters,
+    HBmeanenergies = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHB.txt"),
     HERecalibration = cms.bool(False),            # True for Upgrade
     HEreCalibCutoff = cms.double(20.),            # if above is True
-    HEDarkeningParameters = HEDarkeningParameters,
+    HEmeanenergies = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHE.txt"),
     HFRecalibration = cms.bool(False),            # True for Upgrade
     HFRecalParameterBlock = HFRecalParameterBlock,
     GainWidthsForTrigPrims = cms.bool(False),     # True Upgrade

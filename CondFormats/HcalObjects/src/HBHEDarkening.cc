@@ -1,7 +1,5 @@
-#include "DataFormats/HcalCalibObjects/interface/HBHEDarkening.h"
+#include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <vector>
@@ -15,23 +13,10 @@
 #include <cmath>
 #include <cassert>
 
-HBHEDarkening::HBHEDarkening(const edm::ParameterSet & p) : 
-	ieta_shift_(p.getParameter<int>("ieta_shift")), drdA_(p.getParameter<double>("drdA")), drdB_(p.getParameter<double>("drdB"))
+HBHEDarkening::HBHEDarkening(int ieta_shift, double drdA, double drdB, const std::map<int,std::vector<std::vector<double>>>& dosemaps, const std::vector<LumiYear>& years) :
+	ieta_shift_(ieta_shift), drdA_(drdA), drdB_(drdB), dosemaps_(dosemaps), years_(years)
 {
-	//initialize dose maps
-	std::vector<edm::ParameterSet> p_dosemaps = p.getParameter<std::vector<edm::ParameterSet>>("dosemaps");
-	for(const auto& p_dosemap : p_dosemaps){
-		edm::FileInPath fp = p_dosemap.getParameter<edm::FileInPath>("file");
-		int file_energy = p_dosemap.getParameter<int>("energy");
-		dosemaps_.emplace(file_energy,readDoseMap(fp.fullPath()));
-	}
-	
-	//initialize years
-	std::vector<edm::ParameterSet> p_years = p.getParameter<std::vector<edm::ParameterSet>>("years");
-	years_.reserve(p_years.size());
-	for(const auto& p_year : p_years){
-		years_.emplace_back(p_year);
-	}
+	//finish initializing years
 	std::sort(years_.begin(),years_.end());
 	//sum up int lumi
 	double sumlumi = 0.0;

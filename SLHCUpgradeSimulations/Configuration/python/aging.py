@@ -26,6 +26,9 @@ def getHcalDigitizer(process):
 # turnon = True enables default, False disables
 # recalibration and darkening always together
 def ageHB(process,turnon):
+    if turnon:
+        from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import HBDarkeningEP
+        process.HBDarkeningEP = HBDarkeningEP
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.HBDarkening = cms.bool(turnon)
     if hasattr(process,'es_hardcode'):
@@ -33,6 +36,9 @@ def ageHB(process,turnon):
     return process
 
 def ageHE(process,turnon):
+    if turnon:
+        from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import HEDarkeningEP
+        process.HEDarkeningEP = HEDarkeningEP
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.HEDarkening = cms.bool(turnon)
     if hasattr(process,'es_hardcode'):

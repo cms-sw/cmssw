@@ -4,7 +4,6 @@ from SimG4Core.Application.hectorParameter_cfi import *
 
 ## HF Raddam Dose Class in /SimG4CMS/Calo
 from SimG4CMS.Calo.HFDarkeningParams_cff import *
-from DataFormats.HcalCalibObjects.HBHEDarkeningParameters_cff import *
 
 ## This object is used to customise g4SimHits for different running scenarios
 
@@ -308,8 +307,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
         TestNS                    = cms.untracked.bool(False),
-        HBDarkeningParameters     = HBDarkeningParameters,
-        HEDarkeningParameters     = HEDarkeningParameters,
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(

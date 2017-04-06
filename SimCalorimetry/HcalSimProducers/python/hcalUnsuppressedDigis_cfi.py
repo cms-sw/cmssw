@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
-from DataFormats.HcalCalibObjects.HBHEDarkeningParameters_cff import *
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -42,8 +41,6 @@ hcalSimBlock = cms.PSet(
     # if instead only 1 value is given, 
     # it will be interpreted as an entire subdetector
     injectTestHitsCells = cms.vint32(),
-    HBDarkeningParameters = HBDarkeningParameters,
-    HEDarkeningParameters = HEDarkeningParameters,
     HFRecalParameterBlock = HFRecalParameterBlock,
 )
 

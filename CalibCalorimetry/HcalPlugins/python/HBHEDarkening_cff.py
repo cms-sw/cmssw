@@ -5,13 +5,14 @@ import FWCore.ParameterSet.Config as cms
 # [lumirate] = fb-1/hr
 # dose maps only produced for 8 and 14 TeV - used also for 7 and 13 TeV, respectively
 
-HEDarkeningParameters = cms.PSet(
+HEDarkeningEP = cms.ESSource("HBHEDarkeningEP",
+    appendToDataLabel = cms.string("HE"),
     ieta_shift = cms.int32(16),
     drdA = cms.double(4.0),
     drdB = cms.double(0.575),
     dosemaps = cms.VPSet(
-        cms.PSet(energy = cms.int32(8), file = cms.FileInPath("DataFormats/HcalCalibObjects/data/dosemapHE_4TeV.txt")),
-        cms.PSet(energy = cms.int32(14), file = cms.FileInPath("DataFormats/HcalCalibObjects/data/dosemapHE_7TeV.txt")),
+        cms.PSet(energy = cms.int32(8), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHE_4TeV.txt")),
+        cms.PSet(energy = cms.int32(14), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHE_7TeV.txt")),
     ),
     years = cms.VPSet(
         cms.PSet(year = cms.string("2011"), intlumi = cms.double(5.6), lumirate = cms.double(0.005), energy = cms.int32(8)),
@@ -26,15 +27,13 @@ HEDarkeningParameters = cms.PSet(
         # assume 3000 fb-1 for Phase2
         cms.PSet(year = cms.string("2033"), intlumi = cms.double(3000), lumirate = cms.double(0.15), energy = cms.int32(14)),
     ),
-    # used for recalibration
-    meanenergies = cms.FileInPath("DataFormats/HcalCalibObjects/data/meanenergiesHE.txt"),
 )
 
-HBDarkeningParameters = HEDarkeningParameters.clone(
+HBDarkeningEP = HEDarkeningEP.clone(
+    appendToDataLabel = cms.string("HB"),
     ieta_shift = cms.int32(1),
     dosemaps = cms.VPSet(
-        cms.PSet(energy = cms.int32(8), file = cms.FileInPath("DataFormats/HcalCalibObjects/data/dosemapHB_4TeV.txt")),
-        cms.PSet(energy = cms.int32(14), file = cms.FileInPath("DataFormats/HcalCalibObjects/data/dosemapHB_7TeV.txt")),
+        cms.PSet(energy = cms.int32(8), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHB_4TeV.txt")),
+        cms.PSet(energy = cms.int32(14), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHB_7TeV.txt")),
     ),
-    meanenergies = cms.FileInPath("DataFormats/HcalCalibObjects/data/meanenergiesHB.txt"),
 )

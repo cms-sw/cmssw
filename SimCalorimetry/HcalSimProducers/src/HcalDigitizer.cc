@@ -32,6 +32,7 @@
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 
 //#define DebugLog
 
@@ -90,6 +91,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
+  agingFlagHB(ps.getParameter<bool>("HBDarkening")),
+  agingFlagHE(ps.getParameter<bool>("HEDarkening")),
   m_HBDarkening(nullptr),
   m_HEDarkening(nullptr),
   m_HFRecalibration(nullptr),
@@ -106,8 +109,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
-  bool agingFlagHB = ps.getParameter<bool>("HBDarkening");
-  bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
 
@@ -210,8 +211,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
-  if(agingFlagHB) m_HBDarkening.reset(new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HBDarkeningParameters")));
-  if(agingFlagHE) m_HEDarkening.reset(new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HEDarkeningParameters")));
   if(agingFlagHF) m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
 }
 
@@ -530,6 +529,17 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 void HcalDigitizer::beginRun(const edm::EventSetup & es) {
   checkGeometry(es);
   theShapes->beginRun(es);
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HB",hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HE",hdark);
+    m_HEDarkening = &*hdark;
+  }
 }
 
 
