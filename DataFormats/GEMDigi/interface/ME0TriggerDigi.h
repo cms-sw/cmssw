@@ -1,7 +1,7 @@
-#ifndef GEMDigi_ME0LCTDigi_h
-#define GEMDigi_ME0LCTDigi_h
+#ifndef GEMDigi_ME0TriggerDigi_h
+#define GEMDigi_ME0TriggerDigi_h
 
-/**\class ME0LCTDigi
+/**\class ME0TriggerDigi
  *
  * Digi for ME0 LCT trigger primitives. 
  *
@@ -11,16 +11,16 @@
 #include <boost/cstdint.hpp>
 #include <iosfwd>
 
-class ME0LCTDigi 
+class ME0TriggerDigi 
 {
  public:
   
   /// Constructors
-  ME0LCTDigi(const int trknmb, const int quality,
+  ME0TriggerDigi(const int trknmb, const int quality,
 	     const int strip, const int pattern,
 	     const int bend, const int bx);
 
-  ME0LCTDigi();                               /// default
+  ME0TriggerDigi();                               /// default
 
   /// clear this LCT
   void clear();
@@ -29,8 +29,8 @@ class ME0LCTDigi
   void print() const;
 
   ///Comparison
-  bool operator == (const ME0LCTDigi &) const;
-  bool operator != (const ME0LCTDigi &rhs) const
+  bool operator == (const ME0TriggerDigi &) const;
+  bool operator != (const ME0TriggerDigi &rhs) const
   { return !(this->operator==(rhs)); }
 
   /// return track number
@@ -81,6 +81,6 @@ class ME0LCTDigi
   uint16_t bx;
 };
 
-std::ostream & operator<<(std::ostream & o, const ME0LCTDigi& digi);
+std::ostream & operator<<(std::ostream & o, const ME0TriggerDigi& digi);
 
 #endif

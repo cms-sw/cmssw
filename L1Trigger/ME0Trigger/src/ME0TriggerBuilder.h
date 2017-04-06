@@ -7,7 +7,7 @@
  *
  */
 
-#include "DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,7 +26,7 @@ class ME0TriggerBuilder
   ~ME0TriggerBuilder();
 
   /** Build LCTs in each chamber and fill them into output collections. */
-  void build(const ME0PadDigiCollection* me0Pads, ME0LCTDigiCollection& oc_lct);
+  void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_lct);
   
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 

@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 
 ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf) 
 {
@@ -14,7 +14,7 @@ ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf)
   me0_pad_token_ = consumes<ME0PadDigiCollection>(me0PadDigiProducer_);
 
   // register what this produces
-  produces<ME0LCTDigiCollection>();
+  produces<ME0TriggerDigiCollection>();
   consumes<ME0PadDigiCollection>(me0PadDigiProducer_);
 }
 
@@ -29,7 +29,7 @@ void ME0TriggerProducer::produce(edm::Event& ev, const edm::EventSetup& setup)
   const ME0PadDigiCollection *me0Pads = me0PadDigis.product();
   
   // Create empty collection
-  std::unique_ptr<ME0LCTDigiCollection> oc_lct(new ME0LCTDigiCollection);
+  std::unique_ptr<ME0TriggerDigiCollection> oc_lct(new ME0TriggerDigiCollection);
   
   // Fill output collections if valid input collection is available.
   if (me0PadDigis.isValid()) {   
