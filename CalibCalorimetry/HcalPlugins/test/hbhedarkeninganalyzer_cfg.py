@@ -12,13 +12,14 @@ process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
 process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+process.load("CalibCalorimetry.HcalPlugins.HBHEDarkening_cff")
 
-from DataFormats.HcalCalibObjects.HBHEDarkeningParameters_cff import *
+import CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff
 
 process.ana = cms.EDAnalyzer("HBHEDarkeningAnalyzer",
     deliveredLumi = cms.double(304),
-    HBDarkeningParameters = HBDarkeningParameters,
-    HEDarkeningParameters = HEDarkeningParameters,
+    HBmeanenergies = CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff.es_hardcode.HBmeanenergies,
+    HEmeanenergies = CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff.es_hardcode.HEmeanenergies,
 )
 
 process.p1 = cms.Path(process.ana)

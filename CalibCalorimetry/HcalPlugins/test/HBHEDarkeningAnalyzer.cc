@@ -14,7 +14,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //calo headers
-#include "DataFormats/HcalCalibObjects/interface/HBHEDarkening.h"
+#include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HBHERecalibration.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -28,7 +29,7 @@
 // class declaration
 //
 
-class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<> {
 	public:
 		explicit HBHEDarkeningAnalyzer(const edm::ParameterSet&);
 		~HBHEDarkeningAnalyzer();
@@ -41,11 +42,12 @@ class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResour
 		void analyze(const edm::Event&, const edm::EventSetup&) override;
 		void doEndRun_(const edm::Run&, const edm::EventSetup&) override {}
 		void endJob() override {}
-		void print(int ieta_min, int ieta_max, int lay_min, int lay_max, const HBHEDarkening& darkening, const HBHERecalibration& recalibration);
+		void print(int ieta_min, int ieta_max, int lay_min, int lay_max, const HBHEDarkening* darkening, const HBHERecalibration& recalibration);
 		
 		// ----------member data ---------------------------
 		double intlumi;
-		HBHEDarkening hb_darkening, he_darkening;
+		const HBHEDarkening* hb_darkening;
+		const HBHEDarkening* he_darkening;
 		HBHERecalibration hb_recalibration, he_recalibration;
 		const HcalTopology* theTopology;
 };
@@ -55,10 +57,10 @@ class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResour
 //
 HBHEDarkeningAnalyzer::HBHEDarkeningAnalyzer(const edm::ParameterSet& iConfig) :
 	intlumi(iConfig.getParameter<double>("deliveredLumi")),
-	hb_darkening(iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters")),
-	he_darkening(iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters")),
-	hb_recalibration(intlumi,0,iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters")),
-	he_recalibration(intlumi,0,iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters")),
+	hb_darkening(NULL),
+	he_darkening(NULL),
+	hb_recalibration(intlumi,0,iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()),
+	he_recalibration(intlumi,0,iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()),
 	theTopology(NULL)
 {
 }
@@ -80,6 +82,14 @@ void HBHEDarkeningAnalyzer::doBeginRun_(const edm::Run& iRun, const edm::EventSe
 	edm::ESHandle<HcalTopology> htopo;
 	iSetup.get<HcalRecNumberingRecord>().get(htopo);
 	theTopology = &*htopo;
+
+    edm::ESHandle<HBHEDarkening> hbdark;
+    iSetup.get<HBHEDarkeningRecord>().get("HB",hbdark);
+    hb_darkening = &*hbdark;
+
+    edm::ESHandle<HBHEDarkening> hedark;
+    iSetup.get<HBHEDarkeningRecord>().get("HE",hedark);
+    he_darkening = &*hedark;
 	
 	//initialize recalibration classes
 	std::vector<std::vector<int>> m_segmentation;
@@ -88,8 +98,8 @@ void HBHEDarkeningAnalyzer::doBeginRun_(const edm::Run& iRun, const edm::EventSe
 	for (int i = 0; i < maxEta; i++) {
 		theTopology->getDepthSegmentation(i+1,m_segmentation[i]);
 	}
-	hb_recalibration.setDsegm(m_segmentation);
-	he_recalibration.setDsegm(m_segmentation);
+	hb_recalibration.setup(m_segmentation,hb_darkening);
+	he_recalibration.setup(m_segmentation,he_darkening);
 }
 
 // ------------ method called on each new Event  ------------
@@ -118,12 +128,12 @@ HBHEDarkeningAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 void
-HBHEDarkeningAnalyzer::print(int ieta_min, int ieta_max, int lay_min, int lay_max, const HBHEDarkening& darkening, const HBHERecalibration& recalibration){
+HBHEDarkeningAnalyzer::print(int ieta_min, int ieta_max, int lay_min, int lay_max, const HBHEDarkening* darkening, const HBHERecalibration& recalibration){
 	std::cout << "Darkening" << std::endl;
 	for(int ieta = ieta_min; ieta <= ieta_max; ++ieta){
 		std::cout << "Tower " << ieta << ": ";
 		for(int lay = lay_min; lay <= lay_max; ++lay){
-			std::cout << darkening.degradation(intlumi,ieta,lay) << " ";
+			std::cout << darkening->degradation(intlumi,ieta,lay) << " ";
 		}
 		std::cout << std::endl;
 	}

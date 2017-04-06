@@ -158,10 +158,22 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(hb_recalib) {
-      hb_recalibration.reset(new HBHERecalibration(iLumi,iConfig.getParameter<double>("HBreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters")));
+      hb_recalibration.reset(
+        new HBHERecalibration(
+          iLumi,
+          iConfig.getParameter<double>("HBreCalibCutoff"),
+          iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()
+        )
+      );
     }
     if(he_recalib) {
-      he_recalibration.reset(new HBHERecalibration(iLumi,iConfig.getParameter<double>("HEreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters")));
+      he_recalibration.reset(
+        new HBHERecalibration(
+          iLumi,
+          iConfig.getParameter<double>("HEreCalibCutoff"),
+          iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()
+        )
+      );
     }
     if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration.reset(new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
     
@@ -440,11 +452,15 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       topo->getDepthSegmentation(i+1,m_segmentation[i]);
     }
     if(he_recalibration && !setHEdsegm){
-      he_recalibration->setDsegm(m_segmentation);
+      edm::ESHandle<HBHEDarkening> hdark;
+      rcd.getRecord<HBHEDarkeningRecord>().get("HE",hdark);
+      he_recalibration->setup(m_segmentation,&*hdark);
       setHEdsegm = true;
     }
     if(hb_recalibration && !setHBdsegm){
-      hb_recalibration->setDsegm(m_segmentation);
+      edm::ESHandle<HBHEDarkening> hdark;
+      rcd.getRecord<HBHEDarkeningRecord>().get("HB",hdark);
+      hb_recalibration->setup(m_segmentation,&*hdark);
       setHBdsegm = true;
     }
   }
@@ -878,8 +894,10 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<double>("iLumi",-1.);
 	desc.add<bool>("HBRecalibration",false);
 	desc.add<double>("HBreCalibCutoff",20.);
+	desc.add<edm::FileInPath>("HBmeanenergies",edm::FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHB.txt"));
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
+	desc.add<edm::FileInPath>("HEmeanenergies",edm::FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHE.txt"));
 	desc.add<bool>("HFRecalibration",false);
 	desc.add<bool>("GainWidthsForTrigPrims",false);
 	desc.add<bool>("useHBUpgrade",false);
@@ -1007,26 +1025,6 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
 	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
 	desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
-
-	edm::ParameterSetDescription desc_hbherecal;
-	desc_hbherecal.add<int>("ieta_shift",16);
-	desc_hbherecal.add<double>("drdA",4.0);
-	desc_hbherecal.add<double>("drdB",0.575);
-	edm::ParameterSetDescription desc_dosemaps;
-	desc_dosemaps.add<int>("energy",14);
-	desc_dosemaps.add<edm::FileInPath>("file",edm::FileInPath("DataFormats/HcalCalibObjects/data/dosemapHE_7TeV.txt"));
-	std::vector<edm::ParameterSet> default_dosemap(1);
-	desc_hbherecal.addVPSet("dosemaps",desc_dosemaps,default_dosemap);
-	edm::ParameterSetDescription desc_years;
-	desc_years.add<std::string>("year","2016");
-	desc_years.add<double>("intlumi",41.0);
-	desc_years.add<double>("lumirate",0.026);
-	desc_years.add<int>("energy",14);
-	std::vector<edm::ParameterSet> default_year(1);
-	desc_hbherecal.addVPSet("years",desc_years,default_year);
-	desc_hbherecal.add<edm::FileInPath>("meanenergies",edm::FileInPath("DataFormats/HcalCalibObjects/data/meanenergiesHE.txt"));
-	desc.add<edm::ParameterSetDescription>("HEDarkeningParameters",desc_hbherecal);
-	desc.add<edm::ParameterSetDescription>("HBDarkeningParameters",desc_hbherecal);
 
 	edm::ParameterSetDescription desc_ho;
 	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));

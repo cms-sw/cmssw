@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -72,8 +73,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useFibreBundle   = m_HC.getParameter<bool>("UseFibreBundleHits");
   deliveredLumi    = m_HC.getParameter<double>("DelivLuminosity");
-  bool agingFlagHB = m_HC.getParameter<bool>("HBDarkening");
-  bool agingFlagHE = m_HC.getParameter<bool>("HEDarkening");
+  agingFlagHB      = m_HC.getParameter<bool>("HBDarkening");
+  agingFlagHE      = m_HC.getParameter<bool>("HEDarkening");
   bool agingFlagHF = m_HC.getParameter<bool>("HFDarkening");
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
@@ -301,8 +302,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (agingFlagHB) m_HBDarkening.reset(new HBHEDarkening(m_HC.getParameter<edm::ParameterSet>("HBDarkeningParameters")));
-  if (agingFlagHE) m_HEDarkening.reset(new HBHEDarkening(m_HC.getParameter<edm::ParameterSet>("HEDarkeningParameters")));
   if (agingFlagHF) m_HFDarkening.reset(new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock")));
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
@@ -593,8 +592,19 @@ void HCalSD::update(const BeginOfJob * job) {
 			    << gpar[ig]/cm << " cm";
   //Test Hcal Numbering Scheme
   if (testNS_) hcalTestNS_ = new HcalTestNS(es);
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es->get<HBHEDarkeningRecord>().get("HB",hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es->get<HBHEDarkeningRecord>().get("HE",hdark);
+    m_HEDarkening = &*hdark;
+  }
 }
- 
+
 void HCalSD::initRun() {
   G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   G4String          particleName;
