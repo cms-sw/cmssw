@@ -22,7 +22,7 @@ class HLTConfigProvider;
 
 class HLTTauDQMTagAndProbePlotter: private HLTTauDQMPlotter {
 public:
-  HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, GenericTriggerEventFlag* numFlag, GenericTriggerEventFlag* denFlag, const std::string& dqmBaseFolder);
+  HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, std::unique_ptr<GenericTriggerEventFlag> numFlag, std::unique_ptr<GenericTriggerEventFlag> denFlag, const std::string& dqmBaseFolder);
   ~HLTTauDQMTagAndProbePlotter();
 
   using HLTTauDQMPlotter::isValid;
@@ -38,8 +38,8 @@ private:
   const double xmax_;
   std::string xvariable;
 
-  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  GenericTriggerEventFlag* den_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   MonitorElement *h_num;
   MonitorElement *h_den;
