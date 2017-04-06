@@ -16,13 +16,13 @@
 #include <vector>
 #include <string>
 #include <map>
-
+class TrackerTopology;
 class SiStripDetCabling
 {
  public:
-  SiStripDetCabling();
+  SiStripDetCabling(const TrackerTopology* const topology);
   virtual ~SiStripDetCabling();
-  SiStripDetCabling(const SiStripFedCabling &);
+  SiStripDetCabling(const SiStripFedCabling &,const TrackerTopology* const topology);
   void addDevices(const FedChannelConnection &, std::map< uint32_t, std::vector<const FedChannelConnection *> >&);
   void addDevices(const FedChannelConnection &); // special case of above addDevices
   // getters
@@ -59,6 +59,7 @@ class SiStripDetCabling
   uint32_t detectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 1); }
   uint32_t undetectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 2); }
   inline const SiStripFedCabling * fedCabling() const {return fedCabling_;}
+  inline const TrackerTopology* const trackerTopology() const {return tTopo;}
 
   std::map< uint32_t, std::vector<int> > const & connected() const { return connected_;}
 
@@ -84,5 +85,6 @@ class SiStripDetCabling
   // 2 = undetected
   std::map< int16_t, uint32_t > connectionCount[3];
   const SiStripFedCabling * fedCabling_;
+  const TrackerTopology* const tTopo;
 };
 #endif

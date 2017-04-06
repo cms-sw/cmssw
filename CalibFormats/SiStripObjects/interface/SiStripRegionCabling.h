@@ -4,7 +4,6 @@
 
 #include <boost/cstdint.hpp>
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <sstream>
@@ -27,8 +26,8 @@ class SiStripRegionCabling {
  public:
 
   /** enums */
-  enum SubDet {TIB = 0, TOB = 1, TID = 2, TEC = 3, ALLSUBDETS = 4}; 
-  enum Layer {TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10}; 
+  enum SubDet {TIB = 0, TOB = 1, TID = 2, TEC = 3, ALLSUBDETS = 4};
+  enum Layer {TIBLAYERS = 4, TOBLAYERS = 6, TIDLAYERS = 3, TECLAYERS = 9, ALLLAYERS = 10};
 
   /** Cabling typedefs */
   typedef std::pair< uint32_t, std::vector<FedChannelConnection> > Element;
@@ -96,15 +95,9 @@ class SiStripRegionCabling {
   
   inline static const uint32_t region(const ElementIndex);
  
-  /** Methods for extracting det-id information */
-
+//  /** Methods for extracting det-id information */
+//
   static const SubDet subdetFromDetId(const uint32_t detid);
-
-  static const uint32_t layerFromDetId(const uint32_t detid);
-
-  static const uint32_t physicalLayerFromDetId(const uint32_t detid);
-
-  static const uint32_t physicalLayer(const SubDet, const uint32_t layer);
 
   /** Methods for updating a SiStripRefGetter<T> container with elements 
       of interest  */

@@ -7,19 +7,16 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <iostream>
 
 //---- default constructor / destructor
-SiStripDetCabling::SiStripDetCabling() : fedCabling_(0) {}
+SiStripDetCabling::SiStripDetCabling(const TrackerTopology* const topology) : fedCabling_(0), tTopo(topology) {}
 SiStripDetCabling::~SiStripDetCabling() {}
 
 //---- construct detector view (DetCabling) out of readout view (FedCabling)
-SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : fullcabling_(), connected_(), detected_(), undetected_(), fedCabling_(&fedcabling)
+SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling,const TrackerTopology* const topology) : fullcabling_(), connected_(), detected_(), undetected_(), fedCabling_(&fedcabling), tTopo(topology)
 {
   // --- CONNECTED = have fedid and i2cAddr
   // create fullcabling_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
@@ -259,20 +256,18 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
 
 int16_t SiStripDetCabling::layerSearch( const uint32_t detId ) const
 {
-  if(SiStripDetId(detId).subDetector()==SiStripDetId::TIB){
-    TIBDetId D(detId);
-    return D.layerNumber();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TID){
-    TIDDetId D(detId);
+  const DetId detectorId=DetId(detId);
+  const int subdet = detectorId.subdetId();
+  if(subdet==StripSubdetector::TIB){
+    return tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TID){
     // side: 1 = negative, 2 = positive
-    return 10+(D.side() -1)*3 + D.wheel();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TOB){
-    TOBDetId D(detId);
-    return 100+D.layerNumber();
-  } else if (SiStripDetId(detId).subDetector()==SiStripDetId::TEC){
-    TECDetId D(detId);
+    return 10+(tTopo->side(detId) -1)*3 + tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TOB){
+    return 100+tTopo->layer(detId);
+  } else if (subdet==StripSubdetector::TEC){
     // side: 1 = negative, 2 = positive
-    return 1000+(D.side() -1)*9 + D.wheel();
+    return 1000+(tTopo->side(detId) -1)*9 +tTopo->layer(detId);
   }
   return 0;
 }
