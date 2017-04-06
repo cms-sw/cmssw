@@ -28,16 +28,22 @@ MuonTiming::MuonTiming(const edm::ParameterSet& pSet) {
 
   tnbins = parameters.getParameter<int>("tnbins");
   tnbinsrpc = parameters.getParameter<int>("tnbinsrpc");
+  terrnbins = parameters.getParameter<int>("terrnbins");
+  terrnbinsrpc = parameters.getParameter<int>("terrnbinsrpc");
   ndofnbins = parameters.getParameter<int>("ndofnbins");
   ptnbins = parameters.getParameter<int>("ptnbins");
   etanbins = parameters.getParameter<int>("etanbins");
   tmax = parameters.getParameter<double>("tmax");
   tmaxrpc = parameters.getParameter<double>("tmaxrpc");
+  terrmax = parameters.getParameter<double>("terrmax");
+  terrmaxrpc = parameters.getParameter<double>("terrmaxrpc");
   ndofmax = parameters.getParameter<double>("ndofmax");
   ptmax = parameters.getParameter<double>("ptmax");
   etamax = parameters.getParameter<double>("etamax");
   tmin = parameters.getParameter<double>("tmin");
   tminrpc = parameters.getParameter<double>("tminrpc");
+  terrmin = parameters.getParameter<double>("terrmin");
+  terrminrpc = parameters.getParameter<double>("terrminrpc");
   ndofmin = parameters.getParameter<double>("ndofmin");
   ptmin = parameters.getParameter<double>("ptmin");
   etamin = parameters.getParameter<double>("etamin");
@@ -65,29 +71,39 @@ void MuonTiming::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(theFolder);
 
   EtaName.push_back("_Overlap"); EtaName.push_back("_Barrel"); EtaName.push_back("_Endcap");
-  ObjectName.push_back("Glb_"); ObjectName.push_back("Sta_"); 
+  ObjectName.push_back("Sta_"); ObjectName.push_back("Glb_"); 
 
   for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
     std::vector<MonitorElement*> timeNDof_;
     std::vector<MonitorElement*> timeAtIpInOut_;
     std::vector<MonitorElement*> timeAtIpInOutRPC_;
-    for(unsigned int iObjectName=0; iObjectName<2; iObjectName++) {
+    std::vector<MonitorElement*> timeAtIpInOutErr_;
+    std::vector<MonitorElement*> timeAtIpInOutErrRPC_;
+    //Only creating so far the timing information for STA muons, however the code can be extended to also Glb by just setting the limit of this loop to 2
+    for(unsigned int iObjectName=0; iObjectName<1; iObjectName++) {
         timeNDof_.push_back(ibooker.book1D(ObjectName[iObjectName] + "timenDOF" + EtaName[iEtaRegion], "muon time ndof", ndofnbins, 0, ndofmax));
         timeAtIpInOut_.push_back(ibooker.book1D(ObjectName[iObjectName] + "timeAtIpInOut" + EtaName[iEtaRegion], "muon time", tnbins, tmin, tmax));
         timeAtIpInOutRPC_.push_back(ibooker.book1D(ObjectName[iObjectName] + "timeAtIpInOutRPC" + EtaName[iEtaRegion], "muon rpc time", tnbinsrpc, tminrpc, tmaxrpc));
+        timeAtIpInOutErr_.push_back(ibooker.book1D(ObjectName[iObjectName] + "timeAtIpInOutErr" + EtaName[iEtaRegion], "muon time error", terrnbins, terrmin, terrmax));
+        timeAtIpInOutErrRPC_.push_back(ibooker.book1D(ObjectName[iObjectName] + "timeAtIpInOutRPCErr" + EtaName[iEtaRegion], "muon rpc time error", terrnbinsrpc, terrminrpc, terrmaxrpc));
+        timeNDof_[iObjectName]->setAxisTitle("Time nDof");
+        timeAtIpInOut_[iObjectName]->setAxisTitle("Combined time [ns]");
+        timeAtIpInOutErr_[iObjectName]->setAxisTitle("Combined time Error [ns]");
+        timeAtIpInOutRPC_[iObjectName]->setAxisTitle("RPC time [ns]");
+        timeAtIpInOutErrRPC_[iObjectName]->setAxisTitle("RPC time Error [ns]");
     }
     timeNDof.push_back(timeNDof_);
     timeAtIpInOut.push_back(timeAtIpInOut_);
     timeAtIpInOutRPC.push_back(timeAtIpInOutRPC_);
+    timeAtIpInOutErr.push_back(timeAtIpInOutErr_);
+    timeAtIpInOutErrRPC.push_back(timeAtIpInOutErrRPC_);
   }
 
-  for(unsigned int iObjectName=0; iObjectName<2; iObjectName++) {
+  //Only creating so far the timing information for STA muons, however the code can be extended to also Glb by just setting the limit of this loop to 2
+  for(unsigned int iObjectName=0; iObjectName<1; iObjectName++) {
     etaptVeto.push_back(ibooker.book2D(ObjectName[iObjectName] + "etapt", "Eta and Pt distribution for muons not passing the veto", ptnbins, ptmin, ptmax, etanbins, etamin, etamax));
     etaVeto.push_back(ibooker.book1D(ObjectName[iObjectName] + "eta", "Eta distribution for muons not passing the veto", etanbins, etamin, etamax));
     ptVeto.push_back(ibooker.book1D(ObjectName[iObjectName] + "pt", "Pt distribution for muons not passing the veto", ptnbins, ptmin, ptmax));
-    etaptNonVeto.push_back(ibooker.book2D(ObjectName[iObjectName] + "etapt_NonVeto", "Eta and Pt distribution for muons passing the veto", ptnbins, ptmin, ptmax, etanbins, etamin, etamax));
-    etaNonVeto.push_back(ibooker.book1D(ObjectName[iObjectName] + "eta_NonVeto", "Eta distribution for muons passing the veto", etanbins, etamin, etamax));
-    ptNonVeto.push_back(ibooker.book1D(ObjectName[iObjectName] + "pt_NonVeto", "Pt distribution for muons passing the veto", ptnbins, ptmin, ptmax));
     yields.push_back(ibooker.book1D(ObjectName[iObjectName] + "yields", "Number of muons passing/not passing the different conditions", 10, 0, 10));
     yields[iObjectName]->setBinLabel(1, "Not valid time");
     yields[iObjectName]->setBinLabel(2, "Valid time");
@@ -99,6 +115,10 @@ void MuonTiming::bookHistograms(DQMStore::IBooker & ibooker,
     yields[iObjectName]->setBinLabel(8, "RPC not Combined");
     yields[iObjectName]->setBinLabel(9, "Not passing veto");
     yields[iObjectName]->setBinLabel(10, "Passing veto");
+    etaptVeto[iObjectName]->setAxisTitle("p_{T} [GeV]");
+    etaptVeto[iObjectName]->setAxisTitle("#eta#", 2);
+    ptVeto[iObjectName]->setAxisTitle("p_{T} [GeV]");
+    etaVeto[iObjectName]->setAxisTitle("#eta");
   }
 
 }
@@ -120,10 +140,11 @@ void MuonTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
     const reco::MuonTime time = muon->time(); 
     const reco::MuonTime rpcTime = muon->rpcTime();
-    if(!muon->isGlobalMuon() && !muon->isStandAloneMuon()) continue;
+    //Only creating so far the timing information for STA muons
+    if(!muon->isStandAloneMuon() || muon->isGlobalMuon()) continue;
     reco::TrackRef track;
     //Select whether it's a global or standalone muon
-    object theObject = glb;
+    object theObject = sta;
     if(muon->isGlobalMuon()) {track = muon->combinedMuon(); theObject = glb;}
     else {track = muon->standAloneMuon(); theObject = sta;}
 
@@ -158,21 +179,18 @@ void MuonTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       etaptVeto[theObject]->Fill(track->pt(), track->eta());
       etaVeto[theObject]->Fill(track->eta());
       ptVeto[theObject]->Fill(track->pt());
-    } else {
-      etaptNonVeto[theObject]->Fill(track->pt(), track->eta());
-      etaNonVeto[theObject]->Fill(track->eta());
-      ptNonVeto[theObject]->Fill(track->pt());
-    }
+    } 
     
-    if(!veto) {
-      //Check the eta region of the muon
-      eta theEta = barrel;
-      if(fabs(track->eta()) > etaBarrelMin && fabs(track->eta()) < etaBarrelMax) theEta = barrel;
-      if(fabs(track->eta()) > etaOverlapMin && fabs(track->eta()) < etaOverlapMax) theEta = overlap;
-      if(fabs(track->eta()) > etaEndcapMin && fabs(track->eta()) < etaEndcapMax) theEta = endcap;
-      timeNDof[theEta][theObject]->Fill(time.nDof);
-      timeAtIpInOut[theEta][theObject]->Fill(time.timeAtIpInOut*1000.0);
-      timeAtIpInOutRPC[theEta][theObject]->Fill(rpcTime.timeAtIpInOut*1000.0);
-    }
+    //Check the eta region of the muon
+    eta theEta = barrel;
+    if(fabs(track->eta()) > etaBarrelMin && fabs(track->eta()) < etaBarrelMax) theEta = barrel;
+    if(fabs(track->eta()) > etaOverlapMin && fabs(track->eta()) < etaOverlapMax) theEta = overlap;
+    if(fabs(track->eta()) > etaEndcapMin && fabs(track->eta()) < etaEndcapMax) theEta = endcap;
+    timeNDof[theEta][theObject]->Fill(time.nDof);
+    timeAtIpInOut[theEta][theObject]->Fill(time.timeAtIpInOut);
+    timeAtIpInOutRPC[theEta][theObject]->Fill(rpcTime.timeAtIpInOut);
+    timeAtIpInOutErr[theEta][theObject]->Fill(time.timeAtIpInOutErr);
+    timeAtIpInOutErrRPC[theEta][theObject]->Fill(rpcTime.timeAtIpInOutErr);
+    
   } 
 }

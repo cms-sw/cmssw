@@ -52,11 +52,15 @@ class MuonTiming : public DQMEDAnalyzer {
   //histo binning parameters
   int tnbins;
   int tnbinsrpc;
+  int terrnbins;
+  int terrnbinsrpc;
   int ndofnbins;
   int ptnbins;
   int etanbins;
   double tmax, tmin;
   double tmaxrpc, tminrpc;
+  double terrmax, terrmin;
+  double terrmaxrpc, terrminrpc;
   double ndofmax, ndofmin;
   double ptmax, ptmin;
   double etamax, etamin;
@@ -65,14 +69,16 @@ class MuonTiming : public DQMEDAnalyzer {
   std::string theFolder;
   std::vector<std::string> EtaName, ObjectName;
   enum eta {overlap, barrel, endcap};
-  enum object {glb, sta};
+  enum object {sta, glb};
   //the histos
   std::vector<std::vector<MonitorElement*>> timeNDof;
   std::vector<std::vector<MonitorElement*>> timeAtIpInOut;
   std::vector<std::vector<MonitorElement*>> timeAtIpInOutRPC;
-  std::vector<MonitorElement*> etaptVeto, etaptNonVeto;
-  std::vector<MonitorElement*> etaVeto, etaNonVeto;
-  std::vector<MonitorElement*> ptVeto, ptNonVeto;
+  std::vector<std::vector<MonitorElement*>> timeAtIpInOutErr;
+  std::vector<std::vector<MonitorElement*>> timeAtIpInOutErrRPC;
+  std::vector<MonitorElement*> etaptVeto;
+  std::vector<MonitorElement*> etaVeto;
+  std::vector<MonitorElement*> ptVeto;
   std::vector<MonitorElement*> yields;
 
 };
