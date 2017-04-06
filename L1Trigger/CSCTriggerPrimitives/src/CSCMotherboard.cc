@@ -135,7 +135,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
 
-  lct_central_bx = 6;
+  lct_central_bx = 8;
 
   // configuration handle for number of early time bins
   early_tbins = tmbParams.getParameter<int>("tmbEarlyTbins");
