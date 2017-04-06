@@ -33,6 +33,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
     packedDz_   = pvRef.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(std::round(dz_/40.f*std::numeric_limits<int16_t>::max()));
     packedDPhi_ =  int16_t(std::round(dphi_/3.2f*std::numeric_limits<int16_t>::max()));
+    packedDEta_ =  MiniFloatConverter::float32to16(deta_);
+    packedDTrkPt_ = MiniFloatConverter::float32to16(dtrkpt_);
     packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
     packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
     packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
@@ -93,6 +95,8 @@ void pat::PackedCandidate::unpack() const {
 void pat::PackedCandidate::unpackVtx() const {
     reco::VertexRef pvRef = vertexRef();
     dphi_ = int16_t(packedDPhi_)*3.2f/std::numeric_limits<int16_t>::max(),
+    deta_ = MiniFloatConverter::float16to32(packedDEta_);
+    dtrkpt_ = MiniFloatConverter::float16to32(packedDTrkPt_);
     dxy_ = MiniFloatConverter::float16to32(packedDxy_)/100.;
     dz_   = pvRef.isNonnull() ? MiniFloatConverter::float16to32(packedDz_)/100. : int16_t(packedDz_)*40.f/std::numeric_limits<int16_t>::max();
     Point pv = pvRef.isNonnull() ? pvRef->position() : Point();
@@ -170,7 +174,7 @@ void pat::PackedCandidate::unpackTrk() const {
     m(3,4)=dxydz_;
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
-    math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
+    math::RhoEtaPhiVector p3(ptTrk(),etaAtVtx(),phiAtVtx());
     int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
     int numberOfPixelHits = this->numberOfPixelHits();
     int numberOfHits = this->numberOfHits();

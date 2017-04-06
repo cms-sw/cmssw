@@ -22,6 +22,7 @@ process.source = cms.Source("PoolSource",
  )
 )
 
+process.load("Calibration.HcalAlCaRecoProducers.alcaIsoTracksProducerFilter_cfi")
 process.load("Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi")
 process.IsoProd.ProcessName = 'HLTNew1'
 
@@ -31,5 +32,5 @@ process.IsoTrackOutput = cms.OutputModule("PoolOutputModule",
    fileName = cms.untracked.string('isotrack.root')
 )
 
-process.p = cms.Path(process.IsoProd)
+process.p = cms.Path(process.IsoTracksProdFilter*process.IsoProd)
 process.e = cms.EndPath(process.IsoTrackOutput)

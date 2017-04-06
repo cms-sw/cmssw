@@ -40,3 +40,11 @@ The iteration order for each tracking flavour is specified in
 You need to edit that file, and possibly double-check the
 `earlyGeneralTracks` configuration in
 [RecoTracker/FinalTrackSelectors/python/earlyGeneralTracks_cfi.py](../../RecoTracker/FinalTrackSelectors/python/earlyGeneralTracks_cfi.py).
+
+
+Tricks to temporarily and quickly disable an iteration
+------------------------------------------------------
+
+These instructions are supposed to disable an iteration in the tracking recontruction without removing it completely, i.e. the iteration will still be processed but it will not find any tracks.
+1. Search in the `TrajectoryBuilder` of the specific iteration that you want to remove.
+2. Search the module producing the `TrajectoryFilter` and add in the RECO configuration file the following: `process.***TrajectoryFilter.minimumNumberOfHits = 10000` where `***` is most luckly the name of the iteration.

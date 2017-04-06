@@ -16,7 +16,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.essource = cms.ESSource("PoolDBESSource",
                                 connect = cms.string( str(options.destinationDatabase) ),
                                 DumpStat=cms.untracked.bool(True),
-                                toGet = cms.VPSet( psetForRec )
+                                toGet = cms.VPSet( psetForRecord( recordName ) )
 )
 
 db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()

@@ -1156,7 +1156,7 @@ steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
 
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
-                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlGlobalCosmics+DtCalib',
+                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:DtCalib',
                           '--datatier':'RECO,DQMIO',     # no miniAOD for cosmics
                           '--eventcontent':'RECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
@@ -1173,13 +1173,13 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 
 # step3 
 step3Defaults = {
-                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT',
                   '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM',
                   }
-step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION,DQM'}, step3Defaults])
+step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'}, step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
@@ -1195,9 +1195,9 @@ step3Up2015Defaults = {
     '--era' : 'Run2_2016'
     }
 
-step3Up2015Defaults50ns = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015Defaults])
+step3Up2015Defaults50ns = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015Defaults])
 
-step3Up2015DefaultsAlCaCalo = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+EcalTrg+HcalCalIsoTrk,VALIDATION,DQM'},step3Up2015Defaults])
+step3Up2015DefaultsAlCaCalo = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+EcalTrg+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'},step3Up2015Defaults])
 step3Up2015DefaultsAlCaCalo50ns = merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015DefaultsAlCaCalo])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
@@ -1291,7 +1291,7 @@ steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 #steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
 steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
-steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},stCond,step3Defaults])
+steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
@@ -1511,7 +1511,7 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 
 
 #MC
-steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                    '--filetype':'DQM',
@@ -1581,7 +1581,7 @@ steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvesting+dqmHarvest
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
-steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
+steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 
 steps['HARVESTUP15_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15']])
 
@@ -1709,8 +1709,8 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_0_0_pre5-90X_upgrade2017_realistic_v15-v'
-defaultDataSets['2017Design']='CMSSW_9_0_0_pre5-90X_upgrade2017_design_IdealBS_v15-v'
+defaultDataSets['2017']='CMSSW_9_0_0-90X_upgrade2017_realistic_v20_resub-v'
+defaultDataSets['2017Design']='CMSSW_9_0_0-90X_upgrade2017_design_IdealBS_v19_resub-v'
 #defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2023D7']=''
@@ -1723,13 +1723,16 @@ defaultDataSets['2023D8']=''
 defaultDataSets['2023D9']=''
 defaultDataSets['2023D11']=''
 defaultDataSets['2023D12']=''
+defaultDataSets['2023D13']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
   
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
-versionOverrides={}
+versionOverrides={'SingleNuE10_cf_2017':'2',
+                  'SingleNuE10_cf_2017PU':'2'
+}
 
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
@@ -1907,7 +1910,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 
 
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter',
+    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',

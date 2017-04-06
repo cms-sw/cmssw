@@ -15,4 +15,6 @@ triggerLutTest = cms.EDAnalyzer("DTLocalTriggerLutTest",
     folderRoot = cms.untracked.string('')
 )
 
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( triggerLutTest, hwSources = cms.untracked.vstring('TM'))
 

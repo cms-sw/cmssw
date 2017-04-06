@@ -616,9 +616,11 @@ namespace edm {
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        std::ostringstream ost;
-        ost << "Processing Event " << ep.id();
-        ex.addContext(ost.str());
+        if(ex.context().empty()) {
+          std::ostringstream ost;
+          ost << "Processing Event " << ep.id();
+          ex.addContext(ost.str());
+        }
         iExcept = std::current_exception();
       }
       catch(...) {
@@ -855,7 +857,6 @@ namespace edm {
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
     fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
-    sort_all(rep.workerSummaries);
   }
 
   void

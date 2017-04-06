@@ -12,9 +12,13 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <atomic>
 
+class HcalDDDGeometryLoader;
+
 class HcalDDDGeometry : public CaloSubdetectorGeometry {
 
 public:
+
+  friend class HcalDDDGeometryLoader;
 
   typedef std::vector<IdealObliquePrism> HBCellVec ;
   typedef std::vector<IdealObliquePrism> HECellVec ;
@@ -43,6 +47,22 @@ protected:
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
 
 private:
+
+  void newCellImpl( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
+
+  //can only be used by friend classes, to ensure sorting is done at the end					
+  void newCellFast( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
+
+  void increaseReserve(unsigned int extra);
+  void sortValidIds();
 
   void fillDetIds() const ;
 
