@@ -1095,7 +1095,7 @@ _packedCandidatePlots = [
 ]
 plotter = Plotter()
 plotterExt = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, onlyForBHadron=False, seeding=False, rawSummary=False):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, onlyForBHadron=False, seeding=False, rawSummary=False, highPuritySummary=True):
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
     limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion, onlyForBHadron=onlyForBHadron)
@@ -1122,15 +1122,17 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
                   **limiters)
     plotter.append(summaryName, folders,
                    PlotFolder(*summaryPlots, section=name, **common))
-    plotter.append(summaryName+"_highPurity", folders,
-                   PlotFolder(*_summaryPlotsHp, section=name+"_highPurity" if name != "" else "highPurity", **common),
-                   fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
+    if highPuritySummary:
+        plotter.append(summaryName+"_highPurity", folders,
+                       PlotFolder(*_summaryPlotsHp, section=name+"_highPurity" if name != "" else "highPurity", **common),
+                       fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
     if seeding:
         plotter.append(summaryName+"_seeds", folders,
                        PlotFolder(*_summaryPlotsSeeds, section=name+"_seeds", **common))
 
     plotter.appendTable(summaryName, folders, TrackingSummaryTable(section=name))
-    plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", collection=TrackingSummaryTable.HighPurity))
+    if highPuritySummary:
+        plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", collection=TrackingSummaryTable.HighPurity))
     if name == "":
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="btvLike", collection=TrackingSummaryTable.BTVLike))
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
@@ -1142,8 +1144,8 @@ _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBase
 _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
 _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
-_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True)
-_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True)
+_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True, highPuritySummary=False)
+_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 
 # MiniAOD
