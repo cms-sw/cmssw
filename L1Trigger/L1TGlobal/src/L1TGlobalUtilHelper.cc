@@ -17,7 +17,6 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset,edm:
       m_foundPreferredL1TAlgBlk(false),
       m_foundPreferredL1TExtBlk(false) {
 
-  std::cout << "CCLA In L1TGlobalUtilHelper Constructor" << std::endl;
   m_l1tAlgBlkToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tAlgBlkInputTag);
   m_l1tExtBlkToken = iC.consumes<GlobalExtBlkBxCollection>(m_l1tExtBlkInputTag);
 
