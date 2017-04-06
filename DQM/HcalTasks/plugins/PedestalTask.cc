@@ -1,5 +1,3 @@
-#define HIDE_PEDESTAL_CONDITIONS
-
 #include "DQM/HcalTasks/interface/PedestalTask.h"
 
 using namespace hcaldqm;
@@ -213,7 +211,6 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	if (_ptype != fOffline) { // hidefed2crate
- // hidefed2crate
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
 		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
