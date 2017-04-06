@@ -25,7 +25,7 @@ class ME0LCTDigi
   /// clear this LCT
   void clear();
 
-  /// Print content of correlated LCT digi
+  /// Print content of LCT digi
   void print() const;
 
   ///Comparison
@@ -36,7 +36,7 @@ class ME0LCTDigi
   /// return track number
   int getTrknmb()  const { return trknmb; }
 
-  /// return the 4 bit Correlated LCT Quality
+  /// return the Quality
   int getQuality() const { return quality; }
 
   /// return the key strip
@@ -50,6 +50,9 @@ class ME0LCTDigi
 
   /// return BX
   int getBX()      const { return bx; }
+	
+  /// is valid?
+  bool isValid() const { return pattern!=0; }
 
   /// Set track number.
   void setTrknmb(const uint16_t number) {trknmb = number;}
