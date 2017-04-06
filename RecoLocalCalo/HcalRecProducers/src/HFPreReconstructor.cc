@@ -177,6 +177,10 @@ HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& eventS
         {
             const QIE10DataFrame& frame(*it);
             const HcalDetId cell(frame.id());
+
+            // Protection against calibration channels which are not
+            // in the database but can still come in the QIE10DataFrame
+            // in the laser calibs, etc.
             if (cell.subdet() != HcalSubdetector::HcalForward)
                 continue;
 
