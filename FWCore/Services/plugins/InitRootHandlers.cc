@@ -566,6 +566,14 @@ namespace {
     }
     
     void sig_abort(int sig, siginfo_t*, void*) {
+      full_cerr_write("\n\nFatal system signal has occurred during exit\n");
+
+      // re-raise the signal to get the correct exit code
+      signal(sig, SIG_DFL);
+      raise(sig);
+
+      // shouldn't get here
+      ::sleep(10);
       ::abort();
     }
   }

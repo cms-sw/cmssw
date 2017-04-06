@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include <iomanip>
@@ -67,7 +67,7 @@ std::string L1TCaloParamsViewer::hash(void *buf, size_t len) const {
 void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<l1t::CaloParams> handle1;
-    evSetup.get<L1TCaloParamsRcd>().get( handle1 ) ;
+    evSetup.get<L1TCaloStage2ParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<l1t::CaloParams> ptr(new l1t::CaloParams(*(handle1.product ())));
 
     l1t::CaloParamsHelper *ptr1 = 0;
@@ -286,10 +286,11 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     cout<<endl<<" Sums: "<<endl;
+    unsigned int nEntities = 0;
     cout<<"  etSumLsb=               "<<ptr1->etSumLsb()<<endl;
-///    cout<<"  etSumEtaMin=            ["; for(unsigned int i=0; ptr1->etSumEtaMin(i)<0.001; i++) cout<<(i==0?"":",")<<ptr1->etSumEtaMin(i); cout<<"]"<<endl;
-///    cout<<"  etSumEtaMax=            ["; for(unsigned int i=0; ptr1->etSumEtaMax(i)<0.001; i++) cout<<(i==0?"":",")<<ptr1->etSumEtaMax(i); cout<<"]"<<endl;
-///    cout<<"  etSumEtThreshold=       ["; for(unsigned int i=0; ptr1->etSumEtThreshold(i)<0.001; i++) cout<<(i==0?"":",")<<ptr1->etSumEtThreshold(i); cout<<"]"<<endl;
+    cout<<"  etSumEtaMin=            ["; for(unsigned int i=0; ptr1->etSumEtaMin(i)>0.001; i++) cout<<(i==0?"":",")<<ptr1->etSumEtaMin(i); cout<<"]"<<endl;
+    cout<<"  etSumEtaMax=            ["; for(unsigned int i=0; ptr1->etSumEtaMax(i)>0.001; i++,nEntities++) cout<<(i==0?"":",")<<ptr1->etSumEtaMax(i); cout<<"]"<<endl;
+    cout<<"  etSumEtThreshold=       ["; for(unsigned int i=0; i<nEntities; i++) cout<<(i==0?"":",")<<ptr1->etSumEtThreshold(i); cout<<"]"<<endl;
 
     cout<<endl<<" HI centrality trigger: "<<endl;
     cout<<"  centralityLUT=          ["; for(unsigned int i=0; i<ptr1->centralityLUT()->maxSize(); i++) cout<<(i==0?"":",")<<ptr1->centralityLUT()->data(i); cout<<"]"<<endl;

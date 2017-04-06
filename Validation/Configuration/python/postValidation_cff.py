@@ -59,6 +59,7 @@ postValidation_fastsim = cms.Sequence(
 from Validation.MuonGEMHits.PostProcessor_cff import *
 from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
+from Validation.MuonME0Validation.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 
 postValidation_common = cms.Sequence()
@@ -73,6 +74,8 @@ postValidation_muons = cms.Sequence(
     + MuonGEMHitsPostProcessors
     + MuonGEMDigisPostProcessors
     + MuonGEMRecHitsPostProcessors
+    + MuonME0DigisPostProcessors
+    + MuonME0SegPostProcessors
     + rpcRecHitPostValidation_step
 )
 
@@ -106,6 +109,8 @@ _run3_postValidation += MuonGEMRecHitsPostProcessors
 
 _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
+_phase2_postValidation += MuonME0DigisPostProcessors
+_phase2_postValidation += MuonME0SegPostProcessors
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )

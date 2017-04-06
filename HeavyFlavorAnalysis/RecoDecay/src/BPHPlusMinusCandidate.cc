@@ -97,8 +97,8 @@ void BPHPlusMinusCandidate::add( const string& name,
 
 vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
                                  const BPHRecoBuilder& builder,
-                                 const string nPos,
-                                 const string nNeg,
+                                 const string& nPos,
+                                 const string& nNeg,
                                  double mass, double msig ) {
   vector<BPHPlusMinusConstCandPtr> cList;
   class ChargeSelect: public BPHRecoSelect {

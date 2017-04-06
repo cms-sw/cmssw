@@ -53,8 +53,12 @@ hbhereco = cms.EDProducer(
     EcalAcceptSeverityLevel = cms.uint32(3),
     UseHcalRecoveredHits = cms.bool(True),
     UseEcalRecoveredHits = cms.bool(False),
+    UseAllCombinedRechits = cms.bool(True),
     MinValidTrackPt = cms.double(0.3),
     MinValidTrackPtBarrel = cms.double(0.9),
     MinValidTrackNHits = cms.int32(5),
 
  )
+
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toModify(hbhereco, hbheInput = cms.InputTag('hbheplan1'))

@@ -1241,6 +1241,29 @@ class ModifierChain(object):
             m._setChosen()
     def isChosen(self):
         return self.__chosen
+    def copyAndExclude(self, toExclude):
+      """Creates a new ModifierChain which is a copy of
+        this ModifierChain but excludes any Modifier or
+        ModifierChain in the list toExclude.
+        The exclusion is done recursively down the chain.
+        """
+      newMods = []
+      for m in self.__chain:
+        if m not in toExclude:
+          s = m
+          if isinstance(m,ModifierChain):
+            s = m.__copyIfExclude(toExclude)
+          newMods.append(s)
+      return ModifierChain(*newMods)
+    def __copyIfExclude(self,toExclude):
+      shouldCopy = False
+      for m in toExclude:
+        if self._isOrContains(m):
+          shouldCopy = True
+          break
+      if shouldCopy:
+        return self.copyAndExclude(toExclude)
+      return self
     def _isOrContains(self, other):
       if self is other:
         return True
@@ -2106,7 +2129,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
             raised = False
             try: m1.toModify(p.a, fred = {5:7})
-            except IndexError, e: raised = True
+            except IndexError as e: raised = True
             self.assertEqual(raised, True)
             #test TypeError setting a value in a list using a key that is not an int
             m1 = Modifier()
@@ -2114,7 +2137,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             raised = False
             try: m1.toModify(p.a, flintstones = dict(bogus = int32(37)))
-            except TypeError, e: raised = True
+            except TypeError as e: raised = True
             self.assertEqual(raised, True)
             #test that load causes process wide methods to run
             def _rem_a(proc):
@@ -2148,6 +2171,19 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.extend(testProcMod)
             self.assert_(not hasattr(p,"a"))
             self.assertEqual(p.b.fred.value(),3)
+            #check cloneAndExclude
+            m1 = Modifier()
+            m2 = Modifier()
+            mc = ModifierChain(m1,m2)
+            mclone = mc.copyAndExclude([m2])
+            self.assert_(not mclone._isOrContains(m2))
+            self.assert_(mclone._isOrContains(m1))
+            m3 = Modifier()
+            mc2 = ModifierChain(mc,m3)
+            mclone = mc2.copyAndExclude([m2])
+            self.assert_(not mclone._isOrContains(m2))
+            self.assert_(mclone._isOrContains(m1))
+            self.assert_(mclone._isOrContains(m3))
             #check combining
             m1 = Modifier()
             m2 = Modifier()

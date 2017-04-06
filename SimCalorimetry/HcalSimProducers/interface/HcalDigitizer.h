@@ -6,7 +6,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
-#include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"

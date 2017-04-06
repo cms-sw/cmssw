@@ -9,6 +9,8 @@ pixelLessStepClusters = _cfg.clusterRemoverForIter("PixelLessStep")
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(pixelLessStepClusters, _cfg.clusterRemoverForIter("PixelLessStep", _eraName, _postfix))
 
+
+
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
@@ -248,6 +250,17 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     qualityCuts = [-0.4,0.0,0.4],
+))
+trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorPixelLessStep_Phase1',
+     qualityCuts = [-0.4,0.0,0.4],
+))
+
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
@@ -297,7 +310,6 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     vertices = cms.InputTag("pixelVertices")#end of vpset
 ) #end of clone
 
-
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepSeedLayers*
                              pixelLessStepTrackingRegions*
@@ -311,3 +323,4 @@ PixelLessStep = cms.Sequence(pixelLessStepClusters*
 _PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
 _PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
 trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)
+

@@ -77,7 +77,7 @@ CaliTag CaliIOV::getCaliTag() const
 
 
 int CaliIOV::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -126,7 +126,7 @@ int CaliIOV::fetchID()
 
 
 void CaliIOV::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -163,7 +163,7 @@ void CaliIOV::setByID(int id)
 
 
 int CaliIOV::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -213,7 +213,7 @@ int CaliIOV::writeDB()
 
 
 void CaliIOV::setByTm(CaliTag* tag, const Tm& eventTm)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   

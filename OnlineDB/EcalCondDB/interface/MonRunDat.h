@@ -35,13 +35,13 @@ class MonRunDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_numEvents;

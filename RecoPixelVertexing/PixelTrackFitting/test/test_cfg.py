@@ -31,7 +31,6 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 process.load('RecoLocalTracker/Configuration/RecoLocalTracker_cff')
 process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff")
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-from RecoPixelVertexing.PixelTrackFitting.PixelFitterByConformalMappingAndLine_cfi import *
 
 
 BBlock = cms.PSet(
@@ -65,7 +64,7 @@ GBlock= cms.PSet(
 
 process.pixelTracks2 = pixelTracks.clone()
 process.pixelTracks2.RegionFactoryPSet= cms.PSet( GBlock )
-process.pixelTracks2.FilterPSet.ComponentName = cms.string('none')
+process.pixelTracks2.Filter = ""
 
 process.test = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
 

@@ -48,15 +48,15 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 	_cEventType.initialize(_name, "EventType",
 			       new hcaldqm::quantity::LumiSection(_maxLS),
 			       new hcaldqm::quantity::EventType(_eventtypes),
-			       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cTotalCharge.initialize(_name, "TotalCharge",
 				 new hcaldqm::quantity::LumiSection(_maxLS),
 				 new hcaldqm::quantity::DetectorQuantity(quantity::fSubdetPM),
-				 new hcaldqm::quantity::ValueQuantity(quantity::ffC_10000, true));
+				 new hcaldqm::quantity::ValueQuantity(quantity::ffC_10000, true),0);
 	_cTotalChargeProfile.initialize(_name, "TotalChargeProfile",
 					new hcaldqm::quantity::LumiSection(_maxLS),
 					new hcaldqm::quantity::DetectorQuantity(quantity::fSubdetPM),
-					new hcaldqm::quantity::ValueQuantity(quantity::ffC_10000, true));
+					new hcaldqm::quantity::ValueQuantity(quantity::ffC_10000, true),0);
 	_cEventType.book(ib, _subsystem);
 	_cTotalCharge.book(ib, _subsystem);
 	_cTotalChargeProfile.book(ib, _subsystem);

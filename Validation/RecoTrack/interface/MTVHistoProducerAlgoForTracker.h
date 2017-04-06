@@ -146,6 +146,7 @@ class MTVHistoProducerAlgoForTracker {
   double minPhi, maxPhi;  int nintPhi;
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
+  double dxyDzZoom;
   double minVertpos, maxVertpos;  int nintVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
@@ -190,6 +191,8 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
   std::vector<MonitorElement*> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv, h_misiddxypv, h_pileupdxypv;
   std::vector<MonitorElement*> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv, h_pileupdzpv;
+  std::vector<MonitorElement*> h_recodxypvzoomed, h_assocdxypvzoomed, h_assoc2dxypvzoomed, h_simuldxypvzoomed, h_looperdxypvzoomed, h_misiddxypvzoomed, h_pileupdxypvzoomed;
+  std::vector<MonitorElement*> h_recodzpvzoomed, h_assocdzpvzoomed, h_assoc2dzpvzoomed, h_simuldzpvzoomed, h_looperdzpvzoomed, h_misiddzpvzoomed, h_pileupdzpvzoomed;
 
   std::vector<MonitorElement*> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
   std::vector<MonitorElement*> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;

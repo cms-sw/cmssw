@@ -26,14 +26,14 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
 	originalParticle != originalParticles->end(); ++originalParticle ) {
     metCorrection->mex   += originalParticle->px();
     metCorrection->mey   += originalParticle->py();
-    metCorrection->sumet += originalParticle->et();
+    metCorrection->sumet -= originalParticle->et();
   }
 
   for ( CandidateView::const_iterator shiftedParticle = shiftedParticles->begin();
 	shiftedParticle != shiftedParticles->end(); ++shiftedParticle ) {
     metCorrection->mex   -= shiftedParticle->px();
     metCorrection->mey   -= shiftedParticle->py();
-    metCorrection->sumet -= shiftedParticle->et();
+    metCorrection->sumet += shiftedParticle->et();
   }
 
   evt.put(std::move(metCorrection));

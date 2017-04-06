@@ -18,7 +18,10 @@
 
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include <Validation/HcalDigis/interface/HcalDigisValidation.h>
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
@@ -599,19 +602,13 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
                 unsigned int id_ = simhits->id();
-                int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet(); 
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                int sub, ieta, iphi;
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet(); 
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 double en = simhits->energy();
 
@@ -816,18 +813,13 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
                 unsigned int id_ = simhits->id();
                 int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet(); 
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                depth    = hid.depth();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
@@ -930,20 +922,14 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
                 unsigned int id_ = simhits->id();
-                int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub          = id.subdet();
-                  depth        = id.depth();
-                  ieta         = id.ieta();
-                  iphi         = id.iphi();
-                }
-              
+                int sub, ieta, iphi;
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
+
                 double en = simhits->energy();
 
                 if (en > emax_Sim && sub == isubdet) {
@@ -1149,18 +1135,13 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
                 unsigned int id_ = simhits->id();
                 int sub, depth, ieta, iphi;
-                if (testNumber_) {
-                  int z, lay;
-                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-                  int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
-                } else {
-                  HcalDetId id = HcalDetId(id_);
-                  sub       = id.subdet();
-                  depth        = id.depth();
-                  ieta          = id.ieta();
-                  iphi          = id.iphi();
-                }
+                HcalDetId hid;
+                if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+                else hid = HcalDetId(id_);
+                sub      = hid.subdet();
+                depth    = hid.depth();
+                ieta     = hid.ieta();
+                iphi     = hid.iphi();
 
                 if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;

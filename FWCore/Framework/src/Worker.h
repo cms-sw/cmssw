@@ -143,22 +143,22 @@ namespace edm {
     virtual Types moduleType() const =0;
 
     void clearCounters() {
-      timesRun_.store(0,std::memory_order_relaxed);
-      timesVisited_.store(0,std::memory_order_relaxed);
-      timesPassed_.store(0,std::memory_order_relaxed);
-      timesFailed_.store(0,std::memory_order_relaxed);
-      timesExcept_.store(0,std::memory_order_relaxed);
+      timesRun_.store(0,std::memory_order_release);
+      timesVisited_.store(0,std::memory_order_release);
+      timesPassed_.store(0,std::memory_order_release);
+      timesFailed_.store(0,std::memory_order_release);
+      timesExcept_.store(0,std::memory_order_release);
     }
 
     void addedToPath() {
       ++numberOfPathsOn_;
     }
     //NOTE: calling state() is done to force synchronization across threads
-    int timesRun() const { return timesRun_.load(std::memory_order_relaxed); }
-    int timesVisited() const { return timesVisited_.load(std::memory_order_relaxed); }
-    int timesPassed() const { return timesPassed_.load(std::memory_order_relaxed); }
-    int timesFailed() const { return timesFailed_.load(std::memory_order_relaxed); }
-    int timesExcept() const { return timesExcept_.load(std::memory_order_relaxed); }
+    int timesRun() const { return timesRun_.load(std::memory_order_acquire); }
+    int timesVisited() const { return timesVisited_.load(std::memory_order_acquire); }
+    int timesPassed() const { return timesPassed_.load(std::memory_order_acquire); }
+    int timesFailed() const { return timesFailed_.load(std::memory_order_acquire); }
+    int timesExcept() const { return timesExcept_.load(std::memory_order_acquire); }
     State state() const { return state_; }
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
@@ -211,6 +211,8 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& moduleCallingContext, Principal const& iPrincipal) const = 0;
+    
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
@@ -650,9 +652,9 @@ namespace edm {
         assert(not cached_exception_);
         std::ostringstream iost;
         if(iEPtr) {
-          iost<<"Prefetching for unscheduled module ";
+          iost<<"Prefetching for module ";
         } else {
-          iost<<"Calling method for unscheduled module ";
+          iost<<"Calling method for module ";
         }
         iost<<description().moduleName() << "/'"
         << description().moduleLabel() << "'";

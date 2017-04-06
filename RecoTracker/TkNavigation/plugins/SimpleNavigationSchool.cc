@@ -314,8 +314,8 @@ SimpleNavigationSchool::splitForwardLayers()
   FDLI begin = myRightLayers.begin();
   FDLI end   = myRightLayers.end();
 
-  // sort according to inner radius
-  sort ( begin, end, DiskLessInnerRadius()); 
+  // sort according to inner radius, but keeping the ordering in z!
+  stable_sort ( begin, end, DiskLessInnerRadius());
 
   // partition in cylinders
   vector<FDLC> result;
@@ -344,7 +344,7 @@ SimpleNavigationSchool::splitForwardLayers()
       LogDebug("TkNavigation") << "found break between groups" ;
 
       // sort layers in group along Z
-      sort ( current.begin(), current.end(), DetLessZ());
+      stable_sort ( current.begin(), current.end(), DetLessZ());
 
       result.push_back(current);
       current.clear();
@@ -356,7 +356,7 @@ SimpleNavigationSchool::splitForwardLayers()
   // now sort subsets in Z
   for ( vector<FDLC>::iterator ivec = result.begin();
 	ivec != result.end(); ivec++) {
-    sort( ivec->begin(), ivec->end(), DetLessZ());
+    stable_sort( ivec->begin(), ivec->end(), DetLessZ());
   }
 
   return result;

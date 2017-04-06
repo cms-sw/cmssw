@@ -22,8 +22,9 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Tracker': 'Tracker',
+                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
                  'PixBar':  'PixelBarrel',
-                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus'],
+                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
                  'PixFwdMinus': 'PixelForwardZminus',
                  'PixFwdPlus':  'PixelForwardZplus',
                  'TIB':         'TIB',
@@ -70,10 +71,23 @@ _components = _LABELS2COMPS[options.label]
 #
 #Geometry
 #
-if options.geom == 'phaseI':
+def _adaptToRun2(det):
+  if det == 'PixelForwardZminus':
+    det = det.replace('minus', 'Minus')
+  elif det == 'PixelForwardZplus':
+    det = det.replace('plus', 'Plus')
+  return det
+
+if options.geom == '2017' or options.geom == 'phaseI':
   process.load("Configuration.Geometry.GeometryExtended2017_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
+  if isinstance(_components, list):
+      for i in range(len(_components)):
+          _components[i] = _adaptToRun2(_components[i])
+  else:
+      _components = _adaptToRun2(_components)
+
 elif options.geom == 'phaseIID4':
   process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
 else:

@@ -29,6 +29,7 @@ import subprocess
 
 import clang.cindex
 
+clang_version = None
 
 headers_template = '''
 #include "{headers}"
@@ -198,7 +199,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     else:
                         after_serialize_count = after_serialize_count + 1
 
-                        if member.kind != clang.cindex.CursorKind.UNEXPOSED_DECL:
+                        if not is_friend_decl(member.kind):
                             raise Exception('Expected unexposed declaration (friend) after serialize() but found something else: looks like the COND_SERIALIZABLE macro has been changed without updating the script.')
 
                         if 'COND_SERIALIZABLE' not in get_statement(member):
@@ -274,7 +275,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                 ]):
                     logging.debug('Skipping member: %s %s %s %s', member.displayname, member.spelling, member.kind, member.type.kind)
 
-                elif member.kind == clang.cindex.CursorKind.UNEXPOSED_DECL:
+                elif is_friend_decl(member.kind):
                     statement = get_statement(member)
 
                     # Friends are unexposed but they are not data to serialize
@@ -339,6 +340,27 @@ def get_flags(product_name, flags):
     command = "scram b echo_%s_%s | tail -1 | cut -d '=' -f '2-' | xargs -n1" % (product_name, flags)
     logging.debug('Running: %s', command)
     return subprocess.check_output(command, shell=True).splitlines()
+
+def get_clang_version():
+    """Extract clang version and set global clang_version and also return the same value."""
+    global clang_version
+    if clang_version is not None:
+        return clang_version
+    command = "clang --version | grep 'clang version' | sed 's/clang version//'"
+    logging.debug("Running: {0}".format(command))
+    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].strip().split('.', 3)
+    clang_version = (int(clang_version_major), int(clang_version_minor), int(clang_version_patchlevel))
+    logging.debug("Detected Clang version: {0}".format(clang_version))
+    return clang_version
+
+def is_friend_decl(memkind):
+    """Check if declaration is a friend"""
+    clangv = get_clang_version()
+    if clangv >= (4, 0, 0):
+        return memkind == clang.cindex.CursorKind.FRIEND_DECL
+    else:
+        return memkind == clang.cindex.CursorKind.UNEXPOSED_DECL
+    return false
 
 def log_flags(name, flags):
     logging.debug('%s = [', name)
@@ -447,7 +469,14 @@ class SerializationCodeGenerator(object):
         logging.info('Searching serializable classes in %s/%s ...', self.split_path[1], self.split_path[2])
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
-        index = clang.cindex.Index.create()
+        # On macOS we need to costruct library search path
+        if "SCRAM_ARCH" in os.environ and re.match('osx10*',os.environ['SCRAM_ARCH']):
+            cindex=clang.cindex
+            libpath=os.path.dirname(os.path.realpath(clang.cindex.__file__))+"/../../lib"
+            cindex.Config.set_library_path(libpath)
+            index = cindex.Index.create()
+        else :
+            index = clang.cindex.Index.create()
         translation_unit = index.parse(headers_h, flags)
         if not translation_unit:
             raise Exception('Unable to load input.')

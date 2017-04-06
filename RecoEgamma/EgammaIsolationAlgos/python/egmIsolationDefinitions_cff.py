@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.egmGedGsfElectronPFIsolation_cfi import *
+from RecoEgamma.EgammaIsolationAlgos.egmGedGsfElectronPFIsolation_cff import *
 from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import *
 
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import *

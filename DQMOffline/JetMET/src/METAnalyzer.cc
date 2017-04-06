@@ -77,11 +77,11 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   if(isPFMet_){
    pflowToken_ = consumes<std::vector<reco::PFCandidate> >(pSet.getParameter<edm::InputTag>("srcPFlow"));
-   pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::RUNIISTARTUP, PFJetIDSelectionFunctor::LOOSE);
+   pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::WINTER16, PFJetIDSelectionFunctor::LOOSE);
   }
   if(isMiniAODMet_){
     pflowPackedToken_ = consumes<std::vector<pat::PackedCandidate> >(pSet.getParameter<edm::InputTag>("srcPFlow"));
-    pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::RUNIISTARTUP, PFJetIDSelectionFunctor::LOOSE);
+    pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::WINTER16, PFJetIDSelectionFunctor::LOOSE);
   }
   MuonsToken_ = consumes<reco::MuonCollection>(pSet.getParameter<edm::InputTag>       ("muonsrc"));
 

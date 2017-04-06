@@ -96,7 +96,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			hcaldqm::hashfunctions::fdepth,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 		_cKnownBadChannels_depth.book(ib, _emap, _subsystem);
 		for (uintCompactMap::const_iterator it=_xQuality.begin();
 			it!=_xQuality.end(); ++it)

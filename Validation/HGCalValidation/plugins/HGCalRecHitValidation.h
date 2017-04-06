@@ -78,6 +78,7 @@ private:
   std::string           nameDetector_;
   edm::EDGetToken       recHitSource_;
   int                   verbosity_;
+  bool                  ifHCAL_;
   unsigned int          layers_;
   std::map<int, int>    OccupancyMap_plus;
   std::map<int, int>    OccupancyMap_minus;

@@ -15,8 +15,7 @@ from FWCore.PythonUtilities.LumiList   import LumiList
 import json
 from pprint import pprint
 from datetime import datetime
-from subprocess import Popen,PIPE
-from types import GeneratorType
+import Utilities.General.cmssw_das_client as das_client
 help = """
 How to use:
 
@@ -47,70 +46,6 @@ dataset: it just a name of the physics dataset, if you don't know exact name
 For updated information see Wiki:
 https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents
 """
-
-#helper function taken from das_client
-def convert_time(val):
-    "Convert given timestamp into human readable format"
-    if  isinstance(val, int) or isinstance(val, float):
-        return time.strftime('%d/%b/%Y_%H:%M:%S_GMT', time.gmtime(val))
-    return val
-
-def size_format(uinput, ibase=0):
-    """
-    Format file size utility, it converts file size into KB, MB, GB, TB, PB units
-    """
-    if  not ibase:
-        return uinput
-    try:
-        num = float(uinput)
-    except Exception as _exc:
-        return uinput
-    if  ibase == 2.: # power of 2
-        base  = 1024.
-        xlist = ['', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
-    else: # default base is 10
-        base  = 1000.
-        xlist = ['', 'KB', 'MB', 'GB', 'TB', 'PB']
-    for xxx in xlist:
-        if  num < base:
-            return "%3.1f%s" % (num, xxx)
-        num /= base
-
-def extract_value(row, key, base=10):
-    """Generator which extracts row[key] value"""
-    if  isinstance(row, dict) and key in row:
-        if  key == 'creation_time':
-            row = convert_time(row[key])
-        elif  key == 'size':
-            row = size_format(row[key], base)
-        else:
-            row = row[key]
-        yield row
-    if  isinstance(row, list) or isinstance(row, GeneratorType):
-        for item in row:
-            for vvv in extract_value(item, key, base):
-                yield vvv
-
-
-def get_value(data, filters, base=10):
-    """Filter data from a row for given list of filters"""
-    for ftr in filters:
-        if  ftr.find('>') != -1 or ftr.find('<') != -1 or ftr.find('=') != -1:
-            continue
-        row = dict(data)
-        values = []
-        keys = ftr.split('.')
-        for key in keys:
-            val = [v for v in extract_value(row, key, base)]
-            if  key == keys[-1]: # we collect all values at last key
-                values += [json.dumps(i) for i in val]
-            else:
-                row = val
-        if  len(values) == 1:
-            yield values[0]
-        else:
-            yield values
-
 
 
 ########################
@@ -150,11 +85,7 @@ def getFileNames (event):
     files = []
 
     query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i | grep file.name" % event
-    p = Popen('das_client --format json --query "%s"'%(query), stdout=PIPE,shell=True)
-    pipe=p.stdout.read()
-    tupleP = os.waitpid(p.pid, 0)
-
-    jsondict = json.loads(pipe)#das_client.get_data('https://cmsweb.cern.ch', query, 0, 0, False)
+    jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
         print "DAS query status: %s"%(status)
@@ -166,7 +97,7 @@ def getFileNames (event):
 
     files = []
     for row in data:
-        file = [r for r in get_value(row, filters['grep'])][0]
+        file = [r for r in das_client.get_value(row, filters['grep'])][0]
         if len(file) > 0 and not file in files:
             files.append(file)
 

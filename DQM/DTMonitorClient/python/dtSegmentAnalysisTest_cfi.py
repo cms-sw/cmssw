@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
                              detailedAnalysis = cms.untracked.bool(False),
-			     #Perform basic diagnostic in endLumi/EndRun
+                             #Perform basic diagnostic in endLumi/EndRun
                              runOnline = cms.untracked.bool(True),
                              #Names of the quality tests: they must match those specified in "qtList"
                              chi2TestName = cms.untracked.string('chi2InRange'),

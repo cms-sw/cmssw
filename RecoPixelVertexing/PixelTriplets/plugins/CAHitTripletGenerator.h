@@ -19,6 +19,7 @@
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 class TrackingRegion;
 class SeedingLayerSetsHits;
 
@@ -33,8 +34,7 @@ public:
     typedef LayerHitMapCache LayerCacheType;
 
     static constexpr unsigned int minLayers = 3;
-    typedef OrderedHitTriplets ResultType;
-
+    typedef OrderedHitSeeds ResultType;
 public:
 
     CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitTripletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
@@ -51,9 +51,8 @@ public:
     virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
-    // new-style
-    void hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-                     OrderedHitTriplets& result,
+    void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
+                     std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
                      const SeedingLayerSetsHits& layers);
 

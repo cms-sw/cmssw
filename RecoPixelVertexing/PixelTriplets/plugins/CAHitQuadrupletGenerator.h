@@ -54,8 +54,8 @@ public:
             const edm::Event & ev, const edm::EventSetup& es);
 
     // new-style
-    void hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-                     OrderedHitSeeds& result,
+    void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
+                     std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
                      const SeedingLayerSetsHits& layers);
 
@@ -146,6 +146,6 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 0.1f;
     const float caHardPtCut = 0.f;
-
+    const bool caOnlyOneLastHitPerLayerFilter = false;
 };
 #endif

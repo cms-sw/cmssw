@@ -59,8 +59,7 @@ namespace edm {
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup, StreamContext& sContext) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>, StreamContext >(ep, setup, ep.streamID(),
-                                                                                                                   &sContext, &sContext);
+    workerManager_.setupOnDemandSystem(ep, setup);
   }
   void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext& sContext) {
     workerManager_.beginStream(iID, sContext);

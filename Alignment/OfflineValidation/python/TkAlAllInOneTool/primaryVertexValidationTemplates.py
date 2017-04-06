@@ -115,7 +115,7 @@ process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitte
 process.TrackRefitter.src = ".oO[TrackCollection]Oo."
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+process.TrackRefitter.TTRHBuilder = ".oO[ttrhbuilder]Oo."
 
 ####################################################################
 # Output file
@@ -137,7 +137,10 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
-                                           probePt = cms.untracked.double(.oO[ptCut]Oo.),
+                                           probePt  = cms.untracked.double(.oO[ptCut]Oo.),
+                                           probeEta = cms.untracked.double(.oO[etaCut]Oo.),
+                                           doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
+                                           doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
                                            numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
                                            runControl = cms.untracked.bool(.oO[runControl]Oo.),
                                            runControlNumber = cms.untracked.vuint32(int(.oO[runboundary]Oo.)),
@@ -175,6 +178,9 @@ else:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(.oO[ptCut]Oo.),
+                                           probeEta = cms.untracked.double(.oO[etaCut]Oo.),
+                                           doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
+                                           doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
                                            numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
                                            runControl = cms.untracked.bool(.oO[runControl]Oo.),
                                            runControlNumber = cms.untracked.vuint32(int(.oO[runboundary]Oo.)),
@@ -365,25 +371,27 @@ It can be run as is, or adjusted to fit
 void TkAlPrimaryVertexValidationPlot()
 {
 
-  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,
-                      .oO[m_dzPhiMax]Oo.,
-                      .oO[m_dxyEtaMax]Oo.,
-                      .oO[m_dzEtaMax]Oo.,
-                      .oO[m_dxyPhiNormMax]Oo.,
-                      .oO[m_dzPhiNormMax]Oo.,
-                      .oO[m_dxyEtaNormMax]Oo.,
-                      .oO[m_dzEtaNormMax]Oo.,
-                      .oO[w_dxyPhiMax]Oo.,
-                      .oO[w_dzPhiMax]Oo.,
-                      .oO[w_dxyEtaMax]Oo.,
-                      .oO[w_dzEtaMax]Oo.,
-                      .oO[w_dxyPhiNormMax]Oo.,
-                      .oO[w_dzPhiNormMax]Oo.,
-                      .oO[w_dxyEtaNormMax]Oo.,
-                      .oO[w_dzEtaNormMax]Oo.
+  // initialize the plot y-axis ranges
+  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,         // mean of dxy vs Phi        
+                      .oO[m_dzPhiMax]Oo.,          // mean of dz  vs Phi        
+                      .oO[m_dxyEtaMax]Oo.,         // mean of dxy vs Eta        
+                      .oO[m_dzEtaMax]Oo.,          // mean of dz  vs Eta        
+                      .oO[m_dxyPhiNormMax]Oo.,     // mean of dxy vs Phi (norm) 
+                      .oO[m_dzPhiNormMax]Oo.,      // mean of dz  vs Phi (norm) 
+                      .oO[m_dxyEtaNormMax]Oo.,     // mean of dxy vs Eta (norm) 
+                      .oO[m_dzEtaNormMax]Oo.,      // mean of dz  vs Eta (norm) 
+                      .oO[w_dxyPhiMax]Oo.,         // width of dxy vs Phi       
+                      .oO[w_dzPhiMax]Oo.,          // width of dz  vs Phi       
+                      .oO[w_dxyEtaMax]Oo.,         // width of dxy vs Eta       
+                      .oO[w_dzEtaMax]Oo.,          // width of dz  vs Eta       
+                      .oO[w_dxyPhiNormMax]Oo.,     // width of dxy vs Phi (norm)
+                      .oO[w_dzPhiNormMax]Oo.,      // width of dz  vs Phi (norm)
+                      .oO[w_dxyEtaNormMax]Oo.,     // width of dxy vs Eta (norm)
+                      .oO[w_dzEtaNormMax]Oo.       // width of dz  vs Eta (norm)
 		      );
-  
-  FitPVResiduals(".oO[PrimaryVertexPlotInstantiation]Oo.",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
+
+ .oO[PrimaryVertexPlotInstantiation]Oo.
+  FitPVResiduals("",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """
 

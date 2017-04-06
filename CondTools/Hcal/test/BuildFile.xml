@@ -20,3 +20,7 @@
   <lib name="PMTParams"/>
   <lib name="PMTParamsVis"/>
 </bin>
+
+<bin     file="write_HBHENegativeEFilter.cc">
+  <lib name="PMTParams"/>
+</bin>

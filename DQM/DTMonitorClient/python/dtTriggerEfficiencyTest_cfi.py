@@ -15,4 +15,6 @@ triggerEffTest = cms.EDAnalyzer("DTTriggerEfficiencyTest",
     detailedAnalysis = cms.untracked.bool(False)                                  
 )
 
+from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
+run2_25ns_specific.toModify( triggerEffTest,hwSources = cms.untracked.vstring('TM') )
 

@@ -5,6 +5,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
+#include "TkCloner.h"
+
+
 class Phase2TrackerRecHit1D final : public TrackerSingleRecHit {
 
 public:
@@ -20,9 +23,7 @@ public:
 		         CluRef const&  clus) : TrackerSingleRecHit(pos,err,idet,clus){}
 
   virtual Phase2TrackerRecHit1D * clone() const override { return new Phase2TrackerRecHit1D( * this); }
-#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const override { return std::make_shared<Phase2TrackerRecHit1D>(*this);}
-#endif
 
   CluRef cluster()  const { return cluster_phase2OT(); }
   void setClusterRef(CluRef const & ref)  {setClusterPhase2Ref(ref);}
@@ -32,8 +33,16 @@ public:
   virtual int dimension() const override {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
 
-private:
+  virtual bool canImproveWithTrack() const override {return true;}
 
+private:
+  // double dispatch
+  virtual Phase2TrackerRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
+  }
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this,tsos);
+  }
 };
 
 typedef edmNew::DetSetVector< Phase2TrackerRecHit1D > Phase2TrackerRecHit1DCollectionNew;

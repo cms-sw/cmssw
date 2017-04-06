@@ -38,7 +38,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
 
   virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun();
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   virtual int countMuonHits(const reco::Track& track) const;
   virtual int countTrackerHits(const reco::Track& track) const;

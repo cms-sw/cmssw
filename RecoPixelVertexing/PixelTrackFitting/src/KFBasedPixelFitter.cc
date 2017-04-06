@@ -1,22 +1,15 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/KFBasedPixelFitter.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -82,33 +75,20 @@ AlgebraicMatrix KFBasedPixelFitter::MyBeamSpotHit::projectionMatrix() const
 }
 
 
-KFBasedPixelFitter::KFBasedPixelFitter( const edm::ParameterSet& cfg)
- :  
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    thePropagatorOppositeLabel(cfg.getParameter<std::string>("propagatorOpposite")),
-    theUseBeamSpot(cfg.getParameter<bool>("useBeamSpotConstraint")),
-    theTTRHBuilderName(cfg.getParameter<std::string>("TTRHBuilder")) 
-{ 
-  if (theUseBeamSpot) theBeamSpot = cfg.getParameter<edm::InputTag>("beamSpotConstraint");
-}
+KFBasedPixelFitter::KFBasedPixelFitter(const edm::EventSetup *es, const Propagator *propagator, const Propagator *opropagator,
+                                       const TransientTrackingRecHitBuilder *ttrhBuilder,
+                                       const TrackerGeometry *tracker, const MagneticField *field,
+                                       const reco::BeamSpot *beamSpot):
+  theES(es), thePropagator(propagator), theOPropagator(opropagator), theTTRHBuilder(ttrhBuilder),
+  theTracker(tracker), theField(field), theBeamSpot(beamSpot)
+{}
 
-reco::Track* KFBasedPixelFitter::run(
-    const edm::Event& ev,
-    const edm::EventSetup& es,
-    const std::vector<const TrackingRecHit * > & hits,
-    const TrackingRegion & region) const
-{
+std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const {
+  std::unique_ptr<reco::Track> ret;
+
   int nhits = hits.size();
-  if (nhits <2) return 0;
+  if (nhits <2) return ret;
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhb;
-  es.get<TransientRecHitRecord>().get( theTTRHBuilderName, ttrhb);
 
   float ptMin = region.ptMin();
 
@@ -116,9 +96,9 @@ reco::Track* KFBasedPixelFitter::run(
   GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()), 0, 0, sqr(region.originZBound()));
 
   std::vector<GlobalPoint> points(nhits);
-  points[0] = tracker->idToDet(hits[0]->geographicalId())->toGlobal(hits[0]->localPosition());
-  points[1] = tracker->idToDet(hits[1]->geographicalId())->toGlobal(hits[1]->localPosition());
-  points[2] = tracker->idToDet(hits[2]->geographicalId())->toGlobal(hits[2]->localPosition());
+  points[0] = theTracker->idToDet(hits[0]->geographicalId())->toGlobal(hits[0]->localPosition());
+  points[1] = theTracker->idToDet(hits[1]->geographicalId())->toGlobal(hits[1]->localPosition());
+  points[2] = theTracker->idToDet(hits[2]->geographicalId())->toGlobal(hits[2]->localPosition());
 
   //
   //initial Kinematics
@@ -128,7 +108,7 @@ reco::Track* KFBasedPixelFitter::run(
   float theta;
   CircleFromThreePoints circle(points[0], points[1], points[2]);
   if (circle.curvature() > 1.e-4) {
-    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
+    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), *theES);
     float valPt = 1.f/invPt;
     float chargeTmp =    (points[1].x()-points[0].x())*(points[2].y()-points[1].y())
                        - (points[1].y()-points[0].y())*(points[2].x()-points[1].x()); 
@@ -143,7 +123,7 @@ reco::Track* KFBasedPixelFitter::run(
     charge = 1;
     theta = initMom.theta();
   }
-  GlobalTrajectoryParameters initialKine(vertexPos, initMom, TrackCharge(charge), &*field);
+  GlobalTrajectoryParameters initialKine(vertexPos, initMom, TrackCharge(charge), theField);
 
   //
   // initial error
@@ -160,10 +140,6 @@ reco::Track* KFBasedPixelFitter::run(
 
   FreeTrajectoryState fts(initialKine, initialError);
 
-  // get propagator
-  edm::ESHandle<Propagator>  propagator;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagator);
-
   // get updator
   KFUpdator  updator;
 
@@ -173,52 +149,47 @@ reco::Track* KFBasedPixelFitter::run(
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit];
-    if (iHit==0) outerState = propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
+    if (iHit==0) outerState = thePropagator->propagate(fts,theTracker->idToDet(hit->geographicalId())->surface());
     outerDetId = hit->geographicalId();
-    TrajectoryStateOnSurface state = propagator->propagate(outerState, tracker->idToDet(outerDetId)->surface());
-    if (!state.isValid()) return 0;
-//    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
-    TransientTrackingRecHit::RecHitPointer recHit =  ttrhb->build(hit);
+    TrajectoryStateOnSurface state = thePropagator->propagate(outerState, theTracker->idToDet(outerDetId)->surface());
+    if (!state.isValid()) return ret;
+//    TransientTrackingRecHit::RecHitPointer recHit = (theTTRHBuilder->build(hit))->clone(state);
+    TransientTrackingRecHit::RecHitPointer recHit =  theTTRHBuilder->build(hit);
     outerState =  updator.update(state, *recHit);
-    if (!outerState.isValid()) return 0;
+    if (!outerState.isValid()) return ret;
   }
   
 
 
-  // get propagator
-  edm::ESHandle<Propagator>  opropagator;
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
   TrajectoryStateOnSurface innerState = outerState;
   DetId innerDetId = 0;
   innerState.rescaleError(100000.);
   for ( int iHit = 2; iHit >= 0; --iHit) {
     hit = hits[iHit];
     innerDetId = hit->geographicalId();
-    TrajectoryStateOnSurface state = opropagator->propagate(innerState, tracker->idToDet(innerDetId)->surface());
-    if (!state.isValid()) return 0;
-//  TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
-    TransientTrackingRecHit::RecHitPointer recHit = ttrhb->build(hit);
+    TrajectoryStateOnSurface state = theOPropagator->propagate(innerState, theTracker->idToDet(innerDetId)->surface());
+    if (!state.isValid()) return ret;
+//  TransientTrackingRecHit::RecHitPointer recHit = (theTTRHBuilder->build(hit))->clone(state);
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(hit);
     innerState =  updator.update(state, *recHit);
-    if (!innerState.isValid()) return 0;
+    if (!innerState.isValid()) return ret;
   }
 
 
   // extrapolate to vertex
-  TrajectoryStateOnSurface  impactPointState =  TransverseImpactPointExtrapolator(&*field).extrapolate( innerState, vertexPos);
-  if (!impactPointState.isValid()) return 0;
+  TrajectoryStateOnSurface  impactPointState =  TransverseImpactPointExtrapolator(theField).extrapolate( innerState, vertexPos);
+  if (!impactPointState.isValid()) return ret;
 
   //
   // optionally update impact point state with Bs constraint
   // using this potion makes sense if vertexPos (from TrackingRegion is centerewd at BeamSpot).
   //
-  if (theUseBeamSpot) {
-    edm::Handle<reco::BeamSpot> beamSpot;
-    ev.getByLabel( "offlineBeamSpot", beamSpot);
+  if (theBeamSpot) {
     MyBeamSpotGeomDet bsgd(Plane::build(impactPointState.surface().position(), impactPointState.surface().rotation()));
-    MyBeamSpotHit     bsrh(*beamSpot, &bsgd);
+    MyBeamSpotHit     bsrh(*theBeamSpot, &bsgd);
     impactPointState = updator.update(impactPointState, bsrh); //update
-    impactPointState = TransverseImpactPointExtrapolator(&*field).extrapolate( impactPointState, vertexPos); //reextrapolate
-    if (!impactPointState.isValid()) return 0;
+    impactPointState = TransverseImpactPointExtrapolator(theField).extrapolate( impactPointState, vertexPos); //reextrapolate
+    if (!impactPointState.isValid()) return ret;
   }
 
   int ndof = 2*hits.size()-5;
@@ -228,7 +199,7 @@ reco::Track* KFBasedPixelFitter::run(
   math::XYZVector mom( pp.x(), pp.y(), pp.z() );
 
   float chi2 = 0.;
-  reco::Track * track = new reco::Track( chi2, ndof, pos, mom,
+  ret = std::make_unique<reco::Track>( chi2, ndof, pos, mom,
         impactPointState.charge(), impactPointState.curvilinearError());
 
 /*
@@ -249,5 +220,5 @@ reco::Track* KFBasedPixelFitter::run(
 */
 
 //  std::cout <<"TRACK CREATED" << std::endl;
-  return track;
+  return ret;
 }

@@ -4,13 +4,9 @@ process = cms.Process("PROD")
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
-#process.source = cms.Source("EmptySource")
-process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:powheg-b_bbar_4l.lhe')
-)
-#    fileNames = cms.untracked.vstring('file:powheg-Zee.lhe')
+process.source = cms.Source("EmptySource")
 
-process.generator = cms.EDFilter("Pythia8HadronizerFilter",
+process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
@@ -30,7 +26,11 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
               'SpaceShower:pTmaxMatch = 2',
               'TimeShower:pTmaxMatch = 2',
         ),
-        pythia8_example12 = cms.vstring('POWHEGres:calcScales = on'),
+        pythia8_example12 = cms.vstring(
+              'POWHEGres:calcScales = on',
+              'Beams:frameType = 4',
+              'Beams:LHEF = powheg-b_bbar_4l.lhe',
+        ),
         parameterSets = cms.vstring('pythia8PowhegEmissionVetoSettings', 'pythia8_example12')
     )
 

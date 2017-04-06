@@ -10,5 +10,8 @@
   <class name="CTPPSDiamondDetId" ClassVersion="3">
     <version ClassVersion="3" checksum="4277652856"/>
   </class>
+  <class name="CTPPSPixelDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="2664786666"/>
+  </class>
 
 </lcgdict>

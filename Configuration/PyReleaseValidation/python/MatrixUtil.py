@@ -115,11 +115,15 @@ class InputInfo(object):
         
     def das(self, das_options):
         if len(self.run) is not 0 or self.ls:
-            # take at most 5 queries, to avoid sinking das
-
-            # do  if you have LS queries
-            # command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
-            command = ";".join(["das_client %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            queries = self.queries()[:3]
+            if len(self.run) != 0:
+              command = ";".join(["das_client %s --query '%s'" % (das_options, query) for query in queries])
+            else:
+              lumis = self.lumis()
+              commands = []
+              while queries:
+                commands.append("das_client %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+              command = ";".join(commands)
             command = "({0})".format(command)
         else:
             command = "das_client %s --query '%s'" % (das_options, self.queries()[0])
@@ -137,6 +141,15 @@ class InputInfo(object):
         if self.ls :
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
+
+    def lumis(self):
+      query_lumis = []
+      if self.ls:
+        for run in self.ls.keys():
+          run_lumis = []
+          for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
+          query_lumis.append(":".join(run_lumis))
+      return query_lumis
 
     def queries(self):
         query_by = "block" if self.ib_block else "dataset"

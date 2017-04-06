@@ -1,57 +1,40 @@
-////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Common/interface/View.h"
+
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-
-#include "DataFormats/Common/interface/View.h"
 
 #include <memory>
 #include <vector>
 #include <sstream>
 
-//#include "Validation/RecoTau/interface/prettyPrint.h" debugging putpose
-
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class CollectionFromZLegProducer : public edm::EDProducer
-{
+class CollectionFromZLegProducer : public edm::global::EDProducer<> {
 public:
-  // construction/destruction
-  CollectionFromZLegProducer(const edm::ParameterSet& iConfig);
-  virtual ~CollectionFromZLegProducer();
-  
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
 
-private:  
-  // member data
-  edm::EDGetTokenT< std::vector<reco::CompositeCandidate> >   v_RecoCompositeCandidateToken_;
-  std::string                                                 OutputCollection_ ;
-  
+  explicit CollectionFromZLegProducer(edm::ParameterSet const& iConfig);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+  edm::EDGetTokenT<std::vector<reco::CompositeCandidate>> v_RecoCompositeCandidateToken_;
 };
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// construction/destruction
+// construction
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-CollectionFromZLegProducer::CollectionFromZLegProducer(const edm::ParameterSet& iConfig)
-  : v_RecoCompositeCandidateToken_( consumes< std::vector<reco::CompositeCandidate> >( iConfig.getParameter<edm::InputTag>( "ZCandidateCollection" ) ) )
+CollectionFromZLegProducer::CollectionFromZLegProducer(edm::ParameterSet const& iConfig)
+  : v_RecoCompositeCandidateToken_{consumes<std::vector<reco::CompositeCandidate>>(iConfig.getParameter<edm::InputTag>("ZCandidateCollection"))}
 {
-  produces<std::vector<reco::CompositeCandidate> >("theTagLeg"  );
-  produces<std::vector<reco::CompositeCandidate> >("theProbeLeg");
-}
-
-
-//______________________________________________________________________________
-CollectionFromZLegProducer::~CollectionFromZLegProducer()
-{
+  produces<std::vector<reco::CompositeCandidate>>("theTagLeg");
+  produces<std::vector<reco::CompositeCandidate>>("theProbeLeg");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,40 +42,32 @@ CollectionFromZLegProducer::~CollectionFromZLegProducer()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void CollectionFromZLegProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{  
-  std::unique_ptr<std::vector<reco::CompositeCandidate> > theTagLeg(new std::vector<reco::CompositeCandidate>) ;	     
-  std::unique_ptr<std::vector<reco::CompositeCandidate> > theProbeLeg(new std::vector<reco::CompositeCandidate>) ;	     
-  
-  edm::Handle< std::vector<reco::CompositeCandidate> > theZHandle;
-  iEvent.getByToken( v_RecoCompositeCandidateToken_,theZHandle );
-  
+void CollectionFromZLegProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
+{
+  auto tagLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
+  auto probeLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
+
+  edm::Handle<std::vector<reco::CompositeCandidate>> zs;
+  iEvent.getByToken(v_RecoCompositeCandidateToken_, zs);
+
   // this is specific for our 'tag and probe'
-  
-  for (std::vector<reco::CompositeCandidate>::const_iterator Zit  = theZHandle->begin() ; 
-                                                             Zit != theZHandle->end()   ; 
-                                                             ++Zit                      )
-  {
-	int c = 0;
-	
-	for(reco::CompositeCandidate::const_iterator Daug =(*Zit).begin(); 
-                                                 Daug!=(*Zit).end()  ; 
-                                                 ++Daug              )
-	{
-	  if (c == 0){
-	    reco::CompositeCandidate candT(*Daug) ;
-	    theTagLeg->push_back(candT) ;
-	  }
-	  if (c == 1){
-	    reco::CompositeCandidate candP(*Daug) ;
-	    theProbeLeg->push_back(candP) ;
-	  }
-	  c++ ;
-	}
-  } 
-  iEvent.put(std::move(theTagLeg), "theTagLeg"   ) ;
-  iEvent.put(std::move(theProbeLeg), "theProbeLeg" ) ;
+  for (auto const& z : *zs) {
+    int c {};
+    for (auto const& leg : z) {
+      if (c == 0) {
+        tagLegs->emplace_back(leg);
+      }
+      else if (c == 1){
+        probeLegs->emplace_back(leg);
+      }
+      else {
+        break;
+      }
+      ++c;
+    }
+  }
+  iEvent.put(std::move(tagLegs), "theTagLeg");
+  iEvent.put(std::move(probeLegs), "theProbeLeg");
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(CollectionFromZLegProducer);

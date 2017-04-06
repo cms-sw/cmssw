@@ -7,6 +7,9 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'trackingOnlyDQM' : ["DQMOfflineTracking",
                                  "PostDQMOffline",
                                  "DQMHarvestTracking"],
+            'outerTracker': ['DQMOuterTracker',
+                             'PostDQMOffline',
+                             'DQMHarvestOuterTracker'],
             'muon': ['DQMOfflineMuon',
                      'PostDQMOffline',
                      'DQMHarvestMuon+DQMCertMuon'],
@@ -38,7 +41,6 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
             'allForPrompt':  ['@common+@muon+@hcal+@jetmet+@ecal',
                               'PostDQMOffline',
                               '@common+@muon+@hcal+@jetmet+@ecal'],
-
             'miniAODDQM': ['DQMOfflineMiniAOD',
                            'PostDQMOfflineMiniAOD',
                            'DQMHarvestMiniAOD'],
@@ -53,7 +55,7 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'dqmHarvesting']
             }
 
-_phase2_allowed = ['trackingOnlyDQM','muon','hcal','hcal2','egamma']
+_phase2_allowed = ['trackingOnlyDQM','outerTracker','muon','hcal','hcal2','egamma']
 autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])

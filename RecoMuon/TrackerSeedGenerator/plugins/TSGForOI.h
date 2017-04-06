@@ -4,11 +4,10 @@
 /**
   \class    TSGForOI
   \brief    Create L3MuonTrajectorySeeds from L2 Muons updated at vertex in an outside in manner
-  \author   Benjamin Radburn-Smith
+  \author   Benjamin Radburn-Smith, Santiago Folgueras
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,7 +34,7 @@ class TSGForOI : public edm::stream::EDProducer<> {
 public:
 	explicit TSGForOI(const edm::ParameterSet & iConfig);
 	virtual ~TSGForOI();
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 private:
 	/// Labels for input collections
@@ -47,21 +46,19 @@ private:
 	/// How many layers to try
 	const unsigned int numOfLayersToTry_;
 
-	/// How many hits to try on same layer
+	/// How many hits to try per layer
 	const unsigned int numOfHitsToTry_;
 
-	/// How much to rescale errors from STA for fixed option
+	/// How much to rescale errors from the L2 (fixed error vs pT, eta)
 	const double fixedErrorRescalingForHits_;
 	const double fixedErrorRescalingForHitless_;
 
-	/// Whether or not to use an automatically calculated SF value
-	const bool adjustErrorsDyanmicallyForHits_;
-	const bool adjustErrorsDyanmicallyForHitless_;
+	/// Whether or not to use an automatically calculated scale-factor value
+	const bool adjustErrorsDynamicallyForHits_;
+	const bool adjustErrorsDynamicallyForHitless_;
 
 	/// Estimator used to find dets and TrajectoryMeasurements
 	const std::string estimatorName_;
-
-	const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
 
 	/// Minimum eta value to activate searching in the TEC
 	const double minEtaForTEC_;
@@ -69,11 +66,12 @@ private:
 	/// Maximum eta value to activate searching in the TOB
 	const double maxEtaForTOB_;
 
-	/// Switch to use hitless seeds or not
-	const bool useHitlessSeeds_;
+	/// Switch ON  (True) : use additional hits for seeds depending on the L2 properties (ignores numOfMaxSeeds_) 
+	/// Switch OFF (False): the numOfMaxSeeds_ defines if we will use hitless (numOfMaxSeeds_==1) or hitless+hits (numOfMaxSeeds_>1) 
+	const bool useHitLessSeeds_;
 
-	/// Switch to use hitless + hits for seeds depending on the L2 properties
-	const bool useHybridSeeds_;
+	/// Switch ON to use Stereo layers instead of using every layer in TEC.
+	const bool useStereoLayersInTEC_;
 
 	/// Surface used to make a TSOS at the PCA to the beamline
 	Plane::PlanePointer dummyPlane_;
@@ -81,44 +79,40 @@ private:
 	/// KFUpdator defined in constructor
 	std::unique_ptr<TrajectoryStateUpdator> updator_;
 
+	const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
+
 	/// pT, eta ranges and scale factor values
 	const double pT1_,pT2_,pT3_;
 	const double eta1_,eta2_;
 	const double SF1_,SF2_,SF3_,SF4_,SF5_;
 
-	/// Difference in deltaR of TSOSs to trigger using hits in hybrid
-	const double tsosDiffDeltaR_;
+	/// Distance of TSOSs to trigger using hits or not
+	const double tsosDiff_;
 
 	/// Counters and flags for the implementation
-	bool foundCompatibleDet_;
 	bool analysedL2_;
-	bool useHitsInHybrid_;
+	bool foundHitlessSeed_;
 	unsigned int numSeedsMade_;
 	unsigned int layerCount_;
 
 	std::string theCategory;
-
 	edm::ESHandle<MagneticField>          magfield_;
 	edm::ESHandle<Propagator>             propagatorAlong_;
 	edm::ESHandle<Propagator>             propagatorOpposite_;
 	edm::ESHandle<GlobalTrackingGeometry> geometry_;
 	edm::Handle<MeasurementTrackerEvent>  measurementTracker_;
+	edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
 
 	/// Function to find seeds on a given layer
 	void findSeedsOnLayer(const GeometricSearchDet &layer,
-			const TrajectoryStateOnSurface &tsosAtIP,
-			const TrajectoryStateOnSurface &tsosAtMuonSystem,
-			const Propagator& propagatorAlong,
-			const Propagator& propagatorOpposite,
-			const reco::TrackRef l2,
-			std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
+			      const TrajectoryStateOnSurface &tsosAtIP,
+			      const Propagator& propagatorAlong,
+			      const Propagator& propagatorOpposite,
+			      const reco::TrackRef l2,
+			      std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
 
 	/// Function used to calculate the dynamic error SF by analysing the L2
-	double calculateSFFromL2(const GeometricSearchDet& layer,
-			const TrajectoryStateOnSurface &tsosAtMuonSystem,
-			const TrajectoryStateOnSurface &tsosOnLayer,
-			const Propagator& propagatorOpposite,
-			const reco::TrackRef track);
+	double calculateSFFromL2(const reco::TrackRef track);
 
 	/// Function to find hits on layers and create seeds from updated TSOS
 	int makeSeedsFromHits(const GeometricSearchDet &layer,
@@ -128,7 +122,7 @@ private:
 			const MeasurementTrackerEvent &mte,
 			double errorSF);
 
-	edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
+
 };
 
 #endif

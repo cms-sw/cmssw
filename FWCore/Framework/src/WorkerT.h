@@ -132,7 +132,11 @@ namespace edm {
     
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override {
+      module_->preActionBeforeRunEventAsync(iTask,iModuleCallingContext,iPrincipal);
+    }
 
+    
     edm::propagate_const<std::shared_ptr<T>> module_;
   };
 

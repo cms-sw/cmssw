@@ -7,15 +7,15 @@ def addL3ToHLT(process):
 	for l3Filter in filters_by_type(process, 'HLTMuonL3PreFilter'):
 		if hasattr(l3Filter, 'CandTag'):
 			if (l3Filter.CandTag==cms.InputTag("hltL3MuonCandidates")):
-				l3Filter.CandTag=cms.InputTag("hltBRSL3MuonCandidates")
-				l3Filter.InputLinks=cms.InputTag( "hltBRSL3MuonsLinksCombination")
+				l3Filter.CandTag=cms.InputTag("hltIterL3MuonCandidates")
+				l3Filter.InputLinks=cms.InputTag( "hltIterL3MuonsLinksCombination")
 
 	if hasattr(process, 'hltPixelTracksForSeedsL3Muon'):
-		process.hltPixelTracksForSeedsL3Muon.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltBRSL3MuonCandidates")
+		process.hltPixelTracksForSeedsL3Muon.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltIterL3MuonCandidates")
 	if hasattr(process, 'hltIter1L3MuonPixelSeeds'):
-		process.hltIter1L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltBRSL3MuonCandidates")
+		process.hltIter1L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltIterL3MuonCandidates")
 	if hasattr(process, 'hltIter2L3MuonPixelSeeds'):
-		process.hltIter2L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltBRSL3MuonCandidates")
+		process.hltIter2L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltIterL3MuonCandidates")
 
 	def producers_by_type(process, type):
     		return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
@@ -23,78 +23,74 @@ def addL3ToHLT(process):
 	for PFModule in producers_by_type(process, 'MuonHLTRechitInRegionsProducer'):
 		if hasattr(PFModule, 'l1TagIsolated'):
 			if(PFModule.l1TagIsolated==cms.InputTag("hltL3MuonCandidates")):
-				PFModule.l1TagIsolated=cms.InputTag("hltBRSL3MuonCandidates")
+				PFModule.l1TagIsolated=cms.InputTag("hltIterL3MuonCandidates")
 	#Isolation paths:
 	for PFModule in producers_by_type(process, 'L3MuonCombinedRelativeIsolationProducer'):
 		if hasattr(PFModule, 'inputMuonCollection'):
 			if(PFModule.inputMuonCollection==cms.InputTag("hltL3MuonCandidates")):
-				PFModule.inputMuonCollection=cms.InputTag("hltBRSL3MuonCandidates")
+				PFModule.inputMuonCollection=cms.InputTag("hltIterL3MuonCandidates")
 
 	for l3Filter in filters_by_type(process, 'HLTMuonIsoFilter'):
 		if hasattr(l3Filter, 'CandTag'):
 			if (l3Filter.CandTag==cms.InputTag("hltL3MuonCandidates")):
-				l3Filter.CandTag=cms.InputTag("hltBRSL3MuonCandidates")
+				l3Filter.CandTag=cms.InputTag("hltIterL3MuonCandidates")
 
 	for l3Filter in filters_by_type(process, 'HLTMuonDimuonL3Filter'):
 		if hasattr(l3Filter, 'CandTag'):
 			if (l3Filter.CandTag==cms.InputTag("hltL3MuonCandidates")):
-				l3Filter.CandTag=cms.InputTag("hltBRSL3MuonCandidates")
+				l3Filter.CandTag=cms.InputTag("hltIterL3MuonCandidates")
 
 	if hasattr(process, 'hltMuonEcalPFClusterIsoForMuons'):
-		process.hltMuonEcalPFClusterIsoForMuons.recoCandidateProducer = cms.InputTag("hltBRSL3MuonCandidates")
+		process.hltMuonEcalPFClusterIsoForMuons.recoCandidateProducer = cms.InputTag("hltIterL3MuonCandidates")
 
 	if hasattr(process, 'hltDiMuonLinks'):
-		process.hltDiMuonLinks.LinkCollection = cms.InputTag("hltBRSL3MuonsLinksCombination")
+		process.hltDiMuonLinks.LinkCollection = cms.InputTag("hltIterL3MuonsLinksCombination")
 	#############################################################
 	#Making Pixel Vertices:
-	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
-	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
-	    RegionFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-	      RegionPSet = cms.PSet(
-	        precise = cms.bool( True ),
-	        originRadius = cms.double( 0.2 ),
-	        ptMin = cms.double( 0.9 ),
-	        originHalfLength = cms.double( 24.0 ),
-	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
-	      )
-	    ),
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
+        from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
+        from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+        from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+        from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+        from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections as _pixelFitterByHelixProjections
+        from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits as _pixelTrackCleanerBySharedHits
+        process.hltPixelTracksTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(
+            precise = True,
+            originRadius = 0.2,
+            ptMin = 0.9,
+            originHalfLength = 24.0,
+	    beamSpot = "hltOnlineBeamSpot"
+        )
+        process.hltPixelTracksHitDoublets = _hitPairEDProducer.clone(
+            clusterCheck = "",
+            seedingLayers = "hltPixelLayerTriplets",
+            trackingRegions = "hltPixelTracksTrackingRegions",
+            maxElement = 0,
+            produceIntermediateHitDoublets = True,
+        )
+        process.hltPixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
+            useBending = True,
+	    useFixedPreFiltering = False,
+	    maxElement = 100000,
+	    phiPreFiltering = 0.3,
+	    extraHitRPhitolerance = 0.06,
+	    useMultScattering = True,
+	    SeedComparitorPSet = dict(
+                ComponentName = "LowPtClusterShapeSeedComparitor",
+	        clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
             ),
-	    OrderedHitsFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	      GeneratorPSet = cms.PSet(
-	        useBending = cms.bool( True ),
-	        useFixedPreFiltering = cms.bool( False ),
-	        maxElement = cms.uint32( 100000 ),
-	        phiPreFiltering = cms.double( 0.3 ),
-	        extraHitRPhitolerance = cms.double( 0.06 ),
-	        useMultScattering = cms.bool( True ),
-	        SeedComparitorPSet = cms.PSet(
-	          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-	          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-	        ),
-	        extraHitRZtolerance = cms.double( 0.06 ),
-	        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-	      ),
-	      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
-	    )
+	    extraHitRZtolerance = 0.06,
+        )
+        process.hltPixelTracksFitter = _pixelFitterByHelixProjections.clone()
+        process.hltPixelTrackFilterByKinematics = _pixelTrackFilterByKinematics.clone()
+        process.hltPixelTracksCleaner = _pixelTrackCleanerBySharedHits.clone(
+            ComponentName = "hltPixelTracksCleaner",
+        )
+	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
+	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
+	    FitterPSet = cms.InputTag("hltPixelTracksFitter"),
+	    Cleaner = cms.string("hltPixelTracksCleaner"),
+            SeedingHitSets = cms.InputTag("hltPixelTracksHitTriplets"),
 	)
 	
 	process.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -115,40 +111,46 @@ def addL3ToHLT(process):
 	
 	process.HLTRecopixelvertexingSequence = cms.Sequence(
 	 process.hltPixelLayerTriplets
+         + process.hltPixelTracksTrackingRegions
+         + process.hltPixelTracksHitDoublets
+         + process.hltPixelTracksHitTriplets
+         + process.hltPixelTracksFitter
+	 + process.hltPixelTrackFilterByKinematics
 	 + process.hltPixelTracks
 	 + process.hltPixelVertices
 	)
 	
-	######### Define Master MTRB ROI, using values from Tau TRP:
+	######### Define Master MTRB ROI, OPTIMISED FOR IO 
 	MasterMuonTrackingRegionBuilder = cms.PSet(
 	        Rescale_eta = cms.double( 3.0 ),
 	        Rescale_phi = cms.double( 3.0 ),
-	        Rescale_Dz = cms.double( 4.0 ),                 #Normally 4
-	        EscapePt = cms.double( 3.0 ),                   #Normally 1.5 but it should be at least 8 for us
-	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      #Normally 0.25
-	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      #Normally 0.15
-	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       #Normally 0.6
-	        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),       #Normally 0.2
-	        UseVertex = cms.bool( False ),                  #Normally False
-	        Pt_fixed = cms.bool( False ),                   #Normally True
-	        Z_fixed = cms.bool( False ),    #True for IOH
-	        Phi_fixed = cms.bool( True ),   #False for IOH
-	        Eta_fixed = cms.bool( True ),   #False for IOH
-	        Pt_min = cms.double( 3.0 ),     #Is 0.9 for Tau; normally 8 here
+	        Rescale_Dz = cms.double( 4.0 ),                 
+	        EscapePt = cms.double( 3.0 ),                   
+	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      
+	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      
+	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       
+	        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),       
+	        UseVertex = cms.bool( False ),                  
+	        Pt_fixed = cms.bool( False ),                   
+	        Z_fixed = cms.bool( False ),    
+	        Phi_fixed = cms.bool( True ),   
+	        Eta_fixed = cms.bool( True ),   
+	        Pt_min = cms.double( 3.0 ),     
 	        Phi_min = cms.double( 0.1 ),
 	        Eta_min = cms.double( 0.1 ),
-	        DeltaZ = cms.double( 24.2 ),    #default for tau: 24.2, for old IOH: 15.9
-	        DeltaR = cms.double( 0.025 ),   #This changes for different iterations. for old IOH: ?
-	        DeltaEta = cms.double( 0.04 ),  #default 0.15
-	        DeltaPhi = cms.double( 0.15 ),   #default 0.2
+	        DeltaZ = cms.double( 24.2 ),    
+	        DeltaR = cms.double( 0.025 ),   
+	        DeltaEta = cms.double( 0.2 ),  
+	        DeltaPhi = cms.double( 0.15 ), 
 	        maxRegions = cms.int32( 2 ),
 	        precise = cms.bool( True ),
 	        OnDemand = cms.int32( -1 ),
 	        MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
 	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-	        vertexCollection = cms.InputTag( "pixelVertices" ), #Warning: I am not generating colleciton. Vertex is off anyway
+	        vertexCollection = cms.InputTag( "pixelVertices" ), 
 	        input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 	)
+
 	
 	IterMasterMuonTrackingRegionBuilder = MasterMuonTrackingRegionBuilder
 	IterMasterMuonTrackingRegionBuilder.input = cms.InputTag( 'hltL2SelectorForL3OI')	#Switch off for IO Only
@@ -156,26 +158,31 @@ def addL3ToHLT(process):
 	
 	########## OI Algorthim:
 	#Trajectory Filter
-	process.HLTPSetCkfTrajectoryFilterNewOI = cms.PSet(
-	  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-	  minimumNumberOfHits = cms.int32( 5 ),
-	  chargeSignificance = cms.double( -1.0 ),
-	  minPt = cms.double( 0.9 ),
-	  nSigmaMinPt = cms.double( 5.0 ),
-	  minHitsMinPt = cms.int32( 3 ),
-	  maxLostHits = cms.int32( 999 ),
-	  maxConsecLostHits = cms.int32( 1 ),
-	  maxNumberOfHits = cms.int32( 100 ),
-	  maxLostHitsFraction = cms.double(1./10),
-	  constantValueForLostHitsFractionFilter = cms.double(10),
-	  minNumberOfHits = cms.int32(13),
-	  minNumberOfHitsPerLoop = cms.int32(4),
-	  extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4)
+	process.HLTPSetCkfTrajectoryFilterIterL3OI = cms.PSet(
+	   minPt = cms.double( 0.9 ),
+	   minHitsMinPt = cms.int32( 3 ),
+	   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+	   maxLostHits = cms.int32( 1 ),
+	   maxNumberOfHits = cms.int32( -1 ),
+	   maxConsecLostHits = cms.int32( 1 ),
+	   minimumNumberOfHits = cms.int32( 5 ),
+	   nSigmaMinPt = cms.double( 5.0 ),
+	   chargeSignificance = cms.double( -1.0 ),
+	   minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+	   maxCCCLostHits = cms.int32( 9999 ),
+	   seedExtension = cms.int32( 0 ),
+	   strictSeedExtension = cms.bool( False ),
+	   minNumberOfHitsForLoopers = cms.int32( 13 ),
+	   minNumberOfHitsPerLoop = cms.int32( 4 ),
+	   extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+	   maxLostHitsFraction = cms.double( 999.0 ),
+	   constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+	   seedPairPenalty = cms.int32( 0 )
 	)
 	
-	process.HLTPSetCkfTrajectoryBuilderNewOI = cms.PSet(
+	process.HLTPSetCkfTrajectoryBuilderIterL3OI = cms.PSet(
 	  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-	  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilterNewOI" ) ),
+	  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilterIterL3OI" ) ),
 	  maxCand = cms.int32( 5 ),
 	  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
 	  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
@@ -196,20 +203,30 @@ def addL3ToHLT(process):
 	
 	
 	#OI Seeding:
-	process.hltBRSOISeedsFromL2Muons = cms.EDProducer("TSGForOI",
+	process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOI",
 	        MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters"),
-	        UseHitlessSeeds = cms.bool(True),
-	        adjustErrorsDyanmicallyForHitless = cms.bool(False),
-	        adjustErrorsDyanmicallyForHits = cms.bool(False),
-	        debug = cms.untracked.bool(True),
+	        UseHitSeeds = cms.bool(True),
+	        adjustErrorsDynamicallyForHitless = cms.bool(True),
+	        adjustErrorsDynamicallyForHits = cms.bool(True),
+	        debug = cms.untracked.bool(False),
 	        estimator = cms.string('hltESPChi2MeasurementEstimator100'),
 	        fixedErrorRescaleFactorForHitless = cms.double(5.0),
 	        fixedErrorRescaleFactorForHits = cms.double(2.0),
-	        hitsToTry = cms.int32(1),
-	        layersToTry = cms.int32(1),
-	        maxEtaForTOB = cms.double(1.2),
+		pT1 = cms.double(13.0),				       
+		pT2 = cms.double(30.0),				       
+		pT3 = cms.double(70.0),				       
+		eta1 = cms.double(1.0),				       
+		eta2 = cms.double(1.4),				       
+                SF1 = cms.double(3.0),
+                SF2 = cms.double(4.0),
+                SF3 = cms.double(5.0),
+                SF4 = cms.double(7.0),
+                SF5 = cms.double(10.0),
+		hitsToTry = cms.int32(5),
+	        layersToTry = cms.int32(3),
+	        maxEtaForTOB = cms.double(1.1),
 	        maxSeeds = cms.uint32(1),
-	        minEtaForTEC = cms.double(0.8),
+	        minEtaForTEC = cms.double(0.9),
 	        src = cms.InputTag("hltL2Muons","UpdatedAtVtx")
 	)
 	
@@ -225,7 +242,7 @@ def addL3ToHLT(process):
 	)
 	
 	#OI Trajectory Building:
-	process.hltBRSOITrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
+	process.hltIterL3OITrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
 	    RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
 	    TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'), #TrajectoryCleanerBySharedHits
 	    cleanTrajectoryAfterInOut = cms.bool(True),
@@ -233,11 +250,11 @@ def addL3ToHLT(process):
 	    doSeedingRegionRebuilding = cms.bool(True),
 	    maxNSeeds = cms.uint32(500000),
 	    maxSeedsBeforeCleaning = cms.uint32(5000),
-	    src = cms.InputTag('hltBRSOISeedsFromL2Muons'),
+	    src = cms.InputTag('hltIterL3OISeedsFromL2Muons'),
 	    SimpleMagneticField = cms.string(''),
 	    NavigationSchool = cms.string('SimpleNavigationSchool'),
 	    TrajectoryBuilder = cms.string('CkfTrajectoryBuilder'),
-	    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('HLTPSetCkfTrajectoryBuilderNewOI')),      #Was HLTPSetCkfTrajectoryBuilder
+	    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('HLTPSetCkfTrajectoryBuilderIterL3OI')),      #Was HLTPSetCkfTrajectoryBuilder
 	    TransientInitialStateEstimatorParameters = cms.PSet(
 	        propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),  # parabolic magnetic field
 	        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite'), # parabolic magnetic field
@@ -268,10 +285,10 @@ def addL3ToHLT(process):
 	)
 
 	#OI Track Producer:
-	process.hltBRSMuonSeededTracksOutIn = cms.EDProducer("TrackProducer",
+	process.hltIterL3MuonSeededTracksOutIn = cms.EDProducer("TrackProducer",
 	    useSimpleMF = cms.bool(False),
 	    SimpleMagneticField = cms.string(""),
-	    src = cms.InputTag("hltBRSOITrackCandidates"),       #Modified
+	    src = cms.InputTag("hltIterL3OITrackCandidates"),       #Modified
 	    clusterRemovalInfo = cms.InputTag(""),
 	    beamSpot = cms.InputTag("hltOnlineBeamSpot"),       #Modified
 	    Fitter = cms.string('muonSeededFittingSmootherWithOutliersRejectionAndRK'),       #Modified
@@ -288,7 +305,7 @@ def addL3ToHLT(process):
 	)
 	
 	#OI L3 Muon Producer:
-	process.hltL3MuonsBRSOI = cms.EDProducer( "L3MuonProducer",
+	process.hltL3MuonsIterL3OI = cms.EDProducer( "L3MuonProducer",
 	    ServiceParameters = cms.PSet(
 	      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
 	        'SteppingHelixPropagatorAny',
@@ -328,30 +345,30 @@ def addL3ToHLT(process):
              MuonTrackingRegionBuilder = cms.PSet(
 	        Rescale_eta = cms.double( 3.0 ),
 	        Rescale_phi = cms.double( 3.0 ),
-	        Rescale_Dz = cms.double( 4.0 ),                 #Normally 4
-	        EscapePt = cms.double( 3.0 ),                   #Normally 1.5 but it should be at least 8 for us
-	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      #Normally 0.25
-	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      #Normally 0.15
-	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       #Normally 0.6
-	        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),       #Normally 0.2
-	        UseVertex = cms.bool( False ),                  #Normally False
-	        Pt_fixed = cms.bool( False ),                   #Normally True
-	        Z_fixed = cms.bool( False ),    #True for IOH
-	        Phi_fixed = cms.bool( True ),   #False for IOH
-	        Eta_fixed = cms.bool( True ),   #False for IOH
-	        Pt_min = cms.double( 3.0 ),     #Is 0.9 for Tau; normally 8 here
+	        Rescale_Dz = cms.double( 4.0 ),                 
+	        EscapePt = cms.double( 3.0 ),                   
+	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      
+	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      
+	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       
+	        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),       
+	        UseVertex = cms.bool( False ),                  
+	        Pt_fixed = cms.bool( False ),                   
+	        Z_fixed = cms.bool( False ),    
+	        Phi_fixed = cms.bool( True ),   
+	        Eta_fixed = cms.bool( True ),   
+	        Pt_min = cms.double( 3.0 ),     
 	        Phi_min = cms.double( 0.1 ),
 	        Eta_min = cms.double( 0.1 ),
-	        DeltaZ = cms.double( 24.2 ),    #default for tau: 24.2, for old IOH: 15.9
-	        DeltaR = cms.double( 0.025 ),   #This changes for different iterations. for old IOH: ?
-	        DeltaEta = cms.double( 0.04 ),  #default 0.15
-	        DeltaPhi = cms.double( 0.15 ),   #default 0.2
+	        DeltaZ = cms.double( 24.2 ),    
+	        DeltaR = cms.double( 0.025 ),   
+	        DeltaEta = cms.double( 0.2 ),  
+	        DeltaPhi = cms.double( 0.15 ), 
 	        maxRegions = cms.int32( 2 ),
 	        precise = cms.bool( True ),
 	        OnDemand = cms.int32( -1 ),
 	        MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
 	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-	        vertexCollection = cms.InputTag( "pixelVertices" ), #Warning: I am not generating colleciton. Vertex is off anyway
+	        vertexCollection = cms.InputTag( "pixelVertices" ), 
 	        input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 	      ),
 	      RefitRPCHits = cms.bool( True ),
@@ -389,7 +406,7 @@ def addL3ToHLT(process):
 	      ),
 	      PtCut = cms.double( 1.0 ),
 	      TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-	      tkTrajLabel = cms.InputTag( "hltBRSMuonSeededTracksOutIn" ),    #Feed tracks from iterations into L3MTB
+	      tkTrajLabel = cms.InputTag( "hltIterL3MuonSeededTracksOutIn" ),    #Feed tracks from iterations into L3MTB
 	      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
 	      tkTrajMaxChi2 = cms.double( 9999.0 ),
 	      tkTrajMaxDXYBeamSpot = cms.double( 9999.0 ),      #Using same values as old algos
@@ -414,74 +431,43 @@ def addL3ToHLT(process):
 	    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 	)
 	
-	process.hltBRSOIL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
-	    labels = cms.VInputTag( 'hltL3MuonsBRSOI' )
+	process.hltIterL3OIL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
+	    labels = cms.VInputTag( 'hltL3MuonsIterL3OI' )
 	)
-	process.hltBRSOIL3Muons = cms.EDProducer( "L3TrackCombiner",
-	    labels = cms.VInputTag( 'hltL3MuonsBRSOI' )
+	process.hltIterL3OIL3Muons = cms.EDProducer( "L3TrackCombiner",
+	    labels = cms.VInputTag( 'hltL3MuonsIterL3OI' )
 	)
-	process.hltBRSOIL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-	    InputLinksObjects = cms.InputTag( "hltBRSOIL3MuonsLinksCombination" ),
-	    InputObjects = cms.InputTag( "hltBRSOIL3Muons" ),
+	process.hltIterL3OIL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
+	    InputLinksObjects = cms.InputTag( "hltIterL3OIL3MuonsLinksCombination" ),
+	    InputObjects = cms.InputTag( "hltIterL3OIL3Muons" ),
 	    MuonPtOption = cms.string( "Tracker" )
 	)
 	
-	process.hltL2SelectorForL3OI = cms.EDProducer("HLTMuonL2SelectorForL3IO",
+	process.hltL2SelectorForL3IO = cms.EDProducer("HLTMuonL2SelectorForL3IO",
 	    l2Src = cms.InputTag('hltL2Muons','UpdatedAtVtx'),
-	    l3OISrc = cms.InputTag('hltL3MuonsBRSOI')
+	    l3OISrc = cms.InputTag('hltIterL3OIL3MuonCandidates'),
+	    InputLinks = cms.InputTag('hltIterL3OIL3MuonsLinksCombination'),					      
+#	    useOuterHitPosition = cms.bool( True ) ,
+	    applyL3Filters = cms.bool( False ), 					      
+#	    xDiffMax = cms.double( 0.5 ) ,
+#            yDiffMax = cms.double( 0.5 ) ,
+#            zDiffMax = cms.double( 9999.0 ) ,
+#            dRDiffMax  = cms.double( 0.01 ),
+            MaxNormalizedChi2 = cms.double( 20.0 ),
+            MaxPtDifference = cms.double( 0.3 ),
+            MinNhits = cms.int32( 1 ),
+            MinNmuonHits = cms.int32( 1 )
 	)
 	
 	
 	########## IO Algorthim:
 	#Making Pixel Vertices:
 	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
-	    RegionFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-	      RegionPSet = cms.PSet(
-	        precise = cms.bool( True ),
-	        originRadius = cms.double( 0.2 ),
-	        ptMin = cms.double( 0.9 ),
-	        originHalfLength = cms.double( 24.0 ),
-	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
-	      )
-	    ),
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
-            ),
-	    OrderedHitsFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	      GeneratorPSet = cms.PSet(
-	        useBending = cms.bool( True ),
-	        useFixedPreFiltering = cms.bool( False ),
-	        maxElement = cms.uint32( 100000 ),
-	        phiPreFiltering = cms.double( 0.3 ),
-	        extraHitRPhitolerance = cms.double( 0.06 ),
-	        useMultScattering = cms.bool( True ),
-	        SeedComparitorPSet = cms.PSet(
-	          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-	          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-	        ),
-	        extraHitRZtolerance = cms.double( 0.06 ),
-	        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-	      ),
-	      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
-	    )
+	    Fitter = cms.InputTag("hltPixelTracksFitter"),
+	    CleanerPSet = cms.string("hltPixelTracksCleaner"),
+            SeedingHitSets = cms.InputTag("hltPixelTracksHitTriplets"),
 	)
 	
 	process.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -501,27 +487,12 @@ def addL3ToHLT(process):
 	#/Making Pixel Vertices, could probably use the following PTP tho?
 	
 	#Start Iterative tracking:
-	process.hltBRSIter0HighPtTkMuPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	process.hltIterL3Iter0HighPtTkMuPixelTracks = cms.EDProducer( "PixelTrackProducer",
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
+	    Fitter = cms.InputTag("hltPixelTracksFitter"),
 	    RegionFactoryPSet = IterMasterMuonTrackingRegionBuilder,
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
-            ),
+	    CleanerPSet = cms.string("hltPixelTracksCleaner"),
 	    OrderedHitsFactoryPSet = cms.PSet(
 	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	      GeneratorPSet = cms.PSet(
@@ -541,10 +512,10 @@ def addL3ToHLT(process):
 	      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
 	    )
 	)
-	process.hltBRSIter0HighPtTkMuPixelTracks.RegionFactoryPSet.ComponentName = cms.string( "MuonTrackingRegionBuilder" )
-	process.hltBRSIter0HighPtTkMuPixelTracks.RegionFactoryPSet.DeltaR = cms.double( 0.2 )
+	process.hltIterL3Iter0HighPtTkMuPixelTracks.RegionFactoryPSet.ComponentName = cms.string( "MuonTrackingRegionBuilder" )
+	process.hltIterL3Iter0HighPtTkMuPixelTracks.RegionFactoryPSet.DeltaR = cms.double( 0.2 )
 	
-	process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+	process.hltIterL3Iter0HighPtTkMuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
 	    useEventsWithNoVertex = cms.bool( True ),
 	    originHalfLength = cms.double( 1.0E9 ),
 	    useProtoTrackKinematics = cms.bool( False ),
@@ -552,12 +523,12 @@ def addL3ToHLT(process):
 	    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromProtoTracks" ) ),
 	    InputVertexCollection = cms.InputTag( "" ),
 	    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-	    InputCollection = cms.InputTag( "hltBRSIter0HighPtTkMuPixelTracks" ),
+	    InputCollection = cms.InputTag( "hltIterL3Iter0HighPtTkMuPixelTracks" ),
 	    originRadius = cms.double( 1.0E9 )
 	)
 
-	process.hltBRSIter0HighPtTkMuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-	    src = cms.InputTag( "hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks" ),
+	process.hltIterL3Iter0HighPtTkMuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
+	    src = cms.InputTag( "hltIterL3Iter0HighPtTkMuPixelSeedsFromPixelTracks" ),
 	    maxSeedsBeforeCleaning = cms.uint32( 1000 ),
 	    SimpleMagneticField = cms.string( "ParabolicMf" ),
 	    TransientInitialStateEstimatorParameters = cms.PSet(
@@ -576,8 +547,8 @@ def addL3ToHLT(process):
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
 	    TrajectoryBuilder = cms.string( "" )
 	)
-	process.hltBRSIter0HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
-	    src = cms.InputTag( "hltBRSIter0HighPtTkMuCkfTrackCandidates" ),
+	process.hltIterL3Iter0HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
+	    src = cms.InputTag( "hltIterL3Iter0HighPtTkMuCkfTrackCandidates" ),
 	    SimpleMagneticField = cms.string( "ParabolicMf" ),
 	    clusterRemovalInfo = cms.InputTag( "" ),
 	    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -594,7 +565,7 @@ def addL3ToHLT(process):
 	    useSimpleMF = cms.bool( True ),
 	    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 	)
-	process.hltBRSIter0HighPtTkMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
+	process.hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
 	    max_d0 = cms.double( 100.0 ),
 	    minNumber3DLayers = cms.uint32( 0 ),
 	    max_lostHitFraction = cms.double( 1.0 ),
@@ -621,7 +592,7 @@ def addL3ToHLT(process):
 	    max_z0 = cms.double( 100.0 ),
 	    useVertices = cms.bool( False ),
 	    min_nhits = cms.uint32( 0 ),
-	    src = cms.InputTag( "hltBRSIter0HighPtTkMuCtfWithMaterialTracks" ),
+	    src = cms.InputTag( "hltIterL3Iter0HighPtTkMuCtfWithMaterialTracks" ),
 	    max_minMissHitOutOrIn = cms.int32( 99 ),
 	    chi2n_no1Dmod_par = cms.double( 9999.0 ),
 	    vertices = cms.InputTag( "notUsed" ),
@@ -631,10 +602,10 @@ def addL3ToHLT(process):
 	    res_par = cms.vdouble( 0.003, 0.001 ),
 	    minHitsToBypassChecks = cms.uint32( 20 )
 	)
-	process.hltBRSIter2HighPtTkMuClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
+	process.hltIterL3Iter2HighPtTkMuClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverIterL3",
 	    doStrip = cms.bool( True ),
 	    doStripChargeCheck = cms.bool( True ),
-	    trajectories = cms.InputTag( "hltBRSIter0HighPtTkMuTrackSelectionHighPurity" ),
+	    trajectories = cms.InputTag( "hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity" ),
 	    oldClusterRemovalInfo = cms.InputTag( "" ),
 	    stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
 	    pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
@@ -644,12 +615,12 @@ def addL3ToHLT(process):
 	    ),
 	    doPixel = cms.bool( True )
 	)
-	process.hltBRSIter2HighPtTkMuMaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
-	    clustersToSkip = cms.InputTag( "hltBRSIter2HighPtTkMuClustersRefRemoval" ),
+	process.hltIterL3Iter2HighPtTkMuMaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
+	    clustersToSkip = cms.InputTag( "hltIterL3Iter2HighPtTkMuClustersRefRemoval" ),
 	    OnDemand = cms.bool( False ),
 	    src = cms.InputTag( "hltSiStripClusters" )
 	)
-	process.hltBRSIter2HighPtTkMuPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
+	process.hltIterL3Iter2HighPtTkMuPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
 	    layerList = cms.vstring( 'BPix1+BPix2',
 	      'BPix1+BPix3',
 	      'BPix2+BPix3',
@@ -671,7 +642,7 @@ def addL3ToHLT(process):
 	      hitErrorRZ = cms.double( 0.0036 ),
 	      useErrorsFromParam = cms.bool( True ),
 	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      skipClusters = cms.InputTag( "hltBRSIter2HighPtTkMuClustersRefRemoval" ),
+	      skipClusters = cms.InputTag( "hltIterL3Iter2HighPtTkMuClustersRefRemoval" ),
 	      hitErrorRPhi = cms.double( 0.0051 )
 	    ),
 	    MTEC = cms.PSet(  ),
@@ -683,12 +654,12 @@ def addL3ToHLT(process):
 	      hitErrorRZ = cms.double( 0.006 ),
 	      useErrorsFromParam = cms.bool( True ),
 	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      skipClusters = cms.InputTag( "hltBRSIter2HighPtTkMuClustersRefRemoval" ),
+	      skipClusters = cms.InputTag( "hltIterL3Iter2HighPtTkMuClustersRefRemoval" ),
 	      hitErrorRPhi = cms.double( 0.0027 )
 	    ),
 	    TIB = cms.PSet(  )
 	)
-	process.hltBRSIter2HighPtTkMuPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
+	process.hltIterL3Iter2HighPtTkMuPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
 	    RegionFactoryPSet = IterMasterMuonTrackingRegionBuilder,
 	    SeedComparitorPSet = cms.PSet(
 	      ComponentName = cms.string( "PixelClusterShapeSeedComparitor" ),
@@ -712,16 +683,16 @@ def addL3ToHLT(process):
 	        maxElement = cms.uint32( 100000 ),
 	        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
 	      ),
-	      SeedingLayers = cms.InputTag( "hltBRSIter2HighPtTkMuPixelLayerPairs" )
+	      SeedingLayers = cms.InputTag( "hltIterL3Iter2HighPtTkMuPixelLayerPairs" )
 	    ),
 	    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreatorIT" ) ),
 	    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 	)
-	process.hltBRSIter2HighPtTkMuPixelSeeds.RegionFactoryPSet.ComponentName = cms.string( "MuonTrackingRegionBuilder" )
-	process.hltBRSIter2HighPtTkMuPixelSeeds.RegionFactoryPSet.DeltaR = cms.double( 0.025 )
+	process.hltIterL3Iter2HighPtTkMuPixelSeeds.RegionFactoryPSet.ComponentName = cms.string( "MuonTrackingRegionBuilder" )
+	process.hltIterL3Iter2HighPtTkMuPixelSeeds.RegionFactoryPSet.DeltaR = cms.double( 0.025 )
 	
-	process.hltBRSIter2HighPtTkMuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-	    src = cms.InputTag( "hltBRSIter2HighPtTkMuPixelSeeds" ),
+	process.hltIterL3Iter2HighPtTkMuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
+	    src = cms.InputTag( "hltIterL3Iter2HighPtTkMuPixelSeeds" ),
 	    maxSeedsBeforeCleaning = cms.uint32( 1000 ),
 	    SimpleMagneticField = cms.string( "ParabolicMf" ),
 	    TransientInitialStateEstimatorParameters = cms.PSet(
@@ -730,7 +701,7 @@ def addL3ToHLT(process):
 	      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialParabolicMfOpposite" )
 	    ),
 	    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-	    MeasurementTrackerEvent = cms.InputTag( "hltBRSIter2HighPtTkMuMaskedMeasurementTrackerEvent" ),
+	    MeasurementTrackerEvent = cms.InputTag( "hltIterL3Iter2HighPtTkMuMaskedMeasurementTrackerEvent" ),
 	    cleanTrajectoryAfterInOut = cms.bool( False ),
 	    useHitsSplitting = cms.bool( False ),
 	    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
@@ -740,12 +711,12 @@ def addL3ToHLT(process):
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
 	    TrajectoryBuilder = cms.string( "" )
 	)
-	process.hltBRSIter2HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
-	    src = cms.InputTag( "hltBRSIter2HighPtTkMuCkfTrackCandidates" ),
+	process.hltIterL3Iter2HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
+	    src = cms.InputTag( "hltIterL3Iter2HighPtTkMuCkfTrackCandidates" ),
 	    SimpleMagneticField = cms.string( "ParabolicMf" ),
 	    clusterRemovalInfo = cms.InputTag( "" ),
 	    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-	    MeasurementTrackerEvent = cms.InputTag( "hltBRSIter2HighPtTkMuMaskedMeasurementTrackerEvent" ),
+	    MeasurementTrackerEvent = cms.InputTag( "hltIterL3Iter2HighPtTkMuMaskedMeasurementTrackerEvent" ),
 	    Fitter = cms.string( "hltESPFittingSmootherIT" ),
 	    useHitsSplitting = cms.bool( False ),
 	    MeasurementTracker = cms.string( "" ),
@@ -758,7 +729,7 @@ def addL3ToHLT(process):
 	    useSimpleMF = cms.bool( True ),
 	    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 	)
-	process.hltBRSIter2HighPtTkMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
+	process.hltIterL3Iter2HighPtTkMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
 	    max_d0 = cms.double( 100.0 ),
 	    minNumber3DLayers = cms.uint32( 0 ),
 	    max_lostHitFraction = cms.double( 1.0 ),
@@ -785,7 +756,7 @@ def addL3ToHLT(process):
 	    max_z0 = cms.double( 100.0 ),
 	    useVertices = cms.bool( False ),
 	    min_nhits = cms.uint32( 0 ),
-	    src = cms.InputTag( "hltBRSIter2HighPtTkMuCtfWithMaterialTracks" ),
+	    src = cms.InputTag( "hltIterL3Iter2HighPtTkMuCtfWithMaterialTracks" ),
 	    max_minMissHitOutOrIn = cms.int32( 99 ),
 	    chi2n_no1Dmod_par = cms.double( 9999.0 ),
 	    vertices = cms.InputTag( "notUsed" ),
@@ -795,14 +766,14 @@ def addL3ToHLT(process):
 	    res_par = cms.vdouble( 0.003, 0.001 ),
 	    minHitsToBypassChecks = cms.uint32( 20 )
 	)
-	process.hltBRSIter2HighPtTkMuMerged = cms.EDProducer( "TrackListMerger",
+	process.hltIterL3Iter2HighPtTkMuMerged = cms.EDProducer( "TrackListMerger",
 	    ShareFrac = cms.double( 0.19 ),
 	    writeOnlyTrkQuals = cms.bool( False ),
 	    MinPT = cms.double( 0.05 ),
 	    allowFirstHitShare = cms.bool( True ),
 	    copyExtras = cms.untracked.bool( True ),
 	    Epsilon = cms.double( -0.001 ),
-	    selectedTrackQuals = cms.VInputTag( 'hltBRSIter0HighPtTkMuTrackSelectionHighPurity','hltBRSIter2HighPtTkMuTrackSelectionHighPurity' ),
+	    selectedTrackQuals = cms.VInputTag( 'hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity','hltIterL3Iter2HighPtTkMuTrackSelectionHighPurity' ),
 	    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
 	    MaxNormalizedChisq = cms.double( 1000.0 ),
 	    copyMVA = cms.bool( False ),
@@ -814,7 +785,7 @@ def addL3ToHLT(process):
 	    ),
 	    MinFound = cms.int32( 3 ),
 	    hasSelector = cms.vint32( 0, 0 ),
-	    TrackProducers = cms.VInputTag( 'hltBRSIter0HighPtTkMuTrackSelectionHighPurity','hltBRSIter2HighPtTkMuTrackSelectionHighPurity' ),
+	    TrackProducers = cms.VInputTag( 'hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity','hltIterL3Iter2HighPtTkMuTrackSelectionHighPurity' ),
 	    LostHitPenalty = cms.double( 20.0 ),
 	    newQuality = cms.string( "confirmed" )
 	)
@@ -822,7 +793,7 @@ def addL3ToHLT(process):
 	#Iterative tracking finished
 	
 	# L3MuonProducer from iterative tracking:
-	process.BRSIterL3Muons = cms.EDProducer( "L3MuonProducer",
+	process.hltL3MuonsIterL3IO = cms.EDProducer( "L3MuonProducer",
 	    ServiceParameters = cms.PSet(
 	      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
 	        'SteppingHelixPropagatorAny',
@@ -923,7 +894,7 @@ def addL3ToHLT(process):
 	      ),
 	      PtCut = cms.double( 1.0 ),
 	      TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-	      tkTrajLabel = cms.InputTag( "hltBRSIter2HighPtTkMuMerged" ),      #Feed tracks from iterations into L3MTB
+	      tkTrajLabel = cms.InputTag( "hltIterL3Iter2HighPtTkMuMerged" ),      #Feed tracks from iterations into L3MTB
 	      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
 	      tkTrajMaxChi2 = cms.double( 9999.0 ),
 	      tkTrajMaxDXYBeamSpot = cms.double( 9999.0 ),      #same cuts as old algos
@@ -948,73 +919,78 @@ def addL3ToHLT(process):
 	    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 	)
 	
-	process.hltBRSL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
-	    labels = cms.VInputTag( 'hltL3MuonsBRSOI','BRSIterL3Muons' )
+	process.hltIterL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
+	    labels = cms.VInputTag( 'hltL3MuonsIterL3OI','hltL3MuonsIterL3IO' )
 	)
-	process.hltBRSL3Muons = cms.EDProducer( "L3TrackCombiner",
-	    labels = cms.VInputTag( 'hltL3MuonsBRSOI','BRSIterL3Muons' )
+	process.hltIterL3Muons = cms.EDProducer( "L3TrackCombiner",
+	    labels = cms.VInputTag( 'hltL3MuonsIterL3OI','hltL3MuonsIterL3IO' )
 	)
-	process.hltBRSL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-	    InputLinksObjects = cms.InputTag( "hltBRSL3MuonsLinksCombination" ),
-	    InputObjects = cms.InputTag( "hltBRSL3Muons" ),
+	process.hltIterL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
+	    InputLinksObjects = cms.InputTag( "hltIterL3MuonsLinksCombination" ),
+	    InputObjects = cms.InputTag( "hltIterL3Muons" ),
 	    MuonPtOption = cms.string( "Tracker" )
 	)
 
 ###	FOR IO Only:
-#	process.hltBRSL3MuonCandidates.InputLinksObjects = cms.InputTag( "BRSIterL3Muons" )
-#	process.hltBRSL3MuonCandidates.InputObjects = cms.InputTag( "BRSIterL3Muons" )
-#        process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "BRSIterL3Muons" )
+#	process.hltIterL3MuonCandidates.InputLinksObjects = cms.InputTag( "hltL3MuonsIterL3IO" )
+#	process.hltIterL3MuonCandidates.InputObjects = cms.InputTag( "hltL3MuonsIterL3IO" )
+#        process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "hltL3MuonsIterL3IO" )
 
 ###    FOR OI Only:
-#	process.hltBRSL3MuonCandidates.InputLinksObjects = cms.InputTag( "hltL3MuonsBRSOI" )
-#	process.hltBRSL3MuonCandidates.InputObjects = cms.InputTag( "hltL3MuonsBRSOI" )
-#        process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "hltL3MuonsBRSOI" )
+#	process.hltIterL3MuonCandidates.InputLinksObjects = cms.InputTag( "hltL3MuonsIterL3OI" )
+#	process.hltIterL3MuonCandidates.InputObjects = cms.InputTag( "hltL3MuonsIterL3OI" )
+#        process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "hltL3MuonsIterL3OI" )
 	#############################################################
 	
 	####################### NEW Combo:
-	process.HLTBRSIterativeTrackingHighPtTkMuIteration0 = cms.Sequence(
+	process.HLTIterL3IterativeTrackingHighPtTkMuIteration0 = cms.Sequence(
 	 process.hltPixelLayerTriplets +
-	 process.hltBRSIter0HighPtTkMuPixelTracks +
-	 process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks +
-	 process.hltBRSIter0HighPtTkMuCkfTrackCandidates +
-	 process.hltBRSIter0HighPtTkMuCtfWithMaterialTracks +
-	 process.hltBRSIter0HighPtTkMuTrackSelectionHighPurity
+         process.hltPixelTracksTrackingRegions +
+         process.hltPixelTracksHitDoublets +
+         process.hltPixelTracksHitTriplets +
+         process.hltPixelTracksFitter +
+	 process.hltPixelTrackFilterByKinematics +
+	 process.hltIterL3Iter0HighPtTkMuPixelTracks +
+	 process.hltIterL3Iter0HighPtTkMuPixelSeedsFromPixelTracks +
+	 process.hltIterL3Iter0HighPtTkMuCkfTrackCandidates +
+	 process.hltIterL3Iter0HighPtTkMuCtfWithMaterialTracks +
+	 process.hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity
 	)
-	process.HLTBRSIterativeTrackingHighPtTkMuIteration2 = cms.Sequence(
-	 process.hltBRSIter2HighPtTkMuClustersRefRemoval +
-	 process.hltBRSIter2HighPtTkMuMaskedMeasurementTrackerEvent +
-	 process.hltBRSIter2HighPtTkMuPixelLayerPairs +
-	 process.hltBRSIter2HighPtTkMuPixelSeeds +
-	 process.hltBRSIter2HighPtTkMuCkfTrackCandidates +
-	 process.hltBRSIter2HighPtTkMuCtfWithMaterialTracks +
-	 process.hltBRSIter2HighPtTkMuTrackSelectionHighPurity
+	process.HLTIterL3IterativeTrackingHighPtTkMuIteration2 = cms.Sequence(
+	 process.hltIterL3Iter2HighPtTkMuClustersRefRemoval +
+	 process.hltIterL3Iter2HighPtTkMuMaskedMeasurementTrackerEvent +
+	 process.hltIterL3Iter2HighPtTkMuPixelLayerPairs +
+	 process.hltIterL3Iter2HighPtTkMuPixelSeeds +
+	 process.hltIterL3Iter2HighPtTkMuCkfTrackCandidates +
+	 process.hltIterL3Iter2HighPtTkMuCtfWithMaterialTracks +
+	 process.hltIterL3Iter2HighPtTkMuTrackSelectionHighPurity
 	)
-	process.HLTBRSIterativeTrackingHighPtTkMu = cms.Sequence(
-	 process.HLTBRSIterativeTrackingHighPtTkMuIteration0 +
-	 process.HLTBRSIterativeTrackingHighPtTkMuIteration2 +
-	 process.hltBRSIter2HighPtTkMuMerged
+	process.HLTIterL3IterativeTrackingHighPtTkMu = cms.Sequence(
+	 process.HLTIterL3IterativeTrackingHighPtTkMuIteration0 +
+	 process.HLTIterL3IterativeTrackingHighPtTkMuIteration2 +
+	 process.hltIterL3Iter2HighPtTkMuMerged
 	)
 	
 	process.HLTL3muonTkCandidateSequence = cms.Sequence(
 	 process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence +
 	 process.HLTRecopixelvertexingSequence +
-	 process.hltBRSOISeedsFromL2Muons +	#OIStart#off for IO
-	 process.hltBRSOITrackCandidates +		#off for IO
-	 process.hltBRSMuonSeededTracksOutIn +		#off for IO
-	 process.hltL3MuonsBRSOI +			#off for IO
-	 process.hltL2SelectorForL3OI + #OIEnd		#off for IO
-	 process.HLTBRSIterativeTrackingHighPtTkMu +	#off for OI
-	 process.BRSIterL3Muons 				#off for OI
+	 process.hltIterL3OISeedsFromL2Muons +	#OIStart#off for IO
+	 process.hltIterL3OITrackCandidates +		#off for IO
+	 process.hltIterL3MuonSeededTracksOutIn +		#off for IO
+	 process.hltL3MuonsIterL3OI +			#off for IO
+	 process.hltL2SelectorForL3IO  + #OIEnd		#off for IO
+	 process.HLTIterL3IterativeTrackingHighPtTkMu +	#off for OI
+	 process.hltL3MuonsIterL3IO 				#off for OI
 	)
 	
 	process.HLTL3muonrecoNocandSequence = cms.Sequence(
 	 process.HLTL3muonTkCandidateSequence
-	 + process.hltBRSL3MuonsLinksCombination	#off for IO or OI only
-	 + process.hltBRSL3Muons			#off for IO or OI only
+	 + process.hltIterL3MuonsLinksCombination	#off for IO or OI only
+	 + process.hltIterL3Muons			#off for IO or OI only
 	)
 	process.HLTL3muonrecoSequence = cms.Sequence(
 	 process.HLTL3muonrecoNocandSequence
-	 + process.hltBRSL3MuonCandidates
+	 + process.hltIterL3MuonCandidates
 	)
 
 	return process

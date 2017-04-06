@@ -1,5 +1,6 @@
 #include "DQMOffline/Hcal/interface/HcalRecHitsAnalyzer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
@@ -475,6 +476,11 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
   c.get<CaloGeometryRecord>().get (geometry);
 
+  // HCAL Topology **************************************************
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology = topo.product();
+
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
   c.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
@@ -849,11 +855,11 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
     for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
       HcalDetId cell(j->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double eta  = cellGeometry->getPosition().eta () ;
-      double phi  = cellGeometry->getPosition().phi () ;
-      double zc   = cellGeometry->getPosition().z ();
+      const HcalGeometry* cellGeometry = 
+	(HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
+      double eta  = cellGeometry->getPosition(cell).eta () ;
+      double phi  = cellGeometry->getPosition(cell).phi () ;
+      double zc   = cellGeometry->getPosition(cell).z ();
       int sub     = cell.subdet();
       int depth   = cell.depth();
       int inteta  = cell.ieta();
@@ -1037,7 +1043,10 @@ double HcalRecHitsAnalyzer::dPhiWsign(double phi1, double phi2) {
 
 int HcalRecHitsAnalyzer::hcalSevLvl(const CaloRecHit* hit){
 
-   const DetId id = hit->detid();
+   HcalDetId id = hit->detid();
+   if (theHcalTopology->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+     id = theHcalTopology->idFront(id);
+   }
 
    const uint32_t recHitFlag = hit->flags();
    const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();

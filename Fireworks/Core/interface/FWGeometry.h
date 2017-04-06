@@ -119,6 +119,8 @@ public:
 
    const VersionInfo& versionInfo() const { return m_versionInfo; }
 
+   int getProducerVersion() const {return m_producerVersion;}
+   
    TGeoShape* getShape( const GeomDetInfo& info ) const;
 
 
@@ -130,6 +132,8 @@ private:
    std::string m_prodTag;
 
    VersionInfo  m_versionInfo;
+
+   int m_producerVersion;
 
 };
 

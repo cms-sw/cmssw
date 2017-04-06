@@ -20,11 +20,15 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
 
   unsigned int nError = errors.size();
 
+  // FIXME: - currently defaulting to RunI as this was the previous behaviour
+  //        - check this, when resurrecting this code in the future
+  AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
+
   for (unsigned int i = 0; i < nError; ++i)
   {
     const edm::ParameterSet& error = errors[i];
 
-    theErrors[AlignableObjectId::stringToId( error.getParameter<std::string>("level") )]
+    theErrors[alignableObjectId.stringToId( error.getParameter<std::string>("level") )]
       = error.getParameter<double>("value");
   }
 }

@@ -5,16 +5,16 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include <memory>
 
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
-class OrderedHitsGenerator;
-class TrackingRegionProducer;
-class QuadrupletSeedMerger;
+class RegionsSeedingHitSets;
 
-namespace edm { class Event; class EventSetup; class Run; }
+namespace edm { class Event; class EventSetup; class Run; class ParameterSetDescription;}
 
 class PixelTrackReconstruction {
 public:
@@ -23,20 +23,15 @@ public:
 	   edm::ConsumesCollector && iC);
   ~PixelTrackReconstruction(); 
 
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+
   void run(pixeltrackfitting::TracksWithTTRHs& tah, edm::Event& ev, const edm::EventSetup& es);
 
-  void halt();
-  void init(const edm::EventSetup& es);
-
 private:
-  edm::ParameterSet theConfig;
-  const PixelFitter       * theFitter;
-  std::unique_ptr<PixelTrackFilter> theFilter;
-  PixelTrackCleaner * theCleaner;
-  std::unique_ptr<OrderedHitsGenerator> theGenerator;
-  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
-  std::unique_ptr<QuadrupletSeedMerger> theMerger_;
-  bool useClusterShape;
+  edm::EDGetTokenT<RegionsSeedingHitSets> theHitSetsToken;
+  edm::EDGetTokenT<PixelFitter> theFitterToken;
+  edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
+  std::string theCleanerName;
 };
 #endif
 

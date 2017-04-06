@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGTrs')
     # include the uGTrs specific subkeys ESProducer (generates uGTrs labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosObjectKeysOnline_cfi")
     process.L1TGlobalPrescalesVetosObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
@@ -71,7 +71,7 @@ else :
     )
 
 # Online produced for the payload 
-process.load("L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosOnline_cfi")
 process.L1TGlobalPrescalesVetosOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",

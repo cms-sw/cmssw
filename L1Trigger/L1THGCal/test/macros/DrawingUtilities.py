@@ -70,6 +70,8 @@ class Cell:
         self.layer = 0
         self.wafer = 0
         self.wafertype = 0
+        self.waferrow = 0
+        self.wafercolumn = 0
         self.cell = 0
         self.center = Position()
         self.corners = [Position(), Position(), Position(), Position()]
@@ -185,6 +187,8 @@ class Module:
         self.zside = 0
         self.layer = 0
         self.module = 0
+        self.row = 0
+        self.column = 0
         self.center = Position()
         self.cells = []
         self.lines = []
@@ -195,3 +199,18 @@ class Module:
             lines = merge_lines(lines, cell.lines)
         self.lines = lines
         return lines
+
+    def center_from_cells(self):
+        x,y,z = 0,0,0
+        for cell in self.cells:
+            x += cell.center.x
+            y += cell.center.y
+            z += cell.center.z
+        x /= len(self.cells)
+        y /= len(self.cells)
+        z /= len(self.cells)
+        self.center.x = x
+        self.center.y = y
+        self.center.z = z
+        return self.center
+

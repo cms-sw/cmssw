@@ -44,6 +44,8 @@ protected:
 
 private:
   G4bool  isInitialised;
+  G4double darkFactor;
+
 };
 
   

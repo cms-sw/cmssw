@@ -1,12 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectors_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain, \
+                                                              ak4PFCHSL1FastjetCorrector, \
+                                                              ak4PFCHSL2RelativeCorrector, \
+                                                              ak4PFCHSL3AbsoluteCorrector, \
+                                                              ak4PFCHSResidualCorrector, \
+                                                              ak4PFCHSL1FastL2L3ResidualCorrector, \
+                                                              ak4PFCHSL1FastL2L3CorrectorChain, \
+                                                              ak4PFCHSL1FastL2L3Corrector
 
 ##____________________________________________________________________________||
 # select PFCandidates ("unclustered energy") not within jets
 # for Type 2 MET correction
-from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
+from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet as _pfNoJet
 # the new TopProjectors now work with Ptrs
 # a conversion is needed if objects are not available
 # add them upfront of the sequence
@@ -22,7 +29,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 # FIXME: THIS IS A WASTE, BUT NOT CLEAR HOW TO FIX IT CLEANLY: the module
 # downstream operates with View<reco::Candidate>, I wish one could read
 # it from std::vector<PFCandidateFwdPtr> directly
-pfCandsNotInJetsPtrForMetCorr = pfNoJet.clone(
+pfCandsNotInJetsPtrForMetCorr = _pfNoJet.clone(
     topCollection = cms.InputTag('pfJetsPtrForMetCorr'),
     bottomCollection = cms.InputTag('particleFlowPtrs')
 )

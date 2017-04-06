@@ -48,6 +48,7 @@ caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_FW_v17.04.04_shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
 
+
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
 caloStage2Params.tauSeedThreshold              = cms.double(0.)
@@ -116,7 +117,7 @@ caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorim
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
 caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
-caloStage2Params.etSumEtaMax             = cms.vint32(28,  26,  27,  28, 27)
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  26, 28,  28, 28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.)
 
 caloStage2Params.etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")

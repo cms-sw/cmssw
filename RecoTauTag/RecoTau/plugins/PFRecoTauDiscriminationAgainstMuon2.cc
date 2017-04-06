@@ -206,7 +206,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	  dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
 	} else {
 	  if ( numWarnings_ < maxWarnings_ ) {
-	    edm::LogWarning("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
+	    edm::LogInfo("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
 	      << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!" ;
 	    ++numWarnings_;
 	  }

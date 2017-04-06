@@ -334,6 +334,7 @@ class TrackAnalyzer
 
 	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[4]= {nullptr,nullptr,nullptr,nullptr};
 
+
 	MonitorElement* Chi2;
 	MonitorElement* Chi2Prob;
 	MonitorElement* Chi2oNDF;
@@ -352,6 +353,7 @@ class TrackAnalyzer
 	MonitorElement* DistanceOfClosestApproachToBS;
 	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;
+	MonitorElement* DeltaZToPV;
 	MonitorElement* DistanceOfClosestApproachVsTheta;
 	MonitorElement* DistanceOfClosestApproachVsPhi;
 	MonitorElement* DistanceOfClosestApproachToBSVsPhi;
@@ -408,6 +410,7 @@ class TrackAnalyzer
 	  MonitorElement* NumberOfLayersPerTrack;
 	  MonitorElement* NumberOfLayersPerTrackVsPhi;
 	  MonitorElement* NumberOfLayersPerTrackVsEta;
+          MonitorElement* RecHitChi2PerTrack;
 	  
 	  int         detectorId;
 	  std::string detectorTag;

@@ -219,22 +219,19 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
 
 PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() { 
    if(hybridfitter) delete hybridfitter;
-   if(spfunctor_)   delete spfunctor_;
-   if(dpfunctor_)   delete dpfunctor_;
-   if(tpfunctor_)   delete tpfunctor_;
 }
 
 void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
-  // FIXME: pedSig_ should be the pedestalWidth from database
   if(isHPD) {
+    // FIXME: noise_ pedSig_ should be the pedestalWidth from database for HPD as well
     timeSig_            = timeSigHPD_;
     pedSig_             = pedSigHPD_;
     noise_              = noiseHPD_;
   } else {
     timeSig_            = timeSigSiPM_;
-    pedSig_             = pedSigSiPM_;
-    noise_              = noiseSiPM_;
+    pedSig_             = pedSigSiPM_; // unused in Phase1, take the average pedestal width from the DB
+    noise_              = noiseSiPM_; // unused in Phase1, take the pedestal width from the DB
   }
 
 }
@@ -278,24 +275,25 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
-  // initialize for every hit now to avoid incorrect settings for different channel types (HPD vs SiPM)
-  // FIXME: keep this as a reminder to improve and reduce CPU use
-  //  if( cntsetPulseShape ) return;
+  // initialize for every different channel types (HPD vs SiPM)
 
-   // set the M2 parameters before defining the shape
-   setChi2Term(isHPD);
-
-   resetPulseShapeTemplate(ps);
-
+  if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_))
+    {
+      setChi2Term(isHPD);
+      resetPulseShapeTemplate(ps);
+      currentPulseShape_ = &ps;
+      isCurrentChannelHPD_ = isHPD;
+    }
 }
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
 								 pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
-   spfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
-   dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
-   tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
+   spfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
+   dpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5) );
+   tpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7) );
+
 }
 
 void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
@@ -313,6 +311,8 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
    double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
    double noiseADCArr[HcalConst::maxSamples]={};
+   double noisePHArr[HcalConst::maxSamples]={};
+   double noiseArrSq[HcalConst::maxSamples]={};
 
    double tsTOT = 0, tstrig = 0; // in fC
    double tsTOTen = 0; // in GeV
@@ -329,7 +329,14 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
       chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
       energyArr[ip] = energy; pedenArr[ip] = peden;
 
+      // HPD fcByPE from
+      // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_0/SimCalorimetry/HcalSimProducers/python/hcalSimParameters_cfi.py#L62
+      if((charge-ped)>noise_) {
+	noisePHArr[ip] = sqrt((charge-ped)*0.3305); // Add photostatistics uncertainty
+      }
+
       noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]); // Add Greg's channel discretization
+      noiseArrSq[ip] = noise_ * noise_ + noiseADCArr[ip] * noiseADCArr[ip] + noisePHArr[ip] * noisePHArr[ip];
 
       tsTOT += charge - ped;
       tsTOTen += energy - peden;
@@ -344,15 +351,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    std::vector<float> fitParsVec;
 
    if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
-     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseADCArr);
-   }
-   else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
-     fitParsVec.clear();
-     fitParsVec.push_back(0.);
-     fitParsVec.push_back(0.);
-     fitParsVec.push_back(0.);
-     fitParsVec.push_back(999.);
-     fitParsVec.push_back(false);
+     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq);
    } else {
      fitParsVec.clear();
      fitParsVec.push_back(0.); //charge
@@ -371,7 +370,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseADCArr)  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq)  const {
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
@@ -382,7 +381,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpslew[i] = 0;
       if(applyTimeSlew_) tmpslew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
-      tmperry2[i]=noise_*noise_+ noiseADCArr[i]*noiseADCArr[i];
+      tmperry2[i]=noiseArrSq[i];
 
       //Propagate it through
       tmperry2[i]*=(gainArr[i]*gainArr[i]); //Convert from fC to GeV
@@ -527,7 +526,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
   double noiseADCArr[HcalConst::maxSamples]={};
   double noiseDCArr[HcalConst::maxSamples]={};
-  double noiseArr[HcalConst::maxSamples]={};
+  double noiseArrSq[HcalConst::maxSamples]={};
+  double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
 
@@ -547,8 +547,12 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
     // quantization noise from the ADC (QIE8 or QIE10/11)
-    if(!channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]);
-    if(channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaSiPMQIE10(chargeArr[ip]);
+    // FIXME: in the future switch also the QIE8
+    if(channelData.hasTimeInfo()) {
+      noiseADCArr[ip] = (1./sqrt(12))*channelData.tsDFcPerADC(ip);
+    } else {
+      noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]); // Add Greg's channel discretization
+    }
 
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
@@ -556,7 +560,25 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
       noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
-    noiseArr[ip]= noiseADCArr[ip] + noiseDCArr[ip];
+    // Photo statistics uncertainties
+    //      sigmaFC/FC = 1/sqrt(Ne);
+    // Note2. (from kPedro): the output number of photoelectrons after smearing is treated very differently for SiPMs: *each* pe is assigned a different time based on a random generation from the Y11 pulse plus the SimHit time. In HPDs, the overall pulse is shaped all at once using just the SimHit time.
+
+    noisePHArr[ip] = 0;
+    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
+      noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
+    }
+    if(!channelData.hasTimeInfo() && (charge-ped)>noise_) {
+      noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
+    }
+
+    // sum all in quadrature
+    if(channelData.hasTimeInfo()) {
+      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip) +  noisePHArr[ip]*noisePHArr[ip];
+    } else {
+      // FIXME: in the future switch the HPDnoise from the DB
+      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noisePHArr[ip]*noisePHArr[ip] + noise_*noise_;
+    }
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
@@ -564,6 +586,15 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
       tstrig += charge - ped;
     }
   }
+
+  double averagePedSig2GeV=0.25*(channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)*channelData.tsGain(0)*channelData.tsGain(0) +
+				 channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)*channelData.tsGain(1)*channelData.tsGain(1) +
+				 channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)*channelData.tsGain(2)*channelData.tsGain(2) +
+				 channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)*channelData.tsGain(3)*channelData.tsGain(3));
+
+  // FIXME: in the future switch the HPDnoise from the DB
+  // redefine the invertpedSig2
+  if(channelData.hasTimeInfo()) psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
 
   if(channelData.hasTimeInfo()) { 
     ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
@@ -573,15 +604,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseArr);
-  }
-  else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
-    fitParsVec.clear();
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(999.);
-    fitParsVec.push_back(false);
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseArrSq);
   } else {
     fitParsVec.clear();
     fitParsVec.push_back(0.); //charge

@@ -4,6 +4,7 @@
 #include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <iostream>
 
@@ -116,6 +117,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
       edm::ESHandle<HcalTopology> topo;
       iSetup.get<HcalRecNumberingRecord>().get(topo);
+      theHcalTopology_ = topo.product();
       edm::ESHandle<HcalChannelQuality> hcalChStatus;    
       iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
       theHcalChStatus_ = hcalChStatus.product();
@@ -151,11 +153,16 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     std::vector<double> cleanThresholds_;
     std::vector<int> flags_;
     std::vector<int> depths_;
+    const HcalTopology* theHcalTopology_;
     const HcalChannelQuality* theHcalChStatus_;
     const HcalSeverityLevelComputer* hcalSevLvlComputer_;
 
     bool test(unsigned aDETID,double energy,int flags,bool& clean){
-    const HcalDetId& detid = (HcalDetId)aDETID;
+    HcalDetId detid = (HcalDetId)aDETID;
+    if (theHcalTopology_->withSpecialRBXHBHE() && detid.subdet() == HcalEndcap){
+      detid = theHcalTopology_->idFront(detid);
+    }
+
     const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
     unsigned theStatusValue = theStatus->getValue();
     // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value

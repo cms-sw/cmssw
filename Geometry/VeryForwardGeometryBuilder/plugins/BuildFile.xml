@@ -1,13 +1,10 @@
+<use name="DetectorDescription/Core"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 <library name="GeometryVeryForwardGeometryBuilderPlugins" file="*.cc">
-	<use name="DetectorDescription/Core"/>
-	<use name="CondFormats/DataRecord"/>
-	<use name="CondFormats/AlignmentRecord"/>
-	<use name="DataFormats/DetId"/>
-	<use name="DataFormats/CTPPSDetId"/>
-	<use name="Geometry/TrackerNumberingBuilder"/>
-	<use name="Geometry/VeryForwardGeometryBuilder"/>
-	<use name="clhep"/>
-	<use name="hepmc"/>
-	<use name="xerces-c"/>
-	<flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

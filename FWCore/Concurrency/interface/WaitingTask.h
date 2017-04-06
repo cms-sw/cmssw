@@ -30,11 +30,13 @@
 
 namespace edm {
   class WaitingTaskList;
+  class WaitingTaskHolder;
   
   class WaitingTask : public tbb::task {
       
    public:
     friend class WaitingTaskList;
+    friend class WaitingTaskHolder;
     
     ///Constructor
     WaitingTask() : m_ptr{nullptr} {}

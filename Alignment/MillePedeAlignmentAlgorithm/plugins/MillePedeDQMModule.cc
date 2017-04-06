@@ -13,6 +13,21 @@
 /*** ROOT objects ***/
 #include "TH1F.h"
 
+/*** Core framework functionality ***/
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+/*** Geometry ***/
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+
+/*** Alignment ***/
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
 
 
 MillePedeDQMModule
@@ -20,7 +35,6 @@ MillePedeDQMModule
   mpReaderConfig_(
     config.getParameter<edm::ParameterSet>("MillePedeFileReader")
   ),
-  mpReader(mpReaderConfig_),
 
   sigCut_     (mpReaderConfig_.getParameter<double>("sigCut")),
   Xcut_       (mpReaderConfig_.getParameter<double>("Xcut")),
@@ -30,7 +44,7 @@ MillePedeDQMModule
   Zcut_       (mpReaderConfig_.getParameter<double>("Zcut")),
   tZcut_      (mpReaderConfig_.getParameter<double>("tZcut")),
   maxMoveCut_ (mpReaderConfig_.getParameter<double>("maxMoveCut")),
-  maxErrorCut_ (mpReaderConfig_.getParameter<double>("maxErrorCut"))  
+  maxErrorCut_ (mpReaderConfig_.getParameter<double>("maxErrorCut"))
 {
 }
 
@@ -63,11 +77,16 @@ void MillePedeDQMModule
 
 
 void MillePedeDQMModule
-::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter &)  
+::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter &)
 {
-
   bookHistograms(booker);
-  mpReader.read();
+  if (mpReader_) {
+    mpReader_->read();
+  } else {
+    throw cms::Exception("LogicError")
+      << "@SUB=MillePedeDQMModule::dqmEndJob\n"
+      << "Try to read MillePede results before initializing MillePedeFileReader";
+  }
   fillExpertHistos();
 }
 
@@ -78,17 +97,50 @@ void MillePedeDQMModule
 //=============================================================================
 
 void MillePedeDQMModule
+::beginRun(const edm::Run&, const edm::EventSetup& setup) {
+
+  if (!setupChanged(setup)) return;
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  setup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<GeometricDet> geometricDet;
+  setup.get<IdealGeometryRecord>().get(geometricDet);
+  edm::ESHandle<PTrackerParameters> ptp;
+  setup.get<PTrackerParametersRcd>().get(ptp);
+
+  TrackerGeomBuilderFromGeometricDet builder;
+
+  const auto trackerGeometry = builder.build(&(*geometricDet), *ptp, &(*tTopo));
+  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, &(*tTopo));
+
+  const std::string labelerPlugin{"PedeLabeler"};
+  edm::ParameterSet labelerConfig{};
+  labelerConfig.addUntrackedParameter("plugin", labelerPlugin);
+  labelerConfig.addUntrackedParameter("RunRangeSelection", edm::VParameterSet{});
+
+  std::shared_ptr<PedeLabelerBase> pedeLabeler{
+    PedeLabelerPluginFactory::get()
+      ->create(labelerPlugin,
+              PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr),
+              labelerConfig)
+  };
+
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler);
+}
+
+
+void MillePedeDQMModule
 ::fillExpertHistos()
 {
 
-  fillExpertHisto(h_xPos,  Xcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getXobs(),  mpReader.getXobsErr());
-  fillExpertHisto(h_xRot, tXcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTXobs(), mpReader.getTXobsErr());
+  fillExpertHisto(h_xPos,  Xcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getXobs(),  mpReader_->getXobsErr());
+  fillExpertHisto(h_xRot, tXcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTXobs(), mpReader_->getTXobsErr());
 
-  fillExpertHisto(h_yPos,  Ycut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getYobs(),  mpReader.getYobsErr());
-  fillExpertHisto(h_yRot, tYcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTYobs(), mpReader.getTYobsErr());
+  fillExpertHisto(h_yPos,  Ycut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getYobs(),  mpReader_->getYobsErr());
+  fillExpertHisto(h_yRot, tYcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTYobs(), mpReader_->getTYobsErr());
 
-  fillExpertHisto(h_zPos,  Zcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getZobs(),  mpReader.getZobsErr());
-  fillExpertHisto(h_zRot, tZcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTZobs(), mpReader.getTZobsErr());
+  fillExpertHisto(h_zPos,  Zcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getZobs(),  mpReader_->getZobsErr());
+  fillExpertHisto(h_zRot, tZcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTZobs(), mpReader_->getTZobsErr());
 
 }
 
@@ -97,7 +149,7 @@ void MillePedeDQMModule
                   std::array<double, 6> obs, std::array<double, 6> obsErr)
 {
   TH1F* histo_0 = histo->getTH1F();
-  
+
   histo_0->SetMinimum(-(maxMoveCut_));
   histo_0->SetMaximum(  maxMoveCut_);
 
@@ -108,6 +160,18 @@ void MillePedeDQMModule
   histo_0->SetBinContent(8,cut);
   histo_0->SetBinContent(9,sigCut);
   histo_0->SetBinContent(10,maxMoveCut);
-  histo_0->SetBinContent(11,maxErrorCut);  
+  histo_0->SetBinContent(11,maxErrorCut);
 
+}
+
+bool MillePedeDQMModule
+::setupChanged(const edm::EventSetup& setup)
+{
+  bool changed{false};
+
+  if (watchIdealGeometryRcd_.check(setup)) changed = true;
+  if (watchTrackerTopologyRcd_.check(setup)) changed = true;
+  if (watchPTrackerParametersRcd_.check(setup)) changed = true;
+
+  return changed;
 }

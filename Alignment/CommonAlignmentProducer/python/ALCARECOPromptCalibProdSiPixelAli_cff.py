@@ -78,13 +78,8 @@ from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import
 SiPixelAliMilleAlignmentProducer = copy.deepcopy(AlignmentProducer)
 SiPixelAliMilleAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBHalfBarrel,111111',
-        'TrackerTPEHalfCylinder,111111',
-
-        'TrackerTIBHalfBarrel,000000',
-        'TrackerTOBHalfBarrel,000000',
-        'TrackerTIDEndcap,000000',
-        'TrackerTECEndcap,000000'
+        "PixelHalfBarrels,111111",
+        "PXECHalfCylinders,111111",
         )
     )
 

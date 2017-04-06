@@ -101,7 +101,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------
    std::vector<pat::Muon>::const_iterator isolatedMuon     = muons.end();
    std::vector<pat::Muon>::const_iterator muon = muons.end();
-   bool nIsolatedMuons = 0;
+   unsigned int nIsolatedMuons = 0;
    std::vector<pat::Muon>::const_iterator muonIt = muons.begin(),
      muonEnd = muons.end();
    for (; muonIt != muonEnd; ++muonIt ) {
@@ -126,7 +126,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------
    std::vector<pat::Electron>::const_iterator isolatedElectron     = electrons.end();
    std::vector<pat::Electron>::const_iterator electron = electrons.end();
-   bool nIsolatedElectrons = 0;
+   unsigned int nIsolatedElectrons = 0;
    std::vector<pat::Electron>::const_iterator electronIt = electrons.begin(),
      electronEnd = electrons.end();
    for (; electronIt != electronEnd; ++electronIt ) {

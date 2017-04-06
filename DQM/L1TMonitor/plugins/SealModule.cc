@@ -33,6 +33,9 @@ DEFINE_FWK_MODULE(L1TStage2CaloLayer2);
 #include <DQM/L1TMonitor/interface/L1TStage2uGMT.h>
 DEFINE_FWK_MODULE(L1TStage2uGMT);
 
+#include <DQM/L1TMonitor/interface/L1TStage2uGMTMuon.h>
+DEFINE_FWK_MODULE(L1TStage2uGMTMuon);
+
 #include <DQM/L1TMonitor/interface/L1TStage2MuonComp.h>
 DEFINE_FWK_MODULE(L1TStage2MuonComp);
 

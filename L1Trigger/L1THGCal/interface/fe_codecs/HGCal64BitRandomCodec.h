@@ -22,16 +22,14 @@ public:
     data_.payload = std::numeric_limits<uint64_t>::max();
   }
 
-  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-                          const HGCEEDigiCollection& ee,
+  void setDataPayloadImpl(const HGCEEDigiCollection& ee,
                           const HGCHEDigiCollection& fh,
                           const HGCHEDigiCollection& bh );
 
-  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-                          const l1t::HGCFETriggerDigi& digi);
+  void setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi);
   
   std::vector<bool> encodeImpl(const data_type&) const ;
-  data_type         decodeImpl(const std::vector<bool>&) const;  
+  data_type         decodeImpl(const std::vector<bool>&, const uint32_t) const;  
 
 private:
   HGCal64BitRandomCodecImpl codecImpl_;

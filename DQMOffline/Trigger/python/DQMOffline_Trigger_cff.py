@@ -47,6 +47,8 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
 
+# EXO
+from DQMOffline.Trigger.ExoticaMonitoring_cff import *
 
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
@@ -64,7 +66,8 @@ offlineHLTSource = cms.Sequence(
     topHLTriggerOfflineDQM *
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
-    hotlineDQMSequence
+    hotlineDQMSequence *
+    exoticaMonitorHLT
     )
 
 # offline DQM for the HLTMonitoring stream

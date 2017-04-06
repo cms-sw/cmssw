@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include <TH2.h>

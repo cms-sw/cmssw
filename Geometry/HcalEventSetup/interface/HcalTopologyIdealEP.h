@@ -39,6 +39,7 @@ public:
 private:
   // ----------member data ---------------------------
   std::string m_restrictions;
+  bool        m_mergePosition;
   const edm::ParameterSet m_pSet;
 };
 #endif

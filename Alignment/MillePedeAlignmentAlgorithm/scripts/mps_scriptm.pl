@@ -99,6 +99,12 @@ if ($nn != 1) {
 }
 $nn = ($body =~ s/RUNDIR=(.+)$/RUNDIR=$runDir/m);
 
+# replace the cfg name
+$nn = ($body =~ s/CONFIG_FILE=(.*)$/CONFIG_FILE=\$RUNDIR\/$cfgName/m);
+if ($nn <1) {
+  print "Warning: mps_script matches cfg: $nn\n";
+}
+
 #replace CMSSW_RELEASE_AREA with evironment variable
 $body =~ s/cd\s+CMSSW_RELEASE_AREA/cd $ENV{'CMSSW_BASE'}/g;
 
@@ -116,19 +122,6 @@ if ($castorPool ne "undefined") {
 #... or empty the field.
   $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=/m);
 }
-
-# replace the cfg name
-$nn = ($body =~ m/cmsRun +([A-Z,a-z,0-9\-\.])/g);
-
-# $nn = ($body =~ m/cmsRun +(.+)/g);
-if ($nn <1) {
-  print "Warning: mps_script matches cfg: $nn\n";
-}
-# $nn = ($body =~ s/cmsRun\s([A-Za-z0-9]+?\.cfg)/cmsRun $cfgName/g);
-# $nn = ($body =~ s/cmsRun +(.+)/cmsRun $cfgName/g);
-$nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun \$RUNDIR\/$cfgName/g);
-
-$nn = $body =~ s/mps_parse_pedechi2hist\.pl\s(.+)\s\w*?\.cfg/mps_parse_pedechi2hist\.pl $1 \$RUNDIR\/$cfgName/gi;
 
 # now we have to expand lines that contain the ISN directive
 @LINES = split "\n",$body;

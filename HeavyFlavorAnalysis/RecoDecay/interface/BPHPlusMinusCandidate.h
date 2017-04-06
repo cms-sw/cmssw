@@ -65,8 +65,8 @@ class BPHPlusMinusCandidate: public BPHRecoCandidate,
   /// charge selection is applied inside
   static std::vector<BPHPlusMinusConstCandPtr> build(
                                                const BPHRecoBuilder& builder,
-                                               const std::string nPos,
-                                               const std::string nNeg,
+                                               const std::string& nPos,
+                                               const std::string& nNeg,
                                                double mass = -1,
                                                double msig = -1 );
 

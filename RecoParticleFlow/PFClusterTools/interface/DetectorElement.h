@@ -62,7 +62,7 @@ public:
 	/*
 	 * Set the calibration of this detector element. Must be > 0.
 	 */
-	void setCalib(double calib) throw(PFToolsException&) {
+	void setCalib(double calib) noexcept(false) {
 		setCalibCore(calib);
 	}
 
@@ -72,7 +72,7 @@ public:
 private:
 	virtual double getCalibCore() const;
 	virtual double getCalibCore(double eta, double phi) const;
-	virtual void setCalibCore(double calib) throw(PFToolsException&);
+	virtual void setCalibCore(double calib) noexcept(false);
 	
 	DetectorElement(const DetectorElement& de);
 	DetectorElementType myType;

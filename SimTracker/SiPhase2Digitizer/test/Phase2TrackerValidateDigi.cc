@@ -152,21 +152,25 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
       }
     }
   }
+
   nSimulatedTracks->Fill(nTracks);
   nSimulatedTracksP->Fill(nTracksP);
   nSimulatedTracksS->Fill(nTracksS);
+  if (pixelFlag_) fillITPixelBXInfo();
+  else fillOTBXInfo();
 }
 
 int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned int id, float pt, float eta, float phi, int type, const edm::ESHandle<TrackerGeometry> gHandle) {
   const TrackerTopology* tTopo = tTopoHandle_.product();
-
+  const TrackerGeometry* tGeom = gHandle.product();  
 
   int nHits = 0;
   for (auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHits;
-    iEvent.getByToken(itoken, simHits);
-    if (!simHits.isValid()) continue;
-    for(edm::PSimHitContainer::const_iterator isim = simHits->begin(); isim != simHits->end(); ++isim){
+    edm::Handle<edm::PSimHitContainer> simHitHandle;
+    iEvent.getByToken(itoken, simHitHandle);
+    if (!simHitHandle.isValid()) continue;
+    const edm::PSimHitContainer& simHits = (*simHitHandle.product());
+    for(edm::PSimHitContainer::const_iterator isim = simHits.begin(); isim != simHits.end(); ++isim){
       unsigned int rawid = (*isim).detUnitId();
       int layer;
       if (pixelFlag_) layer = tTopo->getITPixelLayerNumber(rawid);
@@ -179,14 +183,14 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
       if ((*isim).trackId() != id) continue; 
       if (DetId(detId).det() != DetId::Detector::Tracker) continue;
   
-      const GeomDet *geomDet = gHandle->idToDet(detId);
+      const GeomDet *geomDet = tGeom->idToDet(detId);
       if (!geomDet) continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
 
       SimulatedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);   
       SimulatedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
       
-      const TrackerGeomDet* geomDetUnit(gHandle->idToDetUnit(detId));
+      const TrackerGeomDet* geomDetUnit(tGeom->idToDetUnit(detId));
       const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
       int nColumns  = tkDetUnit->specificTopology().ncolumns();
       
@@ -232,13 +236,14 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
 bool Phase2TrackerValidateDigi::findOTDigi(unsigned int detid, unsigned int id) {
   bool matched = false;
   const edm::DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle_.product();
+  const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
   edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = digis->find(detid);
   if (DSVIter != digis->end()) { 
     for (edm::DetSet<Phase2TrackerDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
       int col = di->column(); // column 
       int row = di->row();    // row
-      unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);
-      unsigned int simTkId = getSimTrackId(otSimLinkHandle_, detid, channel);
+      unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);      
+      unsigned int simTkId = getSimTrackId(links, detid, channel);
       if (simTkId == id) {
 	matched = true;
 	break;
@@ -251,13 +256,15 @@ bool Phase2TrackerValidateDigi::findITPixelDigi(unsigned int detid, unsigned int
 
   bool matched = false;
   const edm::DetSetVector<PixelDigi>* digis = itPixelDigiHandle_.product();
+  const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
+
   edm::DetSetVector<PixelDigi>::const_iterator DSVIter = digis->find(detid);
   if (DSVIter != digis->end()) { 
     for (edm::DetSet<PixelDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
       int col = di->column(); // column 
       int row = di->row();    // row
       unsigned int channel = PixelDigi::pixelToChannel(row,col);
-      unsigned int simTkId = getSimTrackId(itPixelSimLinkHandle_, detid, channel);
+      unsigned int simTkId = getSimTrackId(links, detid, channel);
       if (simTkId == id) {
 	matched = true;
 	break;
@@ -427,14 +434,15 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
   const TrackerTopology* const tTopo = tTopoHandle_.product();
 
   if (theTkDigiGeomWatcher.check(iSetup)) {
     edm::ESHandle<TrackerGeometry> geom_handle;
     iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
-    for (auto const & det_u : geom_handle->detUnits()) {
+    const TrackerGeometry* tGeom = geom_handle.product();  
+    
+    for (auto const & det_u : tGeom->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
       bookLayerHistos(ibooker,detId_raw, tTopo,pixelFlag_); 
     }
@@ -659,13 +667,21 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, uns
 					 Parameters.getParameter<double>("xmin"),
 					 Parameters.getParameter<double>("xmax"));
 
+    HistoName.str("");
+    HistoName << "BunchXingWindow_" << fname2.str();
+    local_mes.BunchXTimeBin = ibooker.book1D(HistoName.str(),HistoName.str(), 8, -5.5, 2.5);
+
+    HistoName.str("");
+    HistoName << "FractionOfOOTPUDigi_" << fname2.str();
+    local_mes.FractionOfOOTDigis = ibooker.bookProfile(HistoName.str(),HistoName.str(), 8, -5.5, 2.5, 0., 1.0,"s");
+
     layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
 }
 //
 // -- Get SimTrack Id
 //
-unsigned int Phase2TrackerValidateDigi::getSimTrackId(edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& simLinks, const DetId& detId, unsigned int& channel) {
+unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<PixelDigiSimLink> * simLinks, const DetId& detId, unsigned int& channel) {
 
   edm::DetSetVector<PixelDigiSimLink>::const_iterator 
     isearch = simLinks->find(detId);
@@ -684,6 +700,66 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(edm::Handle<edm::DetSetVec
   }
   return simTrkId;
 }
+void Phase2TrackerValidateDigi::fillOTBXInfo() {
+
+  const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
+
+  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end(); DSViter++) {
+    unsigned int rawid = DSViter->id; 
+    DetId detId(rawid);
+    if (DetId(detId).det() != DetId::Detector::Tracker) continue;
+    int layer = tTopoHandle_->getOTLayerNumber(rawid);
+    if (layer < 0) continue;
+    std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
+    if (pos == layerMEs.end()) continue;
+    DigiMEs& local_mes = pos->second;
+    int tot_digi = 0;
+    std::map<int, float> bxMap;
+    for (typename edm::DetSet< PixelDigiSimLink >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+      tot_digi++;
+      int bx = di->eventId().bunchCrossing();
+      std::map<int, float>::iterator ic = bxMap.find(bx);
+      if (ic == bxMap.end()) bxMap[bx] = 1.0;
+      else bxMap[bx] += 1.0;
+    }
+    for (auto & v : bxMap) {
+      if (tot_digi) {
+	local_mes.BunchXTimeBin->Fill(v.first, v.second);
+	local_mes.FractionOfOOTDigis->Fill(v.first,v.second/tot_digi);
+      }
+    }
+  }
+}
+void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
+
+  const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
+
+  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end(); DSViter++) {
+    unsigned int rawid = DSViter->id; 
+    DetId detId(rawid);
+    if (DetId(detId).det() != DetId::Detector::Tracker) continue;
+    int layer = tTopoHandle_->getITPixelLayerNumber(rawid);
+    if (layer < 0) continue;
+    std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
+    if (pos == layerMEs.end()) continue;
+    DigiMEs& local_mes = pos->second;
+    int tot_digi = 0;
+    std::map<int, float> bxMap;
+    for (typename edm::DetSet< PixelDigiSimLink >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+      tot_digi++;
+      int bx = di->eventId().bunchCrossing();
+      std::map<int, float>::iterator ic = bxMap.find(bx);
+      if (ic == bxMap.end()) bxMap[bx] = 1.0;
+      else bxMap[bx] += 1.0;
+    }
+    for (auto & v : bxMap) {
+      if (tot_digi) {
+	local_mes.BunchXTimeBin->Fill(v.first, v.second);
+	local_mes.FractionOfOOTDigis->Fill(v.first,v.second/tot_digi);
+      }
+    }
+  }
+}
 //
 // -- Get Matched SimTrack  
 //
@@ -700,13 +776,14 @@ int Phase2TrackerValidateDigi::matchedSimTrack(edm::Handle<edm::SimTrackContaine
 //
 //  -- Check if the SimTrack is _Primary or not 
 //
-int Phase2TrackerValidateDigi::isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits) {
+int Phase2TrackerValidateDigi::isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHitHandle) {
   int result = -1;
   unsigned int trkId = simTrk.trackId();
   int vtxIndx = simTrk.vertIndex();
   if (trkId > 0) {
     //    int vtxIndx = simTrk.vertIndex();
-    for (edm::PSimHitContainer::const_iterator iHit = simHits->begin(); iHit != simHits->end(); ++iHit) {
+    const edm::PSimHitContainer& sim_hits = (*simHitHandle.product());
+    for (edm::PSimHitContainer::const_iterator iHit = sim_hits.begin(); iHit != sim_hits.end(); ++iHit) {
       if (trkId == iHit->trackId()) {
 	int ptype = iHit->processType();
 	if (  (vtxIndx == 0 ) && (ptype == 2 || ptype == 7 || ptype == 9 || ptype == 11 || ptype == 13 ||ptype == 15) ) result = 1;

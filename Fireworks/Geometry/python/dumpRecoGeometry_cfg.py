@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D1 2023D2 2023D3 2023D4 2023D5 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023D7 2023D10 2023D4 2023D8 MaPSA")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -23,6 +23,9 @@ def help():
    print ""
    print "   calo=bool"
    print "       include Calo subdetectors"
+   print ""
+   print "   timing=bool"
+   print "       include Timing subdetectors"
    print ""
    print ""
    exit(1);
@@ -59,35 +62,29 @@ def recoGeoLoad(score):
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
-    elif  score == "2023D1":
+    elif  score == "2023D7":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023D7Reco_cff')
        
-    elif  score == "2023D2":
+    elif  score == "2023D10":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D2Reco_cff')
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
+       process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
        
-    elif  score == "2023D3":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-
     elif  score == "2023D4":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
        process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
-    elif  score == "2023D5":
+    elif  score == "2023D8":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D5Reco_cff')
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
+       process.load('Configuration.Geometry.GeometryExtended2023D8Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
@@ -158,6 +155,12 @@ options.register ('calo',
                   VarParsing.VarParsing.varType.bool,
                   "write Calo geometry")
 
+options.register ('timing',
+                  False, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "write Timing geometry")
+
 options.register ('out',
                   defaultOutputFileName, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -183,7 +186,8 @@ if ( options.tgeo == True):
     process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer",
                  Tracker = cms.untracked.bool(options.tracker),
                  Muon = cms.untracked.bool(options.muon),
-                 Calo = cms.untracked.bool(options.calo)))
+                 Calo = cms.untracked.bool(options.calo),
+                 Timing = cms.untracked.bool(options.timing)))
     process.dump = cms.EDAnalyzer("DumpFWTGeoRecoGeometry",
                               tagInfo = cms.untracked.string(options.tag),
                        outputFileName = cms.untracked.string(options.out)
@@ -194,7 +198,8 @@ else:
     process.add_(cms.ESProducer("FWRecoGeometryESProducer",
                  Tracker = cms.untracked.bool(options.tracker),
                  Muon = cms.untracked.bool(options.muon),
-                 Calo = cms.untracked.bool(options.calo)))
+                 Calo = cms.untracked.bool(options.calo),
+                 Timing = cms.untracked.bool(options.timing)))
     process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
                               level   = cms.untracked.int32(1),
                               tagInfo = cms.untracked.string(options.tag),

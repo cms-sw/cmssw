@@ -4,6 +4,8 @@
  *  \author S. Dildick - Texas A&M University
  */
 
+#include <iostream>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

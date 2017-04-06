@@ -23,6 +23,8 @@ struct AbstractHistogram {
   int count = 0; // how many things where inserted already. For concat.
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
+  // This is needed for re-grouping, which happens for counters and harvesting
+  // This is always an iq out of GeometryInterface::allModules
   GeometryInterface::InterestingQuantities iq_sample;
 
   ~AbstractHistogram() {

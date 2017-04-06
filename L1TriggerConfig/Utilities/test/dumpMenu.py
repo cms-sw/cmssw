@@ -32,7 +32,7 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1mw = cms.EDAnalyzer("L1MenuWriter")
+process.l1mw = cms.EDAnalyzer("L1MenuWriter", isO2Opayload = cms.untracked.bool(False))
 
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 outputDB = cms.Service("PoolDBOutputService",

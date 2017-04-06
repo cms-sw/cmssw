@@ -55,11 +55,15 @@
 #include "G4Track.hh"
 #include "G4Step.hh"
 #include "G4ParticleChangeForTransport.hh"
-//#include "G4MonopoleFieldSetup.hh"
+
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 
 class G4SafetyHelper; 
 class G4Monopole;
+
+namespace sim {
+  class ChordFinderSetter;
+}
 
 #include <memory>
 

@@ -659,9 +659,15 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   }
   
   //fill additional weights for systematic uncertainties
-  if (fMasterGen->info.initrwgt) {
+  if (fMasterGen->info.getWeightsDetailedSize() > 0) {
     for (const string &key : fMasterGen->info.initrwgt->weightsKeys) {
       double wgt = (*fMasterGen->info.weights_detailed)[key];
+      event()->weights().push_back(wgt);
+    }
+  }
+  else if (fMasterGen->info.getWeightsCompressedSize() > 0) {
+    for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
+      double wgt = fMasterGen->info.getWeightsCompressedValue(i);
       event()->weights().push_back(wgt);
     }
   }

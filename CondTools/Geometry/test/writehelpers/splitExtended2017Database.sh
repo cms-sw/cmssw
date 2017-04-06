@@ -16,3 +16,4 @@ conddb_import -f sqlite_file:myfile.db -c sqlite_file:CSCRECO_Geometry.db -t CSC
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:CSCRECODIGI_Geometry.db -t CSCRECODIGI_Geometry_TagXX -i CSCRECODIGI_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:DTRECO_Geometry.db -t DTRECO_Geometry_TagXX -i DTRECO_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:RPCRECO_Geometry.db -t RPCRECO_Geometry_TagXX -i RPCRECO_Geometry_TagXX
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GEMRECO_Geometry.db -t GEMRECO_Geometry_TagXX -i GEMRECO_Geometry_TagXX

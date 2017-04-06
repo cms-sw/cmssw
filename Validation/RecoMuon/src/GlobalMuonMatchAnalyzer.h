@@ -55,7 +55,7 @@ class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual void endJob() ;
-      virtual void endRun() ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void computeEfficiencyEta(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
   void computeEfficiencyPt(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);

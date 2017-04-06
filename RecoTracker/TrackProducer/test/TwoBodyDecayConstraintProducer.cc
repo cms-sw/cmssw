@@ -65,6 +65,9 @@ private:
   double chi2CutValue_;
   double errorRescaleValue_;
 
+  edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
 //   // debug
 //   std::map<std::string, TH1F*> histos_;
 };
@@ -80,8 +83,10 @@ TwoBodyDecayConstraintProducer::TwoBodyDecayConstraintProducer( const edm::Param
   sigmaPositionCutValue_( iConfig.getParameter<double>( "sigmaPositionCut" ) ),
   chi2CutValue_( iConfig.getParameter<double>( "chi2Cut" ) ),
   errorRescaleValue_( iConfig.getParameter<double>( "rescaleError" ) )
-
 {
+  trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
+  bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
+
   produces<std::vector<TrackParamConstraint> >();
   produces<TrackParamConstraintAssociationCollection>();
 
@@ -110,18 +115,17 @@ void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::Eve
   using namespace edm;
 
   Handle<reco::TrackCollection> trackColl;
-  iEvent.getByLabel( srcTag_, trackColl );
+  iEvent.getByToken(trackCollToken_, trackColl);
 
   Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel( bsSrcTag_, beamSpot );
+  iEvent.getByToken(bsToken_, beamSpot);
 
   ESHandle<MagneticField> magField;
   iSetup.get<IdealMagneticFieldRecord>().get( magField );
 
-  std::unique_ptr<std::vector<TrackParamConstraint> > pairs(new std::vector<TrackParamConstraint>);
-  std::unique_ptr<TrackParamConstraintAssociationCollection> output(new TrackParamConstraintAssociationCollection);
-  
   edm::RefProd<std::vector<TrackParamConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<TrackParamConstraint> >();
+  std::unique_ptr<std::vector<TrackParamConstraint> > pairs(new std::vector<TrackParamConstraint>);
+  std::unique_ptr<TrackParamConstraintAssociationCollection> output(new TrackParamConstraintAssociationCollection(trackColl, rPairs));
   
   if ( trackColl->size() == 2 )
   {

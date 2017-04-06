@@ -65,7 +65,7 @@ void Setting::setValue(const std::string& value)
 
 		if ( type_.find("vector") != std::string::npos )
 		{
-            if (delim_.empty())
+            		if (delim_.empty())
 				delim_ = ",";
 			
 			std::vector<std::string> vals;
@@ -89,6 +89,8 @@ void Setting::setValue(const std::string& value)
 
 		value_ = convString.str();
 	}
+	else
+		value_ = value;
 }
 
 
@@ -191,10 +193,10 @@ void TableRow::setRowColumns(const std::vector<std::string>& columns)
     if( colDict_.get() == 0 )
         colDict_ = std::shared_ptr< std::map<std::string,int> >(new std::map<std::string,int>());
 
-	colDict_->clear();
+    colDict_->clear();
 
-	for(unsigned int i=0; i<columns.size(); i++) 
-		(*colDict_)[ columns[i] ] = i;
+    for(unsigned int i=0; i<columns.size(); i++) 
+	(*colDict_)[ columns[i] ] = i;
 }
 
 void TableRow::setRowTypes(const std::vector<std::string>& types)

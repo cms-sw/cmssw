@@ -36,7 +36,8 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   simulateNeutralBkg_(config.getParameter<bool>("simulateNeutralBkg")), 
   minBunch_(config.getParameter<int>("minBunch")), 
   maxBunch_(config.getParameter<int>("maxBunch")),
-  instLumi_(config.getParameter<double>("instLumi"))
+  instLumi_(config.getParameter<double>("instLumi")),
+  rateFact_(config.getParameter<double>("rateFact"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
   // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
@@ -83,7 +84,14 @@ for (const auto & hit: simHits)
   int pdgid = hit.particleType();
   if (ex == 0) ex = error_u;//errors cannot be zero
   if (ey == 0) ey = error_v;
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,1);
+
+  int evtId = hit.eventId().event();
+  int bx = hit.eventId().bunchCrossing();
+  int procType = hit.processType();
+  int res = 1;
+  if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
+    
+  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
   digi_.insert(digi);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
@@ -171,7 +179,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
 
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageElectronRatePerRoll *= instLumi_*1.0/5;
+      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
 
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
       const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
@@ -224,7 +232,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
 
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageNeutralRatePerRoll *= instLumi_*1.0/5;
+      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/5;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);

@@ -50,6 +50,7 @@ protected :
   /**
      Adds a new TCC block
   */
+  using DCCTBBlockPrototype::increment;
   void  increment(uint32_t numb);
   
   /**

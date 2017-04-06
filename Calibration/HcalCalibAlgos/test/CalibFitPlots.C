@@ -3,20 +3,33 @@
 // .L CalibFitPlots.C+g
 //             For standard set of histograms from CalibMonitor
 //  FitHistStandard(infile, outfile, prefix, mode, append, saveAll);
+//      Defaults: mode=11111, append=true, saveAll=false
+//
 //             For extended set of histograms from CalibMonitor
 //  FitHistExtended(infile, outfile, prefix, numb, append);
+//      Defaults: numb=50, append=true
+//
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, save);
+//      Defaults: modePlot=0, save=false
+//
 //             For plotting stored histograms from CalibTree
 //  PlotHistCorrResults(infile, text, save);
+//      Defaults: save=false
+//
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, nmin, save);
+//      Defaults: nmin=20, save=false
+//
 //             For plotting correction factors from 2 different runs on the
 //             same canvas
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, ratio, drawStatBox,
 //                      nmin, save)
+//      Defaults: drawStatBox=true, nmin=100, save=false
+//
 //             For plotting correction factors including systematics
-//  PlotHistCorrSys(infilec, conds, text, save);
+//  PlotHistCorrSys(infilec, conds, text, 
+//      Defaults: save=false
 //
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
@@ -123,8 +136,9 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
   double dlbins[9]  = {0.0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
   std::string sname[4] = {"ratio","etaR", "dl1R","nvxR"};
   std::string lname[4] = {"Z", "E", "L", "V"};
+  std::string xname[4] = {"i#eta", "i#eta", "d_{L1}", "# Vertex"};
   int         numb[4]  = {8, 8, 8, 5};
-  bool        debug(true);
+  bool        debug(false);
 
   TFile      *file = new TFile(infile.c_str());
   std::vector<TH1D*> hists;
@@ -186,7 +200,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	    TFitResultPtr Fit = histo->Fit("pol0","+QRWLS","",LowEdge,HighEdge);
 	    if (debug) std::cout << "Fit to Pol0: " << Fit->Value(0) << " +- "
 				 << Fit->FitResult::Error(0) << std::endl;
-	    histo->GetXaxis()->SetTitle("i#eta");
+	    histo->GetXaxis()->SetTitle(xname[m1].c_str());
 	    histo->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
 	    histo->GetYaxis()->SetRangeUser(0.4,1.6);
 	  }
@@ -214,21 +228,24 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 		     int numb=50, bool append=true) {
   std::string sname("ratio"), lname("Z");
   int         iname(2);
-  bool        debug(true);
+  bool        debug(false);
   double      xbins[99];
   int         neta = numb/2;
   for (int k=0; k<neta; ++k) {
-    xbins[k]        = (k-neta)-0.5;
-    xbins[numb-k+1] = (neta-k) + 0.5;
+    xbins[k]      = (k-neta)-0.5;
+    xbins[numb-k] = (neta-k) + 0.5;
   }
   xbins[neta] = 0;
   TFile      *file = new TFile(infile.c_str());
   std::vector<TH1D*> hists;
   char name[200];
+  if (debug) std::cout << infile << " " << file << std::endl;
   if (file != 0) {
     sprintf (name, "%s%s%d0", prefix.c_str(), sname.c_str(), iname);
     TH1D* hist0 = (TH1D*)file->FindObjectAny(name);
     bool  ok   = (hist0 != 0);
+    if (debug) std::cout << name << " Pointer " << hist0 << " " << ok 
+			 << std::endl;
     if (ok) {
       sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
       TH1D* histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
@@ -328,30 +345,37 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 void PlotHist(std::string infile, std::string prefix, std::string text,
 	      int mode=0, bool save=false) {
 
-  std::string name1[5] = {"ratio00","ratio10","ratio20","ratio30","ratio40"};
-  std::string name2[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
+  std::string name0[5] = {"ratio00","ratio10","ratio20","ratio30","ratio40"};
+  std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
+  std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
+  std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
   std::string title[5] = {"Tracks with p = 20:30 GeV",
 			  "Tracks with p = 30:40 GeV",
 			  "Tracks with p = 40:60 GeV",
 			  "Tracks with p = 60:100 GeV",
 			  "Tracks with p = 20:100 GeV"};
-  std::string xtitl[2] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta"};
-  std::string ytitl[2] = {"Tracks", "<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string xtitl[4] = {"E_{HCAL}/(p-E_{ECAL})","i#eta","d_{L1}","# Vertex"};
+  std::string ytitl[4] = {"Tracks","<E_{HCAL}/(p-E_{ECAL})>",
+			  "<E_{HCAL}/(p-E_{ECAL})>","<E_{HCAL}/(p-E_{ECAL})>"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
   int iopt(1110);
-  if (mode != 0) mode = 1;
-  if (mode == 1) iopt = 10;
+  if (mode < 0 || mode > 3) mode = 0;
+  if (mode != 0) iopt = 10;
   gStyle->SetOptStat(iopt);  gStyle->SetOptFit(1);
   TFile      *file = new TFile(infile.c_str());
   char name[100], namep[100];
   for (int k=0; k<5; ++k) {
     if (mode == 1) {
-      sprintf (name, "%s%s", prefix.c_str(), name2[k].c_str());
-    } else {
       sprintf (name, "%s%s", prefix.c_str(), name1[k].c_str());
+    } else if (mode == 2) {
+      sprintf (name, "%s%s", prefix.c_str(), name2[k].c_str());
+    } else if (mode == 3) {
+      sprintf (name, "%s%s", prefix.c_str(), name3[k].c_str());
+    } else {
+      sprintf (name, "%s%s", prefix.c_str(), name0[k].c_str());
     }
     TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
     if (hist1 != 0) {

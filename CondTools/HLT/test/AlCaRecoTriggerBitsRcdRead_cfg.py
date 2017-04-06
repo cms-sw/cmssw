@@ -24,7 +24,7 @@ process.source = cms.Source("EmptySource",
 # With 'numberEventsInRun = 1' above,
 # this will check IOVs until run (!) number specified as 'input' here,
 # so take care to choose a one that is not too small...:
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(350000) )
 
 # Input for AlCaRecoTriggerBitsRcd,
 # either via GlobalTag

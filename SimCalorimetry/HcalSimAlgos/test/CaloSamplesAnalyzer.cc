@@ -25,7 +25,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -225,13 +225,7 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	for(const auto& iSH : *(h_SH.product())){
 		HcalDetId hid;
 		unsigned int id = iSH.id();
-		if(TestNumbering){
-			int subdet, z, depth, eta, phi, lay;
-			HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
-			int sign = (z==0) ? -1 : 1;
-			HcalDDDRecConstants::HcalID cid = theRecNumber->getHCID(subdet, eta, phi, lay, depth);
-			hid = HcalDetId((HcalSubdetector)subdet, sign*cid.eta, cid.phi, cid.depth);
-		}
+		if(TestNumbering) hid = HcalDetId(HcalHitRelabeller::relabel(id,theRecNumber));
 		else hid = HcalDetId(id);
 		auto ntupIt = treemap.find(hid.rawId());
 		if(ntupIt==treemap.end()) continue;

@@ -25,6 +25,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // Alignment
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
@@ -57,13 +58,13 @@ class AlignmentProducer : public edm::ESProducerLooper
 {
 
  public:
-  typedef std::vector<Alignable*> Alignables;
+  using Alignables = align::Alignables;
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
-  typedef AlignmentAlgorithmBase::RunNumber            RunNumber;
-  typedef AlignmentAlgorithmBase::RunRange             RunRange;
-  typedef std::vector<RunRange>                        RunRanges;
+  using RunNumber = align::RunNumber;
+  using RunRange = align::RunRange;
+  using RunRanges = align::RunRanges;
 
   /// Constructor
   AlignmentProducer( const edm::ParameterSet& iConfig );
@@ -108,12 +109,40 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // private member functions
 
+  /// Creates the choosen alignment algorithm (specified in config-file)
+  void createAlignmentAlgorithm(const edm::ParameterSet&);
+
+  /// Checks if one of the EventSetup-Records has changed
+  bool setupChanged(const edm::EventSetup&);
+
+  /// Creates Geometry and Alignables of the Tracker and initializes the
+  /// AlignmentAlgorithm @theAlignmentAlgo
+  void initAlignmentAlgorithm(const edm::EventSetup&, bool update = false);
+
+  /// Applies Alignments from Database (GlobalPositionRcd) to Geometry
+  /// @theTracker
+  void applyAlignmentsToDB(const edm::EventSetup&);
+
+  /// Creates Alignables @theAlignableTracker from the previously loaded
+  /// Geometry @theTracker
+  void createAlignables(const TrackerTopology*, bool update = false);
+
+  /// Creates the @theAlignmentParameterStore, which manages all Alignables
+  void buildParameterStore();
+
+  /// Applies misalignment scenario to @theAlignableTracker
+  void applyMisalignment();
+
   /// Apply random shifts and rotations to selected alignables, according to configuration
-  void simpleMisalignment_(const Alignables &alivec, const std::string &selection,
+  void simpleMisalignment(const Alignables &alivec, const std::string &selection,
                           float shift, float rot, bool local);
 
   /// Create tracker and muon geometries
-  void createGeometries_( const edm::EventSetup& );
+  void createGeometries(const edm::EventSetup&, const TrackerTopology*);
+
+  /// Applies Alignments, AlignmentErrors and SurfaceDeformations to
+  /// @theTracker
+  void applyAlignmentsToGeometry();
 
   /// Apply DB constants belonging to (Err)Rcd to geometry,
   /// taking into account 'globalPosition' correction.
@@ -147,7 +176,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// read in survey records
   void readInSurveyRcds( const edm::EventSetup& );
 
-  RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet);
 
   // private data members
 
@@ -170,6 +198,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// GlobalPositions that might be read from DB, NULL otherwise
   const Alignments *globalPositions_;
 
+  const RunRanges uniqueRunRanges_;
   int nevent_;
   edm::ParameterSet theParameterSet;
 
@@ -184,6 +213,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   const bool saveToDB_, saveApeToDB_,saveDeformationsToDB_;
   const bool doTracker_,doMuon_,useExtras_;
   const bool useSurvey_; // true to read survey info from DB
+  const bool enableAlignableUpdates_;
 
   // event input tags
   const edm::InputTag tjTkAssociationMapTag_; // map with tracks/trajectories
@@ -192,6 +222,19 @@ class AlignmentProducer : public edm::ESProducerLooper
   const edm::InputTag clusterValueMapTag_;              // ValueMap containing associtaion cluster - flag
 
   // ESWatcher
+
+  edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd;
+  edm::ESWatcher<GlobalPositionRcd> watchGlobalPositionRcd;
+
+  edm::ESWatcher<TrackerAlignmentRcd> watchTrackerAlRcd;
+  edm::ESWatcher<TrackerAlignmentErrorExtendedRcd> watchTrackerAlErrorExtRcd;
+  edm::ESWatcher<TrackerSurfaceDeformationRcd> watchTrackerSurDeRcd;
+
+  edm::ESWatcher<DTAlignmentRcd> watchDTAlRcd;
+  edm::ESWatcher<DTAlignmentErrorExtendedRcd> watchDTAlErrExtRcd;
+  edm::ESWatcher<CSCAlignmentRcd> watchCSCAlRcd;
+  edm::ESWatcher<CSCAlignmentErrorExtendedRcd> watchCSCAlErrExtRcd;
+
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
   edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrRcd_;
   edm::ESWatcher<DTSurveyRcd> watchDTSurveyRcd_;

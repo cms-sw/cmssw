@@ -42,16 +42,16 @@
 // Operations --
 //--------------
 template<>
-bool BPHMultiSelect<BPHRecoSelect>::accept(
-                                    const reco::Candidate& cand,
-                                    const BPHRecoBuilder* build ) const {
+bool BPHMultiSelect<BPHRecoSelect    >::accept(
+                                        const reco::Candidate & cand,
+                                        const BPHRecoBuilder* build ) const {
   return select( cand, build );
 }
 
 
 template<>
-bool BPHMultiSelect<BPHRecoSelect>::accept(
-                                    const reco::Candidate& cand ) const {
+bool BPHMultiSelect<BPHRecoSelect    >::accept(
+                                        const reco::Candidate & cand ) const {
   return select( cand );
 }
 
@@ -64,8 +64,15 @@ bool BPHMultiSelect<BPHMomentumSelect>::accept(
 
 
 template<>
-bool BPHMultiSelect<BPHVertexSelect>::accept(
-                                      const BPHDecayVertex& cand ) const {
+bool BPHMultiSelect<BPHVertexSelect  >::accept(
+                                        const BPHDecayVertex  & cand ) const {
+  return select( cand );
+}
+
+
+template<>
+bool BPHMultiSelect<BPHFitSelect     >::accept(
+                                        const BPHKinematicFit & cand ) const {
   return select( cand );
 }
 

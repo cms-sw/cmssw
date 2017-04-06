@@ -1977,7 +1977,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteris
     const float              par0   = (pars.size() > 0) ? pars[0] : 0;
     const float              par1   = (pars.size() > 1) ? pars[1] : 0;
     const float              par2   = (pars.size() > 2) ? pars[2] : 0;
-    sprintf (buffer, " %8d %8d %15.6f %15.6f %15.6f %15.6f %8d %15.6f\n", 
+    sprintf (buffer, " %8d %8d %15.6e %15.6e %15.6e %15.6f %8d %15.6f\n", 
 	     type, pixels, par0, par1, par2, cTalk, auxi1, auxi2);
     fOutput << buffer;
   }

@@ -107,7 +107,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 							  int lay) const {
 
 
-  std::pair<int,int> etaDepth = hcalConstants->getEtaDepth(det, etaR, phi, depth, lay);
+  std::pair<int,int> etaDepth = hcalConstants->getEtaDepth(det, etaR, phi, zside, depth, lay);
   if (det == static_cast<int>(HcalBarrel) && lay > 17) {
     det = static_cast<int>(HcalOuter);
   }

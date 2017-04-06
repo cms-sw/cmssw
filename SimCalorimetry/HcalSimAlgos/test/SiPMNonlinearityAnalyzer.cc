@@ -18,7 +18,7 @@
 
 //SiPM headers
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -92,7 +92,6 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 	
 	//instantiate SiPM classes
 	HcalSiPM sipm(pixels,tau);
-	HcalSiPMHitResponse response(NULL,NULL,false); //just for Y11 function
 	
 	fs->file().cd();
 	TProfile* profio = fs->make<TProfile>("input_vs_output","",nBins,binMin,binMax);
@@ -114,7 +113,7 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 			//smear pes according to Y11 time distribution
 			std::vector<unsigned> photonHist(nPreciseBins,0);
 			for(unsigned pe = 0; pe < npe; ++pe){
-				double t_pe = response.generatePhotonTime(engine);
+				double t_pe = HcalPulseShapes::generatePhotonTime(engine);
 				int t_bin = int(t_pe + tsOffset + 0.5);
 				if(t_bin > 0 and (static_cast<unsigned>(t_bin) < photonHist.size())) photonHist[t_bin] += 1;
 			}

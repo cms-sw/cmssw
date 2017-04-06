@@ -26,6 +26,7 @@ clean_up () {
 #LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
 trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 
+export X509_USER_PROXY=${RUNDIR}/.user_proxy
 
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)

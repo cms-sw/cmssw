@@ -95,7 +95,7 @@ void IntegrandThetaFunction::SetParameterAlpha(double alpha)
   alpha_ = alpha;
 }
 
-void IntegrandThetaFunction::SetParameters(double* param)
+void IntegrandThetaFunction::SetParameters(const double* param)
 {
   theta0_ = param[0];
   phi0_ = param[1];

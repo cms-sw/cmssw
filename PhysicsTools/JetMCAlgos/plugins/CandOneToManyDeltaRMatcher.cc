@@ -8,7 +8,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -16,12 +16,12 @@
 #include<vector>
 #include<iostream>
 
-class CandOneToManyDeltaRMatcher : public edm::EDProducer {
+class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
  public:
   CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
   ~CandOneToManyDeltaRMatcher();
  private:
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
   edm::EDGetTokenT<reco::CandidateCollection> sourceToken_;
   edm::EDGetTokenT<reco::CandidateCollection> matchedToken_;
@@ -73,7 +73,7 @@ CandOneToManyDeltaRMatcher::CandOneToManyDeltaRMatcher( const ParameterSet & cfg
 CandOneToManyDeltaRMatcher::~CandOneToManyDeltaRMatcher() {
 }
 
-void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
+void CandOneToManyDeltaRMatcher::produce( edm::StreamID, Event& evt, const EventSetup& es ) const {
 
   Handle<CandidateCollection> source;
   Handle<CandidateCollection> matched;

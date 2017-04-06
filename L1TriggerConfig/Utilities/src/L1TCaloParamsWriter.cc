@@ -14,23 +14,32 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TCaloParamsWriter_ : public edm::EDAnalyzer {
+class L1TCaloStage2ParamsWriter : public edm::EDAnalyzer {
+private:
+    bool isO2Opayload;
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    explicit L1TCaloParamsWriter_(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TCaloParamsWriter_(void){}
+    explicit L1TCaloStage2ParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
+       isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
+    }
+    virtual ~L1TCaloStage2ParamsWriter(void){}
 };
 
-void L1TCaloParamsWriter_::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
     edm::ESHandle<l1t::CaloParams> handle1;
-    evSetup.get<L1TCaloParamsO2ORcd>().get( handle1 ) ;
+
+    if( isO2Opayload )
+        evSetup.get<L1TCaloParamsO2ORcd>().get( handle1 ) ;
+    else
+        evSetup.get<L1TCaloStage2ParamsRcd>().get( handle1 ) ;
+
     boost::shared_ptr<l1t::CaloParams> ptr1(new l1t::CaloParams(*(handle1.product ())));
 
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if( poolDb.isAvailable() ){
         cond::Time_t firstSinceTime = poolDb->beginOfTime();
-        poolDb->writeOne(ptr1.get(),firstSinceTime,"L1TCaloParamsO2ORcd");
+        poolDb->writeOne(ptr1.get(),firstSinceTime,( isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloStage2ParamsRcd"));
     }
 
 }
@@ -39,5 +48,5 @@ void L1TCaloParamsWriter_::analyze(const edm::Event& iEvent, const edm::EventSet
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TCaloParamsWriter_);
+DEFINE_FWK_MODULE(L1TCaloStage2ParamsWriter);
 

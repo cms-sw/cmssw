@@ -44,8 +44,8 @@ template< >
 bool TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::isANeighbor( const Ref_Phase2TrackerDigi_& center,
                                                                  const Ref_Phase2TrackerDigi_& mayNeigh ) const
 {
-  unsigned int rowdist = abs(center->row() - mayNeigh->row());
-  unsigned int coldist = abs(center->column() - mayNeigh->column());
+  unsigned int rowdist = std::abs((int)(center->row()) - (int)(mayNeigh->row()));
+  unsigned int coldist = std::abs((int)(center->column()) - (int)(mayNeigh->column()));
   return rowdist <= 1 && coldist <= 1;
 }
 

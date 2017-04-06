@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
@@ -308,16 +308,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ; SimHits != SimHitResult->end(); ++SimHits) {
     HcalDetId cell;
-    if (testNumber_) {
-      int subdet, z, depth, eta, phi, lay;
-      HcalTestNumbering::unpackHcalIndex(SimHits->id(), subdet, z, depth, eta,
-                                        phi, lay);
-      int sign = (z==0) ? (-1):(1);
-      eta     *= sign;
-      cell     = HcalDetId((HcalSubdetector)(subdet), eta, phi, depth);
-    } else {
-      cell = HcalDetId(SimHits->id());
-    }
+    if (testNumber_) cell = HcalHitRelabeller::relabel(SimHits->id(),hcons);
+    else cell = HcalDetId(SimHits->id());
 
     const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
     double etaS = cellGeometry->getPosition().eta () ;

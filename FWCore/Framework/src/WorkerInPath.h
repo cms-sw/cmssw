@@ -82,7 +82,6 @@ namespace edm {
     switch (state) {
       case Worker::Fail:
       {
-        ++timesFailed_;
         rc = false;
         break;
       }

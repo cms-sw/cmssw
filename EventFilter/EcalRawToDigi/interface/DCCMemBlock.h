@@ -42,7 +42,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     void updateCollectors();
     
     void display(std::ostream & o); 
-    
+    using DCCDataBlockPrototype::unpack; 
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID);   
     			
   protected :

@@ -203,18 +203,18 @@ struct Rot3 {
   Vec  axis[3];
   
   constexpr Rot3() :
-    axis{ (Vec){T(1),0,0,0},
-      (Vec){0,T(1),0,0},
-	(Vec){0,0,T(1),0}
+    axis{{(Vec){T(1),0,0,0}},
+         {(Vec){0,T(1),0,0}},
+         {(Vec){0,0,T(1),0}}
   }{}
     
   constexpr Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) :
     axis{ix,iy,iz}{}
 
   constexpr Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
-    axis{ (Vec){xx,xy,xz,0},
-      (Vec){yx,yy,yz,0},
-	(Vec){zx,zy,zz,0}
+    axis{ {(Vec){xx,xy,xz,0}},
+          {(Vec){yx,yy,yz,0}},
+          {(Vec){zx,zy,zz,0}}
   }{}
   
   constexpr Rot3 transpose() const {
@@ -267,8 +267,8 @@ struct Rot2 {
   Vec2<T>  axis[2];
   
   constexpr Rot2() :
-    axis{ (Vec){T(1),0},
-      (Vec){0,T(1)}
+    axis{{(Vec){T(1),0}},
+         {(Vec){0,T(1)}}
   }{}
     
   constexpr Rot2( Vec2<T> ix,  Vec2<T> iy) :

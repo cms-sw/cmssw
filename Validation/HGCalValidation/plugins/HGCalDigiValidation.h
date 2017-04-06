@@ -71,6 +71,7 @@ private:
   std::string       nameDetector_;
   edm::EDGetToken   digiSource_;
   int               verbosity_, SampleIndx_;
+  bool              ifHCAL_;
   int               layers_;
  
   std::map<int, int> OccupancyMap_plus_;

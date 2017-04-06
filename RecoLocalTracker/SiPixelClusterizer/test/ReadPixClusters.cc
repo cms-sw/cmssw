@@ -89,10 +89,10 @@ class ReadPixClusters : public edm::EDAnalyzer {
   
   explicit ReadPixClusters(const edm::ParameterSet& conf);  
   virtual ~ReadPixClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -157,7 +157,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf)
 ReadPixClusters::~ReadPixClusters() { }  
 
 // ------------ method called at the begining   ------------
-void ReadPixClusters::beginRun(const edm::EventSetup& iSetup) {
+void ReadPixClusters::beginRun(edm::Run const&,const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<printLocal<<endl;
 }
 

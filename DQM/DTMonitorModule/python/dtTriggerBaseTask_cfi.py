@@ -22,4 +22,6 @@ dtTriggerBaseMonitor = cms.EDAnalyzer("DTLocalTriggerBaseTask",
     maxBXTM = cms.untracked.int32(2)
 )
 
+from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
+run2_25ns_specific.toModify( dtTriggerBaseMonitor, processDDU = cms.untracked.bool(False))
 

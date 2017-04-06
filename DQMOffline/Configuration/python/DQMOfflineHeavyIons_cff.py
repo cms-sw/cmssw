@@ -18,7 +18,7 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                           ecal_dqm_source_offline *
-                                          hcalOfflineSourceSequence *
+                                          #hcalOfflineSourceSequence *
                                           SiStripDQMTier0_hi *
                                           siPixelOfflineDQM_heavyions_source *
                                           dtSources *
@@ -46,6 +46,7 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
+triggerOfflineDQMSource.remove(exoticaMonitorHLT)
 
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)

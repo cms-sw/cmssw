@@ -110,7 +110,11 @@ namespace edmtest
     const HcalTopology* topo=&(*topology);
 
     edm::ESHandle<HcalDbService> pSetup;
-    context.get<HcalDbRecord>().get( pSetup );
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationsSet")) != mDumpRequest.end()
+     || std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationWidthsSet")) != mDumpRequest.end())
+    {
+      context.get<HcalDbRecord>().get( pSetup );
+    }
 
     using namespace edm::eventsetup;
     std::cout <<"HcalDumpConditions::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;

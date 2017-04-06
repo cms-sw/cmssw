@@ -70,8 +70,8 @@ class TrackerHitAssociator {
   // Destructor
   virtual ~TrackerHitAssociator(){}
   
-  typedef std::pair<unsigned int, unsigned int> simHitCollectionID;
-  typedef std::pair<simHitCollectionID, unsigned int> simhitAddr;
+  typedef std::pair<unsigned int, unsigned int> simhitAddr, subDetTofBin;
+  typedef unsigned int simHitCollectionID;
 
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit) const;
   //for PU events
@@ -100,7 +100,7 @@ class TrackerHitAssociator {
   
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   simhit_map SimHitMap;
-  typedef std::map<simHitCollectionID, std::vector<PSimHit> > simhit_collectionMap;
+  typedef std::map<subDetTofBin, unsigned int> simhit_collectionMap;
   simhit_collectionMap SimHitCollMap;
  
  private:

@@ -67,7 +67,7 @@ private:
     ~EtaPhiRegion(){}
   bool operator()(float eta,float phi)const{
     return reco::deltaR2(eta,phi,centreEta_,centrePhi_)<maxDeltaR2_ ||
-      (std::abs(eta-centreEta_)<maxDEta_ && std::abs(reco::deltaPhi(phi,centrePhi_)<maxDPhi_));}
+      (std::abs(eta-centreEta_)<maxDEta_ && std::abs(reco::deltaPhi(phi,centrePhi_))<maxDPhi_);}
 
 };
 

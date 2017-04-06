@@ -76,8 +76,8 @@ void DTRangeT0ValidateDBRead::analyze(const edm::Event& e,
                           << tRId.sectorId  << " "
                           << tRId.slId      << " , status = "
                           << status << std::endl;
-    if ( ( fabs( tRData.t0min - t0min ) > 0.0001 ) ||
-         ( fabs( tRData.t0max - t0max ) > 0.0001 ) )
+    if ( ( std::abs( tRData.t0min - t0min ) > 0.0001 ) ||
+         ( std::abs( tRData.t0max - t0max ) > 0.0001 ) )
          logFile << "MISMATCH WHEN READING range T0"
                  << tRId.wheelId   << " "
                  << tRId.stationId << " "
@@ -101,8 +101,8 @@ void DTRangeT0ValidateDBRead::analyze(const edm::Event& e,
                       sec,
                       qua,
                       t0min, t0max );
-    if ( ( fabs( ckt0min - t0min ) > 0.0001 ) ||
-         ( fabs( ckt0max - t0max ) > 0.0001 ) )
+    if ( ( std::abs( ckt0min - t0min ) > 0.0001 ) ||
+         ( std::abs( ckt0max - t0max ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING range T0 "
                  << whe << " "
                  << sta << " "

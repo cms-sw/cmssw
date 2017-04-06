@@ -5,10 +5,10 @@
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
-using namespace std;
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsHistogrammer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+using namespace std;
 
 GlobalRecHitsHistogrammer::GlobalRecHitsHistogrammer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),

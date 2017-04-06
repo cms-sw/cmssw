@@ -37,6 +37,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 namespace reco {
 
   //
@@ -91,7 +93,9 @@ namespace reco {
     double minTrackPt_;         // minimum track Pt
     double maxNHF_;
     int maxjetindex_;
-    
+
+    const HcalTopology* theHcalTopology_;    
+
     std::string digiCollName_;         // name of the digi collection
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection

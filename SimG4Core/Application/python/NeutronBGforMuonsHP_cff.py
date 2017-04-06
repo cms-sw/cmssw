@@ -11,8 +11,8 @@ def customise(process):
     # Physics List HP
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/FTFP_BERT_HP_EML')
     process.g4SimHits.Physics.CutsOnProton  = cms.untracked.bool(False)
-    process.g4SimHits.Physics.FlagMuNucl  = cms.bool(True)
     process.g4SimHits.Physics.FlagFluo    = cms.bool(True)
+    process.g4SimHits.Physics.ThermalNeutrons = cms.untracked.bool(False)
     # Eta cut
     process.g4SimHits.Generator.MinEtaCut = cms.double(-7.0)
     process.g4SimHits.Generator.MaxEtaCut = cms.double(7.0)
@@ -20,10 +20,10 @@ def customise(process):
     process.g4SimHits.StackingAction.MaxTrackTime = cms.double(100000000.0)
     process.g4SimHits.StackingAction.DeadRegions = cms.vstring()
     process.g4SimHits.StackingAction.KillHeavy = cms.bool(True)
-    process.g4SimHits.StackingAction.IonThreshold = cms.double(0.001)
-    process.g4SimHits.StackingAction.ProtonThreshold = cms.double(0.001)
+    process.g4SimHits.StackingAction.IonThreshold = cms.double(0.0)
+    process.g4SimHits.StackingAction.ProtonThreshold = cms.double(0.0)
     process.g4SimHits.StackingAction.NeutronThreshold = cms.double(0.0)
-    process.g4SimHits.StackingAction.GammaThreshold = cms.double(0.0005)
+    process.g4SimHits.StackingAction.GammaThreshold = cms.double(0.0)
     # stepping action
     process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(100000000.0)
     process.g4SimHits.SteppingAction.DeadRegions = cms.vstring()

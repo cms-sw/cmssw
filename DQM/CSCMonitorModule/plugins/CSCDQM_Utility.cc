@@ -173,7 +173,7 @@ namespace cscdqm {
     TString s(message); 
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);
-    message = s;
+    message = static_cast<const char *>(s);
   }
 
   /**

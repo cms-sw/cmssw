@@ -21,32 +21,43 @@ class AlignableTrackerBuilder {
   public: //===================================================================
 
     AlignableTrackerBuilder(const TrackerGeometry*, const TrackerTopology*);
-    virtual ~AlignableTrackerBuilder() {};
+    virtual ~AlignableTrackerBuilder() = default;
 
     /// Builds all Alignables (units and composites) of the tracker, based on
     /// the given TrackerGeometry.
-    void buildAlignables(AlignableTracker*);
+    void buildAlignables(AlignableTracker*, bool update = false);
+
+    /// Return tracker name space derived from the tracker's topology
+    const align::TrackerNameSpace& trackerNameSpace() const {
+      return trackerAlignmentLevelBuilder_.trackerNameSpace(); }
+
+
+    /// Return tracker alignable object ID provider  derived from the tracker's geometry
+    const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
 
     /// Builds Alignables on module-level for each part of the tracker.
-    void buildAlignableDetUnits();
+    void buildAlignableDetUnits(bool update = false);
     /// Decides whether a GeomDet is from Pixel- or Strip-Detector and calls
     /// the according method to build the Alignable.
     void convertGeomDetsToAlignables(const TrackingGeometry::DetContainer&,
-                                     const std::string& moduleName);
+                                     const std::string& moduleName,
+                                     bool update = false);
     /// Converts GeomDetUnits of PXB and PXE to AlignableDetUnits.
     void buildPixelDetectorAlignable(const GeomDet*, int subdetId,
-                                     Alignables& aliDets, Alignables& aliDetUnits);
+                                     Alignables& aliDets, Alignables& aliDetUnits,
+                                     bool update = false);
     /// Converts GeomDets of TIB, TID, TOB and TEC either to AlignableDetUnits
     /// or AlignableSiStripDet, depending on the module-type (2D or 1D).
     void buildStripDetectorAlignable(const GeomDet*, int subdetId,
-                                     Alignables& aliDets, Alignables& aliDetUnits);
+                                     Alignables& aliDets, Alignables& aliDetUnits,
+                                     bool update = false);
 
     /// Builds all composite Alignables for the tracker. The hierarchy and
     /// numbers of components are determined in TrackerAlignmentLevelBuilder.
-    void buildAlignableComposites();
+    void buildAlignableComposites(bool update = false);
     /// Builds the PixelDetector by hand.
     void buildPixelDetector(AlignableTracker*);
     /// Builds the StripDetector by hand.
@@ -55,13 +66,13 @@ class AlignableTrackerBuilder {
   //========================== PRIVATE DATA ===================================
   //===========================================================================
 
-    const TrackerGeometry* trackerGeometry;
+    const TrackerGeometry* trackerGeometry_;
+    const TrackerTopology* trackerTopology_;
+    const AlignableObjectId alignableObjectId_;
 
-    const TrackerTopology* trackerTopology;
+    AlignableMap* alignableMap_;
 
-    AlignableMap* alignableMap;
-
-    TrackerAlignmentLevelBuilder trackerAlignmentLevelBuilder;
+    TrackerAlignmentLevelBuilder trackerAlignmentLevelBuilder_;
 
     int numDetUnits = 0;
 

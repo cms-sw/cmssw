@@ -60,15 +60,16 @@ hbheprereco = cms.EDProducer(
         # Use "Method 2"?
         useM2 = cms.bool(True),
 
-        # Use "Method 3"? Change this to True when implemented.
-        useM3 = cms.bool(False)
+        # Use "Method 3"?
+        useM3 = cms.bool(True)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
     algoConfigClass = cms.string(""),
 
     # Turn rechit status bit setters on/off
-    setNegativeFlags = cms.bool(False),
+    setNegativeFlagsQIE8 = cms.bool(True),
+    setNegativeFlagsQIE11 = cms.bool(False),
     setNoiseFlagsQIE8 = cms.bool(True),
     setNoiseFlagsQIE11 = cms.bool(False),
     setPulseShapeFlagsQIE8 = cms.bool(True),

@@ -40,9 +40,9 @@ namespace hcaldqm
 				//	copy constructor
 				HashFilter(HashFilter const& hf);
 				virtual ~HashFilter() {}
-
 				virtual void initialize(FilterType ftype, HashType htype,
 					std::vector<uint32_t> const&);
+				using HashMapper::initialize;
 
 				//	true if should filter out and false if not
 				//	true => should skip this hash

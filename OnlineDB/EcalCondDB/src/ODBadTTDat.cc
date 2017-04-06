@@ -30,7 +30,7 @@ ODBadTTDat::~ODBadTTDat()
 
 
 void ODBadTTDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void ODBadTTDat::prepareWrite()
 
 
 void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -66,7 +66,7 @@ void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
 
 
 void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -102,7 +102,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
 //  ************************************************************************   // 
 
 void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat >& data, ODBadTTInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 

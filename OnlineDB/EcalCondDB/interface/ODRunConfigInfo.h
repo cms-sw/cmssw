@@ -76,16 +76,16 @@ std::string getUsageStatus() const{  return m_usage_status;}
   std::string m_usage_status;
 
   // Methods from IUniqueDBObject
-  int fetchNextId()  throw(std::runtime_error);
-  int fetchID() throw(std::runtime_error);
-  int fetchIDFromTagAndVersion() throw(std::runtime_error);
-  int fetchIDLast() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchNextId()  noexcept(false);
+  int fetchID() noexcept(false);
+  int fetchIDFromTagAndVersion() noexcept(false);
+  int fetchIDLast() noexcept(false);
+  void setByID(int id) noexcept(false);
 
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
-  void fetchData(ODRunConfigInfo * result)     throw(std::runtime_error);
-  int updateDefaultCycle()   throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
+  void writeDB()       noexcept(false);
+  void fetchData(ODRunConfigInfo * result)     noexcept(false);
+  int updateDefaultCycle()   noexcept(false);
   void clear();
 
 };

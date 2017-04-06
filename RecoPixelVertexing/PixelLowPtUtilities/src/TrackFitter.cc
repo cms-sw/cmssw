@@ -1,9 +1,6 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -16,9 +13,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "CommonTools/Statistics/interface/LinearFit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
@@ -54,41 +49,19 @@ int getCharge
 
 
 /*****************************************************************************/
-TrackFitter::TrackFitter
-  (const edm::ParameterSet& cfg) :
-   theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0)
-{
-}
-
-/*****************************************************************************/
-reco::Track* TrackFitter::run
-  (const edm::EventSetup& es,
-   const std::vector<const TrackingRecHit *> & hits,
+std::unique_ptr<reco::Track> TrackFitter::run
+  (const std::vector<const TrackingRecHit *> & hits,
    const TrackingRegion & region) const
 {
+  std::unique_ptr<reco::Track> ret;
+
   int nhits = hits.size();
-  if(nhits <2) return 0;
+  if(nhits <2) return ret;
 
   declareDynArray(GlobalPoint,nhits, points);
   declareDynArray(GlobalError,nhits, errors);
   declareDynArray(bool,nhits, isBarrel);
   
-  if (!theField || !theTracker || !theTTRecHitBuilder)
-  {
-    edm::ESHandle<TrackerGeometry> trackerESH;
-    es.get<TrackerDigiGeometryRecord>().get(trackerESH);
-    theTracker = trackerESH.product();
-
-    edm::ESHandle<MagneticField> fieldESH;
-    es.get<IdealMagneticFieldRecord>().get(fieldESH);
-    theField = fieldESH.product();
-
-    edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-    std::string builderName = theConfig.getParameter<std::string>("TTRHBuilder");
-    es.get<TransientRecHitRecord>().get(builderName,ttrhbESH);
-    theTTRecHitBuilder = ttrhbESH.product();
-  }
-
   unsigned int i=0;
   for (auto const & ih  : hits)
   {
@@ -107,7 +80,7 @@ reco::Track* TrackFitter::run
   float curvature = circle.curvature();
 
   // pt
-  float invPt = PixelRecoUtilities::inversePt(curvature, es);
+  float invPt = PixelRecoUtilities::inversePt(curvature, *theES);
   float valPt = (invPt > 1.e-4) ? 1./invPt : 1.e4;
   float errPt = 0.055*valPt + 0.017*valPt*valPt;
 
@@ -146,8 +119,9 @@ reco::Track* TrackFitter::run
   Measurement1D tip     (valTip,      errTip);
   Measurement1D zip     (valZip,      errZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2,
-                       charge, hits, theField);
+  ret.reset(builder.build(pt, phi, cotTheta, tip, zip, chi2,
+                          charge, hits, theField));
+  return ret;
 }
 
 

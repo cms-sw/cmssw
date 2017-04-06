@@ -23,8 +23,8 @@
 
 SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
-{
-  trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
+{ 
+  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
   vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryvertices"));
 }
 
@@ -38,27 +38,29 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   // get primary vertex
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken( vtxToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+
+  if (!vertices.isValid()) return;
+  histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
+  if (vertices->size() == 0) return;
+
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 
 
   // get the map
-  edm::Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByToken( trackAssociationToken_, ttac);
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByToken( tracksToken_, tracks);
 
-  for (auto& item : *ttac) {
-    auto trajectory_ref = item.key;
-    reco::TrackRef track_ref = item.val;
+  for (auto const & track : *tracks) {
 
     bool isBpixtrack = false, isFpixtrack = false;
     int nStripHits = 0;
 
     // first, look at the full track to see whether it is good
-    for (auto& measurement : trajectory_ref->measurements()) {
-      // check if things are all valid
-      if (!measurement.updatedState().isValid()) continue;
-      auto hit = measurement.recHit();
-      if (!hit->isValid()) continue;
+    auto const & trajParams = track.extra()->trajParams();
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+       auto hit = *(hb+h);
+      if(!hit->isValid()) continue;
 
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
@@ -77,9 +79,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
     if (!isBpixtrack && !isFpixtrack) continue;
 
     // then, look at each hit
-    for (auto& measurement : trajectory_ref->measurements()) {
-      if (!measurement.updatedState().isValid()) continue;
-      auto hit = measurement.recHit();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto hit = *(hb+h);
 
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
@@ -89,25 +90,33 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
 
-      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-      int row = 0, col = 0;
+      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
+      const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
+      const PixelTopology& topol = geomdetunit->specificTopology();
+      LocalPoint lp;
       if (pixhit) {
-        double clusterProbability= pixhit->clusterProbability(0);
-        if (clusterProbability > 0) 
-          histo[CLUSTER_PROB].fill(log10(clusterProbability), id, &iEvent);
-
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-        const PixelTopology& topol = geomdetunit->specificTopology();
-        LocalPoint const& lp = pixhit->localPositionFast();
-        MeasurementPoint mp = topol.measurementPosition(lp);
-        row = (int) mp.x();
-        col = (int) mp.y();
+        lp = pixhit->localPosition();
+      } else {
+        lp = trajParams[h].position();
       }
 
-      if (isHitValid)   histo[VALID  ].fill(id, &iEvent, col, row);
-      if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
+      MeasurementPoint mp = topol.measurementPosition(lp);
+      int row = (int) mp.x();
+      int col = (int) mp.y();
+
+
+      if (isHitValid)   {
+        histo[VALID].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+      }
+      if (isHitMissing) {
+        histo[MISSING].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+      }
     }
   }
+histo[VALID  ].executePerEventHarvesting(&iEvent);
+histo[MISSING].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);

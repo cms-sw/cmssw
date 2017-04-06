@@ -46,6 +46,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -109,6 +110,9 @@ namespace edm {
                    ActivityRegistry*,
                    ModuleCallingContext const*) ;
       void doPreallocate(PreallocationConfiguration const&);
+      
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
       
       virtual void setupStreamModules() = 0;
       void doBeginJob();

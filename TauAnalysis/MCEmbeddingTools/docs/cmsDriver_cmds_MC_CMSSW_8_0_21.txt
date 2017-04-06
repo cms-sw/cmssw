@@ -1,0 +1,124 @@
+###### cmsDriver.py commands for embedding in CMSSW_8_0_21 ######
+
+### Embedding on MC
+dataset=/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16DR80-FlatPU28to62HcalNZSRAWAODSIM_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/RAWAODSIM
+
+
+### Step 0p5: Selection of Z->MuMu
+
+--filein file:input/aaa.root \
+
+cmsDriver.py step0p5 \
+--filein "dbs:/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16DR80-FlatPU28to62HcalNZSRAWAODSIM_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/RAWAODSIM" \
+--mc \
+--eventcontent RAWRECOSIMHLT,MINIAOD --datatier RAWRECOSIM,MINIAOD \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6  --era Run2_2016 \
+--step PAT --runUnscheduled \
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseFilterZToMuMu,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting \
+--fileout PreRAWskimmed.root -n 100 --no_exec --python_filename=preselection.py
+
+
+
+### Step 1: ReSelection of Z->MuMu
+
+cmsDriver.py step1 \
+--filein file:PreRAWskimmed.root \
+--mc \
+--eventcontent RAWRECOSIMHLT,MINIAOD --datatier RAWRECOSIM,MINIAOD \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6  --era Run2_2016 \
+--step RAW2DIGI,RECO,PAT --runUnscheduled \
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting_Reselect \
+--fileout RAWskimmed.root -n 100 --no_exec --python_filename=selection.py
+
+
+
+
+
+### Step 2: Cleaning and preparation for Z->TauTau simulation (saving LHE products)
+
+# Tau-Embedding preparation
+
+cmsDriver.py LHEprodandCLEAN --filein file:RAWskimmed.root \
+--fileout file:lhe_and_cleaned.root --runUnscheduled --mc \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6  --era Run2_2016 \
+--eventcontent RAWRECOSIMHLT,MINIAOD \
+--datatier RAWRECOSIM,MINIAOD --step RAW2DIGI,RECO,PAT \
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning_Reselect \
+--no_exec -n -1 --python_filename lheprodandcleaning.py
+
+
+# Muon-Embedding preparation
+--customise_commands "process.externalLHEProducer.switchToMuonEmbedding = cms.bool(True)" \
+
+
+
+### Step 3: Z->TauTau simulation
+
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+--filein file:lhe_and_cleaned.root --fileout simulated_and_cleaned.root \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6  --era Run2_2016 \
+--eventcontent RAWRECOSIMHLT --step GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@frozen2016,RAW2DIGI,RECO \
+--datatier RAWRECOSIMHLT --customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_Reselect,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions \
+--customise_commands "process.source.inputCommands.append('drop *_externalLHEProducer_*_SIM')" \
+--beamspot Realistic50ns13TeVCollision --no_exec -n -1 --python_filename generator.py
+
+# For event display only:
+
+cmsDriver.py PATSIM --filein file:simulated_and_cleaned_inAODSIM.root \
+--fileout file:simulated_and_cleaned_inMINIAOD.root --runUnscheduled \
+--customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" \
+--mc --conditions 80X_mcRun2_asymptotic_2016_miniAODv2_v1 --era Run2_2016 \
+--eventcontent MINIAODSIM --datatier MINIAODSIM --step PAT \
+--no_exec -n -1 --python_filename pat_for_sim_mc.py
+
+### Step 4: Merging of simulated Z->TauTau process and cleaned data:
+
+cmsDriver.py PAT -s PAT \
+--filein file:simulated_and_cleaned.root  \
+--fileout file:merged.root \
+--runUnscheduled --mc \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6  --era Run2_2016 \
+--eventcontent  MINIAODSIM --datatier USER \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseMerging_Reselect \
+--customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" \
+-n -1 --no_exec --python_filename=merging.py
+
+
+
+
+
+
+
+
+### Step 0: Transformation GEN-SIM to RAW with HLT simulation
+
+## !!!!!!!!!!!!!!!!!!!!!!!!!!! not used so far
+
+cmsDriver.py step0 \
+--filein /store/mc/RunIISummer15wmLHEGS/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/GEN-SIM/MCRUN2_71_V1_ext1-v1/00000/0004CD4A-532B-E611-B9CA-44A84225C911.root \
+--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW" \
+--mc --eventcontent PREMIXRAW --datatier GEN-SIM-RAW --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 \
+--step DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@frozen2016 \
+--datamix PreMix --era Run2_2016 \
+--customise Configuration/DataProcessing/Utils.addMonitoring,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions \
+--fileout RAWSIM.root -n 2 --no_exec --python_filename=rawsim_mc.py
+
+--pileup_input "file:/store/mc/RunIISpring15PrePremix/Neutrino_E-10_gun/GEN-SIM-DIGI-RAW/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/90007/8E08AA2A-C082-E611-84C8-FA163EF6E91B.root" \
+--pileup_input "dbs:/Neutrino_E-10_gun/RunIISpring15PrePremix-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v2-v2/GEN-SIM-DIGI-RAW" \
+
+
+
+
+
+
+
+

@@ -111,10 +111,10 @@ if options.geometry:
         geometryDBLabel=geoms[0][3:]
     else:
         if '/' in geoms[0] or '_cff' in geoms[0]:
-            self.SimGeometryCFF=geoms[0]
+            SimGeometryCFF=geoms[0]
         else:
             simGeometry=geoms[0]
-            self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
+            SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
 
     if SimGeometryCFF: process.load(SimGeometryCFF)
     process.load(GeometryCFF)
@@ -174,9 +174,10 @@ if options.usehardcode:
     # loads params and es_prefer
     process.load("CalibCalorimetry.HcalPlugins.Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(options.dumplist)
+    process.es_hardcode.toGet.append('GainWidths')
 
 if options.command:
-    cmds = command.split('\n')
+    cmds = options.command.split('\n')
     for cmd in cmds:
         exec(cmd)
 

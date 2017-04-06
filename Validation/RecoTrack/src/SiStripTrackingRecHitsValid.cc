@@ -56,7 +56,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   outputFileName = conf_.getParameter<std::string>("outputFile");
   
-  trajectoryInputToken_ = consumes<std::vector<Trajectory> >( conf_.getParameter<edm::InputTag>("trajectoryInput") ); 
+  tracksInputToken_ = consumes<std::vector<reco::Track> >( conf_.getParameter<edm::InputTag>("tracksInput") ); 
 
   edm::ParameterSet ParametersResolx_LF =  conf_.getParameter<edm::ParameterSet>("TH1Resolx_LF");
   layerswitchResolx_LF = ParametersResolx_LF.getParameter<bool>("layerswitchon");
@@ -495,39 +495,34 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 
   // Mangano's
 
-  edm::Handle < std::vector<Trajectory> > trajCollectionHandle;
-  e.getByToken(trajectoryInputToken_, trajCollectionHandle);
+  edm::Handle < std::vector<reco::Track> > trackCollectionHandle;
+  e.getByToken(tracksInputToken_, trackCollectionHandle);
 
-  edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size();
+  edm::LogVerbatim("TrajectoryAnalyzer") << "trackColl->size(): " << trackCollectionHandle->size();
+  auto const & tracks = *trackCollectionHandle;
+  for (auto const & track : tracks) {
 
-  for (vector < Trajectory >::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); it !=itEnd ; ++it) {
+    if (track.pt()<0.5) continue;
+    edm::LogVerbatim("TrajectoryAnalyzer") << "this track has " << track.found() << " valid hits";
+  
+    auto const & trajParams = track.extra()->trajParams();
+    assert(trajParams.size()==track.recHitsSize());
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto recHit = *(hb+h);
+      if(!recHit->isValid()) continue;
+      auto ldir = trajParams[h].direction();
+      auto gmom = recHit->surface()->toGlobal(trajParams[h].momentum());
+      if (gmom.perp() < 0.5)	continue; // redundant...
+      {  
 
-    edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits" << " , " << "isValid: " << it->isValid();
-
-    vector < TrajectoryMeasurement > tmColl = it->measurements();
- 
-    for (auto const &itTraj : tmColl ) {
-      if (itTraj.updatedState().isValid()) {
-        //edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " <<
-        //   (itTraj - tmColl.begin()) + 1<< " , " << "tm.backwardState.pt: " <<
-        //   itTraj->backwardPredictedState().globalMomentum().perp() << " , " <<
-        //   "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() <<
-        //   " , " << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp() <<
-        //   " , " << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp();
-
-        if (itTraj.updatedState().globalMomentum().perp() < 0.5)	continue;
-      
-        TrajectoryStateOnSurface tsos = itTraj.updatedState();
-
-        const TransientTrackingRecHit::ConstRecHitPointer thit2 = itTraj.recHit();
+        auto thit2 = recHit;
         DetId detid2 = thit2->geographicalId();
-        const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >((*thit2).hit());
-        const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit2).hit());
-        const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit2).hit());
-        //if(matchedhit) cout<<"manganomatchedhit"<<endl;
-        //if(hit) cout<<"manganosimplehit"<<endl;
-        //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
-        const TrackingRecHit *thit = (*thit2).hit();
+        const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >(thit2);
+        const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(thit2);
+        const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(thit2);
+
+        auto thit = thit2;
 
         detid = (thit)->geographicalId();
         myid = detid.rawId();
@@ -550,7 +545,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   	  isrechitmatched = 1;
 	  const GluedGeomDet *gluedDet = (const GluedGeomDet *) tracker.idToDet(matchedhit->geographicalId());
 	  //Analysis
-	  rechitanalysis_matched(tsos, thit2, gluedDet, associate, stripcpe, MatchStatus::matched);
+	  rechitanalysis_matched(ldir, thit2, gluedDet, associate, stripcpe, MatchStatus::matched);
 	  // rechitmatched.push_back(rechitpro);
         }
 
@@ -580,8 +575,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
         // simple hits from matched hits
         ///////////////////////////////////////////////////////
  
-        if (tsos.globalDirection().transverse() != 0) {
-	  track_rapidity = tsos.globalDirection().eta();
+        if (gmom.transverse() != 0) {
+	  track_rapidity = gmom.eta();
         } else {
 	  track_rapidity = -999.0;
         }
@@ -597,7 +592,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    isrechitrphi = 1;
 	  
 	    //Analysis
-	    rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, MatchStatus::monoHit);
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::monoHit);
 
 	  }
 
@@ -609,7 +604,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    isrechitsas = 1;
 	  
 	    //Analysis
-	    rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, MatchStatus::stereoHit);
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::stereoHit);
 	  }
         }
       
@@ -625,7 +620,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
 	    //Analysis for hit1d stereo
-	    rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
 	  } else {
 	    isrechitrphi = 1;
 	    //      cout<<"simple hit mono"<<endl;
@@ -634,7 +629,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 	  
 	    //Analysis for hit1d mono
-	    rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
 
 	  }
         }
@@ -651,7 +646,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
 	    //Analysis for hit2d stereo
-	    rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
 	  } else {
 	    isrechitrphi = 1;
@@ -661,7 +656,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
 	    //Analysis for hit2d mono
-	    rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
 	  }
         }
@@ -919,7 +914,7 @@ std::pair < LocalPoint, LocalVector > SiStripTrackingRecHitsValid::projectHit(co
   return std::pair < LocalPoint, LocalVector > (projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, const MatchStatus matchedmonorstereo){
+void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, const MatchStatus matchedmonorstereo){
   
   rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.;
@@ -930,7 +925,6 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //and it will change value in the stereoHit case. The matched case do not use this
   const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (monodet) ; 
 
-  const TrackingRecHit *rechit = (*thit).hit();
   const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * > (rechit);
   const SiStripRecHit2D *monohit = nullptr;
   const SiStripRecHit2D *stereohit = nullptr;
@@ -950,7 +944,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
 
-  LocalVector trackdirection = tsos.localDirection();
+  LocalVector trackdirection = ldir;
 
   GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
   LocalVector monotkdir = monodet->toLocal(gtrkdir);
@@ -1091,26 +1085,25 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   }
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
+void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
 
   rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.;
   
   //If simplehit1or2D is true we are dealing with hit1d, false is for hit2d
-  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit).hit());;
-  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit).hit());;
+  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(rechit);
+  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(rechit);
 
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
-  const TrackingRecHit *rechit = (*thit).hit();
 
   LocalPoint position = rechit->localPosition();
   LocalError error = rechit->localPositionError();
   MeasurementPoint Mposition = topol.measurementPosition(position);
   MeasurementError Merror = topol.measurementError(position,error);
  
-  LocalVector trackdirection = tsos.localDirection();
-  rechitpro.trackangle = atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
-  rechitpro.trackanglebeta = atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
+  LocalVector trackdirection = ldir;
+  rechitpro.trackangle = std::atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
+  rechitpro.trackanglebeta = std::atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
 
   LocalVector drift = stripcpe->driftDirection(stripdet);
   rechitpro.thickness = stripdet->surface().bounds().thickness();

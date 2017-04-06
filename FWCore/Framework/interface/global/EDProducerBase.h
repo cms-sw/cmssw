@@ -38,6 +38,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -117,6 +118,9 @@ namespace edm {
       std::string workerType() const {return "WorkerT<EDProducer>";}
       
       virtual void produce(StreamID, Event&, EventSetup const&) const= 0;
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
       virtual void beginJob() {}
       virtual void endJob(){}
 

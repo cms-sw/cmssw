@@ -15,6 +15,8 @@ void HGCalTriggerGeometryBase::reset()
 {
 }
 
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(HGCalTriggerGeometryBase);
 
 EDM_REGISTER_PLUGINFACTORY(HGCalTriggerGeometryFactory,
 			   "HGCalTriggerGeometryFactory");

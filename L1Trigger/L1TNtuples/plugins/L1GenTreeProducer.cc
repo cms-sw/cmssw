@@ -74,7 +74,7 @@ private:
   TTree * tree_;
  
   // data format
-  L1Analysis::L1AnalysisGeneratorDataFormat * l1GenData_;
+  std::unique_ptr<L1Analysis::L1AnalysisGeneratorDataFormat>       l1GenData_;
 
   // EDM input tags
   edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
@@ -92,7 +92,7 @@ L1GenTreeProducer::L1GenTreeProducer(const edm::ParameterSet& iConfig)
   genParticleToken_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticleToken"));
   pileupInfoToken_ = consumes<std::vector<PileupSummaryInfo> >(iConfig.getUntrackedParameter<edm::InputTag>("pileupInfoToken"));
   
-  l1GenData_ = new L1Analysis::L1AnalysisGeneratorDataFormat();
+  l1GenData_ = std::make_unique<L1Analysis::L1AnalysisGeneratorDataFormat>();
 
   // set up output
   tree_=fs_->make<TTree>("L1GenTree", "L1GenTree");

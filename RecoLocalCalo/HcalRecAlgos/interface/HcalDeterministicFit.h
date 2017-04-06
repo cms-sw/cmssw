@@ -43,6 +43,7 @@ class HcalDeterministicFit {
   static constexpr float negThresh[2] = {-3., 15.};
   static constexpr float invGpar[3] = {-13.11, 11.29, 5.133};
   static constexpr float rCorr[2] = {0.95, 0.95};
+  static constexpr float rCorrSiPM[2] = {1., 1.};
   static constexpr float landauFrac[] = {0, 7.6377e-05, 0.000418655, 0.00153692, 0.00436844, 0.0102076, 
   0.0204177, 0.0360559, 0.057596, 0.0848493, 0.117069, 0.153152, 0.191858, 0.23198, 0.272461, 0.312438, 
   0.351262, 0.388476, 0.423788, 0.457036, 0.488159, 0.517167, 0.54412, 0.569112, 0.592254, 0.613668, 

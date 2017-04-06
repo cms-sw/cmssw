@@ -31,7 +31,8 @@
   <class name="edm::ClonePolicy<TrackingRecHit>"/> <!-- Root6 -->
   <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
   <class name="edm::RefVectorIterator<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
-  <class pattern="std::iterator<*edm::Ref*>"/>
+  <!-- Warning: Unused class rule: std::iterator<*edm::Ref*> -->
+  <!-- <class pattern="std::iterator<*edm::Ref*>"/> -->
   <class name="std::auto_ptr<edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> > >"/>
   <class name="std::pair<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >::const_iterator,edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >::const_iterator>"/>
   <class name="edm::RefProd<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> > >"/>

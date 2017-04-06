@@ -5,8 +5,4 @@
 <use name="py2-pippkgs"/>
 <use name="rootpy"/>
 
-
-<bin   file="runtestPythonAnalysis.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PythonAnalysis/test runtests.sh"/>
-  <use   name="FWCore/Utilities"/>
-</bin>
+<test name="runtestPythonAnalysis" command="runtests.sh"/>

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # load modules for producing Type 1 / Type 1 + 2 corrections for reco::PFMET objects
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 #from PhysicsTools.PatAlgos.producerLayer1.jetProducer_cfi import patJets
 

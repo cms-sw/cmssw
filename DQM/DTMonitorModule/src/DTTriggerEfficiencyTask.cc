@@ -64,6 +64,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU");
   maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU");
 
+  checkRPCtriggers = parameters.getUntrackedParameter<bool>("checkRPCtriggers");
   nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
@@ -94,7 +95,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: bookHistograms" << endl;
 
   nevents = 0;
-
   for (int wh=-2;wh<=2;++wh){
     vector<string>::const_iterator tagIt  = processTags.begin();
     vector<string>::const_iterator tagEnd = processTags.end();
@@ -122,11 +122,11 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   nevents++;
 
-  if (!hasRPCTriggers(e)) { return; }
-
+  if (checkRPCtriggers){ //For pre-2016 Era compatibility
+	if (!hasRPCTriggers(e)) { return; }
+	}
   map<DTChamberId,const L1MuDTChambPhDigi*> phBestTM;
   map<DTChamberId,const DTLocalTrigger*>    phBestDDU;
-
   // Getting best TM Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   e.getByToken(tm_Token_, l1DTTPGPh);
@@ -222,7 +222,6 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   // Plot filling
   vector<const DTRecSegment4D*>::const_iterator btrack;
   for ( btrack = best4DSegments.begin(); btrack != best4DSegments.end(); ++btrack ){
-
     int wheel    = (*btrack)->chamberId().wheel();
     int station  = (*btrack)->chamberId().station();
     int scsector = 0;
@@ -235,16 +234,12 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     map<string, MonitorElement*> &innerWhME = wheelHistos[wheel];
 
     if (fabs(xdir)<phiAccRange && nHitsPhi>=nMinHitsPhi){
-
       vector<string>::const_iterator tagIt  = processTags.begin();
       vector<string>::const_iterator tagEnd = processTags.end();
-
       for (; tagIt!=tagEnd; ++tagIt) {
-
         int qual   = (*tagIt) == "TM" ?
           phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1 :
           phBestDDU.find(dtChId) != phBestDDU.end() ? phBestDDU[dtChId]->quality() : -1;
-
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector,station);
         if ( qual>=0 && qual<7 ) {
           innerWhME.find((*tagIt) + "_TrigEffNum")->second->Fill(scsector,station);
@@ -395,7 +390,3 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int whe
 }
 
 
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

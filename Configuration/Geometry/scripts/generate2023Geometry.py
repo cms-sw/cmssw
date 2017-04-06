@@ -3,7 +3,7 @@ import sys, os, operator
 from pprint import pprint
 import filecmp
 
-from dict2023Geometry import *
+from Configuration.Geometry.dict2023Geometry import *
 
 # define global
 detectorVersionDefault = 999

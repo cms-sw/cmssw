@@ -17,6 +17,6 @@ PixelTripletHLTGenerator = cms.PSet(
 
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 PixelTripletHLTGeneratorWithFilter = PixelTripletHLTGenerator.clone()
-PixelTripletHLTGeneratorWithFilter.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+PixelTripletHLTGeneratorWithFilter.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 
 

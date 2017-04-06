@@ -53,6 +53,7 @@ protected:
 private:    
 
   uint32_t                      setDetUnitId(int, const G4ThreeVector&, int, int);
+  uint32_t                      setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
@@ -88,13 +89,14 @@ private:
   HFShowerFibreBundle *         showerBundle;
   HEDarkening *                 m_HEDarkening;
   HFDarkening *                 m_HFDarkening;
-  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit, testNumber;
+  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
+  bool                          testNumber, neutralDensity;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG;
-  std::vector<double>           layer0wt, gpar;
+  G4int                         mumPDG, mupPDG, depth_;
+  std::vector<double>           gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;
   std::vector<G4Material*>      materials;

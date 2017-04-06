@@ -185,6 +185,19 @@ def cleanUnscheduled(proc):
       proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
   return proc
 
+
+def modulesInSequences(* sequences):
+  from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+  modules = []
+  for sequence in sequences:
+    sequence.visit(ModuleNodeVisitor(modules))
+  return modules
+
+
+def moduleLabelsInSequences(* sequences):
+  return [module.label() for module in modulesInSequences(* sequences)]
+
+
 if __name__ == "__main__":
     import unittest
     class TestModuleCommand(unittest.TestCase):

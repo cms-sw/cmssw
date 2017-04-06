@@ -16,7 +16,6 @@
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include <functional>
-#include <ext/functional>
 #include <algorithm>
 
 #include "FWCore/Utilities/interface/EDMException.h"

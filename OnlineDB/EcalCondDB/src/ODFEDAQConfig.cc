@@ -52,7 +52,7 @@ ODFEDAQConfig::~ODFEDAQConfig()
 
 
 
-int ODFEDAQConfig::fetchNextId()  throw(std::runtime_error) {
+int ODFEDAQConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -74,7 +74,7 @@ int ODFEDAQConfig::fetchNextId()  throw(std::runtime_error) {
 }
 
 void ODFEDAQConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -119,7 +119,7 @@ void ODFEDAQConfig::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODFEDAQConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -155,7 +155,7 @@ void ODFEDAQConfig::writeDB()
 
 
 void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -222,7 +222,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
   }
 }
 
-int ODFEDAQConfig::fetchID()    throw(std::runtime_error)
+int ODFEDAQConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

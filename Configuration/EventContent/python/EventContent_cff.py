@@ -170,12 +170,23 @@ AODEventContent = cms.PSet(
 #
 #
 # RAWSIM Data Tier definition
+# ===========================
 #
+# Here, we sacrifice memory and CPU time to decrease the on-disk size as
+# much as possible.  Given the current per-event GEN-SIM and DIGI-RECO times,
+# the extra CPU time for LZMA compression works out to be ~1%.  The GEN-SIM
+# use case of reading a minbias event for `classic pileup` has a similar CPU
+# impact.
+# The memory increase appears to be closer to 50MB - but that should be
+# acceptable as the introduction of multithreaded processing has bought us some
+# breathing room.
 #
 RAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+    eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(9),
 )
 #
 #
@@ -819,7 +830,25 @@ RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 if fastSim.isChosen():
     for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
         fastSimEC.dropSimDigis(_entry.outputCommands)
+    for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
+        fastSimEC.dropPatTrigger(_entry.outputCommands)
+
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
-  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_mix_*_*'])
+    phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_TTClustersFromPhase2TrackerDigis_*_*',
+        'keep *_TTStubsFromPhase2TrackerDigis_*_*'
+    ])
+
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+def _addOutputCommands(mod, newCommands):
+    phase2_timing_layer.toModify(mod, outputCommands = mod.outputCommands + newCommands.outputCommands)
+
+_addOutputCommands(FEVTDEBUGEventContent,RecoLocalFastTimeFEVT)
+_addOutputCommands(FEVTDEBUGHLTEventContent,RecoLocalFastTimeFEVT)
+_addOutputCommands(FEVTEventContent,RecoLocalFastTimeFEVT)
+_addOutputCommands(RECOSIMEventContent,RecoLocalFastTimeRECO)
+_addOutputCommands(AODSIMEventContent,RecoLocalFastTimeAOD)

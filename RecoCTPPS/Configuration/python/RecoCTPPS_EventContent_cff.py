@@ -17,7 +17,8 @@ RecoCTPPSFEVT = cms.PSet(
     # timing diamonds
     'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*'
+    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
+    'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
   )
 )
 
@@ -39,7 +40,8 @@ RecoCTPPSRECO = cms.PSet(
     # timing diamonds
     'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*'
+    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
+    'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
   )
 )
 
@@ -61,6 +63,7 @@ RecoCTPPSAOD = cms.PSet(
     # timing diamonds
     'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*'
+    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
+    'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
   )
 )

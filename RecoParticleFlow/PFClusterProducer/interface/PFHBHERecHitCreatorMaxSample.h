@@ -64,7 +64,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
-	const HcalDetId& detid = (HcalDetId)erh.detid();
+	const HcalDetId detid = erh.idFront();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
 	

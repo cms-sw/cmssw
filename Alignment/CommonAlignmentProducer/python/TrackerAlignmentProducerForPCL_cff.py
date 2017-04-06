@@ -10,7 +10,6 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 #from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
-from Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi import *
 
 #looper = cms.Looper("AlignmentProducer",
 AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
@@ -55,7 +54,7 @@ AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
                     tkLasBeamTag          = cms.InputTag(""), # not used if empty
                     
                     # Choose one algorithm with configuration, HIP is default
-                    algoConfig = cms.PSet(HIPAlignmentAlgorithm), # why not by reference?
+                    algoConfig = cms.PSet(MillePedeAlignmentAlgorithm), # why not by reference?
                     # Some algorithms support integrated calibrations, which to use is defined
                     # by the string 'calibrationName' in the PSet of each calibration.
                     calibrations = cms.VPSet(),
@@ -75,10 +74,10 @@ AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
                     #trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants),
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
-                    saveToDB = cms.bool(False),            # save alignment?
-                    saveApeToDB = cms.bool(False),         # save APE?
+                    saveToDB = cms.bool(False),             # save alignment?
+                    saveApeToDB = cms.bool(False),          # save APE?
                     saveDeformationsToDB = cms.bool(False), # save surface deformations (bows, etc.)?
 
-                    #parameters used to read the pede files back for DQM and check on parameters
-                    MillePedeFileReader = cms.PSet(MillePedeFileReader)
+                    # update alignables if triggered by corresponding input IOV boundary
+                    enableAlignableUpdates = cms.bool(False),
                     )

@@ -10,7 +10,7 @@
 #define RECORDS_VeryForwardMisalignedGeometryRecord_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
@@ -22,7 +22,7 @@
  * alignment studies only.
  **/
 class VeryForwardMisalignedGeometryRecord : public edm::eventsetup::DependentRecordImplementation
-						   <VeryForwardMisalignedGeometryRecord, boost::mpl::vector<VeryForwardMeasuredGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> >
+						   <VeryForwardMisalignedGeometryRecord, boost::mpl::vector<IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> >
 {
 };
 

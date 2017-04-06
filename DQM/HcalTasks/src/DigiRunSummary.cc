@@ -58,7 +58,7 @@ namespace hcaldqm
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 
 		//	GET THE NOMINAL NUMBER OF CHANNELS PER FED
 		std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
@@ -95,12 +95,12 @@ namespace hcaldqm
 		cDigiSize_FED.initialize(_taskname, "DigiSize",
 			hashfunctions::fFED,
 			new quantity::ValueQuantity(quantity::fDigiSize),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cOccupancy_depth.initialize(_taskname, "Occupancy",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 
 		//	LOAD LUMI BASED HISTOGRAMS
 		cOccupancy_depth.load(ig, _emap, _subsystem);
@@ -235,12 +235,12 @@ namespace hcaldqm
 		cSummaryvsLS.initialize(_name, "SummaryvsLS",
 			new quantity::LumiSection(_maxProcessedLS),
 			new quantity::FEDQuantity(_vFEDs),
-			new quantity::ValueQuantity(quantity::fState));
+			new quantity::ValueQuantity(quantity::fState),0);
 		cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
 			hashfunctions::fFED,
 			new quantity::LumiSection(_maxProcessedLS),
 			new quantity::FlagQuantity(vflagsPerLS),
-			new quantity::ValueQuantity(quantity::fState));
+			new quantity::ValueQuantity(quantity::fState),0);
 		cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		cSummaryvsLS.book(ib, _subsystem);
 
@@ -251,22 +251,22 @@ namespace hcaldqm
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cDead_depth.initialize(_name, "Dead",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cDead_FEDVME.initialize(_name, "Dead",
 			hashfunctions::fFED,
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
 			new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cDead_FEDuTCA.initialize(_name, "Dead",
 			hashfunctions::fFED,
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 			new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 
 		//	LOAD
 		cOccupancyCut_depth.load(ig, _emap, _subsystem);

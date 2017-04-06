@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <algorithm>
 #include <cassert>
@@ -543,9 +544,10 @@ namespace edm {
     return result;
   }
   
-  void StreamSchedule::processOneEvent(EventPrincipal& ep,
-                                       EventSetup const& es,
-                                       bool cleaningUpAfterException) {
+  void StreamSchedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                            EventPrincipal& ep,
+                                            EventSetup const& es)
+  {
     this->resetAll();
     for (int empty_trig_path : empty_trig_paths_) {
       results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
@@ -554,91 +556,149 @@ namespace edm {
     using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
     
     Traits::setStreamContext(streamContext_, ep);
-    StreamScheduleSignalSentry<Traits> sentry(actReg_.get(), &streamContext_);
+    Traits::preScheduleSignal(actReg_.get(), &streamContext_);
     
-    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
     // This call takes care of the unscheduled processing.
-    workerManager_.processOneOccurrence<Traits>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
+    workerManager_.setupOnDemandSystem(ep,es);
     
     ++total_events_;
-    try {
-      convertException::wrap([&]() {
-        
-        try {
-          auto waitTask = edm::make_empty_waiting_task();
-          //set count to 2 since wait_for_all requires value to not go to 0
-          waitTask->set_ref_count(2);
-          //Begin process in reverse order since TBB is last in first out for tasks.
-          for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
-              it != itEnd; ++ it) {
-            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
-          }
-          waitTask->decrement_ref_count();
-          waitTask->wait_for_all();
-          
-          if(waitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(waitTask->exceptionPtr()));
-          }
-          if(results_->accept()) {
-            ++total_passed_;
-          }
+    auto serviceToken = ServiceRegistry::instance().presentToken();
+    auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
+                                          [iTask,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                          {
+                                            ServiceRegistry::Operate operate(serviceToken);
 
-        }
-        catch(cms::Exception& e) {
-          exception_actions::ActionCodes action = actionTable().find(e.category());
-          assert (action != exception_actions::IgnoreCompletely);
-          assert (action != exception_actions::FailPath);
-          if (action == exception_actions::SkipEvent) {
-            edm::printCmsExceptionWarning("SkipEvent", e);
-          } else {
-            throw;
-          }
-        }
-        
-        try {
-          ParentContext parentContext(&streamContext_);
-          if (results_inserter_.get()) results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
-        }
-        catch (cms::Exception & ex) {
-          ex.addContext("Calling produce method for module TriggerResultInserter");
-          std::ostringstream ost;
-          ost << "Processing " << ep.id();
-          ex.addContext(ost.str());
-          throw;
-        }
-        
-        if (endpathsAreActive_) {
-          auto waitTask = edm::make_empty_waiting_task();
-          //set count to 2 since wait_for_all requires value to not go to 0
-          waitTask->set_ref_count(2);
-          for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
-              it != itEnd; ++it) {
-            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
-          }
-          waitTask->decrement_ref_count();
-          waitTask->wait_for_all();
-          
-          if(waitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(waitTask->exceptionPtr()));
-          }
-
-        }
-        resetEarlyDelete();
-      });
-    }
-    catch(cms::Exception& ex) {
-      if (ex.context().empty()) {
-        addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
-      } else {
-        addContextAndPrintException("", ex, cleaningUpAfterException);
-      }
-      throw;
-    }
-    terminationSentry.completedSuccessfully();
+                                            std::exception_ptr ptr;
+                                            if(iPtr) {
+                                              ptr = *iPtr;
+                                            }
+                                            finishedPaths(ptr, std::move(iTask), ep, es);
+                                          });
     
-    //If we got here no other exception has happened so we can propogate any Service related exceptions
-    sentry.allowThrow();
+    //The holder guarantees that if the paths finish before the loop ends
+    // that we do not start too soon. It also guarantees that the task will
+    // run under that condition.
+    WaitingTaskHolder taskHolder(pathsDone);
+
+    for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
+        it != itEnd; ++ it) {
+      it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
+    }
   }
+  
+  void
+  StreamSchedule::finishedPaths(std::exception_ptr iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
+                                EventSetup const& es) {
+    
+    if(iExcept) {
+      try {
+        std::rethrow_exception(iExcept);
+      }
+      catch(cms::Exception& e) {
+        exception_actions::ActionCodes action = actionTable().find(e.category());
+        assert (action != exception_actions::IgnoreCompletely);
+        assert (action != exception_actions::FailPath);
+        if (action == exception_actions::SkipEvent) {
+          edm::printCmsExceptionWarning("SkipEvent", e);
+          iExcept = std::exception_ptr();
+        } else {
+          iExcept = std::current_exception();
+        }
+      }
+      catch(...) {
+        iExcept = std::current_exception();
+      }
+    }
+
+    
+    if((not iExcept) and results_->accept()) {
+      ++total_passed_;
+    }
+
+    if((not iExcept) and (nullptr != results_inserter_.get())) {
+      try {
+        ParentContext parentContext(&streamContext_);
+        using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+
+        results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
+      }
+      catch (cms::Exception & ex) {
+        ex.addContext("Calling produce method for module TriggerResultInserter");
+        std::ostringstream ost;
+        ost << "Processing " << ep.id();
+        ex.addContext(ost.str());
+        iExcept = std::current_exception();
+      }
+      catch(...) {
+        iExcept = std::current_exception();
+      }
+    }
+    if(end_paths_.empty() or iExcept or (not endpathsAreActive_)) {
+      iExcept = finishProcessOneEvent(iExcept);
+      iWait.doneWaiting(iExcept);
+    } else {
+      auto serviceToken = ServiceRegistry::instance().presentToken();
+
+      auto endPathsDone = make_waiting_task(tbb::task::allocate_root(),
+                                            [iWait,this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                            {
+                                              ServiceRegistry::Operate operate(serviceToken);
+
+                                              std::exception_ptr ptr;
+                                              if(iPtr) {
+                                                ptr = *iPtr;
+                                              }
+                                              iWait.doneWaiting(finishProcessOneEvent(ptr));
+                                            });
+      //The holder guarantees that if the paths finish before the loop ends
+      // that we do not start too soon. It also guarantees that the task will
+      // run under that condition.
+      WaitingTaskHolder taskHolder(endPathsDone);
+      for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
+          it != itEnd; ++it) {
+        it->processOneOccurrenceAsync(endPathsDone,ep, es, streamID_, &streamContext_);
+      }
+    }
+  }
+
+  
+  std::exception_ptr
+  StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
+    using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+
+    if(iExcept) {
+      //add context information to the exception and print message
+      try {
+        convertException::wrap([&]() {
+          std::rethrow_exception(iExcept);
+        });
+      } catch(cms::Exception& ex) {
+        bool const cleaningUpAfterException = false;
+        if (ex.context().empty()) {
+          addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
+        } else {
+          addContextAndPrintException("", ex, cleaningUpAfterException);
+        }
+        iExcept = std::current_exception();
+      }
+
+      actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
+    }
+    
+    try {
+      Traits::postScheduleSignal(actReg_.get(), &streamContext_);
+    } catch(...) {
+      if(not iExcept) {
+        iExcept = std::current_exception();
+      }
+    }
+    if(not iExcept ) {
+      resetEarlyDelete();
+    }
+    
+    return iExcept;
+  }
+
 
   void
   StreamSchedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {

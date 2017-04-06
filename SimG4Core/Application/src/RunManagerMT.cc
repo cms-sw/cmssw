@@ -18,6 +18,7 @@
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
+#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -70,10 +71,12 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p),m_fieldBuilder(nullptr)
+      m_p(p)
 {    
   m_currentRun = nullptr;
   m_UIsession.reset(new CustomUIsession());
+  m_physicsList.reset(nullptr);
+  m_world.reset(nullptr);
   m_kernel = new G4MTRunManagerKernel();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
@@ -106,19 +109,16 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   edm::LogInfo("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of magnetic field";
 
-  if (m_pUseMagneticField)
+  if (m_pUseMagneticField && "" != m_FieldFile)
     {
       const GlobalPoint g(0.,0.,0.);
-
-      m_chordFinderSetter.reset(new sim::ChordFinderSetter());
-      m_fieldBuilder = new sim::FieldBuilder(pMF, m_pField);
+      sim::FieldBuilder fieldBuilder(pMF, m_pField);
+      CMSFieldManager* fieldManager = new CMSFieldManager();
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
-      m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField());
-      if("" != m_FieldFile) {
-	DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
-      }
+      tM->SetFieldManager(fieldManager);
+      fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
+      DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
     }
 
   // Create physics list
@@ -154,6 +154,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
 		      m_p.getParameter<int>("SteppingVerbosity"));
+  m_kernel->SetVerboseLevel(verb);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
@@ -201,7 +202,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   // geometry dump
   if("" != m_WriteFile) {
-    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    G4GDMLParser gdml;
+    gdml.SetRegionExport(true);
+    gdml.SetEnergyCutsExport(true);
     gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 

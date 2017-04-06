@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake/V28 (CMSSW_8_0_24)
+# /dev/CMSSW_9_0_1/Fake/V1 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake/V28')
+  tableName = cms.string('/dev/CMSSW_9_0_1/Fake/V1')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -41,6 +41,7 @@ process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
   appendToDataLabel = cms.string( "" )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
+  MergePosition = cms.untracked.bool( True ),
   Exclude = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
@@ -305,7 +306,9 @@ process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     fedList = cms.vuint32( 1023 )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    processName = cms.string( "@" )
+    moduleLabelPatternsToSkip = cms.vstring(  ),
+    processName = cms.string( "@" ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
 )
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
@@ -464,4 +467,8 @@ process = customizeHLTforAll(process,"Fake",_customInfo)
 
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 process = customizeHLTforCMSSW(process,"Fake")
+
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(process)
 

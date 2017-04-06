@@ -87,8 +87,8 @@ FWTrajectorySeedProxyBuilder::build( const TrajectorySeed& iData, unsigned int i
 
          float localPoint[3] = 
             {     
-               fireworks::pixelLocalX(( *itc ).minPixelRow(), ( int )pars[0] ),
-               fireworks::pixelLocalY(( *itc ).minPixelCol(), ( int )pars[1] ),
+               fireworks::pixelLocalX(( *itc ).minPixelRow(), pars ),
+               fireworks::pixelLocalY(( *itc ).minPixelCol(), pars ),
                0.0
             };
 

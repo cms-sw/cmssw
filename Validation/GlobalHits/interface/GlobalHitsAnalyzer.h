@@ -105,6 +105,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  bool testNumber;
 
   bool validHepMCevt;
   bool validG4VtxContainer;

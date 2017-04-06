@@ -58,6 +58,7 @@ class GsfElectron : public RecoCandidate
     struct IsolationVariables ;
     struct ConversionRejection ;
     struct ClassificationVariables ;
+    struct SaturationInfo ;
 
     GsfElectron() ;
     GsfElectron( const GsfElectronCoreRef & ) ;
@@ -98,7 +99,8 @@ class GsfElectron : public RecoCandidate
       const FiducialFlags &,
       const ShowerShape &,
       const ShowerShape &,
-      const ConversionRejection &
+      const ConversionRejection &,
+      const SaturationInfo &
      ) ;
     GsfElectron * clone() const ;
     GsfElectron * clone
@@ -358,7 +360,15 @@ class GsfElectron : public RecoCandidate
     bool isEEDeeGap() const { return fiducialFlags_.isEEDeeGap ; }
     bool isEERingGap() const { return fiducialFlags_.isEERingGap ; }
     const FiducialFlags & fiducialFlags() const { return fiducialFlags_ ; }
-
+    // setters... not necessary in regular situations
+    // but handy for late stage modifications of electron objects
+    void setFFlagIsEB(const bool b)        { fiducialFlags_.isEB = b; }
+    void setFFlagIsEE(const bool b)        { fiducialFlags_.isEE = b; }
+    void setFFlagIsEBEEGap(const bool b)   { fiducialFlags_.isEBEEGap = b; }
+    void setFFlagIsEBEtaGap(const bool b)  { fiducialFlags_.isEBEtaGap = b; }
+    void setFFlagIsEBPhiGap(const bool b)  { fiducialFlags_.isEBPhiGap = b; }
+    void setFFlagIsEEDeeGap(const bool b)  { fiducialFlags_.isEEDeeGap = b; }
+    void setFFlagIsEERingGap(const bool b) { fiducialFlags_.isEERingGap = b; }
 
   private:
 
@@ -393,6 +403,10 @@ class GsfElectron : public RecoCandidate
       float eLeft;
       float eRight;
       float eBottom; 
+      float e2x5Top;
+      float e2x5Left;
+      float e2x5Right;
+      float e2x5Bottom; 
       ShowerShape()
        : sigmaEtaEta(std::numeric_limits<float>::max()),
        sigmaIetaIeta(std::numeric_limits<float>::max()),
@@ -407,7 +421,11 @@ class GsfElectron : public RecoCandidate
        eTop(0.f),
        eLeft(0.f),
        eRight(0.f),
-       eBottom(0.f)
+       eBottom(0.f),
+       e2x5Top(0.f),
+       e2x5Left(0.f),
+       e2x5Right(0.f),
+       e2x5Bottom(0.f)
        {}
      } ;
 
@@ -425,7 +443,11 @@ class GsfElectron : public RecoCandidate
     const std::vector<CaloTowerDetId> & hcalTowersBehindClusters() const { return showerShape_.hcalTowersBehindClusters ; }
     float hcalDepth1OverEcalBc() const { return showerShape_.hcalDepth1OverEcalBc ; }
     float hcalDepth2OverEcalBc() const { return showerShape_.hcalDepth2OverEcalBc ; }
-    float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; }
+    float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; } 
+    float eLeft() const { return showerShape_.eLeft; }
+    float eRight() const { return showerShape_.eRight; }
+    float eTop() const { return showerShape_.eTop; }
+    float eBottom() const { return showerShape_.eBottom; }
     const ShowerShape & showerShape() const { return showerShape_ ; }
     // non-zero-suppressed and no-fractions shower shapes
     // ecal energy is always that from the full 5x5 
@@ -442,6 +464,14 @@ class GsfElectron : public RecoCandidate
     float full5x5_hcalDepth1OverEcalBc() const { return full5x5_showerShape_.hcalDepth1OverEcalBc ; }
     float full5x5_hcalDepth2OverEcalBc() const { return full5x5_showerShape_.hcalDepth2OverEcalBc ; }
     float full5x5_hcalOverEcalBc() const { return full5x5_hcalDepth1OverEcalBc() + full5x5_hcalDepth2OverEcalBc() ; }
+    float full5x5_e2x5Left() const { return full5x5_showerShape_.e2x5Left; }
+    float full5x5_e2x5Right() const { return full5x5_showerShape_.e2x5Right; }
+    float full5x5_e2x5Top() const { return full5x5_showerShape_.e2x5Top; }
+    float full5x5_e2x5Bottom() const { return full5x5_showerShape_.e2x5Bottom; }
+    float full5x5_eLeft() const { return full5x5_showerShape_.eLeft; }
+    float full5x5_eRight() const { return full5x5_showerShape_.eRight; }
+    float full5x5_eTop() const { return full5x5_showerShape_.eTop; }
+    float full5x5_eBottom() const { return full5x5_showerShape_.eBottom; }
     const ShowerShape & full5x5_showerShape() const { return full5x5_showerShape_ ; }
 
     // setters (if you know what you're doing)
@@ -465,6 +495,28 @@ class GsfElectron : public RecoCandidate
     ShowerShape showerShape_ ;
     ShowerShape full5x5_showerShape_ ;
 
+  //=======================================================
+  // SaturationInfo
+  //=======================================================
+
+  public :
+
+    struct SaturationInfo {
+      int nSaturatedXtals;
+      bool isSeedSaturated;
+      SaturationInfo() 
+      : nSaturatedXtals(0), isSeedSaturated(false) {};
+     } ;
+
+    // accessors
+    float nSaturatedXtals() const { return saturationInfo_.nSaturatedXtals; }
+    float isSeedSaturated() const { return saturationInfo_.isSeedSaturated; }
+    const SaturationInfo& saturationInfo() const { return saturationInfo_; }
+    void setSaturationInfo(const SaturationInfo &s) { saturationInfo_ = s; }
+
+  private:
+    
+    SaturationInfo saturationInfo_;
 
   //=======================================================
   // Isolation Variables

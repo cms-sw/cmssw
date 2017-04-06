@@ -41,7 +41,7 @@ void LocationDef::setLocation(string loc)
 
   
 int LocationDef::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -74,7 +74,7 @@ int LocationDef::fetchID()
 
 
 void LocationDef::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -101,7 +101,7 @@ void LocationDef::setByID(int id)
 
 
 void LocationDef::fetchAllDefs( std::vector<LocationDef>* fillVec) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   try {

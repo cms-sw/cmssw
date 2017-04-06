@@ -372,17 +372,18 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2_asymptotic_v2-v1',     # 3 - 13 TeV samples with GEN-SIM from 810_p9 G4 10.2; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_9_0_0_pre4-90X_mcRun2_asymptotic_v1-v1',     # 3 - 13 TeV samples with GEN-SIM from 810_p9 G4 10.2; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_8_1_0_pre15-PU25ns_81X_mcRun2_asymptotic_v11-v1',    # 5 - fullSim PU 25ns premix 
+    'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns premix 
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix 
-    'CMSSW_8_1_0_pre15-81X_mcRun2_asymptotic_v11_FastSim-v1',    # 7 - fastSim MinBias for mixing 
-    'CMSSW_8_1_0_pre15-PU25ns_81X_mcRun2_asymptotic_v11_resub_FastSim-v1',# 8 - fastSim premixed MinBias 
+    'CMSSW_9_0_0_pre4-90X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing 
+    'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias 
     'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
     ]
+
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')} #was [0] 
@@ -644,14 +645,16 @@ steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
+#step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--beamspot'    : 'Realistic8TeVCollision',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                           step1Defaults])
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
+#step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
                            '--beamspot'    : 'Realistic50ns13TeVCollision',
@@ -721,7 +724,8 @@ steps["FS_PREMIXUP15_PU25"] = merge([
 
 ### Fastsim: template to produce signal and overlay it with premixed minbias events
 FS_PREMIXUP15_PU25_OVERLAY = merge([
-        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
+#        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
          "--customise":"SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
@@ -750,7 +754,8 @@ steps['TTbarSFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},
                         step1Defaults])
 
 steps['TTbarSFSA']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi',
-                           '-s':'GEN,SIM,RECO,EI,HLT:@fake,VALIDATION',
+#                           '-s':'GEN,SIM,RECO,EI,HLT:@fake,VALIDATION',
+                           '-s':'GEN,SIM,RECO,EI,VALIDATION',
                            '--fast':''},
                           step1FastDefaults])
 
@@ -991,6 +996,7 @@ steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 steps['DIGICOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 steps['DIGICOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
+steps['DIGICOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016','--customise_commands': '"process.mix.digitizers.strip.APVpeakmode=cms.bool(True)"','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
@@ -1286,9 +1292,10 @@ steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GE
 #steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
 steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},stCond,step3Defaults])
-steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlBeamHalo+MuAlBeamHaloOverlaps,DQM','--scenario':'cosmics'},step3Up2015Hal])
+steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
+steps['RECOCOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},step3Up2015Defaults])
@@ -1548,6 +1555,7 @@ steps['HARVESTCOS_UP17']={'-s'          :'HARVESTING:dqmHarvesting',
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
+                    '--fast':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTHI']=merge([hiDefaults,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
@@ -1588,6 +1596,7 @@ steps['HARVESTUP15_PPb']=merge([{'--conditions':'auto:run2_mc_pa','--era':'Run2_
 
 steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--conditions':'auto:run2_mc',
+                        '--fast':'',
                         '--mc':'',
                         '--era':'Run2_2016',
                         '--filetype':'DQM',
@@ -1699,16 +1708,19 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
-defaultDataSets['2017Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
+defaultDataSets['2017']='CMSSW_9_0_0_pre5-90X_upgrade2017_realistic_v15-v'
+defaultDataSets['2017Design']='CMSSW_9_0_0_pre5-90X_upgrade2017_design_IdealBS_v15-v'
+#defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
+#defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2023D7']=''
-defaultDataSets['2023D2']=''
+defaultDataSets['2023D10']=''
 defaultDataSets['2023D7Timing']=''
-defaultDataSets['2023D2Timing']=''
+defaultDataSets['2023D10Timing']=''
 defaultDataSets['2023D4Timing']=''
 defaultDataSets['2023D4']=''
 defaultDataSets['2023D8']=''
 defaultDataSets['2023D9']=''
+defaultDataSets['2023D11']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -1730,7 +1742,7 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    if '2017' in name:
+    if '2017' in name or '2018' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     else:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
@@ -1804,6 +1816,21 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     if k2 in PUDataSets:
         upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
 
+#Adding Track trigger step in step2 
+    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+
+    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['DigiFullTrigger'][k]['--era']=era
+ 
+ 
+    if k2 in PUDataSets:
+        upgradeStepDict['DigiFullTriggerPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFullTrigger'][k]])
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                       '--conditions':gt,
@@ -1878,7 +1905,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 
 
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu',
+    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
@@ -1935,5 +1962,6 @@ for step in upgradeSteps:
 # 2017 tracking specific eras
 steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingPhase1PU70_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1PU70'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyPhase1PU70_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1PU70'}, steps['RecoFull_trackingOnly_2017']])
+steps['RecoFull_trackingPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_2017']])
+steps['RecoFull_trackingOnlyPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_trackingOnly_2017']])
+steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])

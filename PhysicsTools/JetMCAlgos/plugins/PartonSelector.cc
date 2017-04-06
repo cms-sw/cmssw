@@ -7,7 +7,7 @@
 //=======================================================================
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -33,7 +33,7 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class PartonSelector : public edm::EDProducer
+class PartonSelector : public edm::global::EDProducer<>
 {
   public:
     PartonSelector( const edm::ParameterSet & );
@@ -41,7 +41,7 @@ class PartonSelector : public edm::EDProducer
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list
     bool acceptNoDaughters;      // Parton with zero daugthers are not considered by default, make it configurable
@@ -80,7 +80,7 @@ PartonSelector::~PartonSelector()
 
 // ------------ method called to produce the data  ------------
 
-void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
+void PartonSelector::produce( StreamID, Event& iEvent, const EventSetup& iEs ) const
 {
 
   //edm::Handle <reco::CandidateView> particles;

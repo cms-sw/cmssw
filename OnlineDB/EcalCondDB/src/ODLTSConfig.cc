@@ -50,7 +50,7 @@ void ODLTSConfig::setParameters(const std::map<string,string>& my_keys_map){
   
 }
 
-int ODLTSConfig::fetchNextId()  throw(std::runtime_error) {
+int ODLTSConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -73,7 +73,7 @@ int ODLTSConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODLTSConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -95,7 +95,7 @@ void ODLTSConfig::prepareWrite()
 
 
 void ODLTSConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -125,7 +125,7 @@ void ODLTSConfig::writeDB()
 
 
 void ODLTSConfig::fetchData(ODLTSConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -158,7 +158,7 @@ void ODLTSConfig::fetchData(ODLTSConfig * result)
   }
 }
 
-int ODLTSConfig::fetchID()    throw(std::runtime_error)
+int ODLTSConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

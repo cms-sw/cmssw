@@ -10,15 +10,15 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
-    CLUSTER_PROB,
     VALID,
     MISSING,
-    EFFICIENCY
+    EFFICIENCY,
+    VERTICES
   };
 
   public:
@@ -27,27 +27,8 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-};
-
-class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester { 
-  enum {
-    CLUSTER_PROB,
-    VALID,
-    MISSING,
-    EFFICIENCY
-  };
-
-  public:
-  explicit SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& conf);
-
-  void doHarvesting(SummationStep& s, HistogramManager::Table& efficiency);
-  
-  private:
-  // we use the custom arg as a tag, to not mix up different tables.
-  std::map<std::string, HistogramManager::Table> valid;
-  std::map<std::string, HistogramManager::Table> missing;
 };
 
 #endif

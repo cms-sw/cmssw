@@ -37,12 +37,12 @@ class ConeAreaRootFunction : public ConeAreaFunction
 
   void SetParameterConeArea(double coneArea);
 
-  ROOT::Math::IGenFunction* Clone () const { return new ConeAreaRootFunction(*this); }
+  ROOT::Math::IGenFunction* Clone () const override { return new ConeAreaRootFunction(*this); }
 
  private:
-  void SetParameters(double* param);
+  void SetParameters(const double* param) override;
 
-  double DoEval(double x) const;
+  double DoEval(double x) const override;
 
   double coneArea_; // area covered by cone
 

@@ -26,14 +26,14 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
-    dfactor = p.getParameter<double>("dark_factor");
+  dfactor = p.getParameter<double>("dark_factor");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
 
   particleDefFilePath = fp.fullPath();
   edm::LogInfo("SimG4CoreCustomPhysics") 
     << "CustomPhysicsList: Path for custom particle definition file: \n"
-    <<particleDefFilePath;
+    <<particleDefFilePath << "\n" << "      dark_factor= " << dfactor;
 }
 
 CustomPhysicsList::~CustomPhysicsList() {

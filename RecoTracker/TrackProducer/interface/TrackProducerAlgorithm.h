@@ -46,6 +46,7 @@ class TrackProducerAlgorithm : public AlgoProductTraits<T> {
 public:
   using Base = AlgoProductTraits<T>;
   using TrackCollection = typename Base::TrackCollection;
+  using TrackView = typename Base::TrackView;
   using AlgoProductCollection = typename Base::AlgoProductCollection;
 
   using SeedRef= edm::RefToBase<TrajectorySeed>;
@@ -85,7 +86,7 @@ public:
   /// Run the Final Fit taking Tracks as input (for Refitter)
   void runWithTrack(const TrackingGeometry *, 
 		    const MagneticField *, 
-		    const TrackCollection&,
+		    const TrackView&,
 		    const TrajectoryFitter *,
 		    const Propagator *,
 		    const TransientTrackingRecHitBuilder*,

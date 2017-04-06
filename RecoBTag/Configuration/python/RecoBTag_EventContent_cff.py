@@ -27,7 +27,11 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfCombinedCvsLJetTags_*_*',
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
-        'keep *_pfChargeBJetTags_*_*'
+        'keep *_pfChargeBJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
+        # DeepCMVA
+        'keep *_pfDeepCMVAJetTags_*_*',
     )
 )
 #RECO content
@@ -48,7 +52,7 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
         'keep *_pfGhostTrackVertexTagInfos_*_*',
-				'keep *_pfGhostTrackBJetTags_*_*',
+        'keep *_pfGhostTrackBJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         # CTagging
@@ -57,7 +61,11 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedCvsLJetTags_*_*',
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
-        'keep *_pfChargeBJetTags_*_*'
+        'keep *_pfChargeBJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
+        # DeepCMVA
+        'keep *_pfDeepCMVAJetTags_*_*',
     )
 )
 #AOD content
@@ -80,6 +88,10 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfCombinedCvsLJetTags_*_*',
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
-        'keep *_pfChargeBJetTags_*_*'
+        'keep *_pfChargeBJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
+        # DeepCMVA
+        'keep *_pfDeepCMVAJetTags_*_*',
     )
 )

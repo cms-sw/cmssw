@@ -85,21 +85,21 @@ namespace hcaldqm
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cOccupancyCut_depth.initialize(_taskname, "OccupancyCut",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 		cTimingCut_HBHEPartition.initialize(_taskname, "TimingCut",
 			hashfunctions::fHBHEPartition,
 			new quantity::ValueQuantity(quantity::fTiming_ns),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 
 		cSummary.initialize(_name, "Summary",
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(vflags),
-			new quantity::ValueQuantity(quantity::fState));
+			new quantity::ValueQuantity(quantity::fState),0);
 
 		//	BOOK
 		xUniHF.book(_emap, filter_FEDHF);

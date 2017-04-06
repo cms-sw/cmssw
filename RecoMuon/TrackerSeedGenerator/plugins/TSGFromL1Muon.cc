@@ -17,10 +17,6 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonRegionProducer.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -47,9 +43,7 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
 
   edm::ConsumesCollector iC = consumesCollector();
-  edm::ParameterSet filterPSet = theConfig.getParameter<edm::ParameterSet>("FilterPSet");
-  std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter.reset(PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC));
+  theFilterToken = consumes<PixelTrackFilter>(cfg.getParameter<edm::InputTag>("Filter"));
 
   edm::ParameterSet hitsfactoryPSet =
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -71,8 +65,6 @@ TSGFromL1Muon::~TSGFromL1Muon()
 void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
 {
   edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
-  std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
-//  theMerger = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
   theMerger = new L1MuonSeedsMerger(cleanerPSet);
 }
 
@@ -83,6 +75,10 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   edm::Handle<L1MuonParticleCollection> l1muon;
   ev.getByToken(theSourceToken, l1muon);
+
+  edm::Handle<PixelTrackFilter> hfilter;
+  ev.getByToken(theFilterToken, hfilter);
+  const PixelTrackFilter& filter = *hfilter;
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 
@@ -117,7 +113,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
         reco::Track* track = theFitter->run(es, trh, region);
         if (!track) continue;
 
-        if (!(*theFilter)(track) ) { delete track; continue; }
+        if (!filter(track, trh) ) { delete track; continue; }
         tracks.push_back(L1MuonSeedsMerger::TrackAndHits(track, hits));
       }
   

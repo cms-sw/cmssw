@@ -250,7 +250,7 @@
        dz="[FlangeT_Airex]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelFlange3_CFK"  rMin="[FlangeR23]"      rMax="[FlangeR34]"
        dz="[FlangeT_CFK]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelFlange4_Airex"  rMin="[FlangeR34]"      rMax="[FlangeRout]"
+ <Tubs name="PixelBarrelFlange4_InnerCFK"  rMin="[FlangeR34]"      rMax="[FlangeRout]"
        dz="[FlangeT_Airex]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelFlange4_CFK"  rMin="[FlangeR34]"      rMax="[FlangeRout]"
        dz="[FlangeT_CFK]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
@@ -403,9 +403,9 @@
   <rSolid name="PixelBarrelFlange3_CFK"/>
   <rMaterial name="pixbarmaterial:Flange3_CFK"/>
  </LogicalPart>
- <LogicalPart name="PixelBarrelFlange4_Airex" category="unspecified">
-  <rSolid name="PixelBarrelFlange4_Airex"/>
-  <rMaterial name="pixbarmaterial:Flange4_Airex"/>
+ <LogicalPart name="PixelBarrelFlange4_InnerCFK" category="unspecified">
+  <rSolid name="PixelBarrelFlange4_InnerCFK"/>
+  <rMaterial name="pixbarmaterial:Flange4_InnerCFK"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelFlange4_CFK" category="unspecified">
   <rSolid name="PixelBarrelFlange4_CFK"/>
@@ -672,12 +672,12 @@
 
   <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelFlange4_Airex"/>
+   <rChild name="pixbar:PixelBarrelFlange4_InnerCFK"/>
   <Translation x="[zero]" y="[zero]" z="[FlangeZ]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelFlange4_Airex"/>
+   <rChild name="pixbar:PixelBarrelFlange4_InnerCFK"/>
   <Translation x="[zero]" y="[zero]" z="-[FlangeZ]" />
  </PosPart>
   <PosPart copyNumber="1">

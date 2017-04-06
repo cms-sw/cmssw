@@ -17,7 +17,7 @@
 <use   name="SimTracker/Common"/>
 <use   name="boost"/>
 <use   name="gsl"/>
-<use   name="vdt_header"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>

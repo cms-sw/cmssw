@@ -175,7 +175,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile) {
   //
   // Book the method and set up the weights file
   //
-  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
+  tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath());
 
   return std::make_unique<const GBRForest>(dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) );
 }

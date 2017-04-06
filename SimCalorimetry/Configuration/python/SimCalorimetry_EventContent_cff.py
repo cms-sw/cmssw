@@ -6,6 +6,7 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_simEcalDigis_*_*', 
         'keep *_simEcalPreshowerDigis_*_*', 
         'keep *_simEcalTriggerPrimitiveDigis_*_*', 
+        'keep *_simEcalEBTriggerPrimitiveDigis_*_*',
         'keep *_simHcalDigis_*_*', 
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         'drop ZDCDataFramesSorted_mix_simHcalUnsuppressedDigis*_*',
@@ -37,3 +38,7 @@ phase2_timing.toModify(SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outpu
 
 phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_EETimeDigi_*') )
 phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_EBTimeDigi_*') )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
+phase2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )

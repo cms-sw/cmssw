@@ -2,47 +2,75 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-StandardSpecifications1D.append(
-    Specification(PerLayer1D).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock") # per-layer with history for online
-                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
-                             .save()
-                             .custom()
-                             .save()
-)
-StandardSpecifications1D.append(
-    Specification().groupBy("PXBarrel|PXForward/OnlineBlock") # per-layer with history for online
-                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
-                   .save()
-                   .custom()
-                   .save()
-)
+SuperimoposePlotsInOnlineBlocks=False
 
-StandardSpecifications1D_Num.append(
-    Specification(PerLayer1D).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
-                             .reduce("COUNT")
-                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock") 
-                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
-                             .save()
-                             .custom()
-                             .save()
-)
-StandardSpecifications1D_Num.append(
-    Specification().groupBy("PXBarrel|PXForward/OnlineBlock/DetId/Event") # per-layer with history for online
-                   .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/OnlineBlock") 
-                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
-                   .save()
-                   .custom()
-                   .save()
-)
 
+
+
+StandardSpecifications1D.append(
+        Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock") # per-layer with history for online
+                                 .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+                                 .save()
+  )
+  
+StandardSpecifications1D.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
+                               .groupBy("PXForward/PXDisk", "EXTEND_Y")
+                               .save()
+  )
+  
+StandardSpecifications1D.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock") # per-layer with history for online
+                     .groupBy("PXBarrel", "EXTEND_Y")
+                     .save()
+  )
+StandardSpecifications1D.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock") # per-layer with history for online
+                     .groupBy("PXForward", "EXTEND_Y")
+                     .save()
+  )
+  
+StandardSpecifications1D_Num.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock/DetId/Event") # per-layer with history for online
+                               .reduce("COUNT")
+                               .groupBy("PXBarrel/PXLayer/OnlineBlock") 
+                               .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+                               .save()
+  )
+StandardSpecifications1D_Num.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
+                               .reduce("COUNT")
+                               .groupBy("PXForward/PXDisk/OnlineBlock") 
+                               .groupBy("PXForward/PXDisk", "EXTEND_Y")
+                               .save()
+  )
+StandardSpecifications1D_Num.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock/DetId/Event") # per-layer with history for online
+                     .reduce("COUNT")
+                     .groupBy("PXBarrel/OnlineBlock") 
+                     .groupBy("PXBarrel", "EXTEND_Y")
+                     .save()
+  )
+StandardSpecifications1D_Num.append(
+      Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock/DetId/Event") # per-layer with history for online
+                     .reduce("COUNT")
+                     .groupBy("PXForward/OnlineBlock") 
+                     .groupBy("PXForward", "EXTEND_Y")
+                     .save()
+  )
+
+  
 # Configure Phase1 DQM for Phase0 data
-SiPixelPhase1Geometry.n_inner_ring_blades = 24 # no outer ring
+SiPixelPhase1Geometry.upgradePhase = 0
 
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
 # here and not in the harvestng config.
 DefaultHisto.perLumiHarvesting = True
+DefaultHistoDigiCluster.perLumiHarvesting = True
+DefaultHistoSummary.perLumiHarvesting = True
+DefaultHistoTrack.perLumiHarvesting = True
+
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
@@ -62,14 +90,19 @@ from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
 # Raw data errors
 from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
 
-PerModule.enabled = True
+from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 
-siPixelPhase1OnlineDQM_source = cms.Sequence(SiPixelPhase1DigisAnalyzer
-                                            + SiPixelPhase1ClustersAnalyzer
-                                            + SiPixelPhase1RawDataAnalyzer
-                                            )
 
-siPixelPhase1OnlineDQM_harvesting = cms.Sequence(SiPixelPhase1DigisHarvester 
-                                                + SiPixelPhase1ClustersHarvester
-                                                + SiPixelPhase1RawDataHarvester
-                                                )
+siPixelPhase1OnlineDQM_source = cms.Sequence(
+   SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1ClustersAnalyzer
+ + SiPixelPhase1RawDataAnalyzer
+# + SiPixelPhase1GeometryDebugAnalyzer
+)
+
+siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
+   SiPixelPhase1DigisHarvester 
+ + SiPixelPhase1ClustersHarvester
+ + SiPixelPhase1RawDataHarvester
+# + SiPixelPhase1GeometryDebugHarvester
+)
