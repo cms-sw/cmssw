@@ -271,8 +271,15 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
+    ## Using Puppi candidates as input for b tagging in Phase 2
+    _pfCandidates = 'particleFlow'
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+    if process.isUsingModifier( phase2_common ):
+        _pfCandidates = 'puppi'
+
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag(_pfCandidates),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     
