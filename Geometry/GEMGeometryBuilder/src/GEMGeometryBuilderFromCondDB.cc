@@ -21,6 +21,8 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include <iostream>
 #include <algorithm>
 
@@ -42,9 +44,6 @@ GEMGeometryBuilderFromCondDB::build( const RecoIdealGeometry& rgeo )
   std::vector<double>::const_iterator rotStart;
   std::vector<std::string>::const_iterator strStart;
 
-  GEMChamber* chamber(0);
-  GEMSuperChamber* sch(0);
-  
   for (unsigned int id = 0; id < detids.size(); ++id)
   {  
     GEMDetId gemid(detids[id]);
@@ -93,6 +92,7 @@ GEMGeometryBuilderFromCondDB::build( const RecoIdealGeometry& rgeo )
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     GEMEtaPartition* gep=new GEMEtaPartition(gemid, surf, e_p_specs);
+    LogDebug("GEMGeometryBuilder")<<"GEM Eta Partition created with id = "<<gemid<<" and added to the GEMGeometry"<<std::endl;
     geometry->add(gep);
     
     std::list<GEMEtaPartition *> gepls;
@@ -123,12 +123,22 @@ GEMGeometryBuilderFromCondDB::build( const RecoIdealGeometry& rgeo )
     }
 
     ReferenceCountingPointer<BoundPlane> surf(bp);
+    // Create the superchamber
+    if(chid.layer()==1) {
+      GEMDetId schid(chid.region(),chid.ring(),chid.station(),0,chid.chamber(),0);
+      GEMSuperChamber* sch = new GEMSuperChamber(chid,surf);
+      LogDebug("GEMGeometryBuilder")<<"GEM SuperChamber created with id = "<<schid<<" and added to the GEMGeometry"<<std::endl;
+      geometry->add(sch);
+    }
     // Create the chamber 
     GEMChamber* ch = new GEMChamber (chid, surf); 
+    LogDebug("GEMGeometryBuilder")<<"GEM Chamber created with id = "<<chid<<" and added to the GEMGeometry"<<std::endl;
+    LogDebug("GEMGeometryBuilder")<<"GEM Chamber has following eta partitions associated: "<<std::endl;
     // Add the etaps to rhe chamber
     for(std::list<GEMEtaPartition *>::iterator gepl=gepls.begin();
     gepl!=gepls.end(); gepl++){
       ch->add(*gepl);
+      LogDebug("GEMGeometryBuilder")<<"   --> GEM Eta Partition "<<GEMDetId((*gepl)->id())<<std::endl;
     }
     // Add the chamber to the geometry
     geometry->add(ch);
