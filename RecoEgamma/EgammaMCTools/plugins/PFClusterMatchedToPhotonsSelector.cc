@@ -20,7 +20,6 @@
 // system include files
 #include <memory>
 #include <iostream>
-#include <limits>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -114,12 +113,17 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
 
   std::vector<reco::GenParticleRef> genmatching;
 
-  size_t iP(0);
   size_t iN(0);  
-  for (auto&& pfCluster : *particleFlowClusterECALHandle_) {
-
+  for (size_t iP = 0; iP < particleFlowClusterECALHandle_->size(); iP++) {
+    
+    auto&& pfCluster = particleFlowClusterECALHandle_->at(iP);
     bool isMatched = false;
     reco::GenParticleRef::key_type matchedKey;
+
+    // Preselect PFclusters
+    if (pfCluster.energy() <= 0) {
+      continue;
+    }
 
     for (auto&& trackingParticle : *trackingParticleHandle_) {
       if (trackingParticle.pdgId() != 22) continue;
@@ -127,8 +131,7 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
       matchedKey = trackingParticle.genParticles().at(0).key();
       float dR2 = reco::deltaR2(trackingParticle, pfCluster.position());
       if (dR2 > matchMaxDR2_) continue; 
-      // assigns a large value for pathological cases
-      float dE = pfCluster.energy() > 0 ? (1. - trackingParticle.genParticles().at(0)->energy()/pfCluster.energy()) : std::numeric_limits<float>::infinity();
+      float dE = 1. - trackingParticle.genParticles().at(0)->energy()/pfCluster.energy();
       if ((dR2 + dE*dE) > matchMaxDEDR2_) continue; 
 
       bool isConversion = false;
@@ -157,7 +160,6 @@ void PFClusterMatchedToPhotonsSelector::produce(edm::Event& iEvent, const edm::E
       }
       genmatching.push_back(edm::Ref<reco::GenParticleCollection>(genParticleHandle_,matchedKey));
     }
-    iP++;
   }
 
   std::sort(association_out->begin(),association_out->end(),sortByKey);  
