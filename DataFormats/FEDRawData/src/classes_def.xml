@@ -27,5 +27,5 @@
  </class>
  <class name="edm::Wrapper<FEDRawDataCollection>" splitLevel="0"/>
  <class name="edm::RefProd<FEDRawDataCollection>"/>
- <class name="edm::Wrapper<BSTRecord>" splitLevel="0"/>
+ <class name="edm::Wrapper<BSTRecord>"/>
 </lcgdict>
