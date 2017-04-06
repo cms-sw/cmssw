@@ -60,6 +60,9 @@ namespace DataFormats_GEMDigi {
     ME0DigiPreRecoMap mmap;
     edm::Wrapper<ME0DigiPreRecoMap> wmmap;
 
+    ME0DigiPreRecoMap mmap;
+    edm::Wrapper<ME0DigiPreRecoMap> wmmap;
+    
     ME0Digi mm;
     std::vector<ME0Digi>  vmm;
     std::vector<std::vector<ME0Digi> >  vvmm;
