@@ -132,13 +132,13 @@ hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiPixelPairStepTight',
     preFilterName = 'hiPixelPairStepLoose',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(-0.58)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiPixelPairStep',
     preFilterName = 'hiPixelPairStepTight',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(0.77)
     ),
     ) #end of vpset

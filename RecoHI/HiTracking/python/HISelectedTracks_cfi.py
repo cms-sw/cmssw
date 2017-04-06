@@ -17,13 +17,13 @@ hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackS
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiInitialStepTight',
     preFilterName = 'hiInitialStepLoose',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(-0.77)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiInitialStep',
     preFilterName = 'hiInitialStepTight',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(-0.77)
     ),
     ) #end of vpset
