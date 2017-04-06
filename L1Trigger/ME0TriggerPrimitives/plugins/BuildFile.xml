@@ -1,0 +1,6 @@
+<use   name="L1Trigger/ME0TriggerPrimitives"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="Geometry/Records"/>
+<library   file="*.cc" name="ME0TriggerPrimitivesPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
