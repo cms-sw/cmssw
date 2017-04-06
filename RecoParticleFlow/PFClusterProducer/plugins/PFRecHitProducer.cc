@@ -29,6 +29,7 @@ namespace {
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
 
   navigator_.reset(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
+  init_ = false;
     
 }
 
@@ -55,6 +56,10 @@ void
    out->reserve(localRA1.upper());
    cleaned->reserve(localRA2.upper());
    for( const auto& creator : creators_ ) {
+     if (!init_) { // should go in beginRun
+       creator->init(iSetup);
+       init_ = true;
+     }
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
    if (out->capacity()>2*out->size()) out->shrink_to_fit();

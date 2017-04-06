@@ -71,10 +71,11 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // this is std version for which the PF ZS is always applied
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}
