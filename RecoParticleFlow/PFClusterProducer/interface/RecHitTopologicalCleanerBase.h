@@ -12,6 +12,7 @@ class RecHitTopologicalCleanerBase {
  public:
   RecHitTopologicalCleanerBase(const edm::ParameterSet& conf) { }
   RecHitTopologicalCleanerBase(const RecHitTopologicalCleanerBase& ) = delete;
+  virtual ~RecHitTopologicalCleanerBase() = default;
   RecHitTopologicalCleanerBase& operator=(const RecHitTopologicalCleanerBase&) = delete;
 
   virtual void clean(const edm::Handle<reco::PFRecHitCollection>&, 
