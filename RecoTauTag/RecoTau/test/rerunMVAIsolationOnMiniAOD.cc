@@ -76,14 +76,6 @@ class rerunMVAIsolationOnMiniAOD : public edm::one::EDAnalyzer<edm::one::SharedR
       TauIdMVAAuxiliaries clusterVariables_;
 
       edm::EDGetTokenT<pat::TauCollection> tauToken_;
-    /*edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVLooseToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationLooseToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationMediumToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVVTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaEleRawToken_;*/
       edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> dmfNewToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> chargedIsoPtSumToken_;

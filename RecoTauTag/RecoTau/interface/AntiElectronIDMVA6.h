@@ -26,7 +26,6 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include <TMath.h>
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
