@@ -11,6 +11,7 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include <TMath.h>
 #include <TFile.h>
 #include <array>
 
@@ -620,7 +621,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   else{
     TauPhi= -99.;
     for (unsigned int o = 0; o < signalPFCands.size(); ++o ) {
-      reco::Candidate const*  signalCand = dynamic_cast<reco::Candidate const*> (signalPFCands[o].get());
+      reco::Candidate const*  signalCand = signalPFCands[o].get();
       float phi = thePFTau.phi();
       math::XYZPoint aPos; 
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -981,7 +982,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
     for (unsigned int o = 0; o < signalCands.size(); o++ ) {
-      reco::Candidate const* signalCand = dynamic_cast<reco::Candidate const*> (signalCands[o].get());
+      reco::Candidate const* signalCand = signalCands[o].get();
       float phi = theTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -1001,7 +1002,6 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
   
   Float_t TauHasGsf = 0;
   pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTau.leadChargedHadrCand().get());
-  //const reco::Track & pseudoTrack = packedLeadTauCand->pseudoTrack();
   if( abs(packedLeadTauCand->pdgId()) == 11 ) TauHasGsf = 1;
   
   // === electron variables ===
@@ -1344,7 +1344,6 @@ bool AntiElectronIDMVA6::atECalEntrance(const reco::Candidate* part, math::XYZPo
   theParticle.propagateToEcalEntrance(false);
   if(theParticle.getSuccess()!=0){
     pos = math::XYZPoint(theParticle.vertex());
-    //mom = math::XYZTLorentzVector(theParticle.momentum());
     result = true;
   }
   else {

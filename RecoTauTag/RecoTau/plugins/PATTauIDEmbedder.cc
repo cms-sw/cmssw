@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "FWCore/Utilities/interface/transform.h"
 
-class PATTauIDEmbedder : public edm::EDProducer
+class PATTauIDEmbedder : public edm::stream::EDProducer<>
 {
 public:
 
@@ -75,11 +75,10 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es)
     for(size_t i = 0; i < nTauIds; ++i){
       tauIds[i] = inputTau->tauIDs().at(i);
     }
-    
+
+    edm::Handle<pat::PATTauDiscriminator> tauDiscr;
     for(size_t i = 0; i < tauIDSrcs_.size(); ++i){
-      edm::Handle<pat::PATTauDiscriminator> tauDiscr;
-      evt.getByToken(patTauIDTokens_[i], tauDiscr);
-      
+      evt.getByToken(patTauIDTokens_[i], tauDiscr);      
       tauIds[nTauIds+i].first = tauIDSrcs_[i].first;
       tauIds[nTauIds+i].second = (*tauDiscr)[inputTauRef];
     }
