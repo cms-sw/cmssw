@@ -159,7 +159,9 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
 // template specialiazation to get the correct (Calo/PF)TauProducer names
 template<> std::string getProducerString<PFTau>()   { return "PFTauProducer"; }
 template<> std::string getProducerString<CaloTau>() { return "CaloTauProducer"; }
+template<> std::string getProducerString<pat::Tau>() { return "PATTauProducer"; }
 
 // compile our desired types and make available to linker
 template class TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>;
 template class TauDiscriminationProducerBase<CaloTau, CaloTauDiscriminator>;
+template class TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>;
