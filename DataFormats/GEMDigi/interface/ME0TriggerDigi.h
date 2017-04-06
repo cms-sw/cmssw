@@ -3,7 +3,7 @@
 
 /**\class ME0TriggerDigi
  *
- * Digi for ME0 LCT trigger primitives. 
+ * Digi for local ME0 trigger system
  *
  * \author Sven Dildick (TAMU)
  */
@@ -22,10 +22,10 @@ class ME0TriggerDigi
 
   ME0TriggerDigi();                               /// default
 
-  /// clear this LCT
+  /// clear this Trigger
   void clear();
 
-  /// Print content of LCT digi
+  /// Print content of Trigger digi
   void print() const;
 
   ///Comparison
