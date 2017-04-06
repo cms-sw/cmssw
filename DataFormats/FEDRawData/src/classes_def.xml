@@ -16,8 +16,8 @@
   <version ClassVersion="11" checksum="2009823250"/>
   <version ClassVersion="10" checksum="120358665"/>
  </class>
- <class name="BSTRecord" ClassVersion="10">
-  <version ClassVersion="10" checksum="3262583400"/>
+ <class name="BSTRecord" ClassVersion="3">
+  <version ClassVersion="3" checksum="3262583400"/>
  </class>
  <class name="fedh_struct" ClassVersion="10">
   <version ClassVersion="10" checksum="3158059546"/>
