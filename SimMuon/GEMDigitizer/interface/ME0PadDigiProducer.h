@@ -29,7 +29,7 @@ public:
 
 private:
 
-  void buildPads(const ME0DigiPreRecoCollection &digis, ME0PadDigiCollection &out_pads);
+  void buildPads(const ME0DigiPreRecoCollection &digis, ME0PadDigiCollection &out_pads) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<ME0DigiPreRecoCollection> digi_token_;

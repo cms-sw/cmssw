@@ -72,5 +72,8 @@ bool ME0Motherboard::sortByQuality(const ME0TriggerDigi& trig1, const ME0Trigger
 // compare Triggers by GEM bending angle
 bool ME0Motherboard::sortByME0Dphi(const ME0TriggerDigi& trig1, const ME0TriggerDigi& trig2) 
 { 
+  // todo: In the future I plan a member to be added to ME0TriggerDigi, getME0Dphi(). 
+  // That function will derive the bending angle from the pattern. 
+  // The ME0TriggerDigi pattterns are at this point not defined yet.  
   return true;
 }
