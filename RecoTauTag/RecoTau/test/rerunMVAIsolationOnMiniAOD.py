@@ -18,6 +18,11 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+process.TFileService = cms.Service("TFileService",
+  fileName = cms.string('rerunTauID_miniAOD.root')
+)
+
+
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '76X_mcRun2_asymptotic_RunIIFall15DR76_v1', '')
 
