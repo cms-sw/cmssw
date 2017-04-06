@@ -25,8 +25,8 @@ class ME0TriggerBuilder
 
   ~ME0TriggerBuilder();
 
-  /** Build LCTs in each chamber and fill them into output collections. */
-  void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_lct);
+  /** Build Triggers in each chamber and fill them into output collections. */
+  void build(const ME0PadDigiCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
   
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 

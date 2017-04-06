@@ -33,7 +33,7 @@ ME0TriggerBuilder::~ME0TriggerBuilder()
 }
 
 void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
-					ME0TriggerDigiCollection& oc_lct)
+					ME0TriggerDigiCollection& oc_trig)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
@@ -46,15 +46,15 @@ void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
       
       tmb->run(gemPads);
       
-      std::vector<ME0TriggerDigi> lctV = tmb->readoutLCTs();
+      std::vector<ME0TriggerDigi> trigV = tmb->readoutTriggers();
       
-      if (!lctV.empty()) {
+      if (!trigV.empty()) {
 	LogTrace("L1ME0Trigger")
 	  << "ME0TriggerBuilder got results in " <<detid
 	  << std::endl 
-	  << "Put " << lctV.size() << " LCT digi"
-	  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
-	oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+	  << "Put " << trigV.size() << " Trigger digi"
+	  << ((trigV.size() > 1) ? "s " : " ") << "in collection\n";
+	oc_trig.put(std::make_pair(trigV.begin(),trigV.end()), detid);
       }
     } 
   }
