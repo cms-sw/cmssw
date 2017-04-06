@@ -21,12 +21,15 @@ namespace logintpack
                 return r;
         }
 
+
 	inline int16_t pack16log(double x,double lmin, double lmax, uint16_t base=32768)
 	{
 	        if(base>32768) base=32768;
+                const float delta=(log(1.+exp((lmax-lmin)/base))-log(2.))*base/(lmax-lmin);
 		const double l = std::log(std::abs(x));
 		const double centered = (l-lmin)/(lmax-lmin)*base;
-		int16_t  r=centered;
+		int16_t  r=std::floor(centered);
+		if(centered-r>delta) r+=1;
 		if(centered >= base-1) r=base-1;
 		if(centered < 0) r=0;
 		if(x<0) r = r==0 ? -1 : -r;
