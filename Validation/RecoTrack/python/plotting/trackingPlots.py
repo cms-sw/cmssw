@@ -907,7 +907,9 @@ class TrackingPlotFolder(PlotFolder):
 
 class TrackingSummaryTable:
     class GeneralTracks: pass
+    class GeneralTracksPt09: pass
     class HighPurity: pass
+    class HighPurityPt09: pass
     class BTVLike: pass
     class AK4PFJets: pass
 
@@ -940,8 +942,12 @@ class TrackingSummaryTable:
             data = plotting._th1ToOrderedDict(h)
             if self._collection == TrackingSummaryTable.GeneralTracks:
                 return _getAlgoQuality(data, "ootb", "")
+            elif self._collection == TrackingSummaryTable.GeneralTracksPt09:
+                return _getAlgoQuality(data, "ootb", "Pt09")
             elif self._collection == TrackingSummaryTable.HighPurity:
                 return _getAlgoQuality(data, "ootb", "highPurity")
+            elif self._collection == TrackingSummaryTable.HighPurityPt09:
+                return _getAlgoQuality(data, "ootb", "highPurityPt09")
             elif self._collection == TrackingSummaryTable.BTVLike:
                 return _getAlgoQuality(data, "btvLike", "")
             elif self._collection == TrackingSummaryTable.AK4PFJets:
@@ -1131,8 +1137,11 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
                        PlotFolder(*_summaryPlotsSeeds, section=name+"_seeds", **common))
 
     plotter.appendTable(summaryName, folders, TrackingSummaryTable(section=name))
+    plotter.appendTable(summaryName, folders, TrackingSummaryTable(section=name+"Pt09", collection=TrackingSummaryTable.GeneralTracksPt09))
     if highPuritySummary:
-        plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", collection=TrackingSummaryTable.HighPurity))
+        sectionName = name+"_highPurity" if name != "" else "highPurity"
+        plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=sectionName, collection=TrackingSummaryTable.HighPurity))
+        plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=sectionName+"Pt09", collection=TrackingSummaryTable.HighPurityPt09))
     if name == "":
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="btvLike", collection=TrackingSummaryTable.BTVLike))
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
