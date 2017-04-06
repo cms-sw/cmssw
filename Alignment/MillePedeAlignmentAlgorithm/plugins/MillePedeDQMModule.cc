@@ -57,12 +57,12 @@ void MillePedeDQMModule
   booker.cd();
   booker.setCurrentFolder("AlCaReco/SiPixelAli/");
 
-  h_xPos = booker.book1D("Xpos",   "Alignment fit #DeltaX;;#mum", 30, 0., 30.);
-  h_xRot = booker.book1D("Xrot",   "Alignment fit #Delta#theta_{X};;#murad", 30, 0., 30.);
-  h_yPos = booker.book1D("Ypos",   "Alignment fit #DeltaY;;#mum", 30, 0., 30.);
-  h_yRot = booker.book1D("Yrot",   "Alignment fit #Delta#theta_{Y};;#murad", 30, 0., 30.);
-  h_zPos = booker.book1D("Zpos",   "Alignment fit #DeltaZ;;#mum", 30, 0., 30.);
-  h_zRot = booker.book1D("Zrot",   "Alignment fit #Delta#theta_{Z};;#murad", 30, 0., 30.);
+  h_xPos = booker.book1D("Xpos",   "Alignment fit #DeltaX;;#mum", 36, 0., 36.);
+  h_xRot = booker.book1D("Xrot",   "Alignment fit #Delta#theta_{X};;#murad", 36, 0., 36.);
+  h_yPos = booker.book1D("Ypos",   "Alignment fit #DeltaY;;#mum", 36, 0., 36.);
+  h_yRot = booker.book1D("Yrot",   "Alignment fit #Delta#theta_{Y};;#murad", 36, 0., 36.);
+  h_zPos = booker.book1D("Zpos",   "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
+  h_zRot = booker.book1D("Zrot",   "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
 
   booker.cd();
 }
@@ -211,37 +211,35 @@ void MillePedeDQMModule
   histo_0->SetMinimum(-(max_));
   histo_0->SetMaximum(  max_);
 
-  // first 6 bins for movements
+  //  Schematics of the bin contents
+  // 
+  //  XX XX XX XX XX XX    OO OO OO OO    II II II II 
+  // |--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
+  // | 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|16|17|  ...
+  //
+  // |-----------------|  |-----------|  |-----------|  
+  // |observed movement|  |thresholds1|  |thresholds2|     
 
   for (size_t i = 0; i < obs.size(); ++i) {
+    
+    // fist obs.size() bins for observed movements
     histo_0->SetBinContent(i+1, obs[i]);
     histo_0->SetBinError(i+1, obsErr[i]); 
+    
+    // then at bin 8,8+5,8+10,... for cutoffs
+    // 5 bins is the space allocated for the 4 other thresholds + 1 empty separation bin
+    histo_0->SetBinContent(8+i*5 , cut[i]);
+    
+    // then at bin 9,9+5,9+10,... for significances
+    histo_0->SetBinContent(9+i*5 , sigCut[i]);
+
+    // then at bin 10,10+5,10+10,... for maximum movements
+    histo_0->SetBinContent(10+i*5, maxMoveCut[i]);
+
+    // then at bin 11,11+5,11+10,... for maximum errors
+    histo_0->SetBinContent(11+i*5, maxErrorCut[i]);
+    
   }
-
-  // next 6 bins for cutoffs
-
-  for (size_t i = obs.size(); i < obs.size()*2; ++i) {
-    histo_0->SetBinContent(i+1, cut[i-obs.size()]); 	
-  }
-
-  // next 6 bins for significances
-
-  for (size_t i = obs.size()*2; i < obs.size()*3; ++i) {
-    histo_0->SetBinContent(i+1, sigCut[i-obs.size()*2]);
-  }
-
-  // next 6 bins for maximum movements
-
-  for (size_t i = obs.size()*3; i < obs.size()*4; ++i) {
-    histo_0->SetBinContent(i+1, maxMoveCut[i-obs.size()*3]);	
-  }
-
-  // final 6 bins for maximum errors
-
-  for (size_t i = obs.size()*4; i < obs.size()*5; ++i) {
-    histo_0->SetBinContent(i+1, maxErrorCut[i-obs.size()*4]);
-  }
-
 }
 
 bool MillePedeDQMModule
