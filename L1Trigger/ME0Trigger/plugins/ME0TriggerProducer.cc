@@ -1,15 +1,15 @@
-#include "L1Trigger/ME0TriggerPrimitives/plugins/ME0TriggerPrimitivesProducer.h"
-#include "L1Trigger/ME0TriggerPrimitives/src/ME0TriggerPrimitivesBuilder.h"
+#include "L1Trigger/ME0Trigger/plugins/ME0TriggerProducer.h"
+#include "L1Trigger/ME0Trigger/src/ME0TriggerBuilder.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h"
 
-ME0TriggerPrimitivesProducer::ME0TriggerPrimitivesProducer(const edm::ParameterSet& conf) 
+ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf) 
 {
   me0PadDigiProducer_ = conf.getParameter<edm::InputTag>("ME0PadDigiProducer");
 
-  lctBuilder_.reset( new ME0TriggerPrimitivesBuilder(conf) ); // pass on the conf
+  lctBuilder_.reset( new ME0TriggerBuilder(conf) ); // pass on the conf
   
   me0_pad_token_ = consumes<ME0PadDigiCollection>(me0PadDigiProducer_);
 
@@ -18,11 +18,11 @@ ME0TriggerPrimitivesProducer::ME0TriggerPrimitivesProducer(const edm::ParameterS
   consumes<ME0PadDigiCollection>(me0PadDigiProducer_);
 }
 
-ME0TriggerPrimitivesProducer::~ME0TriggerPrimitivesProducer() 
+ME0TriggerProducer::~ME0TriggerProducer() 
 {
 }
 
-void ME0TriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) 
+void ME0TriggerProducer::produce(edm::Event& ev, const edm::EventSetup& setup) 
 {
   edm::Handle<ME0PadDigiCollection> me0PadDigis; 
   ev.getByToken(me0_pad_token_, me0PadDigis);

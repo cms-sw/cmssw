@@ -1,13 +1,13 @@
-#include "L1Trigger/ME0TriggerPrimitives/src/ME0TriggerPrimitivesBuilder.h"
-#include "L1Trigger/ME0TriggerPrimitives/src/ME0Motherboard.h"
+#include "L1Trigger/ME0Trigger/src/ME0TriggerBuilder.h"
+#include "L1Trigger/ME0Trigger/src/ME0Motherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-const int ME0TriggerPrimitivesBuilder::min_endcap  = ME0DetId::minRegionId;
-const int ME0TriggerPrimitivesBuilder::max_endcap  = ME0DetId::maxRegionId;
-const int ME0TriggerPrimitivesBuilder::min_chamber = ME0DetId::minChamberId;
-const int ME0TriggerPrimitivesBuilder::max_chamber = ME0DetId::maxChamberId;
+const int ME0TriggerBuilder::min_endcap  = ME0DetId::minRegionId;
+const int ME0TriggerBuilder::max_endcap  = ME0DetId::maxRegionId;
+const int ME0TriggerBuilder::min_chamber = ME0DetId::minChamberId;
+const int ME0TriggerBuilder::max_chamber = ME0DetId::maxChamberId;
 
-ME0TriggerPrimitivesBuilder::ME0TriggerPrimitivesBuilder(const edm::ParameterSet& conf)
+ME0TriggerBuilder::ME0TriggerBuilder(const edm::ParameterSet& conf)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
@@ -28,11 +28,11 @@ ME0TriggerPrimitivesBuilder::ME0TriggerPrimitivesBuilder(const edm::ParameterSet
   }
 }
 
-ME0TriggerPrimitivesBuilder::~ME0TriggerPrimitivesBuilder()
+ME0TriggerBuilder::~ME0TriggerBuilder()
 {
 }
 
-void ME0TriggerPrimitivesBuilder::build(const ME0PadDigiCollection* gemPads,
+void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
 					ME0LCTDigiCollection& oc_lct)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
@@ -50,7 +50,7 @@ void ME0TriggerPrimitivesBuilder::build(const ME0PadDigiCollection* gemPads,
       
       if (!lctV.empty()) {
 	LogTrace("L1ME0Trigger")
-	  << "ME0TriggerPrimitivesBuilder got results in " <<detid
+	  << "ME0TriggerBuilder got results in " <<detid
 	  << std::endl 
 	  << "Put " << lctV.size() << " LCT digi"
 	  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";

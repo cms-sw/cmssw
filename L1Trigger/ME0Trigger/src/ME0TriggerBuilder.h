@@ -1,7 +1,7 @@
-#ifndef L1Trigger_ME0TriggerPrimitives_ME0TriggerPrimitivesBuilder_h
-#define L1Trigger_ME0TriggerPrimitives_ME0TriggerPrimitivesBuilder_h
+#ifndef L1Trigger_ME0Trigger_ME0TriggerBuilder_h
+#define L1Trigger_ME0Trigger_ME0TriggerBuilder_h
 
-/** \class ME0TriggerPrimitivesBuilder
+/** \class ME0TriggerBuilder
  *
  * \author Sven Dildick, TAMU.
  *
@@ -13,7 +13,7 @@
 
 class ME0Motherboard;
 
-class ME0TriggerPrimitivesBuilder
+class ME0TriggerBuilder
 {
  public:
 
@@ -21,9 +21,9 @@ class ME0TriggerPrimitivesBuilder
    *  Receives ParameterSet percolated down from 
    *  EDProducer which owns this Builder.
    */
-  explicit ME0TriggerPrimitivesBuilder(const edm::ParameterSet&);
+  explicit ME0TriggerBuilder(const edm::ParameterSet&);
 
-  ~ME0TriggerPrimitivesBuilder();
+  ~ME0TriggerBuilder();
 
   /** Build LCTs in each chamber and fill them into output collections. */
   void build(const ME0PadDigiCollection* me0Pads, ME0LCTDigiCollection& oc_lct);

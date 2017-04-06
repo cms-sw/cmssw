@@ -1,7 +1,7 @@
-#ifndef L1Trigger_ME0TriggerPrimitives_ME0TriggerPrimitivesProducer_h
-#define L1Trigger_ME0TriggerPrimitives_ME0TriggerPrimitivesProducer_h
+#ifndef L1Trigger_ME0Trigger_ME0TriggerProducer_h
+#define L1Trigger_ME0Trigger_ME0TriggerProducer_h
 
-/** \class ME0TriggerPrimitivesProducer
+/** \class ME0TriggerProducer
  *
  * \author Sven Dildick (TAMU).
  *
@@ -15,13 +15,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class ME0TriggerPrimitivesBuilder;
+class ME0TriggerBuilder;
 
-class ME0TriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::SharedResources>
+class ME0TriggerProducer : public edm::one::EDProducer<edm::one::SharedResources>
 {
  public:
-  explicit ME0TriggerPrimitivesProducer(const edm::ParameterSet&);
-  ~ME0TriggerPrimitivesProducer();
+  explicit ME0TriggerProducer(const edm::ParameterSet&);
+  ~ME0TriggerProducer();
 
   //virtual void beginRun(const edm::EventSetup& setup);
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -30,7 +30,7 @@ class ME0TriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
   edm::InputTag me0PadDigiProducer_;
   edm::EDGetTokenT<ME0PadDigiCollection> me0_pad_token_;
  
-  std::unique_ptr<ME0TriggerPrimitivesBuilder> lctBuilder_;
+  std::unique_ptr<ME0TriggerBuilder> lctBuilder_;
 };
 
 #endif
