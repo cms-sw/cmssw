@@ -20,13 +20,11 @@ class ME0TriggerDigi
 	     const int strip, const int pattern,
 	     const int bend, const int bx);
 
-  ME0TriggerDigi();                               /// default
+  /// default
+  ME0TriggerDigi();                               
 
   /// clear this Trigger
   void clear();
-
-  /// Print content of Trigger digi
-  void print() const;
 
   ///Comparison
   bool operator == (const ME0TriggerDigi &) const;

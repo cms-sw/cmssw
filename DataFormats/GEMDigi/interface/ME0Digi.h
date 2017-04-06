@@ -26,8 +26,6 @@ public:
   int strip() const { return strip_; }
   int bx() const {return bx_; }
 
-  void print() const;
-
 private:
   uint16_t strip_;
   int32_t  bx_; 

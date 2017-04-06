@@ -26,8 +26,6 @@ public:
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 
-  void print() const;
-
 private:
   uint16_t pad_;
   int32_t  bx_; 

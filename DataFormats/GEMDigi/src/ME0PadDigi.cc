@@ -1,9 +1,3 @@
-/** \file
- * 
- * \author Sven Dildick
- */
-
-
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include <iostream>
 
@@ -17,22 +11,16 @@ ME0PadDigi::ME0PadDigi ():
   bx_(0) 
 {}
 
-
-// Comparison
 bool ME0PadDigi::operator == (const ME0PadDigi& digi) const
 {
   return pad_ == digi.pad() and bx_ == digi.bx();
 }
 
-
-// Comparison
 bool ME0PadDigi::operator != (const ME0PadDigi& digi) const
 {
   return pad_ != digi.pad() or bx_ != digi.bx();
 }
 
-
-///Precedence operator
 bool ME0PadDigi::operator<(const ME0PadDigi& digi) const
 {
   if(digi.bx() == bx_)
@@ -41,15 +29,7 @@ bool ME0PadDigi::operator<(const ME0PadDigi& digi) const
     return digi.bx() < bx_;
 }
 
-
 std::ostream & operator<<(std::ostream & o, const ME0PadDigi& digi)
 {
-  return o << " " << digi.pad() << " " << digi.bx();
+  return o << " pad: " << digi.pad() << " bx: " << digi.bx();
 }
-
-
-void ME0PadDigi::print() const
-{
-  std::cout << "Pad " << pad() << " bx " << bx() <<std::endl;
-}
-

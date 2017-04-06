@@ -11,22 +11,16 @@ ME0Digi::ME0Digi ():
   bx_(0) 
 {}
 
-
-// Comparison
 bool ME0Digi::operator == (const ME0Digi& digi) const
 {
   return strip_ == digi.strip() and bx_ == digi.bx();
 }
 
-
-// Comparison
 bool ME0Digi::operator != (const ME0Digi& digi) const
 {
   return strip_ != digi.strip() or bx_ != digi.bx();
 }
 
-
-///Precedence operator
 bool ME0Digi::operator<(const ME0Digi& digi) const
 {
   if(digi.bx() == bx_)
@@ -35,15 +29,7 @@ bool ME0Digi::operator<(const ME0Digi& digi) const
     return digi.bx() < bx_;
 }
 
-
 std::ostream & operator<<(std::ostream & o, const ME0Digi& digi)
 {
-  return o << " " << digi.strip() << " " << digi.bx();
+  return o << " strip: " << digi.strip() << " bx: " << digi.bx();
 }
-
-
-void ME0Digi::print() const
-{
-  std::cout << "Strip " << strip() << " bx " << bx() <<std::endl;
-}
-
