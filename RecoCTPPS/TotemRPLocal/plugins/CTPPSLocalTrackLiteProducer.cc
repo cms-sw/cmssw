@@ -51,8 +51,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
   if ( doNothing_ )
     return;
 
-  produces< std::vector<CTPPSLocalTrackLite> >( "TrackingStrip" );
-  produces< std::vector<CTPPSLocalTrackLite> >( "TimingDiamond" );
+  produces< std::vector<CTPPSLocalTrackLite> >();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -63,26 +62,23 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   if ( doNothing_ )
     return;
 
+  // prepare output
+  std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pOut( new std::vector<CTPPSLocalTrackLite>() );
+  
   //----- TOTEM strips
 
   // get input from Si strips
   edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
   iEvent.getByToken( siStripTrackToken_, inputSiStripTracks );
 
-  // prepare output
-  std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pSiStripOut( new std::vector<CTPPSLocalTrackLite>() );
-  
   // process tracks from Si strips
   for ( const auto rpv : *inputSiStripTracks ) {
     const uint32_t rpId = rpv.detId();
     for ( const auto t : rpv ) {
       if ( !t.isValid() ) continue;
-      pSiStripOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma() );
+      pOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma() );
     }
   }
-
-  // save output to event
-  iEvent.put( std::move( pSiStripOut ), "TrackingStrip" );
 
   //----- diamond detectors
 
@@ -90,20 +86,17 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   edm::Handle< edm::DetSetVector<CTPPSDiamondLocalTrack> > inputDiamondTracks;
   iEvent.getByToken( diamondTrackToken_, inputDiamondTracks );
 
-  // prepare output
-  std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pDiamondOut( new std::vector<CTPPSLocalTrackLite>() );
-
   // process tracks from diamond detectors
   for ( const auto rpv : *inputDiamondTracks ) {
     const unsigned int rpId = rpv.detId();
     for ( const auto t : rpv ) {
       if ( !t.isValid() ) continue;
-      pDiamondOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma(), t.getT() );
+      pOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma(), t.getT() );
     }
   }
 
   // save output to event
-  iEvent.put( std::move( pDiamondOut ), "TimingDiamond" );
+  iEvent.put( std::move( pOut ) );
 }
 
 //----------------------------------------------------------------------------------------------------
