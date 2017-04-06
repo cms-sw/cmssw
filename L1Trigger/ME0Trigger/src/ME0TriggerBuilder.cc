@@ -11,6 +11,8 @@ const int ME0TriggerBuilder::max_chamber = ME0DetId::maxChamberId;
 
 ME0TriggerBuilder::ME0TriggerBuilder(const edm::ParameterSet& conf)
 {
+  config_ = conf;
+
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
     for (int cham = min_chamber; cham <= max_chamber; cham++)
@@ -25,7 +27,7 @@ ME0TriggerBuilder::ME0TriggerBuilder(const edm::ParameterSet& conf)
 	  << "]; skipping it... +++\n";
 	continue;
       }
-      tmb_[endc-1][cham-1].reset( new ME0Motherboard(endc, cham, conf) );
+      tmb_[endc-1][cham-1].reset( new ME0Motherboard(endc, cham, config_) );
     }
   }
 }

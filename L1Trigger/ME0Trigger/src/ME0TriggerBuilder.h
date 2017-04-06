@@ -45,6 +45,8 @@ class ME0TriggerBuilder
   static const int max_chamber;
 
   const ME0Geometry* me0_g;
+  
+  edm::ParameterSet config_;
 
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<ME0Motherboard> tmb_[MAX_ENDCAPS][MAX_CHAMBERS];
