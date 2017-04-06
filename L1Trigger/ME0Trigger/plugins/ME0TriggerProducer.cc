@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 ME0TriggerProducer::ME0TriggerProducer(const edm::ParameterSet& conf) 
 {
@@ -24,6 +26,10 @@ ME0TriggerProducer::~ME0TriggerProducer()
 
 void ME0TriggerProducer::produce(edm::Event& ev, const edm::EventSetup& setup) 
 {
+  edm::ESHandle<ME0Geometry> h_me0;
+  setup.get<MuonGeometryRecord>().get(h_me0);
+  trigBuilder_->setME0Geometry(&*h_me0);
+
   edm::Handle<ME0PadDigiCollection> me0PadDigis; 
   ev.getByToken(me0_pad_token_, me0PadDigis);
   const ME0PadDigiCollection *me0Pads = me0PadDigis.product();

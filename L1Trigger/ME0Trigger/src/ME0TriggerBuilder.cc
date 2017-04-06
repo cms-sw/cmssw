@@ -1,6 +1,8 @@
 #include "L1Trigger/ME0Trigger/src/ME0TriggerBuilder.h"
 #include "L1Trigger/ME0Trigger/src/ME0Motherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 const int ME0TriggerBuilder::min_endcap  = ME0DetId::minRegionId;
 const int ME0TriggerBuilder::max_endcap  = ME0DetId::maxRegionId;
@@ -32,19 +34,23 @@ ME0TriggerBuilder::~ME0TriggerBuilder()
 {
 }
 
-void ME0TriggerBuilder::build(const ME0PadDigiCollection* gemPads,
-					ME0TriggerDigiCollection& oc_trig)
+void ME0TriggerBuilder::build(const ME0PadDigiCollection* me0Pads,
+			      ME0TriggerDigiCollection& oc_trig)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
     for (int cham = min_chamber; cham <= max_chamber; cham++)
     {
       ME0Motherboard* tmb = tmb_[endc-1][cham-1].get();
-      
+      tmb->setME0Geometry(me0_g);
+
       // 0th layer means whole chamber.
       ME0DetId detid(endc, 0, cham, 0);
+
+      // Run processors only if chamber exists in geometry.
+      if (tmb == 0 || me0_g->chamber(detid) == 0) continue;
       
-      tmb->run(gemPads);
+      tmb->run(me0Pads);
       
       std::vector<ME0TriggerDigi> trigV = tmb->readoutTriggers();
       
