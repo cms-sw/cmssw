@@ -5,7 +5,6 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-#        'root://eoscms.cern.ch:1094//eos/totem/data/ctpps/run284036.root',
         '/store/data/Run2016H/ZeroBias/RAW/v1/000/281/010/00000/20B9B8C4-6F7E-E611-8B60-02163E013864.root'
     ),
 )
@@ -14,25 +13,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-# diamonds mapping
-#process.totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
-#    verbosity = cms.untracked.uint32(0),
-#    subSystem = cms.untracked.string("TimingDiamond"),
-#    configuration = cms.VPSet(
-#        # before diamonds inserted in DAQ
-#        cms.PSet(
-#            validityRange = cms.EventRange("1:min - 283819:max"),
-#            mappingFileNames = cms.vstring(),
-#            maskFileNames = cms.vstring()
-#        ),
-#        # after diamonds inserted in DAQ
-#        cms.PSet(
-#            validityRange = cms.EventRange("283820:min - 999999999:max"),
-#            mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"),
-#            maskFileNames = cms.vstring()
-#        )
-#    )
-#)
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
