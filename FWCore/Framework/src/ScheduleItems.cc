@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
@@ -23,19 +24,21 @@
 
 namespace edm {
   ScheduleItems::ScheduleItems() :
-      actReg_(new ActivityRegistry),
-      preg_(new SignallingProductRegistry),
-      branchIDListHelper_(new BranchIDListHelper),
-      thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
+      actReg_(std::make_shared<ActivityRegistry>()),
+      preg_(std::make_shared<SignallingProductRegistry>()),
+      branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+      thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
+      subProcessParentageHelper_(),
       act_table_(),
       processConfiguration_() {
   }
 
   ScheduleItems::ScheduleItems(ProductRegistry const& preg, SubProcess const& om) :
-      actReg_(new ActivityRegistry),
-      preg_(new SignallingProductRegistry(preg)),
-      branchIDListHelper_(new BranchIDListHelper),
-      thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
+      actReg_(std::make_shared<ActivityRegistry>()),
+      preg_(std::make_shared<SignallingProductRegistry>(preg)),
+      branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
+      thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
+      subProcessParentageHelper_(std::make_shared<SubProcessParentageHelper>()),
       act_table_(),
       processConfiguration_() {
 
@@ -141,6 +144,7 @@ namespace edm {
                      *preg_,
                      *branchIDListHelper_,
                      *thinnedAssociationsHelper_,
+                     subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
                      *act_table_,
                      actReg_,
                      processConfiguration(),

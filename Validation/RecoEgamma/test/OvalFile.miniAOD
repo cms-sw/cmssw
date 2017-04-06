@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="8_1_0_pre9_miniAOD_std">
-<var name="TEST_REF" value="8_1_0_pre9_std">
+<var name="TEST_NEW" value="9_0_0_pre4_2017_miniAOD_DQM_dev">
+<var name="TEST_REF" value="9_0_0_pre4_2017_DQM_dev">
 
-<var name="TAG_STARTUP" value="81X_mcRun2_asymptotic_v2">
+<var name="TAG_STARTUP" value="90X_upgrade2017_realistic_v6">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="81X_mcRun2_asymptotic_v2-v1">
+<var name="DD_COND_REF" value="90X_upgrade2017_realistic_v6-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 <!--var name="DD_RELEASE" value="CMSSW_8_0_0_pre2"-->
@@ -145,6 +145,18 @@ FullSim
       <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>  
     </environment>
   
+    <environment name="ValFullPt10Startup_gedGsfE">    
+      <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">      
+      <target name="dqm" cmd="electronDataDiscovery.py castor">
+      <target name="wget" cmd="electronWget.py castor">      
+      <target name="dd" cmd="electronDataDiscovery.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION_gedGsfE}.py">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">      
+      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>  
+    </environment>
+  
   <environment name="ValFullgedvsged">
   
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
@@ -172,6 +184,14 @@ FullSim
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">     
       <var name="BLUE_FILE" value="electronHistos.ValFullPt10Startup_UP15_gedGsfE.root">
       <var name="RED_FILE" value="electronHistos.ValFullPt10Startup_UP15_gedGsfE.root">
+      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+    </environment>
+
+    <environment name="ValgedvsgedFullPt10Startup_gedGsfE">  
+      <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">     
+      <var name="BLUE_FILE" value="electronHistos.ValFullPt10Startup_gedGsfE.root">
+      <var name="RED_FILE" value="electronHistos.ValFullPt10Startup_gedGsfE.root">
       <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
     </environment>
 

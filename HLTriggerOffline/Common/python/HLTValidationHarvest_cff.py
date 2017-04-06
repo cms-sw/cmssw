@@ -21,7 +21,7 @@ from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
-     +HLTMuonPostVal
+    +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
     + postProcessorHLTgsfTrackingSequence

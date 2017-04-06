@@ -21,12 +21,14 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
+process.task = cms.Task()
+
 ## load modules to produce the TtGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## load analyzer
 process.load("TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi")
@@ -37,5 +39,4 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path
-process.p1 = cms.Path(process.analyzeTopGenEvent)
-
+process.p1 = cms.Path(process.analyzeTopGenEvent, process.task)

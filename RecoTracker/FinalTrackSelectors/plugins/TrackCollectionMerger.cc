@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -14,10 +16,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/trackAlgoPriorityOrder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include<vector>
 #include<memory>
@@ -27,6 +30,7 @@ namespace {
    public:
     explicit TrackCollectionMerger(const edm::ParameterSet& conf) :
       collectionCloner(*this, conf, true),
+      priorityName_(conf.getParameter<std::string>("trackAlgoPriorityOrder")),
       m_foundHitBonus(conf.getParameter<double>("foundHitBonus")),
       m_lostHitPenalty(conf.getParameter<double>("lostHitPenalty")),
       m_shareFrac(conf.getParameter<double>("shareFrac")),
@@ -53,6 +57,7 @@ namespace {
       edm::ParameterSetDescription desc;
       desc.add<std::vector<edm::InputTag> >("trackProducers",std::vector<edm::InputTag>());
       desc.add<std::vector<std::string> >("inputClassifiers",std::vector<std::string>());
+      desc.add<std::string>("trackAlgoPriorityOrder", "trackAlgoPriorityOrder");
       desc.add<double>("shareFrac",.19);
       desc.add<double>("foundHitBonus",10.);
       desc.add<double>("lostHitPenalty",5.);
@@ -77,8 +82,9 @@ namespace {
     
     std::vector<edm::EDGetTokenT<MVACollection>> srcMVAs;
     std::vector<edm::EDGetTokenT<QualityMaskCollection>> srcQuals;
-
 	
+    std::string priorityName_;
+
     float m_foundHitBonus;
     float m_lostHitPenalty;
     float m_shareFrac;
@@ -101,9 +107,13 @@ namespace {
 
 namespace {
   
-  void  TrackCollectionMerger::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
+  void  TrackCollectionMerger::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
 
     TrackCollectionCloner::Producer producer(evt, collectionCloner);
+
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
+    es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    auto const & trackAlgoPriorityOrder = *priorityH;
 
     // load collections
     auto collsSize = srcColls.size();
@@ -193,7 +203,7 @@ namespace {
       auto seti = [&](unsigned int ii, unsigned int jj) {
 	selected[jj]=false;
 	selected[ii]=true;
-	if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
+	if (trackAlgoPriorityOrder.priority(oriAlgo[jj]) < trackAlgoPriorityOrder.priority(oriAlgo[ii])) oriAlgo[ii] = oriAlgo[jj];
 	algoMask[ii] |= algoMask[jj];
 	quals[ii] |= (1<<reco::TrackBase::confirmed);
 	algoMask[jj] = algoMask[ii];  // in case we keep discarded
@@ -224,7 +234,7 @@ namespace {
 	      constexpr unsigned int qmask =  (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity);
 	      if ( (quals[t1]&qmask) == (quals[t2]&qmask) ) {
 		// take first
-		if (trackAlgoPriorityOrder[algo[t1]] <= trackAlgoPriorityOrder[algo[t2]]) {
+		if (trackAlgoPriorityOrder.priority(algo[t1]) <= trackAlgoPriorityOrder.priority(algo[t2])) {
                   seti(t1,t2);    
 		} else {
                   seti(t2,t1);    

@@ -23,5 +23,18 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTight
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone
 
-updateHPSPFTaus = cms.Sequence()
-
+updateHPSPFTausTask = cms.Task(
+    hpsPFTauChargedIsoPtSum,
+    hpsPFTauNeutralIsoPtSum,
+    hpsPFTauPUcorrPtSum,
+    hpsPFTauNeutralIsoPtSumWeight,
+    hpsPFTauFootprintCorrection,
+    hpsPFTauPhotonPtSumOutsideSignalCone,
+    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits,
+    hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone
+)
+updateHPSPFTaus = cms.Sequence(updateHPSPFTausTask)

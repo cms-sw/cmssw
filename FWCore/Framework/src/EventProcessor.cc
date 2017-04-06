@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
@@ -569,6 +570,7 @@ namespace edm {
                                  preg(),
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 SubProcessParentageHelper(),
                                  *espController_,
                                  *actReg_,
                                  token,

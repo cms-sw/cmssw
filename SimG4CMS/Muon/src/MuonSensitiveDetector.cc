@@ -5,6 +5,7 @@
 #include "SimG4CMS/Muon/interface/MuonGEMFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
@@ -51,26 +52,28 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 
   LogDebug("MuonSimDebug") << "create MuonFrameRotation"<<std::endl;
 
+ //The constants take time to calculate and are needed by many helpers
+ MuonDDDConstants constants(cpv);
  if (detector->isEndcap()) {
    //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;
     theRotation=new MuonEndcapFrameRotation();
   } else if (detector->isRPC()) {
     //    cout << "MuonFrameRotation create MuonRPCFrameRotation"<<endl;
-    theRotation=new MuonRPCFrameRotation( cpv );
+    theRotation=new MuonRPCFrameRotation( constants );
   } else if (detector->isGEM()) {
     //    cout << "MuonFrameRotation create MuonGEMFrameRotation"<<endl;
-    theRotation=new MuonGEMFrameRotation( cpv );
+    theRotation=new MuonGEMFrameRotation( constants );
   } else if (detector->isME0()) {
     //    cout << "MuonFrameRotation create MuonME0FrameRotation"<<endl;
-    theRotation=new MuonME0FrameRotation( cpv );
+    theRotation=new MuonME0FrameRotation( constants );
   }  else {
     theRotation = 0;
   }
   LogDebug("MuonSimDebug") << "create MuonSlaveSD"<<std::endl;
   slaveMuon  = new MuonSlaveSD(detector,theManager);
   LogDebug("MuonSimDebug") << "create MuonSimHitNumberingScheme"<<std::endl;
-  numbering  = new MuonSimHitNumberingScheme(detector, cpv);
-  g4numbering = new MuonG4Numbering(cpv);
+  numbering  = new MuonSimHitNumberingScheme(detector, constants);
+  g4numbering = new MuonG4Numbering(constants);
   
 
   //

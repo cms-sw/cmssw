@@ -35,6 +35,8 @@ _muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
     MaxChi2 = cms.double(80.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 
 )
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForInOutBase, MinPtForHitRecoveryInGluedDet=1e9)
 muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxSagitta = cms.double(-1.)
 )
@@ -50,6 +52,8 @@ _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED
 )
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForOutInBase, MinPtForHitRecoveryInGluedDet=1e9)
 muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
     MaxSagitta = cms.double(-1.) 
 )

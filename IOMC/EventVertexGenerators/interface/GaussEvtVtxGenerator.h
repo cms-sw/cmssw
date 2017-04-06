@@ -21,9 +21,9 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
+  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  virtual TMatrixD* GetInvLorentzBoost() {
+  virtual TMatrixD const* GetInvLorentzBoost() const override {
 	  return 0;
   }
 

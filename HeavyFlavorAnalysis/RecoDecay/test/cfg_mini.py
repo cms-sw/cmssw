@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("bphAnalysis")
+
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
@@ -14,12 +17,12 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+patAlgosToolsTask.add(process.MEtoEDMConverter)
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 #
@@ -45,6 +48,6 @@ process.testBPHRecoDecay = cms.EDAnalyzer('TestBPHRecoDecay',
 )
 
 process.p = cms.Path(
-    process.testBPHRecoDecay
+    process.testBPHRecoDecay,
+    patAlgosToolsTask
 )
-

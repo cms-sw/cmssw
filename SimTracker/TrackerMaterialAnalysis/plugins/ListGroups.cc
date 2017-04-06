@@ -450,11 +450,9 @@ void
 ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
-  DDFilteredView fv(*hDdd);
 
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDCompOp::not_equals);
-  fv.addFilter(filter);
+  DDSpecificsHasNamedValueFilter filter{"TrackingMaterialGroup"};
+  DDFilteredView fv(*hDdd,filter);
 
   while (fv.next()) {
     // print the group name and full hierarchy of all items

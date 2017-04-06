@@ -12,15 +12,19 @@
   <Constant name="rminHE"      value="0.0*fm"/>
   <Constant name="rmaxHE"      value="19.0*cm"/>
   <Constant name="zminHE"      value="0.0*fm"/>
-  <Constant name="zmaxHE"      value="60.0*cm"/>
+  <Constant name="zmaxHE"      value="65.0*cm"/>
   <Constant name="rminAH"      value="0.0*fm"/>
   <Constant name="rmaxAH"      value="30.0*cm"/>
   <Constant name="zminAH"      value="0.0*fm"/>
   <Constant name="zmaxAH"      value="35.0*cm"/>
+  <Constant name="zgapEEFH"    value="5.0*cm"/>
+  <Constant name="zgapFHBH"    value="1.0*cm"/>
+  <Constant name="dzBlock"     value="40.0*mm"/>
   <Constant name="zposCalo"    value="1210.0*cm"/>
   <Constant name="zposEE"      value="-[zCalor]"/>
-  <Constant name="zposHE"      value="[zposEE]+[zmaxEE]"/>
-  <Constant name="zposAH"      value="[zposHE]+[zmaxHE]"/>
+  <Constant name="zposHE"      value="[zposEE]+[zmaxEE]+[zgapEEFH]"/>
+  <Constant name="zposAH"      value="[zposHE]+[zmaxHE]+[zgapFHBH]"/>
+  <Constant name="zposBlock"   value="[zposEE]+[zmaxEE]+[dzBlock]/2"/>
   <Constant name="WaferW"      value="123.7*mm"/>
 </ConstantsSection>
 
@@ -49,6 +53,7 @@
     <ZSection z="[zminAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
     <ZSection z="[zmaxAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
   </Polycone>
+  <Tubs name="HGCalBlock" rMin="[rminEE]" rMax="[rmaxEE]" dz="[dzBlock]/2" startPhi="0*deg" deltaPhi="360*deg"/>
  </SolidSection>
 
 <LogicalPartSection label="hgcal.xml">
@@ -68,6 +73,10 @@
     <rSolid name="HGCalAH"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
+  <LogicalPart name="HGCalBlock" category="unspecified">
+    <rSolid name="HGCalBlock"/>
+    <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
 </LogicalPartSection>
 
 <PosPartSection label="hgcal.xml">
@@ -80,6 +89,12 @@
     <rParent name="hgcal:HGCal"/>
     <rChild name="hgcal:HGCalEE"/>
     <Translation x="0*fm" y="0*fm" z="[zposEE]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalBlock"/>
+    <Translation x="0*fm" y="0*fm" z="[zposBlock]"/>
     <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">

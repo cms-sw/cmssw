@@ -11,8 +11,10 @@
 
 //#define LOCAL_DEBUG
 
-MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv){
-  MuonDDDConstants muonConstants(cpv);
+MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv):
+  MuonG4Numbering(MuonDDDConstants(cpv)) {}
+
+MuonG4Numbering::MuonG4Numbering(const MuonDDDConstants& muonConstants){
   theLevelPart=muonConstants.getValue("level");
   theSuperPart=muonConstants.getValue("super");
   theBasePart=muonConstants.getValue("base");

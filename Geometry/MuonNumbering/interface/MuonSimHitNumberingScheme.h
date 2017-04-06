@@ -15,12 +15,14 @@
 class MuonBaseNumber;
 class MuonSubDetector;
 class DDCompactView; 
+class MuonDDDConstants;
 
 class MuonSimHitNumberingScheme : public MuonNumberingScheme {
 
  public:
 
   MuonSimHitNumberingScheme(MuonSubDetector*, const DDCompactView& cpv);
+  MuonSimHitNumberingScheme(MuonSubDetector*, const MuonDDDConstants& muonConstants);
   ~MuonSimHitNumberingScheme();
   
   virtual int baseNumberToUnitNumber(const MuonBaseNumber&);

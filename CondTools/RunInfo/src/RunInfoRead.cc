@@ -117,10 +117,9 @@ RunInfoRead::readData( const std::string & runinfo_schema
       edm::LogInfo( "RunInfoReader" ) << osstart.str() << std::endl;
     }
     else {
-      edm::LogInfo( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: run " << r_number
-                                      << " start time not found." << std::endl;
-      temp_sum.m_start_time_str = "null";
-      temp_sum.m_start_time_ll = -1;
+      std::stringstream errMsg;
+      errMsg << "[RunInfoRead::" << __func__ << "]: run " << r_number << " start time not found.";
+      throw std::runtime_error(errMsg.str());
     }
     
     //new query to obtain the stop_time

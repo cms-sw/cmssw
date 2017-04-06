@@ -2,6 +2,7 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -11,7 +12,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
@@ -87,6 +92,13 @@ namespace edm {
   }
 
   void PoolOutputModule::beginJob() {
+    Service<ConstProductRegistry> reg;
+    for(auto const& prod : reg->productList()) {
+      BranchDescription const& desc = prod.second;
+      if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
+        producedBranches_.emplace_back(desc.branchID());
+      }
+    }
   }
 
   std::string const& PoolOutputModule::currentFileName() const {
@@ -187,27 +199,11 @@ namespace edm {
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
     if(isFileOpen()) {
       //Faster to read ChildrenBranches directly from input
-      // file than to do it every event
-      
-      //If this is not the first file, we should clear this list since
-      // we do not need to worry about branches from the previous file
-      branchChildrenReadFromInput_.clear();
-
-      
-      branchChildrenReadFromInput_.reserve(fb.branchChildren().childLookup().size());
-      
+      // file than to build it every event
       auto const& branchToChildMap = fb.branchChildren().childLookup();
-      SelectedProducts const& products = keptProducts()[InEvent];
-      for(auto const& product : products) {
-        BranchDescription const& bd = *product.first;
-        BranchID const& bid = bd.branchID();
-        auto it = branchToChildMap.find(bid);
-        if(it != branchToChildMap.end()) {
-          branchChildrenReadFromInput_.push_back(it->first);
-          branchChildren_.insertEmpty(it->first);
-          for(auto const& child: it->second) {
-            branchChildren_.insertChild(it->first,child);
-          }
+      for (auto const& parentToChildren : branchToChildMap) {
+        for (auto const& child : parentToChildren.second) {
+          branchChildren_.insertChild(parentToChildren.first, child);
         }
       }
       rootOutputFile_->beginInputFile(fb, remainingEvents());
@@ -287,7 +283,6 @@ namespace edm {
     writeThinnedAssociationsHelper();
     writeProductDependencies(); //branchChildren used here
     branchChildren_.clear();
-    branchChildrenReadFromInput_.clear();
     finishEndFile();
 
     doExtrasAfterCloseFile();
@@ -352,27 +347,32 @@ namespace edm {
   }
 
   void
+  PoolOutputModule::updateBranchParentsForOneBranch(
+    ProductProvenanceRetriever const* provRetriever,
+    BranchID const& branchID) {
+
+    ProductProvenance const* provenance = provRetriever->branchIDToProvenance(branchID);
+    if (provenance != nullptr) {
+      BranchParents::iterator it = branchParents_.find(branchID);
+      if (it == branchParents_.end()) {
+        it = branchParents_.insert(std::make_pair(branchID,
+                                                  std::set<ParentageID>())).first;
+      }
+      it->second.insert(provenance->parentageID());
+    }
+  }
+
+  void
   PoolOutputModule::updateBranchParents(EventForOutput const& e) {
+
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
-    SelectedProducts const& products = keptProducts()[InEvent];
-    for(auto const& product : products) {
-      BranchDescription const& bd = *product.first;
-      BranchID const& bid = bd.branchID();
-      //Only need to keep track of data products made in this
-      // process since we copied the ones from the source when
-      // the input file was open
-      if(not std::binary_search(branchChildrenReadFromInput_.begin(),
-                            branchChildrenReadFromInput_.end(),bid)) {
-      
-        ProductProvenance const* provenance = provRetriever->branchIDToProvenance(bid);
-        if(provenance != nullptr) {
-          BranchParents::iterator it = branchParents_.find(bid);
-          if(it == branchParents_.end()) {
-            it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
-          }
-          it->second.insert(provenance->parentageID());
-          branchChildren_.insertEmpty(bid);
-        }
+    for (auto const& bid : producedBranches_) {
+      updateBranchParentsForOneBranch(provRetriever, bid);
+    }
+    SubProcessParentageHelper const* helper = subProcessParentageHelper();
+    if (helper) {
+      for (auto const& bid : subProcessParentageHelper()->producedProducts()) {
+        updateBranchParentsForOneBranch(provRetriever, bid);
       }
     }
   }

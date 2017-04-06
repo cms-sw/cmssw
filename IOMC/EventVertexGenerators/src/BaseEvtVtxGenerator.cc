@@ -28,8 +28,6 @@ using namespace CLHEP;
 
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-	: fVertex(0), boost_(0), fTimeOffset(0),
-	  sourceLabel(pset.getParameter<edm::InputTag>("src"))
 {
    Service<RandomNumberGenerator> rng;
    if ( ! rng.isAvailable()) {
@@ -40,16 +38,12 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
           "in the configuration file or remove the modules that require it.";
    }
 
-   consumes<edm::HepMCProduct>(sourceLabel);
+   sourceToken=consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"));
    produces<edm::HepMCProduct>();
 }
 
 BaseEvtVtxGenerator::~BaseEvtVtxGenerator() 
 {
-   delete fVertex ;
-   if (boost_ != nullptr ) delete boost_;
-   // no need since now it's done in HepMCProduct
-   // delete fEvt ;
 }
 
 void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
@@ -59,7 +53,7 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 
    Handle<HepMCProduct> HepUnsmearedMCEvt ;
    
-   evt.getByLabel( sourceLabel, HepUnsmearedMCEvt ) ;
+   evt.getByToken( sourceToken, HepUnsmearedMCEvt ) ;
    
    // Copy the HepMC::GenEvent
    HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
