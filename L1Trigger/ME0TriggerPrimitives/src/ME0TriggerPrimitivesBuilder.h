@@ -18,8 +18,8 @@ class ME0TriggerPrimitivesBuilder
  public:
 
   /** Configure the algorithm via constructor.
-   *  Receives ParameterSet percolated down from EDProducer which owns this
-   *  Builder.
+   *  Receives ParameterSet percolated down from 
+   *  EDProducer which owns this Builder.
    */
   explicit ME0TriggerPrimitivesBuilder(const edm::ParameterSet&);
 
@@ -28,8 +28,9 @@ class ME0TriggerPrimitivesBuilder
   /** Build LCTs in each chamber and fill them into output collections. */
   void build(const ME0PadDigiCollection* me0Pads, ME0LCTDigiCollection& oc_lct);
   
-  /** Max values of trigger labels for all ME0s; used to construct TMB
-   *  processors. */
+  /** Max values of trigger labels for all ME0s; 
+   *  used to construct TMB processors. 
+   */
   enum trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
 
  private:

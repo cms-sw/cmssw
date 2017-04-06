@@ -12,7 +12,6 @@ ME0Motherboard::ME0Motherboard(unsigned endcap, unsigned chamber,
 ME0Motherboard::ME0Motherboard() :
   theEndcap(1), theChamber(1) 
 {
-  // Constructor used only for testing.
   infoV = 2;
 }
 
@@ -71,6 +70,5 @@ bool ME0Motherboard::sortByQuality(const ME0LCTDigi& lct1, const ME0LCTDigi& lct
 // compare LCTs by GEM bending angle
 bool ME0Motherboard::sortByME0Dphi(const ME0LCTDigi& lct1, const ME0LCTDigi& lct2) 
 { 
-  //  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
   return true;
 }

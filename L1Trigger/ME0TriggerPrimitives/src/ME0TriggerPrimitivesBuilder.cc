@@ -2,17 +2,11 @@
 #include "L1Trigger/ME0TriggerPrimitives/src/ME0Motherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//------------------
-// Static variables
-//------------------
 const int ME0TriggerPrimitivesBuilder::min_endcap  = ME0DetId::minRegionId;
 const int ME0TriggerPrimitivesBuilder::max_endcap  = ME0DetId::maxRegionId;
 const int ME0TriggerPrimitivesBuilder::min_chamber = ME0DetId::minChamberId;
 const int ME0TriggerPrimitivesBuilder::max_chamber = ME0DetId::maxChamberId;
 
-//-------------
-// Constructor
-//-------------
 ME0TriggerPrimitivesBuilder::ME0TriggerPrimitivesBuilder(const edm::ParameterSet& conf)
 {
   for (int endc = min_endcap; endc <= max_endcap; endc++)
@@ -34,9 +28,6 @@ ME0TriggerPrimitivesBuilder::ME0TriggerPrimitivesBuilder(const edm::ParameterSet
   }
 }
 
-//------------
-// Destructor
-//------------
 ME0TriggerPrimitivesBuilder::~ME0TriggerPrimitivesBuilder()
 {
 }
@@ -59,9 +50,8 @@ void ME0TriggerPrimitivesBuilder::build(const ME0PadDigiCollection* gemPads,
       
       if (!lctV.empty()) {
 	LogTrace("L1ME0Trigger")
-	  << "ME0TriggerPrimitivesBuilder got results in " <<detid;
-	
-	LogTrace("L1ME0Trigger")
+	  << "ME0TriggerPrimitivesBuilder got results in " <<detid
+	  << std::endl 
 	  << "Put " << lctV.size() << " LCT digi"
 	  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
 	oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
