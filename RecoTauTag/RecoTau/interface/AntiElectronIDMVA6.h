@@ -20,8 +20,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -117,17 +115,11 @@ class AntiElectronIDMVA6
                    Float_t ElecMvaInDeltaEta
                   );
 
-   // this function can be called for all categories
+   // CV: this function can be called for all categories
    double MVAValue(const reco::PFTau& thePFTau, 
 		   const reco::GsfElectron& theGsfEle);
-   // this function can be called for category 1 only !!
+   // CV: this function can be called for category 1 only !!
    double MVAValue(const reco::PFTau& thePFTau);
-
-   // this function can be called for all categories
-   double MVAValue(const pat::Tau& theTau, 
-		   const pat::Electron& theEle);
-   // this function can be called for category 1 only !!
-   double MVAValue(const pat::Tau& theTau);
    
  private:   
 

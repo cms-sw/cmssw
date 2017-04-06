@@ -30,6 +30,7 @@
  * Authors :  Evan Friis (UC Davis), Simone Gennai (SNS)
  */
 
+// #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,9 +41,6 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
@@ -110,8 +108,6 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator>
   PFTauDiscriminationProducerBase;
-typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>
-  PATTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator>
   CaloTauDiscriminationProducerBase;
 
@@ -122,6 +118,6 @@ template<class TauType> std::string getProducerString()
   // this generic one shoudl never be called.
   // these are specialized in TauDiscriminationProducerBase.cc
   throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used.  You must use either PFTau, PATTau or CaloTaus.";
+      << "Unsupported TauType used.  You must use either PFTau or CaloTaus.";
 }
 #endif
