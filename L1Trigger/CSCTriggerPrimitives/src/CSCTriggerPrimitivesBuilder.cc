@@ -16,16 +16,15 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
@@ -170,8 +169,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					GEMCoPadDigiCollection& oc_gemcopad)
 {
   // CSC geometry.
-  CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
-
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
     for (int stat = min_station; stat <= max_station; stat++)
@@ -182,21 +179,21 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
         for (int subs = min_subsector; subs <= numsubs; subs++)
         {
           for (int cham = min_chamber; cham <= max_chamber; cham++)
-          {
-            
+          {           
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             
             if (disableME42 && stat==4 && ring==2) continue;
 
             CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].get();
-
-            // Run processors only if chamber exists in geometry.
-            if (tmb == 0 || theGeom->chamber(endc, stat, sect, subs, cham) == 0) continue;
-
+            tmb->setCSCGeometry(csc_g);
+	    
             int chid = CSCTriggerNumbering::chamberFromTriggerLabels(sect, subs, stat, cham);
 
             // 0th layer means whole chamber.
             CSCDetId detid(endc, stat, ring, chid, 0);
+
+            // Run processors only if chamber exists in geometry.
+            if (tmb == 0 || csc_g->chamber(detid) == 0) continue;
 
             // Skip chambers marked as bad (usually includes most of ME4/2 chambers;
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)

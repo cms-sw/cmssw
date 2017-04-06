@@ -27,25 +27,27 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class CSCTriggerPrimitivesBuilder;
 
-class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::SharedResources>
+class CSCTriggerPrimitivesProducer : public edm::global::EDProducer<>
 {
  public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer();
 
   //virtual void beginRun(const edm::EventSetup& setup);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
   int iev; // event number
  
+  edm::ParameterSet config_;
+
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag gemPadDigiProducer_;
@@ -61,7 +63,6 @@ class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
   bool checkBadChambers_;
   bool runME11ILT_;
   bool runME21ILT_;
-  std::unique_ptr<CSCTriggerPrimitivesBuilder> lctBuilder_;
 };
 
 #endif

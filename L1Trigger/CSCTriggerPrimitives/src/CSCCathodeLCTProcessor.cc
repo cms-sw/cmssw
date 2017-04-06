@@ -25,10 +25,10 @@
 //-----------------------------------------------------------------------------
 
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -558,9 +558,11 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   // Get the number of strips and stagger of layers for the given chamber.
   // Do it only once per chamber.
   if (numStrips == 0) {
-    CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
-    CSCChamber* chamber = theGeom->chamber(theEndcap, theStation, theSector,
-					      theSubsector, theTrigChamber);
+    int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+    int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+    CSCDetId detid(theEndcap, theStation, ring, chid, 0);    
+    auto chamber = csc_g->chamber(detid);
+
     if (chamber) {
       numStrips = chamber->layer(1)->geometry()->numberOfStrips();
       // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.

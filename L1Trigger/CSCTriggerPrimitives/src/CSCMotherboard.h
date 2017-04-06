@@ -38,6 +38,8 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
+class CSCGeometry;
+
 class CSCMotherboard
 {
  public:
@@ -74,6 +76,8 @@ class CSCMotherboard
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alct;
 
@@ -94,6 +98,8 @@ class CSCMotherboard
   const unsigned theSubsector;
   const unsigned theTrigChamber;
   unsigned theRing;
+
+  const CSCGeometry* csc_g;
 
   /** Flag for MTCC data. */
   bool isMTCC;

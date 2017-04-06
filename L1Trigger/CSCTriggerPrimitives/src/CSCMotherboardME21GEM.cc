@@ -1,10 +1,10 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+
 #include <iomanip> 
 #include "boost/container/flat_set.hpp"
 
@@ -184,10 +184,11 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     gemGeometryAvailable = true;
   }
 
-  // retrieve CSCChamber geometry                                                                                                                                       
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  const CSCChamber* cscChamber(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
-  const CSCDetId csc_id(cscChamber->id());
+  // retrieve CSCChamber geometry                                                                                            
+  int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+  int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+  const CSCDetId csc_id(theEndcap, theStation, ring, chid, 0);    
+  const CSCChamber* cscChamber = csc_g->chamber(csc_id);
 
   if (runME21ILT_){
     

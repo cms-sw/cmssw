@@ -11,8 +11,8 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 class CSCGeometry;
 class CSCChamber;

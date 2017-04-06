@@ -34,9 +34,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a      = 1;
@@ -299,6 +300,11 @@ void CSCMotherboard::run(
  const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
   // Debug version.  -JM
   clear();
+
+  // set geometry
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alct->run(w_times);            // run anode LCT
   clct->run(hs_times, ds_times); // run cathodeLCT
 
@@ -347,6 +353,11 @@ void
 CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc) {
   clear();
+
+  // set geometry
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   if (alct && clct) {
     {
       std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT

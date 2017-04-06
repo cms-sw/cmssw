@@ -1,10 +1,10 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCRollSpecs.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
+
 #include "boost/container/flat_set.hpp"
 
 const double CSCMotherboardME3141RPC::lut_wg_me31_eta_odd[96][2] = {
@@ -203,10 +203,11 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   }
   const bool hasCorrectRPCGeometry((not rpcGeometryAvailable) or (rpcGeometryAvailable and not hasRE31andRE41()));
 
-  // retrieve CSCChamber geometry                                                                                                                                       
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  const CSCChamber* cscChamber(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
-  const CSCDetId csc_id(cscChamber->id());
+  // retrieve CSCChamber geometry                                                                                            
+  int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+  int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+  const CSCDetId csc_id(theEndcap, theStation, ring, chid, 0);    
+  const CSCChamber* cscChamber = csc_g->chamber(csc_id);
 
   // trigger geometry
   const CSCLayer* keyLayer(cscChamber->layer(3));

@@ -1,11 +1,10 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <DataFormats/Math/interface/deltaPhi.h>
-#include <DataFormats/Math/interface/normalizedPhi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+
 #include <cmath>
 #include <tuple>
 #include <set>
@@ -375,10 +374,11 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   for (int b=0;b<20;b++)
     used_clct_mask[b] = used_clct_mask_1a[b] = 0;
 
-  // retrieve CSCChamber geometry                                                                                                                                       
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  const CSCChamber* cscChamberME1b(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
-  const CSCDetId me1bId(cscChamberME1b->id());
+  // retrieve CSCChamber geometry                                                                                            
+  int ring = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+  int chid = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
+  const CSCDetId me1bId(theEndcap, theStation, ring, chid, 0);    
+  const CSCChamber* cscChamberME1b = csc_g->chamber(me1bId);
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
