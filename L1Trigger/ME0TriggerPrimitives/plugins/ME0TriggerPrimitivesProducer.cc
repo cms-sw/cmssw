@@ -3,11 +3,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
 #include "DataFormats/GEMDigi/interface/ME0LCTDigiCollection.h"
-
 
 ME0TriggerPrimitivesProducer::ME0TriggerPrimitivesProducer(const edm::ParameterSet& conf) 
 {
@@ -28,17 +24,9 @@ ME0TriggerPrimitivesProducer::~ME0TriggerPrimitivesProducer()
 
 void ME0TriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) 
 {
-  edm::ESHandle<ME0Geometry> h;
-  setup.get<MuonGeometryRecord>().get(h);
-  ME0TriggerGeometry::setGeometry(h);
-  lctBuilder_->setME0Geometry(&*h);
-  
-  const ME0PadDigiCollection *me0Pads = nullptr;
-  if (!me0PadDigiProducer_.label().empty()) {
-    edm::Handle<ME0PadDigiCollection> me0PadDigis; 
-    ev.getByToken(me0_pad_token_, me0PadDigis);
-    me0Pads = me0PadDigis.product();
-  }
+  edm::Handle<ME0PadDigiCollection> me0PadDigis; 
+  ev.getByToken(me0_pad_token_, me0PadDigis);
+  const ME0PadDigiCollection *me0Pads = me0PadDigis.product();
   
   // Create empty collection
   std::unique_ptr<ME0LCTDigiCollection> oc_lct(new ME0LCTDigiCollection);
