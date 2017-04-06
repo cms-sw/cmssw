@@ -7,8 +7,6 @@
  * \authors: Sam Higginbotham shiggib@cern.ch and Chris Palmer capalmer@cern.ch
  * 
  *
- * A new comment in the description to see if GH will pick up the change 
- *
  */
 #include <algorithm>
 #include <string>
@@ -64,7 +62,6 @@ static constexpr unsigned int nEmBX=3564;//Empty BX to fill with counts
         }
 
       private:
-        //We are going to stick with vector for the moment - speed might be faster later. 
         std::vector<std::vector<int> > m_counts;
         std::vector<int> m_events;
         std::vector<int> m_ModID;

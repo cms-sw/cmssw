@@ -32,7 +32,6 @@ AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
     fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters").getParameter<edm::InputTag>("pixelClusterLabel");
     trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters").getUntrackedParameter<std::string>("trigstring","alcaPCC");
 
-    //std::cout<<"A Print Statement"<<std::endl;
     ftotalevents = 0;
     countLumi_ = 0;
     beginLumiOfPCC_ = endLumiOfPCC_ = -1;
@@ -108,7 +107,7 @@ void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, c
     if (countLumi_%resetNLumi_!=0) return;
 
     //Saving the PCC object 
-    std::cout<<"Saving Object "<<std::endl;
+    //std::cout<<"Saving Object "<<std::endl;
     lumiSeg.put(std::move(thePCCob), std::string(trigstring_)); 
 
 }
