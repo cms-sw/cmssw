@@ -322,8 +322,11 @@ HigPhotonJetHLTOfflineSource::endRun(const edm::Run & iRun,
 {
   // Normalize to the total number of events in the run
   TH2F* h = trigvsnvtx_->getTH2F();
-  double norm = evtsrun_*hltPathsToCheck_.size()/h->Integral(); 
-  h->Scale(norm);
+  double norm=0.;
+  if ( h->Integral() > 0. ) {
+    norm = evtsrun_*hltPathsToCheck_.size()/h->Integral(); 
+    h->Scale(norm);
+  }
   if (verbose_) {
     std::cout << "xshi:: endRun total number of events: " << evtsrun_
   	      << ", integral = " << h->Integral()
