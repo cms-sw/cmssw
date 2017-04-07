@@ -8,7 +8,7 @@ frame f_legend;
 
 void CompareOne(string tag, string f_file, string f_obj, string rpIdTag)
 {
-	string p_file = "../ctpps-optics/test/test.root";
+	string p_file = "../../ctpps_optics/test/test.root";
 
 	NewPad("x\ung{mm}", "$\xi$");
 
@@ -19,8 +19,8 @@ void CompareOne(string tag, string f_file, string f_obj, string rpIdTag)
 	string p_dir = tag;
 	draw(scale(1e3, -1), RootGetObject(p_file, "version3/"+p_dir+"/g_xi_vs_x"), magenta+1pt, "validation");
 
-	string simu_file = "test_reconstruction.root";
-	draw(scale(1e3, 1), RootGetObject(simu_file, "g_xi_vs_x_RP" + rpIdTag), "d");
+	string simu_file = "../get_optical_functions.root";
+	draw(scale(1e3, 1), RootGetObject(simu_file, "RP" + rpIdTag + "/g_xi_vs_x"), "l", black+dashed+1.5pt);
 
 	f_legend = BuildLegend();
 
