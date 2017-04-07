@@ -82,7 +82,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
  private:
    void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
-   void          fillArbitrationInfo( reco::MuonCollection* );
+   void          fillArbitrationInfo( reco::MuonCollection*, unsigned int muonType = reco::Muon::TrackerMuon );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon,
 				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				    reco::IsoDeposit& jetDep);
