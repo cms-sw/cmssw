@@ -1,8 +1,6 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/CrossingFrame"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/HepMCCandidate"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
