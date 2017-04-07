@@ -1,6 +1,6 @@
-#ifndef PCC_h
-#define PCC_h
-/** \class reco::PCC
+#ifndef PCC_PCC_h
+#define PCC_PCC_h
+/** \class reco::PixelClusterCounts
  *  
  * Reconstructed PCC object that will contain the moduleID, BX, and counts.
  *
@@ -15,12 +15,12 @@
 #include <vector>
 
 namespace reco {
-class PCC {
+class PixelClusterCounts {
 static constexpr unsigned int nEmBX=3564;//Empty BX to fill with counts
     public:
-        PCC() : m_events(nEmBX){}
+        PixelClusterCounts() : m_events(nEmBX){}
         ////////////////////////////////////////////
-        void Increment(int mD,int BXid,int count){
+        void increment(int mD,int BXid,int count){
             std::vector<int>::iterator it;
             it = std::find(m_ModID.begin(), m_ModID.end(), mD);
             size_t modIndex = it - m_ModID.begin();
