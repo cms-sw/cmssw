@@ -30,7 +30,8 @@ charmTagsComputerCvsL = cms.ESProducer(
    useAdaBoost = cms.bool(False)
    )
 
-charmTagsComputerCvsL.slComputerCfg.correctVertexMass = True
+charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(charmTagsComputerCvsL, weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'))
+phase1Pixel.toModify(charmTagsComputerCvsL, slComputerCfg = dict(correctVertexMass = True))
