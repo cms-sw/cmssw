@@ -118,73 +118,52 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     const spike_cleaning& clean = _thresholds.find(hitlayer)->second;    
     if( rechit.energy() < clean._singleSpikeThresh ) continue;
 
-
-
     //Fix needed for HF.  Here, we find the (up to) five companion rechits 
     //to work in conjunction with the neighbours4() implementation below for the full HF surrounding energy
     float compsumE = 0.0;
-    if ((hitlayer==PFLayer::HF_EM || hitlayer==PFLayer::HF_HAD))
-	{
+    if ((hitlayer==PFLayer::HF_EM || hitlayer==PFLayer::HF_HAD)) {
+      int comp = 1;
+      if (hitlayer==PFLayer::HF_EM) comp = 2;
+      const HcalDetId& detid = (HcalDetId)rechit.detId();
+      int heta = detid.ieta();
+      int hphi = detid.iphi();
+      
+      //At eta>39, phi segmentation changes 
+      int predphi =2;
+      if (std::abs(heta)>39) predphi=4;
 
-	int comp = 1;
-    	if (hitlayer==PFLayer::HF_EM) comp = 2;
+      int curphiL = hphi-predphi;
+      int curphiH = hphi+predphi;
 
-	int predphi =2;
+      //HcalDetId valid phi range (1-72)
+      while (curphiL<0) curphiL+=72;
+      while (curphiH>72) curphiH-=72;
 
-	//int comp1 = std::abs(hitlayer-13);
+      std::pair<std::vector<int>, std::vector<int>>  phietas({heta,heta+1,heta-1,heta,heta},{hphi,hphi,hphi,curphiL,curphiH});
 
-	const HcalDetId& detid = (HcalDetId)rechit.detId();
-	std::vector<uint32_t> rawDetIds;
-	int heta = detid.ieta();
-	int hphi = detid.iphi();
-	
-	//At eta>39, phi segmentation changes 
-	if (std::abs(heta)>39) predphi=4;
+      std::vector<uint32_t> rawDetIds;
+      for(int in=0;in<5;in++) {
+        HcalDetId tempID (HcalForward, phietas.first[in], phietas.second[in], comp);
+        rawDetIds.push_back(tempID.rawId());
+      }
 
- 	int curphiL = hphi-predphi;
-	int curphiH = hphi+predphi;
-
-	//HcalDetId valid phi range (1-72)
-	if (predphi>abs(hphi) or predphi>abs(72-hphi))
-		{
-		while (curphiL-predphi<0) curphiL+=72;
-		while (curphiH+predphi>72) curphiH-=72;
-		}
-
-	std::pair<std::vector<int>, std::vector<int>>  phietas({heta,heta+1,heta-1,heta,heta},{hphi,hphi,hphi,curphiL,curphiH});
-	for(int in=0;in<5;in++)	
-		{
-        	HcalDetId tempID (HcalForward, phietas.first[in], phietas.second[in], comp);
-		rawDetIds.push_back(tempID.rawId());
-		}
-
-	for( const auto& jdx : ordered_hits ) 
-		{
-			const unsigned j = jdx;
-			const reco::PFRecHit& matchrechit = hits[j];
-  			for( const auto& iID : rawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
-
-		}
-
-	}
-
-
-
-
+      for( const auto& idx : ordered_hits ) {
+        const unsigned i = idx;
+        const reco::PFRecHit& matchrechit = hits[i];
+        for( const auto& iID : rawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
+      }
+    }
+    //End of fix needed for HF
 
     const double rhenergy = rechit.energy();
     // single spike cleaning
     auto const & neighbours4 = rechit.neighbours4();
-    double surroundingEnergy = compsumE;//rechit.energy();
-    double neighbourEnergy = 0.0;
-    double layerEnergy = 0.0;
+    double surroundingEnergy = compsumE;
     for( auto k : neighbours4 ) {
       if( !mask[k] ) continue;
       const auto & neighbour = hits[k];
       const double sum = neighbour.energy(); //energyUp is just rechit energy?
       surroundingEnergy += sum;
-      neighbourEnergy   += sum;
-      layerEnergy       += neighbour.energy();
     }    
     //   wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
     // Fraction 1 is the balance between the hit and its neighbours 
