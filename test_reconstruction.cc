@@ -304,6 +304,13 @@ int main(int argc, const char **argv)
   if (protonReconstruction.Init(file_optics) != 0)
     return 1;
 
+  // prepare plots - hit distributions
+  map<unsigned int, TH2D*> m_rp_h2_y_vs_x;
+  for (unsigned int rpId : { 2, 3, 102, 103} )
+  {
+    m_rp_h2_y_vs_x[rpId] = new TH2D("", ";x;y", 100, 0., 30E-3, 100, -10E-3, +10E-3);
+  }
+
   // prepare plots - histograms
   TH1D *h_de_vtx_x_45 = new TH1D("h_de_vtx_x_45", ";vtx_{x}^{reco,45} - vtx_{x}^{sim}", 100, -40E-6, +40E-6);
   TH1D *h_de_vtx_x_56 = new TH1D("h_de_vtx_x_56", ";vtx_{x}^{reco,56} - vtx_{x}^{sim}", 100, -40E-6, +40E-6);
@@ -351,10 +358,6 @@ int main(int argc, const char **argv)
   
   TProfile *p_de_xi_vs_xi_45 = new TProfile("p_de_xi_vs_xi_45", ";#xi;#Delta#xi^{45}", 20, 0., 0.20);
   TProfile *p_de_xi_vs_xi_56 = new TProfile("p_de_xi_vs_xi_56", ";#xi;#Delta#xi^{56}", 20, 0., 0.20);
-
-  map<unsigned int, TGraph *> m_g_xi_vs_x;
-  for (unsigned int rpId : {2, 3, 102, 103})
-    m_g_xi_vs_x[rpId] = new TGraph();
 
   // prepare output
   TFile *f_out = TFile::Open(file_output.c_str(), "recreate");
@@ -468,6 +471,12 @@ int main(int argc, const char **argv)
     }
 
     // fill plots
+    for (const auto it : tracks_45)
+      m_rp_h2_y_vs_x[it.first]->Fill(it.second.x, it.second.y);
+
+    for (const auto it : tracks_56)
+      m_rp_h2_y_vs_x[it.first]->Fill(it.second.x, it.second.y);
+
     if (proton_45.valid)
     {
       const double de_vtx_x = proton_45.vtx_x - vtx_x;
@@ -521,15 +530,18 @@ int main(int argc, const char **argv)
       p_de_th_y_vs_xi_56->Fill(xi_56, de_th_y);
       p_de_xi_vs_xi_56->Fill(xi_56, de_xi);
     }
-
-    for (const auto it : tracks_45)
-      m_g_xi_vs_x[it.first]->SetPoint(m_g_xi_vs_x[it.first]->GetN(), it.second.x, xi_45);
-
-    for (const auto it : tracks_56)
-      m_g_xi_vs_x[it.first]->SetPoint(m_g_xi_vs_x[it.first]->GetN(), it.second.x, xi_56);
   }
 
   // save plots
+  gDirectory = f_out;
+
+  for (const auto &it : m_rp_h2_y_vs_x)
+  {
+    char buf[100];
+    sprintf(buf, "h2_y_vs_x_RP%u", it.first);
+    it.second->Write(buf);
+  }
+
   gDirectory = f_out->mkdir("sector 45");
   h_de_vtx_x_45->Write();
   h_de_vtx_y_45->Write();
@@ -573,14 +585,6 @@ int main(int argc, const char **argv)
   ProfileToRMSGraph(p_de_th_x_vs_xi_56, "g_rms_de_th_x_vs_xi_56")->Write();
   ProfileToRMSGraph(p_de_th_y_vs_xi_56, "g_rms_de_th_y_vs_xi_56")->Write();
   ProfileToRMSGraph(p_de_xi_vs_xi_56, "g_rms_de_xi_vs_xi_56")->Write();
-
-  gDirectory = f_out;
-  for (const auto it : m_g_xi_vs_x)
-  {
-    char buf[100];
-    sprintf(buf, "g_xi_vs_x_RP%u", it.first);
-    it.second->Write(buf);
-  }
 
   // clean up
   delete f_out;

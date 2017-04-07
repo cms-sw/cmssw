@@ -1,6 +1,8 @@
 #ifndef _beam_conditions_h_
 #define _beam_conditions_h_
 
+#include <cstdio>
+
 enum LHCSector { unknownSector, sector45, sector56 };
 
 //----------------------------------------------------------------------------------------------------
