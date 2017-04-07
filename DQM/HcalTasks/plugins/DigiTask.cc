@@ -640,22 +640,24 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
-		_cDigiSize_FED.fill(eid, digi.samples());
-		if (eid.isVMEid())
-		{
-			_cOccupancy_FEDVME.fill(eid);
-			_cOccupancy_ElectronicsVME.fill(eid);
-		}
-		else
-		{
-			_cOccupancy_FEDuTCA.fill(eid);
-			_cOccupancy_ElectronicsuTCA.fill(eid);
-			/*
-			if (!digi.validate(0, digi.size()))
+		if (_ptype != fOffline) { // hidefed2crate
+			_cDigiSize_FED.fill(eid, digi.samples());
+			if (eid.isVMEid())
 			{
-				_cCapIdRots_depth.fill(did);
-				_cCapIdRots_FEDuTCA.fill(eid, 1);
-			}*/
+				_cOccupancy_FEDVME.fill(eid);
+				_cOccupancy_ElectronicsVME.fill(eid);
+			}
+			else
+			{
+				_cOccupancy_FEDuTCA.fill(eid);
+				_cOccupancy_ElectronicsuTCA.fill(eid);
+				/*
+				if (!digi.validate(0, digi.size()))
+				{
+					_cCapIdRots_depth.fill(did);
+					_cCapIdRots_FEDuTCA.fill(eid, 1);
+				}*/
+			}
 		}
 
 		if (sumQ>_cutSumQ_HEP17)
@@ -671,15 +673,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cOccupancyCutvsieta_Subdet.fill(did);
 				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
 			}
-			if (eid.isVMEid())
-			{
-				_cOccupancyCut_FEDVME.fill(eid);
-				_cOccupancyCut_ElectronicsVME.fill(eid);
-			}
-			else 
-			{
-				_cOccupancyCut_FEDuTCA.fill(eid);
-				_cOccupancyCut_ElectronicsuTCA.fill(eid);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+				{
+					_cOccupancyCut_FEDVME.fill(eid);
+					_cOccupancyCut_ElectronicsVME.fill(eid);
+				}
+				else 
+				{
+					_cOccupancyCut_FEDuTCA.fill(eid);
+					_cOccupancyCut_ElectronicsuTCA.fill(eid);
+				}
 			}
 			did.subdet()==HcalBarrel?numChsCut++:numChsCutHE++;
 		}
