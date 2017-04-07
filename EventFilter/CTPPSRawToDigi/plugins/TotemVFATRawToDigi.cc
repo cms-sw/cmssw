@@ -99,7 +99,10 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   {
     if (subSystem == ssTrackingStrip)
     {
-      for (int id = FEDNumbering::MINTotemRPFEDID; id <= FEDNumbering::MAXTotemRPFEDID; ++id)
+      for (int id = FEDNumbering::MINTotemRPHorizontalFEDID; id <= FEDNumbering::MAXTotemRPHorizontalFEDID; ++id)
+        fedIds.push_back(id);
+
+      for (int id = FEDNumbering::MINTotemRPVerticalFEDID; id <= FEDNumbering::MAXTotemRPVerticalFEDID; ++id)
         fedIds.push_back(id);
     }
 
