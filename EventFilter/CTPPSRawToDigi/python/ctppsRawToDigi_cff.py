@@ -10,22 +10,28 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
   configuration = cms.VPSet(
-    # before TS2 (2016)
+    # 2016, before TS2
     cms.PSet(
       validityRange = cms.EventRange("1:min - 280385:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_to_fill_5288.xml"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2016_to_fill_5288.xml"),
       maskFileNames = cms.vstring()
     ),
-    # during TS2 (2016)
+    # 2016, during TS2
     cms.PSet(
       validityRange = cms.EventRange("280386:min - 281600:max"),
       mappingFileNames = cms.vstring(),
       maskFileNames = cms.vstring()
     ),
-    # after TS2 (2016)
+    # 2016, after TS2
     cms.PSet(
-      validityRange = cms.EventRange("281601:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_from_fill_5330.xml"),
+      validityRange = cms.EventRange("281601:min - 290872:max"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2016_from_fill_5330.xml"),
+      maskFileNames = cms.vstring()
+    ),
+    # 2017
+    cms.PSet(
+      validityRange = cms.EventRange("290873:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     )
   )
