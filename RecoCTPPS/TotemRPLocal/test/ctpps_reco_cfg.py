@@ -5,7 +5,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2016H/ZeroBias/RAW/v1/000/281/010/00000/20B9B8C4-6F7E-E611-8B60-02163E013864.root'
+        #'/store/data/Run2016H/ZeroBias/RAW/v1/000/281/010/00000/20B9B8C4-6F7E-E611-8B60-02163E013864.root' # no diamond data
+        '/store/data/Run2016H/ZeroBias/RAW/v1/000/284/036/00000/D2EE671D-D39E-E611-B272-FA163EA63BCC.root'
     ),
 )
 
