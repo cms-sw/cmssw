@@ -339,7 +339,7 @@
     <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-27]" targetClass="pat::PackedCandidate"
+  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-28]" targetClass="pat::PackedCandidate"
    target="packedCovariance_" embed="false" >
    <![CDATA[
             packedCovariance_.dxydxy = onfile.packedCovarianceDxyDxy_;
