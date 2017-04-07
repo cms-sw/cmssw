@@ -78,6 +78,9 @@ RecoCTPPSAOD = cms.PSet(
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
 
+    #tracking pixels
+    'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*'
+
     # CTPPS common
     'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
   )
