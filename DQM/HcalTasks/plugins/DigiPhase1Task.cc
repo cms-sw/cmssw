@@ -227,27 +227,27 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 
 	_cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
-	_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
 
-	_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
-	_cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
 	if (_ptype != fOffline) { // hidefed2crate
 		_cShapeCut_FED.book(ib, _emap, _subsystem);
 		_cTimingCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cTimingCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
+		_cTimingCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cTimingCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cOccupancy_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cOccupancy_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cOccupancy_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancy_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cOccupancyCut_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cOccupancyCut_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cOccupancyCut_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cOccupancyCut_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cDigiSize_FED.book(ib, _emap, _subsystem);
 	}
 
@@ -358,15 +358,15 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDVME.fill(eid);
+				_cOccupancy_ElectronicsVME.fill(eid);
 			}
-			_cOccupancy_ElectronicsVME.fill(eid);
 		}
 		else
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDuTCA.fill(eid);
+				_cOccupancy_ElectronicsuTCA.fill(eid);
 			}
-			_cOccupancy_ElectronicsuTCA.fill(eid);
 			/*
 			if (!it->validate(0, it->size()))
 			{
@@ -399,20 +399,20 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 			if (eid.isVMEid())
 			{
-				_cTimingCut_ElectronicsVME.fill(eid, timing);
-				_cOccupancyCut_ElectronicsVME.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDVME.fill(eid, timing);
 					_cOccupancyCut_FEDVME.fill(eid);
+					_cTimingCut_ElectronicsVME.fill(eid, timing);
+					_cOccupancyCut_ElectronicsVME.fill(eid);
 				}
 			}
 			else 
 			{
-				_cTimingCut_ElectronicsuTCA.fill(eid, timing);
-				_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDuTCA.fill(eid, timing);
 					_cOccupancyCut_FEDuTCA.fill(eid);
+					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				}
 			}
 			did.subdet()==HcalBarrel?numChsCut++:numChsCutHE++;
@@ -468,8 +468,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDVME.fill(eid);
+				_cOccupancy_ElectronicsVME.fill(eid);
 			}
-			_cOccupancy_ElectronicsVME.fill(eid);
 			/*
 			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDVME.fill(eid, 1);
@@ -479,8 +479,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDuTCA.fill(eid);
+				_cOccupancy_ElectronicsuTCA.fill(eid);
 			}
-			_cOccupancy_ElectronicsuTCA.fill(eid);
 			/*
 			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDuTCA.fill(eid, 1);*/
@@ -511,20 +511,20 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 			if (eid.isVMEid())
 			{
-				_cTimingCut_ElectronicsVME.fill(eid, timing);
-				_cOccupancyCut_ElectronicsVME.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDVME.fill(eid, timing);
 					_cOccupancyCut_FEDVME.fill(eid);
+					_cTimingCut_ElectronicsVME.fill(eid, timing);
+					_cOccupancyCut_ElectronicsVME.fill(eid);
 				}
 			}
 			else 
 			{
-				_cTimingCut_ElectronicsuTCA.fill(eid, timing);
-				_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDuTCA.fill(eid, timing);
 					_cOccupancyCut_FEDuTCA.fill(eid);
+					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				}
 			}
 			numChsCut++;
@@ -578,8 +578,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDVME.fill(eid);
+				_cOccupancy_ElectronicsVME.fill(eid);
 			}
-			_cOccupancy_ElectronicsVME.fill(eid);
 			/*
 			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDVME.fill(eid, 1);*/
@@ -588,8 +588,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		{
 			if (_ptype != fOffline) { // hidefed2crate
 				_cOccupancy_FEDuTCA.fill(eid);
+				_cOccupancy_ElectronicsuTCA.fill(eid);
 			}
-			_cOccupancy_ElectronicsuTCA.fill(eid);
 			/*
 			if (!it->validate(0, it->size()))
 				_cCapIdRots_FEDuTCA.fill(eid, 1);*/
@@ -621,20 +621,20 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 			_cOccupancyCut_depth.fill(did);
 			if (eid.isVMEid())
 			{
-				_cTimingCut_ElectronicsVME.fill(eid, timing);
-				_cOccupancyCut_ElectronicsVME.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDVME.fill(eid, timing);
 					_cOccupancyCut_FEDVME.fill(eid);
+					_cTimingCut_ElectronicsVME.fill(eid, timing);
+					_cOccupancyCut_ElectronicsVME.fill(eid);
 				}
 			}
 			else 
 			{
-				_cTimingCut_ElectronicsuTCA.fill(eid, timing);
-				_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCut_FEDuTCA.fill(eid, timing);
 					_cOccupancyCut_FEDuTCA.fill(eid);
+					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				}
 			}
 			numChsCut++;
