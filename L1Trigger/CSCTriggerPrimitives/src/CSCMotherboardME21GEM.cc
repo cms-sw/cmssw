@@ -174,6 +174,9 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alct->run(wiredc); // run anodeLCT
   clct->run(compdc); // run cathodeLCT
 

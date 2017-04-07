@@ -192,6 +192,9 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+
   alctV = alct->run(wiredc); // run anodeLCT
   clctV = clct->run(compdc); // run cathodeLCT
   
