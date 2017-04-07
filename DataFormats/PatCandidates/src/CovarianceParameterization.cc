@@ -35,13 +35,12 @@ uint16_t CompressionElement::pack(float value, float ref) const
         case(one):
           return 1.0;
           break;
-          //return  pack16log(toCompress,params[0],params[1],params[2]);
         case(tanLogPack):
-          return 0;
+          return 0; //FIXME: should be implemented
           break;
         case(logPack):
           int16_t r=logintpack::pack16log(toCompress,params[0],params[1],bits);
-          return * reinterpret_cast<uint16_t *>(&r); //logintpack::pack16log(toCompress,params[0],params[1],params[2]));
+          return * reinterpret_cast<uint16_t *>(&r); 
           break;
       
     }
@@ -65,7 +64,7 @@ float CompressionElement::unpack(uint16_t packed, float ref) const
           break;
         case(one):
         case(tanLogPack):
-          unpacked=1;
+          unpacked=1; //FIXME: should be implemented
     }
     switch(target) {
         case(realValue):
@@ -106,7 +105,6 @@ void CovarianceParameterization::load(int version)
       for (int i = 0; i < 5; i++) {
             for (int j = i; j < 5; j++) {        //FILLING ONLY THE SCHEMA OF SOME ELEMENTS
                   std::string folder = "schemas/" + schemaNumber + "/"  + char(48+i) + char(48+j);
-//                fileToRead.Get(folder.c_str())->ls();
                 std::string methodString = folder + "/method";
                 std::string targetString = folder + "/target";
                 std::string bitString = folder + "/bit";
@@ -116,28 +114,15 @@ void CovarianceParameterization::load(int version)
                     vParams.push_back((*p)[k]);
                 }
 
-                schema(i,j)=CompressionElement((CompressionElement::Method) ((TParameter<int>*) fileToRead.Get(methodString.c_str()))->GetVal(),(CompressionElement::Target) ((TParameter<int>*) fileToRead.Get(targetString.c_str()))->GetVal(), (int) ((TParameter<int>*) fileToRead.Get(bitString.c_str()))->GetVal(), vParams);
+                schema(i,j)=CompressionElement((CompressionElement::Method) ((TParameter<int>*) fileToRead.Get(methodString.c_str()))->GetVal(),
+		(CompressionElement::Target) ((TParameter<int>*) fileToRead.Get(targetString.c_str()))->GetVal(),
+		 (int) ((TParameter<int>*) fileToRead.Get(bitString.c_str()))->GetVal(), vParams);
         
                 
             }
         }
      schemas[schemaN]=schema; 
      }
-//      schemas.push_back(schema0);
-
-/* //Override miniaod schema as in root file
-     CompressionSchema schemaMiniAOD;
-     schemaMiniAOD(0,0)=CompressionElement(CompressionElement::logPack,CompressionElement::ratioToRef,256,{-5,5});
-     schemaMiniAOD(1,1)=schemaMiniAOD(0,0);
-     schemaMiniAOD(2,2)=schemaMiniAOD(0,0);
-     schemaMiniAOD(3,3)=CompressionElement(CompressionElement::float16,CompressionElement::realValue,16,{10000});
-     schemaMiniAOD(4,4)=CompressionElement(CompressionElement::float16,CompressionElement::realValue,16,{10000});
-     schemaMiniAOD(3,4)=CompressionElement(CompressionElement::float16,CompressionElement::realValue,16,{10000}); 
-     schemaMiniAOD(2,3)=schemaMiniAOD(0,0);
-     schemaMiniAOD(1,4)=schemaMiniAOD(0,0);
-
-     schemas[0]=(schemaMiniAOD); */
-
 
     loadedVersion_=version; 
  } else {loadedVersion_=-1;}
@@ -209,6 +194,9 @@ float CovarianceParameterization::pack(float value, int schema, int i,int j,floa
       schema=0;
     }
     if(schema==0 && i==j && (i==2 || i==0) ) ref=1./(pt*pt);
+    uint16_t p=(*schemas.find(schema)).second(i,j).pack(value,ref);
+    float up=(*schemas.find(schema)).second(i,j).unpack(p,ref);
+    std::cout << "check " << i << " " << j << " " << value << " " << up << " " << p << " " << ref << " " << schema<< std::endl;
     return (*schemas.find(schema)).second(i,j).pack(value,ref);
 }
 float CovarianceParameterization::unpack(uint16_t packed, int schema, int i,int j,float pt, float eta, int nHits,int pixelHits,  float cii,float cjj) const {
