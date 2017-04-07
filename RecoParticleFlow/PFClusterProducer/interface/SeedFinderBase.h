@@ -11,6 +11,7 @@ class SeedFinderBase {
   SeedFinderBase(const edm::ParameterSet& conf):
     _algoName(conf.getParameter<std::string>("algoName")) { }
   SeedFinderBase(const SeedFinderBase&) = delete;
+  virtual ~SeedFinderBase() = default;
   SeedFinderBase& operator=(const SeedFinderBase&) = delete;
 
   virtual void findSeeds( const edm::Handle<reco::PFRecHitCollection>& input, 
