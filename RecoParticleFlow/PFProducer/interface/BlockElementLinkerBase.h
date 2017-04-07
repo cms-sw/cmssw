@@ -12,6 +12,7 @@ class BlockElementLinkerBase {
  BlockElementLinkerBase(const edm::ParameterSet& conf):
   _linkerName( conf.getParameter<std::string>("linkerName") ) { }
   BlockElementLinkerBase(const BlockElementLinkerBase& ) = delete;
+  virtual ~BlockElementLinkerBase() = default;
   BlockElementLinkerBase& operator=(const BlockElementLinkerBase&) = delete;
 
   virtual bool linkPrefilter( const reco::PFBlockElement*,
