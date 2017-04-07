@@ -25,7 +25,7 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset,edm:
 void l1t::L1TGlobalUtilHelper::fillDescription(edm::ParameterSetDescription & desc) {
     desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag());
     desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag());
-    desc.add<bool> ("ReadPrescalesFromFile",false);
+    desc.add<bool> ("ReadPrescalesFromFile",true);
 }
 
 void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDescription) {
