@@ -4,9 +4,10 @@
 #include <fstream>
 #include <iostream>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"

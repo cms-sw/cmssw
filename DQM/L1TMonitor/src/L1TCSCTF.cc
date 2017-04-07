@@ -12,7 +12,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
@@ -678,10 +678,10 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   if( c.get< L1MuTriggerScalesRcd > ().cacheIdentifier() != m_scalesCacheID ||
       c.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != m_ptScaleCacheID ){
 
-    ESHandle< L1MuTriggerScales > scales;
+    edm::ESHandle< L1MuTriggerScales > scales;
     c.get< L1MuTriggerScalesRcd >().get(scales);
     ts = scales.product();
-    ESHandle< L1MuTriggerPtScale > ptscales;
+    edm::ESHandle< L1MuTriggerPtScale > ptscales;
     c.get< L1MuTriggerPtScaleRcd >().get(ptscales);
     tpts = ptscales.product();
     m_scalesCacheID  = c.get< L1MuTriggerScalesRcd  >().cacheIdentifier();
@@ -905,7 +905,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
     {
       edm::ESHandle<CSCGeometry> pDD;
       c.get<MuonGeometryRecord>().get( pDD );
-      CSCTriggerGeometry::setGeometry(pDD);
 
       edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
       e.getByToken(corrlctsToken_, corrlcts);
