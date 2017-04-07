@@ -63,6 +63,8 @@ namespace sistrip {
 
     inline void doAPVEmulatorCheck( bool );
 
+    inline void legacy( bool );
+
   private:
     
     /// fill DetSetVectors using registries
@@ -128,6 +130,7 @@ namespace sistrip {
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
     bool doAPVEmulatorCheck_;
+    bool legacy_;
     uint32_t errorThreshold_;
     
     /// registries
@@ -167,13 +170,7 @@ sistrip::FedBufferFormat sistrip::RawToDigiUnpacker::fedBufferFormat( const uint
 
 sistrip::FedReadoutMode sistrip::RawToDigiUnpacker::fedReadoutMode( const uint16_t& register_value ) 
 {
-  if ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::FED_SCOPE_MODE; }
-  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::FED_VIRGIN_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
-  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
-  else if ( ((register_value>>1)&0x7) == 0x7 ) { return sistrip::FED_PREMIX_RAW; } //new mode
-  else { return sistrip::UNKNOWN_FED_READOUT_MODE; }
+  return static_cast<sistrip::FedReadoutMode>(register_value&0xF);
 }
 
 void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
@@ -185,6 +182,8 @@ void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = ext
 void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
 
 void sistrip::RawToDigiUnpacker::doAPVEmulatorCheck( bool do_APVEmulator_check) { doAPVEmulatorCheck_ = do_APVEmulator_check; }
+
+void sistrip::RawToDigiUnpacker::legacy( bool legacy ) { legacy_ = legacy; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

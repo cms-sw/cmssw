@@ -180,6 +180,7 @@ namespace sistrip {
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
+        buffer->setLegacyMode(legacy_);
         if (!buffer->doChecks()) {
           if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
             throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID " << *ifed << ".";
@@ -226,7 +227,8 @@ namespace sistrip {
       }
     
       /// extract readout mode
-      sistrip::FEDReadoutMode mode = buffer->readoutMode(); 
+      sistrip::FEDReadoutMode mode = buffer->readoutMode();
+      sistrip::FEDLegacyReadoutMode lmode = (legacy_) ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
 
       // Retrive run type
       sistrip::RunType runType_ = summary.runType();
@@ -266,13 +268,13 @@ namespace sistrip {
 	uint32_t fed_key = ( summary.runType() == sistrip::FED_CABLING ) ? ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ ) : ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
 
 	// Determine whether DetId or FED key should be used to index digi containers
-	uint32_t key = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
+	uint32_t key = ( useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? fed_key : iconn->detId();
       
 	// Determine APV std::pair number (needed only when using DetId)
-	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
-      
+	uint16_t ipair = ( useFedKey_ || (!legacy_ && mode == sistrip::READOUT_MODE_SCOPE) || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? 0 : iconn->apvPairNumber();
 
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+	if ((!legacy_ && (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_FAKE))
+         || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE)) ) {
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
@@ -322,13 +324,13 @@ namespace sistrip {
 	  
 	}
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	else if (!legacy_ && (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE)) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
-	
+
 	  try {
             /// create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
+	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), 10);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
@@ -352,8 +354,48 @@ namespace sistrip {
           
 
 	} 
+
+        else if ((!legacy_ &&
+                 (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
+                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
+                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE))
+             || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE))) {
+
+      	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
+	
+	  size_t bits_shift = 0;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE) bits_shift = 1;
+	  if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE) bits_shift = 2;
+	  
+	  try {
+            /// create unpacker
+            sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
+	    	    
+    	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
+   	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<bits_shift));unpacker++;}
+ 	  } catch (const cms::Exception& e) {
+            if ( edm::isDebugEnabled() ) {
+              edm::LogWarning(sistrip::mlRawToDigi_)
+                << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+                << " Clusters are not ordered for FED "
+                << *ifed << " channel " << iconn->fedCh()
+                << ": " << e.what();
+            }
+            detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+            continue;
+          }
+
+	  regItem.length = zs_work_digis_.size() - regItem.index;
+	  if (regItem.length > 0) {
+	    regItem.first = zs_work_digis_[regItem.index].strip();
+	    zs_work_registry_.push_back(regItem);
+	  }
+
+        }
      
-	else if (mode == sistrip::READOUT_MODE_PREMIX_RAW ) { 
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_PREMIX_RAW)
+              || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_PREMIX_RAW)
+                ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
@@ -385,18 +427,36 @@ namespace sistrip {
 
 	} 
      
-	else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_VIRGIN_RAW)
+               || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE ))
+                ) {
 
 	  std::vector<uint16_t> samples; 
 
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	  /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
-
-	  if ( !samples.empty() ) { 
-	    Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+          uint8_t packet_code = buffer->packetCode(legacy_);
+          if ( packet_code == PACKET_CODE_VIRGIN_RAW ) {
+            sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+          else {
+            if ( packet_code == PACKET_CODE_VIRGIN_RAW10 ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+              while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker.sampleNumber();unpacker++;}
+            }
+            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+	      while (unpacker.hasData()) {samples.push_back(( unpacker.adc()<<2 ));unpacker++;}
+            }
+            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+	      while (unpacker.hasData()) {samples.push_back(( unpacker.adc()<<1 ));unpacker++;}
+            }
+          }
+          if ( !samples.empty() ) { 
+            Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
 	    uint16_t physical;
 	    uint16_t readout; 
 	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
@@ -409,7 +469,9 @@ namespace sistrip {
 	  }
 	} 
     
-	else if ( mode == sistrip::READOUT_MODE_PROC_RAW ) {
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_PROC_RAW)
+               || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_FAKE ))
+                ) {
 	
 	  std::vector<uint16_t> samples; 
 	
@@ -428,7 +490,9 @@ namespace sistrip {
 	  }
 	} 
 
-	else if ( mode == sistrip::READOUT_MODE_SCOPE ) {
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_SCOPE)
+               || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE)
+                ) {
 	
 	  std::vector<uint16_t> samples; 
 	
@@ -1098,10 +1162,10 @@ namespace sistrip {
        << " Dump of buffer for FED id " <<  fed_id << std::endl
        << " Buffer contains " << buffer.size()
        << " bytes (NB: payload is byte-swapped)" << std::endl;
-    uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
-    unsigned int empty = 0;
 
     if ( 0 ) { 
+      uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
+      unsigned int empty = 0;
 
       ss << "Byte->   4 5 6 7 0 1 2 3\n";
       for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
