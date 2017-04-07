@@ -402,7 +402,6 @@ namespace pat {
     }
   
     virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance,int quality,int covarianceVersion) {
-//      std::cout << "track pt " << tk.pt() << std::endl;
       covarianceVersion_ = covarianceVersion ;
       covarianceSchema_ = quality ;
       normalizedChi2_ = tk.normalizedChi2();

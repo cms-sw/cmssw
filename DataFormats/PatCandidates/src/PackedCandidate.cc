@@ -6,7 +6,6 @@
 
 #include "DataFormats/PatCandidates/interface/liblogintpack.h"
 using namespace logintpack;
-//std::atomic<CovarianceParameterization*> pat::PackedCandidate::covarianceParameterization_(nullptr);
 
 CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
 std::once_flag pat::PackedCandidate::covariance_load_flag;
@@ -121,7 +120,7 @@ void pat::PackedCandidate::unpackCovariance() const {
       }
 
     } else {
-  throw edm::Exception(edm::errors::UnimplementedFeature)
+     throw edm::Exception(edm::errors::UnimplementedFeature)
      << "You do not have a valid track parameters file loaded. "
      << "Please check that the release version is compatible with your input data"
      <<"or avoid accessing track parameter uncertainties. ";

@@ -286,8 +286,8 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="10">
-   <version ClassVersion="10" checksum="3320406063"/>
+  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
+   <version ClassVersion="3" checksum="3320406063"/>
   </class>
   <class name="pat::PackedCandidate" ClassVersion="29">
    <version ClassVersion="29" checksum="649303924"/>

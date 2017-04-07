@@ -14,5 +14,6 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
       ),      
     minPtForTrackProperties = cms.double(0.95),
     covarianceVersion = cms.int32(1), #so far: 0 is Phase0, 1 is Phase1   
-    covariancePackingSchemas = cms.vint32(1,257,513,769,0)   
+#    covariancePackingSchemas = cms.vint32(1,257,513,769,0)  # a cheaper schema in kb/ev 
+    covariancePackingSchemas = cms.vint32(8,264,520,776,0)   # more accurate schema +0.6kb/ev   
 )
