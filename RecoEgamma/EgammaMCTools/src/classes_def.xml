@@ -1,4 +1,0 @@
-<lcgdict>
-   <class name="edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > >" />
-   <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > >" />
-</lcgdict>                                                                                                                                                        
