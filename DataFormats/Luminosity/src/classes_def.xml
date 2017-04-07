@@ -40,8 +40,8 @@
   </class>
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
-  <class name="reco::PCC" ClassVersion="14">
-   <version ClassVersion="14" checksum="2345050165"/>
+  <class name="reco::PixelClusterCounts" ClassVersion="15">
+   <version ClassVersion="15" checksum="1280308955"/>
   </class>
- <class name="edm::Wrapper<reco::PCC>"/>
+ <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
 </lcgdict>

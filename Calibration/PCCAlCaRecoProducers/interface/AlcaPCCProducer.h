@@ -1,5 +1,5 @@
-#ifndef PCCAlCaRecoProducers_AlcaPCCProducer_h
-#define PCCAlCaRecoProducers_AlcaPCCProducer_h
+#ifndef Calibration_PCCAlCaRecoProducers_AlcaPCCProducer_h
+#define Calibration_PCCAlCaRecoProducers_AlcaPCCProducer_h
 
 /**_________________________________________________________________
    class:   AlcaPCCProducer.h
@@ -48,7 +48,7 @@ class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProdu
     int beginLumiOfPCC_;
     int endLumiOfPCC_;
 
-    std::unique_ptr<reco::PCC> thePCCob;
+    std::unique_ptr<reco::PixelClusterCounts> thePCCob;
 
 };
 

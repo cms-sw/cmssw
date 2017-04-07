@@ -36,7 +36,7 @@ AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
     countLumi_ = 0;
     beginLumiOfPCC_ = endLumiOfPCC_ = -1;
 
-    produces<reco::PCC, edm::InLumi>(trigstring_);
+    produces<reco::PixelClusterCounts, edm::InLumi>(trigstring_);
     pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
 
@@ -73,14 +73,14 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if(nCluster!=nClusterCount) {
             std::cout<<"counting yields "<<nClusterCount<<" but the size is "<<nCluster<<"; they should match."<<std::endl;
         }
-        thePCCob->Increment(detId(), bx, nCluster);
+        thePCCob->increment(detId(), bx, nCluster);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
     //New PCC object at the beginning of each lumi section
-    thePCCob = std::make_unique<reco::PCC>();
+    thePCCob = std::make_unique<reco::PixelClusterCounts>();
     
     if ( countLumi_ == 0 || (resetNLumi_ > 0 && countLumi_%resetNLumi_ == 0) ) {
         beginLumiOfPCC_ = lumiSeg.luminosityBlock();

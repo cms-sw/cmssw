@@ -15,7 +15,7 @@ namespace DataFormats_Luminosity {
       edm::Wrapper<LumiInfoRunHeader> lumiinforunheaderobj;
       edm::Wrapper<LumiInfo> lumiinfoobj;
       edm::Wrapper<BeamCurrentInfo> beamcurrentinfoobj;
-      reco::PCC b;
-      edm::Wrapper<reco::PCC> b_w;
+      reco::PixelClusterCounts b;
+      edm::Wrapper<reco::PixelClusterCounts> b_w;
    };
 }
