@@ -80,3 +80,42 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        # )
                       )
 )
+                        
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    puppi,
+    DeltaZCut = cms.double(0.1),
+    algos = cms.VPSet( 
+        cms.PSet( 
+             etaMin = cms.vdouble(0.),
+             etaMax = cms.vdouble(2.5),
+             ptMin  = cms.vdouble(0.),
+             MinNeutralPt   = cms.vdouble(0.2),
+             MinNeutralPtSlope   = cms.vdouble(0.015),
+             RMSEtaSF = cms.vdouble(1.0),
+             MedEtaSF = cms.vdouble(1.0),
+             EtaMaxExtrap = cms.double(2.0),
+             puppiAlgos = puppiCentral
+        ), cms.PSet( 
+             etaMin = cms.vdouble(2.5),
+             etaMax = cms.vdouble(3.5),
+             ptMin  = cms.vdouble(0.),#Normally 0
+             MinNeutralPt   = cms.vdouble(0.2),
+             MinNeutralPtSlope   = cms.vdouble(0.030),
+             RMSEtaSF = cms.vdouble(1.0),
+             MedEtaSF = cms.vdouble(1.0),
+             EtaMaxExtrap = cms.double(2.0),
+             puppiAlgos = puppiCentral
+        ), cms.PSet( 
+             etaMin              = cms.vdouble( 3.5),
+             etaMax              = cms.vdouble(10.0),
+             ptMin               = cms.vdouble( 0.), #Normally 0
+             MinNeutralPt        = cms.vdouble( 2.0),
+             MinNeutralPtSlope   = cms.vdouble(0.08),
+             RMSEtaSF            = cms.vdouble(1.0 ),
+             MedEtaSF            = cms.vdouble(0.75),
+             EtaMaxExtrap        = cms.double( 2.0),
+             puppiAlgos = puppiForward
+       )
+    )
+)
