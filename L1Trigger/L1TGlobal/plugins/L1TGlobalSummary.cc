@@ -91,7 +91,7 @@ void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool> ("DumpTrigResults",false);
   desc.add<bool> ("DumpRecord",false);
   desc.add<bool> ("DumpTrigSummary",true);
-  desc.add<bool> ("ReadPrescalesFromFile",false);
+  desc.add<bool> ("ReadPrescalesFromFile",true);
   desc.add<std::string> ("psFileName","prescale_L1TGlobal.csv")->setComment("File should be located in directory: L1Trigger/L1TGlobal/data/Luminosity/startup");
   desc.add<int>  ("psColumn",0);
   descriptions.add("L1TGlobalSummary", desc);
