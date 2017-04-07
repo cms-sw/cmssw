@@ -14,7 +14,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    slComputerCfg = cms.PSet(
       **sl_cfg.candidateCombinedSecondaryVertexSoftLeptonComputer.parameters_()
       ),
-   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'),
+   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_sklearn.weight.xml'),
    variables = c_vs_l_vars_vpset,
    computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer'),
    tagInfos = cms.VInputTag(
@@ -31,3 +31,6 @@ charmTagsComputerCvsL = cms.ESProducer(
    )
 
 charmTagsComputerCvsL.slComputerCfg.correctVertexMass = True
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(charmTagsComputerCvsL, weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'))
