@@ -108,6 +108,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
+    lumiMonitorHLTsequence * # lumi
     sistripMonitorHLTsequence * # strip
     sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
