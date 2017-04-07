@@ -31,7 +31,7 @@
 // class declaration
 //
 
-class ME0ChamberMasker : public edm::EDProducer 
+class ME0ChamberMasker : public edm::stream::EDProducer<>
 {
 
    public:
@@ -41,9 +41,7 @@ class ME0ChamberMasker : public edm::EDProducer
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
       
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -124,20 +122,6 @@ ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } 
   
   iEvent.put(std::move(filteredDigis));
-
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ME0ChamberMasker::beginJob()
-{
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ME0ChamberMasker::endJob() 
-{
 
 }
 

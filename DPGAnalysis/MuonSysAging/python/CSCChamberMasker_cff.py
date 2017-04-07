@@ -11,8 +11,6 @@ def appendCSCChamberMaskerAtUnpacking(process):
         process.preCSCDigis = process.muonCSCDigis.clone()
         process.muonCSCDigis = CSCChamberMasker.clone()
 
-        # process.muonCSCDigis.digiTag = cms.InputTag('preCSCDigis') 
-
         process.muonCSCDigis.stripDigiTag = cms.InputTag("preCSCDigis", "MuonCSCStripDigi")
         process.muonCSCDigis.wireDigiTag = cms.InputTag("preCSCDigis", "MuonCSCWireDigi") 
         process.muonCSCDigis.comparatorDigiTag = cms.InputTag("preCSCDigis", "MuonCSCComparatorDigi")
@@ -44,13 +42,6 @@ def appendCSCChamberMaskerAtHLT(process):
         process.preHltCSCDigis = process.hltMuonCSCDigis.clone()
         process.hltMuonCSCDigis = CSCChamberMasker.clone()
 
-        # process.hltMuonCSCDigis.stripDigiTag = "preHltCSCStripDigis"
-        # process.hltMuonCSCDigis.wireDigiTag = "preHltCSCWireDigis"
-        # process.hltMuonCSCDigis.comparatorDigiTag = "preHltCSCComparatorDigis"
-        # process.hltMuonCSCDigis.rpcDigiTag = "preHltCSCRPCDigis"
-        # process.hltMuonCSCDigis.alctDigiTag = "preHltCSCALCTDigis"
-        # process.hltMuonCSCDigis.clctDigiTag = "preHltCSCCLCTDigis"
-
         process.hltMuonCSCDigis.stripDigiTag = cms.InputTag("preHltCSCDigis", "MuonCSCStripDigi")
         process.hltMuonCSCDigis.wireDigiTag = cms.InputTag("preHltCSCDigis", "MuonCSCWireDigi") 
         process.hltMuonCSCDigis.comparatorDigiTag = cms.InputTag("preHltCSCDigis", "MuonCSCComparatorDigi")
@@ -73,4 +64,3 @@ def appendCSCChamberMaskerAtHLT(process):
                 )
             
     return process
-
