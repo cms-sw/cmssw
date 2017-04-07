@@ -50,7 +50,7 @@
 // class declaration
 //
 
-class RPCChamberMasker : public edm::EDProducer 
+class RPCChamberMasker : public edm::stream::EDProducer<>
 {
 
    public:
@@ -60,9 +60,7 @@ class RPCChamberMasker : public edm::EDProducer
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
       
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -138,20 +136,6 @@ RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
     }
   iEvent.put(std::move(filteredDigis));
-
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RPCChamberMasker::beginJob()
-{
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCChamberMasker::endJob() 
-{
 
 }
 

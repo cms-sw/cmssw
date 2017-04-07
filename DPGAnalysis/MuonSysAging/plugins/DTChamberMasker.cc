@@ -60,7 +60,7 @@
 // class declaration
 //
 
-class DTChamberMasker : public edm::EDProducer 
+class DTChamberMasker : public edm::stream::EDProducer<>
 {
 
 public:
@@ -70,9 +70,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
       
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -142,20 +140,6 @@ DTChamberMasker::produce(edm::Event& event, const edm::EventSetup& conditions)
     }
   
   event.put(std::move(filteredDigis));
-
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-DTChamberMasker::beginJob()
-{
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-DTChamberMasker::endJob()
-{
 
 }
 
