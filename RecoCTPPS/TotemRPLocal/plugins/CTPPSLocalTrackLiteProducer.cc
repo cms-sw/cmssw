@@ -44,12 +44,12 @@ class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
-  siStripTrackToken_( consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") ) ),
-  diamondTrackToken_( consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") ) ),
   doNothing_( iConfig.getParameter<bool>( "doNothing" ) )
 {
-  if ( doNothing_ )
-    return;
+  if ( doNothing_ ) return;
+
+  siStripTrackToken_ = consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") );
+  diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
 
   produces< std::vector<CTPPSLocalTrackLite> >();
 }
