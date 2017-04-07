@@ -536,6 +536,7 @@
 
   <class name="std::pair<pat::TauRef, float>"/>
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
+  <class name="edm::RefProd<std::vector<pat::Tau> >"/>
 
   </selection>
  <exclusion>

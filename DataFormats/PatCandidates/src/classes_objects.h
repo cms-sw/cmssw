@@ -190,7 +190,8 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<pat::PATTauDiscriminator>           pattdiscr_w;
    
   std::pair<pat::TauRef, float>                              pattdiscr_p;
-  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v;    
+  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v; 
+  edm::RefProd<std::vector<pat::Tau> >                       patt_rp;   
   };
 
 }
