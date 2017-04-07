@@ -107,5 +107,9 @@ metFilters = cms.Sequence(
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
    chargedHadronTrackResolutionFilter *
+   BadChargedCandidateFilter*
+   BadPFMuonFilter *
+   BadChargedCandidateSummer16Filter*
+   BadPFMuonSummer16Filter *
    muonBadTrackFilter
 )
