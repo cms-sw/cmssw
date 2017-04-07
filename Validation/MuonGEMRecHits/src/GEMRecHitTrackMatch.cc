@@ -23,14 +23,14 @@ GEMRecHitTrackMatch::GEMRecHitTrackMatch(const edm::ParameterSet& ps) : GEMTrack
 }
 
 void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const & iSetup){
-  std::cout<<"GEM RecHitTrackMatch :: bookHistograms"<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: bookHistograms"<<std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
-  std::cout<<"GEM RecHitTrackMatch :: about to set the geometry"<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: about to set the geometry"<<std::endl;
   setGeometry(geom);
-  std::cout<<"GEM RecHitTrackMatch :: successfully set the geometry"<<std::endl;
-  std::cout<<"GEM RecHitTrackMatch :: geom = "<<&geom<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: successfully set the geometry"<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: geom = "<<&geom<<std::endl;
 
   const float PI=TMath::Pi();
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
@@ -80,7 +80,7 @@ GEMRecHitTrackMatch::~GEMRecHitTrackMatch() {  }
 
 void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout<<"GEM RecHitTrackMatch :: analyze"<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: analyze"<<std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
@@ -126,12 +126,10 @@ void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetu
     const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
     for(auto d: gem_sh_ids_ch)
     {
-      std::cout<<"GEMDetId = "<<d<<std::endl; 
       const GEMDetId id(d);
-      std::cout<<"GEMDetId = "<<id<<std::endl; 
       if ( id.chamber() %2 ==0 ) track_.hitEven[id.station()-1] = true;
       else if ( id.chamber() %2 ==1 ) track_.hitOdd[id.station()-1] = true;
-      else { std::cout<<"Error to get chamber id"<<std::endl;}
+      else { edm::LogInfo("GEMRecHitTrackMatch")<<"Error to get chamber id"<<std::endl;}
 
       track_.gem_sh[ id.station()-1][ (id.layer()-1)] = true;
 
@@ -141,9 +139,7 @@ void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     for(auto d: gem_rh_ids_ch)
     {
-      std::cout<<"GEMDetId = "<<d<<std::endl; 
       const GEMDetId id(d);
-      std::cout<<"GEMDetId = "<<id<<std::endl; 
       track_.gem_rh[ id.station()-1][ (id.layer()-1)] = true;
     }
     
