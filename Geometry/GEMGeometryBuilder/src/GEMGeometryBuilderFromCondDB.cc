@@ -126,13 +126,13 @@ GEMGeometryBuilderFromCondDB::build( const RecoIdealGeometry& rgeo )
     // Create the superchamber
     if(chid.layer()==1) {
       GEMDetId schid(chid.region(),chid.ring(),chid.station(),0,chid.chamber(),0);
-      GEMSuperChamber* sch = new GEMSuperChamber(chid,surf);
+      GEMSuperChamber* sch = new GEMSuperChamber(schid,surf);
       LogDebug("GEMGeometryBuilder")<<"GEM SuperChamber created with id = "<<schid<<" and added to the GEMGeometry"<<std::endl;
       geometry->add(sch);
     }
     // Create the chamber 
     GEMChamber* ch = new GEMChamber (chid, surf); 
-    LogDebug("GEMGeometryBuilder")<<"GEM Chamber created with id = "<<chid<<" and added to the GEMGeometry"<<std::endl;
+    LogDebug("GEMGeometryBuilder")<<"GEM Chamber created with id = "<<chid<<" = "<<chid.rawId()<<" and added to the GEMGeometry"<<std::endl;
     LogDebug("GEMGeometryBuilder")<<"GEM Chamber has following eta partitions associated: "<<std::endl;
     // Add the etaps to rhe chamber
     for(std::list<GEMEtaPartition *>::iterator gepl=gepls.begin();
