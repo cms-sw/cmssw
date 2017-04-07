@@ -194,9 +194,10 @@ float CovarianceParameterization::pack(float value, int schema, int i,int j,floa
       schema=0;
     }
     if(schema==0 && i==j && (i==2 || i==0) ) ref=1./(pt*pt);
+/*  //Used for debugging, to be later removed  
     uint16_t p=(*schemas.find(schema)).second(i,j).pack(value,ref);
     float up=(*schemas.find(schema)).second(i,j).unpack(p,ref);
-    std::cout << "check " << i << " " << j << " " << value << " " << up << " " << p << " " << ref << " " << schema<< std::endl;
+    std::cout << "check " << i << " " << j << " " << value << " " << up << " " << p << " " << ref << " " << schema<< std::endl;*/
     return (*schemas.find(schema)).second(i,j).pack(value,ref);
 }
 float CovarianceParameterization::unpack(uint16_t packed, int schema, int i,int j,float pt, float eta, int nHits,int pixelHits,  float cii,float cjj) const {
