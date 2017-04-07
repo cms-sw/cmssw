@@ -247,6 +247,7 @@ private:
   bool ring_flag;
   bool TkHistoMap_On_;
   bool clchCMoriginTkHmap_On_;
+  bool Digi_On_;
 
   std::string TrackProducer_;
   std::string TrackLabel_;

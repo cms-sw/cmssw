@@ -94,7 +94,7 @@ hltSiPixelPhase1ClustersNClustersInclusive = hltDefaultHistoDigiCluster.clone(
   dimensions = 0,
   specs = VPSet(
     StandardSpecificationInclusive_Num,
-    Specification().groupBy("PXAll").save(),
+#    Specification().groupBy("PXAll").save(),
   )
 )
 
@@ -216,7 +216,7 @@ hltSiPixelPhase1ClustersReadoutNClusters = hltDefaultHistoReadout.clone(
   )
 )
 
-hltSiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
+hltSiPixelPhase1ClustersPixelToStripRatio = hltDefaultHistoDigiCluster.clone(
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
   
