@@ -114,7 +114,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       PotPlots( DQMStore::IBooker& ibooker, unsigned int id );
     };
 
-    std::map<unsigned int, PotPlots> potPlots_;
+    std::unordered_map<unsigned int, PotPlots> potPlots_;
     int EC_difference_582_, EC_difference_583_;
 
     /// plots related to one Diamond plane
@@ -132,7 +132,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       PlanePlots( DQMStore::IBooker& ibooker, unsigned int id );
     };
 
-    std::map<unsigned int, PlanePlots> planePlots_;
+    std::unordered_map<unsigned int, PlanePlots> planePlots_;
 
     /// plots related to one Diamond channel
     struct ChannelPlots
@@ -153,7 +153,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
       ChannelPlots( DQMStore::IBooker &ibooker, unsigned int id );
     };
 
-    std::map<unsigned int, ChannelPlots> channelPlots_;
+    std::unordered_map<unsigned int, ChannelPlots> channelPlots_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -556,7 +556,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // Using CTPPSDiamondRecHit
-  std::map<unsigned int, std::set<unsigned int> > planes;
+  std::unordered_map<unsigned int, std::set<unsigned int> > planes;
 
   for ( const auto& rechits : *diamondRecHits ) {
     CTPPSDiamondDetId detId_pot( rechits.detId() );
@@ -698,7 +698,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   //------------------------------
 
   // Using CTPPSDiamondDigi
-  std::map<unsigned int, unsigned int> channelsPerPlane;
+  std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
   for ( const auto& digis : *diamondDigis ) {
     const CTPPSDiamondDetId detId( digis.detId() );
     CTPPSDiamondDetId detId_plane( digis.detId() );
