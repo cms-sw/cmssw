@@ -32,7 +32,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) ) 
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
+        clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<string>("clusterType")) 
         {
 
         }
@@ -83,6 +84,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalClusteringImpl clustering_;
         HGCalMulticlusteringImpl multiclustering_;
 
+        /* algorithm type */
+        std::string clusteringAlgorithmType_;
 };
 
 
@@ -148,12 +151,14 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
         edm::Ptr<l1t::HGCalTriggerCell> ptr(triggerCellsHandle,i);
         triggerCellsPtrs.push_back(ptr);
     }
-
-    /* call to dR-C2d clustering */
-    //clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
     
-    /* call to NN-C2d clustering */
-    clustering_.clusterize( triggerCellsPtrs, *cluster_product_, triggerGeometry_ );
+    /* call to C2d clustering */
+    if(clusteringAlgorithmType_=="dRC2d"){
+        clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
+    }
+    else if(clusteringAlgorithmType_=="NNC2d"){
+        clustering_.clusterize( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+    }
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
