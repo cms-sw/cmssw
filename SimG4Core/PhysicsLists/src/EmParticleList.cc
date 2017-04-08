@@ -1,6 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 
-const std::vector<G4String> EmParticleList::pNames = 
+EmParticleList::EmParticleList() 
+{
+  pNames = 
     { 
         "gamma",            "e-",           "e+",           "mu+",        "mu-",
           "pi+",           "pi-",        "kaon+",         "kaon-",     "proton",
@@ -12,8 +14,12 @@ const std::vector<G4String> EmParticleList::pNames =
      "sigma_c+",     "sigma_c++",       "sigma+",        "sigma-",       "tau+",
          "tau-",        "triton",        "xi_c+",           "xi-"
     };
+}
 
-const std::vector<G4String>& EmParticleList::PartNames()
+EmParticleList::~EmParticleList() 
+{}
+
+const std::vector<G4String>& EmParticleList::PartNames() const
 {
   return pNames;
 }

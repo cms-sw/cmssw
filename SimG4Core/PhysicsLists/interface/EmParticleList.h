@@ -11,13 +11,14 @@ class EmParticleList {
 
 public:
 
-  EmParticleList() {};
-  ~EmParticleList() {};
+  explicit EmParticleList();
 
-  const std::vector<G4String>& PartNames();
+  ~EmParticleList();
+
+  const std::vector<G4String>& PartNames() const;
 
 private:
-  static const std::vector<G4String>  pNames; 
+  std::vector<G4String>  pNames; 
   
 };
 
