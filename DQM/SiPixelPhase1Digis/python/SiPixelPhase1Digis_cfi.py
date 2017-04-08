@@ -163,7 +163,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
-        src = cms.InputTag("simSiPixelDigis"), 
+        src = cms.InputTag("siPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )
