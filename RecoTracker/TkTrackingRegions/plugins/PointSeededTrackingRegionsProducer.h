@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -102,6 +104,47 @@ public:
   }
   
   virtual ~PointSeededTrackingRegionsProducer() {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    edm::ParameterSetDescription descPoint;
+    descPoint.add<double>("eta", 0.0);
+    descPoint.add<double>("phi", 0.0);
+    desc.add<edm::ParameterSetDescription>("point_input", descPoint);
+
+    desc.add<std::string>("mode", "BeamSpotFixed");
+    desc.add<int>("maxNRegions", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<int>("maxNVertices", 1);
+
+    desc.add<double>("ptMin", 0.9);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("zErrorBeamSpot", 24.2);
+    desc.add<double>("deltaEta", 0.5);
+    desc.add<double>("deltaPhi", 0.5);
+    desc.add<bool>("precise", true);
+
+    desc.add<double>("nSigmaZVertex", 3.);
+    desc.add<double>("zErrorVetex", 0.2);
+    desc.add<double>("nSigmaZBeamSpot", 4.);
+
+    desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
+ 
+    desc.add<bool>("searchOpt", false); 
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+    //edm::ParameterSetDescription descPoint;
+    //descPoint.add<edm::ParameterSetDescription>("point_input", desc);
+
+
+    descriptions.add("pointSeededTrackingRegion", descRegion);
+  }
+
     
 
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
