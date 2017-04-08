@@ -65,9 +65,8 @@ public:
     else  edm::LogError ("PointSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
 
     // basic inputs
-    edm::ParameterSet point_input = regPSet.getParameter<edm::ParameterSet>("point_input");
-    eta_input          = point_input.getParameter<double>("eta");
-    phi_input          = point_input.getParameter<double>("phi");
+    points = regPSet.getParameter<std::vector<edm::ParameterSet>>("points");
+ 
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
@@ -108,11 +107,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    edm::ParameterSetDescription descPoint;
-    descPoint.add<double>("eta", 0.0);
-    descPoint.add<double>("phi", 0.0);
-    desc.add<edm::ParameterSetDescription>("point_input", descPoint);
-
+    edm::ParameterSetDescription descPoints;
+    descPoints.add<double>("eta", 0.0);
+    descPoints.add<double>("phi", 0.0);
+    std::vector<edm::ParameterSet> vDefaults;
+    edm::ParameterSet vDefaults1;
+    vDefaults1.addParameter<double>("eta", 0.0);
+    vDefaults1.addParameter<double>("phi", 0.0);
+    vDefaults.push_back(vDefaults1);
+    desc.addVPSet("points", descPoints,vDefaults);
+  
     desc.add<std::string>("mode", "BeamSpotFixed");
     desc.add<int>("maxNRegions", 10);
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
@@ -197,10 +201,14 @@ public:
 
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // points of interest
-    size_t n_points = 1;
+    size_t n_points = points.size();
+    double eta_input, phi_input;
     int n_regions = 0;
     for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
 
+      eta_input          = points[i].getParameter<double>("eta");
+      phi_input          = points[i].getParameter<double>("phi");
+ 
       double x = TMath::Cos(phi_input);
       double y = TMath::Sin(phi_input);
       double theta = 2*TMath::ATan(TMath::Exp(-eta_input));
@@ -239,8 +247,9 @@ private:
   int m_maxNRegions;
   edm::EDGetTokenT<reco::VertexCollection> token_vertex; 
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
-  double eta_input, phi_input;
   int m_maxNVertices;
+
+  std::vector<edm::ParameterSet> points;
 
   float m_ptMin;
   float m_originRadius;
