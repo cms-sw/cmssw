@@ -20,7 +20,7 @@ namespace {
 
   class BasicPayload_data1 : public cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float> {
   public:
-    BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
+    BasicPayload_data1() : cond::payloadInspector::RunHistoryPlot<cond::BasicPayload,float>( "Example Run-based Trend", "data0"){
     }
 
     float getFromPayload( cond::BasicPayload& payload ){
@@ -30,7 +30,7 @@ namespace {
 
   class BasicPayload_data2 : public cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float> {
   public:
-    BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Trend", "data0"){
+    BasicPayload_data2() : cond::payloadInspector::TimeHistoryPlot<cond::BasicPayload,float>( "Example Time-based Trend", "data0"){
     }
 
     float getFromPayload( cond::BasicPayload& payload ){
@@ -54,7 +54,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float> >& plotData ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
@@ -73,7 +73,7 @@ namespace {
       Base::setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs, std::vector<std::tuple<float,float,float> >& plotData ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       for( auto iov : iovs ) {
 	std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){

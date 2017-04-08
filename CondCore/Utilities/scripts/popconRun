@@ -16,6 +16,7 @@ def main( argv ):
     parser.add_argument("-t","--destTag", type=str, help="destination database")
     parser.add_argument("-a","--auth", type=str,  help="authentication path (for conddb key and .netrc files)")
     parser.add_argument("-x","--comment", type=str, help="user comment for the upload")
+    parser.add_argument('--copy', '-c', action='store_true', help='Execute the import with a direct copy.')
     args = parser.parse_args()  
 
     if args.job_file is None:
@@ -31,13 +32,6 @@ def main( argv ):
         print 'ERROR: the destination tag has not been provided.'
         return -1        
     
-    #fns = os.path.splitext( args.job_file )
-    #confFile = '%s.json' %fns[0]
-    #if not os.path.exists( confFile ):
-    #    print 'ERROR: the metadata file %s has not been found in the execution directory' %confFile
-    #    return -3
-    
-    #return popcon2dropbox.run( args.job_file, args.auth )
     return popcon2dropbox.run( args )
 
 if __name__ == '__main__':

@@ -47,6 +47,13 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 triggerOfflineDQMSource.remove(exoticaMonitorHLT)
+triggerOfflineDQMSource.remove(susyMonitorHLT)
+triggerOfflineDQMSource.remove(b2gMonitorHLT)
+triggerOfflineDQMSource.remove(bphysicsMonitorHLT)
+triggerOfflineDQMSource.remove(higgsMonitorHLT)
+triggerOfflineDQMSource.remove(smpMonitorHLT)
+triggerOfflineDQMSource.remove(topMonitorHLT)
+triggerOfflineDQMSource.remove(btagMonitorHLT)
 
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)

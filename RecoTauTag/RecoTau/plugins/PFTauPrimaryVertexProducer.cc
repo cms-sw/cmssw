@@ -73,6 +73,7 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   explicit PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig);
   ~PFTauPrimaryVertexProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&);
+
  private:
   edm::InputTag PFTauTag_;
   edm::EDGetTokenT<std::vector<reco::PFTau> >PFTauToken_;
@@ -138,9 +139,7 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 }
 
-PFTauPrimaryVertexProducer::~PFTauPrimaryVertexProducer(){
-
-}
+PFTauPrimaryVertexProducer::~PFTauPrimaryVertexProducer(){}
 
 void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   // Obtain Collections
@@ -177,13 +176,16 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
     disc->discr_ = &(*discr);
   }
 
+  // Set event for VerexAssociator if needed
+  if(useInputPV==Algorithm_)
+    vertexAssociator_->setEvent(iEvent);
+
   // For each Tau Run Algorithim 
   if(Tau.isValid()){
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
       reco::PFTauRef tau(Tau, iPFTau);
       reco::Vertex thePV;
       if(useInputPV==Algorithm_){
-	vertexAssociator_->setEvent(iEvent);
 	thePV =(*( vertexAssociator_->associatedVertex(*tau)));
       }
       else if(useFontPV==Algorithm_){
