@@ -17,7 +17,7 @@ SiPixelPhase1Geometry = cms.PSet(
   n_rocs = cms.int32(16), # two-row geometry is assumed
 
   # "time geometry" parameters
-  max_lumisection = cms.int32(1000),
+  max_lumisection = cms.int32(5000),
   max_bunchcrossing = cms.int32(3600),
 
   # to select a different cabling map (for pilotBlade)
