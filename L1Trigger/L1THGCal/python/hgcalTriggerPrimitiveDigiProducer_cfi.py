@@ -25,9 +25,11 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 
                              dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
                              thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
                              )
-C2d_parValues = cms.PSet( seeding_threshold = cms.double(4), # MipT
+C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
                           clustering_threshold = cms.double(2), # MipT
-                          dR_cluster = cms.double(3.) # in cm
+                          dR_cluster = cms.double(3.), # in cm
+                          maxTClength = cms.double(3.84), # in cm (for cells of 1.06cm^2)
+                          clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
                          )
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01) )
