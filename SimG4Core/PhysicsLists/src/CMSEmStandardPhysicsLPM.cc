@@ -174,7 +174,6 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   EmParticleList emList;
   for(const auto& particleName : emList.PartNames()) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
-    G4cout << "New part: <" <<  particleName << ">  " << particle<< G4endl;
 
     if (particleName == "gamma") {
 
