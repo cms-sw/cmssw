@@ -71,7 +71,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     edm::EDGetTokenT<std::vector<reco::Track> > trackToken_;
     edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersrcToken_;
-
+    std::string vtxsrc_;
 
     bool debug_; 
     bool modOn; 
@@ -163,6 +163,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     //
 
     std::vector<MonitorElement*> meClPosLayersOnTrack;
+    std::vector<MonitorElement*> meClPosLayersLadVsModOnTrack;
     std::vector<MonitorElement*> meClPosLayersNotOnTrack;
     std::vector<MonitorElement*> meClPosDiskspzOnTrack;
     std::vector<MonitorElement*> meClPosDisksmzOnTrack;

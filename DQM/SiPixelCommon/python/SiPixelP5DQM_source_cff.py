@@ -107,11 +107,13 @@ hiTracks = "hiGlobalPrimTracks"
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
     TrackCandidateProducer = 'hiPrimTrackCandidates',
-    trajectoryInput = hiTracks
+    trajectoryInput = hiTracks,
+    vtxsrc='hiSelectedVertex'
     )
 
 SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
-    trajectoryInput = hiTracks
+    trajectoryInput = hiTracks,
+    vtxsrc='hiSelectedVertex'
     )
 
 #DQM service
