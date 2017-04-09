@@ -22,6 +22,7 @@ SiPixelPhase1RecHits::SiPixelPhase1RecHits(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 {
   srcToken_ = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  onlyValid_=iConfig.getParameter<bool>("onlyValidHits");
 }
 
 void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -36,9 +37,14 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
 
   SiPixelRecHitCollection::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
+    
     auto id = DetId(it->detId());
 
     for(SiPixelRecHit const& rechit : *it) {
+      
+      bool isHitValid   = rechit.getType()==TrackingRecHit::valid;
+      if (onlyValid_ && !isHitValid) continue;
+
       SiPixelRecHit::ClusterRef const& clust = rechit.cluster();
 
       int sizeX = (*clust).sizeX();
