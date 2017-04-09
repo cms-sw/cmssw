@@ -25,7 +25,7 @@ namespace mathSSE {
   inline __m128 
   __attribute__((always_inline)) __attribute__ ((pure))
   _mm_dot_ps(__m128 v1, __m128 v2) {
-#ifdef __SSE4_1__
+#ifdef NEVER_IS_SLOWER // __SSE4_1__
     return _mm_dp_ps(v1, v2, 0xff);
 #else
     __m128 mul = _mm_mul_ps(v1, v2);
