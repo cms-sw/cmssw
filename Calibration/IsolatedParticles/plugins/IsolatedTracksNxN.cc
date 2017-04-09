@@ -45,44 +45,45 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
   maxTrackEta_           = iConfig.getUntrackedParameter<double>("maxTrackEta", 5.0      );
   debugL1Info_           = iConfig.getUntrackedParameter<bool>  ("DebugL1Info", false    );
   L1TriggerAlgoInfo_     = iConfig.getUntrackedParameter<bool>  ("L1TriggerAlgoInfo");
-  L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraTauJetSource"   );
-  L1extraCenJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraCenJetSource"   );
-  L1extraFwdJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraFwdJetSource"   );
-  L1extraMuonSource_     = iConfig.getParameter<edm::InputTag>  ("L1extraMuonSource"     );
-  L1extraIsoEmSource_    = iConfig.getParameter<edm::InputTag>  ("L1extraIsoEmSource"    );
-  L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>  ("L1extraNonIsoEmSource" );
-  L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>  ("L1GTReadoutRcdSource"  );
-  L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>  ("L1GTObjectMapRcdSource");
-  JetSrc_                = iConfig.getParameter<edm::InputTag>  ("JetSource");
-  JetExtender_           = iConfig.getParameter<edm::InputTag>  ("JetExtender");
-  HBHERecHitSource_      = iConfig.getParameter<edm::InputTag>  ("HBHERecHitSource");
   tMinE_                 = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
   tMaxE_                 = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",  500.);
   tMinH_                 = iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.);
   tMaxH_                 = iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL",  500.);
-  nbad                   = 0;
+
+  edm::InputTag L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraTauJetSource"   );
+  edm::InputTag L1extraCenJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraCenJetSource"   );
+  edm::InputTag L1extraFwdJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraFwdJetSource"   );
+  edm::InputTag L1extraMuonSource_     = iConfig.getParameter<edm::InputTag>  ("L1extraMuonSource"     );
+  edm::InputTag L1extraIsoEmSource_    = iConfig.getParameter<edm::InputTag>  ("L1extraIsoEmSource"    );
+  edm::InputTag L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>  ("L1extraNonIsoEmSource" );
+  edm::InputTag L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>  ("L1GTReadoutRcdSource"  );
+  edm::InputTag L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>  ("L1GTObjectMapRcdSource");
+  edm::InputTag JetSrc_                = iConfig.getParameter<edm::InputTag>  ("JetSource");
+  edm::InputTag JetExtender_           = iConfig.getParameter<edm::InputTag>  ("JetExtender");
+  edm::InputTag HBHERecHitSource_      = iConfig.getParameter<edm::InputTag>  ("HBHERecHitSource");
 
   // define tokens for access
-  tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
-  tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
-  tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
-  tok_L1extMu_ = consumes<l1extra::L1MuonParticleCollection>(L1extraMuonSource_);
-  tok_L1extIsoEm_ = consumes<l1extra::L1EmParticleCollection>(L1extraIsoEmSource_);
+  tok_L1extTauJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
+  tok_L1extCenJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
+  tok_L1extFwdJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
+  tok_L1extMu_      = consumes<l1extra::L1MuonParticleCollection>(L1extraMuonSource_);
+  tok_L1extIsoEm_   = consumes<l1extra::L1EmParticleCollection>(L1extraIsoEmSource_);
   tok_L1extNoIsoEm_ = consumes<l1extra::L1EmParticleCollection>(L1extraNonIsoEmSource_);
-  tok_jets_ = consumes<reco::CaloJetCollection>(JetSrc_);
-  tok_hbhe_ = consumes<HBHERecHitCollection>(HBHERecHitSource_);
-
+  tok_jets_         = consumes<reco::CaloJetCollection>(JetSrc_);
+  tok_hbhe_         = consumes<HBHERecHitCollection>(HBHERecHitSource_);
   
-  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
-  tok_recVtx_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
-  tok_bs_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
-  tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
-  tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+  tok_genTrack_     = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  tok_recVtx_       = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_bs_           = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  tok_EB_           = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_           = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+
+  tok_simTk_        = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_       = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  tok_caloEB_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
+  tok_caloEE_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
+  tok_caloHH_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+  nbad              = 0;
 
   if(myverbose_>=0) {
     std::cout <<"Parameters read from config file \n" 
@@ -96,17 +97,6 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 	      << "\t tMaxH_ "                  << tMaxH_
 	      << "\n debugL1Info_ "            << debugL1Info_  
 	      << "\t L1TriggerAlgoInfo_ "      << L1TriggerAlgoInfo_
-	      << "\t L1extraTauJetSource_ "    << L1extraTauJetSource_
-	      << "\t L1extraCenJetSource_ "    << L1extraCenJetSource_
-	      << "\t L1extraFwdJetSource_ "    << L1extraFwdJetSource_
-	      << "\t L1extraMuonSource_ "      << L1extraMuonSource_
-	      << "\t L1extraIsoEmSource_ "     << L1extraIsoEmSource_
-	      << "\t L1extraNonIsoEmSource_ "  << L1extraNonIsoEmSource_
-	      << "\t L1GTReadoutRcdSource_ "   << L1GTReadoutRcdSource_
-	      << "\t L1GTObjectMapRcdSource_ " << L1GTObjectMapRcdSource_
-	      << "\t JetSrc_  "                << JetSrc_
-	      << "\t JetExtender_ "            << JetExtender_
-	      << "\t HBHERecHitSource_ "       << HBHERecHitSource_ 
 	      << "\n" << std::endl;
   }
 
@@ -185,9 +175,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     for (CItAlgo itAlgo        = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName      = itAlgo->first;
       int algBitNumber         = ( itAlgo->second ).algoBitNumber();
-      //bool algResultBeforeMask = m_l1GtUtils.decisionBeforeMask(iEvent, itAlgo->first, iErrorCode);
-      //bool algResultAfterMask  = m_l1GtUtils.decisionAfterMask (iEvent, itAlgo->first, iErrorCode);
-      //int  triggerMask         = m_l1GtUtils.triggerMask       (iEvent, itAlgo->first, iErrorCode);
       bool decision            = m_l1GtUtils.decision          (iEvent, itAlgo->first, iErrorCode);
       int  preScale            = m_l1GtUtils.prescaleFactor    (iEvent, itAlgo->first, iErrorCode);
     
@@ -951,27 +938,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  t_hsim5x5CharHad        ->push_back( hcalScale*hsimInfo5x5.eChargedHad );
 	  t_hsim7x7CharHad        ->push_back( hcalScale*hsimInfo7x7.eChargedHad );
 	}
-	/*
-	if(hcalScale*hsimInfo3x3["eTotal"] > 50.0) {
-
-	  std::cout << "Loosely Iso Track : eta " << eta1 << " Rec Mom " << p1 << " SimMom " << simTrackP << " h3x3 " << h3x3 << std::endl;
-
-	  std::cout <<"Closest cell Hcal (atHCAL) " << (HcalDetId)ClosestCell << std::endl;
-
-	  std::cout <<"trkHcalEne, etotal, matched, rest " <<hcalScale*trkHcalEne<<std::setw(15)<<hcalScale*hsimInfo3x3["eTotal"]
-		    <<std::setw(15)<<hcalScale*hsimInfo3x3["eMatched"]<<std::setw(15)<<hcalScale*hsimInfo3x3["eRest"]
-		    <<std::endl;
-	  unsigned int nn = t_trkHcalEne->size();
-	  std::cout <<"in Tree                           " << (*t_trkHcalEne)[nn-1] <<std::setw(15)<< (*t_hsim3x3)[nn-1]
-		    <<std::setw(15)<< (*t_hsim3x3Matched)[nn-1] <<std::setw(15)<< (*t_hsim3x3Rest)[nn-1]
-		    << std::endl;
-
-	  std::cout << "debug output \n" << std::endl;
-	  std::map<std::string, double> hsimInfo3x3_debug = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1, 150.0, true);
-
-	}
-	*/
-
 
       } // if loosely isolated track
     } // check p1/eta

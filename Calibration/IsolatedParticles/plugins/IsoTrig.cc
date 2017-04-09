@@ -5,7 +5,7 @@
 // 
 /**\class IsoTrig IsoTrig.cc IsoTrig/IsoTrig/src/IsoTrig.cc
 
-v Description: [one line class summary]
+ Description: [one line class summary]
 
  Implementation:
      [Notes on implementation]
@@ -18,15 +18,6 @@ v Description: [one line class summary]
 //
 #include "IsoTrig.h"
 
-//Tracks
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-// Vertices
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //Triggers
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -37,29 +28,21 @@ v Description: [one line class summary]
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/eCone.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) : changed(false) {
    //now do whatever initialization is needed
-  Det                                 = iConfig.getParameter<std::string>("Det");
+  trigNames                           = iConfig.getUntrackedParameter<std::vector<std::string> >("Triggers");
+  PixcandTag_                         = iConfig.getParameter<edm::InputTag> ("PixcandTag");
+  L1candTag_                          = iConfig.getParameter<edm::InputTag> ("L1candTag");
+  L2candTag_                          = iConfig.getParameter<edm::InputTag> ("L2candTag");
+  doL2L3                              = iConfig.getUntrackedParameter<bool>("DoL2L3",true);
   verbosity                           = iConfig.getUntrackedParameter<int>("Verbosity",0);
   theTrackQuality                     = iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity");
+  processName                         = iConfig.getUntrackedParameter<std::string>("ProcessName","HLT");
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
   selectionParameters.minPt           = iConfig.getUntrackedParameter<double>("MinTrackPt", 10.0);
   selectionParameters.minQuality      = trackQuality_;
@@ -83,6 +66,40 @@ IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) : changed(false) {
   cutNeutral                          = iConfig.getUntrackedParameter<double>("NeutralIsolation",  2.0);
   minRunNo                            = iConfig.getUntrackedParameter<int>("minRun");
   maxRunNo                            = iConfig.getUntrackedParameter<int>("maxRun");
+  pixelTracksSources_                 = iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("PixelTracksSources");
+  pixelIsolationConeSizeAtEC_         = iConfig.getUntrackedParameter<std::vector<double> >("PixelIsolationConeSizeAtEC");
+  minPTrackValue_                     = iConfig.getUntrackedParameter<double>("MinPTrackValue");
+  vtxCutSeed_                         = iConfig.getUntrackedParameter<double>("VertexCutSeed");
+  vtxCutIsol_                         = iConfig.getUntrackedParameter<double>("VertexCutIsol");
+  tauUnbiasCone_                      = iConfig.getUntrackedParameter<double>("TauUnbiasCone");
+  prelimCone_                         = iConfig.getUntrackedParameter<double>("PrelimCone");
+  bool isItAOD                        = iConfig.getUntrackedParameter<bool>("IsItAOD", false);
+  triggerEvent_                       = edm::InputTag("hltTriggerSummaryAOD","",processName);
+ theTriggerResultsLabel               = edm::InputTag("TriggerResults","",processName);
+
+  // define tokens for access
+  tok_lumi      = consumes<LumiDetails>(edm::InputTag("lumiProducer"));
+  tok_trigEvt   = consumes<trigger::TriggerEvent>(triggerEvent_);
+  tok_trigRes   = consumes<edm::TriggerResults>(theTriggerResultsLabel);
+  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_bs_       = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  if (isItAOD) {
+    tok_EB_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+    tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+    tok_hbhe_   = consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
+  } else {
+    tok_EB_     = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+    tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+    tok_hbhe_   = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
+  }
+  tok_pixtk_    = consumes<reco::IsolatedPixelTrackCandidateCollection>(PixcandTag_);
+  tok_l1cand_   = consumes<trigger::TriggerFilterObjectWithRefs>(L1candTag_);
+  tok_l2cand_   = consumes<reco::IsolatedPixelTrackCandidateCollection>(L2candTag_);
+  for (unsigned int k=0; k<pixelTracksSources_.size(); ++k) {
+    tok_pixtks_.push_back(consumes<reco::TrackCollection>(pixelTracksSources_[k]));
+  }
+
   if (verbosity>=0) {
     std::cout <<"Parameters read from config file \n" 
 	      <<"\t minPt "           << selectionParameters.minPt   
@@ -104,7 +121,21 @@ IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) : changed(false) {
               <<"\t cuts (MIP "       << cutMip << " : Charge " << cutCharge
 	      <<" : Neutral "         << cutNeutral << ")"
 	      << std::endl;
+    std::cout <<"Charge Isolation parameters:"
+	      <<"\t minPTrackValue " << minPTrackValue_
+	      <<"\t vtxCutSeed "     << vtxCutSeed_
+	      <<"\t vtxCutIsol "     << vtxCutIsol_
+	      <<"\t tauUnbiasCone "  << tauUnbiasCone_
+	      <<"\t prelimCone "     << prelimCone_
+	      <<"\t pixelIsolationConeSizeAtEC";
+    for (unsigned int k=0; k<pixelIsolationConeSizeAtEC_.size(); ++k)
+      std::cout << " " << pixelIsolationConeSizeAtEC_[k];
+    std::cout << std::endl;
   }
+  double pl[] = {20,30,40,60,80,120};
+  for (int i=0; i<6; ++i) pLimits[i] = pl[i];
+  rEB_ = 123.8;
+  zEE_ = 317.0;
 }
 
 IsoTrig::~IsoTrig() {
@@ -113,30 +144,51 @@ IsoTrig::~IsoTrig() {
 
 }
 
-void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void IsoTrig::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
+void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (verbosity%10 > 0) std::cout << "Event starts====================================" << std::endl;
   int RunNo = iEvent.id().run();
   int EvtNo = iEvent.id().event();
   int Lumi  = iEvent.luminosityBlock();
   int Bunch = iEvent.bunchCrossing();
 
-  edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
-
-  // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const MagneticField *bField = bFieldH.product();   
+  GlobalVector BField=bField->inTesla(GlobalPoint(0,0,0));
+  bfVal = BField.mag();
 
   edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByLabel("generalTracks", trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
+  iEvent.getByToken(tok_genTrack_, trkCollection);
 
-  edm::InputTag lumiProducer("LumiProducer", "", "RECO");
+  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+
+  iEvent.getByToken(tok_hbhe_, hbhe);
+
+  iEvent.getByToken(tok_recVtx_, recVtxs);  
+  iEvent.getByToken(tok_bs_, beamSpotH);
+  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+    leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
+  } else if (beamSpotH.isValid()) {
+    leadPV = beamSpotH->position();
+  }
+  if ((verbosity/100)%10>0) {
+    std::cout << "Primary Vertex " << leadPV;
+    if (beamSpotH.isValid()) std::cout << " Beam Spot " 
+				       << beamSpotH->position();
+    std::cout << std::endl;
+  }
+  
   edm::Handle<LumiDetails> Lumid;
-  iEvent.getLuminosityBlock().getByLabel("lumiProducer",Lumid); 
+  iEvent.getLuminosityBlock().getByToken(tok_lumi, Lumid);
   float mybxlumi=-1;
   if (Lumid.isValid()) 
     mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
@@ -144,269 +196,121 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << Lumi 
 	      << " Bunch " << Bunch << " mybxlumi " << mybxlumi << std::endl;
 
-  edm::InputTag triggerEvent_ ("hltTriggerSummaryAOD","","HLT");
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-  iEvent.getByLabel(triggerEvent_,triggerEventHandle);
-  if (!triggerEventHandle.isValid())
-    std::cout << "Error! Can't get the product "<< triggerEvent_.label() << std::endl;
-  else {
+  iEvent.getByToken(tok_trigEvt, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    if (verbosity%10 > 0)   std::cout << "Error! Can't get the product "<< triggerEvent_.label() << std::endl;
+  } else {
     triggerEvent = *(triggerEventHandle.product());
   
     const trigger::TriggerObjectCollection& TOC(triggerEvent.getObjects());
     /////////////////////////////TriggerResults
-    edm::InputTag theTriggerResultsLabel ("TriggerResults","","HLT");
     edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByLabel( theTriggerResultsLabel, triggerResults);
-    char TrigName[50];
-    sprintf(TrigName, "HLT_IsoTrack%s", Det.c_str());
-    if (triggerResults.isValid()) {
+    iEvent.getByToken(tok_trigRes, triggerResults);
+    if (!triggerResults.isValid()) {
+      std::cout << "Error! Can't get the product "<< theTriggerResultsLabel.label() << std::endl;
+    } else {
       std::vector<std::string> modules;
       h_nHLT->Fill(triggerResults->size());
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-
+      
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
+      //      std::cout << "number of HLTs " << triggerNames_.size() << std::endl;
       int hlt(-1), preL1(-1), preHLT(-1), prescale(-1);
       for (unsigned int i=0; i<triggerResults->size(); i++) {
 	unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[i]);
 	const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
-	if (triggerNames_[i].find(TrigName)!=std::string::npos) {
-	  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[i]));
-	  hlt = triggerResults->accept(i);
-	  preL1  = prescales.first;
-	  preHLT = prescales.second;
-	  prescale = preL1*preHLT;
-	  if (verbosity%10 > 0)
-	    std::cout << triggerNames_[i] << " accept " << hlt << " preL1 " 
-		      << preL1 << " preHLT " << preHLT << std::endl;
-	  if (hlt>0) {
-	    std::vector<math::XYZTLorentzVector> vec[3];
-	    if (TrigList.find(RunNo) != TrigList.end() ) {
-	      TrigList[RunNo] += 1;
-	    } else {
-	      TrigList.insert(std::pair<unsigned int, unsigned int>(RunNo,1));
-	      TrigPreList.insert(std::pair<unsigned int, std::pair<int, int>>(RunNo,prescales));
-	    }
-	    //loop over all trigger filters in event (i.e. filters passed)
-	    for (unsigned int ifilter=0; ifilter<triggerEvent.sizeFilters(); ++ifilter) {  
-	      std::vector<int> Keys;
-	      std::string label = triggerEvent.filterTag(ifilter).label();
-	      //loop over keys to objects passing this filter
-	      for (unsigned int imodule=0; imodule<moduleLabels.size(); imodule++) {
-		if (label.find(moduleLabels[imodule]) != std::string::npos) {
-		  if (verbosity%10 > 0) std::cout << "FILTERNAME " << label << std::endl;
-		  for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
-		    Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
-		    const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
-		    math::XYZTLorentzVector v4(TO.px(), TO.py(), TO.pz(), TO.energy());
-		    if(label.find("L2Filter") != std::string::npos) {
-		      vec[1].push_back(v4);
-		    } else if (label.find("L3Filter") != std::string::npos) {
-		      vec[2].push_back(v4);
-		    } else {
-		      vec[0].push_back(v4);
-		      h_L1ObjEnergy->Fill(TO.energy());
-		    }
-		    if (verbosity%10 > 0)
-		      std::cout << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi() << " mass " << TO.mass() << " Id " << TO.id() << std::endl;
-		  }
-		}
-	      }
-	    }
-	    h_nL3Objs  -> Fill(vec[2].size());
+	
+	for (unsigned int in=0; in<trigNames.size(); ++in) {
+	  //	  if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos || triggerNames_[i]==" ") {
+	  if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos) {
+	    if (verbosity%10 > 0)	    std::cout << "trigger that i want " << triggerNames_[i] << " accept " << triggerResults->accept(i) << std::endl;
+	    hlt    = triggerResults->accept(i);
+	    h_HLT      -> Fill(hlt);
+	    //	    if (hlt>0 || triggerNames_[i]==" ") {
+	    if (hlt>0) {
+	      edm::Handle<reco::IsolatedPixelTrackCandidateCollection> Pixcands;
+	      iEvent.getByToken(tok_pixtk_,Pixcands);
+	      edm::Handle<trigger::TriggerFilterObjectWithRefs> L1cands;
+	      iEvent.getByToken(tok_l1cand_, L1cands);
 
-	    //// Filling Pt, eta, phi of L1, L2 and L3 objects
-	    for (int j=0; j<3; j++) {
-	      for (unsigned int k=0; k<vec[j].size(); k++) {
-		if (verbosity%10 > 0) std::cout << "vec[" << j << "][" << k << "] pt " << vec[j][k].pt() << " eta " << vec[j][k].eta() << " phi " << vec[j][k].phi() << std::endl;
-		fillHist(j, vec[j][k]);
-	      }
-	    }
-
-	    double deta, dphi, dr;
-	    //// deta, dphi and dR for leading L1 object with L2 and L3 objects
-	    for (int lvl=1; lvl<3; lvl++) {
-	      for (unsigned int i=0; i<vec[lvl].size(); i++) {
-		deta = dEta(vec[0][0],vec[lvl][i]);
-		dphi = dPhi(vec[0][0],vec[lvl][i]);
-		dr   = dR(vec[0][0],vec[lvl][i]);
-		if (verbosity%10 > 0) std::cout << "lvl " <<lvl << " i " << i << " deta " << deta << " dphi " << dphi << " dR " << dr << std::endl;
-		h_dEtaL1[lvl-1] -> Fill(deta);
-		h_dPhiL1[lvl-1] -> Fill(dphi);
-		h_dRL1[lvl-1]   -> Fill(std::sqrt(dr));
-	      }
-	    }
-
-	    math::XYZTLorentzVector mindRvec;
-	    double mindR;
-	    for (unsigned int k=0; k<vec[2].size(); ++k) {
-	      //// Find min of deta/dphi/dR for each of L3 objects with L2 objects
-	      mindR=999.9;
-	      if (verbosity%10 > 0) std::cout << "L3obj: pt " << vec[2][i].pt() << " eta " << vec[2][i].eta() << " phi " << vec[2][i].phi() << std::endl;
-	      for (unsigned int j=0; j<vec[1].size(); j++) {
-		dr   = dR(vec[2][k],vec[1][j]);
-		if(dr<mindR) {
-		  mindR=dr;
-		  mindRvec=vec[1][j];
-		}
-	      }
-	      fillDifferences(0, vec[2][k], mindRvec, (verbosity%10 >0));
-	      if(mindR < 0.03) {
-		fillDifferences(1, vec[2][k], mindRvec, (verbosity%10 >0));
-		fillHist(6, mindRvec);
-		fillHist(8, vec[2][k]);
+	      const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[i]));
+	      preL1  = prescales.first;
+	      preHLT = prescales.second;
+	      prescale = preL1*preHLT;
+	      if (verbosity%10 > 0)
+		std::cout << triggerNames_[i] << " accept " << hlt << " preL1 " 
+			  << preL1 << " preHLT " << preHLT << std::endl;
+	      
+	      for (int iv=0; iv<3; ++iv) vec[iv].clear();
+	      if (TrigList.find(RunNo) != TrigList.end() ) {
+		TrigList[RunNo] += 1;
 	      } else {
-		fillDifferences(2, vec[2][k], mindRvec, (verbosity%10 >0));
-		fillHist(7, mindRvec);
-		fillHist(9, vec[2][k]);
+		TrigList.insert(std::pair<unsigned int, unsigned int>(RunNo,1));
+		TrigPreList.insert(std::pair<unsigned int, std::pair<int, int>>(RunNo,prescales));
 	      }
-	      	      
-	      ////// Minimum deltaR for each of L3 objs with Reco::tracks
-	      mindR=999.9;
-	      if (verbosity%10 > 0) std::cout << "vec[2][k].eta() " << vec[2][k].eta() << " vec[k][0].phi " << vec[2][k].phi() << std::endl;
-	      reco::TrackCollection::const_iterator goodTk = trkCollection->end();
-	      if (trkCollection.isValid()) {
-		double mindP = 9999.9;
-		for (trkItr=trkCollection->begin(); 
-		     trkItr!=trkCollection->end(); trkItr++) {
-		  math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
-					     trkItr->pz(), trkItr->p());
-		  double deltaR = dR(v4, vec[2][k]);
-		  double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
-		  if (deltaR<mindR) {
-		    mindR    = deltaR;
-		    mindP    = dp;
-		    mindRvec = v4;
-		    goodTk   = trkItr;
-		  }
-		  if ((verbosity/10)%10>1 && deltaR<1.0) {
-		    std::cout << "track: pt " << v4.pt() << " eta " << v4.eta()
-			      << " phi " << v4.phi() << " DR " << deltaR 
-			      << std::endl;
+	      //loop over all trigger filters in event (i.e. filters passed)
+	      for (unsigned int ifilter=0; ifilter<triggerEvent.sizeFilters(); 
+		   ++ifilter) {  
+		std::vector<int> Keys;
+		std::string label = triggerEvent.filterTag(ifilter).label();
+		//loop over keys to objects passing this filter
+		for (unsigned int imodule=0; imodule<moduleLabels.size(); 
+		     imodule++) {
+		  if (label.find(moduleLabels[imodule]) != std::string::npos) {
+		    if (verbosity%10 > 0) std::cout << "FILTERNAME " << label << std::endl;
+		    for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
+		      Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
+		      const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
+		      math::XYZTLorentzVector v4(TO.px(), TO.py(), TO.pz(), TO.energy());
+		      if (label.find("L2Filter") != std::string::npos) {
+			vec[1].push_back(v4);
+		      } else if (label.find("L3Filter") != std::string::npos) {
+			vec[2].push_back(v4);
+		      } else {
+			vec[0].push_back(v4);
+			h_L1ObjEnergy->Fill(TO.energy());
+		      }
+		      if (verbosity%10 > 0)
+			std::cout << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi() << " mass " << TO.mass() << " Id " << TO.id() << std::endl;
+		    }
 		  }
 		}
-		if (mindR < 0.03 && mindP > 0.1) {
+	      }
+	      std::vector<reco::TrackCollection::const_iterator> goodTks;
+	      if (doL2L3) {
+		h_nL3Objs  -> Fill(vec[2].size());
+		studyTrigger(trkCollection, goodTks);
+	      } else {
+		if (trkCollection.isValid()) {
+		  reco::TrackCollection::const_iterator trkItr;
 		  for (trkItr=trkCollection->begin(); 
-		       trkItr!=trkCollection->end(); trkItr++) {
-		    math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
-					       trkItr->pz(), trkItr->p());
-		    double deltaR = dR(v4, vec[2][k]);
-		    double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
-		    if (dp<mindP && deltaR<0.03) {
-		      mindR    = deltaR;
-		      mindP    = dp;
-		      mindRvec = v4;
-		      goodTk   = trkItr;
-		    }
-		  }
-		}
-		fillDifferences(3, vec[2][k], mindRvec, (verbosity%10 >0));
-		fillHist(3, mindRvec);
-		if(mindR < 0.03) {
-		  fillDifferences(4, vec[2][k], mindRvec, (verbosity%10 >0));
-		  fillHist(4, mindRvec);
-		} else {
-		  fillDifferences(5, vec[2][k], mindRvec, (verbosity%10 >0));
-		  fillHist(5, mindRvec);
-		}
-
-		//Define the best vertex
-		edm::Handle<reco::VertexCollection> recVtxs;
-		iEvent.getByLabel("offlinePrimaryVertices",recVtxs);  
-		// Get the beamspot
-		edm::Handle<reco::BeamSpot> beamSpotH;
-		iEvent.getByLabel("offlineBeamSpot", beamSpotH);
-		math::XYZPoint leadPV(0,0,0);
-		if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
-		  leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
-		} else if (beamSpotH.isValid()) {
-		  leadPV = beamSpotH->position();
-		}
-		if ((verbosity/100)%10>0) {
-		  std::cout << "Primary Vertex " << leadPV;
-		  if (beamSpotH.isValid()) std::cout << " Beam Spot " 
-						     << beamSpotH->position();
-		  std::cout << std::endl;
-		}
-
-		std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-		spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, trkCaloDirections, ((verbosity/100)%10>2));
-		std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-  
-		edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-		edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-		iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
-		iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
-
-		unsigned int nTracks=0, ngoodTk=0, nselTk=0;
-		int          ieta=999;
-		for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++){
-		  bool l3Track  = (trkDetItr->trkItr == goodTk);
-		  const reco::Track* pTrack = &(*(trkDetItr->trkItr));
-		  math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
-					     pTrack->pz(), pTrack->p());
-		  bool selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,((verbosity/100)%10>2));
-		  double eMipDR=9999., e_inCone=0, conehmaxNearP=0, mindR=999.9;
-		  if (trkDetItr->okHCAL) {
-		    HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
-		    ieta = detId.ieta();
-		  }
-		  for (unsigned k=0; k<vec[0].size(); ++k) {
-		    double deltaR = dR(v4, vec[0][k]);
-		    if (deltaR<mindR) mindR = deltaR;
-		  }
-		  if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
-		    ngoodTk++;
-		    int nRH_eMipDR=0, nNearTRKs=0;
-		    double e1 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-						 trkDetItr->pointHCAL, trkDetItr->pointECAL,
-						 a_neutR1, trkDetItr->directionECAL, nRH_eMipDR);
-		    double e2 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-						 trkDetItr->pointHCAL, trkDetItr->pointECAL,
-						 a_neutR2, trkDetItr->directionECAL, nRH_eMipDR);
-		    eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-					     trkDetItr->pointHCAL, trkDetItr->pointECAL,
-					     a_mipR, trkDetItr->directionECAL, nRH_eMipDR);
-		    conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR, nNearTRKs, ((verbosity/100)%10>2));
-		    e_inCone = e2 - e1;
-		    if (eMipDR<1.0) nselTk++;
-		  }
-		  if (l3Track) {
-		    fillHist(10,v4);
-		    if (selectTk) {
-		      fillHist(11,v4);
-		      fillCuts(0, eMipDR, conehmaxNearP, e_inCone, v4, ieta, (mindR>dr_L1));
-		      if (conehmaxNearP < cutCharge) {
-			fillHist(12,v4);
-			if (eMipDR < cutMip) {
-			  fillHist(13,v4);
-			  if (e_inCone < cutNeutral) fillHist(14, v4);
-			}
-		      }
-		    }
-		  } else {
-		    fillHist(15,v4);
-		    if (selectTk) {
-		      fillHist(16,v4);
-		      fillCuts(1, eMipDR, conehmaxNearP, e_inCone, v4, ieta, (mindR>dr_L1));
-		      if (conehmaxNearP < cutCharge) {
-			fillHist(17,v4);
-			if (eMipDR < cutMip) {
-			  fillHist(18,v4);
-			  if (e_inCone < cutNeutral) fillHist(19, v4);
-			}
-		      }
-		    }
-		  }
+		       trkItr!=trkCollection->end(); trkItr++) 
+		    goodTks.push_back(trkItr);
 		}
 	      }
+	      // Now study isolation etc
+	      studyIsolation(iEvent, iSetup, trkCollection, goodTks);
+
+	      std::pair<double,double> etaphi = etaPhiTrigger();
+	      edm::Handle<reco::IsolatedPixelTrackCandidateCollection> L2cands;
+	      iEvent.getByToken(tok_l2cand_,L2cands);
+
+	      if (!L2cands.isValid()) {
+		if (verbosity%10 > 0)   std::cout << " trigCand is not valid " << std::endl;
+	      } else {
+		studyMipCut(iEvent, iSetup, trkCollection, L2cands);
+	      }
+	      if(pixelTracksSources_.size()>0)
+		chgIsolation(etaphi.first, etaphi.second, trkCollection, iEvent);
 	    }
+	    MipCutTree->Fill();  
+	    ChgIsolnTree->Fill();
+	    break;
 	  }
-	  break;
 	}
       }
-      
-      h_HLT      -> Fill(hlt);
       h_PreL1    -> Fill(preL1);
       h_PreHLT   -> Fill(preHLT);
       h_Pre      -> Fill(prescale);
@@ -414,6 +318,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       h_PreHLTwt -> Fill(preHLT, mybxlumi);
 
       // check if trigger names in (new) config                       
+      //      std::cout << "changed " <<changed << std::endl;
       if (changed) {
 	changed = false;
 	if ((verbosity/10)%10 > 1) {
@@ -432,6 +337,90 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 }
+void IsoTrig::clearChgIsolnTreeVectors() { 
+  t_PixcandP      ->clear();
+  t_PixcandPt     ->clear();
+  t_PixcandEta    ->clear();
+  t_PixcandPhi    ->clear();
+  for(unsigned int i=0; i< t_PixcandMaxP->size(); i++)
+    t_PixcandMaxP[i].clear();
+  t_PixcandMaxP   ->clear();
+  t_PixTrkcandP     ->clear();
+  t_PixTrkcandPt    ->clear();
+  t_PixTrkcandEta   ->clear();
+  t_PixTrkcandPhi   ->clear();
+  t_PixTrkcandMaxP  ->clear();
+  t_PixTrkcandselTk  ->clear();
+}
+
+void IsoTrig::clearMipCutTreeVectors() {
+  t_NFcandP      ->clear();
+  t_NFcandPt     ->clear();
+  t_NFcandEta    ->clear();
+  t_NFcandPhi    ->clear();
+  t_NFcandEmip   ->clear();
+  t_NFTrkcandP     ->clear();
+  t_NFTrkcandPt    ->clear();
+  t_NFTrkcandEta   ->clear();
+  t_NFTrkcandPhi   ->clear();
+  t_NFTrkcandEmip  ->clear();
+  t_NFTrkMinDR     ->clear();
+  t_NFTrkMinDP1    ->clear();
+  t_NFTrkselTkFlag ->clear();
+  t_NFTrkqltyFlag  ->clear();
+  t_NFTrkMissFlag  ->clear();
+  t_NFTrkPVFlag    ->clear();
+  t_NFTrkPropFlag  ->clear();
+  t_NFTrkChgIsoFlag->clear();
+  t_NFTrkNeuIsoFlag->clear();
+  t_NFTrkMipFlag   ->clear();
+  t_ECone        ->clear();
+}
+
+void IsoTrig::pushChgIsolnTreeVecs(math::XYZTLorentzVector &Pixcand, math::XYZTLorentzVector &Trkcand, 
+				   std::vector<double> &PixMaxP, double &TrkMaxP,
+				   bool &selTk) {
+  t_PixcandP      ->push_back(Pixcand.r());
+  t_PixcandPt     ->push_back(Pixcand.pt());
+  t_PixcandEta    ->push_back(Pixcand.eta());
+  t_PixcandPhi    ->push_back(Pixcand.phi());
+  t_PixcandMaxP   ->push_back(PixMaxP);
+  t_PixTrkcandP      ->push_back(Trkcand.r());
+  t_PixTrkcandPt     ->push_back(Trkcand.pt());
+  t_PixTrkcandEta    ->push_back(Trkcand.eta());
+  t_PixTrkcandPhi    ->push_back(Trkcand.phi());
+  t_PixTrkcandMaxP   ->push_back(TrkMaxP); 
+  t_PixTrkcandselTk  ->push_back(selTk); 
+  
+}
+
+void IsoTrig::pushMipCutTreeVecs(math::XYZTLorentzVector &NFcand, 
+				 math::XYZTLorentzVector &Trkcand, 
+				 double &EmipNFcand, double &EmipTrkcand,
+				 double &mindR, double &mindP1,
+				 std::vector<bool> &Flags, double hCone) {
+  t_NFcandP      ->push_back(NFcand.r());
+  t_NFcandPt     ->push_back(NFcand.pt());
+  t_NFcandEta    ->push_back(NFcand.eta());
+  t_NFcandPhi    ->push_back(NFcand.phi());
+  t_NFcandEmip   ->push_back(EmipNFcand);
+  t_NFTrkcandP     ->push_back(Trkcand.r());
+  t_NFTrkcandPt    ->push_back(Trkcand.pt());
+  t_NFTrkcandEta   ->push_back(Trkcand.eta());
+  t_NFTrkcandPhi   ->push_back(Trkcand.phi());
+  t_NFTrkcandEmip  ->push_back(EmipTrkcand);
+  t_NFTrkMinDR     ->push_back(mindR);
+  t_NFTrkMinDP1    ->push_back(mindP1);
+  t_NFTrkselTkFlag ->push_back(Flags[0]);
+  t_NFTrkqltyFlag  ->push_back(Flags[1]);
+  t_NFTrkMissFlag  ->push_back(Flags[2]);
+  t_NFTrkPVFlag    ->push_back(Flags[3]);
+  t_NFTrkPropFlag  ->push_back(Flags[4]);
+  t_NFTrkChgIsoFlag->push_back(Flags[5]);
+  t_NFTrkNeuIsoFlag->push_back(Flags[6]);
+  t_NFTrkMipFlag   ->push_back(Flags[7]);
+  t_ECone        ->push_back(hCone);
+}
 
 void IsoTrig::beginJob() {
   char hname[100], htit[100];
@@ -440,89 +429,167 @@ void IsoTrig::beginJob() {
 			    "L2Match", "L2NoMatch", "L3Match", "L3NoMatch", 
 			    "HLTTrk", "HLTGoodTrk", "HLTIsoTrk", "HLTMip", "HLTSelect",
 			    "nonHLTTrk", "nonHLTGoodTrk", "nonHLTIsoTrk", "nonHLTMip", "nonHLTSelect"};
-  std::string pairs[6] = {"L2L3", "L2L3Match", "L2L3NoMatch", "L3Reco", "L3RecoMatch", "L3RecoNoMatch"};
+  ChgIsolnTree = fs->make<TTree>("ChgIsolnTree", "ChgIsolntree");
+  t_PixcandP      = new std::vector<double>();
+  t_PixcandPt     = new std::vector<double>();
+  t_PixcandEta    = new std::vector<double>();
+  t_PixcandPhi    = new std::vector<double>();
+  t_PixcandMaxP   = new std::vector<std::vector<double> >();
+  t_PixTrkcandP     = new std::vector<double>();
+  t_PixTrkcandPt    = new std::vector<double>();
+  t_PixTrkcandEta   = new std::vector<double>();
+  t_PixTrkcandPhi   = new std::vector<double>();
+  t_PixTrkcandMaxP  = new std::vector<double>();
+  t_PixTrkcandselTk = new std::vector<bool>();
 
-  std::string cuts[2] = {"HLTMatched", "HLTNotMatched"};
-  std::string cuts2[2] = {"All", "Away from L1"};
-  h_nHLT        = fs->make<TH1I>("h_nHLT" , "size of rigger Names", 1000, 1, 1000);
-  h_HLT         = fs->make<TH1I>("h_HLT"  , "HLT accept", 3, -1, 2);
-  h_PreL1       = fs->make<TH1I>("h_PreL1", "L1 Prescale", 500, 0, 500);
+  ChgIsolnTree->Branch("t_PixcandP",      "std::vector<double>", &t_PixcandP);
+  ChgIsolnTree->Branch("t_PixcandPt",     "std::vector<double>", &t_PixcandPt);
+  ChgIsolnTree->Branch("t_PixcandEta",    "std::vector<double>", &t_PixcandEta);
+  ChgIsolnTree->Branch("t_PixcandPhi",    "std::vector<double>", &t_PixcandPhi);
+  ChgIsolnTree->Branch("t_PixcandMaxP",  "std::vector<std::vector<double> >", &t_PixcandMaxP);
+  ChgIsolnTree->Branch("t_PixTrkcandP",     "std::vector<double>", &t_PixTrkcandP);
+  ChgIsolnTree->Branch("t_PixTrkcandPt",    "std::vector<double>", &t_PixTrkcandPt  );
+  ChgIsolnTree->Branch("t_PixTrkcandEta",   "std::vector<double>", &t_PixTrkcandEta );
+  ChgIsolnTree->Branch("t_PixTrkcandPhi",   "std::vector<double>", &t_PixTrkcandPhi );
+  ChgIsolnTree->Branch("t_PixTrkcandMaxP",  "std::vector<double>", &t_PixTrkcandMaxP);
+  ChgIsolnTree->Branch("t_PixTrkcandselTk", "std::vector<bool>", &t_PixTrkcandselTk);
+
+  MipCutTree = fs->make<TTree>("MipCutTree", "MipCuttree");
+  t_NFcandP      = new std::vector<double>();
+  t_NFcandPt     = new std::vector<double>();
+  t_NFcandEta    = new std::vector<double>();
+  t_NFcandPhi    = new std::vector<double>();
+  t_NFcandEmip   = new std::vector<double>();
+  t_NFTrkcandP     = new std::vector<double>();
+  t_NFTrkcandPt    = new std::vector<double>();
+  t_NFTrkcandEta   = new std::vector<double>();
+  t_NFTrkcandPhi   = new std::vector<double>();
+  t_NFTrkcandEmip  = new std::vector<double>();
+  t_NFTrkMinDR     = new std::vector<double>();
+  t_NFTrkMinDP1    = new std::vector<double>();
+  t_NFTrkselTkFlag = new std::vector<bool>();
+  t_NFTrkqltyFlag  = new std::vector<bool>();
+  t_NFTrkMissFlag  = new std::vector<bool>();
+  t_NFTrkPVFlag    = new std::vector<bool>();
+  t_NFTrkPropFlag  = new std::vector<bool>();
+  t_NFTrkChgIsoFlag= new std::vector<bool>();
+  t_NFTrkNeuIsoFlag= new std::vector<bool>();
+  t_NFTrkMipFlag   = new std::vector<bool>();
+  t_ECone        = new std::vector<double>();
+
+  MipCutTree->Branch("t_NFcandP",      "std::vector<double>", &t_NFcandP);
+  MipCutTree->Branch("t_NFcandPt",     "std::vector<double>", &t_NFcandPt);
+  MipCutTree->Branch("t_NFcandEta",    "std::vector<double>", &t_NFcandEta);
+  MipCutTree->Branch("t_NFcandPhi",    "std::vector<double>", &t_NFcandPhi);
+  MipCutTree->Branch("t_NFcandEmip",   "std::vector<double>", &t_NFcandEmip);
+  MipCutTree->Branch("t_NFTrkcandP",     "std::vector<double>", &t_NFTrkcandP);
+  MipCutTree->Branch("t_NFTrkcandPt",    "std::vector<double>", &t_NFTrkcandPt  );
+  MipCutTree->Branch("t_NFTrkcandEta",   "std::vector<double>", &t_NFTrkcandEta );
+  MipCutTree->Branch("t_NFTrkcandPhi",   "std::vector<double>", &t_NFTrkcandPhi );
+  MipCutTree->Branch("t_NFTrkcandEmip",  "std::vector<double>", &t_NFTrkcandEmip);
+  MipCutTree->Branch("t_NFTrkMinDR",     "std::vector<double>", &t_NFTrkMinDR);
+  MipCutTree->Branch("t_NFTrkMinDP1",    "std::vector<double>", &t_NFTrkMinDP1);
+  MipCutTree->Branch("t_NFTrkselTkFlag", "std::vector<bool>",   &t_NFTrkselTkFlag);
+  MipCutTree->Branch("t_NFTrkqltyFlag",  "std::vector<bool>",   &t_NFTrkqltyFlag);
+  MipCutTree->Branch("t_NFTrkMissFlag",  "std::vector<bool>",   &t_NFTrkMissFlag);
+  MipCutTree->Branch("t_NFTrkPVFlag",    "std::vector<bool>",   &t_NFTrkPVFlag);
+  MipCutTree->Branch("t_NFTrkPropFlag",  "std::vector<bool>",   &t_NFTrkPropFlag);
+  MipCutTree->Branch("t_NFTrkChgIsoFlag","std::vector<bool>",   &t_NFTrkChgIsoFlag);
+  MipCutTree->Branch("t_NFTrkNeuIsoFlag","std::vector<bool>",   &t_NFTrkNeuIsoFlag);
+  MipCutTree->Branch("t_NFTrkMipFlag",   "std::vector<bool>",   &t_NFTrkMipFlag);
+  MipCutTree->Branch("t_ECone",        "std::vector<double>", &t_ECone);
+
+  h_nHLT        = fs->make<TH1I>("h_nHLT" , "Size of trigger Names", 1000, 1, 1000);
+  h_HLT         = fs->make<TH1I>("h_HLT"  ,  "HLT accept", 3, -1, 2);
+  h_PreL1       = fs->make<TH1I>("h_PreL1",  "L1 Prescale", 500, 0, 500);
   h_PreHLT      = fs->make<TH1I>("h_PreHLT", "HLT Prescale", 50, 0, 50);
-  h_Pre         = fs->make<TH1I>("h_Pre", "Prescale", 3000, 0, 3000);
-  h_nL3Objs     = fs->make<TH1I>("h_nL3Objs", "Number of L3 objects", 10, 0, 10);
+  h_Pre         = fs->make<TH1I>("h_Pre",    "Prescale", 3000, 0, 3000);
 
   h_PreL1wt     = fs->make<TH1D>("h_PreL1wt", "Weighted L1 Prescale", 500, 0, 500);
   h_PreHLTwt    = fs->make<TH1D>("h_PreHLTwt", "Weighted HLT Prescale", 500, 0, 100);
   h_L1ObjEnergy = fs->make<TH1D>("h_L1ObjEnergy", "Energy of L1Object", 500, 0.0, 500.0);
 
-  for(int ipair=0; ipair<6; ipair++) {
-    sprintf(hname, "h_dEta%s", pairs[ipair].c_str());
-    sprintf(htit, "dEta for %s", pairs[ipair].c_str());
-    h_dEta[ipair]        = fs->make<TH1D>(hname, htit, 200, -10.0, 10.0);
-    h_dEta[ipair]->GetXaxis()->SetTitle("d#eta");
+  h_EnIn = fs->make<TH1D>("h_EnInEcal", "EnergyIn Ecal", 200, 0.0, 20.0);
+  h_EnOut = fs->make<TH1D>("h_EnOutEcal", "EnergyOut Ecal", 200, 0.0, 20.0);
+  h_MipEnMatch = fs->make<TH2D>("h_MipEnMatch", "MipEn: HLT level vs Reco Level (Matched)", 200, 0.0, 20.0, 200, 0.0, 20.0);
+  h_MipEnNoMatch = fs->make<TH2D>("h_MipEnNoMatch", "MipEn: HLT level vs Reco Level (No Match Found)", 200, 0.0, 20.0, 200, 0.0, 20.0);
 
-    sprintf(hname, "h_dPhi%s", pairs[ipair].c_str());
-    sprintf(htit, "dPhi for %s", pairs[ipair].c_str());
-    h_dPhi[ipair]        = fs->make<TH1D>(hname, htit, 140, -7.0, 7.0);
-    h_dPhi[ipair]->GetXaxis()->SetTitle("d#phi");
+  if (doL2L3) {
+    h_nL3Objs     = fs->make<TH1I>("h_nL3Objs", "Number of L3 objects", 10, 0, 10);
+    
+    std::string pairs[9] = {"L2L3", "L2L3Match", "L2L3NoMatch", "L3Reco", "L3RecoMatch", "L3RecoNoMatch", "NewFilterReco", "NewFilterRecoMatch", "NewFilterRecoNoMatch"};
+    for (int ipair=0; ipair<9; ipair++) {
+      sprintf(hname, "h_dEta%s", pairs[ipair].c_str());
+      sprintf(htit, "#Delta#eta for %s", pairs[ipair].c_str());
+      h_dEta[ipair]        = fs->make<TH1D>(hname, htit, 200, -10.0, 10.0);
+      h_dEta[ipair]->GetXaxis()->SetTitle("d#eta");
+      
+      sprintf(hname, "h_dPhi%s", pairs[ipair].c_str());
+      sprintf(htit, "#Delta#phi for %s", pairs[ipair].c_str());
+      h_dPhi[ipair]        = fs->make<TH1D>(hname, htit, 140, -7.0, 7.0);
+      h_dPhi[ipair]->GetXaxis()->SetTitle("d#phi");
 
-    sprintf(hname, "h_dPt%s", pairs[ipair].c_str());
-    sprintf(htit, "dPt for %s objects", pairs[ipair].c_str());
-    h_dPt[ipair]         = fs->make<TH1D>(hname, htit, 400, -200.0, 200.0);
-    h_dPt[ipair]->GetXaxis()->SetTitle("dp_{T} (GeV)");
+      sprintf(hname, "h_dPt%s", pairs[ipair].c_str());
+      sprintf(htit, "#Delta dp_{T} for %s objects", pairs[ipair].c_str());
+      h_dPt[ipair]         = fs->make<TH1D>(hname, htit, 400, -200.0, 200.0);
+      h_dPt[ipair]->GetXaxis()->SetTitle("dp_{T} (GeV)");
 
-    sprintf(hname, "h_dP%s", pairs[ipair].c_str());
-    sprintf(htit, "dP for %s objects", pairs[ipair].c_str());
-    h_dP[ipair]         = fs->make<TH1D>(hname, htit, 400, -200.0, 200.0);
-    h_dP[ipair]->GetXaxis()->SetTitle("dP (GeV)");
+      sprintf(hname, "h_dP%s", pairs[ipair].c_str());
+      sprintf(htit, "#Delta p for %s objects", pairs[ipair].c_str());
+      h_dP[ipair]         = fs->make<TH1D>(hname, htit, 400, -200.0, 200.0);
+      h_dP[ipair]->GetXaxis()->SetTitle("dP (GeV)");
 
-    sprintf(hname, "h_dinvPt%s", pairs[ipair].c_str());
-    sprintf(htit, "dinvPt for %s objects", pairs[ipair].c_str());
-    h_dinvPt[ipair]      = fs->make<TH1D>(hname, htit, 500, -0.4, 0.1);
-    h_dinvPt[ipair]->GetXaxis()->SetTitle("d(1/p_{T})");
+      sprintf(hname, "h_dinvPt%s", pairs[ipair].c_str());
+      sprintf(htit, "#Delta (1/p_{T}) for %s objects", pairs[ipair].c_str());
+      h_dinvPt[ipair]      = fs->make<TH1D>(hname, htit, 500, -0.4, 0.1);
+      h_dinvPt[ipair]->GetXaxis()->SetTitle("d(1/p_{T})");
+      sprintf(hname, "h_mindR%s", pairs[ipair].c_str());
+      sprintf(htit, "min(#Delta R) for %s objects", pairs[ipair].c_str());
+      h_mindR[ipair]       = fs->make<TH1D>(hname, htit, 500, 0.0, 1.0);
+      h_mindR[ipair]->GetXaxis()->SetTitle("dR");
+    }
 
-    sprintf(hname, "h_mindR%s", pairs[ipair].c_str());
-    sprintf(htit, "mindR for %s objects", pairs[ipair].c_str());
-    h_mindR[ipair]       = fs->make<TH1D>(hname, htit, 500, 0.0, 1.0);
-    h_mindR[ipair]->GetXaxis()->SetTitle("dR");
+    for (int lvl=0; lvl<2; lvl++) {
+      sprintf(hname, "h_dEtaL1%s", levels[lvl+1].c_str());
+      sprintf(htit, "#Delta#eta for L1 and %s objects", levels[lvl+1].c_str());
+      h_dEtaL1[lvl] = fs->make<TH1D>(hname, htit, 400, -10.0, 10.0);
+
+      sprintf(hname, "h_dPhiL1%s", levels[lvl+1].c_str());
+      sprintf(htit, "#Delta#phi for L1 and %s objects", levels[lvl+1].c_str());
+      h_dPhiL1[lvl] = fs->make<TH1D>(hname, htit, 280, -7.0, 7.0);
+
+      sprintf(hname, "h_dRL1%s", levels[lvl+1].c_str());
+      sprintf(htit, "#Delta R for L1 and %s objects", levels[lvl+1].c_str());
+      h_dRL1[lvl] = fs->make<TH1D>(hname, htit, 100, 0.0, 10.0);
+    }
   }
 
-  for(int ilevel=0; ilevel<20; ilevel++) {
+  int levmin = (doL2L3 ? 0 : 10);
+  for (int ilevel=levmin; ilevel<20; ilevel++) {
     sprintf(hname, "h_p%s", levels[ilevel].c_str());
     sprintf(htit, "p for %s objects", levels[ilevel].c_str());
     h_p[ilevel] = fs->make<TH1D>(hname, htit, 100, 0.0, 500.0);
     h_p[ilevel]->GetXaxis()->SetTitle("p (GeV)");
-
+    
     sprintf(hname, "h_pt%s", levels[ilevel].c_str());
-    sprintf(htit, "pt for %s objects", levels[ilevel].c_str());
+    sprintf(htit, "p_{T} for %s objects", levels[ilevel].c_str());
     h_pt[ilevel] = fs->make<TH1D>(hname, htit, 100, 0.0, 500.0);
     h_pt[ilevel]->GetXaxis()->SetTitle("p_{T} (GeV)");
-
+    
     sprintf(hname, "h_eta%s", levels[ilevel].c_str());
-    sprintf(htit, "eta for %s objects", levels[ilevel].c_str());
+    sprintf(htit, "#eta for %s objects", levels[ilevel].c_str());
     h_eta[ilevel] = fs->make<TH1D>(hname, htit, 100, -5.0, 5.0);
     h_eta[ilevel]->GetXaxis()->SetTitle("#eta");
-
+    
     sprintf(hname, "h_phi%s", levels[ilevel].c_str());
-    sprintf(htit, "phi for %s objects", levels[ilevel].c_str());
+    sprintf(htit, "#phi for %s objects", levels[ilevel].c_str());
     h_phi[ilevel] = fs->make<TH1D>(hname, htit, 70, -3.5, 3.50);
     h_phi[ilevel]->GetXaxis()->SetTitle("#phi");
   }
-  for(int lvl=0; lvl<2; lvl++) {
-    sprintf(hname, "h_dEtaL1%s", levels[lvl+1].c_str());
-    sprintf(htit, "dEta for L1 and %s objects", levels[lvl+1].c_str());
-    h_dEtaL1[lvl] = fs->make<TH1D>(hname, htit, 400, -10.0, 10.0);
-
-    sprintf(hname, "h_dPhiL1%s", levels[lvl+1].c_str());
-    sprintf(htit, "dPhi for L1 and %s objects", levels[lvl+1].c_str());
-    h_dPhiL1[lvl] = fs->make<TH1D>(hname, htit, 280, -7.0, 7.0);
-
-    sprintf(hname, "h_dRL1%s", levels[lvl+1].c_str());
-    sprintf(htit, "dR for L1 and %s objects", levels[lvl+1].c_str());
-    h_dRL1[lvl] = fs->make<TH1D>(hname, htit, 100, 0.0, 10.0);
-  }
-
-  for(int icut=0; icut<2; icut++) {
+  
+  std::string cuts[2]  = {"HLTMatched", "HLTNotMatched"};
+  std::string cuts2[2] = {"All", "Away from L1"};
+  for (int icut=0; icut<2; icut++) {
     sprintf(hname, "h_eMip%s", cuts[icut].c_str());
     sprintf(htit, "eMip for %s tracks", cuts[icut].c_str());
     h_eMip[icut]     =fs->make<TH1D>(hname, htit, 200, 0.0, 10.0);
@@ -539,15 +606,39 @@ void IsoTrig::beginJob() {
     h_eNeutIso[icut]->GetXaxis()->SetTitle("E_{NeutIso} (GeV)");
 
     for (int kcut=0; kcut<2; ++kcut) {
-      sprintf(hname, "h_etaCalibTracks%s%d", cuts[icut].c_str(), kcut);
-      sprintf(htit, "etaCalibTracks for %s (%s)", cuts[icut].c_str(), cuts2[kcut].c_str());
-      h_etaCalibTracks[icut][kcut]=fs->make<TH1D>(hname, htit, 60, -30.0, 30.0);
-      h_etaCalibTracks[icut][kcut]->GetXaxis()->SetTitle("i#eta");
+      for (int lim=0; lim<5; ++lim) {
+	sprintf(hname, "h_etaCalibTracks%sCut%dLim%d", cuts[icut].c_str(), kcut, lim);
+	sprintf(htit, "#eta for %s isolated MIP tracks (%4.1f < p < %5.1f Gev/c %s)", cuts[icut].c_str(), pLimits[lim], pLimits[lim+1], cuts2[kcut].c_str());
+	h_etaCalibTracks[lim][icut][kcut]=fs->make<TH1D>(hname, htit, 60, -30.0, 30.0);
+	h_etaCalibTracks[lim][icut][kcut]->GetXaxis()->SetTitle("i#eta");
 
-      sprintf(hname, "h_etaMipTracks%s%d", cuts[icut].c_str(), kcut);
-      sprintf(htit, "etaMipTracks for %s (%s)", cuts[icut].c_str(), cuts2[kcut].c_str());
-      h_etaMipTracks[icut][kcut]=fs->make<TH1D>(hname, htit, 60, -30.0, 30.0);
-      h_etaMipTracks[icut][kcut]->GetXaxis()->SetTitle("i#eta");
+	sprintf(hname, "h_etaMipTracks%sCut%dLim%d", cuts[icut].c_str(), kcut, lim);
+	sprintf(htit, "#eta for %s charge isolated MIP tracks (%4.1f < p < %5.1f Gev/c %s)", cuts[icut].c_str(), pLimits[lim], pLimits[lim+1], cuts2[kcut].c_str());
+	h_etaMipTracks[lim][icut][kcut]=fs->make<TH1D>(hname, htit, 60, -30.0, 30.0);
+	h_etaMipTracks[lim][icut][kcut]->GetXaxis()->SetTitle("i#eta");
+      }
+    }
+  }
+
+  std::string ecut1[3] = {"all","HLTMatched","HLTNotMatched"};
+  std::string ecut2[2] = {"without","with"};
+  int etac[48] = {-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,
+		  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+  for (int icut=0; icut<6; icut++) {
+    //    int i1 = (icut>3 ? 1 : 0);
+    int i1 = (icut>2 ? 1 : 0);
+    int i2 = icut - i1*3;
+    for (int kcut=0; kcut<48; kcut++) {
+      for (int lim=0; lim<5; ++lim) {
+	sprintf(hname, "h_eta%dEnHcal%s%s%d", etac[kcut], ecut1[i2].c_str(), ecut2[i1].c_str(), lim);
+	sprintf(htit, "HCAL energy for #eta=%d for %s tracks (p=%4.1f:%5.1f Gev) %s neutral isolation", etac[kcut], ecut1[i2].c_str(), pLimits[lim], pLimits[lim+1], ecut2[i1].c_str());
+	h_eHcal[lim][icut][kcut]=fs->make<TH1D>(hname, htit, 750, 0.0, 150.0);
+	h_eHcal[lim][icut][kcut]->GetXaxis()->SetTitle("Energy (GeV)");
+	sprintf(hname, "h_eta%dEnCalo%s%s%d", etac[kcut], ecut1[i2].c_str(), ecut2[i1].c_str(), lim);
+	sprintf(htit, "Calorimter energy for #eta=%d for %s tracks (p=%4.1f:%5.1f Gev) %s neutral isolation", etac[kcut], ecut1[i2].c_str(), pLimits[lim], pLimits[lim+1], ecut2[i1].c_str());
+	h_eCalo[lim][icut][kcut]=fs->make<TH1D>(hname, htit, 750, 0.0, 150.0);
+	h_eCalo[lim][icut][kcut]->GetXaxis()->SetTitle("Energy (GeV)");
+      }
     }
   }
 }
@@ -556,7 +647,10 @@ void IsoTrig::endJob() {
   unsigned int preL1, preHLT;
   std::map<unsigned int, unsigned int>::iterator itr;
   std::map<unsigned int, const std::pair<int, int>>::iterator itrPre;
-  std::cout << "RunNo vs HLT accepts for " << Det << std::endl;
+  if (verbosity%10 > 0)  std::cout << trigNames.size() << "Triggers were run. RunNo vs HLT accepts for";
+  for (unsigned int i=0; i<trigNames.size(); ++i) 
+    std::cout << " " << trigNames[i];
+  std::cout << std::endl;
   unsigned int n = maxRunNo - minRunNo +1;
   g_Pre = fs->make<TH1I>("h_PrevsRN", "PreScale Vs Run Number", n, minRunNo, maxRunNo);
   g_PreL1 = fs->make<TH1I>("h_PreL1vsRN", "L1 PreScale Vs Run Number", n, minRunNo, maxRunNo);
@@ -577,7 +671,7 @@ void IsoTrig::endJob() {
 // ------------ method called when starting to processes a run  ------------
 void IsoTrig::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   std::cout  << "Run " << iRun.run() << " hltconfig.init " 
-	     << hltConfig_.init(iRun,iSetup,"HLT",changed) << std::endl;;
+	     << hltConfig_.init(iRun,iSetup,processName,changed) << std::endl;;
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -588,12 +682,500 @@ void IsoTrig::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void IsoTrig::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void IsoTrig::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+void IsoTrig::studyMipCut(const edm::Event& iEvent,  
+			  const edm::EventSetup& iSetup,
+			  edm::Handle<reco::TrackCollection>& trkCollection,
+			  edm::Handle<reco::IsolatedPixelTrackCandidateCollection>& L2cands) {
+  clearMipCutTreeVectors();
+  //  std::cout << "inside studymipcut" << std::endl;
+  if (!trkCollection.isValid()) {
+    std::cout << "trkCollection.isValid is false" << std::endl;
+  } else {
+    std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr; 
+    const MagneticField *bField = bFieldH.product();
+    const CaloGeometry* geo = pG.product();
+    std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
+    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, trkCaloDirections1, ((verbosity/100)%10>2));
+    //    std::cout << "Number of L2cands:" << L2cands->size() 
+    //    	      << " to be matched to something out of " 
+    //    	      << trkCaloDirections.size() << " reco tracks" << std::endl;
+    for (unsigned int i=0; i<L2cands->size(); i++) {    
+      edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref =
+	edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(L2cands, i);  
+      double enIn = candref->energyIn();
+      h_EnIn->Fill(candref->energyIn());
+      h_EnOut->Fill(candref->energyOut());
+      math::XYZTLorentzVector v1(candref->track()->px(),candref->track()->py(),
+				 candref->track()->pz(),candref->track()->p());
+      //      std::cout << "HLT Level Candidate eta/phi/pt/enIn:" 
+      //      		<< candref->track()->eta() << "/" << candref->track()->phi() 
+      //		<< "/" << candref->track()->pt() << "/" << candref->energyIn() 
+      //      		<< std::endl;   
+      math::XYZTLorentzVector mindRvec; 
+      double mindR=999.9, mindP1=999.9, eMipDR=0.0;
+      std::vector<bool> selFlags;
+
+      unsigned int nTracks=0;
+      double conehmaxNearP = 0, hCone=0;
+      for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end(); trkDetItr++,nTracks++){
+	const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+	math::XYZTLorentzVector v2(pTrack->px(), pTrack->py(),  
+				   pTrack->pz(), pTrack->p());
+	double dr   = dR(v1,v2);
+	double dp1  = std::abs(1./v1.r() - 1./v2.r());
+	//	std::cout <<"This recotrack(eta/phi/pt) " << pTrack->eta() << "/" 
+	//		  << pTrack->phi() << "/" << pTrack->pt() << " has dr/dp= " 
+	//		  << dr << "/" << dp << "/" << dp1 << std::endl;
+	if (dr<mindR) {
+	  mindR = dr;
+	  mindP1= dp1;
+	  mindRvec=v2;
+	  int nRH_eMipDR=0, nNearTRKs=0;
+//	  std::cout << "debug starts here ";
+//	  std::cout << geo;
+//	  std::cout << "_" << barrelRecHitsHandle;
+//	  std::cout << "_" << endcapRecHitsHandle << "_" << std::endl;
+	  eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				   trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				   a_mipR, trkDetItr->directionECAL, nRH_eMipDR);
+	  //	  std::cout << "mip " << eMipDR << std::endl;
+	  bool selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,((verbosity/100)%10>1));
+	  spr::trackSelectionParameters oneCutParameters = selectionParameters;
+	  oneCutParameters.maxDxyPV  = 10;
+	  oneCutParameters.maxDzPV     = 100;
+	  oneCutParameters.maxInMiss = 2;
+	  oneCutParameters.maxOutMiss= 2;
+	  bool qltyFlag     =  spr::goodTrack(pTrack,leadPV,oneCutParameters,((verbosity/100)%10>1));
+	  oneCutParameters           = selectionParameters;
+	  oneCutParameters.maxDxyPV  = 10;
+	  oneCutParameters.maxDzPV     = 100;
+	  bool qltyMissFlag =  spr::goodTrack(pTrack,leadPV,oneCutParameters,((verbosity/100)%10>1));
+	  oneCutParameters           = selectionParameters;
+	  oneCutParameters.maxInMiss = 2;
+	  oneCutParameters.maxOutMiss= 2;
+	  bool qltyPVFlag   =  spr::goodTrack(pTrack,leadPV,oneCutParameters,((verbosity/100)%10>1));
+//	  std::cout << "sel " << selectTk << std::endl;
+//	  std::cout << "ntracks " << nTracks;
+//	  std::cout << " a_charIsoR " << a_charIsoR;
+//	  std::cout << " nNearTRKs " << nNearTRKs << std::endl; 
+	  conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections1, a_charIsoR, nNearTRKs, ((verbosity/100)%10>1));
+	  //	  std::cout << "coneh " << conehmaxNearP << std::endl;
+	  //	  std::cout << "ok " << trkDetItr->okECAL << " " << trkDetItr->okHCAL << std::endl;
+	  double e1 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				       a_neutR1, trkDetItr->directionECAL, nRH_eMipDR);
+	  //	  std::cout << "e1 " << e1 << std::endl;
+	  double e2 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				       a_neutR2, trkDetItr->directionECAL, nRH_eMipDR);
+	  double e_inCone  = e2 - e1;
+	  bool chgIsolFlag = (conehmaxNearP < cutCharge);
+	  bool mipFlag     = (eMipDR < cutMip);
+	  bool neuIsolFlag = (e_inCone < cutNeutral);
+	  bool trkpropFlag = ((trkDetItr->okECAL) && (trkDetItr->okHCAL));
+	  selFlags.clear();
+	  selFlags.push_back(selectTk);        selFlags.push_back(qltyFlag);
+	  selFlags.push_back(qltyMissFlag);    selFlags.push_back(qltyPVFlag);
+	  selFlags.push_back(trkpropFlag);     selFlags.push_back(chgIsolFlag);
+	  selFlags.push_back(neuIsolFlag);     selFlags.push_back(mipFlag);
+	  //	  std::cout << selectTk << " " << qltyFlag << " " << qltyMissFlag << " " << qltyPVFlag << " " << trkpropFlag << " " << chgIsolFlag << " " << neuIsolFlag << " " << mipFlag << std::endl;
+	double             distFromHotCell=-99.0;
+	int                nRecHitsCone=-99, ietaHotCell=-99, iphiHotCell=-99;
+	GlobalPoint        gposHotCell(0.,0.,0.);
+	std::vector<DetId> coneRecHitDetIds;
+	hCone    = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				   trkDetItr->pointECAL,
+				   a_coneR, trkDetItr->directionHCAL, 
+				   nRecHitsCone, coneRecHitDetIds,
+				   distFromHotCell, ietaHotCell, iphiHotCell,
+				   gposHotCell, -1);
+	}
+      }
+      pushMipCutTreeVecs(v1, mindRvec, enIn, eMipDR, mindR, mindP1, selFlags, hCone);
+      fillDifferences(6, v1, mindRvec, (verbosity%10 >0));
+      if (mindR>=0.05) {
+	fillDifferences(8, v1, mindRvec, (verbosity%10 >0));
+	//	std::cout << "No Matching found between reco tracks and HLT Level Pixel Tracks: " << mindR << ":" << mindP1 << std::endl;
+	h_MipEnNoMatch->Fill(candref->energyIn(), eMipDR);
+      } else {
+	fillDifferences(7, v1, mindRvec, (verbosity%10 >0));
+	//	std::cout << "Reco Track seems to be macthing eta/phi/pt/eMipDR:" 
+	//		  << mindRvec.eta() << "/" << mindRvec.phi() << "/" 
+	//		  << mindRvec.pt() << "/" << eMipDR << " Match " << mindR
+	//		  << ":" << mindP1 << std::endl;   
+	h_MipEnMatch->Fill(candref->energyIn(), eMipDR);
+      }
+    }
+   }
+}
+void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
+			   std::vector<reco::TrackCollection::const_iterator>& goodTks) {
+
+  if (verbosity%10 > 0) std::cout << "Inside StudyTrigger" << std::endl;
+  //// Filling Pt, eta, phi of L1, L2 and L3 objects
+  for (int j=0; j<3; j++) {
+    for (unsigned int k=0; k<vec[j].size(); k++) {
+      if (verbosity%10 > 0) std::cout << "vec[" << j << "][" << k << "] pt " << vec[j][k].pt() << " eta " << vec[j][k].eta() << " phi " << vec[j][k].phi() << std::endl;
+      fillHist(j, vec[j][k]);
+    }
+  }
+	  
+  double deta, dphi, dr;
+  //// deta, dphi and dR for leading L1 object with L2 and L3 objects
+  for (int lvl=1; lvl<3; lvl++) {
+    for (unsigned int i=0; i<vec[lvl].size(); i++) {
+      deta = dEta(vec[0][0],vec[lvl][i]);
+      dphi = dPhi(vec[0][0],vec[lvl][i]);
+      dr   = dR(vec[0][0],vec[lvl][i]);
+      if (verbosity%10 > 1) std::cout << "lvl " <<lvl << " i " << i << " deta " << deta << " dphi " << dphi << " dR " << dr << std::endl;
+      h_dEtaL1[lvl-1] -> Fill(deta);
+      h_dPhiL1[lvl-1] -> Fill(dphi);
+      h_dRL1[lvl-1]   -> Fill(std::sqrt(dr));
+    }
+  }
+
+  math::XYZTLorentzVector mindRvec;
+  double mindR;
+  for (unsigned int k=0; k<vec[2].size(); ++k) {
+    //// Find min of deta/dphi/dR for each of L3 objects with L2 objects
+    mindR=999.9;
+    if (verbosity%10 > 1) std::cout << "L3obj: pt " << vec[2][k].pt() << " eta " << vec[2][k].eta() << " phi " << vec[2][k].phi() << std::endl;
+    for (unsigned int j=0; j<vec[1].size(); j++) {
+      dr   = dR(vec[2][k],vec[1][j]);
+      if (dr<mindR) {
+	mindR=dr;
+	mindRvec=vec[1][j];
+      }
+    }
+    fillDifferences(0, vec[2][k], mindRvec, (verbosity%10 >0));
+    if (mindR < 0.03) {
+      fillDifferences(1, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillHist(6, mindRvec);
+      fillHist(8, vec[2][k]);
+    } else {
+      fillDifferences(2, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillHist(7, mindRvec);
+      fillHist(9, vec[2][k]);
+    }
+	      	      
+    ////// Minimum deltaR for each of L3 objs with Reco::tracks
+    mindR=999.9;
+    if (verbosity%10 > 0) 
+      std::cout << "Now Matching L3 track with reco: L3 Track (eta, phi) " 
+		<< vec[2][k].eta() << ":" << vec[2][k].phi() << " L2 Track "
+		<< mindRvec.eta() << ":" << mindRvec.phi() << " dR "
+		<< mindR << std::endl;
+    reco::TrackCollection::const_iterator goodTk = trkCollection->end();
+    if (trkCollection.isValid()) {
+      double mindP(9999.9), mindP1(9999.9);
+      reco::TrackCollection::const_iterator trkItr;
+      for (trkItr=trkCollection->begin(); 
+	   trkItr!=trkCollection->end(); trkItr++) {
+	math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
+				   trkItr->pz(), trkItr->p());
+	double deltaR = dR(v4, vec[2][k]);
+	double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
+	double dp1    = std::abs(1./v4.r()-1./vec[2][k].r());
+	if (deltaR<mindR) {
+	  mindR    = deltaR;
+	  mindP    = dp;
+	  mindP1   = dp1;
+	  mindRvec = v4;
+	  goodTk   = trkItr;
+	}
+	if ((verbosity/10)%10>1 && deltaR<1.0) {
+	  std::cout << "reco track: pt " << v4.pt() << " eta " << v4.eta()
+		    << " phi " << v4.phi() << " DR " << deltaR 
+		    << std::endl;
+	}
+      }
+      if (verbosity%10 > 0) 
+	std::cout << "Now Matching at Reco level in step 1 DR: "  << mindR
+		  << ":" << mindP << ":" << mindP1 << " eta:phi " 
+		  << mindRvec.eta() << ":" << mindRvec.phi() << std::endl;
+      if (mindR < 0.03 && mindP > 0.1) {
+	for (trkItr=trkCollection->begin(); 
+	     trkItr!=trkCollection->end(); trkItr++) {
+	  math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
+				     trkItr->pz(), trkItr->p());
+	  double deltaR = dR(v4, vec[2][k]);
+	  double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
+	  double dp1    = std::abs(1./v4.r()-1./vec[2][k].r());
+	  if (dp<mindP && deltaR<0.03) {
+	    mindR    = deltaR;
+	    mindP    = dp;
+	    mindP1   = dp1;
+	    mindRvec = v4;
+	    goodTk   = trkItr;
+	  }
+	}
+	if (verbosity%10 > 0) 
+	  std::cout << "Now Matching at Reco level in step 2 DR: "  << mindR
+		    << ":" << mindP << ":" << mindP1 << " eta:phi " 
+		    << mindRvec.eta() << ":" << mindRvec.phi() << std::endl;
+
+      }
+      fillDifferences(3, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillHist(3, mindRvec);
+      if(mindR < 0.03) {
+	fillDifferences(4, vec[2][k], mindRvec, (verbosity%10 >0));
+	fillHist(4, mindRvec);
+      } else {
+	fillDifferences(5, vec[2][k], mindRvec, (verbosity%10 >0));
+	fillHist(5, mindRvec);
+      }
+      if (goodTk != trkCollection->end()) goodTks.push_back(goodTk);
+    }
+  }
+}
+
+void IsoTrig::studyIsolation(const edm::Event& iEvent, 
+			     const edm::EventSetup& iSetup,
+			     edm::Handle<reco::TrackCollection>& trkCollection,
+			     std::vector<reco::TrackCollection::const_iterator>& goodTks) {
+
+  if (trkCollection.isValid()) {
+    // get handles to calogeometry and calotopology
+    const CaloGeometry* geo = pG.product();
+    const MagneticField *bField = bFieldH.product();
+    std::vector<spr::propagatedTrackDirection> trkCaloDirections;
+    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, trkCaloDirections, ((verbosity/100)%10>2));
+
+    std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
+  
+    if ((verbosity/1000)%10 > 1) {
+      std::cout << "n of barrelRecHitsHandle " << barrelRecHitsHandle->size() << std::endl;
+      for (EcalRecHitCollection::const_iterator hit = barrelRecHitsHandle->begin(); hit != barrelRecHitsHandle->end(); ++hit) {
+	std::cout << "hit : detid(ieta,iphi) " << (EBDetId)(hit->id()) << " time " << hit->time() << " energy " <<  hit->energy() << std::endl;
+      }
+      std::cout << "n of endcapRecHitsHandle " << endcapRecHitsHandle->size() << std::endl;
+      for (EcalRecHitCollection::const_iterator hit = endcapRecHitsHandle->begin(); hit != endcapRecHitsHandle->end(); ++hit) {
+	std::cout << "hit : detid(ieta,iphi) " << (EEDetId)(hit->id()) << " time " << hit->time() << " energy " <<  hit->energy() << std::endl;
+      }
+      std::cout << "n of hbhe " << hbhe->size() << std::endl;
+      for (HBHERecHitCollection::const_iterator hit = hbhe->begin(); hit != hbhe->end(); ++hit) {
+	std::cout << "hit : detid(ieta,iphi) " << hit->id() << " time " << hit->time() << " energy " <<  hit->energy() << std::endl;
+      }
+    }
+    unsigned int nTracks=0, ngoodTk=0, nselTk=0;
+    int          ieta=999;
+    for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++,nTracks++){
+      bool l3Track  = (std::find(goodTks.begin(),goodTks.end(),trkDetItr->trkItr) != goodTks.end());
+      const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+      math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), 
+				 pTrack->pz(), pTrack->p());
+      bool selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,((verbosity/100)%10>1));
+      double eMipDR=9999., e_inCone=0, conehmaxNearP=0, mindR=999.9, hCone=0;
+      if (trkDetItr->okHCAL) {
+	HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
+	ieta = detId.ieta();
+      }
+      for (unsigned k=0; k<vec[0].size(); ++k) {
+	double deltaR = dR(v4, vec[0][k]);
+	if (deltaR<mindR) mindR = deltaR;
+      }
+      if ((verbosity/100)%10 > 1) std::cout << "Track ECAL " << trkDetItr->okECAL << " HCAL " << trkDetItr->okHCAL << " Flag " << selectTk << std::endl;
+      if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
+	ngoodTk++;
+	int nRH_eMipDR=0, nNearTRKs=0;
+	double e1 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				     trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				     a_neutR1, trkDetItr->directionECAL, nRH_eMipDR);
+	double e2 =  spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				     trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				     a_neutR2, trkDetItr->directionECAL, nRH_eMipDR);
+	eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+				 trkDetItr->pointHCAL, trkDetItr->pointECAL,
+				 a_mipR, trkDetItr->directionECAL, nRH_eMipDR);
+	conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR, nNearTRKs, ((verbosity/100)%10>1));
+	e_inCone = e2 - e1;
+	double             distFromHotCell=-99.0;
+	int                nRecHitsCone=-99, ietaHotCell=-99, iphiHotCell=-99;
+	GlobalPoint        gposHotCell(0.,0.,0.);
+	std::vector<DetId> coneRecHitDetIds;
+  	hCone    = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				   trkDetItr->pointECAL,
+				   a_coneR, trkDetItr->directionHCAL, 
+				   nRecHitsCone, coneRecHitDetIds,
+				   distFromHotCell, ietaHotCell, iphiHotCell,
+				   gposHotCell, -1);
+	if (eMipDR<1.0) nselTk++;
+      }
+      if (l3Track) {
+	fillHist(10,v4);
+	if (selectTk) {
+	  fillHist(11,v4);
+	  fillCuts(0, eMipDR, conehmaxNearP, e_inCone, v4, ieta, (mindR>dr_L1));
+	  if (conehmaxNearP < cutCharge) {
+	    fillHist(12,v4);
+	    if (eMipDR < cutMip) {
+	      fillHist(13,v4);
+	      fillEnergy(1, ieta, hCone, eMipDR, v4);
+	      fillEnergy(0, ieta, hCone, eMipDR, v4);
+	      if (e_inCone < cutNeutral) {
+		fillHist(14, v4);
+		fillEnergy(4, ieta, hCone, eMipDR, v4);
+		fillEnergy(3, ieta, hCone, eMipDR, v4);
+	      }
+	    }
+	  }
+	}
+      } else if (doL2L3) {
+	fillHist(15,v4);
+	if (selectTk) {
+	  fillHist(16,v4);
+	  fillCuts(1, eMipDR, conehmaxNearP, e_inCone, v4, ieta, (mindR>dr_L1));
+	  if (conehmaxNearP < cutCharge) {
+	    fillHist(17,v4);
+	    if (eMipDR < cutMip) {
+	      fillHist(18,v4);
+	      fillEnergy(2, ieta, hCone, eMipDR, v4);
+	      fillEnergy(0, ieta, hCone, eMipDR, v4);
+	      if (e_inCone < cutNeutral) {
+		fillHist(19, v4);
+		fillEnergy(5, ieta, hCone, eMipDR, v4);
+		fillEnergy(3, ieta, hCone, eMipDR, v4);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    //    std::cout << "Number of tracks selected offline " << nselTk << std::endl;      
+  }
+}
+
+void IsoTrig::chgIsolation(double& etaTriggered, double& phiTriggered, 
+			   edm::Handle<reco::TrackCollection>& trkCollection, 
+			   const edm::Event& theEvent) {
+  clearChgIsolnTreeVectors();
+  //  std::cout << "Inside chgIsolation() with etaTk/phiTk: " << etaTk << "/" << phiTk << " triggered eta/phi: " 
+  //	    << etaTriggered << "/" << phiTriggered << std::endl;
+  std::vector<double> maxP;
+  //create vector of refs from input collections
+  std::vector<reco::TrackRef> pixelTrackRefs;
+  
+  for (unsigned int iPix=0; iPix<pixelTracksSources_.size(); iPix++) {
+    edm::Handle<reco::TrackCollection> iPixCol;
+    theEvent.getByToken(tok_pixtks_[iPix],iPixCol);
+    for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++) {
+      pixelTrackRefs.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
+    }
+  }
+  
+  std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr; 
+  const MagneticField *bField = bFieldH.product();
+  const CaloGeometry* geo = pG.product();
+  std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
+  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality, trkCaloDirections1, ((verbosity/100)%10>2));
+
+  for (unsigned int k=0; k<pixelIsolationConeSizeAtEC_.size(); ++k)
+    maxP.push_back(0);
+  unsigned i = pixelTrackRefs.size();
+  std::vector<std::pair<unsigned int, std::pair<double, double>>>  VecSeedsatEC;
+  //loop to select isolated tracks
+  for (unsigned iS=0; iS<pixelTrackRefs.size(); iS++) {
+    if (pixelTrackRefs[iS]->p() > minPTrackValue_) {
+      bool vtxMatch = false;
+      //associate to vertex (in Z) 
+      unsigned int ivSel = recVtxs->size();
+      double minDZ = 100;
+      for (unsigned int iv = 0; iv < recVtxs->size(); ++iv) {
+	if (fabs(pixelTrackRefs[iS]->dz((*recVtxs)[iv].position()))<minDZ) {
+	  minDZ  = fabs(pixelTrackRefs[iS]->dz((*recVtxs)[iv].position()));
+	  ivSel  = iv;
+	}
+      }
+      //cut on dYX:
+      if (ivSel == recVtxs->size()) {
+	vtxMatch = true;
+      } else if (fabs(pixelTrackRefs[iS]->dxy((*recVtxs)[ivSel].position()))<vtxCutSeed_){
+	vtxMatch = true;
+      }
+      //select tracks not matched to triggered L1 jet
+      double R = deltaR(etaTriggered, phiTriggered, pixelTrackRefs[iS]->eta(), 
+			pixelTrackRefs[iS]->phi());
+      if (R > tauUnbiasCone_ && vtxMatch) {
+	//propagate seed track to ECAL surface:
+	std::pair<double,double> seedCooAtEC;
+	// in case vertex is found:
+	if (minDZ!=100) seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), (*recVtxs)[ivSel].z());
+	//in case vertex is not found:
+	else            seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), 0);
+	VecSeedsatEC.push_back(std::make_pair(iS, seedCooAtEC));
+      }
+    }
+  }
+//  std::cout << " index of the matched L2cand: " << i << " eta/phi/p: " << pixelTrackRefs[i]->eta()
+//	    << "/" << pixelTrackRefs[i]->phi() << "/" << pixelTrackRefs[i]->p() << std::endl;;
+//  std::cout << " VecSeedsatEC.size() " << VecSeedsatEC.size() << " pixelTrackRefs.size() " << pixelTrackRefs.size() << std::endl;
+  for (unsigned int l=0; l<VecSeedsatEC.size(); l++) {
+    unsigned int iSeed =  VecSeedsatEC[l].first;
+    //    std::cout << l << "th Pixcandidate iseed:" << iSeed << std::endl; 
+    math::XYZTLorentzVector v1(pixelTrackRefs[iSeed]->px(),pixelTrackRefs[iSeed]->py(),
+			       pixelTrackRefs[iSeed]->pz(),pixelTrackRefs[iSeed]->p());
+
+    for (unsigned int j=0; j<VecSeedsatEC.size(); j++) {
+      unsigned int iSurr = VecSeedsatEC[j].first;
+      if (iSeed != iSurr) {
+	//define preliminary cone around seed track impact point from which tracks will be extrapolated:
+	//	edm::Ref<reco::IsolatedPixelTrackCandidateCollection> cand2ref =
+	//	  edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(L2cands, iSurr);
+	if (deltaR(pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSurr]->eta(), 
+		   pixelTrackRefs[iSurr]->phi()) < prelimCone_) {
+	  unsigned int ivSel = recVtxs->size();
+	  double minDZ2=100;
+	  for (unsigned int iv = 0; iv < recVtxs->size(); ++iv) {
+	    if (fabs(pixelTrackRefs[iSurr]->dz((*recVtxs)[iv].position()))<minDZ2) {
+	      minDZ2  = fabs(pixelTrackRefs[iSurr]->dz((*recVtxs)[iv].position()));
+	      ivSel   = iv;
+	    }
+	  }
+	  //	  std::cout << "minDZ2 " << minDZ2 << " dxy " << pixelTrackRefs[iSurr]->dxy((*recVtxs)[ivSel].position()) << " vtxCutIsol_ " << vtxCutIsol_ <<std::endl; 
+	  //cut ot dXY:
+	  if (minDZ2==100 || fabs(pixelTrackRefs[iSurr]->dxy((*recVtxs)[ivSel].position()))<vtxCutIsol_) {
+	    //calculate distance at ECAL surface and update isolation: 
+	    double dist = getDistInCM(VecSeedsatEC[i].second.first, VecSeedsatEC[i].second.second, VecSeedsatEC[j].second.first, VecSeedsatEC[j].second.second);
+	    //	    std::cout << "pixelIsolationConeSizeAtEC_.size() " <<pixelIsolationConeSizeAtEC_.size() << std::endl;
+	    for (unsigned int k=0; k<pixelIsolationConeSizeAtEC_.size(); ++k) {
+	      if (dist<pixelIsolationConeSizeAtEC_[k]) {
+		if (pixelTrackRefs[iSurr]->p() > maxP[k]) 
+		  maxP[k] = pixelTrackRefs[iSurr]->p();
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  
+    double conehmaxNearP = -1; bool selectTk=false;
+    double mindR=999.9; int nTracks=0;
+    math::XYZTLorentzVector mindRvec;
+    for (trkDetItr = trkCaloDirections1.begin(); trkDetItr != trkCaloDirections1.end(); trkDetItr++, nTracks++){
+      int nNearTRKs=0;
+      const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+      math::XYZTLorentzVector v2(pTrack->px(), pTrack->py(),  
+				 pTrack->pz(), pTrack->p());
+      double dr   = dR(v1,v2);
+      /*
+      double dp1  = std::abs(1./v1.r() - 1./v2.r());
+      std::cout <<"THis recotrack(eta/phi/pt) " << pTrack->eta() << "/" 
+		<< pTrack->phi() << "/" << pTrack->pt() << " has dr/dp= " 
+      		  << dr << "/" << dp << "/" << dp1 << std::endl;
+      */
+      if (dr<mindR) {
+	selectTk = spr::goodTrack(pTrack,leadPV,selectionParameters,((verbosity/100)%10>1));
+	conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections1, a_charIsoR, nNearTRKs, ((verbosity/100)%10>1));
+	mindR = dr;
+	mindRvec = v2;
+      }
+    }
+    pushChgIsolnTreeVecs(v1, mindRvec, maxP, conehmaxNearP, selectTk);
+    //    std::cout << " conehmaxNearP " << conehmaxNearP << std::endl;
+    //    for (unsigned int k=0; k<pixelIsolationConeSizeAtEC_.size(); ++k) 
+    //      std::cout << "k/maxP[k]: " << k << "/" << maxP[k] << std::endl;	      
+  }
 }
 
 void IsoTrig::fillHist(int indx, math::XYZTLorentzVector& vec) {
@@ -617,20 +1199,37 @@ void IsoTrig::fillDifferences(int indx, math::XYZTLorentzVector& vec1,
   h_dP[indx]    ->Fill(dp);
   h_dinvPt[indx]->Fill(dinvpt);
   h_mindR[indx] ->Fill(dr);
-  if (debug) std::cout << "mindR for index " << indx << " is " << dr << " deta " << deta 
-		       << " dphi " << dphi << " dpt " << dpt <<  " dinvpt " << dinvpt <<std::endl;
+  if (debug) std::cout << "mindR for index " << indx << " is " << dr << " deta " << deta << " dphi " << dphi << " dpt " << dpt <<  " dinvpt " << dinvpt <<std::endl;
 }
 
 void IsoTrig::fillCuts(int indx, double eMipDR, double conehmaxNearP, double e_inCone, math::XYZTLorentzVector& vec, int ieta, bool cut) {
   h_eMip[indx]     ->Fill(eMipDR);
   h_eMaxNearP[indx]->Fill(conehmaxNearP);
   h_eNeutIso[indx] ->Fill(e_inCone);
-  if (conehmaxNearP < cutCharge && eMipDR < cutMip && vec.r()<60 && vec.r()>40) {
-    h_etaMipTracks[indx][0]->Fill((double)(ieta));
-    if (cut) h_etaMipTracks[indx][1]->Fill((double)(ieta));
-    if (e_inCone < cutNeutral) {
-      h_etaCalibTracks[indx][0]->Fill((double)(ieta));
-      if (cut) h_etaCalibTracks[indx][1]->Fill((double)(ieta));
+  if ((conehmaxNearP < cutCharge) && (eMipDR < cutMip)) {
+    for (int lim=0; lim<5; ++lim) {
+      if ((vec.r()>pLimits[lim]) && (vec.r()<=pLimits[lim+1])) {
+	h_etaMipTracks[lim][indx][0]->Fill((double)(ieta));
+	if (cut) h_etaMipTracks[lim][indx][1]->Fill((double)(ieta));
+	if (e_inCone < cutNeutral) {
+	  h_etaCalibTracks[lim][indx][0]->Fill((double)(ieta));
+	  if (cut) h_etaCalibTracks[lim][indx][1]->Fill((double)(ieta));
+	}
+      }
+    }
+  }
+}
+
+void IsoTrig::fillEnergy(int indx, int ieta, double hCone, double eMipDR, math::XYZTLorentzVector& vec) {
+  int kk(-1);
+  if      (ieta > 0 && ieta < 25)  kk = 23 + ieta;
+  else if (ieta > -25 && ieta < 0) kk = -(ieta + 1);
+  if (kk >= 0 && eMipDR > 0.01 && hCone > 1.0) {
+    for (int lim=0; lim<5; ++lim) {
+      if ((vec.r()>pLimits[lim]) && (vec.r()<=pLimits[lim+1])) {
+	h_eHcal[lim][indx][kk]     ->Fill(hCone);
+	h_eCalo[lim][indx][kk]     ->Fill(hCone+eMipDR);
+      }
     }
   }
 }
@@ -668,5 +1267,95 @@ double IsoTrig::dP(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2)
 double IsoTrig::dinvPt(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
   return ((1/vec1.pt())-(1/vec2.pt()));
 }
+
+std::pair<double,double> IsoTrig::etaPhiTrigger() {
+  double eta(0), phi(0), ptmax(0);
+  for (unsigned int k=0; k<vec[0].size(); ++k) {
+    if (k == 0) {
+      eta   = vec[0][k].eta();
+      phi   = vec[0][k].phi();
+      ptmax = vec[0][k].pt();
+    } else if (vec[0][k].pt() > ptmax) {
+      eta   = vec[0][k].eta();
+      phi   = vec[0][k].phi();
+      ptmax = vec[0][k].pt();
+    }
+  }
+  return std::pair<double,double>(eta,phi);
+}
+
+std::pair<double,double> IsoTrig::GetEtaPhiAtEcal(double etaIP, double phiIP, 
+						  double pT, int charge, 
+						  double vtxZ) {
+
+  double deltaPhi=0;
+  double etaEC = 100;
+  double phiEC = 100;
+
+  double Rcurv = 9999999;
+  if (bfVal!=0) Rcurv=pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+
+  double ecDist = zEE_;
+  double ecRad  = rEB_;  //radius of ECAL barrel (cm)
+  double theta  = 2*atan(exp(-etaIP));
+  double zNew   = 0;
+  if (theta>0.5*M_PI) theta=M_PI-theta;
+  if (fabs(etaIP)<1.479) {
+    if ((0.5*ecRad/Rcurv)>1) {
+      etaEC         = 10000;
+      deltaPhi      = 0;
+    } else {
+      deltaPhi      =-charge*asin(0.5*ecRad/Rcurv);
+      double alpha1 = 2*asin(0.5*ecRad/Rcurv);
+      double z      = ecRad/tan(theta);
+      if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+      else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+      double zAbs=fabs(zNew);
+      if (zAbs<ecDist) {
+        etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
+        deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
+      }
+      if (zAbs>ecDist) {
+        zAbs           = (fabs(etaIP)/etaIP)*ecDist;
+        double Zflight = fabs(zAbs-vtxZ);
+        double alpha   = (Zflight*ecRad)/(z*Rcurv);
+        double Rec     = 2*Rcurv*sin(alpha/2);
+        deltaPhi       =-charge*alpha/2;
+        etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
+      }
+    }
+  } else {
+    zNew           = (fabs(etaIP)/etaIP)*ecDist;
+    double Zflight = fabs(zNew-vtxZ);
+    double Rvirt   = fabs(Zflight*tan(theta));
+    double Rec     = 2*Rcurv*sin(Rvirt/(2*Rcurv));
+    deltaPhi       =-(charge)*(Rvirt/(2*Rcurv));
+    etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
+  }
+
+  if (zNew<0) etaEC=-etaEC;
+  phiEC            = phiIP+deltaPhi;
+
+  if (phiEC<-M_PI) phiEC += 2*M_PI;
+  if (phiEC>M_PI)  phiEC -= 2*M_PI;
+
+  std::pair<double,double> retVal(etaEC,phiEC);
+  return retVal;
+}
+
+double IsoTrig::getDistInCM(double eta1,double phi1, double eta2,double phi2) {
+  double Rec;
+  double theta1=2*atan(exp(-eta1));
+  double theta2=2*atan(exp(-eta2));
+  if (fabs(eta1)<1.479) Rec=rEB_; //radius of ECAL barrel
+  else if (fabs(eta1)>1.479&&fabs(eta1)<7.0) Rec=tan(theta1)*zEE_; //distance from IP to ECAL endcap
+  else return 1000;
+
+  //|vect| times tg of acos(scalar product)
+  double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
+  if (angle<0.5*M_PI) return fabs((Rec/sin(theta1))*tan(angle));
+  else return 1000;
+}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(IsoTrig);
