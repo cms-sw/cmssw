@@ -203,6 +203,10 @@ def miniAOD_customizeCommon(process):
     task.add(process.caloJetMap)
     process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
 
+    #Muon object modifications 
+    from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
+    makeInputForPUPPIIsolationMuon(process)
+
     #EGM object modifications 
     from PhysicsTools.PatAlgos.slimming.egmIsolationsPUPPI_cfi import makeInputForPUPPIIsolationEgm
     makeInputForPUPPIIsolationEgm(process)

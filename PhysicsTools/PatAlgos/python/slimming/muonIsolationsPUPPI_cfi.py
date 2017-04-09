@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
-from RecoMuon.MuonIsolationProducers.muonIsolationPUPPI_cff import muonIsolationMiniAODPUPPI as _muonIsolationMiniAODPUPPI
-from RecoMuon.MuonIsolationProducers.muonIsolationPUPPI_cff import muonIsolationMiniAODPUPPINoLeptons as _muonIsolationMiniAODPUPPINoLeptons
+from RecoMuon.MuonIsolation.muonIsolationPUPPI_cff import muonIsolationMiniAODPUPPI as _muonIsolationMiniAODPUPPI
+from RecoMuon.MuonIsolation.muonIsolationPUPPI_cff import muonIsolationMiniAODPUPPINoLeptons as _muonIsolationMiniAODPUPPINoLeptons
 
-def makeInputForPUPPIIsolationEgm(process):
+def makeInputForPUPPIIsolationMuon(process):
 
 	task = getPatAlgosToolsTask(process)
 
