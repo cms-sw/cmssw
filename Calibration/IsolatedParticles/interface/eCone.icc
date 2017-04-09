@@ -86,6 +86,31 @@ namespace spr{
     nRecHits = uniqueIdset.size();
     return energySum;
   }
+
+  template <typename T>
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, std::vector<double>& eHit) {
+    
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
+    nRecHits = -99;
+    double energySum = 0.0;
+    std::set<int> uniqueIdset;
+    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+      // Sum energy getting hottest cell for later
+      double energy = spr::getEnergy(hit.at(ihit));
+      energySum += energy;
+      // Don't double count depth in rechit multiplicity
+      int eta(-99), phi(-99);
+      spr::getEtaPhi(hit[ihit], eta, phi);
+      int uniqueEtaPhiId = 100*eta+phi;
+      uniqueIdset.insert(uniqueEtaPhiId);
+      // Get list of det ids
+      coneRecHitDetIds.push_back(hit[ihit]->id());
+      eHit.push_back(energy);
+    }
+    
+    nRecHits = uniqueIdset.size();
+    return energySum;
+  }
   
   // Cone energy cluster for hcal simhits and hcal rechits
   // that returns vector of rechit IDs and hottest cell info
