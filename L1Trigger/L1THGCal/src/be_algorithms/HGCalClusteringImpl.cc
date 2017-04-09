@@ -150,92 +150,93 @@ void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>
     /* declaring the clusters vector */
     std::vector<l1t::HGCalCluster> clustersTmp;
 
+    // map TC id -> cluster index in clustersTmp
     std::unordered_map<uint32_t, int> cluNNmap;
-    int i_clu(0);                       
 
     /* loop over the trigger-cells */
-    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::iterator tc=reshuffledTriggerCells.begin(); tc!=reshuffledTriggerCells.end(); tc++ ){
+    for( const auto& tc_ptr : reshuffledTriggerCells ){
                 
-        if( (*tc)->mipPt() < triggerCellThreshold_ ){
+        if( tc_ptr->mipPt() < triggerCellThreshold_ ){
             continue;
         }
         
+        // Check if the neighbors of that TC are already included in a cluster
+        // If this is the case, add the TC to the first (arbitrary) neighbor cluster
+        // Otherwise create a new cluster
         bool createNewC2d(true);
-        
-        for( auto it : cluNNmap ){
-            HGCalDetId nnDetId( it.first );
-            const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( nnDetId );
-            
-            if( !( neighbors.find( (*tc)->detId() ) == neighbors.end() ) )
-            {
-                clustersTmp.at( it.second ).addTriggerCell( *tc );                    
-                cluNNmap.insert(std::make_pair( (*tc)->detId(), it.second ) );           
-                clustersTmp.at( it.second ).setIsComplete(true);
+        const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell(tc_ptr->detId());
+        for( const auto neighbor : neighbors ){
+            auto tc_cluster_itr = cluNNmap.find(neighbor);
+            if(tc_cluster_itr!=cluNNmap.end()){ 
                 createNewC2d = false;
+                try{
+                    clustersTmp.at(tc_cluster_itr->second).addTriggerCell(tc_ptr);
+                    // map TC id to the existing cluster
+                    cluNNmap.emplace(tc_ptr->detId(), tc_cluster_itr->second);
+                }
+                catch(const std::out_of_range& e){
+                    throw cms::Exception("HGCTriggerUnexpected")
+                        << "Trying to access a non-existing cluster. But it should exist...\n";
+                }
                 break;
-            }            
+            }
         }
-        
-        if( createNewC2d ){
-            clustersTmp.emplace_back( *tc );
-            cluNNmap.insert(std::make_pair( (*tc)->detId(), i_clu ) );
-            clustersTmp.at( i_clu ).setIsComplete(true);
-            ++i_clu;
+        if(createNewC2d){
+            clustersTmp.emplace_back(tc_ptr);
+            clustersTmp.back().setIsComplete(true);
+            // map TC id to the cluster index (size - 1)
+            cluNNmap.emplace(tc_ptr->detId(), clustersTmp.size()-1);
         }
     }
     
     /* declaring the vector with possible clusters merged */
+    // Merge neighbor clusters together
     for(unsigned i_clu1 = 0; i_clu1 < clustersTmp.size(); ++i_clu1){
+        l1t::HGCalCluster& cluster1 = clustersTmp.at(i_clu1);
+        // If the cluster has been merged into another one, skip it
+        if(!cluster1.isComplete()) continue;
+        // Fill a set containing all TC included in the clusters
+        // as well as all neighbor TC
         std::unordered_set<uint32_t> cluTcSet;
-
-        const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC_clu1 = clustersTmp.at(i_clu1).triggercells();
-        
-        for(edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc_clu1 = pertinentTC_clu1.begin(); tc_clu1 != pertinentTC_clu1.end(); ++tc_clu1 ){
-            cluTcSet.insert( (*tc_clu1)->detId() );
-            HGCalDetId tcInClu1DetId( (*tc_clu1)->detId() );
-            const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tcInClu1DetId );
-            for(const auto neighbor : neighbors)
-            {
-                if( !( cluTcSet.find( neighbor ) == cluTcSet.end() ) )
-                {                     
-                    cluTcSet.insert( neighbor );
-                }
+        for(const auto& tc_clu1 : cluster1.triggercells()){ 
+            cluTcSet.insert( tc_clu1->detId() );
+            const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu1->detId() );
+            for(const auto neighbor : neighbors){
+                cluTcSet.insert( neighbor );
             }
         }        
             
-        for(unsigned i_clu2(i_clu1+1); i_clu2 < clustersTmp.size(); ++i_clu2){
-
-            const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC_clu2 = clustersTmp.at(i_clu2).triggercells();
-            for(edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc_clu2 = pertinentTC_clu2.begin(); tc_clu2 != pertinentTC_clu2.end(); ++tc_clu2 ){
-                
-                if( !( cluTcSet.find( (*tc_clu2)->detId() ) == cluTcSet.end() ) && clustersTmp.at(i_clu2).isComplete()==true )
-                {                     
-                    this->mergeClusters( clustersTmp.at(i_clu1), clustersTmp.at(i_clu2) );
-                    clustersTmp.at(i_clu1).setIsComplete(false);
-                }                
-            }                   
+        for(unsigned i_clu2 = i_clu1+1; i_clu2 < clustersTmp.size(); ++i_clu2){
+            l1t::HGCalCluster& cluster2 = clustersTmp.at(i_clu2);
+            // If the cluster has been merged into another one, skip it
+            if(!cluster2.isComplete()) continue;
+            // Check if the TC in clu2 are in clu1 or its neighbors
+            // If yes, merge the second cluster into the first one
+            for(const auto& tc_clu2 : cluster2.triggercells()){ 
+                if( cluTcSet.find(tc_clu2->detId())!=cluTcSet.end() ){
+                    mergeClusters( cluster1, cluster2 );
+                    cluster2.setIsComplete(false);
+                    break;
+                }
+            }
         }
-
     }
 
     /* store clusters in the persistent collection */
-    for( unsigned i(0); i<clustersTmp.size(); ++i ){
-        
+    // only if the cluster contain a TC above the seed threshold
+    for( auto& cluster : clustersTmp ){
         bool saveInCollection(false);
-        const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC = clustersTmp.at(i).triggercells();
-        
-        for(edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
+        for( const auto& tc_ptr : cluster.triggercells() ){
             /* threshold in transverse-mip */
-            if( (*tc)->mipPt() > seedThreshold_ ){
+            if( tc_ptr->mipPt() > seedThreshold_ ){
                 saveInCollection = true;
+                break;
             }
         }
         if(saveInCollection){
-            clusters.push_back( 0, clustersTmp.at(i) );
+            clusters.push_back( 0, cluster );
         }
-        
     }
-    
 }
 
 
