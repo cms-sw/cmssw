@@ -47,6 +47,7 @@ siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackResidualsAnalyz
 
 SiPixelPhase1RecHitsAnalyzer_cosmics = SiPixelPhase1RecHitsAnalyzer.clone()
 SiPixelPhase1RecHitsAnalyzer_cosmics.onlyValidHits = True # In Cosmics the efficiency plugin will not run, so we monitor only valid hits
+SiPixelPhase1RecHitsAnalyzer_cosmics.src = "ctfWithMaterialTracksP5"
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1RecHitsAnalyzer,
                                                SiPixelPhase1RecHitsAnalyzer_cosmics)
