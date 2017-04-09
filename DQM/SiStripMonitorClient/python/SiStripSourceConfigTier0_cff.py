@@ -86,7 +86,7 @@ SiStripMonitorTrackMB.Mod_On        = False
 SiStripMonitorTrackMB.andOr         = cms.bool( False )
 SiStripMonitorTrackMB.dbLabel       = cms.string("SiStripDQMTrigger")
 SiStripMonitorTrackMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_*")
+SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
 SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
 SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
 SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
@@ -98,7 +98,7 @@ MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.andOr         = cms.bool( False )
 MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
 MonitorTrackResiduals.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-MonitorTrackResiduals.hltPaths = cms.vstring("HLT_ZeroBias_*")
+MonitorTrackResiduals.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
 MonitorTrackResiduals.hltDBKey = cms.string("Tracker_MB")
 MonitorTrackResiduals.errorReplyHlt  = cms.bool( False )
 MonitorTrackResiduals.andOrHlt = cms.bool(True) 
