@@ -78,7 +78,7 @@ namespace citk {
       }
       else {
 	useValueMapForPUPPI = false;
-	usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
+	usePUPPINoLepton = (c.exists("usePUPPINoLepton") ? c.getParameter<bool>("usePUPPINoLepton") : false);
       }
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
