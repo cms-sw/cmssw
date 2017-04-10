@@ -47,6 +47,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace edm
 {
@@ -84,6 +85,8 @@ namespace edm
     EDGetTokenT<LHEEventProduct> eventProductToken_;
     unsigned int counterRunInfoProducts_;
     unsigned int nAttempts_;
+    bool secondaryUnweighting_;
+    double maxAbsWeight_;
   };
 
   //------------------------------------------------------------------------
@@ -100,7 +103,9 @@ namespace edm
     runInfoProductToken_(),
     eventProductToken_(),
     counterRunInfoProducts_(0),
-    nAttempts_(1)
+    nAttempts_(1),
+    secondaryUnweighting_(false),
+    maxAbsWeight_(1.)
   {
     callWhenNewProductsRegistered([this]( BranchDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
@@ -148,6 +153,14 @@ namespace edm
     if (ps.exists("nAttempts")) {
       nAttempts_ = ps.getParameter<unsigned int>("nAttempts");
     }
+    
+    //initialize settings for secondary unweighting
+    if (ps.exists("secondaryUnweighting")) {
+      secondaryUnweighting_ = ps.getParameter<bool>("secondaryUnweighting");
+      if (secondaryUnweighting_) {
+        maxAbsWeight_ = ps.getParameter<double>("maxAbsWeight");
+      }
+    }    
     
     // This handles the case where there are no shared resources, because you
     // have to declare something when the SharedResources template parameter was used.
@@ -269,6 +282,25 @@ namespace edm
       finalEvent->weights()[0] *= multihadweight;
     }
     
+    if (secondaryUnweighting_) {
+      double weight = finalGenEventInfo->weights()[0];
+      double absweight = std::abs(weight);
+      if (absweight<maxAbsWeight_) {
+        double randomflat = randomEngineSentry.randomEngine()->flat();
+        if (absweight > randomflat*maxAbsWeight_) {
+          weight = weight/absweight;
+        }
+        else {
+          return false;
+        }
+      }
+      else {
+        weight = weight/maxAbsWeight_;
+      }
+      
+      finalGenEventInfo->weights()[0] = weight;
+      finalEvent->weights()[0] = weight;
+    }
     
     ev.put(finalGenEventInfo);
 
@@ -401,8 +433,8 @@ namespace edm
       temp.setLheXSec(thisProcess.getLHEXSec().value(),thisProcess.getLHEXSec().error());
       temp.setNPassPos(thisProcess.nPassPos());
       temp.setNPassNeg(thisProcess.nPassNeg());
-      temp.setNTotalPos(thisProcess.nTotalPos());
-      temp.setNTotalNeg(thisProcess.nTotalNeg());
+      temp.setNTotalPos(thisProcess.nTotalPos()/nAttempts_);
+      temp.setNTotalNeg(thisProcess.nTotalNeg()/nAttempts_);
       temp.setTried(thisProcess.tried().n(), thisProcess.tried().sum(), thisProcess.tried().sum2());
       temp.setSelected(thisProcess.selected().n(), thisProcess.selected().sum(), thisProcess.selected().sum2());
       temp.setKilled(thisProcess.killed().n(), thisProcess.killed().sum(), thisProcess.killed().sum2());
