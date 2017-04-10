@@ -57,12 +57,7 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
       typedef long long Word64;
       typedef unsigned int Word32;
 
-    	int* GetCounter() {return &counter_ ;}
 	bool GetDebug() {return debug_ ;}
-	int* GetOrbit() {return &orbit_number_ ;}
-	int* GetBX() {return &bx_ ;}
-	int* GetLV1() {return &lv1_ ;}
-	int* GetRunNumber() {return &runnumber_ ;}
 	bool GetDoBarrel() {return doBarrel_ ;}
 	bool GetDoEndCap() {return doEndCap_ ;}
 	bool GetDoSR() {return doSR_ ;}
@@ -80,11 +75,7 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
       // ----------member data ---------------------------
 
         int  counter_;
-	int orbit_number_;
 	bool debug_;
-	int runnumber_;
-	int bx_;
-	int lv1_;
 
 	bool doTCC_;
 	bool doSR_;
