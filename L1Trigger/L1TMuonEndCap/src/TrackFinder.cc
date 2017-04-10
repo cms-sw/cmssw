@@ -96,6 +96,21 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   }
 }
 
+void TrackFinder::resetPtLUT(std::shared_ptr<const L1TMuonEndCapForest> ptLUT){
+
+    pt_assign_engine_.load(ptLUT.get());
+
+    // Configure sector processors
+    for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
+      for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
+        const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
+
+        sector_processors_.at(es).resetPtAssignment(&pt_assign_engine_);
+
+      }
+    }
+}
+
 TrackFinder::~TrackFinder() {
 
 }

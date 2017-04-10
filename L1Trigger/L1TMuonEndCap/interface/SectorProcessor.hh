@@ -25,6 +25,8 @@ public:
   explicit SectorProcessor();
   ~SectorProcessor();
 
+  void resetPtAssignment(const PtAssignmentEngine* new_pt_assign_engine);
+
   typedef unsigned long long EventNumber_t;
   typedef PatternRecognition::pattern_ref_t pattern_ref_t;
 
