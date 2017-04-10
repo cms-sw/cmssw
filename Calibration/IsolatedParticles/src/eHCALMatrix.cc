@@ -6,6 +6,140 @@
 #include<iostream>
 
 namespace spr{
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, 
+		     std::vector<PCaloHit>& hits, int ieta, int iphi, 
+		     bool includeHO, double hbThr, double heThr, 
+		     double hfThr, double hoThr, double tMin, double tMax, 
+		     bool debug) {
+
+    HcalDetId hcid0(det0.rawId());
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    DetId det(hcid.rawId());
+    if (debug) std::cout << "Inside eHCALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << " Inclusion of HO Flag " << includeHO << std::endl;
+    double energySum(0);
+    std::vector<DetId> dets(1,det);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+    if (debug) {
+      std::cout << "matrixHCALIds::Total number of cells found is " 
+		<< vdets.size() << std::endl;
+      spr::debugHcalDets(0, vdets);
+    }
+    int    khit(0);
+    for (unsigned int i=0; i<vdets.size(); i++) {
+      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdets[i]);
+      double energy = 0;
+      int subdet  = ((HcalDetId)(vdets[i].rawId())).subdet();	
+      double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
+      for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+        if (hit[ihit] != hits.end()) {
+          khit++;
+	  if (debug) std::cout << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time() << std::endl;
+          if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) {
+            energy += hit[ihit]->energy();
+          }
+        }
+      }
+      if (energy>eThr) energySum += energy;
+    }
+
+    if (debug) std::cout << "eHCALmatrix::Total energy " << energySum << std::endl;
+    return energySum;
+  }
+
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, 
+		     const DetId& det0, std::vector<PCaloHit>& hits, int ieta, 
+		     int iphi, HcalDetId& hotCell, bool includeHO, bool debug) {
+
+    HcalDetId hcid0(det0.rawId());
+    HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
+    DetId det(hcid.rawId());
+    std::vector<DetId> dets(1,det);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
+    hotCell = hcid0;
+
+    std::vector<std::vector<PCaloHit>::const_iterator> hitlist;
+    for (unsigned int i=0; i<vdets.size(); i++) {
+      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdets[i]);
+       hitlist.insert(hitlist.end(), hit.begin(), hit.end());
+    }
+
+    double energySum(0);
+    for (unsigned int ihit=0; ihit<hitlist.size(); ihit++) 
+      energySum += hitlist[ihit]->energy();
+
+    // Get hotCell ID
+    dets.clear();
+    std::vector<double> energies;
+    for (unsigned int ihit=0; ihit<hitlist.size(); ihit++) {
+      double energy = hitlist[ihit]->energy();
+      HcalDetId id0 = HcalDetId(hitlist[ihit]->id());
+      if ((id0.subdet() != HcalOuter) || includeHO) {
+      	HcalDetId id1(id0.subdet(),id0.ieta(),id0.iphi(),1);
+        bool found(false);
+        for (unsigned int idet=0; idet<dets.size(); ++idet) {
+          if (id1 == HcalDetId(dets[idet])) {
+	    energies[idet] += energy; 
+	    found = true;
+	    break;
+          }
+        }
+        if (!found) {
+          dets.push_back(DetId(id1));
+          energies.push_back(energy);
+        }
+      }
+    }
+    double energyMax(-99.);
+    for (unsigned int ihit=0; ihit<dets.size(); ihit++) {
+      if (energies[ihit] > energyMax) {
+        energyMax = energies[ihit];
+	hotCell   = HcalDetId(dets[ihit]);
+      }
+    }
+    return energySum;
+  }
+
+  void energyHCALCell(HcalDetId detId, std::vector<PCaloHit>& hits, 
+		      std::vector<std::pair<double,int> >& energyCell, 
+		      int maxDepth, double hbThr, double heThr, double hfThr, 
+		      double hoThr, double tMin, double tMax, bool debug) {
+
+    energyCell.clear();
+    int    subdet  = detId.subdet();	
+    double eThr    = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
+    bool   hbhe    = (detId.ietaAbs() == 16);
+    int    depthHE = (maxDepth <= 6) ? 3 : 4;
+    if (debug)
+      std::cout << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
+    for (int i=0; i<maxDepth; i++) {
+      HcalSubdetector subdet0 = (hbhe) ? ((i+1 >= depthHE) ? HcalEndcap : HcalBarrel) : detId.subdet();
+      HcalDetId hcid(subdet0,detId.ieta(),detId.iphi(),i+1);
+      DetId det(hcid.rawId());
+      std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, det);
+      double energy(0);
+      for (unsigned int ihit=0; ihit<hit.size(); ++ihit) {
+        if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) 
+          energy += hit[ihit]->energy();
+        if (debug)
+          std::cout << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time() << std::endl;
+      }
+      if (debug)
+	std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
+      if (energy>eThr && hit.size() > 0) {
+        energyCell.push_back(std::pair<double,int>(energy,i+1));
+      }
+    }
+    if (debug) {
+      std::cout << "energyHCALCell:: " << energyCell.size() << " entries from "
+                << maxDepth << " depths:";
+      for (unsigned int i=0; i<energyCell.size(); ++i) {
+        std::cout << " [" << i << "] (" << energyCell[i].first << ":"
+                  << energyCell[i].second << ")";
+      }
+      std::cout << std::endl;
+    }
+  }
+
   HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, bool useRaw, bool) {
 
     std::vector<HcalDetId> dets;
@@ -72,5 +206,14 @@ namespace spr{
       }
     }
     return hotCell;
+  }
+
+  double eHCALThreshold(int subdet, double hbThr, double heThr, double hfThr,
+			double hoThr) {
+    double eThr = hbThr;
+    if      (subdet == (int)(HcalEndcap))  eThr = heThr;
+    else if (subdet == (int)(HcalForward)) eThr = hfThr;
+    else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+    return eThr;
   }
 }
