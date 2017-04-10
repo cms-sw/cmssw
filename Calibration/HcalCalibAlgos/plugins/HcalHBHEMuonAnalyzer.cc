@@ -87,6 +87,7 @@ private:
   std::string                labelVtx_, labelHBHERecHit_, labelMuon_;
   int                        verbosity_, maxDepth_, kount_;
   bool                       useRaw_;
+  const int                  MaxDepth=7;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
   edm::EDGetTokenT<reco::VertexCollection>                tok_Vtx_;
@@ -146,8 +147,8 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
   labelMuon_        = iConfig.getParameter<std::string>("LabelMuon");
   verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
   maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
-  if (maxDepth_ > 7)      maxDepth_ = 7;
-  else if (maxDepth_ < 1) maxDepth_ = 4;
+  if (maxDepth_ > MaxDepth) maxDepth_ = MaxDepth;
+  else if (maxDepth_ < 1)   maxDepth_ = 4;
   std::string modnam = iConfig.getUntrackedParameter<std::string>("ModuleName","");
   std::string procnm = iConfig.getUntrackedParameter<std::string>("ProcessName","");
   useRaw_            = iConfig.getUntrackedParameter<bool>("UseRaw",false);
@@ -191,6 +192,8 @@ HcalHBHEMuonAnalyzer::~HcalHBHEMuonAnalyzer() {
 void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ++kount_;
   clearVectors();
+  // depthHE is the first depth index for HE for |ieta| = 16
+  // It used to be 3 for all runs preceding 2017 and 4 beyond that
   int depthHE = (maxDepth_ <= 6) ? 3 : 4;
   runNumber_   = iEvent.id().run();
   eventNumber_ = iEvent.id().event();
@@ -384,10 +387,11 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       hoEnergy_.push_back(RecMuon->calEnergy().hoS9);
       
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
-      double eHcalDepth[7], eHcalDepthHot[7], activeL[7], activeHotL[7];
+      double eHcalDepth[MaxDepth], eHcalDepthHot[MaxDepth];
+      double activeL[MaxDepth], activeHotL[MaxDepth];
       unsigned int isHot(0);
       bool         tmpmatch(false);
-      for (int i=0; i<7; ++i) 
+      for (int i=0; i<MaxDepth; ++i) 
 	eHcalDepth[i] = eHcalDepthHot[i] = activeL[i] = activeHotL[i] = -10000;
       
       if (RecMuon->innerTrack().isNonnull()) {
