@@ -97,7 +97,7 @@ EcalDigiToRaw::~EcalDigiToRaw()
 
 // ------------ method called to for each event  ------------
 void
-EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
    if (debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
@@ -277,16 +277,6 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
- void  EcalDigiToRaw::beginStream(edm::StreamID)
- {
- }
-//
-// // ------------ method called once each job just after ending the event loop  ------------
- void 
- EcalDigiToRaw::endStream() {
-}
 //
 //
 
