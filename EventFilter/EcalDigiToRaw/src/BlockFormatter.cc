@@ -13,12 +13,7 @@ using namespace std;
 
 BlockFormatter::BlockFormatter(EcalDigiToRaw* base) {
 
- pcounter_ = (base -> GetCounter());
  debug_   = base -> GetDebug();
- porbit_number_ = (base -> GetOrbit());
- plv1_ = (base -> GetLV1());
- pbx_  = (base -> GetBX());
- prunnumber_ = (base -> GetRunNumber());
  doBarrel_ = base -> GetDoBarrel();
  doEndCap_ = base -> GetDoEndCap();
  plistDCCId_ = base -> GetListDCCId();
@@ -37,11 +32,6 @@ BlockFormatter::~BlockFormatter() {
 
 
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number_, int bx, int lv1) const {
-
-// int run_number = run_number;
-// int orbit_number_ = orbit_number;
-// int bx = bx;
-// int lv1 = lv1;
 
  if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
