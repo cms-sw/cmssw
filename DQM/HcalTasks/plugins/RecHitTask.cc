@@ -82,6 +82,10 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),0);
+	_cTimingCutvsLS_SubdetPM.initialize(_name, "TimingCutvsLS",
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_ns),0);
 
 	//	Occupancy
 	_cOccupancy_depth.initialize(_name, "Occupancy",
@@ -287,6 +291,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	}
 	_cTimingCut_HBHEPartition.book(ib, _emap, _subsystem);
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
+	_cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 	if (_ptype != fOffline) { // hidefed2crate
 		_cTimingCutvsLS_FED.book(ib, _emap, _subsystem);
 	}
@@ -480,6 +485,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			_cEnergy_depth.fill(did, energy);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_HBHEPartition.fill(did, timing);
+			_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 
 			//	ONLINE 
 			if (_ptype==fOnline) {
@@ -621,6 +627,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			
 			_cEnergy_depth.fill(did, energy);
 			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 			if (_ptype != fOffline) { // hidefed2crate
 				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			}
@@ -732,6 +739,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			//	^^^ONLINE ONLY!
 			_cEnergy_depth.fill(did, energy);
 			_cTimingCut_SubdetPM.fill(did, timing);
+			_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 			if (_ptype != fOffline) { // hidefed2crate
 				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			}
