@@ -193,6 +193,7 @@ private:
         enum statistic_type {None=-1, StdBunch, StdBunch0T, FaABunch, FaABunch0T, IsoBunch, IsoBunch0T, Harvest};
 
         std::vector<string>    dqm_tag_;
+        std::vector booked_dir_;
 
         std::vector<MonitorElement*>  Charge_Vs_Index;
         //std::vector<MonitorElement*>  Charge_Vs_Index_Absolute;
@@ -403,13 +404,11 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag)
 {
-    static std::string booked_dir = "";
-
     edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
                                              << tag << std::endl;
 
-    if ( strcmp(booked_dir.c_str(),dqm_dir)!=0 ) {
-        booked_dir = dqm_dir;
+    if ( strcmp(booked_dir_.c_str(),dqm_dir)!=0 ) {
+        booked_dir_ = dqm_dir;
         dbe->setCurrentFolder(dqm_dir);
     }
 
