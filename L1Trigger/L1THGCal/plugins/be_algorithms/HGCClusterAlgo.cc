@@ -2,12 +2,13 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"    
 
 using namespace HGCalTriggerBackend;
 
@@ -31,7 +32,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) ) 
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
+        clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType")) 
         {
 
         }
@@ -59,6 +61,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             cluster_product_.reset( new l1t::HGCalClusterBxCollection );
             multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
         }
+
     
     private:
     
@@ -74,12 +77,15 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         /* handles to the detector topologies */
         edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
         edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
-        
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+
         /* algorithms instances */
         HGCalTriggerCellCalibration calibration_;
         HGCalClusteringImpl clustering_;
         HGCalMulticlusteringImpl multiclustering_;
 
+        /* algorithm type */
+        std::string clusteringAlgorithmType_;
 };
 
 
@@ -91,6 +97,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
  
     es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
     es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
+    es.get<IdealGeometryRecord>().get("", triggerGeometry_);
 
     for( const auto& digi : coll ){
         
@@ -123,7 +130,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
                 trgcell_product_->push_back( 0, calibratedtriggercell );
-            }
+
+            }           
         
         }
     
@@ -143,9 +151,14 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
         edm::Ptr<l1t::HGCalTriggerCell> ptr(triggerCellsHandle,i);
         triggerCellsPtrs.push_back(ptr);
     }
-
-    /* call to clustering */
-    clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
+    
+    /* call to C2d clustering */
+    if(clusteringAlgorithmType_=="dRC2d"){
+        clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
+    }
+    else if(clusteringAlgorithmType_=="NNC2d"){
+        clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+    }
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");

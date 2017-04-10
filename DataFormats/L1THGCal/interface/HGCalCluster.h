@@ -39,26 +39,27 @@ namespace l1t {
       edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator triggercells_end() const { 
           return triggercells_.end(); 
       }
-      const edm::Ptr<l1t::HGCalTriggerCell> seedTriggerCell() const {
-          return *triggercells_begin(); 
-      }
+
       unsigned triggercellsSize() const { return triggercells_.size(); }
 
       /* helpers */
       void addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell> &tc);
       
       /* set info */
-      void setModule  (uint32_t value) { module_   = value; }
+      void setModule (uint32_t value) { module_ = value; }
       
       /* get info */
       bool isValid() const { 
           if(triggercells_.size() > 0 ) return true;  
           else return false;
       }
+      void setIsComplete (bool isCompleteValue) { isComplete_ = isCompleteValue; }
+      bool isComplete(){ return isComplete_; }
+      
       double mipPt()       const { return mipPt_; }
       double seedMipPt()   const { return seedMipPt_; }
       uint32_t seedDetId() const { return seedDetId_; }
-
+      
       double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
       
       const GlobalPoint& centre() const { return centre_; }
@@ -84,7 +85,7 @@ namespace l1t {
         
       /* seed detId */
       uint32_t seedDetId_;
- 
+      
       /* Centre weighted with energy */
       GlobalPoint centre_;
 
@@ -94,6 +95,9 @@ namespace l1t {
       /* Energies */
       double mipPt_;
       double seedMipPt_;
+
+      /* Flag dedicated to merging procedure */
+      bool isComplete_;
 
       /* HGC specific information */
       uint32_t module_;
