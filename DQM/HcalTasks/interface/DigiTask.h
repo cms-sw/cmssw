@@ -100,6 +100,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
 		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
 		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
