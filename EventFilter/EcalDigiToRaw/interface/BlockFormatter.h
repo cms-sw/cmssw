@@ -22,14 +22,12 @@ class BlockFormatter {
 
 	BlockFormatter(EcalDigiToRaw* base);
 	~BlockFormatter();
-//	void SetParam(EcalDigiToRaw* base);
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
 	void DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number, int bx, int lv1) const;
 	void print(FEDRawData& rawdata) const;
-	// void CleanUp(FEDRawDataCollection* productRawData);
 	void CleanUp(FEDRawDataCollection* productRawData,
 			std::map<int, std::map<int,int> >* FEDorder);
-	void PrintSizes(FEDRawDataCollection* productRawData);
+	void PrintSizes(FEDRawDataCollection* productRawData) const;
 
  protected :
         bool debug_;
