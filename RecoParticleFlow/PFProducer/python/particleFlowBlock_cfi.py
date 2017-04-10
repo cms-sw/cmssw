@@ -181,6 +181,11 @@ for idx in _findIndicesByModule('GeneralTracksImporter') + _findIndicesByModule(
             timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
             timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
     ) 
+for idx in _findIndicesByModule('GSFTrackImporter'):
+    _addTiming[idx] = dict( 
+            timeValueMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
+            timeErrorMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution")
+    ) 
 phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming

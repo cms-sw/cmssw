@@ -48,7 +48,7 @@ public:
 private:
   // inputs
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
-  const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
+  const std::string tracksName_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
   const edm::EDGetTokenT<TrackingVertexCollection> trackingVertices_;
   const edm::EDGetTokenT<edm::HepMCProduct> hepMCProduct_;
@@ -66,9 +66,7 @@ private:
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
 
 namespace {
-  constexpr float fakeBeamSpotTimeWidth = 0.175f; // ns
-  static const std::string generalTracksName("generalTracks");
-  static const std::string gsfTracksName("gsfTracks");
+  constexpr float fakeBeamSpotTimeWidth = 0.300f; // ns
   static const std::string resolution("Resolution");
 
   template<typename ParticleType, typename T>
@@ -86,7 +84,7 @@ namespace {
 
 TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& conf) :
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
-  gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
+  tracksName_(conf.getParameter<edm::InputTag>("trackSrc").label()),
   trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
   trackingVertices_(consumes<TrackingVertexCollection>( conf.getParameter<edm::InputTag>("trackingVertexSrc") ) ),
   associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) )
@@ -99,12 +97,8 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
     resolutions_.emplace_back( resomod );  
 
     // times and time resolutions for general tracks
-    produces<edm::ValueMap<float> >(generalTracksName+name);
-    produces<edm::ValueMap<float> >(generalTracksName+name+resolution);
-    
-    //for gsf tracks
-    produces<edm::ValueMap<float> >(gsfTracksName+name);
-    produces<edm::ValueMap<float> >(gsfTracksName+name+resolution);
+    produces<edm::ValueMap<float> >(tracksName_+name);
+    produces<edm::ValueMap<float> >(tracksName_+name+resolution);
   }
   // get RNG engine
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -136,35 +130,26 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
 
-  edm::Handle<edm::View<reco::Track> > GsfTrackCollectionH;
-  evt.getByToken(gsfTracks_, GsfTrackCollectionH);
-  const edm::View<reco::Track>& GsfTrackCollection = *GsfTrackCollectionH;
-
   //get tracking particle collections
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   evt.getByToken(trackingParticles_, TPCollectionH);
   //const TrackingParticleCollection&  TPCollection = *TPCollectionH;
   
   // associate the reco tracks / gsf Tracks
-  std::vector<reco::RecoToSimCollection> associatedTracks, associatedTracksGsf;  
+  std::vector<reco::RecoToSimCollection> associatedTracks;  
   for( auto associator : associators ) {
     associatedTracks.emplace_back(associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
-    associatedTracksGsf.emplace_back(associator->associateRecoToSim(GsfTrackCollectionH, TPCollectionH));
   }
   
 
   calculateTrackTimes(TrackCollection, associatedTracks, generalTrackTimes);
-  calculateTrackTimes(GsfTrackCollection, associatedTracksGsf, gsfTrackTimes);
 
   for( const auto& reso : resolutions_ ) {
     const std::string& name = reso->name();
     std::vector<float> times, resos;
-    std::vector<float> gsf_times, gsf_resos;
     
     times.reserve(TrackCollection.size());
     resos.reserve(TrackCollection.size());
-    gsf_times.reserve(GsfTrackCollection.size());
-    gsf_resos.reserve(GsfTrackCollection.size());
 
     for( unsigned i = 0; i < TrackCollection.size(); ++i ) {
       const reco::Track& tk = TrackCollection[i];
@@ -173,27 +158,13 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         times.push_back( CLHEP::RandGauss::shoot(rng_engine, generalTrackTimes[i], resolution) );
         resos.push_back( resolution );
       } else {
-        times.push_back( generalTrackTimes[i] );
+        times.push_back( 0.0f );
         resos.push_back( fakeBeamSpotTimeWidth );
       }
     }
 
-    for( unsigned i = 0; i < GsfTrackCollection.size(); ++i ) {
-      const reco::Track& tk = GsfTrackCollection[i];
-      if( edm::isFinite( gsfTrackTimes[i] )  && gsfTrackTimes[i] != 0.f ) {
-        const float resolution = reso->getTimeResolution(tk);
-        gsf_times.push_back( CLHEP::RandGauss::shoot(rng_engine, gsfTrackTimes[i], resolution) );
-        gsf_resos.push_back( resolution ); 
-      } else {
-        gsf_times.push_back( gsfTrackTimes[i] );
-        gsf_resos.push_back( fakeBeamSpotTimeWidth );
-      }
-    }
-
-    writeValueMap( evt, TrackCollectionH, times, generalTracksName+name );
-    writeValueMap( evt, TrackCollectionH, resos, generalTracksName+name+resolution );
-    writeValueMap( evt, GsfTrackCollectionH, gsf_times, gsfTracksName+name );
-    writeValueMap( evt, GsfTrackCollectionH, gsf_resos, gsfTracksName+name+resolution );
+    writeValueMap( evt, TrackCollectionH, times, tracksName_+name );
+    writeValueMap( evt, TrackCollectionH, resos, tracksName_+name+resolution );
   }
 }
 

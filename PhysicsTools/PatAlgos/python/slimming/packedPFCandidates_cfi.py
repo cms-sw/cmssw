@@ -12,5 +12,11 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
       cms.InputTag("inclusiveCandidateSecondaryVertices"),
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
       ),      
-    minPtForTrackProperties = cms.double(0.95)
+    minPtForTrackProperties = cms.double(0.95),
+    storeTiming = cms.bool(False),
+)
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(packedPFCandidates, 
+    storeTiming = cms.bool(True),
 )

@@ -26,11 +26,11 @@ from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi i
 #### condenses information into the new "particleFlow" collection.            ####
 
 
-pfPileUpEI = pfPileUp.clone( PFCandidates = cms.InputTag('particleFlowPtrs') )
+pfPileUpEI = pfPileUp.clone( PFCandidates = cms.InputTag('particleFlowPtrs'), Jets=cms.InputTag('ak4PFJets') )
 pfNoPileUpEI = pfNoPileUp.clone( bottomCollection = cms.InputTag('particleFlowPtrs'),
                                  topCollection = cms.InputTag('pfPileUpEI') )
 
-pfPileUpJMEEI = pfPileUpJME.clone( PFCandidates = cms.InputTag('particleFlowPtrs') )
+pfPileUpJMEEI = pfPileUpJME.clone( PFCandidates = cms.InputTag('particleFlowPtrs'), Jets=cms.InputTag('ak4PFJets') )
 pfNoPileUpJMEEI = pfNoPileUpJME.clone( bottomCollection = cms.InputTag('particleFlowPtrs'),
                                        topCollection = cms.InputTag('pfPileUpJMEEI') )
 

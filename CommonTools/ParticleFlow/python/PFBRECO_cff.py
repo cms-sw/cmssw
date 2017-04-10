@@ -15,7 +15,7 @@ pfNoPileUpIsoPFBRECOSequence = cms.Sequence(
 
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff import *
 
-pfPileUpPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
+pfPileUpPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs', Jets=cms.InputTag('ak4PFJets') )
 pfNoPileUpPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpPFBRECO',
                                       bottomCollection = 'particleFlowPtrs')
 pfNoPileUpPFBRECOSequence = cms.Sequence(

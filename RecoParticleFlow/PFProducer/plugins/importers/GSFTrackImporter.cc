@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
@@ -18,7 +19,10 @@ public:
     BlockElementImporterBase(conf,sumes),
     _src(sumes.consumes<reco::GsfPFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
     _isSecondary(conf.getParameter<bool>("gsfsAreSecondary")),
-    _superClustersArePF(conf.getParameter<bool>("superClustersArePF")){}
+    _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
+    _useTiming(conf.existsAs<edm::InputTag>("timeValueMap")),
+    _srcTime(_useTiming ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+    _srcTimeError(_useTiming ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()) {}
   
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
@@ -26,6 +30,8 @@ public:
 private:
   edm::EDGetTokenT<reco::GsfPFRecTrackCollection> _src;
   const bool _isSecondary, _superClustersArePF;
+  const bool _useTiming;
+  edm::EDGetTokenT<edm::ValueMap<float>> _srcTime, _srcTimeError;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -38,6 +44,11 @@ importToBlock( const edm::Event& e,
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
   edm::Handle<reco::GsfPFRecTrackCollection> gsftracks;
   e.getByToken(_src,gsftracks);
+  edm::Handle<edm::ValueMap<float>> timeH, timeErrH;
+  if (_useTiming) {
+    e.getByToken(_srcTime, timeH);
+    e.getByToken(_srcTimeError, timeErrH);
+  }
   elems.reserve(elems.size() + gsftracks->size());
   // setup our elements so that all the SCs are grouped together
   auto SCs_end = std::partition(elems.begin(),elems.end(),
@@ -107,6 +118,9 @@ importToBlock( const edm::Event& e,
       new reco::PFBlockElementGsfTrack(gsfref,pin,pout);
     if( _isSecondary ) {
       temp->setTrackType(reco::PFBlockElement::T_FROM_GAMMACONV,true);
+    }
+    if ( _useTiming ) {
+        temp->setTime( (*timeH)[basegsfref], (*timeErrH)[basegsfref] );
     }
     elems.emplace_back(temp);
     // import brems from this primary gsf

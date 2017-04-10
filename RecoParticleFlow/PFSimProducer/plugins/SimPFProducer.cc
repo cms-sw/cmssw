@@ -308,6 +308,20 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 		  usedSimCluster[ref.key()] = true;
 		}
 	      }
+	      
+              //*TODO* cluster time is not reliable at the moment, so just keep time from the track if available
+              if (false) {
+                const reco::PFCluster *seed = dynamic_cast<const reco::PFCluster *>((*superClustersHandle)[supercluster_index].seed().get());
+                assert(seed != nullptr);
+                if (seed->timeError() > 0) {
+                  if (candidate.isTimeValid() && candidate.timeError() > 0) {
+                    double wCand = 1.0/std::pow(candidate.timeError(),2), wSeed = 1.0/std::pow(seed->timeError(),2);
+                    candidate.setTime((wCand*candidate.time() + wSeed*seed->time())/(wCand + wSeed) , 1.0f/std::sqrt(float(wCand + wSeed)));
+                  } else {
+                    candidate.setTime(seed->time(), seed->timeError());
+                  }
+                }
+              }
 	    }
 	  }
 	}

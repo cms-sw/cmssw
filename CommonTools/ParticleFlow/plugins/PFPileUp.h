@@ -18,6 +18,13 @@
 
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h"
+
+
 /**\class PFPileUp
 \brief Identifies pile-up candidates from a collection of PFCandidates, and
 produces the corresponding collection of PileUpCandidates.
@@ -47,6 +54,7 @@ class PFPileUp : public edm::stream::EDProducer<> {
  private:
 
   PFPileUpAlgo    pileUpAlgo_;
+  PrimaryVertexAssignment assignmentAlgo_;
 
   /// PFCandidates to be analyzed
   edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
@@ -56,6 +64,9 @@ class PFPileUp : public edm::stream::EDProducer<> {
   /// vertices
   edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;
 
+  //jets
+  edm::EDGetTokenT<edm::View<reco::Candidate> >   tokenJets_;
+  
   /// enable PFPileUp selection
   bool   enable_;
 
@@ -64,6 +75,10 @@ class PFPileUp : public edm::stream::EDProducer<> {
 
   /// use the closest z vertex if a track is not in a vertex
   bool   checkClosestZVertex_;
+  
+  //use PrimaryVertexAssignment insead of PFPileupAlgo
+  bool usePrimaryVertexAssignment_;
+  int assignmentQualityForPrimary_;
 
 };
 

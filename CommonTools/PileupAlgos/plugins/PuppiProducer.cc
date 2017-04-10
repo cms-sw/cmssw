@@ -38,13 +38,19 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fClonePackedCands       = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
+  fUsePVAssignmentMap = iConfig.getParameter<bool>("UsePVAssignmentMap");
+  fAssignmentQualityForPrimary = iConfig.getParameter<int>("AssignmentQualityForPrimary");
   fPuppiContainer = std::unique_ptr<PuppiContainer> ( new PuppiContainer(iConfig) );
 
   tokenPFCandidates_
     = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_
     = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
- 
+
+  if (fUsePVAssignmentMap) {
+    tokenPVAssignment_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("PVAssignment"));
+    tokenPVAssignmentQuality_ = consumes<CandToVertexQuality>(iConfig.getParameter<edm::InputTag>("PVAssignmentQuality"));
+  }
 
   produces<edm::ValueMap<float> > ();
   produces<edm::ValueMap<LorentzVector> > ();
@@ -79,6 +85,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_,hVertexProduct);
   const reco::VertexCollection *pvCol = hVertexProduct.product();
 
+  edm::Handle<CandToVertex> hpvAssignment;
+  const CandToVertex *pvAssignment = 0;
+  
+  edm::Handle<CandToVertexQuality> hPVAssignmentQuality;
+  const CandToVertexQuality *pvAssignmentQuality = 0;
+  
+  if (fUsePVAssignmentMap) {
+    iEvent.getByToken(tokenPVAssignment_, hpvAssignment);
+    pvAssignment = hpvAssignment.product();
+    
+    iEvent.getByToken(tokenPVAssignmentQuality_, hPVAssignmentQuality);
+    pvAssignmentQuality = hPVAssignmentQuality.product();
+  }
+  
    int npv = 0;
    const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
    for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
@@ -103,7 +123,33 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int    pVtxId = -9999; 
     bool lFirst = true;
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
-    if(lPack == 0 ) {
+    if (fUsePVAssignmentMap) {
+      const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
+      pReco.id = 0;
+      
+      if (std::abs(pReco.charge)>0) {
+        reco::PFCandidateRef candref(pfCol->refAt(itPF-pfCol->begin()).castTo<reco::PFCandidateRef>());
+        int quality = (*pvAssignmentQuality)[candref];
+        if (quality >= fAssignmentQualityForPrimary) {
+          const reco::VertexRef &vtxref = (*pvAssignment)[candref];
+          int vtxid = vtxref.key();
+          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(vtxref->position());
+          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(vtxref->position());
+          if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
+          else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
+          
+          if (vtxid==0) {
+            pReco.id=1;
+          }
+          else {
+            pReco.id=2;
+          }
+        }
+        
+      }
+
+    }
+    else if(lPack == 0 ) {
 
       const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
       double curdz = 9999;

@@ -10,6 +10,7 @@ Sequences for reconstructing boosted taus using the HPS algorithm
 import CommonTools.ParticleFlow.pfNoPileUp_cff as boostedTaus
 pfPileUpForBoostedTaus = boostedTaus.pfPileUp.clone(
     PFCandidates = cms.InputTag('particleFlow'),
+    Jets=cms.InputTag('ak4PFJets'),
     checkClosestZVertex = cms.bool(False)
 )
 pfNoPileUpForBoostedTaus = boostedTaus.pfNoPileUp.clone(

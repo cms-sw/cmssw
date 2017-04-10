@@ -47,6 +47,8 @@ namespace pat {
       packedPuppiweight_(0),
       packedPuppiweightNoLepDiff_(0),
       hcalFraction_(0),
+      packedTime_(0),
+      packedTimeError_(0),
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
@@ -57,7 +59,7 @@ namespace pat {
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), dphi_(0), 
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
@@ -71,7 +73,7 @@ namespace pat {
                               float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
       vertex_( new Point(vtx) ), dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
       track_(nullptr), pdgId_(pdgId),
@@ -85,7 +87,7 @@ namespace pat {
                               float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
@@ -111,6 +113,8 @@ namespace pat {
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       hcalFraction_(iOther.hcalFraction_),
+      packedTime_(iOther.packedTime_),
+      packedTimeError_(iOther.packedTimeError_),
       //Need to trigger unpacking in iOther
       p4_( new PolarLorentzVector(iOther.polarP4() ) ),
       p4c_( new LorentzVector(iOther.p4())), vertex_( new Point(iOther.vertex())),
@@ -137,6 +141,8 @@ namespace pat {
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       hcalFraction_(iOther.hcalFraction_),
+      packedTime_(iOther.packedTime_),
+      packedTimeError_(iOther.packedTimeError_),
       p4_( iOther.p4_.exchange(nullptr) ) ,
       p4c_( iOther.p4c_.exchange(nullptr)), vertex_(iOther.vertex_.exchange(nullptr)),
       dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
@@ -171,6 +177,8 @@ namespace pat {
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       hcalFraction_=iOther.hcalFraction_;
+      packedTime_=iOther.packedTime_;
+      packedTimeError_=iOther.packedTimeError_;
       //Need to trigger unpacking in iOther
       if(p4_) {
         *p4_ = iOther.polarP4();
@@ -241,6 +249,8 @@ namespace pat {
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       hcalFraction_=iOther.hcalFraction_;
+      packedTime_=iOther.packedTime_;
+      packedTimeError_=iOther.packedTimeError_;
       delete p4_.exchange(iOther.p4_.exchange(nullptr));
       delete p4c_.exchange(iOther.p4c_.exchange(nullptr));
       delete vertex_.exchange(iOther.vertex_.exchange(nullptr));
@@ -594,6 +604,23 @@ namespace pat {
     void setHcalFraction(float p);                      /// Set the fraction of Ecal and Hcal needed for HF and neutral hadrons
     float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons
 
+    /// time (wrt nominal zero of the collision)
+    virtual float time(size_t ipv=0)  const { return vertexRef()->t() + dtimeAssociatedPV(); }
+    /// dtime with respect to the PV[ipv]
+    virtual float dtime(size_t ipv=0)  const { return dtimeAssociatedPV() + (*pvRefProd_)[pvRefKey_].t()-(*pvRefProd_)[ipv].t(); }
+    /// dtime with respect to the PV ref
+    virtual float dtimeAssociatedPV()  const {
+        if (packedTime_ == 0) return 0.f;
+        if (packedTimeError_ > 0) return unpackTimeWithError(packedTime_,packedTimeError_);
+        else return unpackTimeNoError(packedTime_);
+    }
+    /// time measurement uncertainty (-1 if not available)
+    virtual float timeError() const { return unpackTimeError(packedTimeError_); }
+    /// set time measurement
+    void setDTimeAssociatedPV(float aTime, float aTimeError=0) ;
+    /// set time measurement
+    void setTime(float aTime, float aTimeError=0) { setDTimeAssociatedPV(aTime - vertexRef()->t(), aTimeError); }
+
 
   protected:
     friend class ::testPackedCandidate;
@@ -614,6 +641,8 @@ namespace pat {
     int8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     int8_t hcalFraction_;
+    int16_t packedTime_;
+    uint8_t packedTimeError_;
 
     /// the four vector                                                 
     mutable std::atomic<PolarLorentzVector*> p4_;
@@ -651,6 +680,14 @@ namespace pat {
         lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
         muonFlagsMask = 0x0600, muonFlagsShift=9
     };
+
+    /// static to allow unit testing
+    static uint8_t packTimeError(float timeError) ;
+    static float unpackTimeError(uint8_t timeError) ;
+    static float unpackTimeNoError(int16_t time) ;
+    static int16_t packTimeNoError(float time) ;
+    static float unpackTimeWithError(int16_t time, uint8_t timeError) ;
+    static int16_t packTimeWithError(float   time, float   timeError) ;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

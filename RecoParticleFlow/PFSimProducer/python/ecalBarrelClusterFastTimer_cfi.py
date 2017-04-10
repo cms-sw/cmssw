@@ -4,7 +4,7 @@ ecalBarrelClusterFastTimer = cms.EDProducer(
     'EcalBarrelClusterFastTimer',
     ebTimeHits = cms.InputTag('ecalDetailedTimeRecHit:EcalRecHitsEB'),
     ebClusters = cms.InputTag('particleFlowClusterECALUncorrected'),
-    timedVertices = cms.InputTag('offlinePrimaryVertices4D'),
+    timedVertices = cms.InputTag('offlinePrimaryVertices'),
     minFractionToConsider = cms.double(0.1),
     minEnergyToConsider = cms.double(0.0),
     ecalDepth = cms.double(7.0),

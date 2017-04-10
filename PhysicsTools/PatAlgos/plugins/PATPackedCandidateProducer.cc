@@ -82,7 +82,8 @@ namespace pat {
             std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
-           
+            bool storeTiming_;
+
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -107,7 +108,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(usePuppi_ ? consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >() ),
   PuppiCands_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >() ),
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
-  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+  storeTiming_(iConfig.getParameter<bool>("storeTiming"))  
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -292,6 +294,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
         }
 	
+        if (storeTiming_ && cand.isTimeValid())  {
+          outPtrP->back().setTime(cand.time(), cand.timeError());
+        }
+
         mapping[ic] = ic; // trivial at the moment!
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
 	  mappingTk[cand.trackRef().key()] = ic;	    
