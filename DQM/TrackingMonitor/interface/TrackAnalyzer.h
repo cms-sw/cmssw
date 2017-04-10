@@ -407,9 +407,11 @@ class TrackAnalyzer
 	  MonitorElement* NumberOfRecHitsPerTrack;
 	  MonitorElement* NumberOfRecHitsPerTrackVsPhi;
 	  MonitorElement* NumberOfRecHitsPerTrackVsEta;
+	  MonitorElement* NumberOfRecHitsPerTrackVsPt;
 	  MonitorElement* NumberOfLayersPerTrack;
 	  MonitorElement* NumberOfLayersPerTrackVsPhi;
 	  MonitorElement* NumberOfLayersPerTrackVsEta;
+	  MonitorElement* NumberOfLayersPerTrackVsPt;
           MonitorElement* RecHitChi2PerTrack;
 	  
 	  int         detectorId;
