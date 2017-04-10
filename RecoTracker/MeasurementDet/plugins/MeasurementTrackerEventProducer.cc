@@ -114,49 +114,51 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
   }else{  
 
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & pixelClusters = thePxDets.handle();
-    event.getByToken(thePixelClusterLabel, pixelClusters);
+    if(event.getByToken(thePixelClusterLabel, pixelClusters)) {
     
-    const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
-
+      const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
+      
    
-    if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
-       thePxDets.setActiveThisEvent(false);
-    } else { 
-
-       //std::cout <<"updatePixels "<<pixelCollection->dataSize()<<std::endl;
-       pixelClustersToSkip.resize(pixelCollection->dataSize());
-       std::fill(pixelClustersToSkip.begin(),pixelClustersToSkip.end(),false);
-       
-       if(selfUpdateSkipClusters_) {
+      if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
+	thePxDets.setActiveThisEvent(false);
+      } else { 
+	
+	//std::cout <<"updatePixels "<<pixelCollection->dataSize()<<std::endl;
+	pixelClustersToSkip.resize(pixelCollection->dataSize());
+	std::fill(pixelClustersToSkip.begin(),pixelClustersToSkip.end(),false);
+	
+	if(selfUpdateSkipClusters_) {
           edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelClusterMask;
-         //and get the collection of pixel ref to skip
-         event.getByToken(thePixelClusterMask,pixelClusterMask);
-         LogDebug("MeasurementTracker")<<"getting pxl refs to skip";
-         if (pixelClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
-	 if (pixelClusterMask->refProd().id()!=pixelClusters.id()){
-	   edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClusterMask->refProd().id()<<"!="<<pixelClusters.id();
-	 }
-	 pixelClusterMask->copyMaskTo(pixelClustersToSkip);
-       }
-          
-
-       // FIXME: should check if lower_bound is better
-       int i = 0, endDet = thePxDets.size();
-       for (edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->begin(), ed = pixelCollection->end(); it != ed; ++it) {
-         edmNew::DetSet<SiPixelCluster> set(*it);
-         unsigned int id = set.id();
-         while ( id != thePxDets.id(i)) { 
-             ++i;
-             if (endDet==i) throw "we have a problem!!!!";
-         }
-         // push cluster range in det
-         if ( thePxDets.isActive(i) ) {
-             thePxDets.update(i,set);         
-	 }
-       }
+	  //and get the collection of pixel ref to skip
+	  event.getByToken(thePixelClusterMask,pixelClusterMask);
+	  LogDebug("MeasurementTracker")<<"getting pxl refs to skip";
+	  if (pixelClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
+	  if (pixelClusterMask->refProd().id()!=pixelClusters.id()){
+	    edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClusterMask->refProd().id()<<"!="<<pixelClusters.id();
+	  }
+	  pixelClusterMask->copyMaskTo(pixelClustersToSkip);
+	}
+	
+	
+	// FIXME: should check if lower_bound is better
+	int i = 0, endDet = thePxDets.size();
+	for (edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->begin(), ed = pixelCollection->end(); it != ed; ++it) {
+	  edmNew::DetSet<SiPixelCluster> set(*it);
+	  unsigned int id = set.id();
+	  while ( id != thePxDets.id(i)) { 
+	    ++i;
+	    if (endDet==i) throw "we have a problem!!!!";
+	  }
+	  // push cluster range in det
+	  if ( thePxDets.isActive(i) ) {
+	    thePxDets.update(i,set);         
+	  }
+	}
+      }
+    } else {
+      edm::LogWarning("MeasurementTrackerEventProducer") << "input pixel clusters collection " << pset_.getParameter<std::string>("pixelClusterProducer") << " is not valid";
     }
   }
-
 }
 
 void 
