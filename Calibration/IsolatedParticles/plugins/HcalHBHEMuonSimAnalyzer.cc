@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -64,7 +64,8 @@ private:
   int                                           verbosity_, maxDepth_;
   double                                        etaMax_;
   std::vector<HcalDDDRecConstants::HcalActiveLength> actHB_, actHE_;
-
+  const int                                     MaxDepth=7;
+  const int                                     idMuon_=13;
   double                                        tMinE_, tMaxE_, tMinH_, tMaxH_;
   edm::Service<TFileService>                    fs_;
   edm::EDGetTokenT<edm::SimTrackContainer>      tok_SimTk_;
@@ -96,7 +97,7 @@ private:
 
 HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
   g4Label_   = iConfig.getParameter<std::string>("ModuleLabel");
@@ -116,8 +117,8 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
   tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,ebLabel_));
   tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,eeLabel_));
   tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcLabel_));
-  if      (maxDepth_ > 7) maxDepth_ = 7;
-  else if (maxDepth_ < 1) maxDepth_ = 4;
+  if      (maxDepth_ > MaxDepth) maxDepth_ = MaxDepth;
+  else if (maxDepth_ < 1)        maxDepth_ = 4;
 
   std::cout << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_
 	    << ":" << hcLabel_ << "\nVerbosity " << verbosity_ << " MaxDepth "
@@ -136,6 +137,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 #ifdef EDM_ML_DEBUG
   debug = ((verbosity_/10)>0);
 #endif
+  // depthHE is the first depth index for HE for |ieta| = 16
+  // It used to be 3 for all runs preceding 2017 and 4 beyond that
   int depthHE = (maxDepth_ <= 6) ? 3 : 4;
 
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
@@ -164,6 +167,9 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
   std::vector<PCaloHit> calohh;
   bool testN(false);
   for (unsigned int k=1; k<pcalohh->size(); ++k) {
+    // if it is a standard DetId bits 28..31 will carry the det #
+    // for HCAL det # is 4 and if there is at least one hit in the collection
+    // have det # which is not 4 this collection is created using TestNumbering
     int det = ((((*pcalohh)[k].id())>>28)&0xF);
     if (det != 4) {testN = true; break;}
   }
@@ -199,15 +205,16 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
   // Loop over all SimTracks
   for (edm::SimTrackContainer::const_iterator simTrkItr=SimTk->begin();
        simTrkItr!= SimTk->end(); simTrkItr++) {
-    if ((std::abs(simTrkItr->type()) == 13) && (simTrkItr->vertIndex() == 0) &&
+    if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
 	(std::abs(simTrkItr->momentum().eta()) < etaMax_)) {
       unsigned int thisTrk = simTrkItr->trackId();
       spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, debug);
 
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
-      double eHcalDepth[7], eHcalDepthHot[7], activeL[7], activeHotL[7];
+      double eHcalDepth[MaxDepth], eHcalDepthHot[MaxDepth];
+      double activeL[MaxDepth], activeHotL[MaxDepth];
       unsigned int isHot(0);
-      for (int i=0; i<7; ++i) 
+      for (int i=0; i<MaxDepth; ++i) 
 	eHcalDepth[i] = eHcalDepthHot[i] = activeL[i] = activeHotL[i] = -10000;
 
 #ifdef EDM_ML_DEBUG
@@ -312,7 +319,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 	}
 #ifdef EDM_ML_DEBUG
 	if ((verbosity_%10) > 0) {
-	  for (int k=0; k<7; ++k)
+	  for (int k=0; k<MaxDepth; ++k)
 	    std::cout << "Depth " << k << " E " << eHcalDepth[k] << ":" 
 		      << eHcalDepthHot[k] << std::endl;
 	}
@@ -431,8 +438,18 @@ void HcalHBHEMuonSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<std::string>("ModuleLabel","g4SimHits");
+  desc.add<std::string>("EBCollection","EcalHitsEB");
+  desc.add<std::string>("EECollection","EcalHitsEE");
+  desc.add<std::string>("HCCollection","HcalHits");
+  desc.addUntracked<int>("Verbosity",0);
+  desc.addUntracked<int>("MaxDepth",4);
+  desc.addUntracked<double>("EtaMax",3.0);
+  desc.addUntracked<double>("TimeMinCutECAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutECAL",500.0);
+  desc.addUntracked<double>("TimeMinCutHCAL",-500.0);
+  desc.addUntracked<double>("TimeMaxCutHCAL",500.0);
+  descriptions.add("hcalHBHEMuonSim",desc);
 }
 
 void HcalHBHEMuonSimAnalyzer::clearVectors() {
