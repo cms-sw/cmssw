@@ -72,11 +72,11 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken( siStripTrackToken_, inputSiStripTracks );
 
   // process tracks from Si strips
-  for ( const auto rpv : *inputSiStripTracks ) {
+  for ( const auto& rpv : *inputSiStripTracks ) {
     const uint32_t rpId = rpv.detId();
-    for ( const auto t : rpv ) {
-      if ( !t.isValid() ) continue;
-      pOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma() );
+    for ( const auto& trk : rpv ) {
+      if ( !trk.isValid() ) continue;
+      pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
     }
   }
 
@@ -87,11 +87,11 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken( diamondTrackToken_, inputDiamondTracks );
 
   // process tracks from diamond detectors
-  for ( const auto rpv : *inputDiamondTracks ) {
+  for ( const auto& rpv : *inputDiamondTracks ) {
     const unsigned int rpId = rpv.detId();
-    for ( const auto t : rpv ) {
-      if ( !t.isValid() ) continue;
-      pOut->emplace_back( rpId, t.getX0(), t.getX0Sigma(), t.getY0(), t.getY0Sigma(), t.getT() );
+    for ( const auto& trk : rpv ) {
+      if ( !trk.isValid() ) continue;
+      pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma(), trk.getT() );
     }
   }
 
