@@ -28,8 +28,8 @@ class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct  InputChunk;
 
 namespace evf {
 class FastMonitoringService;
@@ -42,8 +42,8 @@ class DataPointDefinition;
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
-friend class InputFile;
-friend class InputChunk;
+friend struct InputFile;
+friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
