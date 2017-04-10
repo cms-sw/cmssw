@@ -17,7 +17,6 @@
 //
 
 // system include files
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -174,7 +173,6 @@ void
 HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
     using namespace edm;
-    using namespace std;
 
     // Fetch the calibrations
     ESHandle<HcalDbService> conditions;
@@ -192,8 +190,6 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     Handle<HFPreRecHitCollection> preRecHits;
     e.getByToken(tok_PreRecHit_, preRecHits);
 
-    cout << "HFPhase1Reconstructor::produce: going over " << preRecHits->size() << " prerechits" << endl;
-    
     // Create a new output collection
     std::unique_ptr<HFRecHitCollection> rec(std::make_unique<HFRecHitCollection>());
     rec->reserve(preRecHits->size());
@@ -282,7 +278,6 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     }
 
     // Add the output collection to the event record
-    cout << "HFPhase1Reconstructor::produce: made " << rec->size() << " rechits" << endl;
     e.put(std::move(rec));
 }
 
