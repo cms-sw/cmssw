@@ -55,20 +55,20 @@
 namespace {
  
   // The maximum number of ROCs in the X (row) direction per sensor.
-  const int maxROCsInX = 2;  //  
+  constexpr int maxROCsInX = 2;  //  
   // The maximum number of ROCs in the Y (column) direction per sensor.
-  const int maxROCsInY = 3;  //
+  constexpr int maxROCsInY = 3;  //
   // The nominal number of double columns per ROC is 26. 
-  const int DColsPerROC = 26; 
+  constexpr int DColsPerROC = 26; 
   // Default ROC size 
-  const int ROCSizeInX = 80;  // ROC row size in pixels 
-  const int ROCSizeInY = 52;  // ROC col size in pixels 
+  constexpr int ROCSizeInX = 80;  // ROC row size in pixels 
+  constexpr int ROCSizeInY = 52;  // ROC col size in pixels 
   // Default DET barrel size 
-  const int defaultDetSizeInX = 160;  // Det row size in pixels (2 ROCs) 
-  const int defaultDetSizeInY = 156; //  Det col size in pixels (3 ROCs) 
+  constexpr int defaultDetSizeInX = 160;  // Det row size in pixels (2 ROCs) 
+  constexpr int defaultDetSizeInY = 156; //  Det col size in pixels (3 ROCs) 
 
   // Check the limits
-  const bool CTPPS_CHECK_LIMITS = true;
+  constexpr bool CTPPS_CHECK_LIMITS = true;
 }
 
 class CTPPSPixelIndices {
