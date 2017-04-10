@@ -16,6 +16,7 @@ offlinePrimaryVertices = cms.EDProducer(
         minSiliconLayersWithHits = cms.int32(5),
         maxD0Significance = cms.double(5.0), 
         minPt = cms.double(0.0),
+        maxEta = cms.double(2.4),
         trackQuality = cms.string("any")
     ),
 
@@ -24,12 +25,14 @@ offlinePrimaryVertices = cms.EDProducer(
     vertexCollections = cms.VPSet(
      [cms.PSet(label=cms.string(""),
                algorithm=cms.string("AdaptiveVertexFitter"),
+               chi2cutoff = cms.double(2.5),
                minNdof=cms.double(0.0),
                useBeamConstraint = cms.bool(False),
                maxDistanceToBeam = cms.double(1.0)
                ),
       cms.PSet(label=cms.string("WithBS"),
                algorithm = cms.string('AdaptiveVertexFitter'),
+               chi2cutoff = cms.double(2.5),
                minNdof=cms.double(2.0),
                useBeamConstraint = cms.bool(True),
                maxDistanceToBeam = cms.double(1.0)
