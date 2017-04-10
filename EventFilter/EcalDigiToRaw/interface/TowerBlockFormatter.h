@@ -17,7 +17,12 @@
 // The crystals corresponding to a given FE in a given FED
 //
 
+struct localmaporder {
+   std::map<int, std::map<int,int> > FEDmap {};
+   std::map<int, std::map<int,int> > FEDorder {};
 
+   localmaporder() = default;
+};
 
 class TowerBlockFormatter : public BlockFormatter {
  public :
@@ -25,16 +30,16 @@ class TowerBlockFormatter : public BlockFormatter {
 	TowerBlockFormatter(EcalDigiToRaw *es) : BlockFormatter(es) {};
 	~TowerBlockFormatter();
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1);
-        void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1);
-	void StartEvent();
+        void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder local) const;
+        void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder local) const;
+	localmaporder StartEvent();
 	void EndEvent(FEDRawDataCollection* productRawData);
 
-	std::map<int, std::map<int,int> >* GetFEDorder() {return FEDorder; }
+	//std::map<int, std::map<int,int> >* GetFEDorder() {return FEDorder; }
 
  private :
-        std::map<int, std::map<int,int> >* FEDmap;
-	std::map<int, std::map<int,int> >* FEDorder;
+       // std::map<int, std::map<int,int> >* FEDmap;
+//	std::map<int, std::map<int,int> >* FEDorder;
 
 
 };
