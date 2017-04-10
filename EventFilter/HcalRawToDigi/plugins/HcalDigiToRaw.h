@@ -32,7 +32,7 @@ public:
   virtual void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
 private:
   HcalPacker packer_;
-  edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
+  const edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
