@@ -33,12 +33,12 @@ public:
 private:
   HcalPacker packer_;
   const edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
-  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
-  edm::EDGetTokenT<HODigiCollection> tok_ho_;
-  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
-  edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
-  edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
-  edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_htp_;
+  const edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  const edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  const edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
+  const edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
+  const edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_htp_;
 };
 
 #endif

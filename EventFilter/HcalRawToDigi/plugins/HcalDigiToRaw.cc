@@ -18,16 +18,15 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf) :
   hfTag_(conf.getUntrackedParameter("HF",edm::InputTag())),
   zdcTag_(conf.getUntrackedParameter("ZDC",edm::InputTag())),
   calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
-  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag()))
-{
+  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag())),
   // register for data access
-  tok_hbhe_ = consumes<HBHEDigiCollection>(hbheTag_);
-  tok_ho_ = consumes<HODigiCollection>(hoTag_);
-  tok_hf_ = consumes<HFDigiCollection>(hfTag_);
-  tok_calib_ = consumes<HcalCalibDigiCollection>(calibTag_);
-  tok_zdc_ = consumes<ZDCDigiCollection>(zdcTag_);
-  tok_htp_ = consumes<HcalTrigPrimDigiCollection>(trigTag_);
-
+  tok_hbhe_(consumes<HBHEDigiCollection>(hbheTag_)),
+  tok_ho_(consumes<HODigiCollection>(hoTag_)),
+  tok_hf_(consumes<HFDigiCollection>(hfTag_)),
+  tok_calib_(consumes<HcalCalibDigiCollection>(calibTag_)),
+  tok_zdc_(consumes<ZDCDigiCollection>(zdcTag_)),
+  tok_htp_(consumes<HcalTrigPrimDigiCollection>(trigTag_))
+{
   produces<FEDRawDataCollection>();
 }
 
