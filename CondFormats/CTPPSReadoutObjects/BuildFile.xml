@@ -1,4 +1,5 @@
 <use name="FWCore/Framework"/>
+<use name="FWCore/Concurrency"/>
 <use name="DataFormats/CTPPSDetId"/>
 
 <use name="CondFormats/Serialization"/>

@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
@@ -32,6 +32,8 @@
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
+
+
 
 #include <memory>
 #include <sstream>
@@ -269,7 +271,7 @@ std::unique_ptr<CTPPSPixelDAQMapping> CTPPSPixelDAQMappingESSourceXML::produceCT
 // initialize Xerces
   try
     {
-      XMLPlatformUtils::Initialize();
+      cms::concurrency::xercesInitialize();
     }
   catch (const XMLException& toCatch)
     {
@@ -287,7 +289,7 @@ std::unique_ptr<CTPPSPixelDAQMapping> CTPPSPixelDAQMappingESSourceXML::produceCT
     ParseXML(pMask, CompleteFileName(fn), mapping, mask);
 
 // release Xerces
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
 // commit the product
   return mapping;
@@ -303,7 +305,7 @@ std::unique_ptr<CTPPSPixelAnalysisMask> CTPPSPixelDAQMappingESSourceXML::produce
 // initialize Xerces
   try
     {
-      XMLPlatformUtils::Initialize();
+      cms::concurrency::xercesInitialize();
     }
   catch (const XMLException& toCatch)
     {
@@ -321,7 +323,7 @@ std::unique_ptr<CTPPSPixelAnalysisMask> CTPPSPixelDAQMappingESSourceXML::produce
     ParseXML(pMask, CompleteFileName(fn), mapping, mask);
 
 // release Xerces
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
 // commit the products
 //return edm::es::products(mapping, mask);
