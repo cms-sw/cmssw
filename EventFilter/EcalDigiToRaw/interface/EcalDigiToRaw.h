@@ -27,7 +27,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,14 +47,12 @@
 // class decleration
 //
 
-class EcalDigiToRaw : public edm::stream::EDProducer<> {
+class EcalDigiToRaw : public edm::global::EDProducer<> {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
        virtual ~EcalDigiToRaw();
 
-      void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-      void endStream() override;
+      virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
       typedef long long Word64;
       typedef unsigned int Word32;
