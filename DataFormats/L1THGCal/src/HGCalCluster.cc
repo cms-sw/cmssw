@@ -64,6 +64,7 @@ void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
     this->setP4( p4 );
 
     triggercells_.push_back( tc );
+
 }
 
 
@@ -103,6 +104,7 @@ int32_t HGCalCluster::zside() const
     return seedDetId.zside();
 
 }
+
 
 
 bool HGCalCluster::operator<(const HGCalCluster& cl) const
