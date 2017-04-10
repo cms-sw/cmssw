@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <iterator>
 #include <fstream>
 #include <utility>
 
@@ -63,6 +64,32 @@ Forest::~Forest()
         delete trees[i];
     }
 }
+
+Forest::Forest(const Forest &forest)
+{
+    transform(forest.trees.cbegin(),
+              forest.trees.cend(),
+              back_inserter(trees),
+              [] (const Tree *tree) { return new Tree(*tree); }
+    );
+}
+
+Forest& Forest::operator=(const Forest &forest)
+{
+    for(unsigned int i=0; i < trees.size(); i++)
+    { 
+        delete trees[i];
+    }
+    trees.resize(0);
+
+    transform(forest.trees.cbegin(),
+              forest.trees.cend(),
+              back_inserter(trees),
+              [] (const Tree *tree) { return new Tree(*tree); }
+    );
+    return *this;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // ______________________Get/Set_Functions______________________________//
 //////////////////////////////////////////////////////////////////////////
@@ -505,6 +532,22 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
     }   
 
    // std::cout << "Done." << std::endl << std::endl;
+}
+
+void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest)
+{
+// Load a forest that has already been created and stored in CondDB.
+    // Initialize the vector of trees.
+    unsigned int numTrees = forest.size();
+
+    trees = std::vector<Tree*>(numTrees);
+
+    // Load the Forest.
+    for(unsigned int i=0; i < numTrees; i++)
+    {
+        trees[i] = new Tree();
+        trees[i]->loadFromCondPayload(forest[i]);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
 
 #include "Tree.h"
 #include "LossFunctions.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
 namespace emtf {
 
@@ -16,6 +17,10 @@ class Forest
         Forest();
         Forest(std::vector<Event*>& trainingEvents);
         ~Forest();
+
+        Forest(const Forest &forest);
+        Forest& operator=(const Forest &forest);
+        Forest(Forest && forest) = default;
 
         // Get/Set
         void setTrainingEvents(std::vector<Event*>& trainingEvents);
@@ -35,6 +40,7 @@ class Forest
         void sortEventVectors(std::vector< std::vector<Event*> >& e);
         void generate(Int_t numTrainEvents, Int_t numTestEvents, double sigma);
         void loadForestFromXML(const char* directory, unsigned int numTrees); 
+        void loadFromCondPayload(const L1TMuonEndCapForest::DForest& payload);
 
         // Perform the regression
         void updateRegTargets(Tree *tree, double learningRate, LossFunction* l);
