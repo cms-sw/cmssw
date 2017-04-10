@@ -46,7 +46,7 @@ private:
 	edm::FileInPath weight_file_;
   bool use_GBRForest_;
   bool use_adaBoost_;
-  bool isPhase1_;
+  bool defaultValueNoTracks_;
 };
 
 #endif
