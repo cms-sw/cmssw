@@ -385,6 +385,8 @@ namespace pat {
       trackPixelHitsMask = 7,
       trackStripHitsMask = 31, trackStripHitsShift = 3
     };
+
+    // set number of tracker hits and layers
     virtual void setHits( const reco::Track & tk) {
       // first we count the number of layers with hits
       int numberOfPixelLayers_ = tk.hitPattern().pixelLayersWithMeasurement();
@@ -405,16 +407,12 @@ namespace pat {
       covarianceVersion_ = covarianceVersion ;
       covarianceSchema_ = quality ;
       normalizedChi2_ = tk.normalizedChi2();
-      //
-      setHits(tk); //tk.hitPattern().numberOfValidPixelHits(),tk.hitPattern().numberOfValidHits());
+      setHits(tk);
       packBoth();
-      packCovariance(covariance,false); //TODO: check if these 2 lines make sense as the m_ is protected behind the Track atomic pointer...
-      //unpackTrk();         // 
+      packCovariance(covariance,false); 
     }
 
-    virtual void setTrackHits( const reco::Track & tk ) {
-	setHits(tk);
-    }	
+    // set track properties using quality and covarianceVersion to define the level of details in the cov. matrix	
     virtual void setTrackProperties( const reco::Track & tk,int quality,int covarianceVersion ) {
 	setTrackProperties(tk,tk.covariance(), quality,covarianceVersion );
     }	
@@ -677,8 +675,8 @@ namespace pat {
 	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,covarianceVersion_ );
         if(covarianceParameterization_.loadedVersion() != covarianceVersion_ )
         {
-          std::cerr << "Attempting to load multiple covariance version in same process. This is not supported." << std::endl;
-	  abort();
+          throw edm::Exception(edm::errors::UnimplementedFeature)
+           << "Attempting to load multiple covariance version in same process. This is not supported.";
         }
         return  covarianceParameterization_;
     }
