@@ -63,7 +63,7 @@ void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
     p4 += tc->p4(); 
     this->setP4( p4 );
 
-    triggercells_.push_back( tc );    
+    triggercells_.push_back( tc );
 
 }
 

@@ -31,7 +31,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
+#    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
+    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_0_0_pre4/RelValTTbar_14TeV/GEN-SIM-RECO/PU25ns_90X_upgrade2023_realistic_v3_D4TPU200c2-v1/10000/28524D8F-20F0-E611-B999-0CC47A7C354C.root')
 )
 # Additional output definition
 process.TFileService = cms.Service(
@@ -58,8 +59,6 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_para
 # Adjust C2d thresholds
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.seeding_threshold = cms.double(5)
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.clustering_threshold = cms.double(2)
-# Adjust the maxTC-length for NNC2d-clustering
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.maxTClength = cms.double(3.84)
 # Adjust the max-dR for geometric dRC2d-clustering
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.dR_cluster = cms.double(3.)
 
