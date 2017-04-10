@@ -8,6 +8,7 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     vertexAssociator = cms.InputTag("primaryVertexAssociation","original"),
     PuppiSrc = cms.InputTag("puppi"),
     PuppiNoLepSrc = cms.InputTag("puppiNoLep"),    
+    chargedHadronIsolation = cms.InputTag("chargedHadronIsolation"),
     secondaryVerticesForWhiteList = cms.VInputTag(
       cms.InputTag("inclusiveCandidateSecondaryVertices"),
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
