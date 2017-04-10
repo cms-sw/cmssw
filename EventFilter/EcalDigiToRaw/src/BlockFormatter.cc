@@ -199,7 +199,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
 }
 
 
-void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) {
+void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) const {
 
 
  for (int id=0; id < 36 + 18; id++) {

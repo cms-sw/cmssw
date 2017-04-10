@@ -20,14 +20,9 @@ TowerBlockFormatter::~TowerBlockFormatter() {
 
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
-					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder local) const
+					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder &local) const
 
 {
-
- //int bx = *pbx_;
- //int lv1 = *plv1_ - 1;
-
-
   int rdsize = rawdata.size() / 8;  // size in Word64
 
         const EBDetId& ebdetid = dataframe.id();
@@ -373,31 +368,19 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 // -- clean up
 
- // FEDmap -> empty();
- // FEDorder -> empty();
- //FEDmap -> clear();
- //FEDorder -> clear();
- //delete FEDmap;
- //delete FEDorder;
- //FEDmap = 0;
- //FEDorder = 0;
-
  debug_ = false;
 
  // cout << "end of EndEvent " << endl;
 }
 
 localmaporder TowerBlockFormatter::StartEvent() {
- return localmaporder(); 
- //FEDmap = new map<int, map<int,int> >;
- //FEDorder = new map<int, map<int,int> >;
- 
+  return localmaporder(); 
 }
 
 
 
 
-void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder local) const
+void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder& local) const
 
 	// -- now that we have the EcalElectronicsMapping, this method could probably be
 	//    merged with DigiToRaw(EBdataframe).
@@ -405,10 +388,6 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 {
 
  // debug_ = false;
-
-// int bx = *pbx_;
-// int lv1 = *plv1_;
-
 
   int rdsize = rawdata.size() / 8;  // size in Word64
 
