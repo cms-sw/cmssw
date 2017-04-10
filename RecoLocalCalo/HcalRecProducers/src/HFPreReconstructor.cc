@@ -212,7 +212,9 @@ HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& eventS
             }
 
             // Reconstruct the charge, energy, etc
-            qie10Infos_.push_back(reco_.reconstruct(frame, tsToUse+soiShift_, coder, calibrations));
+            const HFQIE10Info& info = reco_.reconstruct(frame, tsToUse+soiShift_, coder, calibrations);
+            if (info.id().rawId())
+                qie10Infos_.push_back(info);
         }
     }
 }
