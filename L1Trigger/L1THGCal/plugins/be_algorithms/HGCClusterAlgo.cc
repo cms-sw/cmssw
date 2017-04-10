@@ -33,7 +33,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
         multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
-        clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<string>("clusterType")) 
+        clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType")) 
         {
 
         }
@@ -154,10 +154,10 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     
     /* call to C2d clustering */
     if(clusteringAlgorithmType_=="dRC2d"){
-        clustering_.clusterize( triggerCellsPtrs, *cluster_product_);
+        clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
     }
     else if(clusteringAlgorithmType_=="NNC2d"){
-        clustering_.clusterize( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+        clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
     }
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */

@@ -1,3 +1,6 @@
+#include <array> 
+#include <unordered_set>
+#include <unordered_map>
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
@@ -7,7 +10,6 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
     seedThreshold_(conf.getParameter<double>("seeding_threshold")),
     triggerCellThreshold_(conf.getParameter<double>("clustering_threshold")),
     dr_(conf.getParameter<double>("dR_cluster")),
-    maxTClenght_(conf.getParameter<double>("maxTClength")),
     clusteringAlgorithmType_(conf.getParameter<string>("clusterType"))
 {    
     edm::LogInfo("HGCalClusterParameters") << "C2d Clustering Algorithm selected : " << clusteringAlgorithmType_ ; 
@@ -38,7 +40,7 @@ bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc,
 }
 
 
-void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters
     ){
 
@@ -130,19 +132,19 @@ void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCa
 
 /* merge clusters that have common neighbors */
 void HGCalClusteringImpl::mergeClusters( l1t::HGCalCluster & main_cluster, 
-                                         const l1t::HGCalCluster & secondary_cluster ) const
+                                         l1t::HGCalCluster & secondary_cluster ) const
 {
 
-    const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC = secondary_cluster.triggercells();
+    const edm::PtrVector<l1t::HGCalTriggerCell>& pertinentTC = secondary_cluster.triggercells();
     
     for( edm::PtrVector<l1t::HGCalTriggerCell>::iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
         main_cluster.addTriggerCell(*tc);
     }
-    
+
 }
 
 
-void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & reshuffledTriggerCells,
+void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & reshuffledTriggerCells,
                                     l1t::HGCalClusterBxCollection & clusters,
                                     const HGCalTriggerGeometryBase & triggerGeometry
     ){
@@ -194,7 +196,7 @@ void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>
     for(unsigned i_clu1 = 0; i_clu1 < clustersTmp.size(); ++i_clu1){
         l1t::HGCalCluster& cluster1 = clustersTmp.at(i_clu1);
         // If the cluster has been merged into another one, skip it
-        if(!cluster1.isComplete()) continue;
+        if( !cluster1.isComplete() ) continue;
         // Fill a set containing all TC included in the clusters
         // as well as all neighbor TC
         std::unordered_set<uint32_t> cluTcSet;
@@ -206,15 +208,21 @@ void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>
             }
         }        
             
-        for(unsigned i_clu2 = i_clu1+1; i_clu2 < clustersTmp.size(); ++i_clu2){
+        for(unsigned i_clu2 = 0; i_clu2 < clustersTmp.size(); ++i_clu2){
             l1t::HGCalCluster& cluster2 = clustersTmp.at(i_clu2);
             // If the cluster has been merged into another one, skip it
-            if(!cluster2.isComplete()) continue;
+            if( cluster1.seedDetId()==cluster2.seedDetId() ) continue;
+            if( !cluster2.isComplete() ) continue;
             // Check if the TC in clu2 are in clu1 or its neighbors
             // If yes, merge the second cluster into the first one
             for(const auto& tc_clu2 : cluster2.triggercells()){ 
                 if( cluTcSet.find(tc_clu2->detId())!=cluTcSet.end() ){
-                    mergeClusters( cluster1, cluster2 );
+                    mergeClusters( cluster1, cluster2 );                    
+                    cluTcSet.insert( tc_clu2->detId() );
+                    const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu2->detId() );
+                    for(const auto neighbor : neighbors){
+                        cluTcSet.insert( neighbor );
+                    }                    
                     cluster2.setIsComplete(false);
                     break;
                 }
@@ -225,6 +233,7 @@ void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>
     /* store clusters in the persistent collection */
     // only if the cluster contain a TC above the seed threshold
     for( auto& cluster : clustersTmp ){
+        if( !cluster.isComplete() ) continue;
         bool saveInCollection(false);
         for( const auto& tc_ptr : cluster.triggercells() ){
             /* threshold in transverse-mip */
@@ -240,7 +249,7 @@ void HGCalClusteringImpl::NNKernel( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>
 }
 
 
-void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters,
                                       const HGCalTriggerGeometryBase & triggerGeometry
     ){
@@ -250,8 +259,7 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
 
     for(int iec=0; iec<2; ++iec){
         for(int il=0; il<40; ++il){
-            std::vector<edm::Ptr<l1t::HGCalTriggerCell>> oneLayerTriggerCell( reshuffledTriggerCells[iec][il] );
-            NNKernel( oneLayerTriggerCell, clusters, triggerGeometry );
+            NNKernel( reshuffledTriggerCells[iec][il], clusters, triggerGeometry );
         }
     }
 
