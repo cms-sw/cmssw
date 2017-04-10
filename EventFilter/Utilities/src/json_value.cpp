@@ -63,18 +63,18 @@ public:
    {
    }
 
-   virtual char *makeMemberName( const char *memberName )
+   virtual char *makeMemberName( const char *memberName ) const
    {
       return duplicateStringValue( memberName );
    }
 
-   virtual void releaseMemberName( char *memberName )
+   virtual void releaseMemberName( char *memberName ) const 
    {
       releaseStringValue( memberName );
    }
 
    virtual char *duplicateStringValue( const char *value, 
-                                       unsigned int length = unknown )
+                                       unsigned int length = unknown ) const
    {
       // invesgate this old optimization
       //if ( !value  ||  value[0] == 0 )
@@ -88,17 +88,17 @@ public:
       return newString;
    }
 
-   virtual void releaseStringValue( char *value )
+   virtual void releaseStringValue( char *value ) const
    {
       if ( value )
          free( value );
    }
 };
 
-static ValueAllocator *&valueAllocator()
+static ValueAllocator const* valueAllocator()
 {
-   static DefaultValueAllocator defaultAllocator;
-   static ValueAllocator *valueAllocator = &defaultAllocator;
+   static const DefaultValueAllocator defaultAllocator;
+   static ValueAllocator const *valueAllocator = &defaultAllocator;
    return valueAllocator;
 }
 
