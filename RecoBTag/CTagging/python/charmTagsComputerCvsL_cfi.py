@@ -28,7 +28,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    gbrForestLabel = cms.string(''),
    useGBRForest = cms.bool(True),
    useAdaBoost = cms.bool(False),
-   defaultValueNoTracks = cmss.bool(False)
+   defaultValueNoTracks = cms.bool(False)
    )
 
 charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
