@@ -174,7 +174,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     MeanHitMax = cms.double(29.5),
     MeanHitMin = cms.double(-0.5),
 
-    subdetectors = cms.vstring( "TIB", "TOB", "TID", "TEC", "PixBarrel", "PixEndcap" ),
+    subdetectors = cms.vstring( "TIB", "TOB", "TID", "TEC", "PixBarrel", "PixEndcap", "Pixel", "Strip" ),
     subdetectorBin = cms.int32(25),
 
     # num rec hits lost
