@@ -52,19 +52,19 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
        EcalDigiToRaw(const edm::ParameterSet& pset);
        virtual ~EcalDigiToRaw();
 
-      virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
+       virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
-      typedef long long Word64;
-      typedef unsigned int Word32;
+       typedef long long Word64;
+       typedef unsigned int Word32;
 
-	bool GetDebug() {return debug_ ;}
-	bool GetDoBarrel() {return doBarrel_ ;}
-	bool GetDoEndCap() {return doEndCap_ ;}
-	bool GetDoSR() {return doSR_ ;}
-	bool GetDoTower() {return doTower_ ;}
-	bool GetDoTCC() {return doTCC_ ;}
+       bool GetDebug() const {return debug_ ;}
+	bool GetDoBarrel() const {return doBarrel_ ;}
+	bool GetDoEndCap() const {return doEndCap_ ;}
+	bool GetDoSR() const {return doSR_ ;}
+	bool GetDoTower() const{return doTower_ ;}
+	bool GetDoTCC() const {return doTCC_ ;}
 
-        std::vector<int32_t>* GetListDCCId() {return &listDCCId_ ;}
+        const std::vector<int32_t>* GetListDCCId() const {return &listDCCId_ ;}
     
 	static const int BXMAX = 2808;
 
@@ -74,31 +74,28 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
 
       // ----------member data ---------------------------
 
-        int  counter_;
-	bool debug_;
+	const bool doTCC_;
+	const bool doSR_;
+	const bool doTower_;
 
-	bool doTCC_;
-	bool doSR_;
-	bool doTower_;
+	const bool doBarrel_;
+	const bool doEndCap_;
 
-	edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
-	edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
-	edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
-	edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
-	edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
-
-	bool doBarrel_;
-	bool doEndCap_;
-
-        std::vector<int32_t> listDCCId_;
+        const std::vector<int32_t> listDCCId_;
     
-	std::string label_;
-	std::string instanceNameEB_;
-	std::string instanceNameEE_;
+	const std::string label_;
+	const std::string instanceNameEB_;
+	const std::string instanceNameEE_;
 
+	const edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
+	const edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
+	const edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
+	const edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
+	const edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
+	const bool debug_;
         std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
         std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
-	std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
+	const std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
 	std::unique_ptr<SRBlockFormatter>    SRblockformatter_;
 
 

@@ -30,22 +30,15 @@ class BlockFormatter {
 	void PrintSizes(FEDRawDataCollection* productRawData) const;
 
  protected :
-        bool debug_;
 
-	bool doBarrel_;
-	bool doEndCap_;
-	bool doTCC_;
-        bool doSR_;
-        bool doTower_;
+        const bool debug_;
 
-        std::vector<int32_t> * plistDCCId_;
-
-        int* pcounter_;
-	int* porbit_number_;
-	int* pbx_;
-	int* plv1_;
-	int* prunnumber_;
-
+	const bool doBarrel_;
+	const bool doEndCap_;
+        const std::vector<int32_t> * plistDCCId_;
+	const bool doTCC_;
+        const bool doSR_;
+        const bool doTower_;
 
 };
 

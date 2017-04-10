@@ -28,7 +28,7 @@ class TCCBlockFormatter : public BlockFormatter {
         void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const;
 
  private :
-	bool AllTPsamples_;
+	const bool AllTPsamples_;
 
 };
 

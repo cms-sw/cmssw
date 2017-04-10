@@ -44,40 +44,27 @@
 using namespace edm;
 using namespace std;
 
-EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
+EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig) :
+   doTCC_(iConfig.getUntrackedParameter<bool>("WriteTCCBlock")),
+   doSR_(iConfig.getUntrackedParameter<bool>("WriteSRFlags")),
+   doTower_(iConfig.getUntrackedParameter<bool>("WriteTowerBlock")),
+   doBarrel_(iConfig.getUntrackedParameter<bool>("DoBarrel")),
+   doEndCap_(iConfig.getUntrackedParameter<bool>("DoEndCap")),
+   listDCCId_(iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId")),
+   label_(iConfig.getParameter<string>("Label")),
+   instanceNameEB_(iConfig.getParameter<string>("InstanceEB")),
+   instanceNameEE_(iConfig.getParameter<string>("InstanceEE")),
+   EBDigiToken_(consumes<EBDigiCollection>(edm::InputTag(label_,instanceNameEB_))),
+   EEDigiToken_(consumes<EEDigiCollection>(edm::InputTag(label_,instanceNameEE_))),
+   labelTT_(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("labelTT"))),
+   labelEBSR_(consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"))),
+   labelEESR_(consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"))), 
+   debug_(iConfig.getUntrackedParameter<bool>("debug")),
+   Headerblockformatter_(std::unique_ptr<BlockFormatter>(new BlockFormatter(this)))
 {
-
-   doTCC_    = iConfig.getUntrackedParameter<bool>("WriteTCCBlock");
-   doSR_     = iConfig.getUntrackedParameter<bool>("WriteSRFlags");
-   doTower_  = iConfig.getUntrackedParameter<bool>("WriteTowerBlock");
-
-   doBarrel_ = iConfig.getUntrackedParameter<bool>("DoBarrel");
-   doEndCap_ = iConfig.getUntrackedParameter<bool>("DoEndCap");
-
-   listDCCId_ = iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId");
-   label_= iConfig.getParameter<string>("Label");
-   instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
-   instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
-
-   edm::InputTag EBlabel = edm::InputTag(label_,instanceNameEB_);
-   edm::InputTag EElabel = edm::InputTag(label_,instanceNameEE_);
-
-   EBDigiToken_ = consumes<EBDigiCollection>(EBlabel);
-   EEDigiToken_ = consumes<EEDigiCollection>(EElabel);
-
-   labelTT_ = consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("labelTT"));
-
-   labelEBSR_ = consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"));
-   labelEESR_ = consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"));
-
-   counter_ = 0;
-   debug_ = iConfig.getUntrackedParameter<bool>("debug");
-
-
    Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this));
    TCCblockformatter_ = std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this));
    SRblockformatter_ = std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this));
-   Headerblockformatter_ = std::unique_ptr<BlockFormatter>(new BlockFormatter(this));
 
    produces<FEDRawDataCollection>();
 

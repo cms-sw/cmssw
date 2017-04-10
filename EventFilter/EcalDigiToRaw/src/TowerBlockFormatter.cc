@@ -368,7 +368,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 // -- clean up
 
- debug_ = false;
+ //debug_ = false;
 
  // cout << "end of EndEvent " << endl;
 }

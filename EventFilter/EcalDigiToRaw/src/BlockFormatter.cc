@@ -11,16 +11,16 @@
 
 using namespace std;
 
-BlockFormatter::BlockFormatter(EcalDigiToRaw* base) {
+BlockFormatter::BlockFormatter(EcalDigiToRaw* base) : 
 
- debug_   = base -> GetDebug();
- doBarrel_ = base -> GetDoBarrel();
- doEndCap_ = base -> GetDoEndCap();
- plistDCCId_ = base -> GetListDCCId();
- doTCC_ = base -> GetDoTCC();
- doSR_ = base -> GetDoSR();
- doTower_ = base -> GetDoTower();
-}
+ debug_(base -> GetDebug()),
+ doBarrel_(base -> GetDoBarrel()),
+ doEndCap_(base -> GetDoEndCap()),
+ plistDCCId_(base -> GetListDCCId()),
+ doTCC_(base -> GetDoTCC()),
+ doSR_(base -> GetDoSR()),
+ doTower_(base -> GetDoTower())
+{}
 
 BlockFormatter::~BlockFormatter() {
 }
