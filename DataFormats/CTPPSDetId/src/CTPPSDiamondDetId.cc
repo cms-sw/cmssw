@@ -13,10 +13,7 @@ using namespace std;
 //----------------------------------------------------------------------------------------------------
 
 const uint32_t CTPPSDiamondDetId::startPlaneBit = 17, CTPPSDiamondDetId::maskPlane = 0x3, CTPPSDiamondDetId::maxPlane = 3, CTPPSDiamondDetId::lowMaskPlane = 0x1FFFF;
-const uint32_t CTPPSDiamondDetId::startDetBit = 12, CTPPSDiamondDetId::maskChannel = 0x1F, CTPPSDiamondDetId::maxChannel = 11, CTPPSDiamondDetId::lowMaskChannel = 0xFFF;
-
-const string CTPPSDiamondDetId::planeNames[] = { "0", "1", "2", "3" };
-const string CTPPSDiamondDetId::channelNames[] = { "0", "1", "2", "3", "4", "05", "06", "07", "08", "09", "10", "11" };
+const uint32_t CTPPSDiamondDetId::startDetBit = 12, CTPPSDiamondDetId::maskChannel = 0x1F, CTPPSDiamondDetId::maxChannel = 31, CTPPSDiamondDetId::lowMaskChannel = 0xFFF;
 
 //----------------------------------------------------------------------------------------------------
 
