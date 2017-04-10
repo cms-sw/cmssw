@@ -20,7 +20,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
   weight_file_(configuration.getParameter<edm::FileInPath>("weightFile")),
   use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
   use_adaBoost_(configuration.getParameter<bool>("useAdaBoost")),
-  isPhase1_(configuration.getParameter<bool>("isPhase1"))
+  defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks"))
 {
 	vpset vars_definition = configuration.getParameter<vpset>("variables");
 	for(auto &var : vars_definition) {
@@ -104,6 +104,6 @@ float CharmTagger::discriminator(const TagInfoHelper & tagInfo) const {
 	//get the MVA output
 	bool notracks = (vars.get(reco::btau::jetNTracks,0) == 0);
 	float tag = mvaID_->evaluate(inputs);
-	if (isPhase1_ && notracks){tag = -2;} // if no tracks available, put value at -2 (only for Phase I)
+	if (defaultValueNoTracks_ && notracks){tag = -2;} // if no tracks available, put value at -2 (only for Phase I)
 	return tag;
 }
