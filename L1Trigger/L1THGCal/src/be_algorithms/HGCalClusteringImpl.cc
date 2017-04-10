@@ -1,4 +1,3 @@
-#include <array> 
 #include <unordered_set>
 #include <unordered_map>
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
@@ -132,7 +131,7 @@ void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCa
 
 /* merge clusters that have common neighbors */
 void HGCalClusteringImpl::mergeClusters( l1t::HGCalCluster & main_cluster, 
-                                         l1t::HGCalCluster & secondary_cluster ) const
+                                         const l1t::HGCalCluster & secondary_cluster ) const
 {
 
     const edm::PtrVector<l1t::HGCalTriggerCell>& pertinentTC = secondary_cluster.triggercells();

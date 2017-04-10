@@ -1,6 +1,7 @@
 #ifndef __L1Trigger_L1THGCal_HGCalClusteringImpl_h__
 #define __L1Trigger_L1THGCal_HGCalClusteringImpl_h__
 
+#include <array> 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -26,7 +27,7 @@ public:
 
     /* NN-algorithms */    
     void mergeClusters( l1t::HGCalCluster & main_cluster, 
-                        l1t::HGCalCluster & secondary_cluster ) const;
+                        const l1t::HGCalCluster & secondary_cluster ) const;
     
     void NNKernel( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> &reshuffledTriggerCells,
                    l1t::HGCalClusterBxCollection & clusters,
