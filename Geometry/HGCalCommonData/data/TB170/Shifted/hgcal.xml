@@ -101,7 +101,7 @@
   <PosPart copyNumber="1">
     <rParent name="hgcal:HGCal"/>
     <rChild name="hgcal:HGCalHE"/>
-    <Translation x="61.85*mm" y="0*fm" z="[zposHE]"/>
+    <Translation x="72.27*mm" y="0*fm" z="[zposHE]"/>
     <rRotation name="rotations:R090"/>
   </PosPart>
   <PosPart copyNumber="1">
