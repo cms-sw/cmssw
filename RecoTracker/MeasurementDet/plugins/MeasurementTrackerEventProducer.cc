@@ -192,35 +192,38 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
   //=========  actually load cluster =============
   {
     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
-    event.getByToken(theStripClusterLabel, clusterHandle);
-    const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
+    if (event.getByToken(theStripClusterLabel, clusterHandle)) {
+      const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
     
     
-    if (selfUpdateSkipClusters_){
-      edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-      //and get the collection of pixel ref to skip
-      LogDebug("MeasurementTracker")<<"getting strp refs to skip";
-      event.getByToken(theStripClusterMask,stripClusterMask);
-      if (stripClusterMask.failedToGet())  edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-      if (stripClusterMask->refProd().id()!=clusterHandle.id()){
-	edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<clusterHandle.id();
+      if (selfUpdateSkipClusters_){
+	edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
+	//and get the collection of pixel ref to skip
+	LogDebug("MeasurementTracker")<<"getting strp refs to skip";
+	event.getByToken(theStripClusterMask,stripClusterMask);
+	if (stripClusterMask.failedToGet())  edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
+	if (stripClusterMask->refProd().id()!=clusterHandle.id()){
+	  edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<clusterHandle.id();
+	}
+	stripClusterMask->copyMaskTo(stripClustersToSkip);
       }
-      stripClusterMask->copyMaskTo(stripClustersToSkip);
-    }
     
-    theStDets.handle() = clusterHandle;
-    int i=0;
-    // cluster and det and in order (both) and unique so let's use set intersection
-    for ( auto j = 0U; j< (*clusterCollection).size(); ++j) {
-      unsigned int id = (*clusterCollection).id(j);
-      while ( id != theStDets.id(i)) { // eventually change to lower_bound
-	++i;
-	if (endDet==i) throw "we have a problem in strips!!!!";
-      }
+      theStDets.handle() = clusterHandle;
+      int i=0;
+      // cluster and det and in order (both) and unique so let's use set intersection
+      for ( auto j = 0U; j< (*clusterCollection).size(); ++j) {
+	unsigned int id = (*clusterCollection).id(j);
+	while ( id != theStDets.id(i)) { // eventually change to lower_bound
+	  ++i;
+	  if (endDet==i) throw "we have a problem in strips!!!!";
+	}
       
-      // push cluster range in det
-      if ( theStDets.isActive(i) )
-	theStDets.update(i,j);
+	// push cluster range in det
+	if ( theStDets.isActive(i) )
+	  theStDets.update(i,j);
+      }
+    } else {
+      edm::LogWarning("MeasurementTrackerEventProducer") << "input strip cluster collection " << pset_.getParameter<std::string>("stripClusterProducer") << " is not valid";
     }
   }
 }
@@ -239,22 +242,25 @@ MeasurementTrackerEventProducer::updatePhase2OT( const edm::Event& event, Phase2
     } else {
   
       edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClusters = thePh2OTDets.handle();
-      event.getByToken(thePh2OTClusterLabel, phase2OTClusters);
-      const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
+      if (event.getByToken(thePh2OTClusterLabel, phase2OTClusters)) {
+	const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
   
-      int i = 0, endDet = thePh2OTDets.size();
-      for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
-  
-        edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
-        unsigned int id = set.id();
-        while ( id != thePh2OTDets.id(i)) {
+	int i = 0, endDet = thePh2OTDets.size();
+	for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
+	  
+	  edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
+	  unsigned int id = set.id();
+	  while ( id != thePh2OTDets.id(i)) {
             ++i;
             if (endDet==i) throw "we have a problem!!!!";
-        }
-        // push cluster range in det
-        if ( thePh2OTDets.isActive(i) ) {
+	  }
+	  // push cluster range in det
+	  if ( thePh2OTDets.isActive(i) ) {
             thePh2OTDets.update(i,set);
-        }
+	  }
+	}
+      } else {
+	edm::LogWarning("MeasurementTrackerEventProducer") << "input Phase2TrackerCluster1D collection " << pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer") << " is not valid";
       }
     }
 
