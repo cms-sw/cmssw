@@ -49,11 +49,11 @@ int main(int argc, char *argv[]){
     // parse the string using the XML reader
     XmlConfigParser xmlReader;
     l1t::TriggerSystem ts;
-if( false ){
+
     cout << "Parsing " << sequence.front() << endl;
+if( false ){
     xmlReader.readDOMFromString( xmlPayload[sequence.front()] );
     xmlReader.readRootElement  ( ts, "calol1" );
-    ts.addProcessor("defaultProc", "processors","-2","0");
 } else {
     ts.addProcessor("processor0", "processors","-1","-1");
     ts.addProcessor("processor1", "processors","-1","-2");
@@ -74,25 +74,23 @@ if( false ){
     ts.addProcessor("processor16", "processors","-1","-17");
     ts.addProcessor("processor17", "processors","-1","-18");
 
-    ts.addProcessor("CTP7_Phi0", "Layer1Processor","-2","-0");
-    ts.addProcessor("CTP7_Phi1", "Layer1Processor","-2","-1");
-    ts.addProcessor("CTP7_Phi2", "Layer1Processor","-2","-2");
-    ts.addProcessor("CTP7_Phi3", "Layer1Processor","-2","-3");
-    ts.addProcessor("CTP7_Phi4", "Layer1Processor","-2","-4");
-    ts.addProcessor("CTP7_Phi5", "Layer1Processor","-2","-5");
-    ts.addProcessor("CTP7_Phi6", "Layer1Processor","-2","-6");
-    ts.addProcessor("CTP7_Phi7", "Layer1Processor","-2","-7");
-    ts.addProcessor("CTP7_Phi8", "Layer1Processor","-2","-8");
-    ts.addProcessor("CTP7_Phi9", "Layer1Processor","-2","-9");
-    ts.addProcessor("CTP7_Phi10","Layer1Processor","-2","-10");
-    ts.addProcessor("CTP7_Phi11","Layer1Processor","-2","-11");
-    ts.addProcessor("CTP7_Phi12","Layer1Processor","-2","-12");
-    ts.addProcessor("CTP7_Phi13","Layer1Processor","-2","-13");
-    ts.addProcessor("CTP7_Phi14","Layer1Processor","-2","-14");
-    ts.addProcessor("CTP7_Phi15","Layer1Processor","-2","-15");
-    ts.addProcessor("CTP7_Phi16","Layer1Processor","-2","-16");
-
-    ts.addProcessor("defaultProc", "processors","-2","0");
+    ts.addProcessor("CTP7_Phi0", "processors","-2","-0");
+    ts.addProcessor("CTP7_Phi1", "processors","-2","-1");
+    ts.addProcessor("CTP7_Phi2", "processors","-2","-2");
+    ts.addProcessor("CTP7_Phi3", "processors","-2","-3");
+    ts.addProcessor("CTP7_Phi4", "processors","-2","-4");
+    ts.addProcessor("CTP7_Phi5", "processors","-2","-5");
+    ts.addProcessor("CTP7_Phi6", "processors","-2","-6");
+    ts.addProcessor("CTP7_Phi7", "processors","-2","-7");
+    ts.addProcessor("CTP7_Phi8", "processors","-2","-8");
+    ts.addProcessor("CTP7_Phi9", "processors","-2","-9");
+    ts.addProcessor("CTP7_Phi10","processors","-2","-10");
+    ts.addProcessor("CTP7_Phi11","processors","-2","-11");
+    ts.addProcessor("CTP7_Phi12","processors","-2","-12");
+    ts.addProcessor("CTP7_Phi13","processors","-2","-13");
+    ts.addProcessor("CTP7_Phi14","processors","-2","-14");
+    ts.addProcessor("CTP7_Phi15","processors","-2","-15");
+    ts.addProcessor("CTP7_Phi16","processors","-2","-16");
 }
 
     cout << "Parsing " << sequence.back() << endl;
@@ -104,7 +102,7 @@ if( false ){
 //    for(auto &q : ts.getProcToRoleAssignment()) cout << q.first << " - " << q.second << endl;
 
     // feel free to play with the containers:
-    map<string, l1t::Parameter> conf = ts.getParameters("defaultProc"); // use your context id here - Layer1Processor
+    map<string, l1t::Parameter> conf = ts.getParameters("CTP7_Phi15"); // use your context id here - Layer1Processor
 //    map<string, l1t::Mask>    rs   = ts.getMasks   ("processors"); // don't call a context that doesn't exist
 
     string layer1ECalScaleFactors= conf["layer1ECalScaleFactors"].getValueAsStr();
