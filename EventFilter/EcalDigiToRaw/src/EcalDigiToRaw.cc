@@ -118,25 +118,25 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get< EcalMappingRcd >().get(ecalmapping);
    const EcalElectronicsMapping* TheMapping = ecalmapping.product();
 
-   Towerblockformatter_ -> StartEvent();
+   auto local = Towerblockformatter_ -> StartEvent();
    auto header = SRblockformatter_ -> StartEvent();
 
-  runnumber_ = iEvent.id().run();
+  auto runnum = iEvent.id().run();
 
   // bx_ = (counter_ % BXMAX);
   // orbit_number_ = counter_ / BXMAX;
   // counter_ ++;
 
-  counter_ = iEvent.id().event();
-  bx_ = iEvent.bunchCrossing();
-  orbit_number_ = iEvent.orbitNumber();
+  auto counter = iEvent.id().event();
+  auto bx = iEvent.bunchCrossing();
+  auto orbitnumber = iEvent.orbitNumber();
 
-  lv1_ = counter_ % (0x1<<24);
+  auto lv1 = counter % (0x1<<24);
 
   auto productRawData = std::make_unique<FEDRawDataCollection>();
 
 
-  Headerblockformatter_ -> DigiToRaw(productRawData.get(), runnumber_, orbit_number_, bx_, lv1_);
+  Headerblockformatter_ -> DigiToRaw(productRawData.get(), runnum, orbitnumber, bx, lv1);
 
 
 // ---------   Now the Trigger Block part
@@ -169,7 +169,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 	   
 	   // adding the primitive to the block
-	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping, bx_, lv1_);
+	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping, bx, lv1);
 
      }   // end loop on ecalTrigPrim
 
@@ -197,7 +197,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 		if (debug_) Headerblockformatter_ -> print(rawdata);
-		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx_, lv1_, header);
+		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx, lv1, header);
 
            }
 	}  // end DoBarrel
@@ -218,7 +218,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
                 int FEDid = FEDNumbering::MINECALFEDID + Dccid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx_, lv1_, header);
+                SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx, lv1, header);
            }
 	}  // end doEndCap
 
@@ -242,7 +242,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int DCCid = TheMapping -> DCCid(ebdetid);
         	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx_, lv1_-1);
+                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx, lv1-1, local);
         }
 
 	}
@@ -258,7 +258,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 int DCCid = elid.dccId() ;   
                 int FEDid = FEDNumbering::MINECALFEDID + DCCid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx_, lv1_-1);
+                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping, bx, lv1-1, local);
         }
 	}
 
@@ -268,9 +268,9 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // -------- Clean up things ...
 
-  map<int, map<int,int> >* FEDorder = Towerblockformatter_ -> GetFEDorder();
+ // map<int, map<int,int> >* FEDorder = Towerblockformatter_ -> GetFEDorder();
 
-  Headerblockformatter_ -> CleanUp(productRawData.get(), FEDorder);
+ // Headerblockformatter_ -> CleanUp(productRawData.get(), FEDorder);
 
 
 /*
