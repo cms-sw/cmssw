@@ -11,7 +11,7 @@ offlinePrimaryVertices = cms.EDProducer(
     
     TkFilterParameters = cms.PSet(
         algorithm=cms.string('filter'),
-        maxNormalizedChi2 = cms.double(20.0),
+        maxNormalizedChi2 = cms.double(10.0),
         minPixelLayersWithHits=cms.int32(2),
         minSiliconLayersWithHits = cms.int32(5),
         maxD0Significance = cms.double(5.0), 
