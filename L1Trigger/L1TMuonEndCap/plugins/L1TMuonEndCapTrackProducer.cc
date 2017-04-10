@@ -3,6 +3,9 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
+
 L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& iConfig) :
     track_finder_(new TrackFinder(iConfig, consumesCollector())),
     uGMT_converter_(new MicroGMTConverter()),
@@ -23,8 +26,15 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSet
   // Pull configuration from the EventSetup
   edm::ESHandle<L1TMuonEndCapParams> handle;
   iSetup.get<L1TMuonEndcapParamsRcd>().get( handle ) ;
-  std::shared_ptr<L1TMuonEndCapParams> params(new L1TMuonEndCapParams(*(handle.product ())));
+  std::shared_ptr<L1TMuonEndCapParams> params(new L1TMuonEndCapParams(*(handle.product())));
   // with the magic above you can use params->fwVersion to change emulator's behavior
+
+  // Pull pt LUT from the EventSetup
+  edm::ESHandle<L1TMuonEndCapForest> handle2;
+  iSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
+  std::shared_ptr<L1TMuonEndCapForest> ptLUT(new L1TMuonEndCapForest(*(handle2.product())));
+  // at that point we want to re-initialize the track_finder_ object with the newly pulled ptLUT
+  track_finder_->resetPtLUT( std::const_pointer_cast<const L1TMuonEndCapForest>(ptLUT) );
 
   // Create pointers to output products
   auto out_hits   = std::make_unique<EMTFHitCollection>();
