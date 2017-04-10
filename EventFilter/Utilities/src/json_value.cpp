@@ -59,7 +59,7 @@ ValueAllocator::~ValueAllocator()
 class DefaultValueAllocator : public ValueAllocator
 {
 public:
-   DefaultValueAllocator() = default;
+   DefaultValueAllocator() {}
 
    virtual ~DefaultValueAllocator()
    {
