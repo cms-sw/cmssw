@@ -81,6 +81,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+	_cTimingCutvsLS_SubdetPM.initialize(_name, "TimingvsLS",
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 
 	//	Occupancy w/o a cut
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS",
@@ -349,6 +353,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	_cTimingCut_SubdetPM.book(ib, _emap, _subsystem);
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
+	_cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
 	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
@@ -560,6 +565,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
+			_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 			if (_ptype != fOffline) { // hidefed2crate
 				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			}
