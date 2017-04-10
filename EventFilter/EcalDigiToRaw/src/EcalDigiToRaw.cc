@@ -74,11 +74,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    debug_ = iConfig.getUntrackedParameter<bool>("debug");
 
 
-  // Towerblockformatter_ = new TowerBlockFormatter;
-  // TCCblockformatter_   = new TCCBlockFormatter();
- //  SRblockformatter_	= new SRBlockFormatter();
-  // Headerblockformatter_= new BlockFormatter;
-Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this));
+   Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this));
    TCCblockformatter_ = std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this));
    SRblockformatter_ = std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this));
    Headerblockformatter_ = std::unique_ptr<BlockFormatter>(new BlockFormatter(this));
@@ -92,14 +88,6 @@ Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormat
 EcalDigiToRaw::~EcalDigiToRaw()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-// delete Towerblockformatter_;
-// delete TCCblockformatter_;
-// delete SRblockformatter_;
-// delete Headerblockformatter_;
-
 }
 
 
@@ -121,11 +109,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto local = Towerblockformatter_ -> StartEvent();
    auto header = SRblockformatter_ -> StartEvent();
 
-  auto runnum = iEvent.id().run();
+   auto runnum = iEvent.id().run();
 
-  // bx_ = (counter_ % BXMAX);
-  // orbit_number_ = counter_ / BXMAX;
-  // counter_ ++;
 
   auto counter = iEvent.id().event();
   auto bx = iEvent.bunchCrossing();
