@@ -107,10 +107,6 @@ class EcalDigiToRaw : public edm::stream::EDProducer<> {
 	std::string instanceNameEB_;
 	std::string instanceNameEE_;
 
-        //TowerBlockFormatter* Towerblockformatter_;
-        //TCCBlockFormatter*   TCCblockformatter_;
-	//BlockFormatter*	     Headerblockformatter_;
-	//SRBlockFormatter*    SRblockformatter_;
         std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
         std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
 	std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
