@@ -36,8 +36,11 @@ def create_single_iov_db(inputs, run_number, output_db):
     for record,tag in inputs.iteritems():
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
+        source_connect = ("frontier://PromptProd/cms_conditions"
+                          if tag["connect"] == "pro"
+                          else tag["connect"])
         cmd = ("conddb_import",
-               "-f", "frontier://PromptProd/cms_conditions",
+               "-f", source_connect,
                "-c", result[record]["connect"],
                "-i", tag["tag"],
                "-t", result[record]["tag"],
