@@ -1,0 +1,25 @@
+databaseFileName = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1598/jobData/jobm2/alignments_split_MP.db"
+
+process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+    connect = cms.string (databaseFileName),
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('TrackerAlignmentRcd'),
+            tag = cms.string('Alignments_0')
+            )
+        )
+    )
+process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+
+
+process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+    connect = cms.string(databaseFileName),
+    toGet = cms.VPSet(
+        cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+                 tag = cms.string('Deformations_0')
+                 )
+        )
+    )
+process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+
+
