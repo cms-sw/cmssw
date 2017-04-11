@@ -551,6 +551,10 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
 
 void Tree::loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree)
 {
+    // start fresh in case this is not the only call to construct a tree
+    if( rootNode ) delete rootNode;
+    rootNode = new Node("root");
+
     const L1TMuonEndCapForest::DTreeNode& mainnode = tree[0];
     loadFromCondPayloadRecursive(tree, mainnode, rootNode);
 }
