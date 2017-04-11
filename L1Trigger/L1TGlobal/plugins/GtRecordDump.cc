@@ -849,6 +849,20 @@ unsigned int GtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator
   return packedVal;
 }
 
+unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  unsigned int packedVal = 0;
+  //unsigned int shift = 12;
+
+  // Pack Bits
+  //packedVal |= ((etSum->hwPt()     & 0xfff)   << shift);
+
+  //towercount takes 13 bits
+  packedVal |= ((etSum->hwPt()     & 0x1fff)   <<0);
+
+  return packedVal;
+}
+
 unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etSum){
 
   unsigned int packedVal = 0;
