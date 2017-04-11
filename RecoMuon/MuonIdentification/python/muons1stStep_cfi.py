@@ -20,7 +20,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
 
     fillEnergy = cms.bool(True),
     # OR
-    maxAbsPullX = cms.double(4.0),
+    maxAbsPullX = cms.double(3.0),
     maxAbsEta = cms.double(3.0),
 
     # Selection parameters
