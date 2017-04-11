@@ -75,7 +75,7 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 	       << "  set to  " << min(1., Tpurge) << endl;
     Tstop = min(1., Tpurge) ;
   }
-  betapurge_ = 1./Tpurge;
+  betastop_ = 1./Tstop;
   
 }
 
@@ -645,10 +645,13 @@ DAClusterizerInZ_vect::vertices(const vector<reco::TransientTrack> & tracks, con
     while( split(beta, tks, y, threshold) && (ntry++<10) ){
       niter=0; 
       while((update(beta, tks,y, false, rho0)>1.e-6)  && (niter++ < maxIterations_)){}
-      merge(y, beta);
-      update(beta, tks,y, false, rho0);
-      if(verbose_){ std::cout << "after final splitting,  try " <<  ntry << std::endl; dump(beta, y, tks, 2); }
-      threshold *= 1.1; // relax a bit to reduce multiple split-merge cycles of the same cluster
+      while(merge(y,beta)){update(beta, tks,y, false, rho0);}
+      if(verbose_){ 
+	std::cout << "after final splitting,  try " <<  ntry << std::endl; 
+	dump(beta, y, tks, 2); 
+      }
+      // relax splitting a bit to reduce multiple split-merge cycles of the same cluster
+      threshold *= 1.1; 
     }
   }else{
     // merge collapsed clusters 
@@ -738,14 +741,14 @@ DAClusterizerInZ_vect::vertices(const vector<reco::TransientTrack> & tracks, con
     
     vector<reco::TransientTrack> vertexTracks;
     for (unsigned int i = 0; i < nt; i++) {
-      if (tks._Z_sum[i] > 0) {
+      if (tks._Z_sum[i] > 1e-100) {
 	
 	double p = y._pk[k] * local_exp(-beta * Eik(tks._z[i], y._z[k],
 						    tks._dz2[i])) / tks._Z_sum[i];
 	if ((tks._pi[i] > 0) && (p > mintrkweight_)) {
 	  vertexTracks.push_back(*(tks.tt[i]));
-	  if ( mintrkweight_>0.49 ){ tks._Z_sum[i] = 0; }
-	} // setting Z=0 excludes double assignment
+	  tks._Z_sum[i] = 0; // setting Z=0 excludes double assignment
+	}
       }
     }
     TransientVertex v(pos, dummyError, vertexTracks, 0);
