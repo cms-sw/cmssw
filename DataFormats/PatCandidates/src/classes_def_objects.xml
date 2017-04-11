@@ -288,7 +288,7 @@
   </class>
 
   <class name="pat::PackedCandidate" ClassVersion="28">
-    <version ClassVersion="28" checksum="2678752892"/>
+    <version ClassVersion="28" checksum="10369608"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>

@@ -266,8 +266,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
 	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
         } else if(isIsolatedChargedHadron) {
-          outPtrP->back().setEcalFraction(cand.ecalEnergy()/cand.energy());
-          outPtrP->back().setHcalFraction(cand.hcalEnergy()/cand.energy());
+          outPtrP->back().setRawCaloFraction((cand.rawEcalEnergy()+cand.rawHcalEnergy())/cand.energy());
+          outPtrP->back().setHcalFraction(cand.rawHcalEnergy()/(cand.rawEcalEnergy()+cand.rawHcalEnergy()));
 	} else {
 	  outPtrP->back().setHcalFraction(0);
 	}
