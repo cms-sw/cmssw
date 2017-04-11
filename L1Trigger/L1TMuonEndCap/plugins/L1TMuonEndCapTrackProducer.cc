@@ -15,6 +15,8 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& 
   produces<EMTFHitCollection>                ("");      // All CSC LCTs and RPC clusters received by EMTF
   produces<EMTFTrackCollection>              ("");      // All output EMTF tracks, in same format as unpacked data
   produces<l1t::RegionalMuonCandBxCollection>("EMTF");  // EMTF tracks output to uGMT
+  paramsCacheID= 0ULL;
+  ptLutCacheID = 0ULL;
 }
 
 L1TMuonEndCapTrackProducer::~L1TMuonEndCapTrackProducer() {
@@ -24,17 +26,28 @@ L1TMuonEndCapTrackProducer::~L1TMuonEndCapTrackProducer() {
 void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Pull configuration from the EventSetup
-  edm::ESHandle<L1TMuonEndCapParams> handle;
-  iSetup.get<L1TMuonEndcapParamsRcd>().get( handle ) ;
-  std::shared_ptr<L1TMuonEndCapParams> params(new L1TMuonEndCapParams(*(handle.product())));
-  // with the magic above you can use params->fwVersion to change emulator's behavior
+  if( iSetup.get<L1TMuonEndcapParamsRcd>().cacheIdentifier() != paramsCacheID ){
+      edm::ESHandle<L1TMuonEndCapParams> handle;
+      iSetup.get<L1TMuonEndcapParamsRcd>().get( handle ) ;
+      std::shared_ptr<L1TMuonEndCapParams> params(new L1TMuonEndCapParams(*(handle.product())));
+      // with the magic above you can use params->fwVersion to change emulator's behavior
+      // ...
+      // reset cache id
+      ptLutCacheID = iSetup.get<L1TMuonEndcapParamsRcd>().cacheIdentifier();
+  }
 
-  // Pull pt LUT from the EventSetup
-  edm::ESHandle<L1TMuonEndCapForest> handle2;
-  iSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
-  std::shared_ptr<L1TMuonEndCapForest> ptLUT(new L1TMuonEndCapForest(*(handle2.product())));
-  // at that point we want to re-initialize the track_finder_ object with the newly pulled ptLUT
-  track_finder_->resetPtLUT( std::const_pointer_cast<const L1TMuonEndCapForest>(ptLUT) );
+  // Pull pt LUT from the EventSetup if we suspect it has changed
+  if( iSetup.get<L1TMuonEndCapForestRcd>().cacheIdentifier() != ptLutCacheID ){
+
+      edm::ESHandle<L1TMuonEndCapForest> handle;
+      iSetup.get<L1TMuonEndCapForestRcd>().get( handle ) ;
+      std::shared_ptr<L1TMuonEndCapForest> ptLUT(new L1TMuonEndCapForest(*(handle.product())));
+
+      // at that point we want to re-initialize the track_finder_ object with the newly pulled ptLUT
+      track_finder_->resetPtLUT( std::const_pointer_cast<const L1TMuonEndCapForest>(ptLUT) );
+      // reset cache id
+      ptLutCacheID = iSetup.get<L1TMuonEndCapForestRcd>().cacheIdentifier();
+  }
 
   // Create pointers to output products
   auto out_hits   = std::make_unique<EMTFHitCollection>();
