@@ -18,7 +18,7 @@ class SRBlockFormatter : public BlockFormatter {
         SRBlockFormatter(EcalDigiToRaw* es): BlockFormatter(es) {};
 	~SRBlockFormatter();
         void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata, int bx, int lv1, std::map<int, int>& header_) const;
-
+        //inline const ...
 	std::map<int, int> StartEvent();
 
  private :

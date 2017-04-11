@@ -58,7 +58,7 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
        typedef unsigned int Word32;
 
        bool GetDebug() const {return debug_ ;}
-	bool GetDoBarrel() const {return doBarrel_ ;}
+       bool GetDoBarrel() const {return doBarrel_ ;}
 	bool GetDoEndCap() const {return doEndCap_ ;}
 	bool GetDoSR() const {return doSR_ ;}
 	bool GetDoTower() const{return doTower_ ;}
@@ -93,10 +93,10 @@ class EcalDigiToRaw : public edm::global::EDProducer<> {
 	const edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
 	const edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
 	const bool debug_;
-        std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
-        std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
+        const std::unique_ptr<TowerBlockFormatter> Towerblockformatter_;
+        const std::unique_ptr<TCCBlockFormatter>   TCCblockformatter_;
 	const std::unique_ptr<BlockFormatter>	     Headerblockformatter_;
-	std::unique_ptr<SRBlockFormatter>    SRblockformatter_;
+	const std::unique_ptr<SRBlockFormatter>    SRblockformatter_;
 
 
 };
