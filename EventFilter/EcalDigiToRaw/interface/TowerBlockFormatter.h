@@ -17,6 +17,8 @@
 // The crystals corresponding to a given FE in a given FED
 //
 
+//move to the class
+//members lower case 
 struct localmaporder {
    std::map<int, std::map<int,int> > FEDmap {};
    std::map<int, std::map<int,int> > FEDorder {};

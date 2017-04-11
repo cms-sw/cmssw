@@ -39,7 +39,7 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 
-
+//use make_unique
 
 using namespace edm;
 using namespace std;
@@ -60,11 +60,11 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig) :
    labelEBSR_(consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"))),
    labelEESR_(consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"))), 
    debug_(iConfig.getUntrackedParameter<bool>("debug")),
-   Headerblockformatter_(std::unique_ptr<BlockFormatter>(new BlockFormatter(this)))
+   Towerblockformatter_(std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this))),
+   TCCblockformatter_(std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this))),
+   Headerblockformatter_(std::unique_ptr<BlockFormatter>(new BlockFormatter(this))),
+   SRblockformatter_(std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this)))
 {
-   Towerblockformatter_ = std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this));
-   TCCblockformatter_ = std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this));
-   SRblockformatter_ = std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this));
 
    produces<FEDRawDataCollection>();
 
@@ -86,7 +86,7 @@ EcalDigiToRaw::~EcalDigiToRaw()
 void
 EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-
+// change to loginfo 
    if (debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
 
    ESHandle< EcalElectronicsMapping > ecalmapping;
