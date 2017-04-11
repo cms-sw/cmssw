@@ -22,7 +22,7 @@ import FWCore.ParameterSet.Config as cms
 ak4CaloL1Offset = cms.ESProducer(
     'L1OffsetCorrectionESProducer',
     level = cms.string('L1Offset'),
-    algorithm = cms.string('AK4Calo'),
+    algorithm = cms.string('AK5Calo'),
     vertexCollection = cms.string('offlinePrimaryVertices'),
     minVtxNdof = cms.int32(4)
     )
@@ -43,7 +43,7 @@ ak4L1JPTOffset = cms.ESProducer(
 ak4CaloL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK4Calo'),
+    algorithm   = cms.string('AK5Calo'),
     srcRho      = cms.InputTag( 'fixedGridRhoFastjetAllCalo'  )
     )
 ak4PFL1Fastjet = cms.ESProducer(
@@ -71,7 +71,7 @@ ak4L1JPTFastjet = cms.ESProducer(
 ak4CaloL2Relative = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L2Relative'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK4PF' )
 ak4PFCHSL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK4PFchs' )
@@ -82,7 +82,7 @@ ak4TrackL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5TRK' )
 ak4CaloL3Absolute = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L3Absolute'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK4PF' )
 ak4PFCHSL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK4PFchs' )
@@ -93,7 +93,7 @@ ak4TrackL3Absolute  = ak4CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 ak4CaloResidual = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L2L3Residual'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFResidual  = ak4CaloResidual.clone( algorithm = 'AK4PF' )
 ak4PFCHSResidual  = ak4CaloResidual.clone( algorithm = 'AK4PFchs' )
