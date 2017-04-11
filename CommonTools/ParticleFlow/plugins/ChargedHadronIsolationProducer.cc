@@ -33,7 +33,8 @@ private:
   // input collection
   edm::InputTag srcCandidates_;
   edm::EDGetTokenT<edm::View<reco::PFCandidate> > Candidates_token;
-  double minPt_;
+  double minTrackPt_;
+  double minRawCaloEnergy_;
 
 };
 
@@ -41,7 +42,8 @@ ChargedHadronIsolationProducer::ChargedHadronIsolationProducer(const edm::Parame
 {
   srcCandidates_ = cfg.getParameter<edm::InputTag>("src");
   Candidates_token = consumes<edm::View<reco::PFCandidate> >(srcCandidates_);
-  minPt_ = ( cfg.exists("minPt") ) ? cfg.getParameter<double>("minPt") : -1.0;
+  minTrackPt_ = ( cfg.exists("minTrackPt") ) ? cfg.getParameter<double>("minTrackPt") : -1.0;
+  minRawCaloEnergy_ = ( cfg.exists("minRawCaloEnergy") ) ? cfg.getParameter<double>("minRawCaloEnergy") : -1.0;
   
   produces<edm::ValueMap<bool> >();
 }
@@ -58,7 +60,7 @@ void ChargedHadronIsolationProducer::produce(edm::Event& evt, const edm::EventSe
   for( PFCandidateView::const_iterator c = Candidates->begin(); c!=Candidates->end(); ++c) {
     // Check that there is only one track in the block.
     unsigned int nTracks = 0;
-    if ((c->particleId()==1) && (c->pt()>minPt_)) {
+    if ((c->particleId()==1) && (c->pt()>minTrackPt_) && ((c->rawEcalEnergy()+c->rawHcalEnergy())>minRawCaloEnergy_)) {
       const reco::PFCandidate::ElementsInBlocks& theElements = c->elementsInBlocks();
       if( theElements.empty() ) continue;
       const reco::PFBlockRef blockRef = theElements[0].first;

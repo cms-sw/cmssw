@@ -4,5 +4,6 @@ import FWCore.ParameterSet.Config as cms
 chargedHadronIsolation = cms.EDProducer(
     "ChargedHadronIsolationProducer",
     src = cms.InputTag("particleFlow"),
-    minPt = cms.double(1),
+    minTrackPt = cms.double(1),
+    minRawCaloEnergy = cms.double(0.5),
     )

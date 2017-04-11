@@ -83,7 +83,7 @@ for iev,event in enumerate(events):
     # Let's check the calorimeter response for hadrons (after PF hadron calibration)
     for i,j in enumerate(pfs.product()):
         if not j.isIsolatedChargedHadron(): continue
-        print "Isolated charged hadron candidate with pt %6.1f, eta %+4.2f, cand/track energy = %+5.3f, calo/track energy = %+5.3f, hcal/track energy %+5.3f" % (
-                j.pt(),j.eta(), j.pt()/j.pseudoTrack().pt(), j.ecalFraction()+j.hcalFraction(), j.hcalFraction())
+        print "Isolated charged hadron candidate with pt %6.1f, eta %+4.2f, calo/track energy = %+5.3f, hcal/calo energy %+5.3f" % (
+                j.pt(),j.eta(), j.rawCaloFraction(), j.hcalFraction())
     
     if iev > 10: break
