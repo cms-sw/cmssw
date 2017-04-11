@@ -33,7 +33,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSet
       // with the magic above you can use params->fwVersion to change emulator's behavior
       // ...
       // reset cache id
-      ptLutCacheID = iSetup.get<L1TMuonEndcapParamsRcd>().cacheIdentifier();
+      paramsCacheID = iSetup.get<L1TMuonEndcapParamsRcd>().cacheIdentifier();
   }
 
   // Pull pt LUT from the EventSetup if we suspect it has changed
