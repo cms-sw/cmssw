@@ -71,6 +71,8 @@ void
 HLTScoutingPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+  descriptions.add("hltScoutingPrimaryVertexProducer", desc);
+
 }
 
 //define this as a plug-in
