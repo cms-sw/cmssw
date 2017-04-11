@@ -103,9 +103,14 @@ foreach gtag ( MC DATA )
     # unsupported
     continue
   endif
-
-  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
-#  foreach table ( GRun2016 )
+  
+  if ( $2 == "" ) then
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+  else
+    set tables = ( $2 )
+  endif
+  
+  foreach table ( $tables )
 
     set name = ${table}_${gtag}  
 
