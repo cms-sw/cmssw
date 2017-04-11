@@ -49,20 +49,18 @@ _patJets = cms.EDProducer("PATJetProducer",
         # CTagging
         cms.InputTag('pfCombinedCvsLJetTags'),
         cms.InputTag('pfCombinedCvsBJetTags'),
-        # The following code is commented-out to avoid breaking any unit test
-        # waiting for a set of AOD RelVals which have the jet tags in the event content 
         # DeepFlavour
-        # cms.InputTag('pfDeepCSVJetTags:probb'),
-        # cms.InputTag('pfDeepCSVJetTags:probc'),
-        # cms.InputTag('pfDeepCSVJetTags:probudsg'),
-        # cms.InputTag('pfDeepCSVJetTags:probbb'),
-        # cms.InputTag('pfDeepCSVJetTags:probcc'),
+        cms.InputTag('pfDeepCSVJetTags:probb'),
+        cms.InputTag('pfDeepCSVJetTags:probc'),
+        cms.InputTag('pfDeepCSVJetTags:probudsg'),
+        cms.InputTag('pfDeepCSVJetTags:probbb'),
+        cms.InputTag('pfDeepCSVJetTags:probcc'),
         # DeepCMVA
-        # cms.InputTag('pfDeepCMVAJetTags:probb'),
-        # cms.InputTag('pfDeepCMVAJetTags:probc'),
-        # cms.InputTag('pfDeepCMVAJetTags:probudsg'),
-        # cms.InputTag('pfDeepCMVAJetTags:probbb'),
-        # cms.InputTag('pfDeepCMVAJetTags:probcc'),
+        cms.InputTag('pfDeepCMVAJetTags:probb'),
+        cms.InputTag('pfDeepCMVAJetTags:probc'),
+        cms.InputTag('pfDeepCMVAJetTags:probudsg'),
+        cms.InputTag('pfDeepCMVAJetTags:probbb'),
+        cms.InputTag('pfDeepCMVAJetTags:probcc'),
     ),
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos
@@ -100,5 +98,15 @@ _patJets = cms.EDProducer("PATJetProducer",
     addResolutions = cms.bool(False),
     resolutions     = cms.PSet()
 )
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+_phaseI_taggers = cms.VInputTag(
+   *[i for i in _patJets.discriminatorSources if i.value() != 'pfDeepCSVJetTags:probcc']
+)
+phase1Pixel.toModify(
+   _patJets, 
+   discriminatorSources = _phaseI_taggers
+)
+
 
 patJets = _patJets.clone()
