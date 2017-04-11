@@ -1616,7 +1616,16 @@ namespace edm {
     void subProcessDoStreamBeginTransition(SubProcess& iSubProcess, unsigned int i, RunPrincipal& iPrincipal, IOVSyncValue const& iTS) {
       iSubProcess.doStreamBeginRun(i,iPrincipal, iTS);
     }
+
+    void subProcessDoStreamEndTransition(SubProcess& iSubProcess, unsigned int i, LuminosityBlockPrincipal& iPrincipal, IOVSyncValue const& iTS, bool cleaningUpAfterException) {
+      iSubProcess.doStreamEndLuminosityBlock(i,iPrincipal, iTS,cleaningUpAfterException);
+    }
     
+    void subProcessDoStreamEndTransition(SubProcess& iSubProcess, unsigned int i, RunPrincipal& iPrincipal, IOVSyncValue const& iTS, bool cleaningUpAfterException) {
+      iSubProcess.doStreamEndRun(i,iPrincipal, iTS,cleaningUpAfterException);
+    }
+    
+
     template<typename Traits, typename P, typename SC >
     void beginStreamTransitionAsync(WaitingTask* iWait,
                                     Schedule& iSchedule,
@@ -1659,6 +1668,51 @@ namespace edm {
       }
       
     }
+    
+    template<typename Traits, typename P, typename SC >
+    void endStreamTransitionAsync(WaitingTask* iWait,
+                                  Schedule& iSchedule,
+                                  unsigned int iNStreams,
+                                  P& iPrincipal,
+                                  IOVSyncValue const & iTS,
+                                  EventSetup const& iES,
+                                  SC& iSubProcesses,
+                                  bool cleaningUpAfterException)
+    {
+      ServiceToken token = ServiceRegistry::instance().presentToken();
+      
+      for(unsigned int i=0; i<iNStreams;++i) {
+        
+        //must wait until this stream gets a chance to start
+        iWait->increment_ref_count();
+        auto streamLoopWaitTaskPtr = iWait;
+        
+        //When we are done processing the stream for this process,
+        // we need to run the stream for all SubProcesses
+        auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, streamLoopWaitTaskPtr,i,&iPrincipal,iTS,token,cleaningUpAfterException](std::exception_ptr const* iPtr) {
+          WaitingTaskHolder h(streamLoopWaitTaskPtr);
+          //now that holder will manage the reference count, we need
+          // to decrement to match the increment done in the loop
+          streamLoopWaitTaskPtr->decrement_ref_count();
+          if(iPtr) {
+            h.doneWaiting(*iPtr);
+            return;
+          }
+          ServiceRegistry::Operate op(token);
+          try {
+            for_all(iSubProcesses, [i, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){ subProcessDoStreamEndTransition(subProcess,i,iPrincipal, iTS,cleaningUpAfterException); });
+          } catch(...) {
+            h.doneWaiting(std::current_exception());
+          }
+        });
+        
+        WaitingTaskHolder h(subs);
+        iSchedule.processOneStreamAsync<Traits>(std::move(h), i,iPrincipal, iES,cleaningUpAfterException);
+        
+      }
+      
+    }
+
   }
 
   
@@ -1743,11 +1797,24 @@ namespace edm {
     }
     EventSetup const& es = esp_->eventSetup();
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-        schedule_->processOneStream<Traits>(i,runPrincipal, es, cleaningUpAfterException);
-        for_all(subProcesses_, [i, &runPrincipal, &ts, cleaningUpAfterException](auto& subProcess) { subProcess.doStreamEndRun(i,runPrincipal, ts, cleaningUpAfterException);
-          });
+      //To wait, the ref count has to be 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+      
+      endStreamTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                       *schedule_,
+                                       preallocations_.numberOfStreams(),
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
@@ -1845,10 +1912,23 @@ namespace edm {
     }
     EventSetup const& es = esp_->eventSetup();
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-        schedule_->processOneStream<Traits>(i,lumiPrincipal, es, cleaningUpAfterException);
-        for_all(subProcesses_, [i, &lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndLuminosityBlock(i,lumiPrincipal, ts, cleaningUpAfterException); });
+      //To wait, the ref count has to b 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+      
+      endStreamTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                       *schedule_,
+                                       preallocations_.numberOfStreams(),
+                                       lumiPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
