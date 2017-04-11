@@ -20,7 +20,7 @@ def esproducers_by_type(process, *types):
 
 
 def insert_modules_before(process, target, *modules):
-    "Add the `modules` before the `target` in any Sequence, Paths or EndPath that contains the latter."
+    "Add the `modules` before the `target` in any Sequence, Path or EndPath that contains the latter."
     for sequence in itertools.chain(
         process._Process__sequences.itervalues(),
         process._Process__paths.itervalues(),
@@ -33,6 +33,18 @@ def insert_modules_before(process, target, *modules):
         else:
             for module in reversed(modules):
                 sequence.insert(position, module)
+
+
+def delete_modules(process, *modules):
+    "Delete the `modules` from the `process` and remove any reference to it from any Sequence, Path or EndPath."
+    for module in modules:
+        for sequence in itertools.chain(
+            process._Process__sequences.itervalues(),
+            process._Process__paths.itervalues(),
+            process._Process__endpaths.itervalues()
+        ):
+            sequence.remove(module)
+        delattr(process, module.label_())
 
 
 # logic from Modifier.toModify from FWCore/ParameterSet/python/Config.py
