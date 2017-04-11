@@ -330,6 +330,11 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         } else {
           outMu.setCharge(0);
         }
+        // set the coordinates at the vertex
+        outMu.setHwEtaAtVtx(MicroGMTConfiguration::calcMuonHwEtaExtra(outMu));
+        outMu.setHwPhiAtVtx(MicroGMTConfiguration::calcMuonHwPhiExtra(outMu));
+        outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
+        outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
         m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
         outMuons->push_back(bx, outMu);
       }
@@ -385,13 +390,7 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
-  mu1 = muons.begin();
-  while (mu1 != muons.end()) {
-    if ((*mu1)->hwWins() < minWins || (*mu1)->hwCancelBit() == 1) {
-      muons.erase(mu1);
-    }
-    ++mu1;
-  }
+  muons.remove_if([&minWins](auto muon) { return ((muon->hwWins() < minWins) || (muon->hwCancelBit() == 1)); });
   muons.sort(L1TMuonProducer::compareMuons);
 }
 
@@ -415,7 +414,6 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
   for (auto& mu : coll) {
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
-    // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
     int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
     Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
@@ -423,6 +421,11 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     } else {
       outMu.setCharge(0);
     }
+    // set the coordinates at the vertex to be the same as coordinates at muon station
+    outMu.setHwEtaAtVtx(outMu.hwEta());
+    outMu.setHwPhiAtVtx(outMu.hwPhi());
+    outMu.setEtaAtVtx(outMu.eta());
+    outMu.setPhiAtVtx(outMu.phi());
 
     out->push_back(bx, outMu);
   }

@@ -9,6 +9,10 @@
 
 namespace l1t {
    namespace stage2 {
+      MuonUnpacker::MuonUnpacker() : algoVersion_(0), muonSet_(1)
+      {
+      }
+
       bool
       MuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
@@ -25,7 +29,7 @@ namespace l1t {
          //lastBX = 0;
          //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
-         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons();
+         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons(muonSet_);
          res->setBXRange(firstBX, lastBX);
 
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -47,7 +51,7 @@ namespace l1t {
 
                Muon mu;
                    
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, algoVersion_);
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
@@ -55,6 +59,42 @@ namespace l1t {
             }
          }
          return true;
+      }
+
+      unsigned int
+      MuonUnpacker::getAlgoVersion()
+      {
+        return algoVersion_;
+      }
+
+      int
+      MuonUnpacker::getFedNumber()
+      {
+        return fed_;
+      }
+
+      unsigned int
+      MuonUnpacker::getMuonSet()
+      {
+        return muonSet_;
+      }
+
+      void
+      MuonUnpacker::setAlgoVersion(const unsigned int version)
+      {
+        algoVersion_ = version;
+      }
+
+      void
+      MuonUnpacker::setFedNumber(const int fed)
+      {
+        fed_ = fed;
+      }
+
+      void
+      MuonUnpacker::setMuonSet(const unsigned int set)
+      {
+        muonSet_ = set;
       }
    }
 }
