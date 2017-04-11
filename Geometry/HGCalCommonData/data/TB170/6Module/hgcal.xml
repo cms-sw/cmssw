@@ -12,7 +12,7 @@
   <Constant name="rminHE"     value="0.0*fm"/>
   <Constant name="rmaxHE"     value="19.5*cm"/>
   <Constant name="zminHE"     value="0.0*fm"/>
-  <Constant name="zmaxHE"     value="63.6*cm"/>
+  <Constant name="zmaxHE"     value="30.0*cm"/>
   <Constant name="rminAH"     value="0.0*fm"/>
   <Constant name="rmaxAH"     value="30.0*cm"/>
   <Constant name="zminAH"     value="0.0*fm"/>
