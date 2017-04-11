@@ -7,6 +7,8 @@ from RecoMET.METFilters.metFilters_cff import EcalDeadCellTriggerPrimitiveFilter
 from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, CSCTightHaloFilter, CSCTightHaloTrkMuUnvetoFilter, CSCTightHalo2015Filter, globalTightHalo2016Filter, globalSuperTightHalo2016Filter, HcalStripHaloFilter
 from RecoMET.METFilters.metFilters_cff import goodVertices, trackingFailureFilter, trkPOGFilters, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
 from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter, muonBadTrackFilter
+from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFilter, BadPFMuonFilter #2016 post-ICHEPversion
+from RecoMET.METFilters.metFilters_cff import BadChargedCandidateSummer16Filter, BadPFMuonSummer16Filter #2016 ICHEP version
 from RecoMET.METFilters.metFilters_cff import metFilters
 
 # individual filters
@@ -28,6 +30,11 @@ Flag_ecalLaserCorrFilter = cms.Path(ecalLaserCorrFilter)
 Flag_trkPOGFilters = cms.Path(trkPOGFilters)
 Flag_chargedHadronTrackResolutionFilter = cms.Path(chargedHadronTrackResolutionFilter)
 Flag_muonBadTrackFilter = cms.Path(muonBadTrackFilter)
+Flag_BadChargedCandidateFilter = cms.Path(BadChargedCandidateFilter)
+Flag_BadPFMuonFilter = cms.Path(BadPFMuonFilter)
+Flag_BadChargedCandidateSummer16Filter = cms.Path(BadChargedCandidateSummer16Filter)
+Flag_BadPFMuonSummer16Filter = cms.Path(BadPFMuonSummer16Filter)
+
 # and the sub-filters
 Flag_trkPOG_manystripclus53X = cms.Path(~manystripclus53X)
 Flag_trkPOG_toomanystripclus53X = cms.Path(~toomanystripclus53X)
@@ -38,8 +45,11 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 Flag_METFilters = cms.Path(metFilters)
 
 #add your new path here!!
-allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','goodVertices','eeBadScFilter',
-                   'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter','trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
+allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter',
+                   'HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','goodVertices','eeBadScFilter',
+                   'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
+                   'BadChargedCandidateFilter','BadPFMuonFilter','BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
+                   'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
 
        
 def miniAOD_customizeMETFiltersFastSim(process):
