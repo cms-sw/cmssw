@@ -135,6 +135,8 @@ def L1REPACK(process,sequence="Full"):
 
     for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
         setattr(process,module,getattr(l1repack,module))
+    for sequence in l1repack.sequences_():
+        setattr(process,sequence,getattr(l1repack,sequence))
     process.SimL1Emulator = l1repack.SimL1Emulator
 
     for path in process.paths_():
