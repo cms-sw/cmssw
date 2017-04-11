@@ -699,6 +699,12 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
         histos = histos_new
     return (histos, xbinlabels, ybinlabels)
 
+def _mergeBinLabelsX(histos):
+    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+
+def _mergeBinLabelsY(histos):
+    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+
 def _mergeBinLabels(labelsAll):
     labels_merged = labelsAll[0]
     for labels in labelsAll[1:]:
@@ -728,8 +734,24 @@ def _mergeBinLabels(labelsAll):
         if len(labels_merged) == 0:
             labels_merged = labels
 
-
     return labels_merged
+
+def _th1IncludeOnlyBins(histos, xbinlabels):
+    histos_new = []
+    for h in histos:
+        h_new = h.Clone(h.GetName()+"_xbinlabels")
+        h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
+        for i, label in enumerate(xbinlabels):
+            bin = h.GetXaxis().FindFixBin(label)
+            if bin >= 0:
+                h_new.SetBinContent(i+1, h.GetBinContent(bin))
+                h_new.SetBinError(i+1, h.GetBinError(bin))
+            else:
+                h_new.SetBinContent(i+1, 0)
+                h_new.SetBinError(i+1, 0)
+        histos_new.append(h_new)
+    return histos_new
+
 
 class Subtract:
     """Class for subtracting two histograms"""
@@ -2018,27 +2040,14 @@ class Plot:
         ybinlabels = None
         if xbinlabels is None:
             if histosHaveBinLabels:
-                xbinlabels = _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+                xbinlabels = _mergeBinLabelsX(histos)
                 if isinstance(histos[0], ROOT.TH2):
-                    ybinlabels = _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+                    ybinlabels = _mergeBinLabelsY(histos)
 
                 if len(histos) > 1: # don't bother if only one histogram
                     # doing this for TH2 is pending for use case, for now there is only 1 histogram/plot for TH2
-                    histos_new = []
-                    for h in histos:
-                        h_new = h.Clone(h.GetName()+"_xbinlabels")
-                        h_new.SetBins(len(xbinlabels), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(xbinlabels))
-                        for i, label in enumerate(xbinlabels):
-                            bin = h.GetXaxis().FindFixBin(label)
-                            if bin >= 0:
-                                h_new.SetBinContent(i+1, h.GetBinContent(bin))
-                                h_new.SetBinError(i+1, h.GetBinError(bin))
-                            else:
-                                h_new.SetBinContent(i+1, 0)
-                                h_new.SetBinError(i+1, 0)
-                        histos_new.append(h_new)
-                    self._tmp_histos = histos_new # need to keep these in memory too ...
-                    histos = histos_new
+                    histos = _th1IncludeOnlyBins(histos, xbinlabels)
+                    self._tmp_histos = histos # need to keep these in memory too ...
 
         # Remove empty bins, but only if histograms have bin labels
         if self._removeEmptyBins and histosHaveBinLabels:

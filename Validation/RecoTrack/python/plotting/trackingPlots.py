@@ -6,9 +6,10 @@ ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
+from html import PlotPurpose
 import plotting
 import validation
-from html import PlotPurpose
+import html
 
 ########################################
 #
@@ -92,6 +93,9 @@ def _makeFakeDupPileupPlots(postfix, quantity, unit="", xquantity="", xtitle=Non
         Plot("pileuprate_"+p    , xtitle=xtitle, ytitle="pileup rate vs "+q    , ymax=_maxFake, **common),
     ]
 
+def _makeFakeDist(postfix):
+    return Subtract("num_fake_"+postfix, "num_reco_"+postfix, "num_assoc(recoToSim)_"+postfix)
+
 def _makeDistPlots(postfix, quantity, common={}):
     p = postfix
     q = quantity
@@ -102,7 +106,7 @@ def _makeDistPlots(postfix, quantity, common={}):
     return [
         Plot("num_reco_"+p            , ytitle="tracks", **args),
         Plot("num_assoc(recoToSim)_"+p, ytitle="true tracks", **args),
-        Plot(Subtract("num_fake_"+p, "num_reco_"+p, "num_assoc(recoToSim)_"+p), ytitle="fake tracks", **args),
+        Plot(_makeFakeDist(p), ytitle="fake tracks", **args),
         Plot("num_duplicate_"+p       , ytitle="duplicate tracks", **args),
     ]
 
@@ -244,9 +248,10 @@ _dupandfakePosDeltaRPU = PlotGroup("dupandfakePosDeltaRPU",
                                    ncols=3, legendDy=_legendDy_4rows
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xinlabeloption="d", adjustMarginRight=0.1)
+_dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
 _dupandfakeChi2Seeding = PlotGroup("dupandfakeChi2Seeding",
                                    _makeFakeDupPileupPlots("chi2", "#chi^{2}") +
-                                   _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common),
+                                   _dupandfakeSeedingPlots,
                                    ncols=3, legendDy=_legendDy_2rows_3cols
 )
 
@@ -406,9 +411,10 @@ _extDistPosDeltaR = PlotGroup("distPosDeltaR",
                               _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                               ncols=4
 )
+_extDistSeedingPlots = _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common))
 _extDistChi2Seeding = PlotGroup("distChi2Seeding",
                                 _makeDistPlots("chi2", "#chi^{2}") +
-                                _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
+                                _extDistSeedingPlots,
                                 ncols=4, legendDy=_legendDy_2rows_3cols
 )
 _common = dict(title="", xtitle="TP #eta (PCA to beamline)")
@@ -998,6 +1004,151 @@ class TrackingSummaryTable:
             "Number of duplicate tracks"
         ]
 
+# Provide a "PlotGroup" interface, but provide a html page
+class TrackingSeedingLayerTable:
+    def __init__(self, fileName, plots, titles, isRate, **kwargs):
+        self._plots = plots
+        self._titles = titles
+        self._fileName = fileName
+        self._format = "%.4g" if isRate else "%d"
+
+        if len(plots) != len(titles):
+            raise Exception("Number of plots (%d) has to be the same as number of titles (%d)" % (len(plots), len(titles)))
+
+        def _set(attr, default):
+            setattr(self, "_"+attr, kwargs.get(attr, default))
+
+        _set("onlyForPileup", False)
+
+    def onlyForPileup(self):
+        """Return True if the PlotGroup is intended only for pileup samples"""
+        return self._onlyForPileup
+
+    def create(self, tdirectoryNEvents, requireAllHistograms=False):
+        # [plot][histo]
+        for plot in self._plots:
+            plot.create(tdirectoryNEvents, requireAllHistograms)
+
+    def draw(self, legendLabels, prefix=None, *args, **kwargs):
+        # Do not make the table if it would be empty
+        onlyEmptyPlots = True
+        for plot in self._plots:
+            if not plot.isEmpty():
+                onlyEmptyPlots = False
+                break
+        if onlyEmptyPlots:
+            return []
+
+        haveShortLabels = False
+        legendLabels = legendLabels[:]
+        if max(map(len, legendLabels)) > 20:
+            haveShortLabels = True
+            labels_short = [str(chr(ord('A')+i)) for i in xrange(len(legendLabels))]
+            for i, ls in enumerate(labels_short):
+                legendLabels[i] = "%s: %s" % (ls, legendLabels[i])
+        else:
+            labels_short = legendLabels
+
+        content = [
+            '<html>',
+            ' <body>',
+            '  <table border="1">',
+            '   <tr>',
+        ]
+
+
+        histos_linear = []
+        histos_index = []
+        labels = []
+        for plot, title in zip(self._plots, self._titles):
+            h_tmp = []
+            l_tmp = []
+            for h, l in zip(plot._histograms, labels_short):
+                if h is not None:
+                    h_tmp.append(len(histos_linear))
+                    histos_linear.append(h)
+                    l_tmp.append(l)
+
+            if len(h_tmp) > 0:
+                histos_index.append(h_tmp)
+                labels.append(l_tmp)
+                content.extend([
+                    '    <td></td>',
+                    '    <td colspan="%d">%s</td>' % (len(h_tmp), title),
+                ])
+
+        if len(histos_linear) == 0:
+            return []
+
+        content.extend([
+            '   </tr>',
+            '   <tr>',
+        ])
+
+        xbinlabels = plotting._mergeBinLabelsX(histos_linear)
+        histos_linear = plotting._th1IncludeOnlyBins(histos_linear, xbinlabels)
+        if len(histos_linear) == 0:
+            return []
+        (histos_linear_new, xbinlabels) = plotting._th1RemoveEmptyBins(histos_linear, xbinlabels)
+        # in practice either all histograms are returned, or none, but let's add a check anyway
+        if len(histos_linear_new) > 0 and len(histos_linear_new) != len(histos_linear):
+            raise Exception("This should never happen. len(histos_linear_new) %d != len(histos_linear) %d" % (len(histos_linear_new), len(histos_linear)))
+        histos_linear = histos_linear_new
+        if len(histos_linear) == 0:
+            return []
+
+        data = [ [h.GetBinContent(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos_linear]
+        table = html.Table(["dummy"]*len(histos_linear), xbinlabels, data, None, None, None)
+        data = table.tableAsRowColumn()
+
+        for labs in labels:
+            content.append('    <td></td>')
+            content.extend(['    <td>%s</td>' % lab for lab in labs])
+        content.extend([
+            '   </tr>',
+        ])
+
+        for irow, row in enumerate(data):
+            content.extend([
+                '    <tr>',
+                '     <td>%s</td>' % table.rowHeaders()[irow]
+            ])
+
+            for hindices in histos_index:
+                for hindex in hindices:
+                    item = row[hindex]
+                    formatted = self._format%item if item is not None else ""
+                    content.append('     <td align="right">%s</td>' % formatted)
+                content.append('    <td></td>')
+            del content[-1]
+            content.append('    </tr>')
+
+        content.append('  </table>')
+        if haveShortLabels:
+            for lab in legendLabels:
+                content.append('  %s<br/>' % lab)
+
+        content.extend([
+            ' </body>',
+            '<html>'
+        ])
+
+        name = self._fileName
+        if prefix is not None:
+            name = prefix+name
+        name += ".html"
+
+        with open(name, "w") as f:
+            for line in content:
+                f.write(line)
+                f.write("\n")
+        return [name]
+
+_dupandfakeSeedingTable = TrackingSeedingLayerTable("dupandfakeSeeding", [p.clone() for p in _dupandfakeSeedingPlots],
+                                                    ["Fake rate", "Duplicate rate", "Pileup rate"], isRate=True)
+_extDistSeedingTable = TrackingSeedingLayerTable("distSeeding", [p.clone() for p in _extDistSeedingPlots],
+                                                 ["All tracks", "True tracks", "Fake tracks", "Duplicate tracks"], isRate=False)
+
 def _trackingFolders(lastDirName="Track"):
     return [
         "DQMData/Run 1/Tracking/Run summary/"+lastDirName,
@@ -1021,6 +1172,7 @@ _recoBasedPlots = [
     _dupandfakeHitsLayers,
     _dupandfakePosDeltaRPU,
     _dupandfakeChi2Seeding,
+    _dupandfakeSeedingTable,
     _pvassociation1,
     _pvassociation2,
     _pvassociation3,
@@ -1039,6 +1191,7 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfakeHitsLayers,
     _dupandfakePosDeltaRPU,
     _dupandfakeChi2Seeding,
+    _dupandfakeSeedingTable,
     _hitsAndPt,
 ] + _makeMVAPlots(1) \
   + _makeMVAPlots(2) \
@@ -1053,6 +1206,7 @@ _extendedPlots = [
     _extDistHitsLayers,
     _extDistPosDeltaR,
     _extDistChi2Seeding,
+    _extDistSeedingTable,
     _extResidualEta,
     _extResidualPt,
     _extNrecVsNsim,
