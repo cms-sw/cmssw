@@ -455,12 +455,13 @@ class Page(object):
         return _sectionNameMapOrder.get(section, section)
 
     def _orderSets(self, keys):
+        keys_sorted = sorted(keys)
         ret = []
         for section in _sectionNameMapOrder.keys():
-            if section in keys:
+            if section in keys_sorted:
                 ret.append(section)
                 keys.remove(section)
-        ret.extend(keys)
+        ret.extend(keys_sorted)
         return ret
 
 class PageSet(object):
