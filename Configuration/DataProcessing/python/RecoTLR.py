@@ -80,6 +80,10 @@ def customiseDataRun2Common(process):
 def customiseDataRun2Common_withStage1(process):
     process = customiseDataRun2Common(process)
 
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+
     from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
     process=customiseL1RecoForStage1(process)
 
