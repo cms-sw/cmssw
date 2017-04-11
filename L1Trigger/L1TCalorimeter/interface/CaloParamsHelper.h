@@ -40,7 +40,8 @@ namespace l1t {
            jetBypassPUSFlag=28,
            egHOverEBarrel=29,
            egHOverEEndcap=30,
-	   NUM_CALOPARAMNODES=31
+	   etSumTowEtThresh=31,
+	   NUM_CALOPARAMNODES=32
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -301,6 +302,7 @@ namespace l1t {
     int etSumEtaMax(unsigned isum) const;
     double etSumEtThreshold(unsigned isum) const;
 
+    l1t::LUT* etSumTowEtThreshLUT() { return &pnode_[etSumTowEtThresh].LUT_; }
     l1t::LUT* etSumXPUSLUT() { return &pnode_[etSumXPUS].LUT_; }
     l1t::LUT* etSumYPUSLUT() { return &pnode_[etSumYPUS].LUT_; }
     l1t::LUT* etSumEttPUSLUT() { return &pnode_[etSumEttPUS].LUT_; }
@@ -311,6 +313,7 @@ namespace l1t {
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
 
+    void setEtSumTowEtThreshLUT(const l1t::LUT & lut) { pnode_[etSumTowEtThresh].LUT_ = lut; }
     void setEtSumXPUSLUT(const l1t::LUT & lut) { pnode_[etSumXPUS].LUT_ = lut; }
     void setEtSumYPUSLUT(const l1t::LUT & lut) { pnode_[etSumYPUS].LUT_ = lut; }
     void setEtSumEttPUSLUT(const l1t::LUT & lut) { pnode_[etSumEttPUS].LUT_ = lut; }
