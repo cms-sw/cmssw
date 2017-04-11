@@ -2,4 +2,6 @@
 <use   name="CondCore/ESSources"/>
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="JetMETCorrections/Objects"/>
+
 <flags   EDM_PLUGIN="1"/>

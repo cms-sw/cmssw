@@ -21,5 +21,10 @@ int main()
     testSerialization<QGLikelihoodCategory>();
     testSerialization<QGLikelihoodObject>();
 
+    testSerialization<JME::JetResolutionObject>();
+    testSerialization<JME::JetResolutionObject::Definition>();
+    testSerialization<JME::JetResolutionObject::Record>();
+    testSerialization<JME::JetResolutionObject::Range>();
+
     return 0;
 }
