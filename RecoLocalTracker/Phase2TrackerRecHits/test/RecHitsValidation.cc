@@ -201,33 +201,6 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
     }
 
     /*
-     * Rearrange the simHits by detUnit
-     */
-
-/*
-    // Rearrange the simHits for ease of use 
-    SimHitsMap simHitsDetUnit;
-    SimHitsMap simHitsTrackId;
-    for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) {
-      for (edm::PSimHitContainer::const_iterator simHitIt(simHitsRaw[simhitidx]->begin()); simHitIt != simHitsRaw[simhitidx]->end(); ++simHitIt) {
-        SimHitsMap::iterator simHitsDetUnitIt(simHitsDetUnit.find(simHitIt->detUnitId()));
-        if (simHitsDetUnitIt == simHitsDetUnit.end()) {
-            std::pair< SimHitsMap::iterator, bool > newIt(simHitsDetUnit.insert(std::pair< unsigned int, std::vector< PSimHit > >(simHitIt->detUnitId(), std::vector< PSimHit >())));
-            simHitsDetUnitIt = newIt.first;
-        }
-        simHitsDetUnitIt->second.push_back(*simHitIt);
-
-        SimHitsMap::iterator simHitsTrackIdIt(simHitsTrackId.find(simHitIt->trackId()));
-        if (simHitsTrackIdIt == simHitsTrackId.end()) {
-            std::pair< SimHitsMap::iterator, bool > newIt(simHitsTrackId.insert(std::pair< unsigned int, std::vector< PSimHit > >(simHitIt->trackId(), std::vector< PSimHit >())));
-            simHitsTrackIdIt = newIt.first;
-        }
-        simHitsTrackIdIt->second.push_back(*simHitIt);
-      }
-    }
-*/
-
-    /*
      * Validation   
      */
 
