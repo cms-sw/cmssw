@@ -35,36 +35,13 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
  private:
 
   bool compareJets(const edm::Handle<l1t::JetBxCollection> & dataCol,
-                   const edm::Handle<l1t::JetBxCollection> & emulCol,
-                   TH1F * & summaryHist,
-		   TH1F * & objSummaryHist,
-		   TH1F * & objEtHist,
-		   TH1F * & objEtaHist,
-		   TH1F * & objPhiHist);
+                   const edm::Handle<l1t::JetBxCollection> & emulCol);
   bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & dataCol,
-                  const edm::Handle<l1t::EGammaBxCollection> & emulCol,
-                  TH1F * & summaryHist,
-		  TH1F * & objSummaryHist,
-		  TH1F * & objEtHist,
-		  TH1F * & objEtaHist,
-		  TH1F * & objPhiHist,
-		  TH1F * & isoObjEtHist,
-		  TH1F * & isoObjEtaHist,
-		  TH1F * & isoObjPhiHist);
+                  const edm::Handle<l1t::EGammaBxCollection> & emulCol);
   bool compareTaus(const edm::Handle<l1t::TauBxCollection> & dataCol,
-                   const edm::Handle<l1t::TauBxCollection> & emulCol,
-		   TH1F * & summaryHist,
-		   TH1F * & objSummaryHist,
-		   TH1F * & objEtHist,
-		   TH1F * & objEtaHist,
-		   TH1F * & objPhiHist,
-		   TH1F * & isoObjEtHist,
-		   TH1F * & isoObjEtaHist,
-		   TH1F * & isoObjPhiHist);
+                   const edm::Handle<l1t::TauBxCollection> & emulCol);
   bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & dataCol,
-                   const edm::Handle<l1t::EtSumBxCollection> & emulCol,
-                   TH1F * & hist,
-		   TH1F * & objSummaryHist);
+                   const edm::Handle<l1t::EtSumBxCollection> & emulCol);
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
@@ -144,23 +121,40 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement * mpSummary;
 
   // add histograms to store the properties of mismatched objects
-  MonitorElement * jetEt;
-  MonitorElement * jetEta;
-  MonitorElement * jetPhi;
+  MonitorElement * jetEtData;
+  MonitorElement * jetEtaData;
+  MonitorElement * jetPhiData;
+  MonitorElement * jetEtEmul;
+  MonitorElement * jetEtaEmul;
+  MonitorElement * jetPhiEmul;
 
-  MonitorElement * egEt;
-  MonitorElement * egEta;
-  MonitorElement * egPhi;
-  MonitorElement * isoEgEt;
-  MonitorElement * isoEgEta;
-  MonitorElement * isoEgPhi;
+  MonitorElement * egEtData;
+  MonitorElement * egEtaData;
+  MonitorElement * egPhiData;
+  MonitorElement * egEtEmul;
+  MonitorElement * egEtaEmul;
+  MonitorElement * egPhiEmul;
 
-  MonitorElement * tauEt;
-  MonitorElement * tauEta;
-  MonitorElement * tauPhi;
-  MonitorElement * isoTauEt;
-  MonitorElement * isoTauEta;
-  MonitorElement * isoTauPhi;
+  MonitorElement * isoEgEtData;
+  MonitorElement * isoEgEtaData;
+  MonitorElement * isoEgPhiData;
+  MonitorElement * isoEgEtEmul;
+  MonitorElement * isoEgEtaEmul;
+  MonitorElement * isoEgPhiEmul;
+
+  MonitorElement * tauEtData;
+  MonitorElement * tauEtaData;
+  MonitorElement * tauPhiData;
+  MonitorElement * tauEtEmul;
+  MonitorElement * tauEtaEmul;
+  MonitorElement * tauPhiEmul;
+
+  MonitorElement * isoTauEtData;
+  MonitorElement * isoTauEtaData;
+  MonitorElement * isoTauPhiData;
+  MonitorElement * isoTauEtEmul;
+  MonitorElement * isoTauEtaEmul;
+  MonitorElement * isoTauPhiEmul;
 
   // histograms for mismatched sums
 
