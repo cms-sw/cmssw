@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 ak4CaloL1OffsetCorrector = cms.EDProducer(
     'L1OffsetCorrectorProducer',
     level = cms.string('L1Offset'),
-    algorithm = cms.string('AK4Calo'),
+    algorithm = cms.string('AK5Calo'),
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
     minVtxNdof = cms.int32(4)
     )
@@ -33,7 +33,7 @@ ak4L1JPTOffsetCorrectorChain = cms.Sequence(ak4L1JPTOffsetCorrectorTask)
 ak4CaloL1FastjetCorrector = cms.EDProducer(
     'L1FastjetCorrectorProducer',
     level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK4Calo'),
+    algorithm   = cms.string('AK5Calo'),
     srcRho      = cms.InputTag( 'fixedGridRhoFastjetAllCalo'  )
     )
 ak4PFL1FastjetCorrector = cms.EDProducer(
@@ -71,7 +71,7 @@ ak4PFPuppiL1FastjetCorrector = cms.EDProducer(
 ak4CaloL2RelativeCorrector = cms.EDProducer(
     'LXXXCorrectorProducer',
     level     = cms.string('L2Relative'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK4PF' )
 ak4PFCHSL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK4PFchs' )
@@ -83,7 +83,7 @@ ak4PFPuppiL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'A
 ak4CaloL3AbsoluteCorrector = cms.EDProducer(
     'LXXXCorrectorProducer',
     level     = cms.string('L3Absolute'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFL3AbsoluteCorrector     = ak4CaloL3AbsoluteCorrector.clone( algorithm = 'AK4PF' )
 ak4PFCHSL3AbsoluteCorrector     = ak4CaloL3AbsoluteCorrector.clone( algorithm = 'AK4PFchs' )
@@ -95,7 +95,7 @@ ak4PFPuppiL3AbsoluteCorrector     = ak4CaloL3AbsoluteCorrector.clone( algorithm 
 ak4CaloResidualCorrector = cms.EDProducer(
     'LXXXCorrectorProducer',
     level     = cms.string('L2L3Residual'),
-    algorithm = cms.string('AK4Calo')
+    algorithm = cms.string('AK5Calo')
     )
 ak4PFResidualCorrector  = ak4CaloResidualCorrector.clone( algorithm = 'AK4PF' )
 ak4PFCHSResidualCorrector  = ak4CaloResidualCorrector.clone( algorithm = 'AK4PFchs' )
