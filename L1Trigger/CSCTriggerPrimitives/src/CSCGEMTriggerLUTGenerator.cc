@@ -84,7 +84,7 @@ void CSCGEMTriggerLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned th
     auto etaMax(cscWGToEtaLimits_[i].second);
     cscWgToGemRoll_[i] = std::make_pair(assignGEMRoll(gemRollToEtaLimits_, etaMin), assignGEMRoll(gemRollToEtaLimits_, etaMax));
   }
-  std::cout << "WG to ROLL" << std::endl;
+  LogTrace("CSCGEMTriggerLUTGenerator") << "WG to ROLL" << std::endl;
   int i = 1;
   for(auto p : cscWgToGemRoll_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", {" << (p.second).first << ", " << (p.second).second << "}}, ";
@@ -124,14 +124,14 @@ void CSCGEMTriggerLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned th
     cscHsToGemPadME1b_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
   }
 
-  std::cout << "CSC HS to GEM pad LUT in ME1a";
+  LogTrace("CSCGEMTriggerLUTGenerator") << "CSC HS to GEM pad LUT in ME1a";
   i = 1;
   for(auto p : cscHsToGemPadME1a_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", {" << (p.second).first << ", " << (p.second).second << "}}, "; 
     if (i%8==0) LogTrace("CSCGEMTriggerLUTGenerator") << std::endl;
     i++;
   }
-  std::cout << "CSC HS to GEM pad LUT in ME1b";
+  LogTrace("CSCGEMTriggerLUTGenerator") << "CSC HS to GEM pad LUT in ME1b";
   i = 1;
   for(auto p : cscHsToGemPadME1b_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", {" << (p.second).first << ", " << (p.second).second << "}}, ";
@@ -155,14 +155,14 @@ void CSCGEMTriggerLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned th
     gemPadToCscHsME1b_[i] = (int) (stripME1b)/0.5;
   }
 
-  std::cout << "GEM pad to CSC HS LUT in ME1a";
+  LogTrace("CSCGEMTriggerLUTGenerator") << "GEM pad to CSC HS LUT in ME1a";
   i = 1;
   for(auto p : gemPadToCscHsME1a_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", " << p.second << "}, ";
     if (i%8==0) LogTrace("CSCGEMTriggerLUTGenerator") << std::endl;
     i++;
   }
-  std::cout << "GEM pad to CSC HS LUT in ME1b";
+  LogTrace("CSCGEMTriggerLUTGenerator") << "GEM pad to CSC HS LUT in ME1b";
   i = 1;
   for(auto p : gemPadToCscHsME1b_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", " << p.second << "}, ";
@@ -241,7 +241,7 @@ void CSCGEMTriggerLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned th
     cscWgToGemRoll_[i] = assignGEMRoll(gemRollToEtaLimits_, eta);
   }
 
-  std::cout << "WG to roll" << std::endl;
+  LogTrace("CSCGEMTriggerLUTGenerator") << "WG to roll" << std::endl;
   int i = 1;
   for(auto p : cscWgToGemRoll_) {
     LogTrace("CSCGEMTriggerLUTGenerator") << "{"<< p.first << ", " << p.second << "}, ";
