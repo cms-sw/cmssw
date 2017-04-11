@@ -52,6 +52,7 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
+<<<<<<< HEAD
 # SUS
 from DQMOffline.Trigger.SusyMonitoring_cff import *
 # B2G
@@ -68,6 +69,9 @@ from DQMOffline.Trigger.TopMonitoring_cff import *
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 
+=======
+from DQMOffline.Trigger.BPHMonitor_cff import *
+>>>>>>> mydev1
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
@@ -86,6 +90,7 @@ offlineHLTSource = cms.Sequence(
     HeavyIonUCCDQMSequence *
     hotlineDQMSequence *
     exoticaMonitorHLT *
+<<<<<<< HEAD
     susyMonitorHLT *
     b2gMonitorHLT *
     bphysicsMonitorHLT *
@@ -93,6 +98,9 @@ offlineHLTSource = cms.Sequence(
     smpMonitorHLT *
     topMonitorHLT *
     btagMonitorHLT
+=======
+    bphMonitorHLT
+>>>>>>> mydev1
     )
 
 # offline DQM for the HLTMonitoring stream
