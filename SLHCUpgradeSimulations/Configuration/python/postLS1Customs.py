@@ -217,9 +217,9 @@ def customise_Digi_Common(process):
             process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
             process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
-            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
-            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
     return process
 
 def customise_DataMix(process):
@@ -230,9 +230,9 @@ def customise_DataMix(process):
             process.mixData.ho.pixels = cms.int32(2500)
             process.mixData.ho.doSiPMSmearing = cms.bool(False)
         if hasattr(process.mixData,'hf1'):
-            process.mixData.hf1.samplingFactor = cms.double(0.60)
+            process.mixData.hf1.samplingFactor = cms.double(0.67)
         if hasattr(process.mixData,'hf2'):
-            process.mixData.hf2.samplingFactor = cms.double(0.60)
+            process.mixData.hf2.samplingFactor = cms.double(0.67)
     return process
 
 
