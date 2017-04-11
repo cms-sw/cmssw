@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 ctppsLocalTrackLiteProducer = cms.EDProducer("CTPPSLocalTrackLiteProducer",
-  tagSiStripTrack = cms.InputTag("totemRPLocalTrackFitter"),
+    tagSiStripTrack = cms.InputTag("totemRPLocalTrackFitter"),
+    tagDiamondTrack = cms.InputTag("ctppsDiamondLocalTracks"),
 
-  # disable the module by default
-  doNothing = cms.bool(True)
+    # disable the module by default
+    doNothing = cms.bool(True)
 )
 
 # enable the module for CTPPS era(s)
