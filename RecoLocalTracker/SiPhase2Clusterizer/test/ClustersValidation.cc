@@ -359,11 +359,11 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
      */
 
     histoName.str(""); histoName << "Number_Clusters_Pixel" << tag.c_str() <<  id;
-    local_histos.numberClusterPixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 21, -0.5, 20.5);
+    local_histos.numberClusterPixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 100, 0., 0.);
     local_histos.numberClusterPixel->SetFillColor(kAzure + 7);
 
     histoName.str(""); histoName << "Number_Clusters_Strip" << tag.c_str() <<  id;
-    local_histos.numberClusterStrip = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 21, -0.5, 20.5);
+    local_histos.numberClusterStrip = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 100, 0., 0.);
     local_histos.numberClusterStrip->SetFillColor(kOrange - 3);
 
     histoName.str(""); histoName << "Number_Clusters_Mixed" << tag.c_str() <<  id;
@@ -376,11 +376,11 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
      */
 
     histoName.str(""); histoName << "Cluster_Size_Pixel" << tag.c_str() <<  id;
-    local_histos.clusterSizePixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 11, -0.5, 10.5);
+    local_histos.clusterSizePixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 21, -0.5, 20.5);
     local_histos.clusterSizePixel->SetFillColor(kAzure + 7);
 
     histoName.str(""); histoName << "Cluster_Size_Strip" << tag.c_str() <<  id;
-    local_histos.clusterSizeStrip = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 11, -0.5, 10.5);
+    local_histos.clusterSizeStrip = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 21, -0.5, 20.5);
     local_histos.clusterSizeStrip->SetFillColor(kOrange - 3);
 
     histoName.str(""); histoName << "Cluster_Size_Mixed" << tag.c_str() <<  id; 
@@ -459,10 +459,10 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
      */
 
     histoName.str(""); histoName << "Primary_Digis" << tag.c_str() <<  id;
-    local_histos.primarySimHits= td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 11, -0.5, 10.5);
+    local_histos.primarySimHits= td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 100, 0., 0.);
 
     histoName.str(""); histoName << "Other_Digis" << tag.c_str() <<  id;
-    local_histos.otherSimHits= td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 11, -0.5, 10.5);
+    local_histos.otherSimHits= td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 100, 0., 0.);
 
     /*
      * End
