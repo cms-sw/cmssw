@@ -24,7 +24,7 @@
 ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geometry, const unsigned int numberOfStrips, const unsigned int numberOfPartitions) {
 	//First test geometry to make sure that it is compatible with our assumptions
 	const auto& chambers = geometry->chambers();
-	if(!chambers.size())
+	if(chambers.empty())
 		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - No ME0Chambers in geometry.";
 	const auto* mainChamber = chambers.front();
 	const unsigned int nLayers = chambers.front()->nLayers();
@@ -185,7 +185,7 @@ void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSe
 	geometry= &*hGeom;
 
 	const auto& chambers = geometry->chambers();
-	if(!chambers.size())
+	if(chambers.empty())
 		throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No ME0Chambers in geometry.";
 
 	const unsigned int nLayers = chambers.front()->nLayers();
