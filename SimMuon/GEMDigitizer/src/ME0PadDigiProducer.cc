@@ -70,7 +70,7 @@ void ME0PadDigiProducer::buildPads(const ME0DigiPreRecoCollection &det_digis, ME
     }
 
     // fill the output collections
-    for (auto & d: proto_pads)
+    for (const auto & d: proto_pads)
     {
       ME0PadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);
