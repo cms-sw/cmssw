@@ -37,16 +37,13 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
 
   if (ApplyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
   
-  reco::Vertex primaryVertex; 
-  if (ApplyVertexCut_) primaryVertex = vertices->at(0); 
-
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
 
   validator.fillTrackQuantities(iEvent, iSetup, 
     // tell the validator to only look at good tracks
     [&](const reco::Track& track) -> bool { 
 	return (!ApplyVertexCut_ || (track.pt() > 0.75
-	&& std::abs( track.dxy(primaryVertex.position()) ) < 5*track.dxyError())) ;
+	&& std::abs( track.dxy( vertices->at(0).position()) ) < 5*track.dxyError())) ;
     }, vtracks);
 
   for (auto& track : vtracks) {
