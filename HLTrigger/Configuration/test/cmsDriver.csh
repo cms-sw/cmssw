@@ -104,10 +104,10 @@ foreach gtag ( MC DATA )
     continue
   endif
   
-  if ( $2 == "" ) then
+  if ( $1 == "" ) then
     set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
   else
-    set tables = ( $2 )
+    set tables = ( $1 )
   endif
   
   foreach table ( $tables )
