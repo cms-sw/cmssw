@@ -17,7 +17,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
