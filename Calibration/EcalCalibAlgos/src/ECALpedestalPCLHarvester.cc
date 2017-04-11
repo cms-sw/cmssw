@@ -31,11 +31,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
 
-    std::cout << "Filling ped record " << std::endl;
-       
+    std::stringstream hname;
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
         std::stringstream hname;
-        hname<<"EcalCalibration/EcalPedestalPCL/";
+        hname.str("EcalCalibration/EcalPedestalPCL/");
         hname<<"eb_"<<i;
         MonitorElement* ch= igetter_.get(hname.str());
         double mean = ch->getMean();
@@ -64,9 +63,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         pedestals.setValue(id.rawId(),ped);
     }
 
+
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
-        std::stringstream hname;
-        hname<<"EcalCalibration/EcalPedestalPCL/";
+
+        hname.str("EcalCalibration/EcalPedestalPCL/");
         hname<<"ee_"<<i;
         MonitorElement* ch= igetter_.get(hname.str());
         double mean = ch->getMean();
@@ -94,7 +94,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     }
 
 
-    std::cout << "Writing to DB file ... " << std::endl;
+
 
     // write out pedestal record
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
