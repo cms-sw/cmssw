@@ -138,6 +138,7 @@ pat::PackedCandidate::~PackedCandidate() {
   delete p4c_.load();
   delete vertex_.load();
   delete track_.load();
+  delete m_.load();
 }
 
 
