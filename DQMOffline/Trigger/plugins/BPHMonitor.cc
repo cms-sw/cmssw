@@ -2,8 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 
