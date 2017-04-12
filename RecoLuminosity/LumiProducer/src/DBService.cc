@@ -6,25 +6,23 @@
 #include "RelationalAccess/AccessMode.h"
 
 #include <iostream>
-lumi::service::DBService::DBService(const edm::ParameterSet& iConfig){
-  m_svc=new coral::ConnectionService;
-  m_dbconfig= new lumi::DBConfig(*m_svc);
+lumi::service::DBService::DBService(const edm::ParameterSet& iConfig):
+  m_svc(std::make_unique<coral::ConnectionService>()),
+  m_dbconfig(std::make_unique<lumi::DBConfig>(*m_svc))
+{
   std::string authpath=iConfig.getUntrackedParameter<std::string>("authPath","");
   if( !authpath.empty() ){
     m_dbconfig->setAuthentication(authpath);
   }
 }
-lumi::service::DBService::~DBService(){
-  delete m_dbconfig;
-  delete m_svc;
-}
 
-coral::ISessionProxy* 
+lumi::service::DBService::~DBService() {}
+
+lumi::service::ISessionProxyPtr
 lumi::service::DBService::connectReadOnly( const std::string& connectstring ){
-  return m_svc->connect(connectstring, coral::ReadOnly);
-}
-void
-lumi::service::DBService::disconnect( coral::ISessionProxy* session ){
-  delete session;
+  std::unique_lock<std::mutex> lock(m_mutex);
+  
+  return ISessionProxyPtr(std::unique_ptr<coral::ISessionProxy>(m_svc->connect(connectstring, coral::ReadOnly)),
+                          std::move(lock));
 }
 
