@@ -14,7 +14,6 @@
 #include "SimG4CMS/Calo/interface/HFShowerPMT.h"
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HcalTestNS.h"
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
@@ -32,6 +31,7 @@ class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
 class G4Step;
+class HcalTestNS;
 
 class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
