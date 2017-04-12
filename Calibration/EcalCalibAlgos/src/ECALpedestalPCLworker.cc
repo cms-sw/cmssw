@@ -25,47 +25,47 @@ void
 ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
-      
+
     Handle<EBDigiCollection> pDigiEB;
-    iEvent.getByLabel("ecalDigis","ebDigis",pDigiEB);
-   
+    iEvent.getByLabel(digiTagEB_,pDigiEB);
+
     Handle<EEDigiCollection> pDigiEE;
-    iEvent.getByLabel("ecalDigis","eeDigis",pDigiEE);
+    iEvent.getByLabel(digiTagEE_,pDigiEE);
 
 
 
     for (EBDigiCollection::const_iterator pDigi=pDigiEB->begin(); pDigi!=pDigiEB->end(); ++pDigi){
-         
+
         EBDetId id = pDigi->id();
         uint32_t hashedId = id.hashedIndex();
 
         EBDataFrame digi( *pDigi );
 
-        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  - 
-                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare ); 
-        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame       
+        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
+                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
+        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame
         //for (auto& mgpasample : digi.frame()) meEB_[hashedId]->Fill(mgpasample&0xFFF);
-        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();  
-             mgpasample!=digi.frame().begin()+kPedestalSamples; 
+        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();
+             mgpasample!=digi.frame().begin()+kPedestalSamples;
              ++mgpasample )
             meEB_[hashedId]->Fill(*mgpasample&0xFFF);
 
     } // eb digis
-   
+
 
     for (EEDigiCollection::const_iterator pDigi=pDigiEE->begin(); pDigi!=pDigiEE->end(); ++pDigi){
-         
+
         EEDetId id = pDigi->id();
         uint32_t hashedId = id.hashedIndex();
 
         EBDataFrame digi( *pDigi );
 
-        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  - 
-                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare ); 
-        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame       
+        uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
+                           *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
+        if ( maxdiff> kThreshold ) continue; // assume there is signal in this frame
         //for (auto& mgpasample : digi.frame()) meEE_[hashedId]->Fill(mgpasample&0xFFF);
-        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();  
-             mgpasample!=digi.frame().begin()+kPedestalSamples; 
+        for (edm::DataFrame::iterator mgpasample = digi.frame().begin();
+             mgpasample!=digi.frame().begin()+kPedestalSamples;
              ++mgpasample )
             meEE_[hashedId]->Fill(*mgpasample&0xFFF);
 
@@ -73,18 +73,18 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
 
-   
+
 }
 
 
-void 
+void
 ECALpedestalPCLworker::beginJob()
 {
 }
 
 
-void 
-ECALpedestalPCLworker::endJob() 
+void
+ECALpedestalPCLworker::endJob()
 {
 }
 
@@ -97,15 +97,15 @@ ECALpedestalPCLworker::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 
-void 
+void
 ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & run, edm::EventSetup const & es){
-    
+
     ibooker.cd();
-    ibooker.setCurrentFolder("EcalCalibration/EcalPedestalPCL");
+    ibooker.setCurrentFolder("AlCaReco/EcalPedestalsPCL");
 
     for ( uint32_t i = 0 ; i< EBDetId::kSizeForDenseIndexing; ++i){
         std::stringstream hname;
-        hname<<"eb_"<<i;       
+        hname<<"eb_"<<i;
         meEB_.push_back(ibooker.book1D(hname.str(),hname.str(),100,150,250));
     }
 
@@ -115,7 +115,5 @@ ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
         meEE_.push_back(ibooker.book1D(hname.str(),hname.str(),100,150,250));
 
     }
-       
+
 }
-
-
