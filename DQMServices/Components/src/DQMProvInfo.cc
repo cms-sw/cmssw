@@ -1,14 +1,13 @@
 /*
  * Original author: A. Raval / A. Meyer - DESY
  * Rewritten by:    B. van Besien - CERN
+ * Improved by:     S. Di Guida - INFN and Marconi University
  */
 
 #include "DQMProvInfo.h"
 #include <TSystem.h>
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "EventFilter/FEDInterface/interface/FED1024.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
