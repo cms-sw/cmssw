@@ -158,42 +158,31 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
 
-  if ( int(muoHandle->size()) < nmuons_ ) return;
-  std::vector<reco::Muon> muons;
-  for ( auto const & m : *muoHandle ) {
-     muons.push_back(m);
-  }
-  if ( int(muons.size()) < nmuons_ ) return;
-  for (int i=0;i<(int(muons.size())+1) ;i++) {
-    if(!muoSelection_ref(muons[i]))continue;
-    muPhi_.denominator->Fill(muons[i].phi());
-    muEta_.denominator->Fill(muons[i].eta());
-    muPt_.denominator ->Fill(muons[i].pt());
+  for (auto const & m : *muoHandle) {
+    if(!muoSelection_ref(m))continue;
+    muPhi_.denominator->Fill(m.phi());
+    muEta_.denominator->Fill(m.eta());
+    muPt_.denominator ->Fill(m.pt());
     const reco::Track * track = 0;
-    if (muons[i].isTrackerMuon()) track = & * muons[i].innerTrack();
-    else if (muons[i].isStandAloneMuon()) track = & * muons[i].outerTrack();
+    if (m.isTrackerMuon()) track = & * m.innerTrack();
+    else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {
       double d0 = track->dxy(beamSpot->position());
       double z0 = track->dz(beamSpot->position());
       mud0_.denominator ->Fill(d0);
       muz0_.denominator ->Fill(z0);
     }
-  }
-  // filling histograms (denominator)  
-//  int ls = iEvent.id().luminosityBlock();//TODO LumiBlock, do we need that? 
-//  metVsLS_.denominator -> Fill(ls, met);
-  
+  } 
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
-  for (int i=0;i<int((muons.size())+1);i++) {
-    if(!muoSelection_(muons[i]))continue;
-    muPhi_.numerator->Fill(muons[i].phi());
-    muEta_.numerator->Fill(muons[i].eta());
-    muPt_.numerator ->Fill(muons[i].pt());
+  for (auto const & m : *muoHandle) {
+    if(!muoSelection_(m))continue;
+    muPhi_.numerator->Fill(m.phi());
+    muEta_.numerator->Fill(m.eta());
+    muPt_.numerator ->Fill(m.pt());
     const reco::Track * track = 0;
-    if (muons[i].isTrackerMuon()) track = & * muons[i].innerTrack();
-    else if (muons[i].isStandAloneMuon()) track = & * muons[i].outerTrack();
+    if (m.isTrackerMuon()) track = & * m.innerTrack();
+    else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {
       double d0 = track->dxy(beamSpot->position());
       double z0 = track->dz(beamSpot->position());
@@ -201,8 +190,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       muz0_.numerator ->Fill(z0);
     }
   }
-
-
+	
   // filling histograms (num_genTriggerEventFlag_)  
 
 }
