@@ -10,7 +10,7 @@
 
 
 using namespace std;
-
+using namespace edm;
 
 TCCBlockFormatter::~TCCBlockFormatter() {
 
@@ -20,7 +20,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 				  FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const
 {
 
-  if (debug_) cout << "enter in TCCBlockFormatter::DigiToRaw " << endl;
+  if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in TCCBlockFormatter::DigiToRaw " << endl;
 
   int HEADER_SIZE = 8 * 9;
 //  int bx = *pbx_;
@@ -37,7 +37,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 
 
 	if (TCCid < EcalElectronicsMapping::MIN_TCCID || TCCid > EcalElectronicsMapping::MAX_TCCID) 
-		cout << "Wrong TCCid in TCCBlockFormatter::DigiToRaw " << endl;
+		LogInfo("EcalDigiToRaw: ") << "Wrong TCCid in TCCBlockFormatter::DigiToRaw " << endl;
 	bool IsEndCap = ( (EcalElectronicsId::MIN_DCCID_EEM <= iDCC && iDCC <= EcalElectronicsId::MAX_DCCID_EEM) ||
 			  (EcalElectronicsId::MIN_DCCID_EEP <= iDCC && iDCC <= EcalElectronicsId::MAX_DCCID_EEP) );
 
@@ -64,11 +64,11 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	if (! AllTPsamples_) nsamples = 1;
 
 	int iTT = TheMapping -> iTT(detid);   // number of tp inside a fed
-	if (debug_) cout << "This is a TrigTower  iDCC iTT iTCCBlock TCCid " << dec << 
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "This is a TrigTower  iDCC iTT iTCCBlock TCCid " << dec << 
 		iDCC << " " << iTT << " " << itcc_block << " " << TCCid << endl;
-        if (debug_) cout << "ieta iphi " << dec << detid.ieta() << " " << detid.iphi() << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "ieta iphi " << dec << detid.ieta() << " " << detid.iphi() << endl;
         if (iTT <= 0 || iTT > NTT_max)  {
-		cout << "invalid iTT " << iTT << endl;
+		LogInfo("EcalDigiToRaw: ") << "invalid iTT " << iTT << endl;
 		return;
 	}
 
@@ -78,10 +78,10 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
  	if ((int)rawdata.size() != HEADER_SIZE) {
 	  FE_index = rawdata.size() / 8 - NTCC*(Nrows_TCC+1);         // as far as raw data have been generated 
 	  FE_index ++;                                                // infer position in TCC block
-	  if (debug_) cout << "TCCid already there. FE_index = " << FE_index << endl;
+	  if (debug_) LogInfo("EcalDigiToRaw: ") << "TCCid already there. FE_index = " << FE_index << endl;
   	}
 	else {
- 		if (debug_) cout << "New TTCid added on Raw data, TTCid = " << dec << TCCid << " 0x" << hex << TCCid << endl;
+ 		if (debug_) LogInfo("EcalDigiToRaw: ") << "New TTCid added on Raw data, TTCid = " << dec << TCCid << " 0x" << hex << TCCid << endl;
 		FE_index = rawdata.size() / 8;                    // size in unites of 64 bits word
 	        int fe_index = FE_index;
 		for (int iblock=0; iblock < NTCC; iblock++) {     // do this once per fed in EB, four times in EE
@@ -101,7 +101,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 		   fe_index += Nrows_TCC+1;
 		   rawdata.resize (rawdata.size() + 8*Nrows_TCC);    // 17 lines of TPG data in EB, 8 in EE
 		}
-		if (debug_) cout << "Added headers and empty lines : " << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "Added headers and empty lines : " << endl;
 		if (debug_) print(rawdata);
 
 		// -- put the B011 already, since for Endcap there can be empty
@@ -128,16 +128,16 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 
 	FE_index += irow;                                 // ival is location inside a TP row; varies between 0-3
 
-        if (debug_) cout << "Now add tower " << dec << iTT << " irow ival " << dec << irow << " " << dec << ival << endl;
-        if (debug_) cout << "new data will be added at line " << dec << FE_index << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "Now add tower " << dec << iTT << " irow ival " << dec << irow << " " << dec << ival << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "new data will be added at line " << dec << FE_index << endl;
 
 	int fg = trigprim.fineGrain();
 	int et = trigprim.compressedEt();
 	int ttflag = trigprim.ttFlag();
 
 	if (debug_ && (ttflag != 0)) {
-		cout << "in TCCBlock : this tower has a non zero flag" << endl;
-		cout << "Fedid  iTT  flag " << dec << FEDid << " " << iTT << " " << "0x" << hex << ttflag << endl;
+		LogInfo("EcalDigiToRaw: ") << "in TCCBlock : this tower has a non zero flag" << endl;
+		LogInfo("EcalDigiToRaw: ") << "Fedid  iTT  flag " << dec << FEDid << " " << iTT << " " << "0x" << hex << ttflag << endl;
 	}
 	pData[8*FE_index + ival*2] = et & 0xFF;                   // ival is location inside a TP row; varies between 0-3; tp goes in bits 0-7
 	pData[8*FE_index + ival*2+1] = (ttflag<<1) + (fg&0x1);    // fg follows in bit 8; ttfg is in bits 9-11 
@@ -149,12 +149,12 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
                 pData[ibase+6] |= ((nsamples & 0x1)<<7);
                 pData[ibase+7] |= ((nsamples & 0xE)>>1);
 	}
-	if (debug_) cout << "pData[8*FE_index + ival*2+1] = " << hex << (int)pData[8*FE_index + ival*2+1] << endl;
-	if (debug_) cout << "ttflag ttflag<<1 " << hex << ttflag << " " << hex << (ttflag<<1) << endl;
-	if (debug_) cout << "fg&0x1 " << hex << (fg&0x1) << endl;
-	if (debug_) cout << "sum " << hex << ( (ttflag<<1) + (fg&0x1) ) << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "pData[8*FE_index + ival*2+1] = " << hex << (int)pData[8*FE_index + ival*2+1] << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "ttflag ttflag<<1 " << hex << ttflag << " " << hex << (ttflag<<1) << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "fg&0x1 " << hex << (fg&0x1) << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "sum " << hex << ( (ttflag<<1) + (fg&0x1) ) << endl;
 	if (ival %2 == 1) pData[8*FE_index + ival*2+1] |= 0x60;
-	if (debug_) cout << "ttflag et fgbit " << hex << ttflag << " " << hex << et << " " << hex << fg << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "ttflag et fgbit " << hex << ttflag << " " << hex << et << " " << hex << fg << endl;
 	if (debug_) print(rawdata);
 
 	

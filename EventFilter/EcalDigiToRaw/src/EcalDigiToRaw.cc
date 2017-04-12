@@ -29,7 +29,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-
 // #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -84,7 +83,7 @@ void
 EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 // change to loginfo 
-   if (debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
+   if (debug_) LogInfo("EcalDigiToRaw: ") << "Enter in EcalDigiToRaw::produce ... " << endl;
 
    ESHandle< EcalElectronicsMapping > ecalmapping;
    iSetup.get< EcalMappingRcd >().get(ecalmapping);
@@ -118,7 +117,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 
   if (doTCC_) {
 
-     if (debug_) cout << "Creation of the TCC block  " << endl;
+     if (debug_) LogInfo("EcalDigiToRaw: ") << "Creation of the TCC block  " << endl;
      // iEvent.getByType(ecalTrigPrim);
 	iEvent.getByToken(labelTT_, ecalTrigPrim);
 
@@ -146,7 +145,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 
 
    if (doSR_) {	
-	if (debug_) cout << " Process the SR flags " << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << " Process the SR flags " << endl;
 
 	if (doBarrel_) {
 
@@ -162,8 +161,8 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 		int Dccid = TheMapping -> DCCid(id);
 		int DCC_Channel = TheMapping -> iTT(id);
 		int FEDid = FEDNumbering::MINECALFEDID + Dccid;
-		// if (Dccid == 10) cout << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
-		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
+		// if (Dccid == 10) LogInfo("EcalDigiToRaw: ") << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 		if (debug_) Headerblockformatter_ -> print(rawdata);
 		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata, bx, lv1, header);
@@ -202,7 +201,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
   if (doTower_) {
 
 	if (doBarrel_) {
-   	if (debug_) cout << "Creation of the TowerBlock ... Barrel case " << endl;
+   	if (debug_) LogInfo("EcalDigiToRaw: ") << "Creation of the TowerBlock ... Barrel case " << endl;
         iEvent.getByToken(EBDigiToken_,ebDigis);
         for (EBDigiCollection::const_iterator it=ebDigis -> begin();
                                 it != ebDigis->end(); it++) {
@@ -217,7 +216,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 	}
 
 	if (doEndCap_) {
-	if (debug_) cout << "Creation of the TowerBlock ... EndCap case " << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "Creation of the TowerBlock ... EndCap case " << endl;
         iEvent.getByToken(EEDigiToken_,eeDigis);
         for (EEDigiCollection::const_iterator it=eeDigis -> begin();
                                 it != eeDigis->end(); it++) {
@@ -243,7 +242,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 
 
 /*
-   cout << "For FED 633 " << endl;
+   LogInfo("EcalDigiToRaw: ") << "For FED 633 " << endl;
          FEDRawData& rawdata = productRawData -> FEDData(633);
          Headerblockformatter_ -> print(rawdata);
 */
