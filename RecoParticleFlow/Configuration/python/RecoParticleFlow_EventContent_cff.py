@@ -45,7 +45,7 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep *_trackerDrivenElectronSeeds_preid_*',
     'keep *_particleFlowPtrs_*_*',
     'keep *_particleFlowTmpPtrs_*_*',
-    'keep *_chargedHadronIsolation_*_*'
+    'keep *_chargedHadronPFTrackIsolation_*_*'
         )
     )
 # RECO content
@@ -90,7 +90,7 @@ RecoParticleFlowRECO = cms.PSet(
     'keep *_trackerDrivenElectronSeeds_preid_*',
     'keep *_particleFlowPtrs_*_*',
     'keep *_particleFlowTmpPtrs_*_*',
-    'keep *_chargedHadronIsolation_*_*'
+    'keep *_chargedHadronPFTrackIsolation_*_*'
         )
 )    
     
@@ -133,7 +133,7 @@ RecoParticleFlowAOD = cms.PSet(
     'keep recoConversions_pfPhotonTranslator_*_*',
     'keep *_particleFlowPtrs_*_*',
     'keep *_particleFlowTmpPtrs_*_*',
-    'keep *_chargedHadronIsolation_*_*'
+    'keep *_chargedHadronPFTrackIsolation_*_*'
         )
 )
 

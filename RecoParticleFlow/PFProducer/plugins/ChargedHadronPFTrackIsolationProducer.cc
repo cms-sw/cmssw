@@ -1,5 +1,5 @@
 /*
- * ChargedHadronIsolationProducer
+ * ChargedHadronPFTrackIsolationProducer
  *
  * Author: Andreas Hinzmann
  *
@@ -27,12 +27,12 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class ChargedHadronIsolationProducer : public edm::stream::EDProducer<> 
+class ChargedHadronPFTrackIsolationProducer : public edm::stream::EDProducer<> 
 {
 public:
 
-  explicit ChargedHadronIsolationProducer(const edm::ParameterSet& cfg);
-  ~ChargedHadronIsolationProducer() {}
+  explicit ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg);
+  ~ChargedHadronPFTrackIsolationProducer() {}
   void produce(edm::Event& evt, const edm::EventSetup& es);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -45,7 +45,7 @@ private:
 
 };
 
-ChargedHadronIsolationProducer::ChargedHadronIsolationProducer(const edm::ParameterSet& cfg)
+ChargedHadronPFTrackIsolationProducer::ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg)
 {
   srcCandidates_ = cfg.getParameter<edm::InputTag>("src");
   Candidates_token = consumes<edm::View<reco::PFCandidate> >(srcCandidates_);
@@ -55,7 +55,7 @@ ChargedHadronIsolationProducer::ChargedHadronIsolationProducer(const edm::Parame
   produces<edm::ValueMap<bool> >();
 }
 
-void ChargedHadronIsolationProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+void ChargedHadronPFTrackIsolationProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   // get a view of our Candidates via the base candidates
   typedef edm::View<reco::PFCandidate> PFCandidateView;
@@ -88,14 +88,14 @@ void ChargedHadronIsolationProducer::produce(edm::Event& evt, const edm::EventSe
   evt.put(std::move(out));
 }
 
-void ChargedHadronIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void ChargedHadronPFTrackIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
    edm::ParameterSetDescription desc;
    desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
    desc.add<double>("minTrackPt", 1);
    desc.add<double>("minRawCaloEnergy", 0.5);
-   descriptions.add("chargedHadronIsolation", desc);
+   descriptions.add("chargedHadronPFTrackIsolation", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(ChargedHadronIsolationProducer);
+DEFINE_FWK_MODULE(ChargedHadronPFTrackIsolationProducer);
