@@ -72,8 +72,8 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 
   if ((Tstop > Tpurge) || (Tstop == 0)) {
     std::cout  << "DAClusterizerInZ: invalid Tstop" << Tstop
-	       << "  set to  " << min(1., Tpurge) << endl;
-    Tstop = min(1., Tpurge) ;
+	       << "  set to  " << max(1., Tpurge) << endl;
+    Tstop = max(1., Tpurge) ;
   }
   betastop_ = 1./Tstop;
   
@@ -486,11 +486,6 @@ DAClusterizerInZ_vect::split(const double beta,  track_t &tks, vertex_t & y, dou
 
     if(w1>0){z1 = z1/w1;} else {z1=y._z[k]-epsilon;}
     if(w2>0){z2 = z2/w2;} else {z2=y._z[k]+epsilon;}
-
-    if(verbose_){
-      std::cout << "split test " << setw(10) << setprecision(4) << y._z[k] << " z -> " << setw(10) << z1 << "," << z2 <<  "   p1,p2=" << p1<< "," << p2 << std::endl;
-    }
-
 
     // reduce split size if there is not enough room
     if( ( k   > 0 ) && ( z1 < (0.6*y._z[k] + 0.4*y._z[k-1])) ){ z1 = 0.6*y._z[k] + 0.4*y._z[k-1]; }
