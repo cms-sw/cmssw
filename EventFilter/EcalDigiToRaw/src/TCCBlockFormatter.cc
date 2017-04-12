@@ -54,7 +54,6 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 
 	
         int nsamples = trigprim.size();
-	if (! AllTPsamples_) nsamples = 1;
 
 	int iTT = TheMapping -> iTT(detid);   // number of tp inside a fed
 	if (debug_) LogInfo("EcalDigiToRaw: ") << "This is a TrigTower  iDCC iTT iTCCBlock TCCid " << dec << 
