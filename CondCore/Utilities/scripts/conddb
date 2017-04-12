@@ -665,6 +665,8 @@ def _get_hlt_fcsr( session, timeType ):
     RunInfo = session.get_dbtype(conddb.RunInfo)
     lastRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).scalar()
     fcsr = lastRun+1
+    if timeType == 'Time':
+        raise Exception('Cannot find time for non-existing runs.')
     ret = _convert_time( session, timeType, fcsr )
     if timeType == 'Run':
         logging.info('Found fcsr for hlt: %s' %fcsr)
@@ -710,6 +712,37 @@ def _get_last_frozen_since( session, tagName, fcsr=None ):
     logging.debug('Last frozen since in destination tag is %s' %res)
     return res
 
+class run_to_timestamp( object ):
+    def __init__( self, session ):
+        self.session = session
+
+    def convertOne( self, runNumber ):
+        logging.debug('Converting run %s to timestamp...' %runNumber)
+        RunInfo = self.session.get_dbtype(conddb.RunInfo)
+        bestRun = self.session.query(RunInfo.run_number,RunInfo.start_time, RunInfo.end_time).filter(RunInfo.run_number >= runNumber).first()
+        if bestRun is None:
+            raise Exception("Run %s can't be matched with an existing run in the database." %runNumber)
+        return bestRun[1],bestRun[2]
+
+    def convertIovs( self, iovs ):
+        ks = sorted(iovs.keys())
+        logging.info('Converting %s run-based iovs to time-based' %len(iovs) )         
+        RunInfo = self.session.get_dbtype(conddb.RunInfo)
+        maxRun = ks[-1]
+        upperRun = self.session.query(RunInfo.run_number).filter(RunInfo.run_number >= maxRun ).first()
+        if upperRun is None:
+            raise Exception("Upper limit run %s cannot be matched with an existing run in the database." %maxRun)
+        upperRun = upperRun[0]
+        runs = self.session.query(RunInfo.run_number,RunInfo.start_time).filter(RunInfo.run_number >= ks[0],RunInfo.run_number <=upperRun).\
+            order_by(RunInfo.run_number).all()
+        newiovs = {}
+        for since in ks:
+            # take the smallest greater or equal to the target
+            bestRun = min([run for run in runs if run[0] >= since],key=lambda x: x[0])
+            bestRunTime = calendar.timegm( bestRun[1].utctimetuple() ) << 32
+            newiovs[bestRunTime] =  iovs[since]
+        return newiovs
+
 def _convert_time( session, toTimeType, runNumber ):
     if toTimeType == 'Run':
         return runNumber
@@ -718,7 +751,8 @@ def _convert_time( session, toTimeType, runNumber ):
         logging.debug('Run %s encoded in lumi id %s' %(runNumber,lumiId))
         return lumiId
     elif toTimeType == 'Time':
-        start, stop = runToTime( session, runNumber )
+        converter = run_to_timestamp( session )
+        start, stop = converter.convertOne( runNumber )
         logging.debug('Run %s coverted in time (start) %s' %(runNumber,start))
         timest = calendar.timegm( start.utctimetuple() ) << 32
         return timest
@@ -879,6 +913,28 @@ def listGTs_(args):
         ['GT_name', 'Description', 'Release', 'Insertion_time'],
     )
 
+def listRuns_(args):
+    connection = connect(args)
+    session = connection.session()
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    output_table(args,
+        session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
+            order_by(RunInfo.run_number).\
+            all(),
+        ['Run_number','Start_time','End_time'],
+    )
+
+def showFcsr_(args):
+    connection = connect(args)
+    session = connection.session()
+    session = conddb.getSessionOnMasterDB( session, session )
+    run_hlt_fcsr = _get_hlt_fcsr( session, 'Run' ) 
+    lumi_hlt_fcsr = _convert_time( session, 'Lumi', run_hlt_fcsr )
+    run_pcl_fcsr = _get_prompt_fcsr( session, 'Run' )
+    lumi_pcl_fcsr = _convert_time( session, 'Lumi', run_pcl_fcsr )
+    time_pcl_fcsr = _convert_time( session, 'Time', run_pcl_fcsr )
+    output(args,'FCSR for HLT (last Run started +1): %s ( Lumi: %s, Time: undefined )' %(run_hlt_fcsr,lumi_hlt_fcsr))
+    output(args,'FCSR for PCL (from Tier0 service) : %s ( Lumi: %s, Time: %s )' %(run_pcl_fcsr,lumi_pcl_fcsr,time_pcl_fcsr), newLine=False)
 
 def list_(args):
     connection = connect(args)
@@ -1092,11 +1148,13 @@ def convertRunToTimes( session, fromRun, toRun ):
     toLumi = None
     # the time we get may be a bit delayed (7-10 sec according to Salvatore) 
     if not fromRun is None:
-        startTime1, stopTime1 = runToTime( session, fromRun )
+        conv = run_to_timestamp( session )
+        startTime1, stopTime1 = conv.convertOne( fromRun )
         fromTime =  startTime1-15.
         fromLumi = fromRun<<32|0x1
     if not toRun is None:
-        startTime2, stopTime2 = runToTime( session, toRun )
+        conv = run_to_timestamp( session )
+        startTime2, stopTime2 = conv.convertOne( toRun )
         toTime = stopTime2+15.
         toLumi = toRun<<32|0x1
 
@@ -1117,14 +1175,6 @@ def convertRunToTimes( session, fromRun, toRun ):
     logging.debug("convertRunToTimes> start: %s stop %s \n    timeMap: %s " % (fromRun, toRun, str(timeMap)))
 
     return timeMap
-
-def runToTime(session, runNr):
-
-    RunInfo = session.get_dbtype(conddb.RunInfo)
-    bestRun = session.query(RunInfo.run_number,RunInfo.start_time, RunInfo.end_time).filter(RunInfo.run_number >= runNr).first()
-    if bestRun is None:
-        raise Exception('Run %s has not been found in the database.'%runNr)
-    return bestRun[1],bestRun[2]
 
 def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
     # run parameters
@@ -1190,23 +1240,33 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         destPayloadType = t['object_type']
         destTimeType = t['time_type']
         destSynchro = t['synchronization']
-
+    if args.convertTime:
+        if not tag['time_type']=='Run':
+            logging.error('Time conversion from %s is not supported.' %tag['time_type'])
+            raise Exception("Cannot execute the copy.")
     if destExists:
         logging.warning('Destination tag "%s" already exists.' %second )
         if destPayloadType != tag['object_type']:
             logging.error('Cannot copy iovs from tag %s (object type: %s) to tag %s (object type: %s), since the object types are different.' %(first,tag['object_type'],second,destPayloadType))
             raise Exception('Object type mismatch, bailing out.')
         if destTimeType != tag['time_type']:
-            logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
-            raise Exception('Time type mismatch, bailing out.')
+            if args.convertTime:
+                if not destTimeType=='Time':
+                    logging.error('Time conversion to %s is not supported.' %destTimeType)
+                    raise Exception("Cannot execute the copy.")
+            else:
+                logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
+                raise Exception('Time type mismatch, bailing out.')
         if not args.yes:
             output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
             if raw_input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
-        session2.add(Tag2(**tag))
         destSynchro = tag['synchronization']
+        if args.convertTime:
+            tag['time_type'] = 'Time'
         destTimeType = tag['time_type']
+        session2.add(Tag2(**tag))
         note = args.note 
         if note is None or note=='' or note==' ':
             note = '-'
@@ -1259,8 +1319,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             since = iov['since']
  
             if since not in iovs.keys():
-            # updating the insertion time to the execution time. 
-            # Because of that, for a given since, only the most recent will be added.
+            # for a given since, only the most recent will be added.
                 iovs[since] = iov['payload_hash']
             else:
                 logging.warning('Skipping older iov with since %s...', since)
@@ -1272,6 +1331,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             policy_type = _get_synchro_policy( destSynchro )
             synchro_policy = policy_type( session1, session2, destTimeType, second )
             iovs = synchro_policy.validate( iovs )
+        if args.convertTime:
+            converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
+            iovs = converter.convertIovs( iovs )
 
          # making the list of the payloads to export...         
         for since in iovs.keys():
@@ -1369,11 +1431,13 @@ def copy(args):
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
         if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.synchronize:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, synchronize  or snapshot.')
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.synchronize or args.convertTime:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, synchronize, snapshot or convertTime.')
         if args.synchronize:
             if args.override:
                 raise Exception('Override copy is not supported with the synchronization.')
+            if args.convertTime:
+                raise Exception('Copy with time conversion is not supported with the synchronization.')
 
         niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
 
@@ -1979,6 +2043,9 @@ def main():
     parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
     parser_listGTs.set_defaults(func=listGTs_)
 
+    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB.')
+    parser_listRuns.set_defaults(func=listRuns_)
+
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
     parser_diff.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
     parser_diff.add_argument('second', nargs='?', default=None, help='Name of the second object (i.e. destination, new). Ditto. Default: same as the first object (i.e. useful to compare the same object in different databases).')
@@ -2008,6 +2075,7 @@ def main():
     parser_copy.add_argument('--snapshot','-s', help="Timestamp of the snapshot to consider for the source iovs. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
     parser_copy.add_argument('--synchronize',action='store_true',help='For tags, set the destination iovs according to the destination tag synchronization. No effect for other object type copy') 
+    parser_copy.add_argument('--convertTime',action='store_true',help='For tags, triggers the convertion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
     parser_copy.set_defaults(func=copy)
 
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
@@ -2029,6 +2097,9 @@ def main():
     parser_dump.add_argument('--format', default="xml", choices=['xml', 'raw'], help='Output format. Choice between XML and raw hexdump.')
     parser_dump.set_defaults(func=dump)
 
+    parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')
+    parser_showFcsr.set_defaults(func=showFcsr_)
+
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -2044,7 +2115,7 @@ def main():
 
     if args.verbose >= 1:
         # Include the traceback
-        args.func(args)
+        return args.func(args)
     else:
         # Only one error line
         try:
