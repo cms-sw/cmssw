@@ -11,7 +11,7 @@ filesRelValTTbarPileUpMINIAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_v4-v1/10000/A65CD249-BFDA-E511-813A-0025905A6066.root'
+        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/MINIAODSIM/90X_upgrade2017_realistic_v20-v2/00000/16132980-3019-E711-AD34-0025905A6110.root'
     )
 
 # /RelValProdTTbar_13/CMSSW_8_0_0-80X_mcRun2_asymptotic_v4-v1/AODSIM
@@ -24,7 +24,7 @@ filesRelValProdTTbarAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/RelValProdTTbar_13/AODSIM/80X_mcRun2_asymptotic_v4-v1/10000/DE81ABBF-1DDA-E511-8AF8-0026189438B5.root'
+        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/GEN-SIM-RECO/90X_upgrade2017_realistic_v20-v2/00000/2257937F-3019-E711-BF48-0CC47A4D7678.root'
     )
 
 # /RelValTTbar_13/CMSSW_8_0_0-80X_mcRun2_asymptotic_v4-v1/GEN-SIM-RECO
@@ -37,7 +37,7 @@ filesRelValTTbarGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/RelValTTbar_13/GEN-SIM-RECO/80X_mcRun2_asymptotic_v4-v1/10000/1C687FB0-7BD9-E511-AFED-0CC47A78A4BA.root'
+        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/GEN-SIM-RECO/90X_upgrade2017_realistic_v20-v2/00000/2257937F-3019-E711-BF48-0CC47A4D7678.root'
     )
 
 # /RelValTTbar_13/CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4_FastSim-v2/GEN-SIM-DIGI-RECO
@@ -76,7 +76,7 @@ filesRelValSingleMuMINIAOD = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/SingleMu/MINIAOD/80X_dataRun2_v5_RelVal_mu2012D-v3/10000/06A44F40-ECDD-E511-89D7-0CC47A78A3D8.root'
+        '/store/relval/CMSSW_9_1_0_pre2/SingleMuon/MINIAOD/90X_dataRun2_relval_v6_RelVal_sigMu2016E-v1/00000/96231232-361A-E711-96B5-0CC47A7C3430.root'
     )
 
 # /SingleMu/CMSSW_8_0_0-80X_dataRun2_v5_RelVal_mu2012D-v3/RECO
