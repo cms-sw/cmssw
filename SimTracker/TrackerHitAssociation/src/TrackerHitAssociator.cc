@@ -31,10 +31,13 @@ TrackerHitAssociator::Config::Config(edm::ConsumesCollector && iC) :
   assocHitbySimTrack_(false) {
 
   if(doStrip_) {
-    if (useOTph2_) ph2OTrToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+    if (useOTph2_) ph2OTrToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis","Tracker"));
     else           stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
   }
-  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if(doPixel_) {
+    if (useOTph2_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis","Pixel"));
+    else           pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  }
   if(!doTrackAssoc_) {
     std::vector<std::string> trackerContainers;
     trackerContainers.reserve(12);
@@ -65,7 +68,8 @@ TrackerHitAssociator::Config::Config(edm::ConsumesCollector && iC) :
 TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
-  useOTph2_( conf.getParameter<bool>("usePhase2Tracker") ),
+  useOTph2_( conf.existsAs<bool>("usePhase2Tracker") ? conf.getParameter<bool>("usePhase2Tracker") : false),
+  //
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
   assocHitbySimTrack_(conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false) {
 

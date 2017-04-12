@@ -37,6 +37,7 @@ MABH.PurityCut_muon = 0.75
 MABH.includeZeroHitMuons = False
 #
 MABHhlt = MABH.clone()
+MABHhlt.EfficiencyCut_track = 0. # backup solution as UseGrouped/UseSplitting are always assumed to be true
 MABHhlt.DTrechitTag = 'hltDt1DRecHits'
 MABHhlt.ignoreMissingTrackCollection = True
 ################################################

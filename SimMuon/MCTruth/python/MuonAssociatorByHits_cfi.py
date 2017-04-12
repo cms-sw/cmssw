@@ -70,8 +70,10 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     #
     associatePixel = cms.bool(True),
     associateStrip = cms.bool(True),
+    usePhase2Tracker = cms.bool(False),
     pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
     stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
+    phase2TrackerSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker"),
     associateRecoTracks = cms.bool(True),
     #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 
@@ -142,6 +144,6 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( muonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
 phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
-phase2_tracker.toModify( muonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
-
+#phase2_tracker.toModify( muonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
