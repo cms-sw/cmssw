@@ -149,4 +149,4 @@ for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
+python MaterialBudget_Simul_vs_Reco.py -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l PhaseIDetector > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
