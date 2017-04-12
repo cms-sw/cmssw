@@ -50,8 +50,6 @@
 class EcalDigiToRaw : public edm::global::EDProducer<> {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
-       virtual ~EcalDigiToRaw();
-
        virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
        typedef long long Word64;

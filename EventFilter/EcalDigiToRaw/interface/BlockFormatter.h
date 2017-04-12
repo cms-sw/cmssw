@@ -21,7 +21,6 @@ class BlockFormatter {
         typedef uint16_t Word16;
 
 	BlockFormatter(EcalDigiToRaw* base);
-	~BlockFormatter();
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
 	void DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number, int bx, int lv1) const;
 	void print(FEDRawData& rawdata) const;

@@ -68,11 +68,6 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig) :
 }
 
 
-EcalDigiToRaw::~EcalDigiToRaw()
-{
- 
-}
-
 
 //
 // member functions

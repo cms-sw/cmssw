@@ -12,14 +12,6 @@
 using namespace std;
 using namespace edm;
 
-
-
-TowerBlockFormatter::~TowerBlockFormatter() {
-
-}
-
-
-
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
 					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder &local) const
 

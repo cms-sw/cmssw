@@ -12,10 +12,6 @@
 using namespace std;
 using namespace edm;
 
-TCCBlockFormatter::~TCCBlockFormatter() {
-
-}
-
 void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, 
 				  FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const
 {
