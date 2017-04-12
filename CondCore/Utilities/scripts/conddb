@@ -665,6 +665,8 @@ def _get_hlt_fcsr( session, timeType ):
     RunInfo = session.get_dbtype(conddb.RunInfo)
     lastRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).scalar()
     fcsr = lastRun+1
+    if timeType == 'Time':
+        raise Exception('Cannot find time for non-existing runs.')
     ret = _convert_time( session, timeType, fcsr )
     if timeType == 'Run':
         logging.info('Found fcsr for hlt: %s' %fcsr)
@@ -911,6 +913,28 @@ def listGTs_(args):
         ['GT_name', 'Description', 'Release', 'Insertion_time'],
     )
 
+def listRuns_(args):
+    connection = connect(args)
+    session = connection.session()
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    output_table(args,
+        session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
+            order_by(RunInfo.run_number).\
+            all(),
+        ['Run_number','Start_time','End_time'],
+    )
+
+def showFcsr_(args):
+    connection = connect(args)
+    session = connection.session()
+    session = conddb.getSessionOnMasterDB( session, session )
+    run_hlt_fcsr = _get_hlt_fcsr( session, 'Run' ) 
+    lumi_hlt_fcsr = _convert_time( session, 'Lumi', run_hlt_fcsr )
+    run_pcl_fcsr = _get_prompt_fcsr( session, 'Run' )
+    lumi_pcl_fcsr = _convert_time( session, 'Lumi', run_pcl_fcsr )
+    time_pcl_fcsr = _convert_time( session, 'Time', run_pcl_fcsr )
+    output(args,'FCSR for HLT (last Run started +1): %s ( Lumi: %s, Time: undefined )' %(run_hlt_fcsr,lumi_hlt_fcsr))
+    output(args,'FCSR for PCL (from Tier0 service) : %s ( Lumi: %s, Time: %s )' %(run_pcl_fcsr,lumi_pcl_fcsr,time_pcl_fcsr), newLine=False)
 
 def list_(args):
     connection = connect(args)
@@ -2019,6 +2043,9 @@ def main():
     parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
     parser_listGTs.set_defaults(func=listGTs_)
 
+    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB.')
+    parser_listRuns.set_defaults(func=listRuns_)
+
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
     parser_diff.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
     parser_diff.add_argument('second', nargs='?', default=None, help='Name of the second object (i.e. destination, new). Ditto. Default: same as the first object (i.e. useful to compare the same object in different databases).')
@@ -2070,6 +2097,9 @@ def main():
     parser_dump.add_argument('--format', default="xml", choices=['xml', 'raw'], help='Output format. Choice between XML and raw hexdump.')
     parser_dump.set_defaults(func=dump)
 
+    parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')
+    parser_showFcsr.set_defaults(func=showFcsr_)
+
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -2085,7 +2115,7 @@ def main():
 
     if args.verbose >= 1:
         # Include the traceback
-        args.func(args)
+        return args.func(args)
     else:
         # Only one error line
         try:
