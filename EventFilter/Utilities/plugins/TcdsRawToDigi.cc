@@ -10,6 +10,7 @@
 */
 //
 // Original Author:  Chris Palmer
+// Improved by    :  Salvatore Di Guida
 //         Created:  Thu, 28 May 2015 19:54:56 GMT
 //
 //
@@ -28,18 +29,16 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/BSTRecord.h"
+
+#include "DataFormats/Scalers/interface/BSTRecord.h"
 
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/FED1024.h"
-
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-
 
 using namespace std;
 

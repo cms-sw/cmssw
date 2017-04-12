@@ -12,8 +12,8 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/FEDRawData/interface/BSTRecord.h"
+#include <DataFormats/Scalers/interface/DcsStatus.h>
+#include <DataFormats/Scalers/interface/BSTRecord.h>
 
 #include <string>
 #include <vector>

@@ -1,6 +1,7 @@
-/** \class FEDRawData
+/** \class BSTRecord
  *
- * Class representing the BST information included in the TCDS record.
+ * Class representing the Beam Synchronous Timing (BST)
+ * information included in the TCDS record.
  * Beam parameters provided by BST are defined in:
  * https://edms.cern.ch/document/638899/2.0
  *
@@ -10,7 +11,13 @@
 class BSTRecord {
  public:
   BSTRecord():
-    m_gpstime(0), m_bstMaster(0), m_turnCount(0), m_lhcFill(0), m_beamMode(0), m_particleBeam1(0), m_particleBeam2(0), m_beamMomentum(0), m_intensityBeam1(0), m_intensityBeam2(0) {}
+    m_gpstime(0),
+    m_turnCount(0), m_lhcFill(0),
+    m_intensityBeam1(0), m_intensityBeam2(0),
+    m_beamMode(0),
+    m_beamMomentum(0),
+    m_bstMaster(0),
+    m_particleBeam1(0), m_particleBeam2(0) {}
 
   void set(unsigned long long gpstime, unsigned char bstMaster,
            unsigned int turnCount, unsigned int lhcFill,
@@ -50,10 +57,10 @@ class BSTRecord {
 
  private:
   unsigned long long m_gpstime;
-  unsigned char m_bstMaster;
   unsigned int m_turnCount, m_lhcFill;
-  unsigned short m_beamMode;
-  unsigned char m_particleBeam1, m_particleBeam2;
-  unsigned short m_beamMomentum;
   unsigned int m_intensityBeam1, m_intensityBeam2;
+  unsigned short m_beamMode;
+  unsigned short m_beamMomentum;
+  unsigned char m_bstMaster;
+  unsigned char m_particleBeam1, m_particleBeam2;
 };
