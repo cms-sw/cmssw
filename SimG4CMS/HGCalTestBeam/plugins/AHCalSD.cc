@@ -1,5 +1,7 @@
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalSD.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "G4LogicalVolumeStore.hh"
@@ -13,7 +15,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include <iomanip>
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 AHCalSD::AHCalSD(G4String name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
@@ -66,9 +68,9 @@ uint32_t AHCalSD::setDetUnitId(G4Step * aStep) {
   int inrow = ((touch->GetReplicaNumber(0))/10)%10;
   int jncol = ((touch->GetReplicaNumber(0))/100)%10;
   int jnrow = ((touch->GetReplicaNumber(0))/1000)%10;
-  int col   = (jncol == 0) ? incol : incol+10;
-  int row   = (jnrow == 0) ? inrow : inrow+10;
-  uint32_t index = HcalDetId(HcalOther,row,col,depth).rawId();
+  int col   = (jncol == 0) ? incol : -incol;
+  int row   = (jnrow == 0) ? inrow : -inrow;
+  uint32_t index = AHCalDetId(row,col,depth).rawId();
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HcalSim") << "AHCalSD: det = " << HcalOther 
                           << " depth = " << depth << " row = " << row 
@@ -85,25 +87,19 @@ uint32_t AHCalSD::setDetUnitId(G4Step * aStep) {
 
 bool AHCalSD::unpackIndex(const uint32_t& idx, int& row, int& col, int& depth) {
 
+  DetId gen(idx);
+  HcalSubdetector subdet = (HcalSubdetector(gen.subdetId()));
+  bool rcode = (gen.det()==DetId::Hcal && subdet!=HcalOther);
   row = col = depth = 0;
-  bool rcode(false);
-  HcalSubdetector subdet=(HcalSubdetector((idx>>DetId::kSubdetOffset)&0x7));
-  if (subdet == HcalOther) {
-    if ((idx&HcalDetId::kHcalIdFormat2) != 0) {
-      int ieta = (idx>>HcalDetId::kHcalEtaOffset2)&HcalDetId::kHcalEtaMask2;
-      row      = (ieta%10);
-      if ((ieta/10) != 0) row = -row;
-      int iphi = idx&HcalDetId::kHcalPhiMask2;
-      col      = (iphi%10);
-      if ((iphi/10) != 0) col = -col;
-      depth    = (idx>>HcalDetId::kHcalDepthOffset2)&HcalDetId::kHcalDepthMask2;
-      rcode    = true;
-    }
+  if (rcode) {
+    row   = AHCalDetId(idx).irow();
+    col   = AHCalDetId(idx).icol();
+    depth = AHCalDetId(idx).depth();
   }
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HcalSim") << "AHCalSD: packed index = 0x" << std::hex << idx 
 			  << std::dec << " Row " << row << " Column " << col
-			  << " Depth " << depth << std::endl;
+			  << " Depth " << depth << " OK " << rcode << std::endl;
 #endif
   return rcode;
 }
