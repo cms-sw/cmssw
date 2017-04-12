@@ -156,7 +156,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 
 const double CTPPSDiamondDQMSource::SEC_PER_LUMI_SECTION = 23.31;
 const int CTPPSDiamondDQMSource::CHANNEL_OF_VFAT_CLOCK = 30;
-const double CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.05;
+const double CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
 
 //----------------------------------------------------------------------------------------------------
 
