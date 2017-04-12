@@ -63,10 +63,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
       int ieta = etaSide * absieta;
 
-      uint towEtLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
-      if(towEtLUTAddr > 8191) towEtThresh_ = 20;
-      else towEtThresh_ = params_->etSumTowEtThreshLUT()->data(towEtLUTAddr);
-      
+      towEtThresh_ = 0;
+      if(!params_->etSumBypassPUS()){
+	if(params_->etSumPUSType() == "LUT"){
+	  uint towEtLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
+	  if(towEtLUTAddr > 8191) towEtThresh_ = 20;
+	  else towEtThresh_ = params_->etSumPUSLUT()->data(towEtLUTAddr);
+	} else {
+	  if(params_->etSumPUSType() != "None" && params_->etSumPUSType() != "none") 
+	    edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 ETT & MET" << std::endl;
+	  return;
+	}
+      }
 
       int32_t ringEx(0), ringEy(0), ringEt(0);
       int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
