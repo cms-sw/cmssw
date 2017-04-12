@@ -44,7 +44,7 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                                 VertexCollection = cms.untracked.InputTag('pixelVertices'),
                                 #WriteAscii = cms.untracked.bool(True),
                                 #AsciiFileName = cms.untracked.string('PVFit.txt'),
-				maxNrStoredVertices = cms.untracked.uint32(1000000),
+                                maxNrStoredVertices = cms.untracked.uint32(1000000),
                                 minNrVerticesForFit = cms.untracked.uint32(50),
                                 minVertexNdf = cms.untracked.double(4.),
                                 #--Not used
@@ -56,7 +56,9 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                                 #---------------
                                 errorScale = cms.untracked.double(1.23), 
                                 nSigmaCut = cms.untracked.double(50.0),
-				FitPerBunchCrossing = cms.untracked.bool(False)
+                                FitPerBunchCrossing = cms.untracked.bool(False),
+                                useOnlyFirstPV = cms.untracked.bool(False),
+                                minSumPt = cms.untracked.double(0.)
                                 ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),
