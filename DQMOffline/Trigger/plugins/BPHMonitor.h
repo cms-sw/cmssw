@@ -21,31 +21,17 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 //DataFormats
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/deltaR.h"
+
 
 class GenericTriggerEventFlag;
 
@@ -94,17 +80,13 @@ private:
 
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::BeamSpot>        bsToken_;
-  
-  std::vector<double> met_variable_binning_;
-  MEbinning           met_binning_;
+
   MEbinning           phi_binning_;
   MEbinning           pt_binning_;
   MEbinning           eta_binning_;
   MEbinning           d0_binning_;
   MEbinning           z0_binning_;
   MEbinning           ls_binning_;
-
-  METME metME_variableBinning_;
 
   METME muPhi_;
   METME muEta_;
