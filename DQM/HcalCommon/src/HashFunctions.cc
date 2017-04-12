@@ -504,8 +504,13 @@ namespace hcaldqm
 
 		std::string name_Crate(HcalElectronicsId const& eid)
 		{
-			char name[10];
-			sprintf(name, "Crate%d", eid.isVMEid()?eid.dccid():eid.crateId());
+			char name[16];
+			//sprintf(name, "Crate%d", eid.isVMEid()?eid.dccid():eid.crateId());
+			if (eid.isVMEid()) {
+				sprintf(name, "Crate%d_VME_DCC%d", eid.crateId(), eid.dccid());
+			} else {
+				sprintf(name, "Crate%d", eid.crateId());
+			}
 			return std::string(name);
 		}
 

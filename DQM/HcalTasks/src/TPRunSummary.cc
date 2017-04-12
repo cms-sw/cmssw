@@ -46,11 +46,11 @@ namespace hcaldqm
 		ContainerSingle2D cSummary;
 		ContainerXXX<double> xDeadD, xDeadE, xEtMsm, xFGMsm;
 		ContainerXXX<double> xNumCorr;
-		xDeadD.initialize(hashfunctions::fFED);
-		xDeadE.initialize(hashfunctions::fFED);
-		xEtMsm.initialize(hashfunctions::fFED);
-		xFGMsm.initialize(hashfunctions::fFED);
-		xNumCorr.initialize(hashfunctions::fFED);
+		xDeadD.initialize(hashfunctions::fCrate);
+		xDeadE.initialize(hashfunctions::fCrate);
+		xEtMsm.initialize(hashfunctions::fCrate);
+		xFGMsm.initialize(hashfunctions::fCrate);
+		xNumCorr.initialize(hashfunctions::fCrate);
 		cOccupancyData_depthlike.initialize(_taskname, "OccupancyData",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
@@ -130,24 +130,12 @@ namespace hcaldqm
 		}
 
 		std::vector<flag::Flag> sumflags;
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it)
-		{
+		for (auto& it_hashcrate : _vhashCrates) {
 			flag::Flag fSum("TP");
-			HcalElectronicsId eid(*it);
+			HcalElectronicsId eid(it_hashcrate);
+			HcalDetId did = HcalDetId(_emap->lookup(eid));
 
-			std::vector<uint32_t>::const_iterator cit=std::find(
-				_vcdaqEids.begin(), _vcdaqEids.end(), *it);
-			if (cit==_vcdaqEids.end())
-			{
-				//	not @cDAQ
-				sumflags.push_back(flag::Flag("TP", flag::fNCDAQ));
-				continue;
-			}
-
-			//	@cDAQ
-			if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid))
-			{
+			if (did.subdet() == HcalBarrel || did.subdet() == HcalEndcap || did.subdet() == HcalForward) {
 				double etmsmfr = xNumCorr.get(eid)>0?
 					double(xEtMsm.get(eid))/double(xNumCorr.get(eid)):0;
 				double fgmsmfr = xNumCorr.get(eid)>0?
