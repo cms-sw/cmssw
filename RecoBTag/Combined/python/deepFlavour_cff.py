@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoBTag.Combined.pfDeepCSVTagInfos_cfi import pfDeepCSVTagInfos
-from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import pfDeepCMVATagInfos
+from RecoBTag.Combined.pfDeepCMVATagInfos_cfi import pfDeepCMVATagInfos
 from RecoBTag.Combined.pfDeepCSVJetTags_cfi import pfDeepCSVJetTags 
 from RecoBTag.Combined.pfDeepCMVAJetTags_cfi import pfDeepCMVAJetTags
 
