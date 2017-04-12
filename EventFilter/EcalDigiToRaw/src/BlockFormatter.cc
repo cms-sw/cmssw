@@ -10,6 +10,7 @@
 
 
 using namespace std;
+using namespace edm;
 
 BlockFormatter::BlockFormatter(EcalDigiToRaw* base) : 
 
@@ -33,7 +34,7 @@ BlockFormatter::~BlockFormatter() {
 
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number_, int bx, int lv1) const {
 
- if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
+ if (debug_) LogInfo("EcalDigiToRaw: ") << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
 
  for (int idcc=1; idcc <= 54; idcc++) {
@@ -98,7 +99,7 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_num
 
 void BlockFormatter::print(FEDRawData& rawdata) const{
         int size = rawdata.size();
-        cout << "Print RawData  size " << dec << size << endl;
+        LogInfo("EcalDigiToRaw: ") << "Print RawData  size " << dec << size << endl;
         unsigned char* pData = rawdata.data();
 
         int n = size/8;
@@ -158,7 +159,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection& productRawData,
 
         bool FED_has_data = true;
         if (fen == FEDorder.end()) FED_has_data = false;
-        if (debug_ && (! FED_has_data)) cout << " FEDid is not in FEDorder ! " << endl;
+        if (debug_ && (! FED_has_data)) LogInfo("EcalDigiToRaw: ") << " FEDid is not in FEDorder ! " << endl;
         if ( ! FED_has_data) {
                 int ch_status = 7;
                 for (int iFE=1; iFE <= 68; iFE++) {
@@ -201,7 +202,7 @@ void BlockFormatter::PrintSizes(FEDRawDataCollection* productRawData) const {
         int FEDid = FEDNumbering::MINECALFEDID + id;
         FEDRawData& rawdata = productRawData -> FEDData(FEDid);
         if (rawdata.size() > 0)
-	cout << "Size of FED id " << dec << FEDid << " is : " << dec << rawdata.size() << endl;
+	LogInfo("EcalDigiToRaw: ") << "Size of FED id " << dec << FEDid << " is : " << dec << rawdata.size() << endl;
 
  }
 }

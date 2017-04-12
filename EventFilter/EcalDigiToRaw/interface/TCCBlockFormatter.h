@@ -9,7 +9,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 

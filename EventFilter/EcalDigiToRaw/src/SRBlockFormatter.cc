@@ -4,6 +4,7 @@
 
 
 using namespace std;
+using namespace edm;
 
 
 SRBlockFormatter::~SRBlockFormatter() {
@@ -13,16 +14,16 @@ SRBlockFormatter::~SRBlockFormatter() {
 
 std::map<int, int> SRBlockFormatter::StartEvent() {
   std::map<int, int> header_;
-  if (debug_) cout << "enter in StartEvent. header_ size is  " << header_.size() << endl;
+  if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in StartEvent. header_ size is  " << header_.size() << endl;
   header_ .clear() ;
-  if (debug_) cout << "after empty : header_ size is  " << header_.size() << endl;
+  if (debug_) LogInfo("EcalDigiToRaw: ") << "after empty : header_ size is  " << header_.size() << endl;
   return header_;
 }
 
 void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata, int bx, int lv1, std::map<int, int>& header_) const
 {
 
-  if (debug_) cout << "enter in SRBlockFormatter::DigiToRaw " << endl;
+  if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in SRBlockFormatter::DigiToRaw " << endl;
   if (debug_) print(rawdata);
 
   int Nrows_SRP = 5;   // Both for Barrel and EndCap (without the header row)
@@ -33,16 +34,16 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 
 	int SRP_index;
 	int icode = 1000 * dccid +  SRid;
-	if (debug_) cout << "size of header_ map is " << header_.size() << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "size of header_ map is " << header_.size() << endl;
 
 	std::map<int, int>::const_iterator it_header = header_.find(icode);
 
 	if ( it_header != header_.end() ) {
 		SRP_index = rawdata.size() / 8 - Nrows_SRP;
-		if (debug_) cout << "This SRid is already there." << endl; 
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "This SRid is already there." << endl; 
 	}
 	else {
- 		if (debug_) cout << "New SR Block added on Raw data " << endl;
+ 		if (debug_) LogInfo("EcalDigiToRaw: ") << "New SR Block added on Raw data " << endl;
 		header_[icode] = 1;
 		SRP_index = rawdata.size() / 8;
 		rawdata.resize (rawdata.size() + 8 + 8*Nrows_SRP);  // 1 line for SRP header, 5 lines of data
@@ -57,7 +58,7 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 		ppData[8*SRP_index+6] = 0;
                 ppData[8*SRP_index+7] = 0x80;
                 SRP_index ++;
-		if (debug_) cout << "Added headers and empty lines : " << endl;
+		if (debug_) LogInfo("EcalDigiToRaw: ") << "Added headers and empty lines : " << endl;
 		if (debug_) print(rawdata);
 
 		// -- put the B011 and B100 already, since for Endcap there can be empty
@@ -83,8 +84,8 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
         int kval = (jTT % 16) / 4;
 	SRP_index += irow;
 
-        if (debug_) cout << "Now add SC to SRBlock " << dec << dcc_channel << " irow ival " << dec << irow << " " << dec << ival << endl;
-        if (debug_) cout << "new data will be added at line " << dec << SRP_index << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "Now add SC to SRBlock " << dec << dcc_channel << " irow ival " << dec << irow << " " << dec << ival << endl;
+        if (debug_) LogInfo("EcalDigiToRaw: ") << "new data will be added at line " << dec << SRP_index << endl;
 
  
 	unsigned char* buff = &pData[8*SRP_index];
