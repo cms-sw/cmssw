@@ -26,16 +26,15 @@ ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-    
+
 
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
 
-    std::stringstream hname;
+
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
         std::stringstream hname;
-        hname.str("EcalCalibration/EcalPedestalPCL/");
-        hname<<"eb_"<<i;
+        hname << "AlCaReco/EcalPedestalsPCL/eb_" << i;
         MonitorElement* ch= igetter_.get(hname.str());
         double mean = ch->getMean();
         double rms  = ch->getRMS();
@@ -49,12 +48,12 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
         // if bad channel or low stat skip
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id)){
-            
+
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
-            
+
         }
-       
+
         ped.mean_x6=oldped.mean_x6;
         ped.rms_x6=oldped.rms_x6;
         ped.mean_x1=oldped.mean_x1;
@@ -65,9 +64,8 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
 
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
-
-        hname.str("EcalCalibration/EcalPedestalPCL/");
-        hname<<"ee_"<<i;
+        std::stringstream hname;
+        hname <<"AlCaReco/EcalPedestalsPCL/ee_"<<i;
         MonitorElement* ch= igetter_.get(hname.str());
         double mean = ch->getMean();
         double rms  = ch->getRMS();
@@ -120,7 +118,7 @@ ECALpedestalPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 
 void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const & isetup){
-    
+
 
     edm::ESHandle<EcalChannelStatus> chStatus;
     isetup.get<EcalChannelStatusRcd>().get(chStatus);
@@ -129,7 +127,7 @@ void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const
     edm::ESHandle<EcalPedestals> peds;
     isetup.get<EcalPedestalsRcd>().get(peds);
     currentPedestals_=peds.product();
-    
+
 }
 
 bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
@@ -138,7 +136,7 @@ bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id){
     dbstatusPtr = channelStatus_->getMap().find(id.rawId());
     EcalChannelStatusCode::Code  dbstatus = dbstatusPtr->getStatusCode();
 
-    std::vector<int>::const_iterator res = 
+    std::vector<int>::const_iterator res =
         std::find( chStatusToExclude_.begin(), chStatusToExclude_.end(), dbstatus );
     if ( res != chStatusToExclude_.end() ) return false;
 
