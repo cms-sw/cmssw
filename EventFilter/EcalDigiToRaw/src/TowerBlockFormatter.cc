@@ -366,10 +366,6 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
  // LogInfo("EcalDigiToRaw: ") << "end of EndEvent " << endl;
 }
 
-TowerBlockFormatter::FEDMapOrder TowerBlockFormatter::StartEvent() {
-  return FEDMapOrder(); 
-}
-
 
 void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder& local) const
 

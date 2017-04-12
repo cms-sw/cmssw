@@ -29,7 +29,7 @@ class TowerBlockFormatter : public BlockFormatter {
   static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
   void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const;
   void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const;
-  FEDMapOrder StartEvent();
+  inline FEDMapOrder StartEvent() const {return FEDMapOrder();}
   void EndEvent(FEDRawDataCollection* productRawData);
 
   private :
