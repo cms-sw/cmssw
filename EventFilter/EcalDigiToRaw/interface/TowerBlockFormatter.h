@@ -17,9 +17,6 @@
 // The crystals corresponding to a given FE in a given FED
 //
 
-//move to the class
-//members lower case 
-
 class TowerBlockFormatter : public BlockFormatter {
   public :
   struct FEDMapOrder {
