@@ -700,7 +700,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   for ( const auto& digis : *diamondDigis ) {
     const CTPPSDiamondDetId detId( digis.detId() );
     CTPPSDiamondDetId detId_pot( digis.detId() );
-    if ( detId.channel() == 30 ) {
+    if ( detId.channel() == CHANNEL_OF_VFAT_CLOCK ) {
       detId_pot.setPlane( 0 );
       detId_pot.setChannel( 0 );
       for ( const auto& digi : digis ) {
