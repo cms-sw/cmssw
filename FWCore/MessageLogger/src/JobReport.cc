@@ -277,7 +277,7 @@ namespace edm {
   }
 
   void JobReport::JobReportImpl::associateRun(JobReport::Token token, unsigned int runNumber) {
-    std::map<RunNumber, RunReport>& theMap = outputFiles_.at(token).runReports;
+    auto& theMap = outputFiles_.at(token).runReports;
     std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
     if(iter == theMap.end() || runNumber < iter->first) {    // not found
       theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {}});  // insert it
@@ -297,7 +297,7 @@ namespace edm {
   }
 
   void JobReport::JobReportImpl::associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSect, unsigned long nEvents) {
-    std::map<RunNumber, RunReport>& theMap = outputFiles_.at(token).runReports;
+    auto& theMap = outputFiles_.at(token).runReports;
     std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
     if(iter == theMap.end() || runNumber < iter->first) {    // not found
       theMap.emplace_hint(iter, runNumber, JobReport::RunReport{ runNumber, {{{lumiSect,nEvents}}}});  // insert it
@@ -477,8 +477,8 @@ namespace edm {
                               std::string const& dataType,
                               std::string const& branchHash,
                               std::vector<std::string> const& branchNames) {
-    impl_->outputFiles_.emplace_back();
-    JobReport::OutputFile& r = impl_->outputFiles_.back();
+    auto itr = impl_->outputFiles_.emplace_back();
+    JobReport::OutputFile& r = *itr;
 
     r.logicalFileName       = logicalFileName;
     r.physicalFileName      = physicalFileName;
@@ -504,7 +504,7 @@ namespace edm {
         r.contributingInputsSecSource.push_back(i);
       }
     }
-    return impl_->outputFiles_.size()-1;
+    return itr - impl_->outputFiles_.begin();
   }
 
   void
@@ -781,24 +781,21 @@ namespace edm {
   JobReport::dumpFiles(void) {
     std::ostringstream msg;
 
-    typedef std::vector<JobReport::OutputFile>::iterator iterator;
 
-    for(iterator f = impl_->outputFiles_.begin(), fEnd = impl_->outputFiles_.end(); f != fEnd; ++f) {
+    for(auto const& f :impl_->outputFiles_) {
 
       msg << "\n<File>";
-      msg << *f;
+      msg << f;
 
       msg << "\n<LumiSections>";
       msg << "\n<Inputs>";
       typedef std::vector<JobReport::Token>::iterator iterator;
-      for(iterator iInput = f->contributingInputs.begin(),
-          iInputEnd = f->contributingInputs.end();
-          iInput != iInputEnd; ++iInput) {
-        JobReport::InputFile inpFile = impl_->inputFiles_[*iInput];
+      for(auto const& iInput : f.contributingInputs) {
+        auto const& inpFile = impl_->inputFiles_[iInput];
         msg << "\n<Input>";
         msg << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
         msg << "\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
-        msg << "\n  <FastCopying>" << findOrDefault(f->fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
+        msg << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
         msg << "\n</Input>";
       }
       msg << "\n</Inputs>";
