@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 BlockFormatter::BlockFormatter(EcalDigiToRaw* base) : 
-
  debug_(base -> GetDebug()),
  doBarrel_(base -> GetDoBarrel()),
  doEndCap_(base -> GetDoEndCap()),
@@ -22,15 +21,6 @@ BlockFormatter::BlockFormatter(EcalDigiToRaw* base) :
  doSR_(base -> GetDoSR()),
  doTower_(base -> GetDoTower())
 {}
-
-BlockFormatter::~BlockFormatter() {
-}
-
-
-//void BlockFormatter::SetParam(EcalDigiToRaw* base) {
-
-//}
-
 
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData, int run_number, int orbit_number_, int bx, int lv1) const {
 

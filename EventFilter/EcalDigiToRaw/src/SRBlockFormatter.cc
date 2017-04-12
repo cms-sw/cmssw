@@ -7,11 +7,6 @@ using namespace std;
 using namespace edm;
 
 
-SRBlockFormatter::~SRBlockFormatter() {
-
-}
-
-
 std::map<int, int> SRBlockFormatter::StartEvent() {
   std::map<int, int> header_;
   if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in StartEvent. header_ size is  " << header_.size() << endl;
