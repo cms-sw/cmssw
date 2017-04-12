@@ -3,6 +3,7 @@
 
 #include "DQM/L1TMonitor/interface/L1TStage2EMTF.h"
 
+const double PI = 3.14159265358979323846;
 
 L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
     : daqToken(consumes<l1t::EMTFDaqOutCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
@@ -281,9 +282,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int endcap = Track->Endcap();
     int sector = Track->Sector();
     float eta = Track->Eta();
-    float phi_glob_rad = Track->Phi_glob_rad();
+    float phi_glob_rad = Track->Phi_glob() * PI / 180.;
     int mode = Track->Mode();
-    int quality = Track->Quality();
+    int quality = Track->GMT_quality();
 
     emtfTracknHits->Fill(Track->NumHits());
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());

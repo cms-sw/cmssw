@@ -158,7 +158,7 @@ namespace l1t {
 
 	if ( (res->at(iOut)).HasEventHeader() == true )
 	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already an EventHeader object?"; goto write_Event; }
-	if (EventHeader_.Format_Errors() > 0) goto write_Event;
+	if (EventHeader_.Format_errors() > 0) goto write_Event;
 	
 	EventHeader_.set_l1a     ( GetHexBits(HD1a,  0, 11, HD1b,  0, 11) );
 	EventHeader_.set_l1a_BXN ( GetHexBits(HD1d,  0, 11) );

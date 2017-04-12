@@ -120,7 +120,7 @@ namespace l1t {
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
 	RegionalMuonCand mu_;
 	
-	// if (SP_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
+	// if (SP_.Format_errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
 
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
@@ -162,10 +162,8 @@ namespace l1t {
 
 	// SP_.set_dataword     ( uint64_t dataword );
 
-	Track_.ImportSP( SP_, (res->at(iOut)).PtrEventHeader()->Sector() );
-	Track_.ImportPtLUT( Track_.Mode(), Track_.Pt_LUT_addr() );
-	Track_.set_endcap       ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
-        Track_.set_sector_index ( (Track_.Endcap() == 1) ? Track_.Sector() - 1 : Track_.Sector() + 5 );
+	ImportSP( Track_, SP_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
+	// Track_.ImportPtLUT( Track_.Mode(), Track_.Pt_LUT_addr() );  // Deprecated ... replace? - AWB 15.03.17
 
 	if ( (res->at(iOut)).PtrSPCollection()->size() > 0 )
 	  if ( SP_.TBIN() == (res->at(iOut)).PtrSPCollection()->at( (res->at(iOut)).PtrSPCollection()->size() - 1 ).TBIN() )
@@ -179,20 +177,11 @@ namespace l1t {
 	mu_.setHwEta       ( SP_.Eta_GMT() );
 	mu_.setHwPhi       ( SP_.Phi_GMT() );
 	mu_.setHwPt        ( SP_.Pt_GMT() );
-	mu_.setTFIdentifiers ( Track_.Sector_GMT(), (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
+	mu_.setTFIdentifiers ( Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
 	mu_.setTrackSubAddress( RegionalMuonCand::kTrkNum, Track_.Track_num() );
 	// mu_.set_dataword   ( SP_.Dataword() );
+	// Track_.set_GMT(mu_);
 
-	// set_type         ( _SP.() );
-	// set_rank         ( _SP.() );
-	// set_layer        ( _SP.() );
-	// set_straightness ( _SP.() );
-	// set_strip        ( _SP.() );
-	// set_second_bx    ( _SP.() );
-	// set_pt_XML       ( _SP.() );
-	// set_theta_int    ( _SP.() );
-	// set_isGMT        ( _SP.() );
-	
 	///////////////////////
 	// Match hits to tracks
 	///////////////////////
@@ -227,7 +216,10 @@ namespace l1t {
 	  if (St_hits[0] > 0) break; // If you found a hit in a BX close to the track, not need to look in other BX
 	}
 	mu_.setTrackSubAddress( RegionalMuonCand::kME1Seg, SP_.ME1_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 1) );
+	mu_.setTrackSubAddress( RegionalMuonCand::kME1Ch,  
+				L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+								  conv_vals_SP.at(2), 
+								  conv_vals_SP.at(3), 1) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
@@ -246,7 +238,10 @@ namespace l1t {
 	  if (St_hits[1] > 0) break; 
 	}
 	mu_.setTrackSubAddress( RegionalMuonCand::kME2Seg, SP_.ME2_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 2) );
+	mu_.setTrackSubAddress( RegionalMuonCand::kME2Ch,  
+				L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+								  conv_vals_SP.at(2), 
+								  conv_vals_SP.at(3), 2) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
@@ -265,7 +260,10 @@ namespace l1t {
 	  if (St_hits[2] > 0) break; 
 	}
 	mu_.setTrackSubAddress( RegionalMuonCand::kME3Seg, SP_.ME3_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 3) );
+	mu_.setTrackSubAddress( RegionalMuonCand::kME3Ch,  
+				L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+								  conv_vals_SP.at(2), 
+								  conv_vals_SP.at(3), 3) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
@@ -284,7 +282,9 @@ namespace l1t {
 	  if (St_hits[3] > 0) break; 
 	}
 	mu_.setTrackSubAddress( RegionalMuonCand::kME4Seg, SP_.ME4_stub_num() );
-	mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 4) );
+	mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  L1TMuonEndCap::calc_uGMT_chamber( conv_vals_SP.at(0), 
+											     conv_vals_SP.at(2), 
+											     conv_vals_SP.at(3), 4) );
 
 
 	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && abs(Track_.BX()) < 2) {

@@ -11,11 +11,6 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "TXMLEngine.h"
-
-#include "L1Trigger/L1TMuonEndCap/interface/Tree.h"
-
 using namespace std;
 
 // class declaration

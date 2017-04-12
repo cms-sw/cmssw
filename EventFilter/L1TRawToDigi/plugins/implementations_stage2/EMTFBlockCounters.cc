@@ -67,7 +67,7 @@ namespace l1t {
 	///////////////////////////////	
 	if ( (res->at(iOut)).HasCounters() == true )
 	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already a Counters object?"; goto write; }
-	if (Counters_.Format_Errors() > 0) goto write;
+	if (Counters_.Format_errors() > 0) goto write;
 
 	Counters_.set_track_counter( GetHexBits(BCa, 0, 14, BCb, 0, 14) );
 	Counters_.set_orbit_counter( GetHexBits(BCc, 0, 14, BCd, 0, 14) );

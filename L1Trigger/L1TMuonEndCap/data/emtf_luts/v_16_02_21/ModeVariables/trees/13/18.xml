@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<root splitVar="4" splitVal="0.5" fitVal="0.000135204">
+  <left splitVar="1" splitVal="1.9" fitVal="0.00446367"/>
+  <right splitVar="2" splitVal="324.5" fitVal="0.000105486">
+    <left splitVar="1" splitVal="1.25" fitVal="6.84631e-05">
+      <left splitVar="3" splitVal="-29.5" fitVal="0.00225108">
+        <left splitVar="2" splitVal="-38" fitVal="-0.00490324"/>
+        <right splitVar="3" splitVal="36.5" fitVal="0.000787162"/>
+      </left>
+      <right splitVar="1" splitVal="2" fitVal="-9.16313e-05">
+        <left splitVar="1" splitVal="1.55" fitVal="-0.000626582">
+          <left splitVar="2" splitVal="-73.5" fitVal="5.24301e-05"/>
+          <right splitVar="3" splitVal="11.5" fitVal="-0.000472041"/>
+        </left>
+        <right splitVar="2" splitVal="-303.5" fitVal="0.000672568">
+          <left splitVar="3" splitVal="42.5" fitVal="0.0040356"/>
+          <right splitVar="3" splitVal="-79.5" fitVal="0.000534043">
+            <left splitVar="2" splitVal="82" fitVal="0.0230589">
+              <left splitVar="1" splitVal="2.3" fitVal="0.0290322"/>
+              <right splitVar="1" splitVal="2.3" fitVal="0.00457336"/>
+            </left>
+            <right splitVar="2" splitVal="41.5" fitVal="0.000468441">
+              <left splitVar="3" splitVal="4.5" fitVal="-7.71212e-05">
+                <left splitVar="3" splitVal="-42.5" fitVal="-0.000225699"/>
+                <right splitVar="2" splitVal="-32.5" fitVal="0.00319943">
+                  <left splitVar="2" splitVal="-209" fitVal="0.00642038">
+                    <left splitVar="2" splitVal="-254" fitVal="-0.00179415"/>
+                    <right splitVar="3" splitVal="61.5" fitVal="0.00946152">
+                      <left splitVar="1" splitVal="2.15" fitVal="0.00245911"/>
+                      <right splitVar="2" splitVal="-61.5" fitVal="0.00914723"/>
+                    </right>
+                  </left>
+                  <right splitVar="3" splitVal="50.5" fitVal="0.000627751">
+                    <left splitVar="3" splitVal="18" fitVal="0.000323914">
+                      <left splitVar="3" splitVal="10.5" fitVal="0.000463301"/>
+                      <right splitVar="2" splitVal="18.5" fitVal="-0.0216613">
+                        <left splitVar="4" splitVal="6.5" fitVal="-0.00778794"/>
+                        <right splitVar="3" splitVal="22" fitVal="0.0180328"/>
+                      </right>
+                    </left>
+                    <right splitVar="2" splitVal="30.5" fitVal="0.022844"/>
+                  </right>
+                </right>
+              </left>
+              <right splitVar="3" splitVal="5.5" fitVal="0.00262324">
+                <left splitVar="1" splitVal="2.35" fitVal="0.00162364"/>
+                <right splitVar="3" splitVal="61.5" fitVal="-0.000476478"/>
+              </right>
+            </right>
+          </right>
+        </right>
+      </right>
+    </left>
+    <right splitVar="3" splitVal="-32.5" fitVal="0.00933719">
+      <left splitVar="1" splitVal="1.85" fitVal="-0.00134396"/>
+      <right splitVar="2" splitVal="409" fitVal="0.00604436"/>
+    </right>
+  </right>
+</root>

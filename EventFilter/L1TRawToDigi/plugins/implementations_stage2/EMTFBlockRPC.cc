@@ -28,15 +28,16 @@ namespace l1t {
 	uint16_t RPCd = payload[3];
 	
 	//Check Format
-	if(GetHexBits(RPCa, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCa are incorrect"; }
+	if(GetHexBits(RPCa, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCa are incorrect"; }
+	if(GetHexBits(RPCb,  5,  7) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCb are incorrect"; }
 	if(GetHexBits(RPCb, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCb are incorrect"; }
 	if(GetHexBits(RPCc, 12, 13) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
 	if(GetHexBits(RPCc, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
-	if(GetHexBits(RPCd, 3, 15)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCd are incorrect"; }
+	if(GetHexBits(RPCd,  4, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in RPCd are incorrect"; }
 
 	return errors;
 	
-      }     
+      }
       
       bool RPCBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
@@ -62,31 +63,48 @@ namespace l1t {
 	EMTFDaqOutCollection* res;
 	res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
 	int iOut = res->size() - 1;
-	if (RPC_.Format_Errors() > 0) goto write;
+
+        EMTFHitCollection* res_hit;
+        res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
+        EMTFHit Hit_;
+
+	// Also unpack into RPC digis? - AWB 15.03.17
+
+	// // Don't skip on format errors for now - AWB 15.03.17
+	// if (RPC_.Format_errors() > 0) goto write;
 	
 	////////////////////////////
 	// Unpack the RPC Data Record
 	////////////////////////////
 	
-	RPC_.set_partition_data ( GetHexBits(RPCa,  0,  7) );
-	RPC_.set_partition_num  ( GetHexBits(RPCa,  8, 11) );
-	RPC_.set_prt_delay      ( GetHexBits(RPCa, 12, 14) );
+	RPC_.set_phi     ( GetHexBits(RPCa,  0, 10) );
+
+	RPC_.set_theta   ( GetHexBits(RPCb,  0,  4) );
+	RPC_.set_word    ( GetHexBits(RPCb,  8,  9) );
+	RPC_.set_frame   ( GetHexBits(RPCb, 10, 11) );
+	RPC_.set_link    ( GetHexBits(RPCb, 12, 14) );
 	
-	RPC_.set_link_number    ( GetHexBits(RPCb,  0,  4) );
-	RPC_.set_lb             ( GetHexBits(RPCb,  5,  6) );
-	RPC_.set_eod            ( GetHexBits(RPCb,  7,  7) );
-	RPC_.set_bcn            ( GetHexBits(RPCb,  8, 14) );
+	RPC_.set_rpc_bxn ( GetHexBits(RPCc,  0, 11) );
+	RPC_.set_bc0     ( GetHexBits(RPCc, 14, 14) );
 	
-	RPC_.set_bxn            ( GetHexBits(RPCc,  0, 11) );
-	RPC_.set_bc0            ( GetHexBits(RPCc, 14, 14) );
-	
-	RPC_.set_tbin           ( GetHexBits(RPCd,  0,  2) );
+	RPC_.set_tbin    ( GetHexBits(RPCd,  0,  2) );
+	RPC_.set_vp      ( GetHexBits(RPCd,  3,  3) );
 	
 	// RPC_.set_dataword            ( uint64_t dataword);
 
-      write:
+	ImportRPC( Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), 
+		   (res->at(iOut)).PtrEventHeader()->Sector() );
+	
+	// // Not yet implemented - AWB 15.03.17
+        // Hit_.SetRPCDetId ( Hit_.CreateRPCDetId() );
+	// Hit_.SetRPCDigi  ( Hit_.CreateRPCDigi() );
+
+	// // Don't skip on format errors for now - AWB 15.03.17
+	// write:
+
 	
 	(res->at(iOut)).push_RPC(RPC_);
+	res_hit->push_back(Hit_);
 	
 	// Finished with unpacking one RPC Data Record
 	return true;
