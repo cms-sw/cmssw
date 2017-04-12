@@ -23,21 +23,36 @@ def assignOrAddIfExists(h, p):
     if not h:
         h = p.ProjectionX()
     else:
-        h.Add(p.ProjectionX("B"), +1.000)
+        h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
 
 def createPlots(plot):
-    DETECTORS = ["TIB", "TIDF", "TIDB",
-                 "InnerServices", "TOB",
-                 "TEC", "PixBar",
-                 "PixFwdPlus", "PixFwdMinus",
-                 "Phase1PixelBarrel", "Phase2OTBarrel",
-                 "Phase2OTForward", "Phase2PixelEndcap",
-                 "BeamPipe"]
-    IBs = ["TIB", "TIDF", "TIDB", "InnerServices", "Phase1PixelBarrel"]
+    DETECTORS = OrderedDict()
+    DETECTORS["BeamPipe"] = kGray+2
+    DETECTORS["InnerServices"] = kGreen+2
+    DETECTORS["PixBar"] = kAzure-5
+    DETECTORS["Phase1PixelBarrel"] = kAzure-5
+    DETECTORS["PixFwdPlus"] = kAzure-9
+    DETECTORS["PixFwdMinus"] = kAzure-9
+    DETECTORS["Phase2PixelEndcap"] = kAzure-9
+    DETECTORS["Phase2OTBarrel"] = kMagenta-2
+    DETECTORS["Phase2OTForward"] = kOrange-2
+    DETECTORS["TIB"] = kMagenta-6
+    DETECTORS["TIDF"] = kMagenta+2
+    DETECTORS["TIDB"] = kMagenta+2
+    DETECTORS["TOB"] = kOrange+10
+    DETECTORS["TEC"] = kOrange-2
+    IBs = ["InnerServices", "Phase1PixelBarrel", "TIB", "TIDF", "TIDB"]
     theDirName = "Figures"
+    hist_label_to_num = OrderedDict()
+    hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
+    hist_label_to_num['ELE'] = [500, 46, 'Electronics']
+    hist_label_to_num['CAB'] = [300, kOrange-8, 'Cables']
+    hist_label_to_num['COL'] = [400, 30, 'Cooling']
+    hist_label_to_num['SUP'] = [100, 38, 'Mechanical Structures'] # Index first, color second, legend label third
+    hist_label_to_num['OTH'] = [600, kOrange-2, 'Other']
 
-    hist_x0_detectors = {}
+    hist_x0_detectors = OrderedDict()
     Plot_params = namedtuple('Params',
                              ['plotNumber', 'abscissa', 'ordinate', 'ymin', 'ymax', 'xmin', 'xmax'])
     plots = {}
@@ -55,7 +70,11 @@ def createPlots(plot):
     # We need to keep the file content alive for the lifetime of the
     # full function....
     subDetectorFiles = []
-    for subDetector in DETECTORS:
+
+#    hist_label_to_num['AIR'] = [700, kOrange-2]
+    hist_x0_elements = OrderedDict()
+    prof_x0_elements = OrderedDict()
+    for subDetector,color in DETECTORS.iteritems():
         subDetectorFilename = "matbdg_%s.root" % subDetector
         if not os.path.exists(subDetectorFilename):
             print("Error opening file: %s" % subDetectorFilename)
@@ -72,6 +91,12 @@ def createPlots(plot):
 
         hist_x0_detectors[subDetector] = prof_x0_XXX.ProjectionX()
 
+        # category profiles
+        for label, [num, color, leg] in hist_label_to_num.iteritems():
+            prof_x0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
+            hist_x0_elements[label] = assignOrAddIfExists(hist_x0_elements.setdefault(label, None),
+                                                          prof_x0_elements[label])
+
     cumulative_matbdg = TH1D("CumulativeSimulMatBdg",
                              "CumulativeSimulMatBdg",
                              hist_x0_IB.GetNbinsX(),
@@ -79,66 +104,12 @@ def createPlots(plot):
                              hist_x0_IB.GetXaxis().GetXmax())
     cumulative_matbdg.SetDirectory(0)
 
-    # category profiles
-    prof_x0_SUP   = subDetectorFile.Get("%d" % (100 + plots[plot].plotNumber))
-    prof_x0_SEN   = subDetectorFile.Get("%d" % (200 + plots[plot].plotNumber))
-    prof_x0_CAB   = subDetectorFile.Get("%d" % (300 + plots[plot].plotNumber))
-    prof_x0_COL   = subDetectorFile.Get("%d" % (400 + plots[plot].plotNumber))
-    prof_x0_ELE   = subDetectorFile.Get("%d" % (500 + plots[plot].plotNumber))
-    prof_x0_OTH   = subDetectorFile.Get("%d" % (600 + plots[plot].plotNumber))
-    prof_x0_AIR   = subDetectorFile.Get("%d" % (700 + plots[plot].plotNumber))
-
-    hist_x0_SUP = None
-    hist_x0_SEN = None
-    hist_x0_CAB = None
-    hist_x0_COL = None
-    hist_x0_ELE = None
-    hist_x0_OTH = None
-    hist_x0_OTH = None
-
-    # add to summary histogram
-    hist_x0_SUP = assignOrAddIfExists( hist_x0_SUP, prof_x0_SUP )
-    hist_x0_SEN = assignOrAddIfExists( hist_x0_SEN, prof_x0_SEN )
-    hist_x0_CAB = assignOrAddIfExists( hist_x0_CAB, prof_x0_CAB )
-    hist_x0_COL = assignOrAddIfExists( hist_x0_COL, prof_x0_COL )
-    hist_x0_ELE = assignOrAddIfExists( hist_x0_ELE, prof_x0_ELE )
-    hist_x0_OTH = assignOrAddIfExists( hist_x0_OTH, prof_x0_OTH )
-    hist_x0_OTH = assignOrAddIfExists( hist_x0_OTH, prof_x0_AIR )
-
     # colors
-    kpipe  = kGray+2
-    kpixel = kAzure-5
-    ktib   = kMagenta-2
-    ktob   = kOrange+10
-    ktec   = kOrange-2
-    kout   = kGray
-    ksen   = 27
-    kele   = 46
-    kcab   = kOrange-8
-    kcol   = 30
-    ksup   = 38
-    koth   = kOrange-2
+    for det, color in DETECTORS.iteritems():
+        setColorIfExists(hist_x0_detectors, det, color)
 
-    setColorIfExists(hist_x0_detectors, "BeamPipe", kpipe) #   Beam Pipe	 = dark gray
-    setColorIfExists(hist_x0_detectors, "Pixel", kpixel) #     Pixel 	 = dark blue
-    setColorIfExists(hist_x0_detectors, "Phase1PixelBarrel", kpixel) #
-    setColorIfExists(hist_x0_detectors, "Phase2OTBarrel", ktib) #
-    setColorIfExists(hist_x0_detectors, "Phase2OTForward", ktec) #
-    setColorIfExists(hist_x0_detectors, "Phase2PixelEndcap", ktib) #
-    setColorIfExists(hist_x0_detectors, "TIB", ktib) # 	  TIB and TID  = violet
-    setColorIfExists(hist_x0_detectors, "TID", ktib) # 	  TIB and TID  = violet
-    setColorIfExists(hist_x0_detectors, "TOB", ktob) #         TOB          = red
-    setColorIfExists(hist_x0_detectors, "TEC", ktec) #         TEC          = yellow gold
-    setColorIfExists(hist_x0_detectors, "TkStrct", kout) #     Support tube = light gray
-
-    hist_x0_SEN.SetFillColor(ksen) # Sensitive   = brown
-    hist_x0_ELE.SetFillColor(kele) # Electronics = red
-    hist_x0_CAB.SetFillColor(kcab) # Cabling     = dark orange
-    hist_x0_COL.SetFillColor(kcol) # Cooling     = green
-    hist_x0_SUP.SetFillColor(ksup) # Support     = light blue
-    hist_x0_OTH.SetFillColor(koth) # Other+Air   = light orange
-
-
+    for label, [num, color, leg] in hist_label_to_num.iteritems():
+        hist_x0_elements[label].SetFillColor(color)
 
     # First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
     # stack
@@ -183,6 +154,8 @@ def createPlots(plot):
 
     # Store
     can_SubDetectors.Update()
+    if not os.path.exists(theDirName):
+        os.mkdir(theDirName)
     can_SubDetectors.SaveAs("%s/Tracker_SubDetectors_%s.pdf" % (theDirName, plot))
     can_SubDetectors.SaveAs("%s/Tracker_SubDetectors_%s.root" % (theDirName, plot))
 
@@ -193,13 +166,8 @@ def createPlots(plot):
                                                               plots[plot].ordinate)
     stack_x0_Materials = THStack("stack_x0",stackTitle_Materials)
     stack_x0_Materials.Add(hist_x0_detectors["BeamPipe"])
-    stack_x0_Materials.Add(hist_x0_SEN)
-    stack_x0_Materials.Add(hist_x0_ELE)
-    stack_x0_Materials.Add(hist_x0_CAB)
-    stack_x0_Materials.Add(hist_x0_COL)
-    stack_x0_Materials.Add(hist_x0_SUP)
-    stack_x0_Materials.Add(hist_x0_OTH)
-#    stack_x0_Materials.Add(hist_x0_detectors["TkStrct"])
+    for label, [num, color, leg] in hist_label_to_num.iteritems():
+        stack_x0_Materials.Add(hist_x0_elements[label])
 
     # canvas
     can_Materials = TCanvas("can_Materials","can_Materials",800,800)
@@ -218,14 +186,9 @@ def createPlots(plot):
     theLegend_Materials.SetFillColor(0)
     theLegend_Materials.SetBorderSize(0)
 
-#    theLegend_Materials.AddEntry(hist_x0_detectors["TkStrct"],   "Support and Thermal Screen",  "f")
     theLegend_Materials.AddEntry(hist_x0_detectors["BeamPipe"],  "Beam Pipe",                   "f")
-    theLegend_Materials.AddEntry(hist_x0_OTH,       "Other",                       "f")
-    theLegend_Materials.AddEntry(hist_x0_SUP,       "Mechanical Structures",       "f")
-    theLegend_Materials.AddEntry(hist_x0_COL,       "Cooling",                     "f")
-    theLegend_Materials.AddEntry(hist_x0_CAB,       "Cables",                      "f")
-    theLegend_Materials.AddEntry(hist_x0_ELE,       "Electronics",                 "f")
-    theLegend_Materials.AddEntry(hist_x0_SEN,       "Sensitive",                   "f")
+    for label, [num, color, leg] in hist_label_to_num.iteritems():
+        theLegend_Materials.AddEntry(hist_x0_elements[label], leg, "f")
     theLegend_Materials.Draw()
 
     # text
@@ -243,7 +206,7 @@ def createPlots(plot):
 
     return cumulative_matbdg
 
-def createPlotsReco(reco_file, label):
+def createPlotsReco(reco_file, label, debug=False):
     cumulative_matbdg = None
     sDETS = OrderedDict()
     sDETS["PXB"] = kRed
@@ -275,7 +238,8 @@ def createPlotsReco(reco_file, label):
                 # assume that there are no additional layers and skip
                 # to the next detector.
                 if not prof:
-                    print("Missing profile %s" % name)
+                    if debug:
+                        print("Missing profile %s" % name)
                     break
                 else:
                     histos.append(prof.ProjectionX("_px", "hist"));
@@ -291,7 +255,6 @@ def createPlotsReco(reco_file, label):
                                      histos[0].GetXaxis().GetXmax())
             cumulative_matbdg.SetDirectory(0)
         for h in histos:
-            print "Adding: ", h.GetName(), len(histos)
             hs.Add(h)
             if cumulative_matbdg:
                 cumulative_matbdg.Add(h, 1.)
@@ -311,13 +274,13 @@ def createPlotsReco(reco_file, label):
     c.SaveAs("RadLen_difference_%s.png" % label)
     return cumulative_matbdg
 
-def materialBudget_Simul_vs_Reco(reco_file, label):
+def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     setTDRStyle()
 
     # plots
 
     cumulative_matbdg_sim = createPlots("x_vs_eta")
-    cumulative_matbdg_rec = createPlotsReco(reco_file, label)
+    cumulative_matbdg_rec = createPlotsReco(reco_file, label, debug=False)
 
     cc = TCanvas("cc", "cc", 1024, 1024)
     cumulative_matbdg_sim.SetMinimum(0.)
@@ -346,4 +309,4 @@ if __name__ == '__main__':
                         help='Label to use in naming the plots',
                         required=True)
     args = parser.parse_args()
-    materialBudget_Simul_vs_Reco(args.reco, args.label)
+    materialBudget_Simul_vs_Reco(args.reco, args.label, debug=False)
