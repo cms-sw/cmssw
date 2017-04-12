@@ -165,31 +165,22 @@ namespace hcaldqm
 		//	summary flags
 		std::vector<flag::Flag> sumflags;
 		int ifed=0;
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it)
+		for (std::vector<uint32_t>::const_iterator it=_vhashCrates.begin();
+			it!=_vhashCrates.end(); ++it)
 		{
 			flag::Flag fSum("RECO");
 			HcalElectronicsId eid(*it);
-
-			std::vector<uint32_t>::const_iterator cit=std::find(
-				_vcdaqEids.begin(), _vcdaqEids.end(),*it);
-			if (cit==_vcdaqEids.end())
-			{
-				//	not registered @cDAQ
-				sumflags.push_back(flag::Flag("RECO", flag::fNCDAQ));
-				ifed++;
-				continue;
-			}
+			HcalDetId did = HcalDetId(_emap->lookup(eid));
 
 			//	registered @cDAQ
-			if (utilities::isFEDHBHE(eid))
+			if (did.subdet() == HcalBarrel || did.subdet() == HcalEndcap)
 			{
 				if (tcdsshift)
 					vflags[fTCDS]._state = flag::fBAD;
 				else
 					vflags[fTCDS]._state = flag::fGOOD;
 			}
-			if (utilities::isFEDHF(eid))
+			if (did.subdet() == HcalForward)
 			{
 				if (xUni.get(eid)>0)
 					vflags[fUniSlotHF]._state = flag::fBAD;

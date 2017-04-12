@@ -108,6 +108,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
+	// Digi size
+	_cDigiSize_Crate.initialize(_name, "DigiSize",
+		hcaldqm::hashfunctions::fCrate,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
@@ -332,6 +337,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 	_cSumQ_depth.book(ib, _emap, _subsystem);
 	_cSumQvsLS_SubdetPM.book(ib, _emap, _subsystem);
+	_cDigiSize_Crate.book(ib, _emap, _subsystem);
 
 	if (_ptype != fOffline) { // hidefed2crate
 		_cShapeCut_FED.book(ib, _emap, _subsystem);
@@ -418,6 +424,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	//	MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
 	if (_ptype==fOffline)
 	{
+		_cDigiSize_Crate.setLumiFlag();
 		//_cDigiSize_FED.setLumiFlag();
 		_cOccupancy_depth.setLumiFlag();
 	}
@@ -528,6 +535,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
+		_cDigiSize_Crate.fill(eid, it->size());
 		if (_ptype != fOffline) { // hidefed2crate
 			_cDigiSize_FED.fill(eid, it->size());
 			if (eid.isVMEid())
@@ -646,6 +654,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
+		_cDigiSize_Crate.fill(eid, digi.samples());
 		if (_ptype != fOffline) { // hidefed2crate
 			_cDigiSize_FED.fill(eid, digi.samples());
 			if (eid.isVMEid())
@@ -758,6 +767,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
+		_cDigiSize_Crate.fill(eid, it->size());
 		if (_ptype != fOffline) { // hidefed2crate
 			_cDigiSize_FED.fill(eid, it->size());
 			if (eid.isVMEid())
@@ -890,6 +900,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
+		_cDigiSize_Crate.fill(eid, digi.samples());
 		if (_ptype != fOffline) { // hidefed2crate
 			_cDigiSize_FED.fill(eid, digi.samples());
 			if (eid.isVMEid())

@@ -137,6 +137,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
 
 		//	#Time Samples for a digi. Used for Summary generation
+		hcaldqm::Container1D _cDigiSize_Crate;
 		hcaldqm::Container1D _cDigiSize_FED;
 		hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;	// online only
 		hcaldqm::ContainerXXX<uint32_t> _xDigiSize; // online only
