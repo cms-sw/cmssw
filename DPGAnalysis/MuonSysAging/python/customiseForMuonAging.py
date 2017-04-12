@@ -24,19 +24,3 @@ def enableAgingAtReco(process):
         appendRPCChamberMaskerAtUnpacking(process)
 
     return process
-
-def appendAgingFileToGlobalTag(process):
-    "Append aging DB file to GT from DPGAnalysis/MuonSysAging/test for testing purposes"
-
-    process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string('MuonSystemAgingRcd'),
-            tag = cms.string('MuonSystemAging_test'),
-            connect = cms.string('sqlite_file://' 
-                                 + os.environ['CMSSW_BASE'] 
-                                 + '/src/DPGAnalysis/MuonSysAging/test/MuonSystemAging.db')
-            )
-        )
-
-    return process
-
