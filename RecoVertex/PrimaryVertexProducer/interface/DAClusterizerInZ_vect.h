@@ -183,7 +183,6 @@ public:
 
   void dump(const double beta, const vertex_t & y,
 	    const track_t & tks, const int verbosity = 0) const;
-  bool merge(vertex_t &) const;
   bool merge(vertex_t & y, double & beta)const;
   bool purge(vertex_t &, track_t &, double &,
 	     const double) const;
@@ -209,7 +208,6 @@ private:
 
   double mintrkweight_;
   double uniquetrkweight_;
-  bool oldbehavior_;
   double zmerge_;
   double betapurge_;
 
