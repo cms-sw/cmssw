@@ -60,15 +60,12 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig) :
    labelEBSR_(consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"))),
    labelEESR_(consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"))), 
    debug_(iConfig.getUntrackedParameter<bool>("debug")),
-   Towerblockformatter_(std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this))),
+   Towerblockformatter_(std::make_unique<TowerBlockFormatter>(this)), //std::unique_ptr<TowerBlockFormatter>(new TowerBlockFormatter(this))),
    TCCblockformatter_(std::unique_ptr<TCCBlockFormatter>(new TCCBlockFormatter(this))),
    Headerblockformatter_(std::unique_ptr<BlockFormatter>(new BlockFormatter(this))),
    SRblockformatter_(std::unique_ptr<SRBlockFormatter>(new SRBlockFormatter(this)))
 {
-
    produces<FEDRawDataCollection>();
-
-
 }
 
 
@@ -240,9 +237,9 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 
 // -------- Clean up things ...
 
- // map<int, map<int,int> >* FEDorder = Towerblockformatter_ -> GetFEDorder();
+  //map<int, map<int,int> > FEDorder = local.FEDorder;
 
- // Headerblockformatter_ -> CleanUp(productRawData.get(), FEDorder);
+  Headerblockformatter_ -> CleanUp(*(productRawData.get()), local.FEDorder);
 
 
 /*
