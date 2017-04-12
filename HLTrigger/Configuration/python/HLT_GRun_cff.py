@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/GRun/V6 (CMSSW_9_0_0_pre6)
+# /dev/CMSSW_9_0_1/GRun/V7 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V6')
+  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V7')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -1468,6 +1468,7 @@ fragment.HLTPSetPixelPairCkfTrajectoryFilterForHI = cms.PSet(
   maxLostHits = cms.int32( 100 )
 )
 fragment.streams = cms.PSet( 
+  ALCAELECTRON = cms.vstring( 'AlCaElectron' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
@@ -1538,6 +1539,9 @@ fragment.streams = cms.PSet(
     'ScoutingPFMuons' )
 )
 fragment.datasets = cms.PSet( 
+  AlCaElectron = cms.vstring( 'AlCa_DoubleEle_CaloIdL_TrackIdL_IsoVL_DZ_v6',
+    'AlCa_DoubleEle_CaloIdL_TrackIdL_IsoVL_v6',
+    'AlCa_SingleEle_WPVeryLoose_Gsf_v7' ),
   AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_Random_v2',
     'AlCa_LumiPixels_ZeroBias_v5' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEtaEBonly_v8',
