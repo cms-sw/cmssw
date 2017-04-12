@@ -188,26 +188,32 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
   uint32_t size_e = tns.getEndPaths().size();
   uint32_t size = size_p + size_e;
 
-  for (auto & summary: m_run_summary_perprocess) {
+  auto & summary= m_run_summary_perprocess[rid]; 
+  {
+    //another process could attempt to change the container concurrently
+    std::lock_guard<std::mutex> guard(m_summary_mutex);
     if (summary.size() <= pid)
       summary.resize(pid+1);
     summary[pid].paths_interpaths.assign(size + 1, 0);
+    summary[pid].reset();
+
+    if (m_job_summary_perprocess.size() <= pid)
+      m_job_summary_perprocess.resize(pid+1);
+    m_job_summary_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
+
+    // cache the names of the process, and of first and last non-empty path and endpath
+    if (m_process.size() <= pid)
+      m_process.resize(pid+1);
+    m_process[pid].name = gc.processContext()->processName();
+    std::tie(m_process[pid].first_path, m_process[pid].last_path) = findFirstLast(pid, tns.getTrigPaths(), m_skip_first_path and pid == 0);
+    std::tie(m_process[pid].first_endpath, m_process[pid].last_endpath) = findFirstLast(pid, tns.getEndPaths());
   }
-  if (m_job_summary_perprocess.size() <= pid)
-    m_job_summary_perprocess.resize(pid+1);
-  m_job_summary_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
 
   // reset the run summaries
   if (pid == 0)
     m_run_summary[rid].reset();
-  m_run_summary_perprocess[rid][pid].reset(); 
 
-  // cache the names of the process, and of first and last non-empty path and endpath
-  if (m_process.size() <= pid)
-    m_process.resize(pid+1);
-  m_process[pid].name = gc.processContext()->processName();
-  std::tie(m_process[pid].first_path, m_process[pid].last_path) = findFirstLast(pid, tns.getTrigPaths(), m_skip_first_path and pid == 0);
-  std::tie(m_process[pid].first_endpath, m_process[pid].last_endpath) = findFirstLast(pid, tns.getEndPaths());
+
 }
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
