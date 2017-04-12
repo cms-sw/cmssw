@@ -378,7 +378,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
 
   // Set event vertex position for tau
-  reco::VertexRef primaryVertexRef = primaryVertex(jet);
+  reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
   if ( primaryVertexRef.isNonnull() )
     tauPtr->setVertex(primaryVertexRef->position());
 

@@ -34,6 +34,7 @@ class PFRecHitCreatorBase {
       qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name,qTests.at(i)));
     }
   }
+  virtual ~PFRecHitCreatorBase() = default;
 
   virtual void init(const edm::EventSetup &es) { }
 
