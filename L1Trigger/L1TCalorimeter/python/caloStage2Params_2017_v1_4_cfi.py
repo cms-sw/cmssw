@@ -67,6 +67,7 @@ caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
+caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options
 # function6PtParams22EtaBins or None
@@ -117,13 +118,19 @@ caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorim
 caloStage2Params.etSumLsb                = cms.double(0.5)
 caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
 caloStage2Params.etSumEtaMax             = cms.vint32(28,  26, 28,  28, 28)
-caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.)
+caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.) # only 2nd (HT) and 4th (MHT) values applied
+caloStage2Params.etSumPUSType            = cms.string("LUT") # et threshold from this LUT supercedes et threshold in line above
+caloStage2Params.etSumBypassPUS           = cms.uint32(0)
+caloStage2Params.etSumXCalibrationType    = cms.string("None")
+caloStage2Params.etSumYCalibrationType    = cms.string("None")
+caloStage2Params.etSumEttCalibrationType  = cms.string("None")
+caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
 caloStage2Params.etSumTowEtThreshLUTFile  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v1.txt")
-caloStage2Params.etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
 
 
 # Layer 1 LUT specification
