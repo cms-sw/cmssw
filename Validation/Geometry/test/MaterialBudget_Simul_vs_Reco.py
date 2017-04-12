@@ -71,7 +71,6 @@ def createPlots(plot):
     # full function....
     subDetectorFiles = []
 
-#    hist_label_to_num['AIR'] = [700, kOrange-2]
     hist_x0_elements = OrderedDict()
     prof_x0_elements = OrderedDict()
     for subDetector,color in DETECTORS.iteritems():
@@ -186,7 +185,7 @@ def createPlots(plot):
     theLegend_Materials.SetFillColor(0)
     theLegend_Materials.SetBorderSize(0)
 
-    theLegend_Materials.AddEntry(hist_x0_detectors["BeamPipe"],  "Beam Pipe",                   "f")
+    theLegend_Materials.AddEntry(hist_x0_detectors["BeamPipe"],  "Beam Pipe", "f")
     for label, [num, color, leg] in hist_label_to_num.iteritems():
         theLegend_Materials.AddEntry(hist_x0_elements[label], leg, "f")
     theLegend_Materials.Draw()
@@ -278,7 +277,6 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     setTDRStyle()
 
     # plots
-
     cumulative_matbdg_sim = createPlots("x_vs_eta")
     cumulative_matbdg_rec = createPlotsReco(reco_file, label, debug=False)
 
