@@ -52,8 +52,8 @@ AlcaBeamMonitor = cms.EDAnalyzer("AlcaBeamMonitor",
                                    errorScale = cms.untracked.double(0.9),
                                    nSigmaCut = cms.untracked.double(5.),
                                    FitPerBunchCrossing = cms.untracked.bool(False),
-								   useOnlyFirstPV = cms.untracked.bool(False),
-								   minSumPt = cms.untracked.double(0.)
+                                   useOnlyFirstPV = cms.untracked.bool(False),
+                                   minSumPt = cms.untracked.double(0.)
                                    ),
                                )
 
