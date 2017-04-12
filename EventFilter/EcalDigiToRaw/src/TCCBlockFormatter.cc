@@ -19,9 +19,6 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
   if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in TCCBlockFormatter::DigiToRaw " << endl;
 
   int HEADER_SIZE = 8 * 9;
-//  int bx = *pbx_;
-//  int lv1 = *plv1_;
-
 
 	const EcalTrigTowerDetId& detid = trigprim.id();
 

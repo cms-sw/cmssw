@@ -233,7 +233,7 @@ EcalDigiToRaw::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSet
 
   //map<int, map<int,int> > FEDorder = local.FEDorder;
 
-  Headerblockformatter_ -> CleanUp(*(productRawData.get()), local.FEDorder);
+  Headerblockformatter_ -> CleanUp(*(productRawData.get()), local.fedorder);
 
 
 /*
