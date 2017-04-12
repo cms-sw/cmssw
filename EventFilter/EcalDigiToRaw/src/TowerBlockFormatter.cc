@@ -13,7 +13,7 @@ using namespace std;
 using namespace edm;
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
-					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder &local) const
+					 const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const
 
 {
   int rdsize = rawdata.size() / 8;  // size in Word64
@@ -32,15 +32,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		"TowerBlockFormatter::DigiToRaw : Invalid iFE " << iFE << endl;
 
 
-        map<int, map<int,int> >::iterator fen = local.FEDorder.find(FEDid);
-        map<int, map<int,int> >::iterator fed = local.FEDmap.find(FEDid);
+        map<int, map<int,int> >::iterator fen = local.fedorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = local.fedmap.find(FEDid);
 
-        if (fen == local.FEDorder.end()) {
+        if (fen == local.fedorder.end()) {
                 if (debug_) LogInfo("EcalDigiToRaw: ") << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
 		map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = local.FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = local.fedorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
 		map<int,int> FEmap;
-		pair<map<int, map<int,int> >::iterator, bool> t2 = local.FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+		pair<map<int, map<int,int> >::iterator, bool> t2 = local.fedmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
 		fed = t2.first;
         }
@@ -366,14 +366,12 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
  // LogInfo("EcalDigiToRaw: ") << "end of EndEvent " << endl;
 }
 
-localmaporder TowerBlockFormatter::StartEvent() {
-  return localmaporder(); 
+TowerBlockFormatter::FEDMapOrder TowerBlockFormatter::StartEvent() {
+  return FEDMapOrder(); 
 }
 
 
-
-
-void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder& local) const
+void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder& local) const
 
 	// -- now that we have the EcalElectronicsMapping, this method could probably be
 	//    merged with DigiToRaw(EBdataframe).
@@ -401,15 +399,15 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	}
 
 
-        map<int, map<int,int> >::iterator fen = local.FEDorder.find(FEDid);
-        map<int, map<int,int> >::iterator fed = local.FEDmap.find(FEDid);
+        map<int, map<int,int> >::iterator fen = local.fedorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = local.fedmap.find(FEDid);
 
-        if (fen == local.FEDorder.end()) {
+        if (fen == local.fedorder.end()) {
                 if (debug_) LogInfo("EcalDigiToRaw: ") << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
                 map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = local.FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = local.fedorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
                 map<int,int> FEmap;
-                pair<map<int, map<int,int> >::iterator, bool> t2 = local.FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+                pair<map<int, map<int,int> >::iterator, bool> t2 = local.fedmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
                 fed = t2.first;
         }

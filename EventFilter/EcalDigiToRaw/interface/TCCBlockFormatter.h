@@ -19,14 +19,14 @@
 
 
 
-class TCCBlockFormatter : public BlockFormatter {
- public :
-        TCCBlockFormatter(EcalDigiToRaw* es) : BlockFormatter(es), AllTPsamples_(false) {};
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const;
+class TCCBlockFormatter : public BlockFormatter {	
+  public :
+    TCCBlockFormatter(EcalDigiToRaw* es) : BlockFormatter(es), AllTPsamples_(false) {};
+    static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
+    void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1) const;
 
- private :
-	const bool AllTPsamples_;
+  private :
+    const bool AllTPsamples_;
 
 };
 

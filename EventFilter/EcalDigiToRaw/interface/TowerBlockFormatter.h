@@ -19,24 +19,23 @@
 
 //move to the class
 //members lower case 
-struct localmaporder {
-   std::map<int, std::map<int,int> > FEDmap {};
-   std::map<int, std::map<int,int> > FEDorder {};
-
-   localmaporder() = default;
-};
 
 class TowerBlockFormatter : public BlockFormatter {
- public :
+  public :
+  struct FEDMapOrder {
+    std::map<int, std::map<int,int> > fedmap {};
+    std::map<int, std::map<int,int> > fedorder {};
+    FEDMapOrder() = default;
+  };
 
-	TowerBlockFormatter(EcalDigiToRaw *es) : BlockFormatter(es) {};
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder &local) const;
-        void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, localmaporder &local) const;
-	localmaporder StartEvent();
-	void EndEvent(FEDRawDataCollection* productRawData);
+  TowerBlockFormatter(EcalDigiToRaw *es) : BlockFormatter(es) {};
+  static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
+  void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const;
+  void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping, int bx, int lv1, FEDMapOrder &local) const;
+  FEDMapOrder StartEvent();
+  void EndEvent(FEDRawDataCollection* productRawData);
 
- private :
+  private :
 
 };
 
