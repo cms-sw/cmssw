@@ -40,6 +40,15 @@ siPixelPhase1OfflineDQM_source_cosmics = siPixelPhase1OfflineDQM_source.copyAndE
 SiPixelPhase1TrackResidualsAnalyzer_cosmics = SiPixelPhase1TrackResidualsAnalyzer.clone()
 SiPixelPhase1TrackResidualsAnalyzer_cosmics.Tracks = "ctfWithMaterialTracksP5"
 SiPixelPhase1TrackResidualsAnalyzer_cosmics.trajectoryInput = "ctfWithMaterialTracksP5"
+SiPixelPhase1TrackResidualsAnalyzer_cosmics.VertexCut = False # don't cuts based on the primary vertex position for cosmics
+
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackResidualsAnalyzer,
                                                SiPixelPhase1TrackResidualsAnalyzer_cosmics)
+
+SiPixelPhase1RecHitsAnalyzer_cosmics = SiPixelPhase1RecHitsAnalyzer.clone()
+SiPixelPhase1RecHitsAnalyzer_cosmics.onlyValidHits = True # In Cosmics the efficiency plugin will not run, so we monitor only valid hits
+SiPixelPhase1RecHitsAnalyzer_cosmics.src = "ctfWithMaterialTracksP5"
+
+siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1RecHitsAnalyzer,
+                                               SiPixelPhase1RecHitsAnalyzer_cosmics)
