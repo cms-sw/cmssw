@@ -184,7 +184,9 @@ def miniAOD_customizeCommon(process):
 
     ## Quark Gluon Likelihood
     process.load('RecoJets.JetProducers.QGTagger_cfi')
-    process.patJets.userData.userFloats.src += ['QGTagger:qgLikelihood']
+    task.add(process.QGTaggerTask)
+
+    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
