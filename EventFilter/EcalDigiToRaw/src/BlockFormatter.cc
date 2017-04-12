@@ -112,8 +112,8 @@ void BlockFormatter::print(FEDRawData& rawdata) const{
 
 
 
-void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
-				map<int, map<int,int> >* FEDorder ) {
+void BlockFormatter::CleanUp(FEDRawDataCollection& productRawData,
+				map<int, map<int,int> >& FEDorder ) {
 
 
  for (int id=0; id < 36 + 18; id++) {
@@ -121,7 +121,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
         if ( (! doEndCap_) && (id <= 8 || id >= 45)) continue;
 
         int FEDid = FEDNumbering::MINECALFEDID + id +1;
-        FEDRawData& rawdata = productRawData -> FEDData(FEDid);
+        FEDRawData& rawdata = productRawData.FEDData(FEDid);
 
         // ---- if raw need not be made for a given fed, set its size to empty and return 
         if ( find( (*plistDCCId_).begin(), (*plistDCCId_).end(), (id+1) ) == (*plistDCCId_).end() )
@@ -154,10 +154,10 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
 	
   	// cout << " in BlockFormatter::CleanUp. FEDid = " << FEDid << " event_length*8 " << dec << event_length*8 << endl;
 
-	map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
+	map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
 
         bool FED_has_data = true;
-        if (fen == FEDorder->end()) FED_has_data = false;
+        if (fen == FEDorder.end()) FED_has_data = false;
         if (debug_ && (! FED_has_data)) cout << " FEDid is not in FEDorder ! " << endl;
         if ( ! FED_has_data) {
                 int ch_status = 7;
