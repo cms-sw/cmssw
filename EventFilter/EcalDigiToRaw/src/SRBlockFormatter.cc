@@ -6,16 +6,7 @@
 using namespace std;
 using namespace edm;
 
-
-std::map<int, int> SRBlockFormatter::StartEvent() {
-  std::map<int, int> header_;
-  if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in StartEvent. header_ size is  " << header_.size() << endl;
-  header_ .clear() ;
-  if (debug_) LogInfo("EcalDigiToRaw: ") << "after empty : header_ size is  " << header_.size() << endl;
-  return header_;
-}
-
-void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata, int bx, int lv1, std::map<int, int>& header_) const
+void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata, int bx, int lv1, std::map<int, int>& header) const
 {
 
   if (debug_) LogInfo("EcalDigiToRaw: ") << "enter in SRBlockFormatter::DigiToRaw " << endl;
@@ -29,17 +20,17 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 
 	int SRP_index;
 	int icode = 1000 * dccid +  SRid;
-	if (debug_) LogInfo("EcalDigiToRaw: ") << "size of header_ map is " << header_.size() << endl;
+	if (debug_) LogInfo("EcalDigiToRaw: ") << "size of header map is " << header.size() << endl;
 
-	std::map<int, int>::const_iterator it_header = header_.find(icode);
+	std::map<int, int>::const_iterator it_header = header.find(icode);
 
-	if ( it_header != header_.end() ) {
+	if ( it_header != header.end() ) {
 		SRP_index = rawdata.size() / 8 - Nrows_SRP;
 		if (debug_) LogInfo("EcalDigiToRaw: ") << "This SRid is already there." << endl; 
 	}
 	else {
  		if (debug_) LogInfo("EcalDigiToRaw: ") << "New SR Block added on Raw data " << endl;
-		header_[icode] = 1;
+		header[icode] = 1;
 		SRP_index = rawdata.size() / 8;
 		rawdata.resize (rawdata.size() + 8 + 8*Nrows_SRP);  // 1 line for SRP header, 5 lines of data
 		unsigned char* ppData = rawdata.data();
