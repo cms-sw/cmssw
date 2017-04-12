@@ -146,17 +146,18 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	histNameStream << topFolderName_.c_str() << "PX" << ((i > 3)?"Forward":"Barrel") << "/" << ((i > 3)?"HalfCylinder":"Shell") << "_" << (minus?"m":"p") << ((outer)?"O":"I") << "/" << ((i > 3)?((i%2 == 0)?"PXRing_1/":"PXRing_2/"):"") << summaryPlotName_[name].c_str() << "_PX" << ((i > 3)?"Disk":"Layer") << "_" << ((i>3)?((minus)?"-":"+"):"") << (j+1);
 	histName = histNameStream.str();
 	MonitorElement * me = iGetter.get(histName);
+
 	if (!me) {
 	  edm::LogWarning("SiPixelPhase1Summary") << "ME " << histName << " is not available !!";
-	} else {
-	  if (me->hasError()) {
-	    //If there is an error, fill with 0
-	    summaryMap_[name]->setBinContent(i+1,j+1,0);
-	  } //Do we want to include warnings here?
-	  else if (me->hasWarning()){
-	    summaryMap_[name]->setBinContent(i+1,j+1,0.5);
-	  }
-	  else summaryMap_[name]->setBinContent(i+1,j+1,1);
+	  continue; // Ignore non-existing MEs, as this can cause the whole thing to crash
+	}
+
+	if (me->hasError()) {
+	  //If there is an error, fill with 0
+	  summaryMap_[name]->setBinContent(i+1,j+1,0);
+	} //Do we want to include warnings here?
+	else if (me->hasWarning()){
+	  summaryMap_[name]->setBinContent(i+1,j+1,0.5);
 	}
       }  
     }    
