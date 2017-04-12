@@ -32,8 +32,6 @@
 
 #include <string>
 
-#include "TRandom3.h"
-
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSDiamondDQMSource : public DQMEDAnalyzer
@@ -51,8 +49,9 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     void endRun( const edm::Run&, const edm::EventSetup& );
 
   private:
-    static const double SEC_PER_LUMI_SECTION;
-    static const double HPTDC_BIN_WIDTH;
+    static const double SEC_PER_LUMI_SECTION;           // Number of seconds per lumisection: used to compute hit rates in Hz
+    static const int CHANNEL_OF_VFAT_CLOCK;             // Channel ID of the VFAT that contains clock data
+    static const double DISPLAY_RESOLUTION_FOR_HITS_MM;    // Bin width of histograms showing hits and tracks (in mm)
 
     edm::EDGetTokenT< edm::DetSetVector<TotemVFATStatus> > tokenStatus_;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > tokenLocalTrack_;
@@ -64,9 +63,6 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     bool excludeMultipleHits_;
     double minimumStripAngleForTomography_;
     unsigned int verbosity_;
-    
-    //Rnd generator used to "fake" pad width
-    TRandom3 randomGen;
 
     /// plots related to the whole system
     struct GlobalPlots
@@ -159,6 +155,8 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 //----------------------------------------------------------------------------------------------------
 
 const double CTPPSDiamondDQMSource::SEC_PER_LUMI_SECTION = 23.31;
+const int CTPPSDiamondDQMSource::CHANNEL_OF_VFAT_CLOCK = 30;
+const double CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.05;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -200,12 +198,12 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   activity_per_fedbx = ibooker.book1D( "activity per FED BX", title+" activity per FED BX;Event.BX", 4002, -1.5, 4000. + 0.5 );
   activity_per_fedbx_short = ibooker.book1D( "activity per FED BX (short)", title+" activity per FED BX (short);Event.BX", 102, -1.5, 100. + 0.5 );
 
-  hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 190, -1, 18 );
-  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 60, 0, 18 );
+  hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
+  hitDistribution2dOOT= ibooker.book2D( "hits with OOT in planes", title+" hits with OOT in planes;plane number + 0.25 OOT;x (mm)", 17, -0.25, 4, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   activePlanes = ibooker.book1D( "active planes", title+" active planes;number of active planes", 6, -0.5, 5.5 );
 
-  trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 95, -1, 18 );
-  trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 60, 0, 18 );
+  trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
+  trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
 
   stripTomographyAllFar = ibooker.book2D( "tomography all far", title+" tomography with strips far (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
   stripTomographyAllNear = ibooker.book2D( "tomography all near", title+" tomography with strips near (all planes);x + 50*plane(mm);y (mm)", 200, 0, 200, 101, -50, 50 );
@@ -252,7 +250,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots( DQMStore::IBooker& ibooker, unsig
   CTPPSDiamondDetId( id ).planeName( title, CTPPSDiamondDetId::nFull );
 
   digiProfileCumulativePerPlane = ibooker.book1D( "digi profile", title+" digi profile; ch number", 12, -0.5, 11.5 );
-  hitProfile = ibooker.book1D( "hit profile", title+" hit profile;x (mm)", 180, 0, 18 );
+  hitProfile = ibooker.book1D( "hit profile", title+" hit profile;x (mm)", 19./DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );
   hit_multiplicity = ibooker.book1D( "channels per plane", title+" channels per plane; ch per plane", 13, -0.5, 12.5 );
 
   threshold_voltage = ibooker.book2D( "threshold I2C", title+" threshold I2C; channel; value", 12, -0.5, 11.5, 513, 0, 512 );
@@ -527,6 +525,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     detId_pot.setPlane( 0 );
     detId_pot.setChannel( 0 );
     for ( const auto& status : vfat_status ) {
+      if ( !status.isOK() ) continue;
       if ( potPlots_.find(detId_pot) == potPlots_.end() ) continue;
 
       // Check Event Number
@@ -570,13 +569,24 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
 
       if ( potPlots_.find( detId_pot ) == potPlots_.end() ) continue;
 
-      const double rnd = ( 2. * randomGen.Rndm() ) - 1.;
-
       float UFSDShift = 0.0;
       if ( rechit.getYWidth() < 3 ) UFSDShift = 0.5;  // Display trick for UFSD that have 2 pixels with same X
         
-      potPlots_[detId_pot].hitDistribution2d->Fill( detId.plane(), rechit.getX() + 0.5*rnd*rechit.getXWidth() + UFSDShift );
-      potPlots_[detId_pot].hitDistribution2dOOT->Fill( detId.plane() + 0.25 * rechit.getOOTIndex(), rechit.getX() + 0.5*rnd*rechit.getXWidth() );
+      TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
+      TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
+      int startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
+      int numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+      for ( int i=0; i<numOfBins; ++i) {
+        hitHistoTmp->Fill( detId.plane(), hitHistoTmpYAxis->GetBinCenter(startBin+i) + UFSDShift );
+      }
+      
+      TH2F *hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT->getTH2F();
+      TAxis *hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
+      startBin = hitHistoOOTTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
+      numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+      for ( int i=0; i<numOfBins; ++i) {
+        hitHistoOOTTmp->Fill( detId.plane() + 0.25 * rechit.getOOTIndex(), hitHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
+      }
 
       potPlots_[detId_pot].leadingEdgeCumulativePot->Fill( rechit.getT() );
       potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill( rechit.getToT() );
@@ -615,9 +625,22 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       if ( excludeMultipleHits_ && track.getMultipleHits() > 0 ) continue;
       if ( potPlots_.find( detId_pot ) == potPlots_.end() ) continue;
 
-      const double rnd = ( 2. * randomGen.Rndm() ) - 1.;
-      if ( track.getOOTIndex() == 1 ) potPlots_[detId_pot].trackDistribution->Fill( track.getX0()+rnd*track.getX0Sigma() );
-      potPlots_[detId_pot].trackDistributionOOT->Fill( track.getOOTIndex(), track.getX0()+rnd*track.getX0Sigma() );
+      TH2F *trackHistoOOTTmp = potPlots_[detId_pot].trackDistributionOOT->getTH2F();
+      TAxis *trackHistoOOTTmpYAxis = trackHistoOOTTmp->GetYaxis();
+      int startBin = trackHistoOOTTmpYAxis->FindBin( track.getX0() - track.getX0Sigma() );
+      int numOfBins = 2*track.getX0Sigma()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+      for ( int i=0; i<numOfBins; ++i) {
+        trackHistoOOTTmp->Fill( track.getOOTIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin+i) );
+      }
+      
+      if ( track.getOOTIndex() == 1 ) {
+        TH1F *trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
+        int startBin = trackHistoInTimeTmp->FindBin( track.getX0() - track.getX0Sigma() );
+        int numOfBins = 2*track.getX0Sigma()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+        for ( int i=0; i<numOfBins; ++i) {
+          trackHistoInTimeTmp->Fill( trackHistoInTimeTmp->GetBinCenter(startBin+i) );
+        }
+      }
     }
   }
   
@@ -727,8 +750,12 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     for ( const auto& rechit : rechits ) {
       if ( excludeMultipleHits_ && rechit.getMultipleHits() > 0 ) continue;
       if ( planePlots_.find( detId_plane ) != planePlots_.end() ) {
-	double rnd = ( 2.*randomGen.Rndm() ) - 1.;
-	if ( rechit.getOOTIndex() == 1 ) planePlots_[detId_plane].hitProfile->Fill( rechit.getX()+.5*rnd*rechit.getXWidth() );
+        TH1F *hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
+        int startBin = hitHistoTmp->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
+        int numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+        for ( int i=0; i<numOfBins; ++i) {
+          if ( rechit.getOOTIndex() == 1 ) hitHistoTmp->Fill( hitHistoTmp->GetBinCenter(startBin+i) );
+        }
       }
     }
   }
@@ -766,6 +793,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   for ( const auto& vfat_status : *diamondVFATStatus ) {
     const CTPPSDiamondDetId detId( vfat_status.detId() );
     for ( const auto& status : vfat_status ) {
+      if ( !status.isOK() ) continue;
       if ( channelPlots_.find(detId) != channelPlots_.end() ) {
         for ( const auto& optorx : *fedInfo ) {
           if ( ( detId.arm() == 1 && optorx.getFEDId() == 582 ) || ( detId.arm() == 0 && optorx.getFEDId()==583 ) ) {
