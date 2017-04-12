@@ -19,7 +19,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
-from RecoParticleFlow.PFProducer.chargedHadronIsolation_cfi import *
+from RecoParticleFlow.PFProducer.chargedHadronPFTrackIsolation_cfi import *
 
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
 fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
@@ -37,7 +37,7 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowEGammaFinal*
                                  pfParticleSelectionSequence )
 
-particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronIsolation*particleBasedIsolationSequence)
+particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronPFTrackIsolation*particleBasedIsolationSequence)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
