@@ -184,37 +184,10 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
   unsigned int rid = gc.runIndex();
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-
   uint32_t size_p = tns.getTrigPaths().size();
   uint32_t size_e = tns.getEndPaths().size();
   uint32_t size = size_p + size_e;
-  // resize the path maps
-  for (auto & stream: m_stream)
-    if (stream.paths.size() <= pid)
-      stream.paths.resize(pid+1);
-  for (uint32_t i = 0; i < size_p; ++i) {
-    std::string const & label = tns.getTrigPath(i);
-    for (auto & stream: m_stream)
-      stream.paths[pid][label].index = i;
-  }
-  for (uint32_t i = 0; i < size_e; ++i) {
-    std::string const & label = tns.getEndPath(i);
-    for (auto & stream: m_stream)
-      stream.paths[pid][label].index = size_p + i;
-  }
-  for (auto & stream: m_stream) {
-    // resize the stream buffers to account the number of subprocesses
-    if (stream.timing_perprocess.size() <= pid)
-      stream.timing_perprocess.resize(pid+1);
-    stream.timing_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
-    // resize the stream plots to account the number of subprocesses
-    if (stream.dqm_perprocess.size() <= pid)
-      stream.dqm_perprocess.resize(pid+1);
-    if (stream.dqm_perprocess_byluminosity.size() <= pid)
-      stream.dqm_perprocess_byluminosity.resize(pid+1);
-    if (stream.dqm_paths.size() <= pid)
-      stream.dqm_paths.resize(pid+1);
-  }
+
   for (auto & summary: m_run_summary_perprocess) {
     if (summary.size() <= pid)
       summary.resize(pid+1);
@@ -228,12 +201,6 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
   if (pid == 0)
     m_run_summary[rid].reset();
   m_run_summary_perprocess[rid][pid].reset(); 
-
-  // associate to each path all the modules it contains
-  for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
-    fillPathMap( pid, tns.getTrigPath(i), tns.getTrigPathModules(i) );
-  for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
-    fillPathMap( pid, tns.getEndPath(i), tns.getEndPathModules(i) );
 
   // cache the names of the process, and of first and last non-empty path and endpath
   if (m_process.size() <= pid)
@@ -250,6 +217,42 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
 
+  edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
+
+  uint32_t size_p = tns.getTrigPaths().size();
+  uint32_t size_e = tns.getEndPaths().size();
+  uint32_t size = size_p + size_e;
+
+  // resize the path maps
+  if (stream.paths.size() <= pid)
+    stream.paths.resize(pid+1);
+  for (uint32_t i = 0; i < size_p; ++i) {
+    std::string const & label = tns.getTrigPath(i);
+    stream.paths[pid][label].index = i;
+  }
+  for (uint32_t i = 0; i < size_e; ++i) {
+    std::string const & label = tns.getEndPath(i);
+    stream.paths[pid][label].index = size_p + i;
+  }
+
+  // resize the stream buffers to account the number of subprocesses
+  if (stream.timing_perprocess.size() <= pid)
+    stream.timing_perprocess.resize(pid+1);
+  stream.timing_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
+  // resize the stream plots to account the number of subprocesses
+  if (stream.dqm_perprocess.size() <= pid)
+    stream.dqm_perprocess.resize(pid+1);
+  if (stream.dqm_perprocess_byluminosity.size() <= pid)
+    stream.dqm_perprocess_byluminosity.resize(pid+1);
+  if (stream.dqm_paths.size() <= pid)
+    stream.dqm_paths.resize(pid+1);
+
+  // associate to each path all the modules it contains
+  for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
+    fillPathMapForStream( stream,pid, tns.getTrigPath(i), tns.getTrigPathModules(i) );
+  for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
+    fillPathMapForStream( stream, pid, tns.getEndPath(i), tns.getEndPathModules(i) );
+
   if (not m_enable_dqm)
     return;
 
@@ -258,11 +261,6 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
     m_enable_dqm = false;
     return;
   }
-
-  edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  uint32_t size_p = tns.getTrigPaths().size();
-  uint32_t size_e = tns.getEndPaths().size();
-  uint32_t size = size_p + size_e;
 
   int eventbins  = (int) std::ceil(m_dqm_eventtime_range  / m_dqm_eventtime_resolution);
   int pathbins   = (int) std::ceil(m_dqm_pathtime_range   / m_dqm_pathtime_resolution);
@@ -1246,30 +1244,27 @@ void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, 
 }
 
 // associate to a path all the modules it contains
-void FastTimerService::fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules) {
-  for (auto & stream: m_stream) {
+void FastTimerService::fillPathMapForStream(StreamData& stream, unsigned int pid, std::string const & name, std::vector<std::string> const & modules) {
 
-    std::vector<ModuleInfo *> & pathmap = stream.paths[pid][name].modules;
-    pathmap.clear();
-    pathmap.reserve( modules.size() );
-    std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
-    for (auto const & module: modules) {
-      // fix the name of negated or ignored modules
-      std::string const & label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
-
-      auto const & it = stream.modules.find(label);
-      if (it == stream.modules.end()) {
-        // no matching module was found
-        pathmap.push_back( 0 );
-      } else if (pool.insert(& it->second).second) {
-        // new module
-        pathmap.push_back(& it->second);
-      } else {
-        // duplicate module
-        pathmap.push_back( 0 );
-      }
+  std::vector<ModuleInfo *> & pathmap = stream.paths[pid][name].modules;
+  pathmap.clear();
+  pathmap.reserve( modules.size() );
+  std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
+  for (auto const & module: modules) {
+    // fix the name of negated or ignored modules
+    std::string const & label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
+    
+    auto const & it = stream.modules.find(label);
+    if (it == stream.modules.end()) {
+      // no matching module was found
+      pathmap.push_back( 0 );
+    } else if (pool.insert(& it->second).second) {
+      // new module
+      pathmap.push_back(& it->second);
+    } else {
+      // duplicate module
+      pathmap.push_back( 0 );
     }
-
   }
 }
 

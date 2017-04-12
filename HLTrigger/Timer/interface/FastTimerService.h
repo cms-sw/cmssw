@@ -757,7 +757,7 @@ private:
   }
 
   // associate to a path all the modules it contains
-  void fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
+  void fillPathMapForStream(StreamData& stream, unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
 
   // find the first and last non-empty paths, optionally skipping the first one
   std::pair<std::string,std::string> findFirstLast(unsigned int pid, std::vector<std::string> const & paths, bool skip = false);
