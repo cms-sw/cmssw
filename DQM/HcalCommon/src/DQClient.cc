@@ -80,6 +80,12 @@ namespace hcaldqm
 	                }
 				}
 			}
+		} else {
+			_vCrates = utilities::getCrateList(_emap);
+			std::map<int, uint32_t> crateHashMap = utilities::getCrateHashMap(_emap);
+			for (auto& it_crate : _vCrates) {
+				_vhashCrates.push_back(crateHashMap[it_crate]);
+			}
 		}
 
 		//	get the Channel Quality masks
