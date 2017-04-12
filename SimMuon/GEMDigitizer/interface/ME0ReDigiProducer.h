@@ -80,7 +80,7 @@ private:
 
   //paramters
   const float bxWidth;              // ns
-  bool         useBuiltinGeo     ; //Use CMSSW defined geometry for digitization, not custom strips and partitions
+  bool         useCusGeoFor1PartGeo      ; //Use custom strips and partitions for digitization for single partition geometry
   unsigned int numberOfStrips     ; // Custom number of strips per partition
   unsigned int numberOfPartitions; // Custom number of partitions per chamber
   double       neutronAcceptance ; // fraction of neutron events to keep in event (>= 1 means no filtering)
@@ -89,9 +89,9 @@ private:
   int          maxBXReadout      ; // Maximum BX to readout
   std::vector<int> layerReadout  ; // Don't readout layer if entry is 0 (Layer number 1 in the numbering scheme is idx 0)
   bool         mergeDigis        ; // Keep only one digi at the same chamber, strip, partition, and BX
-
-
   edm::EDGetTokenT<ME0DigiPreRecoCollection> token;
+
+  bool         useBuiltinGeo     ;
   const ME0Geometry* geometry;
   TemporaryGeometry* tempGeo;
   std::vector<std::vector<double> > tofs ;  //used for built in geo
