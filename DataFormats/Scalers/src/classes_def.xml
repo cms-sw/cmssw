@@ -30,7 +30,7 @@
    <version ClassVersion="10" checksum="3936062714"/>
   </class>
   <class name="BSTRecord" ClassVersion="3">
-   <version ClassVersion="3" checksum="3262583400"/>
+   <version ClassVersion="3" checksum="1274227912"/>
   </class>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
   <class name="std::vector<L1TriggerScalers>"/>
