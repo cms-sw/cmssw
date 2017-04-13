@@ -67,6 +67,17 @@ class HcalSummaryClient : public HcalBaseDQClient {
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
   bool doSetup_; // defaults to true in constructor
+
+	// 
+	//	Updated by Viktor Khristenko
+	//	07/08/2015
+	//
+	void check_HBHETiming_Digi(DQMStore::IBooker &ib, 
+		DQMStore::IGetter &ig, int LS);
+	void check_HBHETiming_RecHit(DQMStore::IBooker &ib, 
+		DQMStore::IGetter &ig, int LS);
+	bool triggered_Shift_Digi;
+	bool triggered_Shift_RecHit;
 };
 
 #endif
