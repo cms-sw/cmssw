@@ -120,10 +120,17 @@ namespace hcaldqm
 
 		std::vector<std::string> xlabels = _qx->getLabels();
 		std::vector<std::string> ylabels = _qy->getLabels();
-		for (unsigned int i=0; i<xlabels.size(); i++)
+		std::cout << "[debug] Setting bin labels for histogram " << h->GetName() << std::endl;
+		std::cout << "[debug] \tNBinsX = " << ((TH2*)h)->GetNbinsX() << std::endl;
+		std::cout << "[debug] \tNBinsY = " << ((TH2*)h)->GetNbinsY() << std::endl;
+		for (unsigned int i=0; i<xlabels.size(); i++) {
+			std::cout << "[debug] Setting x bin label " << i+1 << " => " << xlabels[i] << std::endl;
 			_me->setBinLabel(i+1, xlabels[i], 1);
-		for (unsigned int i=0; i<ylabels.size(); i++)
+		}
+		for (unsigned int i=0; i<ylabels.size(); i++) {
+			std::cout << "[debug] Setting y bin label " << i+1 << " => " << ylabels[i] << std::endl;
 			_me->setBinLabel(i+1, ylabels[i], 2);
+		}
 	}
 
 	/* virtual */ void ContainerSingle2D::fill(int x, int y)
