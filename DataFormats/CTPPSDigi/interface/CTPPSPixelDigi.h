@@ -31,22 +31,27 @@ public:
   uint32_t packedData() const {return theData;}
 
   static std::pair<int,int> channelToPixel( int ch) {
-    int row = ( ch >> column_width) & row_mask;
-    int col = ch & column_mask;
+    int row = ( ch >> column_width_ch) & row_mask_ch;
+    int col = ch & column_mask_ch;
     return std::pair<int,int>(row,col);
   }
 
   static int pixelToChannel( int row, int col) {
-    return (row << column_width) | col;
+    return (row << column_width_ch) | col;
   }
 
   int channel() const {return pixelToChannel( row(), column());}
 
-
+/// const values for digi packing with bit structure: adc_bits+col_bits+row_bits
   static const uint32_t row_shift, column_shift, adc_shift;
   static const uint32_t row_mask, column_mask, adc_mask, rowcol_mask;
   static const uint32_t row_width, column_width, adc_width;
   static const uint32_t max_row, max_column, max_adc;
+
+/// const values for channel definition with bit structure: row_bits+col_bits
+  static const uint32_t column_width_ch; 
+  static const uint32_t column_mask_ch;
+  static const uint32_t row_mask_ch;
 
  private:
 
@@ -62,7 +67,7 @@ inline bool operator<( const CTPPSPixelDigi& one, const CTPPSPixelDigi& other) {
 
 #include<iostream>
 inline std::ostream & operator<<(std::ostream & o, const CTPPSPixelDigi& digi) {
-  return o << " " << digi.channel()
+  return o << " " << digi.row() << " " << digi.column()
 	   << " " << digi.adc();
 }
 
