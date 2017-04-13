@@ -69,6 +69,8 @@ namespace pat {
     const double minHits_;
     const double minPixelHits_;
     const double minPtToStoreProps_;
+    const int covarianceVersion_;
+    const int covarianceSchema_;
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
   };
 }
@@ -83,7 +85,10 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   minPt_(iConfig.getParameter<double>("minPt")),
   minHits_(iConfig.getParameter<uint32_t>("minHits")),
   minPixelHits_(iConfig.getParameter<uint32_t>("minPixelHits")) ,
-  minPtToStoreProps_(iConfig.getParameter<double>("minPtToStoreProps"))
+  minPtToStoreProps_(iConfig.getParameter<double>("minPtToStoreProps")),
+  covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
+  covarianceSchema_(iConfig.getParameter<int >("covarianceSchema"))
+
 { 
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string> >("qualsToAutoAccept"));
   std::transform(trkQuals.begin(),trkQuals.end(),std::back_inserter(qualsToAutoAccept_),reco::TrackBase::qualityByName);
@@ -215,7 +220,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 					    trk->pt(),trk->eta(),trk->phi(),
 					    id,pvSlimmedColl,pvSlimmed.key()));
 
-    if(trk->pt()>minPtToStoreProps_ || trkStatus==TrkStatus::VTX) cands.back().setTrackProperties(*trk);
+    if(trk->pt()>minPtToStoreProps_ || trkStatus==TrkStatus::VTX) cands.back().setTrackProperties(*trk,covarianceSchema_,covarianceVersion_);
     if(pvOrig.trackWeight(trk) > 0.5) {
          cands.back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
     }
