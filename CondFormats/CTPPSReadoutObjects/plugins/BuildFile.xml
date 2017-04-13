@@ -1,6 +1,7 @@
 <library name="CondFormatsCTPPSReadoutObjectsPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
+  <use name="FWCore/Concurrency"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/CTPPSReadoutObjects"/>
   <use name="DataFormats/CTPPSDetId"/>
