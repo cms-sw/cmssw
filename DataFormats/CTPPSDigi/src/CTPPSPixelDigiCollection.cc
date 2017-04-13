@@ -60,6 +60,7 @@ const std::vector<unsigned int> CTPPSPixelDigiCollection::detIDs() const {
   auto end   = map_.end();
 
   std::vector<unsigned int> output;
+  output.reserve(12);
 
   for (; begin != end; ++begin) {
     output.push_back(begin->first);
