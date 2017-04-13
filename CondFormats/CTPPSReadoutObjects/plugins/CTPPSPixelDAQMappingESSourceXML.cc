@@ -269,16 +269,8 @@ std::unique_ptr<CTPPSPixelDAQMapping> CTPPSPixelDAQMappingESSourceXML::produceCT
   auto mask = std::make_unique<CTPPSPixelAnalysisMask>();
 
 // initialize Xerces
-  try
-    {
-      cms::concurrency::xercesInitialize();
-    }
-  catch (const XMLException& toCatch)
-    {
-      char* message = XMLString::transcode(toCatch.getMessage());
-      throw cms::Exception("CTPPSPixelDAQMappingESSourceXML") << "An XMLException caught with message: " << message << ".\n";
-      XMLString::release(&message);
-    }
+ 
+  cms::concurrency::xercesInitialize();
 
 // load mapping files
   for (const auto &fn : configuration[currentBlock].mappingFileNames)
@@ -303,16 +295,8 @@ std::unique_ptr<CTPPSPixelAnalysisMask> CTPPSPixelDAQMappingESSourceXML::produce
   auto mask = std::make_unique<CTPPSPixelAnalysisMask>();
 
 // initialize Xerces
-  try
-    {
-      cms::concurrency::xercesInitialize();
-    }
-  catch (const XMLException& toCatch)
-    {
-      char* message = XMLString::transcode(toCatch.getMessage());
-      throw cms::Exception("CTPPSPixelDAQMappingESSourceXML") << "An XMLException caught with message: " << message << ".\n";
-      XMLString::release(&message);
-    }
+  
+  cms::concurrency::xercesInitialize();
 
 // load mapping files
   for (const auto &fn : configuration[currentBlock].mappingFileNames)
