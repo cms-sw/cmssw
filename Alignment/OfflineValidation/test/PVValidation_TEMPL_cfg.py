@@ -223,6 +223,7 @@ if isDA:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
@@ -259,6 +260,7 @@ else:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
                                                                          minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         
