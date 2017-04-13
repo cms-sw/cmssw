@@ -55,24 +55,24 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 
 
   if (Tmin == 0) {
-    std::cout  << "DAClusterizerInZ: invalid Tmin" << Tmin
-	       << "  reset do default " << 1. / betamax_ << endl;
+    edm::LogWarning("DAClusterizerinZ_vectorized") << "DAClusterizerInZ: invalid Tmin" << Tmin
+						   << "  reset do default " << 1. / betamax_;
   } else {
     betamax_ = 1. / Tmin;
   }
 
 
   if ((Tpurge > Tmin) || (Tpurge == 0)) {
-    std::cout  << "DAClusterizerInZ: invalid Tpurge" << Tpurge
-	       << "  set to " << Tmin << endl;
+    edm::LogWarning("DAClusterizerinZ_vectorized") << "DAClusterizerInZ: invalid Tpurge" << Tpurge
+						   << "  set to " << Tmin;
     Tpurge =  Tmin;
   }
   betapurge_ = 1./Tpurge;
   
 
   if ((Tstop > Tpurge) || (Tstop == 0)) {
-    std::cout  << "DAClusterizerInZ: invalid Tstop" << Tstop
-	       << "  set to  " << max(1., Tpurge) << endl;
+    edm::LogWarning("DAClusterizerinZ_vectorized") << "DAClusterizerInZ: invalid Tstop" << Tstop
+						   << "  set to  " << max(1., Tpurge);
     Tstop = max(1., Tpurge) ;
   }
   betastop_ = 1./Tstop;
