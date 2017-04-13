@@ -68,6 +68,35 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps):ps_(ps)
 	prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
 	if(debug_>1) std::cout << "===>ZDCMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< std::endl;
 
+	/*
+	 *	Modified by VK
+	 *	Number of Channels is hard coded here - 18
+	 */
+
+	_nChs = 18;
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 0, 1));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 0, 2));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 0, 3));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 0, 4));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 0, 5));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 0, 1));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 0, 2));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 0, 3));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 0, 4));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 1, 1));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 1, 2));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 1, 3));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 1, 4));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::EM, 1, 5));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 1, 1));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 1, 2));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 1, 3));
+	_vDetIds.push_back(HcalZDCDetId(HcalZDCDetId::HAD, 1, 4));
+
+	/*
+	 *	\Modified by VK
+	 */
+
 	// Base folder for the contents of this job
 	std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "ZDC") ;
 	if(debug_>0) std::cout << "===>ZDCMonitor name = " << subsystemname << std::endl;
@@ -117,6 +146,34 @@ void ZDCMonitorModule::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run
 	ZDCpresent_ = 0;
 
 	reset();
+
+	/*
+	 *	Modified by VK
+	 */
+
+//	ib.setCurrentFolder(rootFolder_+"ZDCTask");
+	for (unsigned int i=0; i<_vDetIds.size(); i++)
+	{
+		char tmp[200];
+
+		ib.setCurrentFolder(rootFolder_+"ZDCTask/Shape");
+		//	Shape first
+		sprintf(tmp, "Shape_Sect%s_CH%d_ZSIDE%s",
+			_vDetIds[i].section()==HcalZDCDetId::EM ? "EM" : "HAD",
+			_vDetIds[i].channel(), _vDetIds[i].zside()>0 ? "+" : "-");
+		_vShape.push_back(ib.book1D(tmp, tmp, 10, 0, 10));
+
+		//	now ADCs
+		ib.setCurrentFolder(rootFolder_+"ZDCTask/ADC");
+		sprintf(tmp, "ADC_Sect%s_CH%d_ZSIDE%s",
+			_vDetIds[i].section()==HcalZDCDetId::EM ? "EM" : "HAD",
+			_vDetIds[i].channel(), _vDetIds[i].zside()>0 ? "+" : "-");
+		_vADC.push_back(ib.book1D(tmp, tmp, 128, 0, 128));
+	}
+
+	/*
+	 *	\Modified by VK
+	 */
 
 	ib.setCurrentFolder(rootFolder_+"DQM Job Status" );
 
@@ -354,6 +411,39 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
 
 	if (zdcMon_!=NULL && zdchitOK_ && digiOK_)
 		zdcMon_->processEvent(*zdc_digi,*zdc_hits, *report);
+
+	/*
+	 *	Modified by VK
+	 */
+
+	int counter = 0;
+	for (ZDCDigiCollection::const_iterator it=zdc_digi->begin();
+		it!=zdc_digi->end(); ++it)
+	{
+		HcalZDCDetId did(it->id());
+		counter++;
+
+		for (unsigned int i=0; i<_vDetIds.size(); i++)
+			if (did==_vDetIds[i])
+			{
+				for (int j=0; j<it->size(); j++)
+				{
+					_vShape[i]->Fill(j, it->sample(j).nominal_fC());
+					_vADC[i]->Fill(it->sample(j).adc());
+				}
+			}
+	}
+
+	int counter_rh = 0;
+	for (ZDCRecHitCollection::const_iterator it=zdc_hits->begin();
+		it!=zdc_hits->end(); ++it)
+	{
+		counter_rh++;
+	}
+
+	/*
+	 *	\Modified by VK
+	 */
 
 	if (showTiming_)
 	{

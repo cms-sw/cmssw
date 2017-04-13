@@ -8,6 +8,11 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             prescaleFactor=cms.untracked.int32(-1),
                             subSystemFolder=cms.untracked.string("Hcal/"),
                             enableCleanup=cms.untracked.bool(False),
+
+							#
+							#	Added by Viktor. 07/10/2015
+							#
+							isCosmicRun = cms.untracked.bool(False),
                             
                             baseHtmlDir = cms.untracked.string(""),
                             htmlUpdateTime = cms.untracked.int32(0),
