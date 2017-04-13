@@ -21,6 +21,8 @@ public:
   explicit TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes);
   ~TrackFinder();
 
+  void resetPtLUT(std::shared_ptr<const L1TMuonEndCapForest> ptLUT);
+
   void process(
       // Input
       const edm::Event& iEvent, const edm::EventSetup& iSetup,

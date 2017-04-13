@@ -51,7 +51,90 @@ Tree::~Tree()
 {
 // When the tree is destroyed it will delete all of the nodes in the tree.
 // The deletion begins with the rootnode and continues recursively.
-    delete rootNode;
+   if(rootNode) delete rootNode;
+}
+
+Tree::Tree(const Tree &tree)
+{
+    // unfortunately, authors of these classes didn't use const qualifiers
+    rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+    numTerminalNodes = tree.numTerminalNodes;
+    rmsError = tree.rmsError;
+
+    terminalNodes.resize(0);
+    // find new leafs
+    findLeafs(rootNode,terminalNodes);
+
+///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
+}
+
+Tree& Tree::operator=(const Tree &tree){
+    if(rootNode) delete rootNode;
+    // unfortunately, authors of these classes didn't use const qualifiers
+    rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+    numTerminalNodes = tree.numTerminalNodes;
+    rmsError = tree.rmsError;
+
+    terminalNodes.resize(0);
+    // find new leafs
+    findLeafs(rootNode,terminalNodes);
+
+///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
+
+    return *this;
+}
+
+Node* Tree::copyFrom(const Node *local_root)
+{
+    // end-case
+    if( !local_root ) return 0;
+
+    Node *lr = const_cast<Node*>(local_root);
+
+    // recursion
+    Node *left_new_child  = copyFrom( lr->getLeftDaughter()  );
+    Node *right_new_child = copyFrom( lr->getRightDaughter() );
+
+    // performing main work at this level
+    Node *new_local_root  = new Node( lr->getName() );
+    if( left_new_child  ) left_new_child ->setParent(new_local_root);
+    if( right_new_child ) right_new_child->setParent(new_local_root);
+    new_local_root->setLeftDaughter ( left_new_child  );
+    new_local_root->setRightDaughter( right_new_child );
+    new_local_root->setErrorReduction( lr->getErrorReduction() );
+    new_local_root->setSplitValue( lr->getSplitValue() );
+    new_local_root->setSplitVariable( lr->getSplitVariable() );
+    new_local_root->setFitValue( lr->getFitValue() );
+    new_local_root->setTotalError( lr->getTotalError() );
+    new_local_root->setAvgError( lr->getAvgError() );
+    new_local_root->setNumEvents( lr->getNumEvents() );
+//    new_local_root->setEvents( lr->getEvents() ); // no ownership assumed for the events anyways
+
+    return new_local_root;
+}
+
+void Tree::findLeafs(Node *local_root, std::list<Node*> &tn)
+{
+    if( !local_root->getLeftDaughter() && !local_root->getRightDaughter() ){
+        // leaf or ternimal node found
+        tn.push_back(local_root);
+        return;
+    }
+
+    if( local_root->getLeftDaughter() )
+        findLeafs( local_root->getLeftDaughter(), tn );
+
+    if( local_root->getRightDaughter() )
+        findLeafs( local_root->getRightDaughter(), tn );
+}
+
+Tree::Tree(Tree && tree)
+{
+  if(rootNode) delete rootNode; // this line is the only reason not to use default move constructor
+  rootNode = tree.rootNode;
+  terminalNodes = std::move(tree.terminalNodes);
+  numTerminalNodes = tree.numTerminalNodes;
+  rmsError = tree.rmsError;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -464,4 +547,41 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
 
     loadFromXMLRecursive(xml, xleft, tleft);
     loadFromXMLRecursive(xml, xright, tright);
+}
+
+void Tree::loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree)
+{
+    // start fresh in case this is not the only call to construct a tree
+    if( rootNode ) delete rootNode;
+    rootNode = new Node("root");
+
+    const L1TMuonEndCapForest::DTreeNode& mainnode = tree[0];
+    loadFromCondPayloadRecursive(tree, mainnode, rootNode);
+}
+
+void Tree::loadFromCondPayloadRecursive(const L1TMuonEndCapForest::DTree& tree, const L1TMuonEndCapForest::DTreeNode& node, Node* tnode)
+{
+    // Store gathered splitInfo into the node object.
+    tnode->setSplitVariable(node.splitVar);
+    tnode->setSplitValue(node.splitVal);
+    tnode->setFitValue(node.fitVal);
+
+    // If there are no daughters we are done.
+    if( node.ileft == 0 || node.iright == 0) return; // root cannot be anyone's child
+    if( node.ileft  >= tree.size() ||
+        node.iright >= tree.size() ) return; // out of range addressing on purpose
+
+    // If there are daughters link the node objects appropriately.
+    tnode->theMiracleOfChildBirth();
+    Node* tleft = tnode->getLeftDaughter();
+    Node* tright = tnode->getRightDaughter();
+
+    // Update the list of terminal nodes.
+    terminalNodes.remove(tnode);
+    terminalNodes.push_back(tleft);
+    terminalNodes.push_back(tright);
+    numTerminalNodes++;
+
+    loadFromCondPayloadRecursive(tree, tree[node.ileft], tleft);
+    loadFromCondPayloadRecursive(tree, tree[node.iright], tright);
 }

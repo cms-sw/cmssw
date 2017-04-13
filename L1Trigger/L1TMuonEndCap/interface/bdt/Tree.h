@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
 namespace emtf {
 
@@ -21,6 +22,10 @@ class Tree
         Tree();
         Tree(std::vector< std::vector<Event*> >& cEvents);
         ~Tree();
+
+        Tree(const Tree &tree);
+        Tree& operator=(const Tree &tree);
+        Tree(Tree && tree);
 
         void setRootNode(Node *sRootNode);
         Node* getRootNode();
@@ -43,6 +48,8 @@ class Tree
 
         void loadFromXML(const char* filename);
         void loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t node, Node* tnode);
+        void loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree);
+        void loadFromCondPayloadRecursive(const L1TMuonEndCapForest::DTree& tree, const L1TMuonEndCapForest::DTreeNode& node, Node* tnode);
 
         void rankVariables(std::vector<Double_t>& v);
         void rankVariablesRecursive(Node* node, std::vector<Double_t>& v);
@@ -55,6 +62,11 @@ class Tree
         std::list<Node*> terminalNodes;
         Int_t numTerminalNodes;
         Double_t rmsError;
+
+        // this is the main recursive workhorse function that compensates for Nodes being non-copyable
+        Node* copyFrom(const Node *local_root); // no garantees if throws in the process
+        // a dumb DFS tree traversal
+        void findLeafs(Node *local_root, std::list<Node*> &tn);
 };
 
 } // end of emtf namespace

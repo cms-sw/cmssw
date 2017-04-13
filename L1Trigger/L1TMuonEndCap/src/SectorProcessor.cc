@@ -9,6 +9,11 @@ SectorProcessor::~SectorProcessor() {
 
 }
 
+void SectorProcessor::resetPtAssignment(const PtAssignmentEngine* new_pt_assign_engine){
+  pt_assign_engine_ = new_pt_assign_engine;
+  readPtLUTFile_ = false;
+}
+
 void SectorProcessor::configure(
     const L1TMuon::GeometryTranslator* tp_geom,
     const SectorProcessorLUT* lut,
