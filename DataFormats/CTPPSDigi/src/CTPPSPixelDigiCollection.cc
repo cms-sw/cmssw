@@ -10,13 +10,13 @@ void CTPPSPixelDigiCollection::put(Range input, unsigned int detID) {
 
 /// fill input in temporary vector for sorting
   std::vector<CTPPSPixelDigi> temporary;
+
   auto sort_begin = input.first;
   auto sort_end = input.second;
-  for ( ;sort_begin != sort_end; ++sort_begin ) {
-    temporary.push_back(*sort_begin);
-  }
-  std::sort(temporary.begin(),temporary.end());
 
+  temporary.insert(std::end(temporary), sort_begin, sort_end);
+
+  std::sort(temporary.begin(),temporary.end());
 
   inputRange.first=container_.size();
   container_.insert(std::end(container_), std::begin(temporary), std::end(temporary));
