@@ -21,7 +21,7 @@ class HBHEDarkening {
 			//constructors
 			LumiYear() : 
 				year_(""), intlumi_(0.), lumirate_(0.), energy_(0), sumlumi_(0.) {}
-			LumiYear(std::string year, double intlumi, double lumirate, int energy) : 
+			LumiYear(std::string year, float intlumi, float lumirate, int energy) : 
 				year_(year), intlumi_(intlumi), lumirate_(lumirate), energy_(energy), sumlumi_(0.) {}
 			
 			//sorting
@@ -31,37 +31,37 @@ class HBHEDarkening {
 			
 			//member variables
 			std::string year_;
-			double intlumi_;
-			double lumirate_;
+			float intlumi_;
+			float lumirate_;
 			int energy_;
-			double sumlumi_;
+			float sumlumi_;
 		};
 		struct LumiYearComp {
-			bool operator()(const LumiYear& yr, const double& lum) const {
+			bool operator()(const LumiYear& yr, const float& lum) const {
 				return yr.sumlumi_ < lum;
 			}
 		};
 
-		HBHEDarkening(int ieta_shift, double drdA, double drdB, const std::map<int,std::vector<std::vector<double>>>& dosemaps, const std::vector<LumiYear>& years);
+		HBHEDarkening(int ieta_shift, float drdA, float drdB, const std::map<int,std::vector<std::vector<float>>>& dosemaps, const std::vector<LumiYear>& years);
 		~HBHEDarkening() {}
 		
 		//public accessors
-		double degradation(double intlumi, int ieta, int lay) const;
+		float degradation(float intlumi, int ieta, int lay) const;
 		int get_ieta_shift() const { return ieta_shift_; }
 
 		//helper function
-		static std::vector<std::vector<double>> readDoseMap(const std::string& fullpath);
+		static std::vector<std::vector<float>> readDoseMap(const std::string& fullpath);
 
 	private:
 		//helper functions
-		double dose(int ieta, int lay, int energy) const;
-		std::string getYearForLumi(double intlumi) const;
-		double degradationYear(const LumiYear& year, double intlumi, int ieta, int lay) const;
+		float dose(int ieta, int lay, int energy) const;
+		std::string getYearForLumi(float intlumi) const;
+		float degradationYear(const LumiYear& year, float intlumi, int ieta, int lay) const;
 	
 		//member variables
 		int ieta_shift_;
-		double drdA_, drdB_;
-		std::map<int,std::vector<std::vector<double>>> dosemaps_; //one map for each center of mass energy
+		float drdA_, drdB_;
+		std::map<int,std::vector<std::vector<float>>> dosemaps_; //one map for each center of mass energy
 		std::vector<LumiYear> years_;
 };
 

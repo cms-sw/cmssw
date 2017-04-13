@@ -4,7 +4,7 @@
 #include <cmath>
 
 //reuse parsing function to read mean energy table
-HBHERecalibration::HBHERecalibration(double intlumi, double cutoff, std::string meanenergies) :
+HBHERecalibration::HBHERecalibration(float intlumi, float cutoff, std::string meanenergies) :
 	intlumi_(intlumi), cutoff_(cutoff), ieta_shift_(0), max_depth_(0),
 	meanenergies_(HBHEDarkening::readDoseMap(meanenergies)), darkening_(NULL)
 {}
@@ -33,7 +33,7 @@ void HBHERecalibration::setup(const std::vector<std::vector<int>>& m_segmentatio
 	initialize();
 }
 
-double HBHERecalibration::getCorr(int ieta, int depth) const {
+float HBHERecalibration::getCorr(int ieta, int depth) const {
 	ieta = abs(ieta);
 	//shift ieta tower index to act as array index
 	ieta -= ieta_shift_;
@@ -50,7 +50,7 @@ double HBHERecalibration::getCorr(int ieta, int depth) const {
 }
 
 void HBHERecalibration::initialize() {
-	std::vector<std::vector<double>> vtmp(dsegm_.size(),std::vector<double>(max_depth_,0.0));
+	std::vector<std::vector<float>> vtmp(dsegm_.size(),std::vector<float>(max_depth_,0.0));
 	auto dval = vtmp; //conversion of meanenergies into depths-averaged values - denominator (including degradation for intlumi) 
 	auto nval = vtmp; // conversion of meanenergies into depths-averaged values - numerator (no degradation)
 	corr_ = vtmp;
