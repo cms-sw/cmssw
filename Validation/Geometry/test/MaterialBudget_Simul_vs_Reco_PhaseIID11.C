@@ -225,7 +225,7 @@ void MaterialBudget_Simul_vs_Reco(const char * reco_file, const char * label="")
 
 void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulative_matbdg) {
   std::vector<std::string> sDETS = {"Phase2PixelBarrel", "Phase22OTBarrel", "Phase2PixelEndcap", "Phase2OTForward" };
-  std::vector<unsigned int> sLAYS = {4, 6, 11, 5};
+  std::vector<unsigned int> sLAYS = {4, 6, 12, 5};
   std::vector<std::string> sPREF = {"Original_RadLen_vs_Eta_", "RadLen_vs_Eta_"};
   std::vector<int> sCOLORS = {kRed, kBlue, kGreen, kYellow, kOrange, kPink};
   std::vector<TProfile*> profs;
