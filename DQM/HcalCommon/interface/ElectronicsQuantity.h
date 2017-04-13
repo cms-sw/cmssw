@@ -401,6 +401,50 @@ namespace hcaldqm
 					return new FEDQuantity(vfeds);
 				}
 		};
+
+		// Crate quantity, initialized from emap (because it is not easy to turn a VME crate in an EID)
+		class CrateQuantity : public ElectronicsQuantity {
+			typedef std::map<int, uint32_t> CrateHashMap;
+		public:
+			CrateQuantity() {}
+			CrateQuantity(HcalElectronicsMap const * emap) : ElectronicsQuantity(fCrate, false) {
+				this->setup(emap);
+			}
+			CrateQuantity(std::vector<int> crates, CrateHashMap crateHashes) : ElectronicsQuantity(fCrate, false) {
+				this->setup(crates, crateHashes);
+			}
+			virtual ~CrateQuantity() {}
+
+			virtual void setup(HcalElectronicsMap const * emap);
+			virtual void setup(std::vector<int> crates, CrateHashMap crateHashes);
+			virtual int getValue(HcalElectronicsId const&);
+			virtual uint32_t getBin(HcalElectronicsId const&);
+
+			virtual int nbins() {
+				std::cout << "[debug] CrateQuantity: returning nbins = " << _crates.size() << std::endl;
+				return _crates.size();}
+			virtual double min() {return 0;}
+			virtual double max() {return _crates.size();}
+			virtual std::vector<std::string> getLabels();
+
+		protected:
+			std::vector<int> _crates;
+			CrateHashMap _crateHashes;
+
+			public:
+				virtual CrateQuantity* makeCopy()
+				{
+					// Make copies of the crate info
+					std::vector<int> tmpCrates;
+					std::map<int, uint32_t> tmpCrateHashes;
+					for (auto& it_crate : _crates) {
+						tmpCrates.push_back(it_crate);
+						tmpCrateHashes[it_crate] = _crateHashes[it_crate];
+					}
+					return new CrateQuantity(tmpCrates, tmpCrateHashes);
+				}
+
+		};
 	}
 }
 
