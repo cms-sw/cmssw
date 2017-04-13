@@ -47,7 +47,7 @@ HBHEDarkeningEP::ReturnType
 HBHEDarkeningEP::produce(const HBHEDarkeningRecord& iRecord) {
 	//initialize dose maps
 	std::vector<edm::ParameterSet> p_dosemaps = pset_.getParameter<std::vector<edm::ParameterSet>>("dosemaps");
-	std::map<int,std::vector<std::vector<double>>> dosemaps;
+	std::map<int,std::vector<std::vector<float>>> dosemaps;
 	for(const auto& p_dosemap : p_dosemaps){
 		edm::FileInPath fp = p_dosemap.getParameter<edm::FileInPath>("file");
 		int file_energy = p_dosemap.getParameter<int>("energy");

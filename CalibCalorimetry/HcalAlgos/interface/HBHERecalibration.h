@@ -13,11 +13,11 @@
 
 class HBHERecalibration {
 	public:
-		HBHERecalibration(double intlumi, double cutoff, std::string meanenergies);
+		HBHERecalibration(float intlumi, float cutoff, std::string meanenergies);
 		~HBHERecalibration();
 		
 		//accessors
-		double getCorr(int ieta, int depth) const;
+		float getCorr(int ieta, int depth) const;
 		void setup(const std::vector<std::vector<int>>& m_segmentation, const HBHEDarkening* darkening);
 		int maxDepth() const { return max_depth_; }
 
@@ -26,14 +26,14 @@ class HBHERecalibration {
 		void initialize();
 		
 		//members
-		double intlumi_;
-		double cutoff_;
+		float intlumi_;
+		float cutoff_;
 		int ieta_shift_;
 		int max_depth_;
-		std::vector<std::vector<double>> meanenergies_;
+		std::vector<std::vector<float>> meanenergies_;
 		const HBHEDarkening* darkening_;
 		std::vector<std::vector<int>> dsegm_;
-		std::vector<std::vector<double>> corr_;
+		std::vector<std::vector<float>> corr_;
 };
 
 #endif // HBHERecalibration_h
