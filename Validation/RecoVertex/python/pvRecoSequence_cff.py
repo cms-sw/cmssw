@@ -31,7 +31,7 @@ offlinePrimaryVerticesGAP = cms.EDProducer("PrimaryVertexProducer",
        ),
        vertexCollections = cms.VPSet(
               [cms.PSet(label=cms.string(""),
-                        chi2cutoff = cms.double(2.5),
+                        chi2cutoff = cms.double(3.0),
                         algorithm = cms.string('AdaptiveVertexFitter'),
                         minNdof=cms.double(0.0),
                         useBeamConstraint = cms.bool(False),
@@ -71,19 +71,16 @@ offlinePrimaryVerticesDA100um = cms.EDProducer("PrimaryVertexProducer",
         algorithm   = cms.string("DA"),
         TkDAClusParameters = cms.PSet(
             coolingFactor = cms.double(0.6),  #  moderate annealing speed
-            Tmin = cms.double(2.4),            #  end of annealing
-            Tpurge = cms.double(2.),            #  end of annealing
-            Tstop = cms.double(0.5),
+            Tmin = cms.double(4.0),            #  end of annealing
             vertexSize = cms.double(0.01),    #  
             d0CutOff = cms.double(3.),        # downweight high IP tracks
             dzCutOff = cms.double(4.),         # outlier rejection after freeze-out (T<Tmin)
-            uniquetrkweight = cms.double(0.9)
         )
     ),
 
     vertexCollections = cms.VPSet(
      [cms.PSet(label=cms.string(""),
-               chi2cutoff = cms.double(2.5),
+               chi2cutoff = cms.double(3.0),
                algorithm=cms.string("AdaptiveVertexFitter"),
                minNdof=cms.double(0.0),
                useBeamConstraint = cms.bool(False),
