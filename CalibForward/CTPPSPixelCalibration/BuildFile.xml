@@ -1,0 +1,9 @@
+<use   name="CondFormats/CTPPSReadoutObjects"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Framework"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/CTPPSDetId"/>
+  <use   name="root"/>
+<use   name="rootcore"/>
+<flags EDM_PLUGIN="1"/>
