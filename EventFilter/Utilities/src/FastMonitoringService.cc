@@ -256,8 +256,8 @@ namespace evf{
     encModule_.completeReservedWithDummies();
 
     for (unsigned int i=0;i<nStreams_;i++) {
-       ministate_.push_back(&nopath_);
-       microstate_.push_back(&reservedMicroStateNames[mInvalid]);
+       ministate_.emplace_back(&nopath_);
+       microstate_.emplace_back(&reservedMicroStateNames[mInvalid]);
 
        //for synchronization
        streamCounterUpdating_.push_back(new std::atomic<bool>(0));
@@ -506,6 +506,7 @@ namespace evf{
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
   {
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
     //mark closed lumis (still keep map entries until next one)
     lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
   }
@@ -513,6 +514,7 @@ namespace evf{
   void FastMonitoringService::preStreamBeginLumi(edm::StreamContext const& sc)
   {
     unsigned int sid = sc.streamID().value();
+    
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
@@ -606,7 +608,7 @@ namespace evf{
     #elif ATOMIC_LEVEL==0 //default
     (*(fmt_.m_data.processed_[sc.streamID()]))++;
     #endif
-    eventCountForPathInit_[sc.streamID()]++;
+    eventCountForPathInit_[sc.streamID()].m_value++;
 
     //fast path counter (events accumulated in a run)
     unsigned long res = totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
@@ -740,6 +742,8 @@ namespace evf{
     // update macrostate
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
+    std::vector<const void*> microstateCopy(microstate_.begin(),microstate_.end());
+
     //update these unless in the midst of a global transition
     if (!isGlobalLumiTransition_ && !isInitTransition_) {
 
@@ -766,15 +770,15 @@ namespace evf{
     else {
       if (isGlobalLumiTransition_)
         for (unsigned int i=0;i<nStreams_;i++) {
-          if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
-            microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+          if (microstateCopy[i]==&reservedMicroStateNames[mFwkEoL]) {
+            microstateCopy[i]=&reservedMicroStateNames[mGlobEoL];
           }
         }
     }
 
     for (unsigned int i=0;i<nStreams_;i++) {
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
-      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
+      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstateCopy[i]);
     }
 
     bool inputStatePerThread=false;
@@ -888,11 +892,11 @@ namespace evf{
       else {
         inputStatePerThread=true;
         for (unsigned int i=0;i<nStreams_;i++) {
-          if (microstate_[i]==&reservedMicroStateNames[mIdle])
+          if (microstateCopy[i]==&reservedMicroStateNames[mIdle])
             fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithIdleThreads;
-          else if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
-            microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
-            microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+          else if (microstateCopy[i]==&reservedMicroStateNames[mEoL] || 
+            microstateCopy[i]==&reservedMicroStateNames[mFwkEoL] || 
+            microstateCopy[i]==&reservedMicroStateNames[mGlobEoL])
             fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithEoLThreads;
           else
             fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequest;
@@ -902,11 +906,11 @@ namespace evf{
     else if (inputState_ == FastMonitoringThread::inNewLumi) {
       inputStatePerThread=true;
       for (unsigned int i=0;i<nStreams_;i++) {
-        if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+        if (microstateCopy[i]==&reservedMicroStateNames[mEoL] || 
+          microstateCopy[i]==&reservedMicroStateNames[mFwkEoL] || 
+          microstateCopy[i]==&reservedMicroStateNames[mGlobEoL])
           fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumi;
-        else if (microstate_[i]==&reservedMicroStateNames[mIdle])
+        else if (microstateCopy[i]==&reservedMicroStateNames[mIdle])
           fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiIdleEndingLS;
         else
           fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiBusyEndingLS;
