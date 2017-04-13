@@ -27,7 +27,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
             Tstop = cms.double(0.5),
             coolingFactor = cms.double(0.6),
             vertexSize = cms.double(0.01),
-            use_vdt = cms.untracked.bool(True)
+            uniquetrkweight = cms.double(0.9)
         )
     ),
 
