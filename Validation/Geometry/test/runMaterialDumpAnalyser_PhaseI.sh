@@ -142,11 +142,11 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
-  root -b -q "MaterialBudget.C(\"${t}\")"
+  python MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1
   fi
 done
 
-python MaterialBudget_Simul_vs_Reco.py -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l PhaseIDetector > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
+python MaterialBudget.py -c -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l PhaseIDetector > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
