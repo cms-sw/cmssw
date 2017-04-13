@@ -136,7 +136,7 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
-  root -b -q "MaterialBudget.C(\"${t}\")"
+  python MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1
@@ -146,4 +146,4 @@ done
 if [ ! -e Images ]; then
   mkdir Figures
 fi
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "Run2Detector")'
+python MaterialBudget.py -c -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l Run2Detector > MaterialBudget_Simul_vs_Reco_Run2Detector.log 2>&1
