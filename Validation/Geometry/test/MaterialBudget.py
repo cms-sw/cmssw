@@ -7,17 +7,15 @@ oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
 from ROOT import TCanvas, TLegend, TPaveText, THStack, TFile, TLatex
 from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis
-from ROOT import kBlack, kWhite, kOrange, kAzure
+from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue
 from ROOT import gROOT, gStyle
 gROOT.SetBatch(True)
 sys.argv = oldargv
-
 
 from plot_utils import setTDRStyle, Plot_params, plots, COMPOUNDS, DETECTORS, sDETS, hist_label_to_num, drawEtaValues
 from collections import namedtuple, OrderedDict
 import sys, os
 import argparse
-
 
 def paramsGood_(detector, plot):
     if plot not in plots.keys():
@@ -38,7 +36,6 @@ def paramsGood_(detector, plot):
         print("Error, missing file %s" % theDetectorFilename)
         raise RuntimeError
     return (True, theDetectorFilename)
-    
 
 def checkFile_(filename):
     return os.path.exists(filename)
@@ -327,7 +324,7 @@ def createCompoundPlots(detector, plot):
                 prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
                 hist_X0_elements[label].Add(prof_X0_elements[label].ProjectionX("B_%s" % prof_X0_elements[label].GetName())
                                             , +1.000)
-  
+
     # stack
     stackTitle = "Material Budget %s;%s;%s" % (detector,
                                                plots[plot].abscissa,
@@ -335,29 +332,29 @@ def createCompoundPlots(detector, plot):
     stack_X0 = THStack("stack_X0", stackTitle);
     for label, [num, color, leg] in hist_label_to_num.iteritems():
         stack_X0.Add(hist_X0_elements[label])
-  
+
     # canvas
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
     can = TCanvas(canname, canname, 800, 800)
     can.Range(0,0,25,25)
     can.SetFillColor(kWhite)
     gStyle.SetOptStat(0)
-  
+
     # Draw
     stack_X0.Draw("HIST");
-  
+
     # Legenda
     theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
     for label, [num, color, leg] in hist_label_to_num.iteritems():
         theLegend.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend.Draw();
-  
+
     # Store
     can.Update();
     can.SaveAs( "%s/%s_%s.pdf" % (theDirname, detector, plot))
     can.SaveAs( "%s/%s_%s.png" % (theDirname, detector, plot))
 
-    
+
 def create2DPlots(detector, plot):
 
     theDirname = 'Images'
@@ -520,12 +517,16 @@ def createRatioPlots(detector, plot):
     goodToGo, theDetectorFilename = paramsGood_(detector, plot)
     if not goodToGo:
         return
-    
+
+    theDirname = 'Images'
+    if not os.path.exists(theDirname):
+        os.mkdir(theDirname)
+
     theDetectorFile = TFile(theDetectorFilename)
     # get TProfiles
     prof_x0_det_total = theDetectorFile.Get('%d' % plots[plot].plotNumber)
     prof_l0_det_total = theDetectorFile.Get('%d' % (1000+plots[plot].plotNumber))
-  
+
     # histos
     hist_x0_total = prof_x0_det_total.ProjectionX()
     hist_l0_total = prof_l0_det_total.ProjectionX()
@@ -534,10 +535,10 @@ def createRatioPlots(detector, plot):
         for subDetector in COMPOUNDS[detector][1:]:
 
             # file name
-            subDetectorFilename = "matbdg_%s.root" % subDetector)
+            subDetectorFilename = "matbdg_%s.root" % subDetector
 
             # open file
-            if not checkFile_(subDetectorFileName):
+            if not checkFile_(subDetectorFilename):
                 print("Error, missing file %s" % subDetectorFilename)
                 continue
 
@@ -551,30 +552,30 @@ def createRatioPlots(detector, plot):
             hist_l0_total.Add(prof_l0_det_total.ProjectionX("B_%s" % prof_l0_det_total.GetName()), +1.000 )
     #
     hist_x0_over_l0_total = hist_x0_total
-    hist_x0_over_l0_total.Divide(hist_l0_total);
-    histTitle = "Material Budget %s;%s;%s", (detector,
-                                             plots[plot].abscissa,
-                                             plots[plot].ordinate)
-    hist_x0_over_l0_total.SetTitle(histTitle);
+    hist_x0_over_l0_total.Divide(hist_l0_total)
+    histTitle = "Material Budget %s;%s;%s" % (detector,
+                                              plots[plot].abscissa,
+                                              plots[plot].ordinate)
+    hist_x0_over_l0_total.SetTitle(histTitle)
     # properties
-    hist_x0_over_l0_total.SetMarkerStyle(1);
-    hist_x0_over_l0_total.SetMarkerSize(3);
-    hist_x0_over_l0_total.SetMarkerColor(kBlue);
-  
+    hist_x0_over_l0_total.SetMarkerStyle(1)
+    hist_x0_over_l0_total.SetMarkerSize(3)
+    hist_x0_over_l0_total.SetMarkerColor(kBlue)
+
     # canvas
     canRname = "MBRatio_%s_%s" % (detector, plot)
-    canR - TCanvas(canRname,canRname,800,800)
-    canR.Range(0,0,25,25);
-    canR.SetFillColor(kWhite);
-    gStyle.SetOptStat(0);
-  
+    canR = TCanvas(canRname,canRname,800,800)
+    canR.Range(0,0,25,25)
+    canR.SetFillColor(kWhite)
+    gStyle.SetOptStat(0)
+
     # Draw
-    hist_x0_over_l0_total.Draw("E1");
-  
+    hist_x0_over_l0_total.Draw("E1")
+
     # Store
-    canR.Update();
-    canR.SaveAs("%s/%s_%s.pdf" % (theDirName, detector, plot))
-    canR.SaveAs("%s/%s_%s.png" % (theDirName, detector, plot))
+    canR.Update()
+    canR.SaveAs("%s/%s_%s.pdf" % (theDirname, detector, plot))
+    canR.SaveAs("%s/%s_%s.png" % (theDirname, detector, plot))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generic Material Plotter',
@@ -625,4 +626,3 @@ if __name__ == '__main__':
             createCompoundPlots(args.detector, p)
         for p in required_ratio_plots:
             createRatioPlots(args.detector, p)
-            
