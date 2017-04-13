@@ -19,19 +19,15 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 	}
 
 	if (std::find(_summaryList.begin(), _summaryList.end(), fRaw) != _summaryList.end()) {
-		std::cout << "[debug] Doing RawRunSummary" << std::endl;
 		_sumgen[fRaw]=new hcaldqm::RawRunSummary("RawRunHarvesting", _sumnames[fRaw],ps);
 	}
 	if (std::find(_summaryList.begin(), _summaryList.end(), fDigi) != _summaryList.end()) {
-		std::cout << "[debug] Doing DigiRunSummary" << std::endl;
 		_sumgen[fDigi]=new hcaldqm::DigiRunSummary("DigiRunHarvesting", _sumnames[fDigi],ps);
 	}
 	if (std::find(_summaryList.begin(), _summaryList.end(), fReco) != _summaryList.end()) {
-		std::cout << "[debug] Doing RecoRunSummary" << std::endl;
 		_sumgen[fReco]=new hcaldqm::RecoRunSummary("RecoRunHarvesting", _sumnames[fReco],ps);
 	}
 	if (std::find(_summaryList.begin(), _summaryList.end(), fTP) != _summaryList.end()) {
-		std::cout << "[debug] Doing TPRunSummary" << std::endl;
 		_sumgen[fTP]=new hcaldqm::TPRunSummary("TPRunHarvesting", _sumnames[fTP],ps);
 	}
 }
@@ -56,10 +52,7 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 {	
 	for (auto& it_sum : _summaryList) {
 		if (ig.get(_subsystem + "/" + _sumnames[it_sum] + "/EventsTotal") != NULL) {
-			std::cout << "[debug] summarks[" << _sumnames[it_sum] << "] = true" << std::endl;
 			_summarks[it_sum] = true;
-		} else {
-			std::cout << "[debug] summarks[" << _sumnames[it_sum] << "] = false" << std::endl;			
 		}
 	}
 
@@ -122,12 +115,10 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 
 	//	iterate over all summary generators and get the flags
 	for (auto& it_sum : _summaryList) {
-		std::cout << "[debug] Considering " << _sumnames[it_sum] << " for endJob" << std::endl;
 		//	IF MODULE IS NOT PRESENT IN DATA SKIP
 		if (!_summarks[it_sum]) {
 			continue;
 		}
-		std::cout << "[debug] \tDoing it" << std::endl;
 
 		//	OBTAIN ALL THE FLAGS FOR THIS MODULE
 		//	AND SET THE REPORT STATUS MAP
@@ -136,10 +127,6 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 			std::cout << _sumnames[it_sum] << std::endl;
 		}
 		std::vector<hcaldqm::flag::Flag> flags = (_sumgen[it_sum])->endJob(ib,ig);
-		std::cout << "[debug] Flags for " << _sumnames[it_sum] << ": " << std::endl;
-		for (auto& it_flag : flags) {
-			std::cout << it_flag._name << "=>" << it_flag._state << std::endl;
-		}
 		if (_debug>0)
 		{
 			std::cout << "********************" << std::endl;
