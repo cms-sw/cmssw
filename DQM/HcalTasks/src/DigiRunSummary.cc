@@ -168,12 +168,15 @@ namespace hcaldqm
 				vtmpflags[fDigiSize]._state = flag::fBAD;
 			else
 				vtmpflags[fDigiSize]._state = flag::fGOOD;
+
 			if (did.subdet() == HcalForward)
 			{
 				if (_xNChs.get(eid)!=_xNChsNominal.get(eid))
 					vtmpflags[fNChsHF]._state = flag::fBAD;
 				else
 					vtmpflags[fNChsHF]._state = flag::fGOOD;
+			} else {
+				vtmpflags[fNChsHF]._state = flag::fNA;
 			}
 			if (unknownIdsPresent)
 				vtmpflags[fUnknownIds]._state = flag::fBAD;
@@ -206,6 +209,7 @@ namespace hcaldqm
 		vflagsPerRun.resize(nDigiFlag-nLSFlags+1);
 		vflagsPerLS[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerLS[fNChsHF]=flag::Flag("NChsHF");
+		vflagsPerLS[fUnknownIds]=flag::Flag("UnknownIds");
 		vflagsPerRun[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerRun[fNChsHF]=flag::Flag("NChsHF");
 		vflagsPerRun[fUniHF-nLSFlags+1]=flag::Flag("UniSlotHF");
@@ -216,7 +220,7 @@ namespace hcaldqm
 		Container2D cSummaryvsLS_Crate;
 		cSummaryvsLS.initialize(_name, "SummaryvsLS",
 			new quantity::LumiSection(_maxProcessedLS),
-			new quantity::FEDQuantity(_vFEDs),
+			new quantity::CrateQuantity(_emap),
 			new quantity::ValueQuantity(quantity::fState),0);
 		cSummaryvsLS.book(ib, _subsystem);
 		cSummaryvsLS_Crate.initialize(_name, "SummaryvsLS",
