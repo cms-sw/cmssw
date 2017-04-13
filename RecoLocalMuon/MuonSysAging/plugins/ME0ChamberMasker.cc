@@ -25,7 +25,7 @@
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
-#include "CondFormats/MuonSystemAging/interface/MuonSystemAging.h"
+#include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
 #include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
 //
 // class declaration

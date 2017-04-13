@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DPGAnalysis.MuonSysAging.DTChamberMasker_cfi import DTChamberMasker
+from RecoLocalMuon.MuonSysAging.DTChamberMasker_cfi import DTChamberMasker
 
 def appendDTChamberMaskerAtUnpacking(process):
 

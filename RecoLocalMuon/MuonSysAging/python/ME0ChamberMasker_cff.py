@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DPGAnalysis.MuonSysAging.ME0ChamberMasker_cfi import ME0ChamberMasker
+from RecoLocalMuon.MuonSysAging.ME0ChamberMasker_cfi import ME0ChamberMasker
 from SimMuon.GEMDigitizer.muonME0ReDigis_cfi import simMuonME0ReDigis
 
 def appendME0ChamberMaskerAtReco(process):
