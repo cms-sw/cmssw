@@ -17,22 +17,6 @@ const uint32_t CTPPSPixelDigi::max_adc = 0x3FF;
 
 void CTPPSPixelDigi::init(int row, int col, int adc) {
 
-  if(row_width+column_width+adc_width != 32) 
-    throw cms::Exception("Invalid CTPPS pixel packing widths") 
-      << " row_width = " << row_width 
-      << "  column_width = " << column_width 
-      << "   adc_width = " << adc_width << ".";
-  if(~((adc_mask << adc_shift) | (column_mask << column_shift) | row_mask) != 0) 
-    throw cms::Exception("Invalid CTPPS pixel packing masks") 
-      << " row_mask = " << row_mask 
-      << "  column_mask = " << column_mask 
-      << "   adc_mask = " << adc_mask << ".";
-  if( ((adc_mask << adc_shift) & (column_mask << column_shift) & row_mask) != 0) 
-    throw cms::Exception("Invalid CTPPS pixel packing masks 2") 
-      << " row_mask = " << row_mask 
-      << "  column_mask = " << column_mask 
-      << "   adc_mask = " << adc_mask << ".";
-
 /// Set adc to max_adc in case of overflow
   adc = (uint32_t(adc) > max_adc) ? max_adc : std::max(adc,0);
 
