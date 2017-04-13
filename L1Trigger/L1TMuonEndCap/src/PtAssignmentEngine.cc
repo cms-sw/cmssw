@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 
 PtAssignmentEngine::PtAssignmentEngine() :
@@ -32,6 +33,28 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
 
   ok_ = true;
   return;
+}
+
+void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload){
+
+  for (unsigned i=0;i<allowedModes_.size();i++){
+    int mode_inv = allowedModes_.at(i);
+
+    L1TMuonEndCapForest::DForestMap::const_iterator index = payload->forest_map_.find(mode_inv); // associates mode to index 
+
+    if( index == payload->forest_map_.end() ) continue;
+
+    forests_.at(mode_inv).loadFromCondPayload( payload->forest_coll_[index->second] );
+
+//    for(int t=0; t<64; t++){
+//        emtf::Tree* tree = forests_.at( mode_inv ).getTree(t);
+//        std::stringstream ss;
+//        ss << mode_inv << "/" << t << ".xml";
+//        tree->saveToXML( ss.str().c_str() );
+//    }
+
+  }
+
 }
 
 void PtAssignmentEngine::configure(
