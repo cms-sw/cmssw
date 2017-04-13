@@ -20,11 +20,9 @@ class CTPPSPixelROC {
 public:
 
 CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
-    theIndices = new CTPPSPixelIndices();
   }
   
   ~CTPPSPixelROC(){
-    delete theIndices;
   }
   
   /// ctor with DetUnit id, 
@@ -47,7 +45,7 @@ CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
     int modulePixelRow = modulePixel.first; 
     int modulePixelColumn = modulePixel.second;
 
-    theIndices->transformToROC(modulePixelColumn, modulePixelRow, idDU, rocPixelColumn, rocPixelRow);
+    theIndices.transformToROC(modulePixelColumn, modulePixelRow, idDU, rocPixelColumn, rocPixelRow);
 
     std::pair<int,int> rocPixel;
     rocPixel = std::make_pair(rocPixelRow, rocPixelColumn);
@@ -63,7 +61,7 @@ CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
     int rocPixelRow = rocPixel.first; 
     int rocPixelColumn = rocPixel.second;
 
-    theIndices->transformToModule(rocPixelColumn, rocPixelRow, theIdDU, modulePixelColumn, modulePixelRow);
+    theIndices.transformToModule(rocPixelColumn, rocPixelRow, theIdDU, modulePixelColumn, modulePixelRow);
 
     std::pair<int,int> modulePixel;
     modulePixel = std::make_pair(modulePixelRow, modulePixelColumn);
@@ -82,9 +80,9 @@ CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
     int rocPixelRow ; 
     int rocPixelColumn ;
 
-    theIndices->convertDcolToCol(rocDcol, rocPxl, rocPixelColumn, rocPixelRow);
+    theIndices.convertDcolToCol(rocDcol, rocPxl, rocPixelColumn, rocPixelRow);
 
-    theIndices->transformToModule(rocPixelColumn, rocPixelRow, theIdDU, modulePixelColumn, modulePixelRow);
+    theIndices.transformToModule(rocPixelColumn, rocPixelRow, theIdDU, modulePixelColumn, modulePixelRow);
 
     std::pair<int,int> modulePixel;
     modulePixel = std::make_pair(modulePixelRow, modulePixelColumn);
@@ -104,8 +102,8 @@ CTPPSPixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0) {
 private:
   uint32_t theDetUnit;
   unsigned int theIdDU, theIdLk;
-//  FrameConversion theFrameConverter COND_TRANSIENT;
-  CTPPSPixelIndices *theIndices;
+
+  CTPPSPixelIndices theIndices;
 
   COND_SERIALIZABLE;
 };
