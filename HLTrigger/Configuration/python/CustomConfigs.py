@@ -118,7 +118,7 @@ def L1REPACK(process,sequence="Full"):
 
     from Configuration.StandardSequences.Eras import eras
 
-    l1repack = cms.Process('L1REPACK',eras.Run2_2016)
+    l1repack = cms.Process('L1REPACK',eras.Run2_2017)
     l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
@@ -130,6 +130,8 @@ def L1REPACK(process,sequence="Full"):
 
     for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
         setattr(process,module,getattr(l1repack,module))
+    for sequence in l1repack.sequences_():
+        setattr(process,sequence,getattr(l1repack,sequence))
     process.SimL1Emulator = l1repack.SimL1Emulator
 
     for path in process.paths_():
