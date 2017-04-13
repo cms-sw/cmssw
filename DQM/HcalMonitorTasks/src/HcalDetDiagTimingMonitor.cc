@@ -138,6 +138,8 @@ void HcalDetDiagTimingMonitor::setup()
      str="HEM Timing (RPCf Trigger)";                   HETimeRPCm =dbe_->book1D(str,str,100,0,10);
      str="HFP Timing (CSC Trigger)";                    HFTimeCSCp =dbe_->book1D(str,str,100,0,10); 
      str="HFM Timing (CSC Trigger)";                    HFTimeCSCm =dbe_->book1D(str,str,100,0,10);     
+     str="HBHE Shape";                                  HBHEShape  =dbe_->book1D(str,str,10,-0.5,9.5);
+     str="HO Shape";                                    HOShape    =dbe_->book1D(str,str,10,-0.5,9.5);
   }   
 } 
 
@@ -288,6 +290,11 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
       for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()]-get_ped_hbhe(eta,phi,depth,digi->sample(i).capid());
+
+      double energy=0;
+      for(int i=0;i<nTS;i++) energy+=data[i]; 
+      if(energy>20) for(int i=0;i<nTS;i++) HBHEShape->Fill(i,data[i]);
+
       if(!isSignal(data,nTS)) continue;
 	  
       occHBHE[eta+50][phi][depth]+=1.0; occSum+=1.0;
@@ -317,7 +324,12 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
       for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()]-get_ped_ho(eta,phi,depth,digi->sample(i).capid());
-      if(!isSignal(data,nTS)) continue;
+
+      double energy=0;
+      for(int i=0;i<nTS;i++) energy+=data[i]; 
+      if(energy>100) for(int i=0;i<nTS;i++) HOShape->Fill(i,data[i]);
+      if(energy<100) continue;
+
       occHO[eta+50][phi][depth]+=1.0;
       occSum+=1.0;
       if((occHO[eta+50][phi][depth]/(double)(ievt_))>0.001) continue;

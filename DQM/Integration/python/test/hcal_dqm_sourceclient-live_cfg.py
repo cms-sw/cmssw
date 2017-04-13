@@ -194,6 +194,10 @@ process.hcalDigiMonitor.maxDigiSizeHF = cms.untracked.int32(10)
 if (HEAVYION):
     process.hcalHotCellMonitor.ETThreshold = cms.untracked.double(10.0)
     process.hcalHotCellMonitor.ETThreshold_HF  = cms.untracked.double(10.0)
+    
+if process.runType.getRunType() == process.runType.cosmic_run:
+    process.hcalDetDiagTimingMonitor.CosmicsCorr=True
+
 
 # Don't create problem histograms for tasks that aren't run:
 process.hcalClient.enabledClients = ["DeadCellMonitor",
