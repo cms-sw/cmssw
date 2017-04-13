@@ -8,9 +8,6 @@ void CTPPSPixelDigiCollection::put(Range input, unsigned int detID) {
 /// store size of vector before put
   IndexRange inputRange;
 
-/// put in CTPPSPixelDigis from input
-  bool first = true;
-
 /// fill input in temporary vector for sorting
   std::vector<CTPPSPixelDigi> temporary;
   auto sort_begin = input.first;
@@ -20,16 +17,9 @@ void CTPPSPixelDigiCollection::put(Range input, unsigned int detID) {
   }
   std::sort(temporary.begin(),temporary.end());
 
-/// iterators over input
-  auto begin = temporary.begin();
-  auto end = temporary.end();
-  for ( ;begin != end; ++begin ) {
-    container_.push_back(*begin);
-    if ( first ) {
-      inputRange.first = container_.size()-1;
-      first = false;
-    }
-  }
+
+  inputRange.first=container_.size();
+  container_.insert(std::end(container_), std::begin(temporary), std::end(temporary));
   inputRange.second = container_.size()-1;
   
 /// fill map
