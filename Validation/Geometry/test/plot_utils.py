@@ -30,8 +30,34 @@ plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0.
 plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
+# Conversion name from the label (key) to the components in CMSSW/Geometry
+_LABELS2COMPS = {'BeamPipe': 'BEAM',
+                 'Tracker': 'Tracker',
+                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
+                 'PixBar':  'PixelBarrel',
+                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
+                 'PixFwdMinus': 'PixelForwardZminus',
+                 'PixFwdPlus':  'PixelForwardZplus',
+                 'TIB':         'TIB',
+                 'TOB':         'TOB',
+                 'TIDB':        'TIDB',
+                 'TIDF':        'TIDF',
+                 'TEC':         'TEC',
+                 'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
+                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
+                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
+                 'Phase2PixelBarrel': 'Phase2PixelBarrel',
+                 'Phase2OTBarrel': 'Phase2OTBarrel',
+                 'Phase2PixelEndcap': 'Phase2PixelEndcap',
+                 'Phase2OTForward': 'Phase2OTForward'}
+
 COMPOUNDS = OrderedDict()
-COMPOUNDS["TrackerSum"] = ["TIB", "TIDF", "TIDB", "BeamPipe", "InnerServices", "TOB", "TEC", "TkStruct", "PixBar", "PixFwdPlus", "PixFwdMinus"]
+COMPOUNDS["TrackerSum"] = ["TIB", "TIDF", "TIDB",
+                           "BeamPipe", "InnerServices",
+                           "TOB", "TEC",
+                           "TkStruct",
+                           "PixBar", "Phase1PixelBarrel", "Phase2PixelBarrel",
+                           "PixFwdPlus", "PixFwdMinus"]
 COMPOUNDS["Pixel"] = ["PixBar", "PixFwdMinus", "PixFwdPlus"]
 COMPOUNDS["Strip"] = ["TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC"]
 COMPOUNDS["InnerTracker"] = ["TIB", "TIDF", "TIDB", "InnerServices"]
@@ -41,6 +67,7 @@ DETECTORS["BeamPipe"] = kGray+2
 DETECTORS["InnerServices"] = kGreen+2
 DETECTORS["PixBar"] = kAzure-5
 DETECTORS["Phase1PixelBarrel"] = kAzure-5
+DETECTORS["Phase2PixelBarrel"] = kAzure-5
 DETECTORS["PixFwdPlus"] = kAzure-9
 DETECTORS["PixFwdMinus"] = kAzure-9
 DETECTORS["Phase2PixelEndcap"] = kAzure-9

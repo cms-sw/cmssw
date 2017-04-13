@@ -20,24 +20,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # line, e.g.:
 # cmsRun runP_GenericComponent.py comp="XYZ"
 
-_LABELS2COMPS = {'BeamPipe': 'BEAM',
-                 'Tracker': 'Tracker',
-                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
-                 'PixBar':  'PixelBarrel',
-                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
-                 'PixFwdMinus': 'PixelForwardZminus',
-                 'PixFwdPlus':  'PixelForwardZplus',
-                 'TIB':         'TIB',
-                 'TOB':         'TOB',
-                 'TIDB':        'TIDB',
-                 'TIDF':        'TIDF',
-                 'TEC':         'TEC',
-                 'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
-                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
-                 'Phase2PixelBarrel': 'Phase2PixelBarrel',
-                 'Phase2OTBarrel': 'Phase2OTBarrel',
-                 'Phase2PixelEndcap': 'Phase2PixelEndcap',
-                 'Phase2OTForward': 'Phase2OTForward'}
+from plot_utils import _LABELS2COMPS
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
