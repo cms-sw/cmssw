@@ -32,16 +32,24 @@ namespace hcaldqm
 			24, 0, 20, 0, 21, 0, 25, 0, 31, 0,
 			35, 0, 37, 0, 34, 0, 30, 0, 22,22,
 			29,29, 32,32, 0, 0, 0, 0, 0, 0,
-			0, 0, 36, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 38, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 		uint16_t const CRATE2FED[50] = {
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			1102, 1104, 1118, 0, 1100, 1106, 0, 0, 0, 1120,
-			1116, 1108, 1122, 0, 1114, 1110, 1132, 1112, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			// 2017 values:
+			0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,
+			1102,1104,1118,0,1100,1106,0,0,0,1120,
+			1116,1108,1122,0,1114,1110,0,1112,1132,0,
+			0,0,0,0,0,0,0,0,0,0
+			// 2016 values:
+			//0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			//0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			//1102, 1104, 1118, 0, 1100, 1106, 0, 0, 0, 1120,
+			//1116, 1108, 1122, 0, 1114, 1110, 1132, 1112, 0, 0,
+			//0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
+
 
 		//	FEDs use the first 50 uTCA FED numbers only everywhere
 		int const FED_VME_MIN = FEDNumbering::MINHCALFEDID;
@@ -90,15 +98,15 @@ namespace hcaldqm
 		int const FIBER_VME_MIN = 1;
 		int const FIBER_VME_MAX = 8;
 		int const FIBER_VME_NUM = FIBER_VME_MAX-FIBER_VME_MIN+1;
-		int const FIBER_uTCA_MIN1 = 2;
-		int const FIBER_uTCA_MAX1 = 9;
-		int const FIBER_uTCA_MIN2 = 14;
-		int const FIBER_uTCA_MAX2 = 21;
+		int const FIBER_uTCA_MIN1 = 0;
+		int const FIBER_uTCA_MAX1 = 11;
+		int const FIBER_uTCA_MIN2 = 12;
+		int const FIBER_uTCA_MAX2 = 23;
 		int const FIBER_uTCA_NUM = FIBER_uTCA_MAX1-FIBER_uTCA_MIN1+1 + 
 			FIBER_uTCA_MAX2-FIBER_uTCA_MIN2+1;
 
 		int const FIBERCH_MIN = 0;
-		int const FIBERCH_MAX = 2;
+		int const FIBERCH_MAX = 5;
 		int const FIBERCH_NUM = FIBERCH_MAX-FIBERCH_MIN+1;
 
 		//	TP SLBs, Fibers
