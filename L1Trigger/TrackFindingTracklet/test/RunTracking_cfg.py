@@ -17,10 +17,10 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
-#process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # TILTED
-#process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # FLAT
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+#process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Tracker-only geometry, TILTED
+#process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff')   # Tracker-only geometry, FLAT
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff') # D4 CMS geometry, corresponds to tilted tracker
+process.load('Configuration.Geometry.GeometryExtended2023D4_cff')     # D4 CMS geometry, corresponds to tilted tracker
 
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -39,8 +39,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 Source_Files = cms.untracked.vstring(
-#    "/store/relval/CMSSW_9_0_0_pre5/RelValBsToPhiPhi4K_14TeV/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4TnoVAL-v1/00000/40DDE577-EE02-E711-AA5D-0CC47A78A4BA.root",
-#    "/store/relval/CMSSW_9_0_0_pre5/RelValBsToPhiPhi4K_14TeV/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4TnoVAL-v1/00000/BE0EEA78-EE02-E711-81F9-0CC47A78A446.root"
+## PU=0
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/029B633F-16FD-E611-B79B-0025905B8564.root",
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/44773108-16FD-E611-868E-0CC47A4C8ECA.root",
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/7271F39A-16FD-E611-87FB-0CC47A7C3636.root",
@@ -52,10 +51,30 @@ Source_Files = cms.untracked.vstring(
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/BE39F598-16FD-E611-B30B-0CC47A78A4A6.root",
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/C0A60D3F-16FD-E611-8E6A-0025905A6066.root",
 "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D4T-v1/00000/C49218BD-15FD-E611-9F0A-0025905B858A.root"
+#
+## PU=140 
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/CEF28581-5BFD-E611-99D2-0CC47A7C34E6.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/D0A888FE-5AFD-E611-993C-0CC47A745282.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/D8A72F7E-5AFD-E611-8229-0025905A6088.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/E02AD679-5AFD-E611-B244-0CC47A4C8F1C.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/E240C77F-5AFD-E611-A6E9-0CC47A78A418.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/E42E653E-5EFD-E611-A485-0025905B8560.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/E4C327C3-59FD-E611-99CA-0025905B85FC.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/E8A70F7A-5AFD-E611-829C-0CC47A4D76C8.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/EA12D2AF-59FD-E611-B53A-0CC47A4C8E1E.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/ECF0A7B3-59FD-E611-B50D-0025905B8568.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/EEC6D984-5BFD-E611-AC38-0025905A60B2.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/F0404FB3-59FD-E611-B261-0CC47A4C8E26.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/F2123EB4-59FD-E611-ABE4-0025905B85F6.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/F2F0BB7A-5AFD-E611-94CD-0CC47A4D767A.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/F2F55AAB-67FD-E611-8E5A-0CC47A7C340C.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/F82C0AFE-5AFD-E611-8BA5-0CC47A4D75F0.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/FA53527E-5AFD-E611-A9AC-0CC47A78A426.root",
+#"/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v4_D4TPU140-v1/00000/FA761BA8-58FD-E611-8FFC-0CC47A4D7678.root"
     )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('Ntuple_TEST_MuPt10.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('MuPt10_PU0.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -76,13 +95,34 @@ process.TTTracks = cms.EDProducer("L1TrackProducer",
 				 TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
 				 TTStubMCTruthSource = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
                  BeamSpotSource = cms.InputTag("offlineBeamSpot"),
-#                 asciiFileName = cms.untracked.string("evlist.txt"),
+                 asciiFileName = cms.untracked.string("evlist_debugstub.txt"),
     )
 process.TrackTriggerTTTracks = cms.Sequence(process.TTTracks)
-
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
-
 process.TTAssociator = cms.Path(process.TrackTriggerAssociatorTracks)
+
+### integer emulation 
+process.TTTracksInteger = cms.EDProducer("L1FPGATrackProducer",
+                                         # general L1 tracking inputs
+                                         SimTrackSource = cms.InputTag("g4SimHits"),
+                                         SimVertexSource = cms.InputTag("g4SimHits"),
+                                         TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
+                                         TTStubMCTruthSource = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
+                                         BeamSpotSource = cms.InputTag("offlineBeamSpot"),
+                                         # specific emulation inputs
+                                         fitPatternFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/test/fitpattern.txt'),
+                                         memoryModulesFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/test/memorymodules_new.dat'),
+                                         processingModulesFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/test/processingmodules_new.dat'),
+                                         wiresFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/test/wires_new.dat')
+    )
+process.TrackTriggerTTTracksInteger = cms.Sequence(process.TTTracksInteger)
+process.TT_step_Integer = cms.Path(process.TrackTriggerTTTracksInteger)
+
+
+process.TrackTriggerAssociatorInteger = process.TTTrackAssociatorFromPixelDigis.clone()
+process.TrackTriggerAssociatorInteger.TTTracks = cms.VInputTag( cms.InputTag("TTTracksInteger", "Level1TTTracks") )
+process.TrackTriggerAssociatorTracksInteger = cms.Sequence( process.TrackTriggerAssociatorInteger )
+process.TTAssociator_Integer = cms.Path(process.TrackTriggerAssociatorTracksInteger)
 
 
 ############################################################
@@ -107,8 +147,13 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TP_minPt = cms.double(2.0),       # only save TPs with pt > X GeV
                                        TP_maxEta = cms.double(2.4),      # only save TPs with |eta| < X
                                        TP_maxZ0 = cms.double(30.0),      # only save TPs with |z0| < X cm
+                                       # floating point input
                                        L1TrackInputTag = cms.InputTag("TTTracks", "Level1TTTracks"),               ## TTTrack input
                                        MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), ## MCTruth input 
+                                       # emulation input
+                                       #L1TrackInputTag = cms.InputTag("TTTracksInteger", "Level1TTTracks"),               ## TTTrack input
+                                       #MCTruthTrackInputTag = cms.InputTag("TrackTriggerAssociatorInteger", "Level1TTTracks"), ## MCTruth input 
+                                       # other input collections
                                        MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
                                        MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
@@ -126,14 +171,15 @@ process.FEVToutput_step = cms.EndPath(process.out)
 
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-
 #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 #process = cust_2023tilted(process)
 #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
 #process = cust_2023LReco(process)
 
 
-#process.schedule = cms.Schedule(process.TT_step,process.TTAssociator_step,process.ana)
-#process.schedule = cms.Schedule(process.TT_step)
+## floating-point version 
 process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator,process.ana)
+
+## integer emulation version
+#process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step_Integer,process.TTAssociator_Integer,process.ana)
 

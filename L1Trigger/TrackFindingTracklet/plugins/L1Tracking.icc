@@ -102,11 +102,11 @@
       allTracks.addTracks(L[0]->allTracks());
     }      
     
-    if(0){ //not used in firmware
+    if(1){ 
       //tracklettimer.start();
-      L[1]->findTracklets(L[2]);
-      L[1]->findTracklets(B[0],70.0);
-      L[1]->findTracklets(F[0],70.0);
+      L[1]->findTracklets(L[2]);      //used in longVM (aka tracklet 2.0)
+      L[1]->findTracklets(B[0],70.0); //used in longVM (aka tracklet 2.0)
+      L[1]->findTracklets(F[0],70.0); //used in longVM (aka tracklet 2.0)
       //tracklettimer.stop();
 
       //matchtimer.start();

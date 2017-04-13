@@ -10,6 +10,7 @@ class L1TStub{
 public:
 
   L1TStub() {
+ 
   }
 
   L1TStub(int simtrackid, int iphi, int iz, int layer, int ladder, int module, int strip,
@@ -30,6 +31,13 @@ public:
     bend_ = bend;
 
     allstubindex_=999;
+
+    if (layer_>999&&z_<0.0) {
+      //cout <<"Flipping pt sign"<<endl;
+      pt_=-pt_;
+      bend_ = -bend_;
+    }
+
   }
 
   void AddInnerDigi(int ladder, int module, int irphi,int iz){
@@ -63,6 +71,7 @@ public:
 	<< y_ << "\t" 
 	<< z_ << "\t" 
 	<< bend_ << "\t" << endl; 
+
   }
   void write(ostream& out){
     
@@ -76,13 +85,14 @@ public:
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" 
-	<< bend_ << "\t" << endl; 	
+	<< bend_ << "\t" << endl; 
+	
   }
 
   int ptsign() {
     int ptsgn=-1.0;
     if (diphi()<iphiouter()) ptsgn=-ptsgn;
-    if (layer_>999 && z_>0.0) ptsgn=-ptsgn; //sign fix for forward endcap
+    //if (layer_>999 && z_>0.0) ptsgn=-ptsgn; //sign fix for forward endcap
     return ptsgn;
   }
 
@@ -96,6 +106,7 @@ public:
     }
     return phi_tmp/innerdigis_.size();
   }
+
 
   double iphiouter() {
     if (outerdigis_.size()==0) {
@@ -140,9 +151,7 @@ public:
   double r2() const { return x_*x_+y_*y_; }
   double bend() const { return bend_;}
 
-  double phi() const { 
-    return atan2(y_,x_); 
-  }
+  double phi() const { return atan2(y_,x_); }
 
   unsigned int iphi() const { return iphi_; }
   unsigned int iz() const { return iz_; }
@@ -198,6 +207,11 @@ public:
     return -(striptruncated-480.5)*0.009/r2();
   }
 
+  void setXY(double x, double y){
+    x_=x;
+    y_=y;
+  }
+
 private:
 
   int simtrackid_;
@@ -221,7 +235,13 @@ private:
   vector<pair<int,int> > outerdigis_;
   vector<pair<int,int> > outerdigisladdermodule_;
 
+
 };
 
+
+
+
 #endif
+
+
 

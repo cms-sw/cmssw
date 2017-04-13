@@ -10,13 +10,17 @@
 #include <math.h>
 #include <assert.h>
 #include "L1TStub.hh"
+#include "FPGAConstants.hh"
 
 using namespace std;
 
-static double two_pi=8*atan(1.0);
+
+//static double two_pi=8*atan(1.0);
 
 static double x_offset=0.199196*0.0;
 static double y_offset=0.299922*0.0;
+
+
 
 
 class L1SimTrack{
@@ -263,6 +267,13 @@ public:
 	   vector<int> iladder,
 	   vector<int> imodule){
 
+    
+    if (layer>999&&layer<1999&& z<0.0) {
+      //cout << "Will change layer by addding 1000, before layer = " << layer <<endl;
+      layer+=1000;
+    }
+    
+    layer--;   
     x-=x_offset;
     y-=y_offset;
 
@@ -278,24 +289,24 @@ public:
       }
     }   
 
-    bool foundclose=false;
-    /*
-    for (unsigned int i=0;i<stubs_.size();i++) {
-      if (fabs(stubs_[i].x()-stub.x())<0.02&&
-	  fabs(stubs_[i].y()-stub.y())<0.02&&
-	  fabs(stubs_[i].z()-stub.z())<0.2) {
-	foundclose=true;
-      }
-    }
-    */
-
     stub.setiphi(stub.diphi());
     stub.setiz(stub.diz());
 
+
+    double t=fabs(stub.z())/stub.r();
+    double eta=asinh(t);
     
-    if (!foundclose) {
-      stubs_.push_back(stub);
-      return true;
+    double fact=1.0;
+    if (ptcut>=2.7) fact=-1.2;
+    fact=0.0;
+    
+    if (((fabs(stub.pt())>1.8*fact)&&(fabs(eta)<2.0))||
+	((fabs(stub.pt())>1.4*fact)&&(fabs(eta)>2.0))||
+	((fabs(stub.pt())>1.0*fact)&&(fabs(eta)>2.3))) {
+      if (fabs(eta)<2.6) {
+	stubs_.push_back(stub);
+	return true;
+      }
     }
 
     return false;
@@ -426,6 +437,11 @@ public:
 
       in >> layer >> ladder >> module >> strip >> simtrk >> pt >> x >> y >> z >> bend;
 
+      if (layer>999&&layer<1999&& z<0.0) {
+	//cout << "Will change layer by addding 1000, before layer = " << layer <<endl;
+	layer+=1000;
+      }
+
       layer--;   
       x-=x_offset;
       y-=y_offset;
@@ -450,22 +466,39 @@ public:
 	in >> tmp;
       }   
 
-      bool foundclose=false;
-      /*
-      for (unsigned int i=0;i<stubs_.size();i++) {
-	if (fabs(stubs_[i].x()-stub.x())<0.02&&
-	    fabs(stubs_[i].y()-stub.y())<0.02&&
-	    fabs(stubs_[i].z()-stub.z())<0.2) {
-	  foundclose=true;
+      double t=fabs(stub.z())/stub.r();
+      double eta=asinh(t);
+
+      double fact=1.0;
+      if (ptcut>=2.7) fact=-1.2;
+      fact=0.0;
+      
+      if (((fabs(stub.pt())>1.8*fact)&&(fabs(eta)<2.0))||
+	  ((fabs(stub.pt())>1.4*fact)&&(fabs(eta)>2.0))||
+	  ((fabs(stub.pt())>1.0*fact)&&(fabs(eta)>2.3))) {
+	if (fabs(eta)<2.6) {
+	  stubs_.push_back(stub);
 	}
       }
-      */
 
-      if (!foundclose) {
-	stubs_.push_back(stub);
+    }
+  }
+
+  void allSector() {
+    static double two_pi=8*atan(1.0);
+    unsigned int nstub=stubs_.size();
+    for (unsigned int i=0;i<nstub;i++) {
+      for (unsigned int j=1;j<NSector;j++) {
+	L1TStub tmp=stubs_[i];
+	double phi=tmp.phi();
+	double r=tmp.r();
+	phi+=j*two_pi/NSector;
+	double x=r*cos(phi);
+	double y=r*sin(phi);
+	tmp.setXY(x,y);
+	stubs_.push_back(tmp);
       }
     }
-
   }
 
   void write(ofstream& out){
@@ -654,7 +687,6 @@ private:
 
 
 };
-
 
 #endif
 

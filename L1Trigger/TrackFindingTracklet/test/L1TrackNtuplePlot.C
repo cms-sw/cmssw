@@ -62,11 +62,10 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   // define input options
 
   int L1Tk_minNstub = 4;  
-  float L1Tk_maxChi2 = 100.;  
-  //float L1Tk_maxChi2dof = 9999.;  
-  //float L1Tk_maxChi2 = 999999;  
+  float L1Tk_maxChi2 = 999999;  
+  //float L1Tk_maxChi2 = 100;  
   float L1Tk_maxChi2dof = 999999.;  
-
+  
   bool doDetailedPlots = false; //turn on to make full set of plots
   bool doGausFit = false;       //do gaussian fit for resolution vs eta/pt plots
   bool doLooseMatch = false;    //looser MC truth matching
@@ -1736,35 +1735,35 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     // makeResidualIntervalPlot will save the individual plots to the root file
     makeResidualIntervalPlot( type, DIR, "resVsPt_ptRel", h2_resVsPt_ptRel_68, h2_resVsPt_ptRel_90, h2_resVsPt_ptRel_99, 0, 0.5 );
     makeResidualIntervalPlot( type, DIR, "resVsPt_pt", h2_resVsPt_pt_68, h2_resVsPt_pt_90, h2_resVsPt_pt_99, 0, 20 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_z0", h2_resVsPt_z0_68, h2_resVsPt_z0_90, h2_resVsPt_z0_99, 0, 1.0 );
+    makeResidualIntervalPlot( type, DIR, "resVsPt_z0", h2_resVsPt_z0_68, h2_resVsPt_z0_90, h2_resVsPt_z0_99, 0, 2.0 );
     makeResidualIntervalPlot( type, DIR, "resVsPt_phi", h2_resVsPt_phi_68, h2_resVsPt_phi_90, h2_resVsPt_phi_99, 0, 0.006 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_eta", h2_resVsPt_eta_68, h2_resVsPt_eta_90, h2_resVsPt_eta_99, 0, 0.03 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_d0", h2_resVsPt_d0_68, h2_resVsPt_d0_90, h2_resVsPt_d0_99, 0, 0.02 );
+    makeResidualIntervalPlot( type, DIR, "resVsPt_eta", h2_resVsPt_eta_68, h2_resVsPt_eta_90, h2_resVsPt_eta_99, 0, 0.05 );
+    //makeResidualIntervalPlot( type, DIR, "resVsPt_d0", h2_resVsPt_d0_68, h2_resVsPt_d0_90, h2_resVsPt_d0_99, 0, 0.02 );
 
     makeResidualIntervalPlot( type, DIR, "resVsPt_L_ptRel", h2_resVsPt_ptRel_L_68, h2_resVsPt_ptRel_L_90, h2_resVsPt_ptRel_L_99, 0, 0.5 );
     makeResidualIntervalPlot( type, DIR, "resVsPt_L_pt", h2_resVsPt_pt_L_68, h2_resVsPt_pt_L_90, h2_resVsPt_pt_L_99, 0, 20 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_L_z0", h2_resVsPt_z0_L_68, h2_resVsPt_z0_L_90, h2_resVsPt_z0_L_99, 0, 1.0 );
+    makeResidualIntervalPlot( type, DIR, "resVsPt_L_z0", h2_resVsPt_z0_L_68, h2_resVsPt_z0_L_90, h2_resVsPt_z0_L_99, 0, 2.0 );
     makeResidualIntervalPlot( type, DIR, "resVsPt_L_phi", h2_resVsPt_phi_L_68, h2_resVsPt_phi_L_90, h2_resVsPt_phi_L_99, 0, 0.1 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_L_eta", h2_resVsPt_eta_L_68, h2_resVsPt_eta_L_90, h2_resVsPt_eta_L_99, 0, 0.03 );
-    makeResidualIntervalPlot( type, DIR, "resVsPt_L_d0", h2_resVsPt_d0_L_68, h2_resVsPt_d0_L_90, h2_resVsPt_d0_L_99, 0, 0.02 );
+    makeResidualIntervalPlot( type, DIR, "resVsPt_L_eta", h2_resVsPt_eta_L_68, h2_resVsPt_eta_L_90, h2_resVsPt_eta_L_99, 0, 0.05 );
+    //makeResidualIntervalPlot( type, DIR, "resVsPt_L_d0", h2_resVsPt_d0_L_68, h2_resVsPt_d0_L_90, h2_resVsPt_d0_L_99, 0, 0.02 );
 
-    makeResidualIntervalPlot( type, DIR, "resVsEta_eta", h2_resVsEta_eta_68, h2_resVsEta_eta_90, h2_resVsEta_eta_99, 0, 0.03 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_z0", h2_resVsEta_z0_68, h2_resVsEta_z0_90, h2_resVsEta_z0_99, 0, 1.0 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_phi", h2_resVsEta_phi_68, h2_resVsEta_phi_90, h2_resVsEta_phi_99, 0, 0.005 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_eta", h2_resVsEta_eta_68, h2_resVsEta_eta_90, h2_resVsEta_eta_99, 0, 0.05 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_z0", h2_resVsEta_z0_68, h2_resVsEta_z0_90, h2_resVsEta_z0_99, 0, 2.0 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_phi", h2_resVsEta_phi_68, h2_resVsEta_phi_90, h2_resVsEta_phi_99, 0, 0.01 );
     makeResidualIntervalPlot( type, DIR, "resVsEta_ptRel", h2_resVsEta_ptRel_68, h2_resVsEta_ptRel_90, h2_resVsEta_ptRel_99, 0, 0.4 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_d0", h2_resVsEta_d0_68, h2_resVsEta_d0_90, h2_resVsEta_d0_99, 0, 0.02 );
+    //makeResidualIntervalPlot( type, DIR, "resVsEta_d0", h2_resVsEta_d0_68, h2_resVsEta_d0_90, h2_resVsEta_d0_99, 0, 0.02 );
 
-    makeResidualIntervalPlot( type, DIR, "resVsEta_L_eta", h2_resVsEta_eta_L_68, h2_resVsEta_eta_L_90, h2_resVsEta_eta_L_99, 0, 0.03 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_L_z0", h2_resVsEta_z0_L_68, h2_resVsEta_z0_L_90, h2_resVsEta_z0_L_99, 0, 1.0 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_L_phi", h2_resVsEta_phi_L_68, h2_resVsEta_phi_L_90, h2_resVsEta_phi_L_99, 0, 0.05 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_L_eta", h2_resVsEta_eta_L_68, h2_resVsEta_eta_L_90, h2_resVsEta_eta_L_99, 0, 0.05 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_L_z0", h2_resVsEta_z0_L_68, h2_resVsEta_z0_L_90, h2_resVsEta_z0_L_99, 0, 2.0 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_L_phi", h2_resVsEta_phi_L_68, h2_resVsEta_phi_L_90, h2_resVsEta_phi_L_99, 0, 0.01 );
     makeResidualIntervalPlot( type, DIR, "resVsEta_L_ptRel", h2_resVsEta_ptRel_L_68, h2_resVsEta_ptRel_L_90, h2_resVsEta_ptRel_L_99, 0, 0.4 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_L_d0", h2_resVsEta_d0_L_68, h2_resVsEta_d0_L_90, h2_resVsEta_d0_L_99, 0, 0.02 );
+    //makeResidualIntervalPlot( type, DIR, "resVsEta_L_d0", h2_resVsEta_d0_L_68, h2_resVsEta_d0_L_90, h2_resVsEta_d0_L_99, 0, 0.02 );
 
-    makeResidualIntervalPlot( type, DIR, "resVsEta_H_eta", h2_resVsEta_eta_H_68, h2_resVsEta_eta_H_90, h2_resVsEta_eta_H_99, 0, 0.03 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_H_z0", h2_resVsEta_z0_H_68, h2_resVsEta_z0_H_90, h2_resVsEta_z0_H_99, 0, 1.0 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_H_phi", h2_resVsEta_phi_H_68, h2_resVsEta_phi_H_90, h2_resVsEta_phi_H_99, 0, 0.05 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_H_eta", h2_resVsEta_eta_H_68, h2_resVsEta_eta_H_90, h2_resVsEta_eta_H_99, 0, 0.05 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_H_z0", h2_resVsEta_z0_H_68, h2_resVsEta_z0_H_90, h2_resVsEta_z0_H_99, 0, 2.0 );
+    makeResidualIntervalPlot( type, DIR, "resVsEta_H_phi", h2_resVsEta_phi_H_68, h2_resVsEta_phi_H_90, h2_resVsEta_phi_H_99, 0, 0.01 );
     makeResidualIntervalPlot( type, DIR, "resVsEta_H_ptRel", h2_resVsEta_ptRel_H_68, h2_resVsEta_ptRel_H_90, h2_resVsEta_ptRel_H_99, 0, 0.4 );
-    makeResidualIntervalPlot( type, DIR, "resVsEta_H_d0", h2_resVsEta_d0_H_68, h2_resVsEta_d0_H_90, h2_resVsEta_d0_H_99, 0, 0.02 );
+    //makeResidualIntervalPlot( type, DIR, "resVsEta_H_d0", h2_resVsEta_d0_H_68, h2_resVsEta_d0_H_90, h2_resVsEta_d0_H_99, 0, 0.02 );
 
     makeResidualIntervalPlot( type, DIR, "resVsPhi_ptRel", h2_resVsPhi_ptRel_68, h2_resVsPhi_ptRel_90, h2_resVsPhi_ptRel_99, 0, 0.5 );
     makeResidualIntervalPlot( type, DIR, "resVsPhi_pt", h2_resVsPhi_pt_68, h2_resVsPhi_pt_90, h2_resVsPhi_pt_99, 0, 20 );
@@ -1806,11 +1805,13 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   c.SaveAs(DIR+type+"_resVsPt_eta_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_eta_90.png");
 
+  /*
   h2_resVsPt_phi_90->SetMinimum(0);
   h2_resVsPt_d0_90->SetMarkerStyle(20);
   h2_resVsPt_d0_90->Draw("p");
   c.SaveAs(DIR+type+"_resVsPt_d0_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_d0_90.png");
+  */
 
   if (doDetailedPlots) {
     h2_resVsPt_eta->Write();
@@ -1853,13 +1854,13 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   c.SaveAs(DIR+type+"_resVsEta_eta_90.eps");
   c.SaveAs(DIR+type+"_resVsEta_eta_90.png");
 
-  h2_resVsEta_eta_L_90->Draw();
+  h2_resVsEta_eta_L_90->Draw("p");
   sprintf(ctxt,"p_{T} < 8 GeV");
   mySmallText(0.22,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_resVsEta_eta_L_90.eps");
   c.SaveAs(DIR+type+"_resVsEta_eta_L_90.png");
   
-  h2_resVsEta_eta_H_90->Draw();
+  h2_resVsEta_eta_H_90->Draw("p");
   sprintf(ctxt,"p_{T} > 8 GeV");
   mySmallText(0.22,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_resVsEta_eta_H_90.eps");
@@ -1883,6 +1884,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   c.SaveAs(DIR+type+"_resVsEta_z0_H_90.eps");
   c.SaveAs(DIR+type+"_resVsEta_z0_H_90.png");
 
+  /*
   h2_resVsEta_d0_90->Draw();
   c.SaveAs(DIR+type+"_resVsEta_d0_90.eps");
   c.SaveAs(DIR+type+"_resVsEta_d0_90.png");
@@ -1898,6 +1900,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   mySmallText(0.22,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_resVsEta_d0_H_90.eps");
   c.SaveAs(DIR+type+"_resVsEta_d0_H_90.png");
+  */
 
   h2_resVsEta_phi_90->SetMinimum(0);
   h2_resVsEta_phi_90->SetMarkerStyle(20);
@@ -2142,7 +2145,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   c.SaveAs(DIR+type+"_eff_pt.eps");
   c.SaveAs(DIR+type+"_eff_pt.png");
 
-  if (type.Contains("SingleMu")) {
+  if (type.Contains("Mu")) {
     h_eff_pt->GetYaxis()->SetRangeUser(0.8,1.01); // zoomed-in plot
     c.SaveAs(DIR+type+"_eff_pt_zoom.eps");
     c.SaveAs(DIR+type+"_eff_pt_zoom.png");
@@ -2167,7 +2170,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   c.SaveAs(DIR+type+"_eff_eta.eps");
   c.SaveAs(DIR+type+"_eff_eta.png");
   
-  if (type.Contains("SingleMu")) {
+  if (type.Contains("Mu")) {
     h_eff_eta->GetYaxis()->SetRangeUser(0.8,1.01); // zoomed-in plot
     c.SaveAs(DIR+type+"_eff_eta_zoom.eps");
     c.SaveAs(DIR+type+"_eff_eta_zoom.png");
@@ -2201,7 +2204,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     c.SaveAs(DIR+type+"_eff_phi.eps");
     c.SaveAs(DIR+type+"_eff_phi.png");
     
-    if (type.Contains("SingleMu")) {
+    if (type.Contains("Mu")) {
       h_eff_phi->GetYaxis()->SetRangeUser(0.8,1.01); // zoomed-in plot
       c.SaveAs(DIR+type+"_eff_phi_zoom.eps");
       c.SaveAs(DIR+type+"_eff_phi_zoom.png");
