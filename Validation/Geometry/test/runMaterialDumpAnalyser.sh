@@ -54,7 +54,7 @@ fi
 
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root ; then
   cmsDriver.py step2  \
--s DIGI:pdigi_valid,L1,DIGI2RAW,HLT \
+-s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016 \
 --conditions auto:run2_mc \
 -n -1 \
 --era Run2_2016 \
