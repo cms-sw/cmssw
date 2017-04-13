@@ -45,7 +45,7 @@ ThroughputService::preallocate(edm::service::SystemBounds const & bounds)
 
   m_stream_histograms.resize( bounds.maxNumberOfStreams() );
 
-  // assign a pseudo module id to the FastTimerService
+  // assign a pseudo module id to the ThroughputService
   m_module_id = edm::ModuleDescription::getUniqueID();
 }
 

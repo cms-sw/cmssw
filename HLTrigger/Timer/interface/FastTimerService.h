@@ -34,7 +34,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "HLTrigger/Timer/interface/FastTimer.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 
