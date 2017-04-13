@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    DPGAnalysis/MuonSysAging
+// Package:    RecoLocalMuon/MuonSysAging
 // Class:      CSCChamberMasker
 // 
-/**\class CSCChamberMasker CSCChamberMasker.cc DPGAnalysis/MuonSysAging/plugins/CSCChamberMasker.cc
+/**\class CSCChamberMasker CSCChamberMasker.cc RecoLocalMuon/MuonSysAging/plugins/CSCChamberMasker.cc
 
  Description: Class to mask CSC digis on a chamber by chamber basis
 
@@ -54,7 +54,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-#include "CondFormats/MuonSystemAging/interface/MuonSystemAging.h"
+#include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
 #include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

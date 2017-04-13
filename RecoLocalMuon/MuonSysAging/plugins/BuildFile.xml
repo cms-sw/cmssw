@@ -1,9 +1,9 @@
 
-<library file="*.cc" name="DPGAnalysisMuonSysAgingPlugins"> 
+<library file="*.cc" name="RecoLocalMuonMuonSysAgingPlugins"> 
   <use name="FWCore/ServiceRegistry"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/HepMCCandidate"/>
-  <use name="CondFormats/MuonSystemAging"/>
+  <use name="CondFormats/RecoMuonObjects"/>
   <use name="rootgraphics"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/PluginManager"/>

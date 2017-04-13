@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DPGAnalysis.MuonSysAging.GEMChamberMasker_cfi import GEMChamberMasker
+from RecoLocalMuon.MuonSysAging.GEMChamberMasker_cfi import GEMChamberMasker
 from SimMuon.GEMDigitizer.muonGEMPadDigis_cfi import simMuonGEMPadDigis
 from SimMuon.GEMDigitizer.muonGEMPadDigiClusters_cfi import simMuonGEMPadDigiClusters
 

@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 import os
 
-from DPGAnalysis.MuonSysAging.DTChamberMasker_cff  import *
-from DPGAnalysis.MuonSysAging.RPCChamberMasker_cff import *
-from DPGAnalysis.MuonSysAging.CSCChamberMasker_cff import *
-from DPGAnalysis.MuonSysAging.GEMChamberMasker_cff import *
-from DPGAnalysis.MuonSysAging.ME0ChamberMasker_cff import *
+from RecoLocalMuon.MuonSysAging.DTChamberMasker_cff  import *
+from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cff import *
+from RecoLocalMuon.MuonSysAging.CSCChamberMasker_cff import *
+from RecoLocalMuon.MuonSysAging.GEMChamberMasker_cff import *
+from RecoLocalMuon.MuonSysAging.ME0ChamberMasker_cff import *
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 

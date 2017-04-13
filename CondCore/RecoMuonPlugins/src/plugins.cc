@@ -8,3 +8,6 @@ REGISTER_PLUGIN(MuScleFitDBobjectRcd,MuScleFitDBobject);
 #include "CondFormats/DataRecord/interface/DYTThrObjectRcd.h"
 REGISTER_PLUGIN(DYTThrObjectRcd,DYTThrObject);
 
+#include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
+#include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
+REGISTER_PLUGIN(MuonSystemAgingRcd,MuonSystemAging);

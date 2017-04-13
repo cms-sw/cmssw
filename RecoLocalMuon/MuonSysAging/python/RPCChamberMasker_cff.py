@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DPGAnalysis.MuonSysAging.RPCChamberMasker_cfi import RPCChamberMasker
+from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cfi import RPCChamberMasker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
 def appendRPCChamberMaskerAtReco(process):
