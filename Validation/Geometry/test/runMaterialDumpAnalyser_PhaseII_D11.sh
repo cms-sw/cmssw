@@ -31,7 +31,7 @@ done
 . runMaterialDumpFunctions
 
 # GEN-SIM goes first
-if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root ; then
+if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D11.root ; then
   cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
 --conditions auto:phase2_realistic \
@@ -41,9 +41,9 @@ if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root ; then
 --datatier GEN-SIM \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseII.customiseForMaterialAnalyser_ForPhaseII \
---geometry Extended2023D4 \
---fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root \
---python_filename SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.py > SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.log 2>&1
+--geometry Extended2023D11 \
+--fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D11.root \
+--python_filename SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D11.py > SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D11.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the GEN-SIM step, aborting."
@@ -52,7 +52,7 @@ if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root ; then
 fi
 
 # DIGI comes next
-if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root ; then
+if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D11.root ; then
   cmsDriver.py step2   \
 -s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake  \
 --conditions auto:phase2_realistic \
@@ -61,10 +61,10 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root ; then
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW  \
 --nThreads=6 \
---geometry Extended2023D4  \
---filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root  \
---fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root \
---python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.log 2>&1
+--geometry Extended2023D11  \
+--filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D11.root  \
+--fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D11.root \
+--python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D11.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D11.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the DIGI step, aborting."
@@ -73,7 +73,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root ; then
 fi
 
 # Reco and special customization
-if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII_D4.root ; then
+if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII_D11.root ; then
   cmsDriver.py step3 \
 -s RAW2DIGI,RECO,VALIDATION:@phase2Validation,DQM:@phase2 \
 --conditions auto:phase2_realistic \
@@ -83,10 +83,10 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII_D4.root ; then
 --eventcontent RECOSIM,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \
 --nThreads=6 \
---geometry Extended2023D4  \
---filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root  \
---fileout file:SingleMuPt10_step3_RECO_DQM_PhaseII_D4.root \
---python_filename SingleMuPt10_step2_RECO_DQM_PhaseII_D4.py > SingleMuPt10_step3_RECO_DQM_PhaseII_D4.log 2>&1
+--geometry Extended2023D11  \
+--filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D11.root  \
+--fileout file:SingleMuPt10_step3_RECO_DQM_PhaseII_D11.root \
+--python_filename SingleMuPt10_step2_RECO_DQM_PhaseII_D11.py > SingleMuPt10_step3_RECO_DQM_PhaseII_D11.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the RECO step, aborting."
@@ -103,10 +103,10 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 --era Phase2C2  \
 --scenario pp  \
 --filetype DQM  \
---geometry Extended2023D4  \
+--geometry Extended2023D11  \
 --mc  \
---filein file:SingleMuPt10_step3_RECO_DQM_PhaseII_D4_inDQM.root  \
---python_filename SingleMuPt10_step4_HARVESTING_PhaseII_D4.py > SingleMuPt10_step4_HARVESTING_PhaseII_D4.log 2>&1
+--filein file:SingleMuPt10_step3_RECO_DQM_PhaseII_D11_inDQM.root  \
+--python_filename SingleMuPt10_step4_HARVESTING_PhaseII_D11.py > SingleMuPt10_step4_HARVESTING_PhaseII_D11.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the HARVESTING step, aborting."
@@ -131,7 +131,7 @@ fi
 
 for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=phaseIID4 label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=phaseIID11 label=$t >& /dev/null &
   fi
 done
 
@@ -147,5 +147,5 @@ for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Pha
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseII_D4.log 2>&1
+root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseII_D11.log 2>&1
 
