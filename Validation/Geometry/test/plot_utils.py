@@ -50,6 +50,13 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Phase2PixelEndcap': 'Phase2PixelEndcap',
                  'Phase2OTForward': 'Phase2OTForward'}
 
+# Compounds are used to stick together different part of the Tracker
+# detector, so that their cumulative material description can be
+# derived. The key name can be generic, while the names in the
+# associated list must be such that an appropriate material
+# description file, in ROOT format, is present while producing the
+# cumulative plot. A missing element will invalidate the full
+# procedure.
 COMPOUNDS = OrderedDict()
 COMPOUNDS["Tracker"] = ["Tracker"]
 COMPOUNDS["TrackerSum"] = ["TIB", "TIDF", "TIDB",
@@ -65,6 +72,8 @@ COMPOUNDS["Pixel"] = ["PixBar", "PixFwdMinus", "PixFwdPlus"]
 COMPOUNDS["Strip"] = ["TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC"]
 COMPOUNDS["InnerTracker"] = ["TIB", "TIDF", "TIDB", "InnerServices"]
 
+# The DETECTORS must be the single component of the tracker for which
+# the user can ask for the corresponding material description.
 DETECTORS = OrderedDict()
 DETECTORS["BeamPipe"] = kGray+2
 DETECTORS["InnerServices"] = kGreen+2
@@ -82,6 +91,14 @@ DETECTORS["TIDB"] = kMagenta+2
 DETECTORS["TOB"] = kOrange+10
 DETECTORS["TEC"] = kOrange-2
 
+# sDETS are the label of the Tracker elements in the Reconstruction
+# geometry. They are all used to derive the reconstruction material
+# profile to be compared to the one obtained directly from the
+# simulation. A missing key in the real reconstruction geometry is not
+# a problem, since this will imply that the corresponding plotting
+# routine will skip that missing part. For this reason this map can be
+# made as inclusive as possible with respect to the many
+# reconstruction geometries in CMSSW.
 sDETS = OrderedDict()
 sDETS["PXB"] = kRed
 sDETS["PXF"] = kBlue
@@ -90,6 +107,11 @@ sDETS["TID"] = kYellow
 sDETS["TOB"] = kOrange
 sDETS["TEC"] = kPink
 
+# hist_label_to_num contains the logical names of the Tracker detector
+# that holds material. They are therefor not aware of which detector
+# they belong to, but they are stored in specific plots in all the
+# mat*root files produced. The numbering of the plots is identical
+# across all files.
 hist_label_to_num = OrderedDict()
 hist_label_to_num['SUP'] = [100, 13, 'Support'] # Index first, color second, legend label third
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
