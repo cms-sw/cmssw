@@ -18,6 +18,13 @@ import sys, os
 import argparse
 
 def paramsGood_(detector, plot):
+    """Common function to check the validity of the parameters passed
+       in. It returns a tuple composed by a bool and a string. The
+       bool indicates if all checks are ok, the string the name of the
+       appropriate ROOT file to open (empty string in case the any
+       check failed)
+    """
+
     if plot not in plots.keys():
         print("Error, unknown plot %s" % plot)
         return (False, '')
@@ -45,13 +52,26 @@ def setColorIfExists_(histos, h, color):
         histos[h].SetFillColor(color)
 
 def assignOrAddIfExists_(h, p):
+    """Function to assign the projection of p to h, in the case in which h
+       is None, otherwise add the projection to the already valid h
+       object
+    """
+
     if not h:
         h = p.ProjectionX()
     else:
         h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
 
-def createPlots(plot):
+def createPlots_(plot):
+    """Internal function that will produce a cumulative profile of the
+       material budget inferred from the simulation starting from the
+       single detectors that compose the tracker. It will iterate over
+       all existing detectors contained in the DETECTORS
+       dictionary. The function will automatically skip non-existent
+       detectors.
+    """
+
     IBs = ["InnerServices", "Phase2PixelBarrel", "TIB", "TIDF", "TIDB"]
     theDirname = "Figures"
 
@@ -199,7 +219,17 @@ def createPlots(plot):
 
     return cumulative_matbdg
 
-def createPlotsReco(reco_file, label, debug=False):
+def createPlotsReco_(reco_file, label, debug=False):
+    """Internal function that will produce a cumulative profile of the
+       material budget in the reconstruction starting from the single
+       detectors that compose the tracker. It will iterate over all
+       existing detectors contained in the sDETS dictionary. The
+       function will automatically stop everytime it encounters a
+       non-existent detector, until no more detectors are left to
+       try. For this reason the keys in the sDETS dictionary can be as
+       inclusive as possible.
+    """
+
     cumulative_matbdg = None
     sPREF = ["Original_RadLen_vs_Eta_", "RadLen_vs_Eta_"]
 
@@ -261,11 +291,16 @@ def createPlotsReco(reco_file, label, debug=False):
     return cumulative_matbdg
 
 def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
+    """Function are produces a direct comparison of the material budget as
+       extracted from the reconstruction geometry and inferred from
+       the simulation one.
+    """
+
     setTDRStyle()
 
     # plots
-    cumulative_matbdg_sim = createPlots("x_vs_eta")
-    cumulative_matbdg_rec = createPlotsReco(reco_file, label, debug=False)
+    cumulative_matbdg_sim = createPlots_("x_vs_eta")
+    cumulative_matbdg_rec = createPlotsReco_(reco_file, label, debug=False)
 
     cc = TCanvas("cc", "cc", 1024, 1024)
     cumulative_matbdg_sim.SetMinimum(0.)
@@ -285,6 +320,11 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     cc.SaveAs(filename)
 
 def createCompoundPlots(detector, plot):
+    """Function that will plot the requested @plot for the specified
+       @detector. The specified detector could either be a real
+       detector or a compound one. The list of available plots are the
+       keys of plots dictionary (imported from plot_utils.
+    """
 
     theDirname = 'Images'
     if not checkFile_(theDirname):
@@ -356,6 +396,11 @@ def createCompoundPlots(detector, plot):
 
 
 def create2DPlots(detector, plot):
+    """Function that will plot the requested 2D-@plot for the specified
+       @detector. The specified detector could either be a real
+       detector or a compound one. The list of available plots are the
+       keys of plots dictionary (imported from plot_utils.
+    """
 
     theDirname = 'Images'
     if not checkFile_(theDirname):
@@ -499,6 +544,10 @@ def create2DPlots(detector, plot):
     gStyle.SetStripDecimals(True)
 
 def createRatioPlots(detector, plot):
+    """Function that will make the ratio between the radiation length and
+       interaction length, for the specified detector. The specified
+       detector could either be a real detector or a compound one.
+    """
 
     goodToGo, theDetectorFilename = paramsGood_(detector, plot)
     if not goodToGo:
