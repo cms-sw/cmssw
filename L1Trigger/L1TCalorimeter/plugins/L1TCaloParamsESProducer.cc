@@ -309,6 +309,10 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setLayer1HCalScaleETBins(conf.getParameter<std::vector<int>>("layer1HCalScaleETBins"));
   m_params_helper.setLayer1HFScaleETBins  (conf.getParameter<std::vector<int>>("layer1HFScaleETBins"));
 
+  m_params_helper.setLayer1ECalScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1ECalScalePhiBins"));
+  m_params_helper.setLayer1HCalScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1HCalScalePhiBins"));
+  m_params_helper.setLayer1HFScalePhiBins  (conf.getParameter<std::vector<unsigned>>("layer1HFScalePhiBins"));
+
   m_params = (CaloParams)m_params_helper;
 }
 
