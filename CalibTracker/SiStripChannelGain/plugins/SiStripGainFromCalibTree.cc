@@ -126,13 +126,13 @@ private:
 
   
 	virtual void algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-        virtual void algoEndRun  (DQMStore::IGetter& igetter_,const edm::Run& run, const edm::EventSetup& iSetup);
-        virtual void algoBeginJob      (DQMStore::IBooker &ibooker,const edm::EventSetup& iSetup);
+	virtual void algoEndRun  (const edm::Run& run, const edm::EventSetup& iSetup) override;
+	virtual void algoBeginJob      (const edm::EventSetup& iSetup) override;
 	virtual void algoEndJob        () override;
 	virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
         int  statCollectionFromMode(const char* tag) const;
-        void bookDQMHistos(DQMStore::IBooker &ibooker,const char* dqm_dir, const char* tag);
+        void bookDQMHistos(const char* dqm_dir, const char* tag);
 
         bool isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const;
         void swapBFieldMode(void);
@@ -159,6 +159,7 @@ private:
 	SiStripApvGain* getNewObject() override;
 
 	TFileService *tfs;
+	DQMStore* dbe;
         double       MagFieldCurrentTh;
 	double       MinNrEntries;
 	double       MaxMPVError;
@@ -334,6 +335,11 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 	saveSummary             = iConfig.getUntrackedParameter<bool>    ("saveSummary"     , false);
 
+
+        // Gather DQM Service
+	dbe = edm::Service<DQMStore>().operator->();
+	dbe->setVerbose(10);
+
         //Set the monitoring element tag and store
         dqm_tag_.reserve(7);
         dqm_tag_.clear();
@@ -402,62 +408,55 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
         trackalgo_token_      = consumes<std::vector<int>                >(edm::InputTag(label, TrackPrefix_ + "algo"      + TrackSuffix_));
 }
 
-void SiStripGainFromCalibTree::bookDQMHistos(DQMStore::IBooker & ibooker,const char* dqm_dir, const char* tag)
+void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag)
 {
+    static std::string booked_dir = "";
 
-  ibooker.cd();
-  static std::string booked_dir = "";
-  
-  edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
-					   << tag << std::endl;
-  
-  if ( strcmp(booked_dir.c_str(),dqm_dir)!=0 ) {
-    booked_dir = dqm_dir;
-    ibooker.setCurrentFolder(dqm_dir);
-  }
-  
-  std::string stag(tag);
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
-  
-  std::string cvi      = std::string("Charge_Vs_Index") + stag;
-  //std::string cviA     = std::string("Charge_Vs_Index_Absolute")  + stag;
-  std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;
-  std::string cvpTOB   = std::string("Charge_Vs_PathlengthTOB")   + stag;
-  std::string cvpTIDP  = std::string("Charge_Vs_PathlengthTIDP")  + stag;
-  std::string cvpTIDM  = std::string("Charge_Vs_PathlengthTIDM")  + stag;
-  std::string cvpTECP1 = std::string("Charge_Vs_PathlengthTECP1") + stag;
-  std::string cvpTECP2 = std::string("Charge_Vs_PathlengthTECP2") + stag;
-  std::string cvpTECM1 = std::string("Charge_Vs_PathlengthTECM1") + stag;
-  std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
-  
-  int elepos = (m_harvestingMode && AlgoMode=="PCL")? Harvest : statCollectionFromMode(tag);
-  
-  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
-  //Charge_Vs_Index_Absolute[elepos]  = ibooker.book2S(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
-  Charge_Vs_PathlengthTIB[elepos]   = ibooker.book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTOB[elepos]   = ibooker.book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTIDP[elepos]  = ibooker.book2S(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTIDM[elepos]  = ibooker.book2S(cvpTIDM.c_str() , cvpTIDM.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTECP1[elepos] = ibooker.book2S(cvpTECP1.c_str(), cvpTECP1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTECP2[elepos] = ibooker.book2S(cvpTECP2.c_str(), cvpTECP2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTECM1[elepos] = ibooker.book2S(cvpTECM1.c_str(), cvpTECM1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
-  Charge_Vs_PathlengthTECM2[elepos] = ibooker.book2S(cvpTECM2.c_str(), cvpTECM2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
+                                             << tag << std::endl;
+
+    if ( strcmp(booked_dir.c_str(),dqm_dir)!=0 ) {
+        booked_dir = dqm_dir;
+        dbe->setCurrentFolder(dqm_dir);
+    }
+
+    std::string stag(tag);
+    if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+
+    std::string cvi      = std::string("Charge_Vs_Index") + stag;
+    //std::string cviA     = std::string("Charge_Vs_Index_Absolute")  + stag;
+    std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;
+    std::string cvpTOB   = std::string("Charge_Vs_PathlengthTOB")   + stag;
+    std::string cvpTIDP  = std::string("Charge_Vs_PathlengthTIDP")  + stag;
+    std::string cvpTIDM  = std::string("Charge_Vs_PathlengthTIDM")  + stag;
+    std::string cvpTECP1 = std::string("Charge_Vs_PathlengthTECP1") + stag;
+    std::string cvpTECP2 = std::string("Charge_Vs_PathlengthTECP2") + stag;
+    std::string cvpTECM1 = std::string("Charge_Vs_PathlengthTECM1") + stag;
+    std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
+
+    int elepos = (m_harvestingMode && AlgoMode=="PCL")? Harvest : statCollectionFromMode(tag);
+
+    Charge_Vs_Index[elepos]           = dbe->book2S(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
+    //Charge_Vs_Index_Absolute[elepos]  = dbe->book2S(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
+    Charge_Vs_PathlengthTIB[elepos]   = dbe->book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTOB[elepos]   = dbe->book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDP[elepos]  = dbe->book2S(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDM[elepos]  = dbe->book2S(cvpTIDM.c_str() , cvpTIDM.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP1[elepos] = dbe->book2S(cvpTECP1.c_str(), cvpTECP1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP2[elepos] = dbe->book2S(cvpTECP2.c_str(), cvpTECP2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM1[elepos] = dbe->book2S(cvpTECM1.c_str(), cvpTECM1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM2[elepos] = dbe->book2S(cvpTECM2.c_str(), cvpTECM2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
 }
 
-void SiStripGainFromCalibTree::algoBeginJob(DQMStore::IBooker &ibooker,const edm::EventSetup& iSetup)
+void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
         edm::LogInfo("SiStripGainFromCalibTree") << "AlgoMode        : " << AlgoMode          << "\n"
                                                  << "CalibrationMode : " << m_calibrationMode << "\n"
                                                  << "HarvestingMode  : " << m_harvestingMode  << std::endl;
-
-	// Gather DQM Service
-	// DQMStore * store = edm::Service<DQMStore>().operator->();
-	// dbe->setVerbose(10);
-
         //Setup DQM histograms
 	if(AlgoMode != "PCL" or m_harvestingMode) {
             const char * dqm_dir = "AlCaReco/SiStripGainsHarvesting/";
-            this->bookDQMHistos(ibooker, dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
+            this->bookDQMHistos( dqm_dir, dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str() );
         } else {
             //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
             if (!isBFieldConsistentWithMode(iSetup)) {
@@ -468,7 +467,7 @@ void SiStripGainFromCalibTree::algoBeginJob(DQMStore::IBooker &ibooker,const edm
             }
             std::string dqm_dir = m_DQMdir + ((m_splitDQMstat)? m_calibrationMode:"") + "/";
             int elem = statCollectionFromMode(m_calibrationMode.c_str());
-            this->bookDQMHistos(ibooker, dqm_dir.c_str(), dqm_tag_[elem].c_str() );
+            this->bookDQMHistos( dqm_dir.c_str(), dqm_tag_[elem].c_str() );
         }
 
 
@@ -607,17 +606,16 @@ void SiStripGainFromCalibTree::swapBFieldMode() {
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
-    
-  if( !m_harvestingMode && AlgoMode=="PCL") { 
-    //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
-    if (!isBFieldConsistentWithMode(iSetup)) {
-      string prevMode = m_calibrationMode;
-      swapBFieldMode();
-      edm::LogInfo("SiStripGainFromCalibTree") << "Switching calibration mode for endorsing BField status: "
-					       << prevMode << " ==> " << m_calibrationMode << std::endl;
+    if( !m_harvestingMode && AlgoMode=="PCL") { 
+        //Check consistency of calibration Mode and BField only for the ALCAPROMPT in the PCL workflow
+        if (!isBFieldConsistentWithMode(iSetup)) {
+            string prevMode = m_calibrationMode;
+            swapBFieldMode();
+            edm::LogInfo("SiStripGainFromCalibTree") << "Switching calibration mode for endorsing BField status: "
+                                                     << prevMode << " ==> " << m_calibrationMode << std::endl;
+        }
     }
-  }
-  
+
     edm::ESHandle<SiStripGain> gainHandle;
     iSetup.get<SiStripGainRcd>().get(gainHandle);
     if(!gainHandle.isValid()){edm::LogError("SiStripGainFromCalibTree")<< "gainHandle is not valid\n"; exit(0);}
@@ -654,7 +652,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 	}
 }
 
-void SiStripGainFromCalibTree::algoEndRun(DQMStore::IGetter& igetter_,const edm::Run& run, const edm::EventSetup& iSetup){
+void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventSetup& iSetup){
 	if(AlgoMode == "PCL" && !m_harvestingMode) return;//nothing to do in that case
 
 	if(AlgoMode == "PCL" and m_harvestingMode){
@@ -692,16 +690,16 @@ void SiStripGainFromCalibTree::algoEndRun(DQMStore::IGetter& igetter_,const edm:
                 std::string cvpTECM1 = DQM_dir + std::string("/Charge_Vs_PathlengthTECM1") + stag;
                 std::string cvpTECM2 = DQM_dir + std::string("/Charge_Vs_PathlengthTECM2") + stag;
 
-                Charge_Vs_Index[elepos]           = igetter_.get(cvi.c_str());
-                //Charge_Vs_Index_Absolute[elepos]  = igetter_.get(cviA.c_str());
-                Charge_Vs_PathlengthTIB[elepos]   = igetter_.get(cvpTIB.c_str());
-                Charge_Vs_PathlengthTOB[elepos]   = igetter_.get(cvpTOB.c_str());
-                Charge_Vs_PathlengthTIDP[elepos]  = igetter_.get(cvpTIDP.c_str());
-                Charge_Vs_PathlengthTIDM[elepos]  = igetter_.get(cvpTIDM.c_str());
-                Charge_Vs_PathlengthTECP1[elepos] = igetter_.get(cvpTECP1.c_str());
-                Charge_Vs_PathlengthTECP2[elepos] = igetter_.get(cvpTECP2.c_str());
-                Charge_Vs_PathlengthTECM1[elepos] = igetter_.get(cvpTECM1.c_str());
-                Charge_Vs_PathlengthTECM2[elepos] = igetter_.get(cvpTECM2.c_str());
+                Charge_Vs_Index[elepos]           = dbe->get(cvi.c_str());
+                //Charge_Vs_Index_Absolute[elepos]  = dbe->get(cviA.c_str());
+                Charge_Vs_PathlengthTIB[elepos]   = dbe->get(cvpTIB.c_str());
+                Charge_Vs_PathlengthTOB[elepos]   = dbe->get(cvpTOB.c_str());
+                Charge_Vs_PathlengthTIDP[elepos]  = dbe->get(cvpTIDP.c_str());
+                Charge_Vs_PathlengthTIDM[elepos]  = dbe->get(cvpTIDM.c_str());
+                Charge_Vs_PathlengthTECP1[elepos] = dbe->get(cvpTECP1.c_str());
+                Charge_Vs_PathlengthTECP2[elepos] = dbe->get(cvpTECP2.c_str());
+                Charge_Vs_PathlengthTECM1[elepos] = dbe->get(cvpTECM1.c_str());
+                Charge_Vs_PathlengthTECM2[elepos] = dbe->get(cvpTECM2.c_str());
 
                 if (Charge_Vs_Index[elepos]==0) {
                     edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << cvi.c_str()
@@ -1203,7 +1201,6 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
                                                   << m_calibrationMode.c_str() << " data." << std::endl;
         return false; 
     }
-
 
     float integral = (Charge_Vs_Index[elepos])->getTH2S()->Integral();
     if( (Charge_Vs_Index[elepos])->getTH2S()->Integral(0,NStripAPVs+1, 0, 99999 ) < tagCondition_NClusters) {
