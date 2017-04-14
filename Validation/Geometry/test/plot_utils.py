@@ -26,7 +26,7 @@ plots.setdefault('l_vs_eta_vs_phi', Plot_params(1030, '#eta', '#varphi', 0., 0.,
 plots.setdefault('x_vs_z_vs_Rsum', Plot_params(50, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/X_{0}', 1, 0., 2.5, 0, 0))
 plots.setdefault('x_vs_z_vs_R', Plot_params(60, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/X_{0}', 1, 0.00001, 0.01, 1, 0))
 plots.setdefault('l_vs_z_vs_Rsum', Plot_params(1050, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '#Sigmax/#lambda_{I}', 1, 0., 1., 0, 0))
-plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{I}', 1, 0.001, 0.9, 1, 0)) 
+plots.setdefault('l_vs_z_vs_R', Plot_params(1060, 'z [mm]', 'R [mm]', 0., 0., 0., 0., '1/#lambda_{I}', 1, 0.001, 0.9, 1, 0))
 plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
@@ -122,6 +122,7 @@ hist_label_to_num['OTH'] = [600, 42, 'Other']
 hist_label_to_num['AIR'] = [700, 29, 'Air']
 
 def setTDRStyle():
+    """Function to setup a TDR-like style"""
     tdrStyle = TStyle("tdrStyle","Style for P-TDR")
 
     # For the canvas:
@@ -131,7 +132,7 @@ def setTDRStyle():
     tdrStyle.SetCanvasDefW(600) #Width of canvas
     tdrStyle.SetCanvasDefX(0)   #POsition on screen
     tdrStyle.SetCanvasDefY(0)
-    
+
     # For the Pad:
     tdrStyle.SetPadBorderMode(0)
     tdrStyle.SetPadColor(kWhite)
@@ -140,7 +141,7 @@ def setTDRStyle():
     tdrStyle.SetGridColor(0)
     tdrStyle.SetGridStyle(3)
     tdrStyle.SetGridWidth(1)
-    
+
     # For the frame:
     tdrStyle.SetFrameBorderMode(0)
     tdrStyle.SetFrameBorderSize(1)
@@ -149,7 +150,7 @@ def setTDRStyle():
     tdrStyle.SetFrameLineColor(1)
     tdrStyle.SetFrameLineStyle(1)
     tdrStyle.SetFrameLineWidth(1)
-    
+
     # For the histo:
     tdrStyle.SetHistLineColor(1)
     tdrStyle.SetHistLineStyle(0)
@@ -157,17 +158,17 @@ def setTDRStyle():
     tdrStyle.SetEndErrorSize(2)
     tdrStyle.SetErrorX(0.)
     tdrStyle.SetMarkerStyle(20)
-    
+
     #For the fit/function:
     tdrStyle.SetOptFit(1)
     tdrStyle.SetFitFormat("5.4g")
     tdrStyle.SetFuncColor(2)
     tdrStyle.SetFuncStyle(1)
     tdrStyle.SetFuncWidth(1)
-    
+
     #For the date:
     tdrStyle.SetOptDate(0)
-    
+
     # For the statistics box:
     tdrStyle.SetOptFile(0)
     tdrStyle.SetOptStat(0); # To display the mean and RMS:   SetOptStat("mr")
@@ -179,13 +180,13 @@ def setTDRStyle():
     tdrStyle.SetStatBorderSize(1)
     tdrStyle.SetStatH(0.1)
     tdrStyle.SetStatW(0.15)
-    
+
     # Margins:
     tdrStyle.SetPadTopMargin(0.05)
     tdrStyle.SetPadBottomMargin(0.13)
     tdrStyle.SetPadLeftMargin(0.16)
     tdrStyle.SetPadRightMargin(0.02)
-    
+
     # For the Global title:
     tdrStyle.SetOptTitle(0)
     tdrStyle.SetTitleFont(42)
@@ -193,20 +194,20 @@ def setTDRStyle():
     tdrStyle.SetTitleTextColor(1)
     tdrStyle.SetTitleFillColor(10)
     tdrStyle.SetTitleFontSize(0.05)
-    
+
     # For the axis titles:
     tdrStyle.SetTitleColor(1, "XYZ")
     tdrStyle.SetTitleFont(42, "XYZ")
     tdrStyle.SetTitleSize(0.06, "XYZ")
     tdrStyle.SetTitleXOffset(0.9)
     tdrStyle.SetTitleYOffset(1.25)
-    
+
     # For the axis labels:
     tdrStyle.SetLabelColor(1, "XYZ")
     tdrStyle.SetLabelFont(42, "XYZ")
     tdrStyle.SetLabelOffset(0.007, "XYZ")
     tdrStyle.SetLabelSize(0.05, "XYZ")
-    
+
     # For the axis:
     tdrStyle.SetAxisColor(1, "XYZ")
     tdrStyle.SetStripDecimals(kTRUE)
@@ -214,26 +215,31 @@ def setTDRStyle():
     tdrStyle.SetNdivisions(510, "XYZ")
     tdrStyle.SetPadTickX(1)  # To get tick marks on the opposite side of the frame
     tdrStyle.SetPadTickY(1)
-    
+
     # Change for log plots:
     tdrStyle.SetOptLogx(0)
     tdrStyle.SetOptLogy(0)
     tdrStyle.SetOptLogz(0)
-    
+
     # Postscript options:
     tdrStyle.SetPaperSize(20.,20.)
 
     tdrStyle.cd()
 
 def drawEtaValues():
-    #Add eta labels
-    keep_alive = []
-    etas = [-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0,
-            -1.8, -1.6, -1.4, -1.2, -1.,
-            -0.8, -0.6, -0.4, -0.2, 0.,
-            0.2, 0.4, 0.6, 0.8, 1.,
-            1.2, 1.4, 1.6, 1.8, 2.,
-            2.2, 2.4, 2.6, 2.8, 3.0, 3.4]
+    """Function to draw the eta references on top of an already existing
+    TCanvas. The lines and labels drawn are collected inside a list and
+    the list is returned to the user to extend the live of the objects
+    contained, otherwise no lines and labels will be drawn, since they
+    will be garbage-collected as soon as this function returns."""
+
+    #Add eta
+    labels keep_alive = []
+    etas = [-3.4, -3.0, -2.8, -2.6, -2.4, -2.2,
+            -2.0, -1.8, -1.6, -1.4, -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2,
+            0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0,
+            3.4]
+
     etax = 2940.
     etay = 1240.
     lineL = 100.
@@ -269,7 +275,7 @@ def drawEtaValues():
         xt = x2
         yt = y2+offT
 
-        line1 = TLine(x1,y1,x2,y2) 
+        line1 = TLine(x1,y1,x2,y2)
         line1.Draw()
         keep_alive.append(line1)
 
