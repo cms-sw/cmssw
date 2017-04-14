@@ -148,7 +148,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
@@ -218,7 +218,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double s2 = -m11;
     double l2 = 1./(c2*c2+s2*s2);
 
-   float sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
+   double sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
    // auto sigmap22 = (*seconditer)->sigmaPitch();
     // assert(sigmap22>=0);
 
@@ -311,7 +311,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
 
-  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
@@ -354,7 +354,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l2 = 1./(c2*c2+s2*s2);
   
   
-  float sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
+  double sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
   // auto sigmap22 = stereoRH->sigmaPitch();
   // assert (sigmap22>0);
 
