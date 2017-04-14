@@ -123,6 +123,7 @@ hist_label_to_num['AIR'] = [700, 29, 'Air']
 
 def setTDRStyle():
     """Function to setup a TDR-like style"""
+
     tdrStyle = TStyle("tdrStyle","Style for P-TDR")
 
     # For the canvas:
@@ -227,14 +228,17 @@ def setTDRStyle():
     tdrStyle.cd()
 
 def drawEtaValues():
-    """Function to draw the eta references on top of an already existing
+    """Function to draw the eta.
+
+    Function to draw the eta references on top of an already existing
     TCanvas. The lines and labels drawn are collected inside a list and
     the list is returned to the user to extend the live of the objects
     contained, otherwise no lines and labels will be drawn, since they
-    will be garbage-collected as soon as this function returns."""
+    will be garbage-collected as soon as this function returns.
+    """
 
-    #Add eta
-    labels keep_alive = []
+    # Add eta labels
+    keep_alive = []
     etas = [-3.4, -3.0, -2.8, -2.6, -2.4, -2.2,
             -2.0, -1.8, -1.6, -1.4, -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2,
             0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0,
