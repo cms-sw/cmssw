@@ -12,17 +12,18 @@ namespace l1t {
 
             virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
 
-            unsigned int getAlgoVersion();
-            int getFedNumber();
-            unsigned int getMuonSet();
+            inline unsigned int getAlgoVersion() { return algoVersion_; };
+            inline int getFedNumber() { return fed_; };
+            inline unsigned int getMuonCopy() { return muonCopy_; };
 
-            void setAlgoVersion(const unsigned int version);
-            void setFedNumber(const int fed);
-            void setMuonSet(const unsigned int set);
+            inline void setAlgoVersion(const unsigned int version) { algoVersion_ = version; };
+            inline void setFedNumber(const int fed) { fed_ = fed; };
+            inline void setMuonCopy(const unsigned int copy) { muonCopy_ = copy; };
+
          private:
             unsigned int algoVersion_;
             int fed_;
-            unsigned int muonSet_;
+            unsigned int muonCopy_;
 
       };
    }
