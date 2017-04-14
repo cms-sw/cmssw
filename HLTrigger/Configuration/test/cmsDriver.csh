@@ -105,7 +105,19 @@ foreach gtag ( MC DATA )
   endif
   
   if ( $1 == "" ) then
+    set tables = ( GRun )
+  else if ( ($1 == all) || ($1 == ALL) ) then
     set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+  else if ( ($1 == ib) || ($1 == IB) ) then
+    set tables = ( GRun HIon PIon PRef )
+  else if ( ($1 == dev) || ($1 == DEV) ) then
+    set tables = ( GRun HIon PIon PRef )
+  else if ( ($1 == full) || ($1 == FULL) ) then
+    set tables = ( FULL )
+  else if ( ($1 == fake) || ($1 == FAKE) ) then
+    set tables = ( Fake Fake1 Fake2 )
+  else if ( ($1 == frozen) || ($1 == FROZEN) ) then
+    set tables = ( Fake Fake1 Fake2 )
   else
     set tables = ( $1 )
   endif
