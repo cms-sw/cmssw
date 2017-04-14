@@ -9,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      MuonUnpacker::MuonUnpacker() : algoVersion_(0), muonSet_(1)
+      MuonUnpacker::MuonUnpacker() : algoVersion_(0), muonCopy_(0)
       {
       }
 
@@ -29,7 +29,7 @@ namespace l1t {
          //lastBX = 0;
          //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
-         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons(muonSet_);
+         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
          res->setBXRange(firstBX, lastBX);
 
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -59,42 +59,6 @@ namespace l1t {
             }
          }
          return true;
-      }
-
-      unsigned int
-      MuonUnpacker::getAlgoVersion()
-      {
-        return algoVersion_;
-      }
-
-      int
-      MuonUnpacker::getFedNumber()
-      {
-        return fed_;
-      }
-
-      unsigned int
-      MuonUnpacker::getMuonSet()
-      {
-        return muonSet_;
-      }
-
-      void
-      MuonUnpacker::setAlgoVersion(const unsigned int version)
-      {
-        algoVersion_ = version;
-      }
-
-      void
-      MuonUnpacker::setFedNumber(const int fed)
-      {
-        fed_ = fed;
-      }
-
-      void
-      MuonUnpacker::setMuonSet(const unsigned int set)
-      {
-        muonSet_ = set;
       }
    }
 }
