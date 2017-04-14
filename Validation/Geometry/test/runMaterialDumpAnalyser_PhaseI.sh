@@ -8,6 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
+geometry=Extended2017Plan1
 
 # ARGUMENT PARSING
 
@@ -39,7 +40,7 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 --era Run2_2017 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
---geometry DB:Extended  \
+--geometry ${geometry}  \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
@@ -61,7 +62,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
 --era Run2_2017 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---geometry DB:Extended \
+--geometry ${geometry} \
 --nThreads 6 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
@@ -83,7 +84,7 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 --era Run2_2017 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---geometry DB:Extended \
+--geometry ${geometry} \
 --nThreads 6 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
@@ -105,7 +106,7 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 --era Run2_2017  \
 --scenario pp  \
 --filetype DQM  \
---geometry DB:Extended \
+--geometry ${geometry} \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseI_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseI.py > SingleMuPt10_step4_HARVESTING_PhaseI.log 2>&1
@@ -133,7 +134,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=phaseI label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 

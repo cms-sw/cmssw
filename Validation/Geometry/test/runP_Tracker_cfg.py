@@ -25,8 +25,8 @@ from plot_utils import _LABELS2COMPS
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
-options.register('geom',        #name
-                 'phaseI',      #default value
+options.register('geom',             #name
+                 'DB:Extended',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -62,10 +62,11 @@ def _adaptToRun2(det):
     det = det.replace('plus', 'Plus')
   return det
 
+# Load geometry either from the Database of from files
 process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
 
 # Customise names for Run2
-if not re.match('.*2023D.*', options.geom):
+if re.match('.*2016.*', options.geom):
   if isinstance(_components, list):
       for i in range(len(_components)):
           _components[i] = _adaptToRun2(_components[i])
