@@ -83,8 +83,9 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       bool IsGoodLandauFit(double* FitResults); 
 
       bool produceTagFilter(const MonitorElement* Charge_Vs_Index);
-      SiStripApvGain* getNewObject(const MonitorElement* Charge_Vs_Index);
+      std::unique_ptr<SiStripApvGain> getNewObject(const MonitorElement* Charge_Vs_Index);
 
+      bool doStoreOnDB;
       unsigned int GOOD;
       unsigned int BAD;
       unsigned int MASKED;

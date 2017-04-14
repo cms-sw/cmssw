@@ -10,6 +10,7 @@
 
 //********************************************************************************//
 SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps):
+  doStoreOnDB(false),
   GOOD(0),
   BAD(0),
   MASKED(0),
@@ -101,16 +102,19 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   }
 
   algoComputeMPVandGain(Charge_Vs_Index);
-  SiStripApvGain* theAPVGains = getNewObject(Charge_Vs_Index);
+  std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(Charge_Vs_Index);
 
   // write out the APVGains record
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   
-  if( poolDbService.isAvailable() )
-    poolDbService->writeOne(theAPVGains, poolDbService->currentTime(),m_Record);
-  else
-    throw std::runtime_error("PoolDBService required.");
-
+  if( doStoreOnDB ){
+    if( poolDbService.isAvailable() )
+      poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(),m_Record);
+    else
+      throw std::runtime_error("PoolDBService required.");
+  } else {
+    edm::LogInfo("SiStripGainsPCLHarvester") << "Will not produce payload!" << std::endl;  
+  }
 }
 
 //********************************************************************************//
@@ -376,13 +380,16 @@ bool SiStripGainsPCLHarvester::produceTagFilter(const MonitorElement* Charge_Vs_
 }
 
 //********************************************************************************//
-SiStripApvGain* SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index) 
+std::unique_ptr<SiStripApvGain>
+SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index) 
 {
-  SiStripApvGain* obj = new SiStripApvGain();
+  std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
   
   if(!produceTagFilter(Charge_Vs_Index)){
     edm::LogWarning("SiStripGainsPCLHarvester")<< "getNewObject -> will not produce a paylaod because produceTagFilter returned false " << std::endl;       
     return obj;
+  } else {
+    doStoreOnDB=true;
   }
   
   std::vector<float>* theSiStripVector = NULL;
