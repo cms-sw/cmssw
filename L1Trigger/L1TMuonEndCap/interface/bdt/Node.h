@@ -64,7 +64,7 @@ class Node
         Node(const Node &);
         Node& operator=(const Node &);
 
-	std::string name;
+        std::string name;
 
         Node *leftDaughter;
         Node *rightDaughter;
