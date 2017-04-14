@@ -118,25 +118,28 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //For gen jet
 
-  for(uint i=0; i < GenJets->size(); i++){
-     const reco::GenJet *Genjet = &GenJets->at(i);
-     if(fabs(Genjet->eta())>4.7) continue;
+  for(auto &Genjet : *GenJets ){
+
+     // eta within calorimeter acceptance 4.7
+     if(fabs((&Genjet)->eta())>4.7) continue;
 
      double minDR = 999.0;
+
+     // match L1T object
      const l1t::Jet        *L1Part=NULL;
      for(int iBx = JetsBX->getFirstBX();  iBx<=JetsBX->getLastBX(); ++iBx){
           if(iBx>0) continue;
           for(std::vector<l1t::Jet>::const_iterator jet = JetsBX->begin(iBx); jet != JetsBX->end(iBx); ++jet){
-                double idR = reco::deltaR(Genjet->eta(), Genjet->phi(), jet->eta(), jet->phi());
+                double idR = reco::deltaR((&Genjet)->eta(), (&Genjet)->phi(), jet->eta(), jet->phi());
                 if( idR < minDR ){
                          minDR = idR;
                          L1Part = &(*jet);
                 }
-
           }
      }
-     _Hists.Fill(L1ValidatorHists::Type::Jet, Genjet, L1Part);
+     _Hists.Fill(L1ValidatorHists::Type::Jet, &Genjet, L1Part);
   }
+
 
   for(uint i=0; i < GenParticles->size(); i++){
     const GenParticle *GenPart = &GenParticles->at(i);
@@ -144,18 +147,13 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int pdg = GenPart->pdgId(), status = GenPart->status();
 
     double minDR = 999.0;
+
+    /// select the final state (i.e status==1) muons (pdg==+/-13)
     if(status==1 && abs(pdg)==13){  //Muon
+
+       // eta within tracker acceptance 2.4
        if(fabs(GenPart->eta())>2.4) continue;
-       // calculate the isolation
-       double TotalIso30 = 0;
-       for(uint j=0; j<GenParticles->size(); j++){
-		const GenParticle *oGenPart = &GenParticles->at(j);
-		if(oGenPart == GenPart)continue;
-		if(oGenPart->status() !=1) continue;
-		double jdR =  reco::deltaR(GenPart->eta(), GenPart->phi(), oGenPart->eta(), oGenPart->phi()); 
-		if(jdR < 0.3) TotalIso30 += oGenPart->pt(); 
-       }
-       //if(TotalIso30/GenPart->pt() > 0.15)continue; 
+
        // match L1T object
        const l1t::Muon 	*L1Part=NULL;
        for(int iBx = MuonsBX->getFirstBX();  iBx<=MuonsBX->getLastBX(); ++iBx){
@@ -169,21 +167,18 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 		
 	  }
           _Hists.Fill(L1ValidatorHists::Type::Muon, GenPart, L1Part);
-       }
+       } 
 
-     }  else if(status==1 && (abs(pdg)==11 || pdg==22)){  //Egamma
+
+    /// select the final state (i.e status==1) electrons (pdg==+/-11) and photons (pdg==22)
+    }  else if(status==1 && (abs(pdg)==11 || pdg==22)){  //Egamma
+
+       // eta within EM calorimeter acceptance 2.5
        if(fabs(GenPart->eta())>2.5) continue;
+
+       // exclude the calorimeter barrel and endcap overlap region 
        if(fabs(GenPart->eta())>1.4442 && fabs(GenPart->eta())<1.5660) continue;
-       // calculate the isolation
-       double TotalIso30 = 0;
-       for(uint j=0; j<GenParticles->size(); j++){
-		const GenParticle *oGenPart = &GenParticles->at(j);
-		if(oGenPart == GenPart)continue;
-		if(oGenPart->status() !=1) continue;
-		double jdR =  reco::deltaR(GenPart->eta(), GenPart->phi(), oGenPart->eta(), oGenPart->phi()); 
-		if(jdR < 0.3) TotalIso30 += oGenPart->pt(); 
-       }
-       //if(TotalIso30/GenPart->pt() > 0.15)continue; 
+
        // match L1T object
        const l1t::EGamma 	*L1Part=NULL;
        for(int iBx = EGammasBX->getFirstBX();  iBx<=EGammasBX->getLastBX(); ++iBx){
@@ -198,9 +193,14 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        }
        _Hists.Fill(L1ValidatorHists::Type::Egamma, GenPart, L1Part);
 
+
+    /// select the matrix element (i.e status==2) taus (pdg==+/-15) before decay
      } else if(status==2 && abs(pdg)==15){  //Tau
-       // match L1T object
+
+       // eta within tracker acceptance 2.4
        if(fabs(GenPart->eta())>2.4) continue;
+
+       // match L1T object
        const l1t::Tau 	*L1Part=NULL;
        for(int iBx = TausBX->getFirstBX();  iBx<=TausBX->getLastBX(); ++iBx){
 	  if(iBx>0) continue;
@@ -217,6 +217,7 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
   }
+
 }
 
 //The next three are exactly the same, but apparently inheritance doesn't work like I thought it did.
