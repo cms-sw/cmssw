@@ -26,7 +26,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'DB:Extended',      #default value
+                 'Extended2017Plan1',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
