@@ -52,7 +52,7 @@ def assignOrAddIfExists_(h, p):
     return h
 
 def createPlots(plot):
-    IBs = ["InnerServices", "Phase1PixelBarrel", "TIB", "TIDF", "TIDB"]
+    IBs = ["InnerServices", "Phase2PixelBarrel", "TIB", "TIDF", "TIDB"]
     theDirname = "Figures"
 
     hist_X0_detectors = OrderedDict()

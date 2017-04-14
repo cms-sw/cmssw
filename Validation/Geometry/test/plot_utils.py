@@ -45,19 +45,22 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'TEC':         'TEC',
                  'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
                  'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
-                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
                  'Phase2PixelBarrel': 'Phase2PixelBarrel',
                  'Phase2OTBarrel': 'Phase2OTBarrel',
                  'Phase2PixelEndcap': 'Phase2PixelEndcap',
                  'Phase2OTForward': 'Phase2OTForward'}
 
 COMPOUNDS = OrderedDict()
+COMPOUNDS["Tracker"] = ["Tracker"]
 COMPOUNDS["TrackerSum"] = ["TIB", "TIDF", "TIDB",
                            "BeamPipe", "InnerServices",
                            "TOB", "TEC",
                            "TkStruct",
-                           "PixBar", "Phase1PixelBarrel", "Phase2PixelBarrel",
-                           "PixFwdPlus", "PixFwdMinus"]
+                           "PixBar", "PixFwdPlus", "PixFwdMinus"]
+COMPOUNDS["TrackerSumPhaseII"] = ["BeamPipe",
+                                  "Phase2PixelBarrel",
+                                  "Phase2OTBarrel", "Phase2OTForward",
+                                  "Phase2PixelEndcap"]
 COMPOUNDS["Pixel"] = ["PixBar", "PixFwdMinus", "PixFwdPlus"]
 COMPOUNDS["Strip"] = ["TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC"]
 COMPOUNDS["InnerTracker"] = ["TIB", "TIDF", "TIDB", "InnerServices"]
