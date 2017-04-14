@@ -61,6 +61,8 @@ def _adaptToRun2(det):
     det = det.replace('plus', 'Plus')
   return det
 
+process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+
 if options.geom == '2017' or options.geom == 'phaseI':
   process.load("Configuration.Geometry.GeometryExtended2017_cff")
 elif options.geom == 'run2':
@@ -76,6 +78,7 @@ elif options.geom == 'phaseIID4':
 elif options.geom == 'phaseIID11':
   process.load("Configuration.Geometry.GeometryExtended2023D11_cff")
 else:
+  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
   print("Unknown geometry %s" % options.geom)
   sys.exit(1)
 
