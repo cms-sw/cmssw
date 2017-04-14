@@ -1,11 +1,11 @@
 # In order to produce everything that you need in one go, use the command:
 #
-# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &; done
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
 
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-import sys
+import sys, re
 
 process = cms.Process("PROD")
 
@@ -51,6 +51,7 @@ if options.label not in _ALLOWED_LABELS:
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
+
 #
 #Geometry
 #
@@ -63,25 +64,14 @@ def _adaptToRun2(det):
 
 process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
 
-if options.geom == '2017' or options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017_cff")
-elif options.geom == 'run2':
-  process.load("Configuration.Geometry.GeometryExtended2016_cff")
+# Customise names for Run2
+if not re.match('.*2023D.*', options.geom):
   if isinstance(_components, list):
       for i in range(len(_components)):
           _components[i] = _adaptToRun2(_components[i])
   else:
       _components = _adaptToRun2(_components)
-
-elif options.geom == 'phaseIID4':
-  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
-elif options.geom == 'phaseIID11':
-  process.load("Configuration.Geometry.GeometryExtended2023D11_cff")
-else:
-  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
-  print("Unknown geometry %s" % options.geom)
-  sys.exit(1)
-
+    
 #
 #Magnetic Field
 #

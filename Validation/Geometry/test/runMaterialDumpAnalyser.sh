@@ -8,6 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
+geometry='Extended2016'
 
 # ARGUMENT PARSING
 
@@ -127,7 +128,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
