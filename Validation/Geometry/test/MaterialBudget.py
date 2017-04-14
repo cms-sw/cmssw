@@ -361,23 +361,9 @@ def create2DPlots(detector, plot):
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
 
-    if plot not in plots.keys():
-        print('Error: chosen plot name not known %s' % plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    if not goodToGo:
         return
-
-    if detector not in DETECTORS and detector not in COMPOUNDS.keys():
-        print('Error, unknown detector: %s' % detector)
-        return
-
-    theDetectorFilename = ''
-    if detector in DETECTORS:
-        theDetectorFilename = 'matbdg_%s.root' % detector
-    else:
-        theDetectorFilename = 'matbdg_%s.root' % COMPOUNDS[detector][0]
-
-    if not checkFile_(theDetectorFilename):
-        print("Error, missing file %s" % theDetectorFilename)
-        raise RuntimeError
 
     theDetectorFile = TFile(theDetectorFilename)
 
