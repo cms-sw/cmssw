@@ -60,7 +60,7 @@ Forest::~Forest()
 // this should be changed in future upgrades.
 
     for(unsigned int i=0; i < trees.size(); i++)
-    { 
+    {
         if(trees[i]) delete trees[i];
     }
 }
@@ -78,7 +78,7 @@ Forest& Forest::operator=(const Forest &forest)
 {
     for(unsigned int i=0; i < trees.size(); i++)
     { 
-        delete trees[i];
+        if(trees[i]) delete trees[i];
     }
     trees.resize(0);
 
@@ -528,7 +528,7 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
         ss << directory << "/" << i << ".xml";
 
         //trees[i]->loadFromXML(ss.str().c_str());
-		trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
+        trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
     }   
 
    // std::cout << "Done." << std::endl << std::endl;
@@ -542,7 +542,9 @@ void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest)
 
     // clean-up leftovers from previous initialization (if any)
     for(unsigned int i=0; i < trees.size(); i++)
-        if( trees[i] ) delete trees[i];
+    {
+        if(trees[i]) delete trees[i];
+    }
 
     trees = std::vector<Tree*>(numTrees);
 

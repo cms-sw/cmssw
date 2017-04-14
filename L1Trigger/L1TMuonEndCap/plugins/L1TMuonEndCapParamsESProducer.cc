@@ -1,6 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <iostream>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -9,7 +8,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 
 using namespace std;
 
@@ -18,50 +16,38 @@ using namespace std;
 class L1TMuonEndCapParamsESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapParamsESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapParamsESProducer();
-  
+  ~L1TMuonEndCapParamsESProducer() {}
+
   typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
 
   ReturnType produce(const L1TMuonEndcapParamsRcd&);
+
 private:
-  l1t::EndCapParamsHelper data_;
+  L1TMuonEndCapParams params;
 };
 
-L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::ParameterSet& iConfig) :
-  data_(new L1TMuonEndCapParams())
+// constructor
+
+L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::ParameterSet& iConfig)
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
    setWhatProduced(this);
 
-   data_.SetPtAssignVersion(iConfig.getParameter<int>("PtAssignVersion"));
-   data_.SetFirmwareVersion(iConfig.getParameter<int>("firmwareVersion"));
-   data_.SetSt1PhiMatchWindow(iConfig.getParameter<int>("St1MatchWindow"));
-   data_.SetSt2PhiMatchWindow(iConfig.getParameter<int>("St2MatchWindow"));
-   data_.SetSt3PhiMatchWindow(iConfig.getParameter<int>("St3MatchWindow"));
-   data_.SetSt4PhiMatchWindow(iConfig.getParameter<int>("St4MatchWindow"));
-      
+   params.PtAssignVersion_ = iConfig.getParameter<int>("PtAssignVersion");
+   params.firmwareVersion_ = iConfig.getParameter<int>("firmwareVersion");
+   params.PhiMatchWindowSt1_ = iConfig.getParameter<int>("St1MatchWindow");
+   params.PhiMatchWindowSt2_ = iConfig.getParameter<int>("St2MatchWindow");
+   params.PhiMatchWindowSt3_ = iConfig.getParameter<int>("St3MatchWindow");
+   params.PhiMatchWindowSt4_ = iConfig.getParameter<int>("St4MatchWindow");
 }
 
 
-L1TMuonEndCapParamsESProducer::~L1TMuonEndCapParamsESProducer()
-{
-}
-
-
-
-//
 // member functions
-//
 
-// ------------ method called to produce the data  ------------
 L1TMuonEndCapParamsESProducer::ReturnType
 L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndcapParamsRcd& iRecord)
 {
-   using namespace edm::es;
-   std::shared_ptr<L1TMuonEndCapParams> pEMTFParams(data_.getWriteInstance());
+   std::shared_ptr<L1TMuonEndCapParams> pEMTFParams(&params);
    return pEMTFParams;
-   
 }
 
 //define this as a plug-in

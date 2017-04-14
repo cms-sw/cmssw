@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 emtfParamsSource = cms.ESSource(
-	"EmptyESSource",
-	recordName = cms.string('L1TMuonEndcapParamsRcd'),
-	iovIsRunNotTime = cms.bool(True),
-	firstValid = cms.vuint32(1)
+    "EmptyESSource",
+    recordName = cms.string('L1TMuonEndcapParamsRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
 )
 
  ##EMTF ESProducer. Fills CondFormats from XML files.
 emtfParams = cms.ESProducer(
- 	"L1TMuonEndCapParamsESProducer",
+     "L1TMuonEndCapParamsESProducer",
     PtAssignVersion = cms.int32(1),
     firmwareVersion = cms.int32(12345),
     St1MatchWindow = cms.int32(15),
@@ -21,14 +21,14 @@ emtfParams = cms.ESProducer(
 
 
 emtfForestsSource = cms.ESSource(
-	"EmptyESSource",
-	recordName = cms.string('L1TMuonEndCapForestRcd'),
-	iovIsRunNotTime = cms.bool(True),
-	firstValid = cms.vuint32(1)
+    "EmptyESSource",
+    recordName = cms.string('L1TMuonEndCapForestRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
 )
 
 ##EMTF ESProducer. Fills CondFormats from XML files.
 emtfForests = cms.ESProducer(
-	"L1TMuonEndCapForestESProducer",
-        bdtXMLDir = cms.string('v_16_02_21')
+    "L1TMuonEndCapForestESProducer",
+    bdtXMLDir = cms.string('v_16_02_21')
 )
