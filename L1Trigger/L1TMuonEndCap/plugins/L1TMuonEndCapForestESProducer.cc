@@ -1,6 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <iostream>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -9,8 +8,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Node.h"
@@ -22,25 +19,30 @@ using namespace std;
 // class declaration
 
 class L1TMuonEndCapForestESProducer : public edm::ESProducer {
+public:
+  L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
+  ~L1TMuonEndCapForestESProducer() {}
+
+  typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
+
+  ReturnType produce(const L1TMuonEndCapForestRcd&);
+
 private:
   string bdtXMLDir;
 
   L1TMuonEndCapForest::DTree traverse(emtf::Node* tree);
-
-public:
-  L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapForestESProducer(){}
-  
-  typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
-
-  ReturnType produce(const L1TMuonEndCapForestRcd&);
 };
+
+// constructor
 
 L1TMuonEndCapForestESProducer::L1TMuonEndCapForestESProducer(const edm::ParameterSet& iConfig)
 {
    setWhatProduced(this);
+
    bdtXMLDir = iConfig.getParameter<string>("bdtXMLDir");
 }
+
+// member functions
 
 L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* node){
     // original implementation use 0 ptr for non-existing children nodes, return empty cond tree (vector of nodes)
@@ -51,9 +53,9 @@ L1TMuonEndCapForest::DTree L1TMuonEndCapForestESProducer::traverse(emtf::Node* n
     // allocate tree
     L1TMuonEndCapForest::DTree cond_tree(1 + left_subtree.size() + right_subtree.size());
     // copy the local root node
-    L1TMuonEndCapForest::DTreeNode &local_root = cond_tree[0]; 
+    L1TMuonEndCapForest::DTreeNode &local_root = cond_tree[0];
     local_root.splitVar = node->getSplitVariable();
-    local_root.splitVal = node->getSplitValue(); 
+    local_root.splitVal = node->getSplitValue();
     local_root.fitVal   = node->getFitValue();
     // shift children indicies and place the subtrees into the newly allocated tree
     local_root.ileft    = (left_subtree.size()?1:0); // left subtree (if exists) is placed right after the root -> index=1
@@ -110,4 +112,5 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
    return pEMTFForest;
 }
 
+//define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapForestESProducer);
