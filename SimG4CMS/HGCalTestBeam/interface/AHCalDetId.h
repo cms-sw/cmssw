@@ -32,10 +32,11 @@ public:
   int zside() const { return 1; }
   /// get the row number
   int irow() const;
-  int irowAbs() const { return (HcalDetId(id_).ietaAbs()); }
+  int irowAbs() const { 
+    return ((id_>>HcalDetId::kHcalEtaOffset2)&HcalDetId::kHcalEtaMask2); }
   /// get the column number
   int icol() const;
-  int icolAbs() const { return (HcalDetId(id_).iphi()); }
+  int icolAbs() const { return (id_&HcalDetId::kHcalPhiMask2); }
   /// get the layer number
   static const int MaxDepth=12;
   int depth() const;

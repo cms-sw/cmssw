@@ -545,12 +545,12 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits,
     if (type == 2) {
       subdet           = HcalDetId(id).subdet();
       if (subdet != HcalOther) continue;
-      layer = depth    = AHCalDetId(id).depth();
-      zside            = HcalDetId(id).zside();
-      sector           = AHCalDetId(id).irow();
-      cell             = AHCalDetId(id).icol();
-      idx              = ((AHCalDetId(id).irowAbs()*100)+
-			  (AHCalDetId(id).icolAbs()));
+      AHCalDetId hid(id);
+      layer = depth    = hid.depth();
+      zside            = hid.zside();
+      sector           = hid.irow();
+      cell             = hid.icol();
+      idx              = ((hid.irowAbs()*100) + (hid.icolAbs()));
     } else {
       HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector,
 					     subsector, cell);
