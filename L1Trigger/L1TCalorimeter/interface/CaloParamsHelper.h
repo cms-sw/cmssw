@@ -382,12 +382,18 @@ namespace l1t {
     std::vector<int> layer1ECalScaleETBins() { return pnode_[layer1ECal].iparams_; }
     std::vector<int> layer1HCalScaleETBins() { return pnode_[layer1HCal].iparams_; }
     std::vector<int> layer1HFScaleETBins()   { return pnode_[layer1HF  ].iparams_; }
+    std::vector<unsigned> layer1ECalScalePhiBins() { return pnode_[layer1ECal].uparams_; }
+    std::vector<unsigned> layer1HCalScalePhiBins() { return pnode_[layer1HCal].uparams_; }
+    std::vector<unsigned> layer1HFScalePhiBins()   { return pnode_[layer1HF  ].uparams_; }
     void setLayer1ECalScaleFactors(const std::vector<double> params) { pnode_[layer1ECal].dparams_ = params; }
     void setLayer1HCalScaleFactors(const std::vector<double> params) { pnode_[layer1HCal].dparams_ = params; }
     void setLayer1HFScaleFactors(const std::vector<double> params)   { pnode_[layer1HF  ].dparams_ = params; }
     void setLayer1ECalScaleETBins(const std::vector<int> params) { pnode_[layer1ECal].iparams_ = params; }
     void setLayer1HCalScaleETBins(const std::vector<int> params) { pnode_[layer1HCal].iparams_ = params; }
     void setLayer1HFScaleETBins(const std::vector<int> params)   { pnode_[layer1HF  ].iparams_ = params; }
+    void setLayer1ECalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1ECal].uparams_ = params; }
+    void setLayer1HCalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1HCal].uparams_ = params; }
+    void setLayer1HFScalePhiBins(const std::vector<unsigned> params)   { pnode_[layer1HF  ].uparams_ = params; }
 
 
   private:
