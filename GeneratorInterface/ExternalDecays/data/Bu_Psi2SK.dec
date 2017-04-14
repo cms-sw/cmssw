@@ -1,0 +1,20 @@
+# $Id: Bu_Psi2SK.dec,v 1.1 2014/04/02  Niladribihari Sahoo Exp $
+#
+# This is the decay file for the decay B+ -> Psi2S K + -> MU+ MU- K+
+#
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB-        MyB+
+Alias      MyPsi       psi(2S)
+ChargeConj MyPsi       MyPsi
+#
+Decay MyB+
+  1.000    MyPsi      K+              SVS;
+Enddecay
+CDecay MyB-
+#
+Decay MyPsi
+  1.000         mu+       mu-         PHOTOS VLL;
+Enddecay
+#
+End
