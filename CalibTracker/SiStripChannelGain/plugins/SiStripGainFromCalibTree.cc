@@ -1202,6 +1202,7 @@ bool SiStripGainFromCalibTree::produceTagFilter(){
         return false; 
     }
 
+
     float integral = (Charge_Vs_Index[elepos])->getTH2S()->Integral();
     if( (Charge_Vs_Index[elepos])->getTH2S()->Integral(0,NStripAPVs+1, 0, 99999 ) < tagCondition_NClusters) {
         edm::LogWarning("SiStripGainFromCalibTree") 
