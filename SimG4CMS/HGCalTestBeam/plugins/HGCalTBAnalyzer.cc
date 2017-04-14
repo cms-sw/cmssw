@@ -335,7 +335,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 	sprintf (name, "SimHitEnB%d%s", (l/3+1), detectorFH_.c_str());
 	sprintf (title,"Sim Hit Energy in layer %d for %s",(l/3+1),
 		 detectorFH_.c_str());
-	hSimHitLayEn2EE_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+	hSimHitLayEn2FH_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
       }
     }
 #ifdef EDM_ML_DEBUG
@@ -345,6 +345,19 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   } else {
     hgcons_[1] = 0;
     hgeom_[1]  = 0;
+  }
+
+  if (ifBH_) {
+    for (int l=0; l<AHCalDetId::MaxDepth; ++l) {
+      sprintf (name, "SimHitEnA%d%s", l, detectorBH_.c_str());
+      sprintf (title,"Sim Hit Energy in layer %d for %s",l+1,
+	       detectorBH_.c_str());
+      hSimHitLayEn1BH_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+      sprintf (name, "SimHitEnB%d%s", l, detectorBH_.c_str());
+      sprintf (title,"Sim Hit Energy in layer %d for %s",l+1,
+	       detectorBH_.c_str());
+      hSimHitLayEn2BH_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+    }
   }
 }
 
