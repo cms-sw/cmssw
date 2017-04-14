@@ -39,9 +39,6 @@ private:
   std::unique_ptr<MicroGMTConverter> uGMT_converter_;
 
   const edm::ParameterSet& config_;
-
-  unsigned long long paramsCacheID;
-  unsigned long long ptLutCacheID;
 };
 
 #endif

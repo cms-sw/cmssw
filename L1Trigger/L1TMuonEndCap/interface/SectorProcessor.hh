@@ -8,6 +8,9 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
 
+//#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.hh"
+
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 
@@ -32,6 +35,7 @@ public:
 
   void configure(
       const GeometryTranslator* tp_geom,
+      const ConditionHelper* cond,
       const SectorProcessorLUT* lut,
       const PtAssignmentEngine* pt_assign_engine,
       int verbose, int endcap, int sector,
@@ -68,6 +72,8 @@ public:
 
 private:
   const GeometryTranslator* tp_geom_;
+
+  const ConditionHelper* cond_;
 
   const SectorProcessorLUT* lut_;
 

@@ -16,6 +16,7 @@ void SectorProcessor::resetPtAssignment(const PtAssignmentEngine* new_pt_assign_
 
 void SectorProcessor::configure(
     const L1TMuon::GeometryTranslator* tp_geom,
+    const ConditionHelper* cond,
     const SectorProcessorLUT* lut,
     const PtAssignmentEngine* pt_assign_engine,
     int verbose, int endcap, int sector,
@@ -31,10 +32,12 @@ void SectorProcessor::configure(
   assert(MIN_TRIGSECTOR <= sector && sector <= MAX_TRIGSECTOR);
 
   assert(tp_geom != nullptr);
+  assert(cond != nullptr);
   assert(lut != nullptr);
   assert(pt_assign_engine != nullptr);
 
   tp_geom_          = tp_geom;
+  cond_             = cond;
   lut_              = lut;
   pt_assign_engine_ = pt_assign_engine;
 
