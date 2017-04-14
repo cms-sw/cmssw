@@ -19,7 +19,7 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
 }
 
 template<typename PDM2>
-void fastInvertPDM2(PDM2&mm) {
+bool fastInvertPDM2(PDM2&mm) {
   auto m = mm.Array();
 
   constexpr typename std::remove_reference<decltype(m[0])>::type one = 1.;
@@ -28,10 +28,12 @@ void fastInvertPDM2(PDM2&mm) {
   auto c2 = one/(m[2] - c1);
 
   auto li21 = c1 * c0 * c2;
+  if ( (c2<0) | (c0<0) ) return false;
   m[0] = li21 + c0;
   m[1] = - m[1]*c0*c2;
   m[2] = c2;
 
+  return true;
 }
 
 template<>
@@ -45,14 +47,15 @@ inline bool invertPosDefMatrix<float,1>(ROOT::Math::SMatrix<float,1,1,ROOT::Math
   return true;
 }
 
+
 template<>
 inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
-  fastInvertPDM2(m);
+  if (!fastInvertPDM2(m)) return m.Invert();;
   return true;
 }
 template<>
 inline bool invertPosDefMatrix<float,2>(ROOT::Math::SMatrix<float,2,2,ROOT::Math::MatRepSym<float,2> > & m) {
-  fastInvertPDM2(m);
+  if (!fastInvertPDM2(m)) return m.Invert();;
   return true;
 }
 
