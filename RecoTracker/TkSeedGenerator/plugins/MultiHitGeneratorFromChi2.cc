@@ -230,6 +230,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
   unsigned int debug_Id1 = detIdsToDebug[1];
 //  unsigned int debug_Id2 = detIdsToDebug[2];
   
+
+   std::array<bool, 3> bl;
+   bl[0] = doublets.innerLayer().isBarrel;   
+   bl[1] = doublets.outerLayer().isBarrel;
+
   //gc: these are all the layers compatible with the layer pairs (as defined in the config file)
 
 
@@ -386,20 +391,14 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
     std::array<GlobalPoint, 3> gp;
     std::array<GlobalError, 3> ge;
-    std::array<bool, 3> bl;
     gp[0] = hit0->globalPosition();
     ge[0] = hit0->globalPositionError();
-    int subid0 = hit0->geographicalId().subdetId();
-    bl[0] = (subid0 == StripSubdetector::TIB || subid0 == StripSubdetector::TOB || subid0 == (int) PixelSubdetector::PixelBarrel);
     gp[1] = hit1->globalPosition();
     ge[1] = hit1->globalPositionError();
-    int subid1 = hit1->geographicalId().subdetId();
-    bl[1] = (subid1 == StripSubdetector::TIB || subid1 == StripSubdetector::TOB || subid1 == (int) PixelSubdetector::PixelBarrel);
 
 
     //gc: loop over all third layers compatible with the pair
     for(int il = 0; (il < nThirdLayers) & (!usePair); il++) {
-
       IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "cosider layer:" << " for this pair. Location: " << thirdLayerDetLayer[il]->location();
 
       if (hitTree[il].empty()) {
@@ -411,7 +410,10 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
       float chi2FromThisLayer = std::numeric_limits<float>::max();
 
       const DetLayer *layer = thirdLayerDetLayer[il];
-      bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+      // bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+      auto const & layer3 = *thirdHitMap[il];
+      bool barrelLayer = layer3.isBarrel;
+      bl[2] = layer3.isBarrel;
 
       if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
 
@@ -506,14 +508,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
-	SeedingHitSet::ConstRecHitPointer oriHit2 = KDdata->hit();
+	auto oriHit2 = KDdata->hit();
+        auto kk = KDdata - layer3.theHits.begin();
 	cacheHitPointer hit2;
-        auto gp2 = oriHit2->globalPosition(); // cam be optimized
+        auto gp2 = layer3.gp(kk);
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
 	  GlobalVector initMomentum(gp2 - gp1);
-	  initMomentum *= (1./initMomentum.perp()); //set pT=1
+	  initMomentum /= initMomentum.perp(); //set pT=1
 
 	  //fixme add pixels
 	  bool passFilterHit2 = filterHit(oriHit2->hit(),initMomentum);
@@ -529,8 +532,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 	//gc: add the chi2 cut
 	gp[2] = hit2->globalPosition();
 	ge[2] = hit2->globalPositionError();
-	int subid2 = hit2->geographicalId().subdetId();
-	bl[2] = (subid2 == StripSubdetector::TIB || subid2 == StripSubdetector::TOB || subid2 == (int) PixelSubdetector::PixelBarrel);
 	RZLine rzLine(gp,ge,bl);
 	float chi2 = rzLine.chi2();
 
