@@ -336,17 +336,18 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 	  //|| hit0->geographicalId().subdetId()==SiStripDetId::TOB
 	  //|| hit0->geographicalId().subdetId()==SiStripDetId::TEC
 	  ) {	
+        // carefull " for matched and projected local of tsos != local for individual clusters...
 	const std::type_info &tid = typeid(*hit0->hit());
 	if (tid == typeid(SiStripMatchedRecHit2D)) {
 	  const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos0.localMomentum())==0 ||
-	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos0.localMomentum())==0) passFilterHit0 = false;
+	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos0.globalMomentum())==0 ||
+	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos0.globalMomentum())==0) passFilterHit0 = false;
 	} else if (tid == typeid(SiStripRecHit2D)) {
 	  const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(*recHit, tsos0.localMomentum())==0) passFilterHit0 = false;
+	  if (filter->isCompatible(*recHit, tsos0.globalMomentum())==0) passFilterHit0 = false;
 	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos0.localMomentum())==0) passFilterHit0 = false;   //FIXME
+	  if (filter->isCompatible(precHit->originalHit(), tsos0.globalMomentum())==0) passFilterHit0 = false;   //FIXME
 	}
       }
       IfLogTrace(debugPair&&!passFilterHit0, "MultiHitGeneratorFromChi2") << "hit0 did not pass cluster shape filter";
@@ -359,16 +360,17 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 	  //|| hit1->geographicalId().subdetId()==SiStripDetId::TEC
 	  ) {	
 	const std::type_info &tid = typeid(*hit1->hit());
+       	// carefull " for matched and projected	local of tsos != local for individual clusters...
 	if (tid == typeid(SiStripMatchedRecHit2D)) {
 	  const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos1.localMomentum())==0 ||
-	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos1.localMomentum())==0) passFilterHit1 = false;
+	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos1.globalMomentum())==0 ||
+	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos1.globalMomentum())==0) passFilterHit1 = false;
 	} else if (tid == typeid(SiStripRecHit2D)) {
 	  const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(*recHit, tsos1.localMomentum())==0) passFilterHit1 = false;
+	  if (filter->isCompatible(*recHit, tsos1.globalMomentum())==0) passFilterHit1 = false;
 	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos1.localMomentum())==0) passFilterHit1 = false;  //FIXME
+	  if (filter->isCompatible(precHit->originalHit(), tsos1.globalMomentum())==0) passFilterHit1 = false;  //FIXME
 	}
       }
       IfLogTrace(debugPair&&!passFilterHit1, "MultiHitGeneratorFromChi2") << "hit1 did not pass cluster shape filter";
