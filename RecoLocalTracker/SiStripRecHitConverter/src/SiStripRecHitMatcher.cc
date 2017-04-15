@@ -335,13 +335,12 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   
   //perform the matching
   //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-  AlgebraicMatrix22 m; AlgebraicVector2 c;
+  AlgebraicMatrix22 m(ROOT::Math::SMatrixNoInit{}); 
+  AlgebraicVector2 c(c0,m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x());
   m(0,0)=m00; 
   m(0,1)=m01;
   m(1,0)=m10;
   m(1,1)=m11;
-  c(0)=c0;
-  c(1)=m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x();
   m.Invert(); 
   AlgebraicVector2 solution = m * c;
   Local2DPoint position(solution(0),solution(1));

@@ -521,39 +521,38 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 	SeedingHitSet::ConstRecHitPointer oriHit2 = KDdata->hit();
 	cacheHitPointer hit2;
-
+        auto gp2 = oriHit2->globalPosition(); // cam be optimized
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
-	  GlobalVector initMomentum(oriHit2->globalPosition() - gp1);
+	  GlobalVector initMomentum(gp2 - gp1);
 	  initMomentum *= (1./initMomentum.perp()); //set pT=1
-	  GlobalTrajectoryParameters kine = GlobalTrajectoryParameters(oriHit2->globalPosition(), initMomentum, 1, &*bfield);
-	  TrajectoryStateOnSurface state(kine,*oriHit2->surface());
-	  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
 
 	  //fixme add pixels
 	  bool passFilterHit2 = true;
-	  if (hit2->geographicalId().subdetId()==SiStripDetId::TIB 
-	      || hit2->geographicalId().subdetId()==SiStripDetId::TID
-	      // || hit2->geographicalId().subdetId()==SiStripDetId::TOB
-	      // || hit2->geographicalId().subdetId()==SiStripDetId::TEC
+	  if (oriHit2->geographicalId().subdetId()==SiStripDetId::TIB 
+	      || oriHit2->geographicalId().subdetId()==SiStripDetId::TID
+	      // || oriHit2->geographicalId().subdetId()==SiStripDetId::TOB
+	      // || oriHit2->geographicalId().subdetId()==SiStripDetId::TEC
 	      ) {
-	    const std::type_info &tid = typeid(*hit2->hit());
+	    const std::type_info &tid = typeid(*oriHit2->hit());
 	    if (tid == typeid(SiStripMatchedRecHit2D)) {
-	      const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit2->hit());
+	      const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(oriHit2->hit());
 	      if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), initMomentum)==0 ||
 		  filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), initMomentum)==0) passFilterHit2 = false;
 	    } else if (tid == typeid(SiStripRecHit2D)) {
-	      const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit2->hit());
+	      const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(oriHit2->hit());
 	      if (filter->isCompatible(*recHit, initMomentum)==0) passFilterHit2 = false;
 	    } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-	      const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit2->hit());
+	      const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(oriHit2->hit());
 	      if (filter->isCompatible(precHit->originalHit(), initMomentum)==0) passFilterHit2 = false;
 	    }
 	  }
 	  IfLogTrace(debugPair&&!passFilterHit2, "MultiHitGeneratorFromChi2") << "hit2 did not pass cluster shape filter";
 	  if (!passFilterHit2) continue;
-	  
+	  TrajectoryStateOnSurface state(GlobalTrajectoryParameters(gp2, initMomentum, 1, &*bfield),*oriHit2->surface());
+          hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
+
 	} else {
 	  // not refit clone anyhow
 	  hit2.reset((BaseTrackerRecHit*)oriHit2->clone());
@@ -673,6 +672,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
   }//loop over pairs
   LogTrace("MultiHitGeneratorFromChi2") << "triplet size=" << result.size();
+  std::cout << "MultiHitGeneratorFromChi2 " << "triplet size=" << result.size() << std::endl;
 }
 
 void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
@@ -722,12 +722,10 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   TrackCharge q = 1;
   if ((gp1-cc).x()*p1.y() - (gp1-cc).y()*p1.x() > 0) q =-q;
 
-  GlobalTrajectoryParameters kine1 = GlobalTrajectoryParameters(gp1, p1, q, &*bfield);
-  state1 = TrajectoryStateOnSurface(kine1,*hit1->surface());
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp1, p1, q, &*bfield),*hit1->surface()).swap(state1);
   hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
 
-  GlobalTrajectoryParameters kine2 = GlobalTrajectoryParameters(gp2, p2, q, &*bfield);
-  state2 = TrajectoryStateOnSurface(kine2,*hit2->surface());
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp2, p2, q, &*bfield),*hit2->surface()).swap(state2);
   hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
 
   IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "charge=" << q << std::endl
