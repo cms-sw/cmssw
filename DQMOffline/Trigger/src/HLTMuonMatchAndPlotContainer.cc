@@ -97,6 +97,7 @@ void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent,
 
   Handle<TriggerResults> triggerResults;
   iEvent.getByToken(trigResultsToken_, triggerResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResults);
 
   if(!triggerResults.isValid()) 
   {
@@ -137,7 +138,7 @@ void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent,
 
   for (; iter != end; ++iter) 
     {
-      iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults);
+      iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults, trigNames);
     }
   
 }
