@@ -420,7 +420,7 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
     if( !mydbservice.isAvailable() ){
       throw cms::Exception("Non existing service lumi::service::DBService");
     }
-    coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+    auto session=mydbservice->connectReadOnly(m_connectStr);
     try{
       session->transaction().start(true);
       m_cachedlumidataid=getLumiDataId(session->nominalSchema(),runnumber);
@@ -434,10 +434,8 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
       session->transaction().commit();
     }catch(const coral::Exception& er){
       session->transaction().rollback();
-      mydbservice->disconnect(session);
       throw cms::Exception("DatabaseError ")<<er.what();
     }
-    mydbservice->disconnect(session);
   }
   //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
@@ -564,7 +562,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
@@ -804,10 +802,8 @@ LumiProducer::fillLSCache(unsigned int luminum){
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){
