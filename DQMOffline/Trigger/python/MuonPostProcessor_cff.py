@@ -28,13 +28,41 @@ hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
         "TPefficiencyVertexJPsi 'Tag & Probe efficiency; NVertex; N(tt) / N(tp)' massVsVertexJpsi_numer massVsVertexJpsi_denom",
         "TPefficiencyEtaZ 'Tag & Probe efficiency; #eta; N(tt) / N(tp)' massVsEtaZ_numer massVsEtaZ_denom",
         "TPefficiencyPtZ 'Tag & Probe efficiency; p_{T}; N(tt) / N(tp)' massVsPtZ_numer massVsPtZ_denom",
-        "TPefficiencyVertexZ 'Tag & Probe efficiency; NVertex; N(tt) / N(tp)' massVsVertexZ_numer massVsVertexZ_denom"
+        "TPefficiencyVertexZ 'Tag & Probe efficiency; NVertex; N(tt) / N(tp)' massVsVertexZ_numer massVsVertexZ_denom",
+        "Refefficiency_Eta_Mu1 'Reference efficiency; Eta; N(pass) / N' Refefficiency_Eta_Mu1_numer Refefficiency_Eta_Mu1_denom",
+        "Refefficiency_Eta_Mu2 'Reference efficiency; Eta; N(pass) / N' Refefficiency_Eta_Mu2_numer Refefficiency_Eta_Mu2_denom",
+        "Refefficiency_TurnOn_Mu1 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu1_numer Refefficiency_TurnOn_Mu1_denom",
+        "Refefficiency_TurnOn_Mu2 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu2_numer Refefficiency_TurnOn_Mu2_denom",
+        "Refefficiency_Vertex 'Reference efficiency; NVertex; N(pass) / N' Refefficiency_Vertex_numer Refefficiency_Vertex_denom",
+        
     ),
 
 )
 
+hltMuonRefEfficiencies = cms.EDAnalyzer("HLTMuonRefMethod",
+                                        subDirs        = cms.untracked.vstring("HLT/Muon/Distributions.*"),
+                                        outputFileName = cms.untracked.string(''),
+                                        hltTriggers    = cms.untracked.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+                                                                               "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"),
+                                        refTriggers    = cms.untracked.string("HLT_Mu17_TrkIsoVVL"),
+                                        efficiency     = cms.untracked.vstring( "Refefficiency_Eta_Mu1",
+                                                                                "Refefficiency_Eta_Mu2",
+                                                                                "Refefficiency_TurnOn_Mu1",
+                                                                                "Refefficiency_TurnOn_Mu2",
+                                                                                ),
+                                        refEff         = cms.untracked.vstring( 'TPefficiencyEtaZ',
+                                                                                'TPefficiencyEtaZ',
+                                                                                'TPefficiencyPtZ', 
+                                                                                'TPefficiencyPtZ'
+                                                                                ),
+                                        
+                                        )
+                                        
+
+
 hltMuonPostVal = cms.Sequence(
-    hltMuonEfficiencies
+    hltMuonEfficiencies*
+    hltMuonRefEfficiencies
 )
 
 
