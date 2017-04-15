@@ -156,7 +156,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisNdigis,
   SiPixelPhase1ClustersNdigisInclusive,
   SiPixelPhase1DigisNdigisPerFED,
-  SiPixelPhase1DigisNdigisPerFEDtrend,
+#  SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,
   SiPixelPhase1DigisHitmap,
   SiPixelPhase1DigisOccupancy,
