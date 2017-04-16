@@ -349,7 +349,7 @@ bool ClusterShapeHitFilter::getSizes
 {
   // Get detector
   const StripGeomDetUnit* stripDet =
-    dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
+    reinterpret_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
 
   // Measured width
   meas   = cluster.amplitudes().size();
@@ -358,7 +358,7 @@ bool ClusterShapeHitFilter::getSizes
   int fs = cluster.firstStrip();
   int ns = stripDet->specificTopology().nstrips();
   // bool usable = (fs > 1 && fs + meas - 1 < ns);
-  bool usable = (fs >= 1 && fs + meas - 1 <= ns);
+  bool usable = (fs >= 1) & (fs + meas <= ns+1);
 
   // Usable?
   //if(usable)
