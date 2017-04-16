@@ -140,6 +140,7 @@ void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es)
   else es.get<IdealMagneticFieldRecord>().get(bfield_h);
   bfield = bfield_h.product();
   nomField = bfield->nominalValue();
+  ufield.set(nomField);  // more than enough (never actually used)
 
   if(refitHits)
   {
@@ -521,7 +522,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 	  //fixme add pixels
 	  bool passFilterHit2 = filterHit(oriHit2->hit(),initMomentum);
 	  if (!passFilterHit2) continue;
-	  TrajectoryStateOnSurface state(GlobalTrajectoryParameters(gp2, initMomentum, 1, &*bfield),*oriHit2->surface());
+	  TrajectoryStateOnSurface state(GlobalTrajectoryParameters(gp2, initMomentum, 1, &ufield),*oriHit2->surface());
           hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
 
 	} else {
@@ -691,10 +692,10 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   TrackCharge q = 1;
   if ((gp1-cc).x()*p1.y() - (gp1-cc).y()*p1.x() > 0) q =-q;
 
-  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp1, p1, q, &*bfield),*hit1->surface()).swap(state1);
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp1, p1, q, &ufield),*hit1->surface()).swap(state1);
   hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
 
-  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp2, p2, q, &*bfield),*hit2->surface()).swap(state2);
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp2, p2, q, &ufield),*hit2->surface()).swap(state2);
   hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
 
   IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "charge=" << q << std::endl

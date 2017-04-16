@@ -4,7 +4,7 @@
  */
 
 #include "MagneticField/UniformEngine/plugins/UniformMagneticFieldESProducer.h"
-#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
