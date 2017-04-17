@@ -51,6 +51,7 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 
   // Load strip limits
   loadStripLimits();
+  fillStripData();
   cutOnPixelCharge_ = cutOnStripCharge_ = false;
   cutOnPixelShape_ = cutOnStripShape_ = true;
 }
@@ -164,6 +165,33 @@ void ClusterShapeHitFilter::fillPixelData() {
 }
 
 
+void ClusterShapeHitFilter::fillStripData() {
+  // copied from StripCPE (FIXME maybe we should move all this in LocalReco)
+  auto const & geom_ = *theTracker;
+  auto const & dus = geom_.detUnits();
+  auto offset=dus.size();
+  for(unsigned int i=1;i<7;++i) {
+    if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() && 
+       dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < offset) offset = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+    }
+  } 
+
+  for (auto i=offset; i!=dus.size();++i) {
+    const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(dus[i]);
+    assert(stripdet->index()==int(i));
+    assert(stripdet->type().isTrackerStrip()); // not pixel
+    auto const & bounds = stripdet->specificSurface().bounds();
+    auto detid = stripdet->geographicalId();
+    auto & p = stripData[detid];
+    p.det = stripdet;
+    p.topology=(StripTopology*)(&stripdet->topology());
+    p.drift = getDrift(stripdet);
+    p.thickness = bounds.thickness();
+    p.nstrips = p.topology->nstrips(); 
+  }
+}
+
 /*****************************************************************************/
 pair<float,float> ClusterShapeHitFilter::getCotangent
   (const PixelGeomDetUnit * pixelDet) const
@@ -180,11 +208,10 @@ pair<float,float> ClusterShapeHitFilter::getCotangent
 
 /*****************************************************************************/
 float ClusterShapeHitFilter::getCotangent
-  (const StripGeomDetUnit * stripDet, const LocalPoint & pos) const
+  (const StripData & sd, const LocalPoint & pos) const
 {
   // FIXME may be problematic in case of RadialStriptolopgy
-  return stripDet->surface().bounds().thickness() /
-         stripDet->specificTopology().localPitch(pos);
+  return sd.thickness/sd.topology->localPitch(pos);
 }
 
 /*****************************************************************************/
@@ -348,15 +375,14 @@ bool ClusterShapeHitFilter::getSizes
    int & meas, float & pred) const 
 {
   // Get detector
-  const StripGeomDetUnit* stripDet =
-    reinterpret_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
+  auto const & p=getsd(id);
 
   // Measured width
   meas   = cluster.amplitudes().size();
 
   // Usable?
   int fs = cluster.firstStrip();
-  int ns = stripDet->specificTopology().nstrips();
+  int ns = p.nstrips;
   // bool usable = (fs > 1 && fs + meas - 1 < ns);
   bool usable = (fs >= 1) & (fs + meas <= ns+1);
 
@@ -367,11 +393,11 @@ bool ClusterShapeHitFilter::getSizes
     pred = ldir.x() / ldir.z();
   
     // Take out drift
-    float drift = getDrift(stripDet);
+    float drift = p.drift;;
     pred += drift;
   
     // Apply cotangent
-    pred *= getCotangent(stripDet,lpos);
+    pred *= getCotangent(p,lpos);
   }
 
   return usable;
@@ -404,7 +430,7 @@ bool ClusterShapeHitFilter::isCompatible
 bool ClusterShapeHitFilter::isCompatible
   (DetId detId, const SiStripCluster & cluster, const GlobalPoint &gpos, const GlobalVector & gdir) const
 {
-  const GeomDet *det = theTracker->idToDet(detId);
+  const GeomDet *det = getsd(detId).det;
   LocalVector ldir = det->toLocal(gdir);
   LocalPoint  lpos = det->toLocal(gpos); 
   // now here we do the transformation 
@@ -414,7 +440,7 @@ bool ClusterShapeHitFilter::isCompatible
 bool ClusterShapeHitFilter::isCompatible
   (DetId detId, const SiStripCluster & cluster, const GlobalVector & gdir) const
 {
-  return isCompatible(detId, cluster, theTracker->idToDet(detId)->toLocal(gdir));
+  return isCompatible(detId, cluster, getsd(detId).det->toLocal(gdir));
 }
 
 
