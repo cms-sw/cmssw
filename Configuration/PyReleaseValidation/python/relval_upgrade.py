@@ -40,6 +40,8 @@ for year in upgradeKeys:
                         hasHarvest = True
 
                     if 'Sim' in step:
+                        if 'HLBeamSpotFull' in step and '14TeV' in frag:
+                            step = 'GenSimHLBeamSpotFull14'
                         stepListTk.append(k+'_'+step)
                     else:
                         stepListTk.append(step+'_'+key)
