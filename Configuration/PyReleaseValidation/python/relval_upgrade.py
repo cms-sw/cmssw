@@ -13,20 +13,31 @@ workflows = Matrix()
 
 #just define all of them
 
+# special offsets
+trackingOnlyOffset = 0.1
+timingOffset = 0.2
+
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
         for frag in upgradeFragments:
             k=frag[:-4]+'_'+key
             stepList=[]
+            stepListTiming=[]
             for step in upgradeProperties[year][key]['ScenToRun']:                    
                 if 'Sim' in step:
                     if 'HLBeamSpotFull' in step and '14TeV' in frag:
                         step = 'GenSimHLBeamSpotFull14'
                     stepList.append(k+'_'+step)
+                    stepListTiming.append(k+'_'+step+'_Timing')
                 else:
                     stepList.append(step+'_'+key)
+                    stepListTiming.append(step+'_Timing'+'_'+key)
             workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
+
+            # only keep some special workflows for timing
+            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
+                workflows[numWF+timingOffset] = [ upgradeDatasetFromFragment[frag], stepListTiming]
 
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key:
@@ -47,6 +58,6 @@ for year in upgradeKeys:
                         stepListTk.append(step+'_'+key)
                  
                 if hasHarvest:
-                    workflows[numWF+0.1] = [ upgradeDatasetFromFragment[frag], stepListTk]
+                    workflows[numWF+trackingOnlyOffset] = [ upgradeDatasetFromFragment[frag], stepListTk]
 
             numWF+=1
