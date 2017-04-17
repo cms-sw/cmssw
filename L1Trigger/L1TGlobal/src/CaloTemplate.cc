@@ -107,6 +107,10 @@ void CaloTemplate::print(std::ostream& myCout) const
         myCout << "  Template for object " << i << " [ hex ]" << std::endl;
         myCout << "    etThreshold       = "
         << std::hex << m_objectParameter[i].etLowThreshold << "  " << m_objectParameter[i].etHighThreshold << std::endl;
+        myCout << "    indexLow       = "
+        << std::hex << m_objectParameter[i].indexLow << std::endl;
+        myCout << "    indexHigh      = "
+        << std::hex << m_objectParameter[i].indexHigh << std::endl;
         myCout << "    etaRange          = "
         << std::hex << m_objectParameter[i].etaRange << std::endl;
         myCout << "    phiRange          = "
