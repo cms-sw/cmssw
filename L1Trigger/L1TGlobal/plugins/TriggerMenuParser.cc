@@ -10,7 +10,8 @@
  * \orig author: Vasile Mihai Ghete - HEPHY Vienna
  *
  * \new features: Vladimir Rekovic
- *                - overlap object removal 
+ *                - indexing
+ *                - correlations with overlap object removal 
  *
  * $Date$
  * $Revision$

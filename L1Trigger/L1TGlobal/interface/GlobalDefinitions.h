@@ -11,7 +11,7 @@
  *    lightweight "maps" for enum string label and enum value
  *
  *
- * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Vladimir Rekovic,   Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$
