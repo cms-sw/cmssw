@@ -95,6 +95,11 @@ const int GlobalCondition::nrObjects() const
             }
 
             break;
+        case l1t::Type2corWithOverlapRemoval: {
+                return 3;
+            }
+
+            break;
         case l1t::Type3s: {
                 return 3;
             }
@@ -186,6 +191,11 @@ void GlobalCondition::print(std::ostream& myCout) const
             }
 
             break;	    
+        case l1t::CondCorrelationWithOverlapRemoval: {
+                myCout << "  Condition category: " << "CondCorrelationWithOverlapRemoval"  << std::endl;
+            }
+
+            break;	    
         case l1t::CondExternal: {
                 myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }
@@ -216,6 +226,11 @@ void GlobalCondition::print(std::ostream& myCout) const
             break;
         case l1t::Type2s: {
                 myCout << "  Condition type:     " << "l1t::Type2s"  << std::endl;
+            }
+
+            break;
+        case l1t::Type2corWithOverlapRemoval: {
+                myCout << "  Condition type:     " << "l1t::Type2corWithOverlapRemoval"  << std::endl;
             }
 
             break;
