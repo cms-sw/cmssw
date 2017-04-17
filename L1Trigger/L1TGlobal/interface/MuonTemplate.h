@@ -59,6 +59,8 @@ public:
     {
         unsigned int ptHighThreshold;
         unsigned int ptLowThreshold;
+        unsigned int indexHigh;
+        unsigned int indexLow;
         bool enableMip;
         bool enableIso;
         bool requestIso;

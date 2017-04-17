@@ -108,7 +108,7 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const;
+    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, const unsigned int index) const;
 
 private:
 
