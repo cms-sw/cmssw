@@ -68,7 +68,9 @@ enum GtConditionType {
     TypeMinBiasHFP1,
     TypeMinBiasHFM1,
     TypeETTem,
-    TypeExternal
+    TypeExternal,
+    Type2corWithOverlapRemoval
+
 };
 
 struct GtConditionTypeStringToEnum {
@@ -86,7 +88,8 @@ enum GtConditionCategory {
     CondCalo,
     CondEnergySum,
     CondCorrelation,
-    CondExternal
+    CondExternal,
+    CondCorrelationWithOverlapRemoval
 };
 
 struct GtConditionCategoryStringToEnum {
