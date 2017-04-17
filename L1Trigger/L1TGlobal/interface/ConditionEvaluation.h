@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *          Vladimir Rekovic - extend for indexing
  *
  *
  */

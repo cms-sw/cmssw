@@ -12,6 +12,9 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author  M. Eder            - HEPHY Vienna - ORCA version, reduced functionality
+ * \author  Vladimir Rekovic
+ *                - indexing
+ *                - correlations with overlap object removal 
  *
  * $Date$
  * $Revision$

@@ -7,7 +7,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Vladimir Rekovic,   Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$

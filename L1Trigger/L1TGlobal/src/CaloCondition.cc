@@ -7,6 +7,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
+ *          Vladimir Rekovic - extend for indexing
  *
  */
 

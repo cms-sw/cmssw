@@ -5,6 +5,7 @@
  *
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - extend for overlap removal
  *
  * $Date$
  * $Revision$
