@@ -22,12 +22,6 @@ upgradeKeys[2023] = [
     '2023D10PU',    
     '2023D4',
     '2023D4PU',
-    '2023D7Timing',
-    '2023D7TimingPU',
-    '2023D10Timing',
-    '2023D10TimingPU',
-    '2023D4Timing',
-    '2023D4TimingPU',
     '2023D8',
     '2023D8PU',
     '2023D9',
@@ -50,7 +44,7 @@ numWFStart={
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[22400,22800],[25000,26000],[50000,51000]]
+numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[21600,23200],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [numWFStart[2017]],
     2023: [numWFStart[2023]]
