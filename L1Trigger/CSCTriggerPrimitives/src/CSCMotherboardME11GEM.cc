@@ -475,7 +475,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     const int nGEMPads(randRoll->npads());
-    for (int i = 0; i< nGEMPads; ++i){
+    for (int i = 1; i<= nGEMPads; ++i){
       const LocalPoint lpGEM(randRoll->centreOfPad(i));
       const GlobalPoint gp(randRoll->toGlobal(lpGEM));
       const LocalPoint lpCSCME1a(keyLayerME1a->toLocal(gp));
