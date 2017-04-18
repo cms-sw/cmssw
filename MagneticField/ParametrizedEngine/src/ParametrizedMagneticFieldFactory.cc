@@ -6,7 +6,7 @@
 #include <MagneticField/ParametrizedEngine/interface/ParametrizedMagneticFieldFactory.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 #include "OAEParametrizedMagneticField.h"
 #include "ParabolicParametrizedMagneticField.h"
 #include "PolyFit2DParametrizedMagneticField.h"
