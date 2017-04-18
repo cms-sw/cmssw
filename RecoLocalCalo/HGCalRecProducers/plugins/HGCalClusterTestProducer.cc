@@ -4,6 +4,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -190,7 +191,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
   std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - then);
   // delta += float (now.tv_usec - then.tv_usec)/1000.;
-  std::cout << "Time taken by multiclustering " << time_span.count() << " ms" << std::endl;
+  edm::LogInfo ("HGCalClusterTestProducer") << "Time taken by multiclustering " << time_span.count() << " ms";
 }
 
 #endif
