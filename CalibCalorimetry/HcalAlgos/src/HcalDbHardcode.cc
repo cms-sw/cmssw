@@ -6,6 +6,7 @@
 #include <cmath> 
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
@@ -438,12 +439,13 @@ void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
 			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
 }
 
-void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells) {
+std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) {
   static const int kUTCAMask = 0x4000000; //set bit 26 for uTCA version
   static const int kLinearIndexMax = 0x7FFFF; //19 bits
   static const int kTriggerBitMask = 0x02000000; //2^25
   uint32_t counter = 0;
   uint32_t counterTrig = 0;
+  HcalElectronicsMap::Helper emapHelper;
   for(const auto& fId : cells){
     if(fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
        fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
@@ -456,7 +458,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector
       uint32_t raw = counter;
       raw |= kUTCAMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2chId(elId,fId);
+      emapHelper.mapEId2chId(elId,fId);
     }
     else if(fId.genericSubdet() == HcalGenericDetId::HcalGenTriggerTower){
       ++counterTrig;
@@ -464,10 +466,10 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector
       uint32_t raw = counterTrig;
       raw |= kUTCAMask | kTriggerBitMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2tId(elId,fId);
+      emapHelper.mapEId2tId(elId,fId);
     }
   }
-  emap.sort();
+  return std::make_unique<HcalElectronicsMap>(emapHelper);
 }
 
 void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) {

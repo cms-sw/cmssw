@@ -42,11 +42,15 @@ namespace cond {
 
 }
 
+namespace {
+  struct InitHcalElectronicsMap {void operator()(HcalElectronicsMap& e){ e.initialize();}};
+}
+
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
-REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
+REGISTER_PLUGIN_INIT(HcalElectronicsMapRcd,HcalElectronicsMap,InitHcalElectronicsMap);
 REGISTER_PLUGIN(HcalFrontEndMapRcd,HcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
