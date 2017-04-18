@@ -48,6 +48,22 @@ private:
   const HcalDDDRecConstants               *hcons;
   int                                      maxDepthHB_, maxDepthHE_;
   int                                      maxDepthHO_, maxDepthHF_;
+  int                                      maxDepth_;
+
+  struct HistLim {
+    HistLim(int nbin, double mini, double maxi)
+    : n(nbin), min(mini), max(maxi) {
+    }
+    int n;
+    double min;
+    double max;
+  };
+
+  std::map<std::string, MonitorElement*> *msm_;
+
+  void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
+  void fill2D(std::string name, double X, double Y, double weight = 1);
+  std::string str(int x);
 
   int iphi_bins;
   float iphi_min, iphi_max;
@@ -60,14 +76,14 @@ private:
   int ieta_bins_HF;
   float ieta_min_HF, ieta_max_HF;
 
-  std::string    g4Label, hcalHits, outFile_;
+  std::string    g4Label, hcalHits, outFile_, hep17_;
   bool           verbose_, checkHit_, testNumber_;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
-  MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_;
+  MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_, *meEtaPhiHit_;
   MonitorElement *mePhiHit_, *mePhiHitb_, *meEnergyHit_, *meTimeHit_, *meTimeWHit_;
   MonitorElement *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_, *meHFDepHitw_;
   MonitorElement *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;
@@ -80,6 +96,8 @@ private:
   MonitorElement *meHBEneHit2_, *meHEEneHit2_, *meHOEneHit2_, *meHFEneHit2_;
   MonitorElement *meHBL10Ene_, *meHEL10Ene_, *meHOL10Ene_, *meHFL10Ene_;
   MonitorElement *meHBL10EneP_, *meHEL10EneP_, *meHOL10EneP_, *meHFL10EneP_;
+  MonitorElement *meHEP17EneHit_, *meHEP17EneHit2_;
+
 
 };
 

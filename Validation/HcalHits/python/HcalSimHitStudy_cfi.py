@@ -5,7 +5,8 @@ hcalSimHitStudy = cms.EDAnalyzer("HcalSimHitStudy",
     outputFile = cms.untracked.string(''),
     Verbose = cms.untracked.bool(False),
     HitCollection = cms.untracked.string('HcalHits'),
-    TestNumber    = cms.bool(False)
+    TestNumber    = cms.bool(False),
+    hep17         = cms.untracked.string("no")
 )
 
 
@@ -14,3 +15,6 @@ fastSim.toModify( hcalSimHitStudy, ModuleLabel = cms.untracked.string('famosSimH
     
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hcalSimHitStudy, TestNumber = cms.bool(True) )
+
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toModify( hcalSimHitStudy, hep17 = cms.untracked.string("yes") )
