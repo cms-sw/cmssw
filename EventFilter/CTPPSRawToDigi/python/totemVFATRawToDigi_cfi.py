@@ -11,6 +11,7 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
   fedIds = cms.vuint32(),
 
   RawUnpacking = cms.PSet(
+    verbosity = cms.untracked.uint32(0),
   ),
 
   RawToDigi = cms.PSet(
