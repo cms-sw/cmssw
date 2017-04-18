@@ -129,7 +129,7 @@ fi
 
 # Make material map for each subdetector from simulation
 
-for t in BeamPipe Tracker Phase1PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
+for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
     cmsRun runP_Tracker_cfg.py geom=phaseIID4 label=$t >& /dev/null &
   fi
@@ -139,7 +139,7 @@ waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
-for t in BeamPipe Tracker Phase1PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
+for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   root -b -q "MaterialBudget.C(\"${t}\")"
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"

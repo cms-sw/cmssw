@@ -860,6 +860,8 @@ StreamContext: StreamID = 0 transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
+++++++ starting: end lumi for module: stream = 0 label = 'intProducerU' id = 8
+++++++ finished: end lumi for module: stream = 0 label = 'intProducerU' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'intProducerA' id = 7
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
@@ -884,18 +886,16 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
-++++++ starting: end lumi for module: stream = 0 label = 'intProducerU' id = 8
-++++++ finished: end lumi for module: stream = 0 label = 'intProducerU' id = 8
-++++++ starting: end lumi for module: stream = 0 label = 'intVectorProducer' id = 9
-++++++ finished: end lumi for module: stream = 0 label = 'intVectorProducer' id = 9
-++++++ starting: end lumi for module: stream = 0 label = 'intProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'intProducer' id = 2
 ++++++ starting: end lumi for module: stream = 0 label = 'a1' id = 3
 ++++++ finished: end lumi for module: stream = 0 label = 'a1' id = 3
 ++++++ starting: end lumi for module: stream = 0 label = 'a2' id = 4
 ++++++ finished: end lumi for module: stream = 0 label = 'a2' id = 4
 ++++++ starting: end lumi for module: stream = 0 label = 'a3' id = 5
 ++++++ finished: end lumi for module: stream = 0 label = 'a3' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++ finished: end lumi for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++ starting: end lumi for module: stream = 0 label = 'intProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'intProducer' id = 2
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 6
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 6
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 15000001
@@ -990,6 +990,8 @@ StreamContext: StreamID = 0 transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
+++++++ starting: end run for module: stream = 0 label = 'intProducerU' id = 8
+++++++ finished: end run for module: stream = 0 label = 'intProducerU' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'intProducerA' id = 7
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -1014,18 +1016,16 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
-++++++ starting: end run for module: stream = 0 label = 'intProducerU' id = 8
-++++++ finished: end run for module: stream = 0 label = 'intProducerU' id = 8
-++++++ starting: end run for module: stream = 0 label = 'intVectorProducer' id = 9
-++++++ finished: end run for module: stream = 0 label = 'intVectorProducer' id = 9
-++++++ starting: end run for module: stream = 0 label = 'intProducer' id = 2
-++++++ finished: end run for module: stream = 0 label = 'intProducer' id = 2
 ++++++ starting: end run for module: stream = 0 label = 'a1' id = 3
 ++++++ finished: end run for module: stream = 0 label = 'a1' id = 3
 ++++++ starting: end run for module: stream = 0 label = 'a2' id = 4
 ++++++ finished: end run for module: stream = 0 label = 'a2' id = 4
 ++++++ starting: end run for module: stream = 0 label = 'a3' id = 5
 ++++++ finished: end run for module: stream = 0 label = 'a3' id = 5
+++++++ starting: end run for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++ finished: end run for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++ starting: end run for module: stream = 0 label = 'intProducer' id = 2
+++++++ finished: end run for module: stream = 0 label = 'intProducer' id = 2
 ++++++ starting: end run for module: stream = 0 label = 'out' id = 6
 ++++++ finished: end run for module: stream = 0 label = 'out' id = 6
 ++++ finished: end run: stream = 0 run = 1 time = 15000001

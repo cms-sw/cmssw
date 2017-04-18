@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -149,6 +150,7 @@ namespace edm {
         }
         void doStreamEndRunSummary_(StreamID id, Run const& rp, EventSetup const& c) override final {
           //NOTE: in future this will need to be serialized
+          std::lock_guard<std::mutex> guard(mutex_);
           streamEndRunSummary(id,rp,c,cache_.get());
         }
         void doEndRunSummary_(Run const& rp, EventSetup const& c) override final {
@@ -162,6 +164,7 @@ namespace edm {
 
         //When threaded we will have a container for N items where N is # of simultaneous runs
         std::shared_ptr<C> cache_;
+        std::mutex mutex_;
       };
 
       template<typename T, typename C> class EndLuminosityBlockSummaryProducer;
@@ -183,6 +186,7 @@ namespace edm {
 
         virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lb, EventSetup const& c) override final
         {
+          std::lock_guard<std::mutex> guard(mutex_);
           streamEndLuminosityBlockSummary(id,lb,c,cache_.get());
         }
         void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) override final {
@@ -196,6 +200,7 @@ namespace edm {
         
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
         std::shared_ptr<C> cache_;
+        std::mutex mutex_;
       };
 
       

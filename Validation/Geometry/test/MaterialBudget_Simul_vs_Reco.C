@@ -12,7 +12,7 @@ std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
       "InnerServices", "TOB",
       "TEC", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
-      "Phase1PixelBarrel", "Phase2OTBarrel",
+      "Phase2PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap",
       "BeamPipe"/*, "TkStrct"*/};//,
       // "Tracker", "TrackerSum",
@@ -315,7 +315,7 @@ void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulat
 
 void createPlots(TString plot, TH1D ** cumulative_matbdg){
   std::cout << "Sim at entrance: " << *cumulative_matbdg << std::endl;
-  std::vector<const char *> IBs{"TIB", "TIDF", "TIDB", "InnerServices", "Phase1PixelBarrel"};
+  std::vector<const char *> IBs{"TIB", "TIDF", "TIDB", "InnerServices", "Phase2PixelBarrel"};
 
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
@@ -450,7 +450,7 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
 
   setColorIfExists(hist_x0_detectors, "BeamPipe", kpipe); // Beam Pipe	 = dark gray
   setColorIfExists(hist_x0_detectors, "Pixel", kpixel);   // Pixel 	 = dark blue
-  setColorIfExists(hist_x0_detectors, "Phase1PixelBarrel", kpixel);
+  setColorIfExists(hist_x0_detectors, "Phase2PixelBarrel", kpixel);
   setColorIfExists(hist_x0_detectors, "Phase2OTBarrel", ktib);
   setColorIfExists(hist_x0_detectors, "Phase2OTForward", ktec);
   setColorIfExists(hist_x0_detectors, "Phase2PixelEndcap", ktib);
