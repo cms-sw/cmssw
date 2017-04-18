@@ -86,7 +86,7 @@ FastTimerService::PlotsPerElement::book(
   std::string y_title = (boost::format("events / %f ms") % resolution).str();
 
   time_thread_ = booker.book1D(
-      name + "_time_thread",
+      name + " time_thread",
       title + " processing time (cpu)",
       bins, 0., range
       )->getTH1F();
@@ -95,7 +95,7 @@ FastTimerService::PlotsPerElement::book(
   time_thread_->SetYTitle(y_title.c_str());
 
   time_real_ = booker.book1D(
-      name + "_time_real",
+      name + " time_real",
       title + " processing time (real)",
       bins, 0., range
       )->getTH1F();
@@ -104,7 +104,7 @@ FastTimerService::PlotsPerElement::book(
   time_real_->SetYTitle(y_title.c_str());
 
   time_thread_byls_ = booker.bookProfile(
-      name + "_time_thread_byls",
+      name + " time_thread_byls",
       title + " processing time (cpu) vs. lumisection",
       lumisections, 0.5, lumisections + 0.5,
       bins, 0., std::numeric_limits<double>::infinity(),
@@ -114,7 +114,7 @@ FastTimerService::PlotsPerElement::book(
   time_thread_byls_->SetYTitle("processing time [ms]");
 
   time_real_byls_ = booker.bookProfile(
-      name + "_time_real_byls",
+      name + " time_real_byls",
       title + " processing time (real) vs. lumisection",
       lumisections, 0.5, lumisections + 0.5,
       bins, 0., std::numeric_limits<double>::infinity(),
@@ -168,24 +168,27 @@ FastTimerService::PlotsPerPath::book(
     double resolution,
     unsigned int lumisections)
 {
-  total_.book(booker, path.name_, path.name_, range, resolution, lumisections);
+  const std::string basedir = booker.pwd();
+  booker.setCurrentFolder(basedir + "/path " + path.name_);
+
+  total_.book(booker, "path", "path", range, resolution, lumisections);
 
   unsigned int bins = path.modules_and_dependencies_.size();
   module_counter_ = booker.book1D(
-      path.name_ + "_module_counter",
-      path.name_ + " module counter",
+      "module_counter",
+      "module counter",
       bins + 1, -0.5, bins + 0.5
       )->getTH1F();
   module_counter_->SetYTitle("processing time [ms]");
   module_time_thread_total_ = booker.book1D(
-      path.name_ + "_module_time_thread_total",
-      path.name_ + " total module time (cpu)",
+      "module_time_thread_total",
+      "total module time (cpu)",
       bins, -0.5, bins - 0.5
       )->getTH1F();
   module_time_thread_total_->SetYTitle("processing time [ms]");
   module_time_real_total_ = booker.book1D(
-      path.name_ + "_module_time_real_total",
-      path.name_ + " total module time (real)",
+      "module_time_real_total",
+      "total module time (real)",
       bins, -0.5, bins - 0.5
       )->getTH1F();
   module_time_real_total_->SetYTitle("processing time [ms]");
@@ -197,6 +200,8 @@ FastTimerService::PlotsPerPath::book(
     module_time_real_total_  ->GetXaxis()->SetBinLabel(bin + 1, label.c_str());
   }
   module_counter_->GetXaxis()->SetBinLabel(bins + 1, "");
+
+  booker.setCurrentFolder(basedir);
 }
 
 void
@@ -209,8 +214,8 @@ FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& descripti
   for (unsigned int i = 0; i < path.last; ++i) {
     auto const& module = data.modules[description.modules_and_dependencies_[i]];
     module_counter_->Fill(i);
-    module_time_thread_total_->Fill(i, ms(module.time_thread));
-    module_time_real_total_->Fill(i, ms(module.time_real));
+    module_time_thread_total_->Fill(i, ms(module.total.time_thread));
+    module_time_real_total_->Fill(i, ms(module.total.time_real));
   }
   if (path.status)
     module_counter_->Fill(path.last);
@@ -247,11 +252,11 @@ FastTimerService::PlotsPerProcess::book(
 {
   const std::string basedir = booker.pwd();
   event_.book(booker,
-      process.name_, "process " + process.name_,
+      "process " + process.name_, "process " + process.name_,
       event_range,
       event_resolution,
       lumisections);
-  booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths_");
+  booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
   for (unsigned int id: boost::irange(0ul, paths_.size()))
   {
     paths_[id].book(booker,
@@ -322,7 +327,7 @@ FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob
 
   // fill modules plots
   for (unsigned int id: boost::irange(0ul, modules_.size()))
-    modules_[id].fill(data.modules[id], ls);
+    modules_[id].fill(data.modules[id].total, ls);
 
   for (unsigned int pid: boost::irange(0ul, processes_.size()))
     processes_[pid].fill(job.processDescription(pid), data, data.processes[pid], ls);
@@ -391,18 +396,16 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   concurrent_runs_(             0 ),
   concurrent_streams_(          0 ),
   concurrent_threads_(          0 ),
+  print_event_summary_(         config.getUntrackedParameter<bool>(     "printEventSummary"        ) ),
+  print_run_summary_(           config.getUntrackedParameter<bool>(     "printRunSummary"          ) ),
+  print_job_summary_(           config.getUntrackedParameter<bool>(     "printJobSummary"          ) ),
   // dqm configuration
   module_id_(                   edm::ModuleDescription::invalidID() ),
   enable_dqm_(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
 //enable_dqm_bypath_active_(    config.getUntrackedParameter<bool>(     "enableDQMbyPathActive"    ) ),
 //enable_dqm_bypath_total_(     config.getUntrackedParameter<bool>(     "enableDQMbyPathTotal"     ) ),
-//enable_dqm_bypath_overhead_(  config.getUntrackedParameter<bool>(     "enableDQMbyPathOverhead"  ) ),
-//enable_dqm_bypath_details_(   config.getUntrackedParameter<bool>(     "enableDQMbyPathDetails"   ) ),
-//enable_dqm_bypath_counters_(  config.getUntrackedParameter<bool>(     "enableDQMbyPathCounters"  ) ),
-//enable_dqm_bypath_exclusive_( config.getUntrackedParameter<bool>(     "enableDQMbyPathExclusive" ) ),
-  enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
-//enable_dqm_summary_(          config.getUntrackedParameter<bool>(     "enableDQMSummary"         ) ),
-  enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
+//enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+//enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
   enable_dqm_bynproc_(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
   dqm_eventtime_range_(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
   dqm_eventtime_resolution_(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),            // ms
@@ -410,7 +413,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   dqm_pathtime_resolution_(     config.getUntrackedParameter<double>(   "dqmPathTimeResolution"    ) ),            // ms
   dqm_moduletime_range_(        config.getUntrackedParameter<double>(   "dqmModuleTimeRange"       ) ),            // ms
   dqm_moduletime_resolution_(   config.getUntrackedParameter<double>(   "dqmModuleTimeResolution"  ) ),            // ms
-  dqm_lumisections_range_(      config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"     ) ),
+  dqm_lumisections_range_(      config.getUntrackedParameter<unsigned int>( "dqmLumiSectionsRange"     ) ),
   dqm_path_(                    config.getUntrackedParameter<std::string>("dqmPath" ) )
   /*
   // DQM - these are initialized at preStreamBeginRun(), to make sure the DQM service has been loaded
@@ -418,7 +421,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // summary data
   run_summary_(),
   job_summary_(),
-  run_summary_perprocess_(),
   job_summary_perprocess_()
   */
 {
@@ -519,7 +521,7 @@ FastTimerService::querySourceTime(edm::StreamID sid) const
 {
   auto const& stream = streams_[sid];
   auto const& source = stream.modules[callgraph_.source().id()];
-  return ms(source.time_real);
+  return ms(source.total.time_real);
 }
 
 double
@@ -542,7 +544,7 @@ FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDescriptio
 {
   auto const& stream = streams_[sid];
   auto const& module = stream.modules[md.id()];
-  return ms(module.time_real);
+  return ms(module.total.time_real);
 }
 
 double
@@ -551,7 +553,7 @@ FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) const
   auto const& stream = streams_[sid];
   auto const& module = stream.modules[id];
   //FIXME add a check that "id" is valid
-  return ms(module.time_real);
+  return ms(module.total.time_real);
 }
 
 double
@@ -632,6 +634,10 @@ void
 FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc)
 {
   ignoredSignal(__func__);
+
+  // reset the run counters only during the main process being run
+  if (not gc.processContext()->isSubProcess())
+    run_summary_[gc.runIndex()].reset();
 }
 
 void
@@ -680,12 +686,6 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   if (enable_dqm_bynproc_)
     dqm_path_ += (boost::format("/Running %d processes") % concurrent_threads_).str();
 
-  /*
-  run_summary_.resize(concurrent_runs_);
-  run_summary_perprocess_.resize(concurrent_runs_);
-  stream_.resize(concurrent_streams_);
-  */
-
   // assign a pseudo module id to the FastTimerService
   module_id_ = edm::ModuleDescription::getUniqueID();
 }
@@ -709,20 +709,22 @@ FastTimerService::postBeginJob() {
   threads_.resize(concurrent_threads_);
 
   // allocate the resource counters for each stream, process, path and module
-  streams_.resize(concurrent_streams_);
-  for (auto & stream: streams_) {
-    // FIXME move this into the constructor for ResourcesPerJob ?
-    stream.modules.resize(modules);
-    stream.processes.resize(processes);
-    for (unsigned int i = 0; i < processes; ++i) {
-      auto const& process = callgraph_.processDescription(i);
-      stream.processes[i] = {
-        Resources(),
-        std::vector<ResourcesPerPath>(process.paths_.size()),
-        std::vector<ResourcesPerPath>(process.endPaths_.size())
-      };
-    }
+  ResourcesPerJob temp;
+  // FIXME move this into the constructor for ResourcesPerJob ?
+  temp.reset();
+  temp.modules.resize(modules);
+  temp.processes.resize(processes);
+  for (unsigned int i = 0; i < processes; ++i) {
+    auto const& process = callgraph_.processDescription(i);
+    temp.processes[i] = {
+      Resources(),
+      std::vector<ResourcesPerPath>(process.paths_.size()),
+      std::vector<ResourcesPerPath>(process.endPaths_.size())
+    };
   }
+  streams_.resize(concurrent_streams_, temp);
+  run_summary_.resize(concurrent_runs_, temp);
+  job_summary_ = temp;
 
   // check that the DQMStore service is available
   if (enable_dqm_ and not edm::Service<DQMStore>().isAvailable()) {
@@ -809,7 +811,7 @@ FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
 
   if (enable_dqm_) {
     DQMStore & store = * edm::Service<DQMStore>();
-    store.mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.luminosityBlockIndex(),sid, module_id_);
+    store.mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, module_id_);
   }
 
   ignoredSignal(__func__);
@@ -826,8 +828,15 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc)
 {
   ignoredSignal(__func__);
 
-  // TODO
-  // print run summary
+  // handle the summaries only after the last subprocess has run
+  unsigned int pid = callgraph_.processId(* gc.processContext());
+  if (pid != callgraph_.processes().size() - 1)
+    return;
+
+  if (print_run_summary_) {
+    edm::LogVerbatim out("FastReport");
+    printSummary(out, run_summary_[gc.runIndex()], "Run");
+  }
 }
 
 void
@@ -857,94 +866,137 @@ FastTimerService::postSourceLumi()
 void
 FastTimerService::postEndJob()
 {
-  // TODO
-  // print job summary
+  if (print_job_summary_) {
+    edm::LogVerbatim out("FastReport");
+    printSummary(out, job_summary_, "Job");
+  }
 }
 
-/*
-void
-FastTimerService::printProcessSummary(Timing const& total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const
+
+
+template <typename T>
+void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
 {
-  // print a timing summary for the run or job, for each subprocess
-  std::ostringstream out;
-  out << std::fixed << std::setprecision(6);
-  out << "FastReport for " << label << ", process " << process << '\n';
-  //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ") << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.event        / (double) total.count   << "  Event"         << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.all_paths    / (double) total.count   << "  all Paths"     << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.all_endpaths / (double) total.count   << "  all EndPaths"  << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.interpaths   / (double) total.count   << "  between paths" << '\n';
-  edm::LogVerbatim("FastReport") << out.str();
+  out << "FastReport --------------------------- Event Summary ---------------------------\n";
+  out << "FastReport       CPU time      Real time  Modules\n";
+  auto const& source_d = callgraph_.source();
+  auto const& source   = data.modules[source_d.id()];
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
+    for (unsigned int m: proc_d.modules_) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
+    }
+  }
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
+  out << '\n';
+  out << "FastReport       CPU time      Real time  Processes and Paths\n";
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
+    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+      auto const& name = proc_d.paths_[p].name_;
+      auto const& path = proc.paths[p];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
+    }
+    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+      auto const& name = proc_d.endPaths_[p].name_;
+      auto const& path = proc.endpaths[p];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
+    }
+  }
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
 }
 
-void
-FastTimerService::printSummary(Timing const& summary, std::string const & label) const
+template <typename T>
+void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const
 {
-  // print a timing summary for the run or job
-  //edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-
-  std::ostringstream out;
-  out << std::fixed << std::setprecision(6);
-  out << "FastReport for " << label << ", over all subprocesses" << '\n';
-  //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ") << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.source       / (double) summary.count << "  Source"        << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << summary.event        / (double) summary.count << "  Event"         << '\n';
-  edm::LogVerbatim("FastReport") << out.str();
+  out << "FastReport ";
+  if (label.size() < 60)
+    for (unsigned int i = (60-label.size()) / 2; i > 0; --i)
+      out << '-';
+  out << ' ' << label << " Summary ";
+  if (label.size() < 60)
+    for (unsigned int i = (59-label.size()) / 2; i > 0; --i)
+      out << '-';
+  out << '\n';
+  out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Modules\n";
+  auto const& source_d = callgraph_.source();
+  auto const& source   = data.modules[source_d.id()];
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %s\n")
+    % (ms(source.total.time_thread) / data.events) % (ms(source.total.time_thread) / source.events)
+    % (ms(source.total.time_real) / data.events)   % (ms(source.total.time_real) / source.events)
+    % source_d.moduleLabel();
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
+      % (ms(proc.total.time_thread) / data.events)
+      % (ms(proc.total.time_real) / data.events)
+      % proc_d.name_;
+    for (unsigned int m: proc_d.modules_) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
+        % (ms(module.total.time_thread) / data.events) % (ms(module.total.time_thread) / module.events)
+        % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
+        % module_d.moduleLabel();
+    }
+  }
+  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
+    % (ms(data.total.time_thread) / data.events)
+    % (ms(data.total.time_real) / data.events);
+  out << '\n';
+  out << "FastReport       CPU time      Real time  Processes and Paths\n";
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n")
+    % (ms(source.total.time_thread) / data.events)
+    % (ms(source.total.time_real) / data.events)
+    % source_d.moduleLabel();
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n")
+      % (ms(proc.total.time_thread) / data.events)
+      % (ms(proc.total.time_real) / data.events)
+      % proc_d.name_;
+    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+      auto const& name = proc_d.paths_[p].name_;
+      auto const& path = proc.paths[p];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n")
+       % (ms(path.active.time_thread) / data.events)
+       % (ms(path.active.time_real) / data.events)
+       % name;
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n")
+       % (ms(path.total.time_thread) / data.events)
+       % (ms(path.total.time_real) / data.events)
+       % name;
+    }
+    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+      auto const& name = proc_d.endPaths_[p].name_;
+      auto const& path = proc.endpaths[p];
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n")
+       % (ms(path.active.time_thread) / data.events)
+       % (ms(path.active.time_real) / data.events)
+       % name;
+      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n")
+       % (ms(path.total.time_thread) / data.events)
+       % (ms(path.total.time_real) / data.events)
+       % name;
+    }
+  }
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n")
+       % (ms(data.total.time_thread) / data.events)
+       % (ms(data.total.time_real) / data.events);
 }
-*/
 
-/*
-  if (enable_timing_modules_) {
-    double modules_total = 0.;
-    for (auto & keyval: stream_.modules)
-      modules_total += keyval.second.summary_active;
-    out << "FastReport              " << std::right << std::setw(10) << modules_total / (double) summary.count << "  all Modules"   << '\n';
-  }
-  out << '\n';
-  if (enable_timing_paths_ and not enable_timing_modules_) {
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
-    for (auto const& name: tns.getTrigPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_active / (double) summary.count << "  "
-          << name << '\n';
-    out << '\n';
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
-    for (auto const& name: tns.getEndPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_active / (double) summary.count << "  "
-          << name << '\n';
-  } else if (enable_timing_paths_ and enable_timing_modules_) {
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
-    for (auto const& name: tns.getTrigPaths()) {
-      out << "FastReport              "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_active        / (double) summary.count << " "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_overhead      / (double) summary.count << " "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_total         / (double) summary.count << "  "
-          << name << '\n';
-    }
-    out << '\n';
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
-    for (auto const& name: tns.getEndPaths()) {
-      out << "FastReport              "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_active        / (double) summary.count << " "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_overhead      / (double) summary.count << " "
-          << std::right << std::setw(10) << stream_.paths[pid][name].summary_total         / (double) summary.count << "  "
-          << name << '\n';
-    }
-  }
-  out << '\n';
-  if (enable_timing_modules_) {
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-    for (auto & keyval: stream_.modules) {
-      std::string const& label  = keyval.first;
-      ModuleInfo  const& module = keyval.second;
-      out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) summary.count << "  " << label << '\n';
-    }
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-    out << '\n';
-    //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-  }
-*/
 
 void
 FastTimerService::preEvent(edm::StreamContext const& sc)
@@ -965,55 +1017,27 @@ FastTimerService::postEvent(edm::StreamContext const& sc)
   // compute the event timing as the sum of all modules' timing
   auto & data = stream.processes[pid].total;
   for (unsigned int i: process.modules_)
-    data += stream.modules[i];
+    data += stream.modules[i].total;
   stream.total += data;
 
-  // write the summary and fill the plots only after the last subprocess has run
+  // handle the summaries and fill the plots only after the last subprocess has run
   if (pid != callgraph_.processes().size() - 1)
     return;
 
-  std::ostringstream out;
-  out << "Modules:\n";
-  auto const& source_d = callgraph_.source();
-  auto const& source   = stream.modules[source_d.id()];
-  out << boost::format("  %10.3f ms    %10.3f ms    source %s\n") % ms(source.time_thread) % ms(source.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = stream.processes[i];
-    out << boost::format("  %10.3f ms    %10.3f ms    process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int m: proc_d.modules_) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module   = stream.modules[m];
-      out << boost::format("  %10.3f ms    %10.3f ms      %s\n") % ms(module.time_thread) % ms(module.time_real) % module_d.moduleLabel();
-    }
+  // avoid concurrent access to the summary objects
+  {
+    std::lock_guard<std::mutex> guard(summary_mutex_);
+    job_summary_ += stream;
+    run_summary_[sc.runIndex()] += stream;
   }
-  out << boost::format("  %10.3f ms    %10.3f ms    total\n") % ms(stream.total.time_thread) % ms(stream.total.time_real);
-  out << std::endl;
 
-  out << "Process:\n";
-  out << boost::format("  %10.3f ms    %10.3f ms    source %s\n") % ms(source.time_thread) % ms(source.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = stream.processes[i];
-    out << boost::format("  %10.3f ms    %10.3f ms    process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const& name = proc_d.paths_[p].name_;
-      auto const& path = proc.paths[p];
-      out << boost::format("  %10.3f ms    %10.3f ms      %s (active)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("  %10.3f ms    %10.3f ms      %s (total)\n")  % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
-    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const& name = proc_d.endPaths_[p].name_;
-      auto const& path = proc.endpaths[p];
-      out << boost::format("  %10.3f ms    %10.3f ms      %s (active)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("  %10.3f ms    %10.3f ms      %s (total)\n")  % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
+  if (print_event_summary_) {
+    edm::LogVerbatim out("FastReport");
+    printEvent(out, stream);
   }
-  out << boost::format("  %10.3f ms    %10.3f ms    total\n") % ms(stream.total.time_thread) % ms(stream.total.time_real);
-  edm::LogVerbatim("FastReport") << out.str();
 
   if (enable_dqm_)
-    stream_plots_[sid].fill(callgraph_, stream, sc.luminosityBlockIndex());
+    stream_plots_[sid].fill(callgraph_, stream, sc.eventID().luminosityBlock());
 }
 
 void
@@ -1022,6 +1046,7 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
   // clear the event counters
   auto & stream = streams_[sid];
   stream.reset();
+  ++stream.events;
 
   thread().measure();
 }
@@ -1034,7 +1059,8 @@ FastTimerService::postSourceEvent(edm::StreamID sid)
   unsigned int id  = md.id();
   auto & stream = streams_[sid];
 
-  thread().measure_and_store(stream.modules[id]);
+  thread().measure_and_store(stream.modules[id].total);
+  ++stream.modules[id].events;
 }
 
 
@@ -1066,11 +1092,11 @@ FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext c
 
   for (unsigned int i = 0; i < index; ++i) {
     auto const& module = stream.modules[path.modules_on_path_[i]];
-    data.active += module;
+    data.active += module.total;
   }
   for (unsigned int i = 0; i < data.last; ++i) {
     auto const& module = stream.modules[path.modules_and_dependencies_[i]];
-    data.total += module;
+    data.total += module.total;
   }
 }
 
@@ -1088,7 +1114,8 @@ FastTimerService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCalli
   unsigned int sid = sc.streamID().value();
   auto & stream = streams_[sid];
 
-  thread().measure_and_store(stream.modules[id]);
+  thread().measure_and_store(stream.modules[id].total);
+  ++stream.modules[id].events;
 }
 
 void
@@ -1223,58 +1250,6 @@ FastTimerService::postModuleStreamEndLumi(edm::StreamContext const&, edm::Module
   ignoredSignal(__func__);
 }
 
-/*
-// associate to a path all the modules it contains
-void
-FastTimerService::fillPathMap(unsigned int pid, std::string const& name, std::vector<std::string> const & modules)
-{
-  for (auto & stream: stream_) {
-
-    std::vector<ModuleInfo *> & pathmap = stream.paths[pid][name].modules;
-    pathmap.clear();
-    pathmap.reserve( modules.size() );
-    std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
-    for (auto const& module: modules) {
-      // fix the name of negated or ignored modules
-      std::string const& label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
-
-      auto const& it = stream.modules.find(label);
-      if (it == stream.modules.end()) {
-        // no matching module was found
-        pathmap.push_back( 0 );
-      } else if (pool.insert(& it->second).second) {
-        // new module
-        pathmap.push_back(& it->second);
-      } else {
-        // duplicate module
-        pathmap.push_back( 0 );
-      }
-    }
-
-  }
-}
-
-// find the first and last non-empty paths, optionally skipping the first one
-std::pair<std::string,std::string> FastTimerService::findFirstLast(unsigned int pid, std::vector<std::string> const& paths) {
-  std::vector<std::string const *> p(paths.size(), nullptr);
-
-  // mark the empty paths
-  auto address_if_non_empty = [&](std::string const& name){
-    return stream_.front().paths[pid][name].modules.empty() ? nullptr : & name;
-  };
-  std::transform(paths.begin(), paths.end(), p.begin(), address_if_non_empty);
-
-  // remove the empty paths
-  p.erase(std::remove(p.begin(), p.end(), nullptr), p.end());
-
-  // return the first and last non-empty paths, if there are any
-  if (not p.empty())
-    return std::make_pair(* p.front(), * p.back());
-  else
-    return std::make_pair(std::string(), std::string());
-}
-*/
-
 
 unsigned int
 FastTimerService::threadId()
@@ -1296,30 +1271,22 @@ void
 FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<bool>(   "useRealTimeClock",         true);
-  desc.addUntracked<bool>(   "enableTimingPaths",        true);
-  desc.addUntracked<bool>(   "enableTimingModules",      true);
-  desc.addUntracked<bool>(   "enableTimingExclusive",    false);
-  desc.addUntracked<bool>(   "enableTimingSummary",      false);
-  desc.addUntracked<bool>(   "enableDQM",                true);
-  desc.addUntracked<bool>(   "enableDQMbyPathActive",    false);
-  desc.addUntracked<bool>(   "enableDQMbyPathTotal",     true);
-  desc.addUntracked<bool>(   "enableDQMbyPathOverhead",  false);
-  desc.addUntracked<bool>(   "enableDQMbyPathDetails",   false);
-  desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
-  desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
-  desc.addUntracked<bool>(   "enableDQMbyModule",        false);
-  desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
-  desc.addUntracked<bool>(   "enableDQMSummary",         false);
-  desc.addUntracked<bool>(   "enableDQMbyLumiSection",   false);
-  desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
-  desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
-  desc.addUntracked<double>( "dqmTimeResolution",           5. );   // ms
-  desc.addUntracked<double>( "dqmPathTimeRange",          100. );   // ms
-  desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
-  desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
-  desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
-  desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
+  desc.addUntracked<bool>(        "printEventSummary",        false);
+  desc.addUntracked<bool>(        "printRunSummary",          true);
+  desc.addUntracked<bool>(        "printJobSummary",          true);
+  desc.addUntracked<bool>(        "enableDQM",                true);
+//desc.addUntracked<bool>(        "enableDQMbyPathActive",    false);
+//desc.addUntracked<bool>(        "enableDQMbyPathTotal",     true);
+//desc.addUntracked<bool>(        "enableDQMbyModule",        false);
+//desc.addUntracked<bool>(        "enableDQMbyLumiSection",   false);
+  desc.addUntracked<bool>(        "enableDQMbyProcesses",     false);
+  desc.addUntracked<double>(      "dqmTimeRange",             1000. );   // ms
+  desc.addUntracked<double>(      "dqmTimeResolution",           5. );   // ms
+  desc.addUntracked<double>(      "dqmPathTimeRange",          100. );   // ms
+  desc.addUntracked<double>(      "dqmPathTimeResolution",       0.5);   // ms
+  desc.addUntracked<double>(      "dqmModuleTimeRange",         40. );   // ms
+  desc.addUntracked<double>(      "dqmModuleTimeResolution",     0.2);   // ms
+  desc.addUntracked<unsigned>(    "dqmLumiSectionsRange",     2500  );   // ~ 16 hours
+  desc.addUntracked<std::string>( "dqmPath",                  "HLT/TimerService");
   descriptions.add("FastTimerService", desc);
 }

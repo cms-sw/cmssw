@@ -243,9 +243,30 @@ private:
     }
 
     Resources operator+(Resources const& other) const {
-      Resources result;
-      result.time_thread = time_thread + other.time_thread;
-      result.time_real   = time_real   + other.time_real;
+      Resources result(*this);
+      result += other;
+      return result;
+    }
+  };
+
+  struct ResourcesPerModule {
+    Resources total;
+    unsigned  events;
+
+    void reset() {
+      total.reset();
+      events = 0;
+    }
+
+    ResourcesPerModule & operator+=(ResourcesPerModule const& other) {
+      total  += other.total;
+      events += other.events;
+      return *this;
+    }
+
+    ResourcesPerModule operator+(ResourcesPerModule const& other) const {
+      ResourcesPerModule result(*this);
+      result += other;
       return result;
     }
   };
@@ -262,6 +283,20 @@ private:
       last = 0;
       status = false;
     }
+
+    ResourcesPerPath & operator+=(ResourcesPerPath const& other) {
+      active += other.active;
+      total  += other.total;
+      last   = 0;           // summing these makes no sense, reset them instead
+      status = false;
+      return *this;
+    }
+
+    ResourcesPerPath operator+(ResourcesPerPath const& other) const {
+      ResourcesPerPath result(*this);
+      result += other;
+      return result;
+    }
   };
 
   struct ResourcesPerProcess {
@@ -276,12 +311,30 @@ private:
       for (auto & path: endpaths)
         path.reset();
     }
+
+    ResourcesPerProcess & operator+=(ResourcesPerProcess const& other) {
+      total += other.total;
+      assert(paths.size() == other.paths.size());
+      for (unsigned int i: boost::irange(0ul, paths.size()))
+        paths[i]    += other.paths[i];
+      assert(endpaths.size() == other.endpaths.size());
+      for (unsigned int i: boost::irange(0ul, endpaths.size()))
+        endpaths[i] += other.endpaths[i];
+      return *this;
+    }
+
+    ResourcesPerProcess operator+(ResourcesPerProcess const& other) const {
+      ResourcesPerProcess result(*this);
+      result += other;
+      return result;
+    }
   };
 
   struct ResourcesPerJob {
     Resources                        total;
-    std::vector<Resources>           modules;
+    std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
+    unsigned                         events;
 
     void reset() {
       total.reset();
@@ -289,6 +342,25 @@ private:
         module.reset();
       for (auto & process: processes)
         process.reset();
+      events = 0;
+    }
+
+    ResourcesPerJob & operator+=(ResourcesPerJob const& other) {
+      total += other.total;
+      assert(modules.size() == other.modules.size());
+      for (unsigned int i: boost::irange(0ul, modules.size()))
+        modules[i] += other.modules[i];
+      assert(processes.size() == other.processes.size());
+      for (unsigned int i: boost::irange(0ul, processes.size()))
+        processes[i] += other.processes[i];
+      events += other.events;
+      return *this;
+    }
+
+    ResourcesPerJob operator+(ResourcesPerJob const& other) const {
+      ResourcesPerJob result(*this);
+      result += other;
+      return result;
     }
   };
 
@@ -391,6 +463,11 @@ private:
   std::vector<ResourcesPerJob>  streams_;
   std::vector<PlotsPerJob>      stream_plots_;
 
+  // summary data
+  ResourcesPerJob               job_summary_;                   // whole event time accounting per-job
+  std::vector<ResourcesPerJob>  run_summary_;                   // whole event time accounting per-run
+  std::mutex                    summary_mutex_;                 // synchronise access to the summary objects across different threads
+
   // per-thread quantities, indexed by a thread_local id
   std::vector<Measurement>      threads_;
 
@@ -401,44 +478,43 @@ private:
   Measurement & thread();
 
   // job configuration
-  unsigned int                                  concurrent_runs_;
-  unsigned int                                  concurrent_streams_;
-  unsigned int                                  concurrent_threads_;
+  unsigned int                  concurrent_runs_;
+  unsigned int                  concurrent_streams_;
+  unsigned int                  concurrent_threads_;
+
+  // logging configuration
+  const bool                    print_event_summary_;           // print the time spent in each process, path and module after every event
+  const bool                    print_run_summary_;             // print the time spent in each process, path and module for each run
+  const bool                    print_job_summary_;             // print the time spent in each process, path and module for the whole job
 
   // dqm configuration
-  unsigned int                                  module_id_;                     // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
+  unsigned int                  module_id_;                     // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
 
-  bool                                          enable_dqm_;                    // non const, depends on  the availability of the DQMStore
-  const bool                                    enable_dqm_bymodule_;
-  const bool                                    enable_dqm_byls_;
-  const bool                                    enable_dqm_bynproc_;
+  bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
+//const bool                    enable_dqm_bypath_active_;
+//const bool                    enable_dqm_bypath_total_;
+//const bool                    enable_dqm_bymodule_;
+//const bool                    enable_dqm_byls_;
+  const bool                    enable_dqm_bynproc_;
 
-  const double                                  dqm_eventtime_range_;
-  const double                                  dqm_eventtime_resolution_;
-  const double                                  dqm_pathtime_range_;
-  const double                                  dqm_pathtime_resolution_;
-  const double                                  dqm_moduletime_range_;
-  const double                                  dqm_moduletime_resolution_;
-  const uint32_t                                dqm_lumisections_range_;
-  std::string                                   dqm_path_;
-
-  /*
-  // summary data
-  std::vector<Timing>                           run_summary_;                   // whole event time accounting per-run
-  Timing                                        job_summary_;                   // whole event time accounting per-run
-  std::vector<std::vector<TimingPerProcess>>    run_summary_perprocess_;        // per-process time accounting per-job
-  std::vector<TimingPerProcess>                 job_summary_perprocess_;        // per-process time accounting per-job
-  std::mutex                                    summary_mutex_;                 // synchronise access to the summary objects across different threads
-  */
+  const double                  dqm_eventtime_range_;
+  const double                  dqm_eventtime_resolution_;
+  const double                  dqm_pathtime_range_;
+  const double                  dqm_pathtime_resolution_;
+  const double                  dqm_moduletime_range_;
+  const double                  dqm_moduletime_resolution_;
+  const unsigned int            dqm_lumisections_range_;
+  std::string                   dqm_path_;
 
   // log unsupported signals
   mutable tbb::concurrent_unordered_set<std::string> unsupported_signals_;      // keep track of unsupported signals received
 
-  /*
-  // print a timing summary for the run or job
-  void printSummary(Timing const& summary, std::string const& label) const;
-  void printProcessSummary(Timing const& total, TimingPerProcess const& summary, std::string const& label, std::string const& process) const;
-  */
+  // print the resource usage summary for en event, a run, or the while job
+  template <typename T>
+  void printEvent(T& out, ResourcesPerJob const&) const;
+
+  template <typename T>
+  void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
 };
 
 #endif // ! FastTimerService_h
