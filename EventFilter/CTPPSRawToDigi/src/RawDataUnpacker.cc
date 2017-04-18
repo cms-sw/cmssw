@@ -283,27 +283,21 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
 
   f.setDAQErrorFlags(tErrFlags);
 
-  // TODO: group the following error messages with a common header (frame position)
-
+  // consistency checks
   bool skipFrame = false;
+  stringstream ess;
 
   if (tSig != 0xF)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
-        << "Wrong trailer signature (" << tSig << ") at "
-        << fp << ". This frame will be skipped." << endl;
-
+      ess << "    Wrong trailer signature (" << tSig << ")." << endl;
     skipFrame = true;
   }
 
   if (tErrFlags != 0)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
-        << "Error flags not zero (" << tErrFlags << ") at "
-        << fp << ". This frame will be skipped." << endl;
-
+      ess << "    Error flags not zero (" << tErrFlags << ")." << endl;
     skipFrame = true;
   }
 
@@ -312,15 +306,18 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   if (tSize != wordsProcessed)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
-        << "Trailer size (" << tSize << ") does not match with words processed ("
-        << wordsProcessed << ") at " << fp << ". This frame will be skipped." << endl;
-
+        ess << "    Trailer size (" << tSize << ") does not match with words processed (" << wordsProcessed << ")." << endl;
     skipFrame = true;
   }
 
   if (skipFrame)
+  {
+    if (verbosity)
+      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > Frame at " << fp
+        << " has the following problems and will be skipped.\n" << endl << ess.rdbuf();
+
     return wordsProcessed;
+  }
 
   // get channel data - cluster mode
   if (hFlag == vmCluster)
@@ -355,7 +352,6 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
             << "Invalid cluster (pos=" << clPos
             << ", size=" << clSize << ", min=" << chMin << ", max=" << chMax << ") at " << fp
             <<". Skipping this cluster." << endl;
-
         continue;
       }
 
