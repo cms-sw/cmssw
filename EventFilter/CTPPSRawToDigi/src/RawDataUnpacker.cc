@@ -283,8 +283,9 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
 
   f.setDAQErrorFlags(tErrFlags);
 
+  // TODO: group the following error messages with a common header (frame position)
+
   bool skipFrame = false;
-  bool suppressChannelErrors = false;
 
   if (tSig != 0xF)
   {
@@ -292,6 +293,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
       LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
         << "Wrong trailer signature (" << tSig << ") at "
         << fp << ". This frame will be skipped." << endl;
+
     skipFrame = true;
   }
 
@@ -300,8 +302,9 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
     if (verbosity)
       LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
         << "Error flags not zero (" << tErrFlags << ") at "
-        << fp << ". Channel errors will be suppressed." << endl;
-    suppressChannelErrors = true;
+        << fp << ". This frame will be skipped." << endl;
+
+    skipFrame = true;
   }
 
   wordsProcessed++;
@@ -312,6 +315,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
       LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
         << "Trailer size (" << tSize << ") does not match with words processed ("
         << wordsProcessed << ") at " << fp << ". This frame will be skipped." << endl;
+
     skipFrame = true;
   }
 
@@ -346,7 +350,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
       signed int chMin = clPos - clSize + 1;
       if (chMax < 0 || chMax > 127 || chMin < 0 || chMin > 127 || chMin > chMax)
       {
-        if (verbosity && !suppressChannelErrors)
+        if (verbosity)
           LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
             << "Invalid cluster (pos=" << clPos
             << ", size=" << clSize << ", min=" << chMin << ", max=" << chMax << ") at " << fp
