@@ -2,8 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
-#include <iomanip>
-#include <iostream>
 #include <set>
 
 //----------------
@@ -15,9 +13,8 @@ GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap,
 				     unsigned ring,
 				     unsigned chamber,
 				     const edm::ParameterSet& copad) :
-  theEndcap(endcap), theStation(station), theRing(ring),
-  theChamber(chamber) {
-  
+  theEndcap(endcap), theStation(station), theRing(ring), theChamber(chamber) 
+{
   // Verbosity level, set to 0 (no print) by default.
   infoV        = copad.getParameter<unsigned int>("verbosity");
   maxDeltaPadGE11_ = copad.getParameter<unsigned int>("maxDeltaPadGE11");
@@ -26,8 +23,7 @@ GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap,
 }
 
 GEMCoPadProcessor::GEMCoPadProcessor() :
-  		     theEndcap(1), theStation(1), theRing(1),
-                     theChamber(1) 
+  theEndcap(1), theStation(1), theRing(1), theChamber(1) 
 {
   infoV = 0;
   maxDeltaPadGE11_ = 0;
