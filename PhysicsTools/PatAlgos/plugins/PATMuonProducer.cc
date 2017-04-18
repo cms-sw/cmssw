@@ -276,8 +276,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
 
       if (addPuppiIsolation_) {
-	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonBaseRef], (*PUPPIIsolation_neutral_hadrons)[muonBaseRef], (*PUPPIIsolation_photons)[muonBaseRef]);
-	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonBaseRef], (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonBaseRef], (*PUPPINoLeptonsIsolation_photons)[muonBaseRef]);
+	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonBaseRef],
+				(*PUPPIIsolation_neutral_hadrons)[muonBaseRef],
+				(*PUPPIIsolation_photons)[muonBaseRef]);
+	
+	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonBaseRef],
+					 (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonBaseRef],
+					 (*PUPPINoLeptonsIsolation_photons)[muonBaseRef]);
       }
       else {
 	aMuon.setIsolationPUPPI(-999., -999.,-999.);

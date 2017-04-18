@@ -78,7 +78,7 @@ namespace citk {
       }
       else {
 	useValueMapForPUPPI = false;
-	usePUPPINoLepton = (c.exists("usePUPPINoLepton") ? c.getParameter<bool>("usePUPPINoLepton") : false);
+	usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
       }
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
@@ -217,7 +217,7 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     isolationConeDefinitions.push_back(neutralHadrons);
     isolationConeDefinitions.push_back(photons);
     iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
-    iDesc.addOptional<bool>("usePUPPINoLepton",false);
+    iDesc.add<bool>("usePUPPINoLepton",false);
 
     descriptions.add("CITKPFIsolationSumProducerForPUPPI", iDesc);
 }
