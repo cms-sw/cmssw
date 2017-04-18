@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <chrono>
-#include <iostream>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
