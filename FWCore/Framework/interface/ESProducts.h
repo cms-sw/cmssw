@@ -183,7 +183,7 @@ namespace edm {
    };
 
    namespace es {
-      extern eventsetup::produce::Produce produced;
+      extern const eventsetup::produce::Produce produced;
 
       template<typename T, typename S>
       ESProducts<T,S> products(const T& i1, const S& i2) {
