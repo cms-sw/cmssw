@@ -61,40 +61,40 @@ namespace l1t {
     ~Muon();    
 
     // set values
-    void setHwCharge(int charge);
-    void setHwChargeValid(int valid);
-    void setTfMuonIndex(int index);
-    void setHwTag(int tag);
-    
-    void setHwEtaAtVtx(int hwEtaAtVtx);
-    void setHwPhiAtVtx(int hwPhiAtVtx);
-    void setEtaAtVtx(double etaAtVtx);
-    void setPhiAtVtx(double phiAtVtx);
+    inline void setHwCharge(int charge) { hwCharge_ = charge; };
+    inline void setHwChargeValid(int valid) { hwChargeValid_ = valid; };
+    inline void setTfMuonIndex(int index) { tfMuonIndex_ = index; };
+    inline void setHwTag(int tag) { hwTag_ = tag; };
 
-    void setHwIsoSum(int isoSum);
-    void setHwDPhiExtra(int dPhi);
-    void setHwDEtaExtra(int dEta);
-    void setHwRank(int rank);
+    inline void setHwEtaAtVtx(int hwEtaAtVtx) { hwEtaAtVtx_ = hwEtaAtVtx; };
+    inline void setHwPhiAtVtx(int hwPhiAtVtx) { hwPhiAtVtx_ = hwPhiAtVtx; };
+    inline void setEtaAtVtx(double etaAtVtx) { etaAtVtx_ = etaAtVtx; };
+    inline void setPhiAtVtx(double phiAtVtx) { phiAtVtx_ = phiAtVtx; };
 
-    void setDebug(bool debug);
+    inline void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; };
+    inline void setHwDPhiExtra(int dPhi) { hwDPhiExtra_ = dPhi; };
+    inline void setHwDEtaExtra(int dEta) { hwDEtaExtra_ = dEta; };
+    inline void setHwRank(int rank) { hwRank_ = rank; };
+
+    inline void setDebug(bool debug) { debug_ = debug; };
 
     // methods to retrieve values
-    int hwCharge() const;
-    int hwChargeValid() const;
-    int tfMuonIndex() const;
-    int hwTag() const;
+    inline int hwCharge() const { return hwCharge_; };
+    inline int hwChargeValid() const { return hwChargeValid_; };
+    inline int tfMuonIndex() const { return tfMuonIndex_; };
+    inline int hwTag() const { return hwTag_; };
 
-    int hwEtaAtVtx() const;
-    int hwPhiAtVtx() const;
-    double etaAtVtx() const;
-    double phiAtVtx() const;
+    inline int hwEtaAtVtx() const { return hwEtaAtVtx_; };
+    inline int hwPhiAtVtx() const { return hwPhiAtVtx_; };
+    inline double etaAtVtx() const { return etaAtVtx_; };
+    inline double phiAtVtx() const { return phiAtVtx_; };
 
-    int hwIsoSum() const;
-    int hwDPhiExtra() const;
-    int hwDEtaExtra() const;
-    int hwRank() const;
+    inline int hwIsoSum() const { return hwIsoSum_; };
+    inline int hwDPhiExtra() const { return hwDPhiExtra_; };
+    inline int hwDEtaExtra() const { return hwDEtaExtra_; };
+    inline int hwRank() const { return hwRank_; };
 
-    bool debug() const;
+    inline bool debug() const { return debug_; };
     
   private:
     

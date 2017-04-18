@@ -31,12 +31,12 @@ caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalor
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
 caloStage2Params.egShapeIdType              = cms.string("compressed")
 caloStage2Params.egShapeIdVersion           = cms.uint32(0)
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")#Not used any more in the current emulator version, merged with calibration LUT
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
 
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
 #caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.07.29.txt")
-caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.txt")
+caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.08.08.txt") # new SK Sep '16
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
@@ -46,7 +46,8 @@ caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
 caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation window in firmware goes up to abs(ieta)=32 for now
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
-caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_FW_v17.04.04_shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
+caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v16.03.14.txt")
+
 
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
@@ -56,9 +57,9 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                    = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v9.0.0.txt")
-caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_2017_FW_v9.0.0.txt")
-caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_2017_Layer1Calibration_FW_v12.0.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
+caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
+caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_NewLayer1Calibration_SK1616_EmuOldFormat_v11.0.0.txt")
 caloStage2Params.tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 
@@ -67,7 +68,6 @@ caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
-caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options
 # function6PtParams22EtaBins or None
@@ -109,40 +109,35 @@ jetCalibParamsVector.extend([
 ])
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
 
-caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress_2017v1.txt")
-caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_2017v1.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2017v1.txt")
+caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
+caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_eta.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_add_mult.txt")
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
 caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
-caloStage2Params.etSumEtaMax             = cms.vint32(28,  26, 28,  28, 28)
-caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.) # only 2nd (HT) and 4th (MHT) values applied
-caloStage2Params.etSumPUSType            = cms.string("LUT") # et threshold from this LUT supercedes et threshold in line above
-caloStage2Params.etSumBypassPUS           = cms.uint32(0)
-caloStage2Params.etSumXCalibrationType    = cms.string("None")
-caloStage2Params.etSumYCalibrationType    = cms.string("None")
-caloStage2Params.etSumEttCalibrationType  = cms.string("None")
-caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28, 27)
+caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.)
 
-caloStage2Params.etSumTowEtThreshLUTFile  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v1.txt")
-caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
-caloStage2Params.etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEttPUSLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
+caloStage2Params.etSumEcalSumPUSLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
 
 
 # Layer 1 LUT specification
 #
 # Et-dependent scale factors
-# ECal/HCal scale factors will be a 9*28 array:
-#   28 eta scale factors (1-28)
-#   in 9 ET bins (10, 15, 20, 25, 30, 35, 40, 45, Max)
-#  So, index = etBin*28+ieta
+# ECal/HCal scale factors will be a nphi*nEt*56 array:
+#   28 eta scale factors (1 .. 28)
+#   in ET bins (6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, Max)
+#   18*2 ctp7 bins (minus 0 .. 17 plus 0 .. 17)
+#     acts as a map for phi bin to calibration bin
+#  So, index = phiBin*28*nEt+etBin*28+ieta
 #FInal ecal and HCAl calibrations using mean.. 
-#caloStage2Params.layer1ECalScaleETBins = cms.vint32([10, 15, 20, 25, 30, 35, 40, 45, 256])
 caloStage2Params.layer1ECalScaleETBins = cms.vint32([6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256])
+caloStage2Params.layer1ECalScalePhiBins = cms.vuint32([0]*18*2)
 caloStage2Params.layer1ECalScaleFactors = cms.vdouble([
         1.230770, 1.208991, 1.215351, 1.213350, 1.208275, 1.219069, 1.222985, 1.217729, 1.221262, 1.238302, 1.251040, 1.263300, 1.323678, 1.330580, 1.326592, 1.348387, 1.444263, 
         2.278846, 1.519648, 1.646930, 1.655937, 1.632773, 1.599511, 1.646612, 1.654494, 1.617013, 1.486696, 1.509178, 1.200818, 1.188237, 1.183589, 1.208003, 1.181402, 1.225384, 
@@ -167,6 +162,8 @@ caloStage2Params.layer1ECalScaleFactors = cms.vdouble([
         1.181702, 1.203665, 1.236615, 1.223496, 1.223496, 1.223496,
     ])
 caloStage2Params.layer1HCalScaleETBins = cms.vint32([6, 9, 12, 15, 20, 25, 30, 35, 40, 45, 55, 70, 256])
+caloStage2Params.layer1HCalScalePhiBins = cms.vuint32([0]*18*2)
+caloStage2Params.layer1HCalScalePhiBins[34] = 1 # HEP17 -> CTP7 Phi16 plus side, iPhi 63-66
 caloStage2Params.layer1HCalScaleFactors = cms.vdouble([
         1.461291, 1.454625, 1.455598, 1.449939, 1.460976, 1.473480, 1.466595, 1.468804, 1.481637, 1.497836, 1.504469, 1.517996, 1.543596, 1.558518, 1.575825, 1.586335, 1.544925, 
         1.389349, 1.396040, 1.439915, 1.398678, 1.441202, 1.451638, 1.471108, 1.491032, 1.530464, 1.654074, 1.650121, 1.375991, 1.376866, 1.374574, 1.372501, 1.375971, 1.388565, 
@@ -191,11 +188,39 @@ caloStage2Params.layer1HCalScaleFactors = cms.vdouble([
         1.075398, 1.072158, 1.065357, 1.056707, 1.048909, 1.041525, 1.033163, 1.023515, 1.015901, 1.015901, 1.015901, 1.137542, 1.188167, 1.019230, 1.019230, 1.036922, 1.036922, 
         1.036922, 1.036922, 1.036922, 1.036922, 1.036922, 1.036922, 1.036922,
     ])
+caloStage2Params.layer1HCalScaleFactors.extend([
+        1.461291, 1.454625, 1.455598, 1.449939, 1.460976, 1.473480, 1.466595, 1.468804, 1.481637, 1.497836, 1.504469, 1.517996, 1.543596, 1.558518, 1.575825, 1.586335, 1.544925, 
+        1.389349, 1.396040, 1.439915, 1.398678, 1.441202, 1.451638, 1.471108, 1.491032, 1.530464, 1.654074, 1.650121, 1.375991, 1.376866, 1.374574, 1.372501, 1.375971, 1.388565, 
+        1.389183, 1.393546, 1.396302, 1.418089, 1.422244, 1.443768, 1.457298, 1.469873, 1.485083, 1.488035, 1.443898, 1.288701, 1.318062, 1.354571, 1.296165, 1.316493, 1.324791, 
+        1.329227, 1.329808, 1.347197, 1.385654, 1.367404, 1.330324, 1.330662, 1.332125, 1.334518, 1.330010, 1.343405, 1.346451, 1.346908, 1.349793, 1.374879, 1.374081, 1.391796, 
+        1.406290, 1.417394, 1.433500, 1.422528, 1.373563, 1.235496, 1.274484, 1.300781, 1.222220, 1.234458, 1.242407, 1.238218, 1.231158, 1.229238, 1.248514, 1.261873, 1.301111, 
+        1.303505, 1.304342, 1.300883, 1.301955, 1.312233, 1.316385, 1.317202, 1.315308, 1.335695, 1.342003, 1.353083, 1.362459, 1.370255, 1.379031, 1.369051, 1.319807, 1.199383, 
+        1.235890, 1.263149, 1.172396, 1.189026, 1.182243, 1.174765, 1.160341, 1.159067, 1.211505, 1.281201, 1.275768, 1.275028, 1.274251, 1.272298, 1.272090, 1.283374, 1.284263, 
+        1.283754, 1.283420, 1.301406, 1.301963, 1.309314, 1.315140, 1.319884, 1.327534, 1.312294, 1.264995, 1.168509, 1.199964, 1.223081, 1.121649, 1.128651, 1.126169, 1.112205, 
+        1.112272, 1.146819, 1.194809, 1.195220, 1.247213, 1.246675, 1.246937, 1.246958, 1.242936, 1.249726, 1.251084, 1.250033, 1.246985, 1.258533, 1.259635, 1.264881, 1.266468, 
+        1.266983, 1.271018, 1.255678, 1.213176, 1.138423, 1.164712, 1.181474, 1.075510, 1.076280, 1.074546, 1.080937, 1.122946, 1.131501, 1.111036, 1.110220, 1.225062, 1.224108, 
+        1.223705, 1.222218, 1.218175, 1.223123, 1.224592, 1.222768, 1.215725, 1.224004, 1.223652, 1.225737, 1.227469, 1.227681, 1.230391, 1.213227, 1.171645, 1.115248, 1.135580, 
+        1.145603, 1.037666, 1.051260, 1.080362, 1.099305, 1.088466, 1.075173, 1.056630, 1.032875, 1.202830, 1.204155, 1.203486, 1.201967, 1.194002, 1.197947, 1.198415, 1.196705, 
+        1.188166, 1.196680, 1.192931, 1.197918, 1.197352, 1.192337, 1.193319, 1.177775, 1.139192, 1.096009, 1.110544, 1.116609, 1.042172, 1.074235, 1.080403, 1.064799, 1.053359, 
+        1.037543, 1.006759, 1.006759, 1.188028, 1.183705, 1.183068, 1.180943, 1.176596, 1.180435, 1.176822, 1.172566, 1.167376, 1.172652, 1.171996, 1.172278, 1.170926, 1.164278, 
+        1.161894, 1.142646, 1.108552, 1.076311, 1.086825, 1.092867, 1.057110, 1.060453, 1.051915, 1.037153, 1.022450, 1.001390, 1.001390, 1.001390, 1.169376, 1.169865, 1.167855, 
+        1.166754, 1.159677, 1.161727, 1.161602, 1.159157, 1.149591, 1.155508, 1.150864, 1.150443, 1.147936, 1.137900, 1.131026, 1.112978, 1.080918, 1.061229, 1.066055, 1.073614, 
+        1.042392, 1.038032, 1.029904, 1.012558, 1.012558, 1.012558, 1.012558, 1.012558, 1.150175, 1.150513, 1.150216, 1.147693, 1.140891, 1.143654, 1.140204, 1.134718, 1.128271, 
+        1.127001, 1.122190, 1.119082, 1.114472, 1.102259, 1.089926, 1.075835, 1.045855, 1.041539, 1.044984, 1.046205, 1.015383, 1.011540, 1.001439, 1.001439, 1.001439, 1.001439, 
+        1.001439, 1.001439, 1.125661, 1.124191, 1.123250, 1.118812, 1.112736, 1.111236, 1.106057, 1.098389, 1.089647, 1.086947, 1.079851, 1.073968, 1.068117, 1.051795, 1.035960, 
+        1.021170, 1.001873, 1.014026, 1.014703, 1.023760, 1.023760, 1.023760, 1.023760, 1.023760, 1.023760, 1.023760, 1.023760, 1.023760, 1.090500, 1.089670, 1.086302, 1.082156, 
+        1.075398, 1.072158, 1.065357, 1.056707, 1.048909, 1.041525, 1.033163, 1.023515, 1.015901, 1.015901, 1.015901, 1.137542, 1.188167, 1.019230, 1.019230, 1.036922, 1.036922, 
+        1.036922, 1.036922, 1.036922, 1.036922, 1.036922, 1.036922, 1.036922,
+    ])
+
 # HF 1x1 scale factors will be a 5*12 array:
-#  12 eta scale factors (30-41)
+#  12 eta scale factors (30 .. 41)
 #  in 5 REAL ET bins (5, 20, 30, 50, Max)
-#  So, index = etBin*12+ietaHF
+#  18*2 ctp7 phi bins (minus 0 .. 17 plus 0 .. 17)
+#    acts as a map for phi bin to calibration bin
+#  So, index = phiBin*etBin*24 + etBin*24 + ietaHF
 caloStage2Params.layer1HFScaleETBins = cms.vint32([5, 20, 30, 50, 256])
+caloStage2Params.layer1HFScalePhiBins = cms.vuint32([0]*18*2)
 caloStage2Params.layer1HFScaleFactors = cms.vdouble([
     1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 
     1.767080, 1.767080, 1.755186, 1.769951, 1.763527, 1.791043, 1.898787, 1.982235, 2.071074, 2.193011, 2.356886, 2.403384, 
