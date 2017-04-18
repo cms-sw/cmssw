@@ -23,21 +23,21 @@ namespace edm {
 }
 
 namespace hgcal {
-  class ClusterTools {    
+  class ClusterTools {
   public:
     ClusterTools();
     ClusterTools(const edm::ParameterSet&, edm::ConsumesCollector&);
     ~ClusterTools() {}
 
     void getEvent(const edm::Event&);
-    void getEventSetup(const edm::EventSetup&);        
+    void getEventSetup(const edm::EventSetup&);
 
     float getClusterHadronFraction(const reco::CaloCluster&) const;
 
     math::XYZPoint getMultiClusterPosition(const reco::HGCalMultiCluster&, double vz = 0.) const;
-    
+
     int getLayer(const DetId) const;
-    
+
     double getMultiClusterEnergy(const reco::HGCalMultiCluster&) const;
 
     // only for EE
@@ -46,7 +46,7 @@ namespace hgcal {
 
     std::vector<size_t> sort_by_z(const reco::HGCalMultiCluster&v) const {
       std::vector<size_t> idx(v.size());
-      for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+      std::iota (std::begin(idx), std::end(idx), 0);
       sort(idx.begin(), idx.end(),
 	   [&v](size_t i1, size_t i2) {return v.clusters()[i1]->z() < v.clusters()[i2]->z();});
       return idx;
@@ -55,6 +55,7 @@ namespace hgcal {
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
+    static const int lastLayerEE = 28;
   };
 }
 

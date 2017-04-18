@@ -18,8 +18,6 @@ hgcalLayerClusters =  cms.EDProducer(
     ecut = cms.double(3.),
     kappa = cms.double(9.),
     multiclusterRadii = cms.vdouble(2.,2.,2.),
-    #multiclusterRadii = cms.vdouble(0.015,0.015,0.015),
-    #realSpaceCone = cms.bool(False),
     minClusters = cms.uint32(3),
     verbosity = cms.untracked.uint32(3),
     HGCEEInput = cms.InputTag('HGCalRecHit:HGCEERecHits'),
@@ -32,4 +30,3 @@ hgcalLayerClusters =  cms.EDProducer(
     nonAgedNoises = cms.vdouble(nonAgedNoises),
     noiseMip = hgchebackDigitizer.digiCfg.noise_MIP
     )
-

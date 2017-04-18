@@ -1,15 +1,12 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include <list>
-#include <iostream>
-
 namespace {
   std::vector<size_t> sorted_indices(const reco::HGCalMultiCluster::ClusterCollection& v) {
 
     // initialize original index locations
     std::vector<size_t> idx(v.size());
-    for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+    std::iota (std::begin(idx), std::end(idx), 0);
 
     // sort indices based on comparing values in v
     std::sort(idx.begin(), idx.end(),
@@ -17,11 +14,6 @@ namespace {
 
     return idx;
   }
-
-  // float dist2(const edm::Ptr<reco::BasicCluster> &a,
-  // 	      const edm::Ptr<reco::BasicCluster> &b) {
-  //   return reco::deltaR2(*a,*b);
-  // }
 
   float distReal2(const edm::Ptr<reco::BasicCluster> &a,
 		  const std::array<double,3> &to) {
@@ -31,18 +23,18 @@ namespace {
 
 void HGCal3DClustering::organizeByLayer(const reco::HGCalMultiCluster::ClusterCollection &thecls) {
   es = sorted_indices(thecls);
-  for(unsigned int i = 0; i < es.size(); ++i) {
-    int layer = rhtools_.getLayerWithOffset(thecls[es[i]]->hitsAndFractions()[0].first);
-    layer += int(thecls[es[i]]->z()>0)*(maxlayer+1);
-    float x = thecls[es[i]]->x();
-    float y = thecls[es[i]]->y();
-    float z = thecls[es[i]]->z();
-    points[layer].emplace_back(ClusterRef(i,z),x,y);
+  for (auto& i: es) {
+    int layer = rhtools_.getLayerWithOffset(thecls[i]->hitsAndFractions()[0].first);
+    layer += int(thecls[i]->z()>0)*(maxlayer+1);
+    float x = thecls[i]->x();
+    float y = thecls[i]->y();
+    float z = thecls[i]->z();
+    points[layer].emplace_back(ClusterRef(&i - &es[0],z),x,y);
     if(zees[layer]==0) {
-      //      std::cout << "At least one cluster for layer " << layer << " at z " << thecls[es[i]]->z() << std::endl;
+      // At least one cluster for layer at z
       zees[layer] = z;
     }
-    if(points[layer].size()==0){
+    if(points[layer].empty()){
       minpos[layer][0] = x; minpos[layer][1] = y;
       maxpos[layer][0] = x; maxpos[layer][1] = y;
     }else{
@@ -67,50 +59,41 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
   }
   std::vector<int> vused(es.size(),0);
   unsigned int used = 0;
-  const float radius2 = radius*radius;
 
-  for(unsigned int i = 0; i < es.size(); ++i) {
-    if(vused[i]==0) {
+  for (auto& i: es) {
+    if(vused[&i - &es[0]]==0) {
       reco::HGCalMultiCluster temp;
-      temp.push_back(thecls[es[i]]);
-      vused[i]=(thecls[es[i]]->z()>0)? 1 : -1;
+      temp.push_back(thecls[i]);
+      vused[i]=(thecls[i]->z()>0)? 1 : -1;
       ++used;
-      std::array<double,3> from{ {thecls[es[i]]->x(),thecls[es[i]]->y(),thecls[es[i]]->z()} };
-      unsigned int firstlayer = int(thecls[es[i]]->z()>0)*(maxlayer+1);
+      // Starting from cluster es[i] at from[0] - from[1] - from[2]
+      std::array<double,3> from{ {thecls[i]->x(),thecls[i]->y(),thecls[i]->z()} };
+      unsigned int firstlayer = int(thecls[i]->z()>0)*(maxlayer+1);
       unsigned int lastlayer = firstlayer+maxlayer+1;
-      // std::cout << "Starting from cluster " << es[i]
-      // 		<< " at "
-      // 		<< from[0] << " "
-      // 		<< from[1] << " "
-      // 		<< from[2] << std::endl;
       for(unsigned int j = firstlayer; j < lastlayer; ++j) {
 	if(zees[j]==0.){
-	  //	  std::cout << "layer " << j << " not yet ever reached ? " << std::endl;
+	  // layer j not yet ever reached?
 	  continue;
 	}
 	std::array<double,3> to{ {0.,0.,zees[j]} };
 	layerIntersection(to,from);
-        int layer = int(abs(j-(maxlayer+1))); //maps back from index used for KD trees to actual layer
+        unsigned int layer = int(abs(j-(maxlayer+1))); //maps back from index used for KD trees to actual layer
         float radius = 9999.;
-        if(layer <= 28) radius = radii[0];
-        else if(layer <= 40) radius = radii[1];
-        else if(layer <= 52) radius = radii[2];
+        if(layer <= lastLayerEE) radius = radii[0];
+        else if(layer <= lastLayerFH) radius = radii[1];
+        else if(layer <= lastLayerBH) radius = radii[2];
         else assert(radius<100. && "nonsense layer value - cannot assign multicluster radius");
         float radius2 = radius*radius;
 	KDTreeBox search_box(float(to[0])-radius,float(to[0])+radius,
 			     float(to[1])-radius,float(to[1])+radius);
 	std::vector<KDNode> found;
-	// std::cout << "at layer " << j << " in box "
-	// 	  << float(to[0])-radius << " "
-	// 	  << float(to[0])+radius << " "
-	// 	  << float(to[1])-radius << " "
-	// 	  << float(to[1])+radius << std::endl;
+	// at layer j in box float(to[0])+/-radius - float(to[1])+/-radius
 	hit_kdtree[j].search(search_box,found);
-	//	std::cout << "found " << found.size() << " clusters within box " << std::endl;
+	// found found.size() clusters within box
 	for(unsigned int k = 0; k < found.size(); k++){
 	  if(vused[found[k].data.ind]==0 && distReal2(thecls[es[found[k].data.ind]],to)<radius2){
 	    temp.push_back(thecls[es[found[k].data.ind]]);
-	    vused[found[k].data.ind]=vused[i];
+	    vused[found[k].data.ind]=vused[&i - &es[0]];
 	    ++used;
 	  }
 	}
@@ -135,6 +118,12 @@ void HGCal3DClustering::layerIntersection(std::array<double,3> &to,
 					  const std::array<double,3> &from)
   const
 {
-  to[0]=from[0]/from[2]*to[2];
-  to[1]=from[1]/from[2]*to[2];
+  if (from[2] != 0) {
+      to[0]=from[0]/from[2]*to[2];
+      to[1]=from[1]/from[2]*to[2];
+  }
+  else {
+      to[0] = 0;
+      to[1] = 0;
+  }
 }
