@@ -189,18 +189,18 @@ namespace pat {
       float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
       float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
       /// sets PUPPI isolations
-      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
+      void setIsolationPUPPI(float chargedhadrons, float neutralhadrons, float photons)
       {  
-         puppiChargedHadronIso_ = chargedhadrons_;
-         puppiNeutralHadronIso_ = neutralhadrons_;
-         puppiPhotonIso_ = photons_;
+         puppiChargedHadronIso_ = chargedhadrons;
+         puppiNeutralHadronIso_ = neutralhadrons;
+         puppiPhotonIso_ = photons;
       }
       /// sets PUPPINoLeptons isolations
-      void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
+      void setIsolationPUPPINoLeptons(float chargedhadrons, float neutralhadrons, float photons)
       {  
-         puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
-         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
-         puppiNoLeptonsPhotonIso_ = photons_;
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons;
+         puppiNoLeptonsPhotonIso_ = photons;
       }
       
       /// Muon High Level Selection
