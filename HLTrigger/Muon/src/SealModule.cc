@@ -22,6 +22,7 @@
 #include "HLTrigger/Muon/interface/HLTL1MuonSelector.h"
 #include "HLTrigger/Muon/interface/HLTL1TMuonSelector.h"
 #include "HLTrigger/Muon/interface/HLTScoutingMuonProducer.h"
+#include "HLTrigger/Muon/interface/HLTL1MuonNoL2Selector.h"
 DEFINE_FWK_MODULE(HLTMuonL1TFilter);
 DEFINE_FWK_MODULE(HLTMuonL1Filter);
 DEFINE_FWK_MODULE(HLTMuonL1RegionalFilter);
@@ -43,3 +44,4 @@ DEFINE_FWK_MODULE(HLTMuonTrkL1TFilter);
 DEFINE_FWK_MODULE(HLTL1MuonSelector);
 DEFINE_FWK_MODULE(HLTL1TMuonSelector);
 DEFINE_FWK_MODULE(HLTScoutingMuonProducer);
+DEFINE_FWK_MODULE(HLTL1MuonNoL2Selector);
