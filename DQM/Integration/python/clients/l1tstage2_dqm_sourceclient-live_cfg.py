@@ -40,10 +40,10 @@ process.rawToDigiPath = cms.Path(process.RawToDigi)
 # Stage2 Unpacker and DQM Path
 
 # Filter fat events
-#from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-#process.hltFatEventFilter = hltHighLevel.clone()
-#process.hltFatEventFilter.throw = cms.bool(False)
-#process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
+from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+process.hltFatEventFilter = hltHighLevel.clone()
+process.hltFatEventFilter.throw = cms.bool(False)
+process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
 
 # This can be used if HLT filter not available in a run
 process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
@@ -57,17 +57,17 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 # zero suppression DQM module running before the fat event filter
 from DQM.L1TMonitor.L1TStage2uGMT_cfi import l1tStage2uGMTZeroSupp
-process.l1tStage2uGMTZeroSuppAllEvts = l1tStage2uGMTZeroSupp.clone()
-process.l1tStage2uGMTZeroSuppAllEvts.monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/zeroSuppression/AllEvts")
+process.l1tStage2uGMTZeroSupp.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts")
 # customise path for zero suppression module analysing only fat events
-process.l1tStage2uGMTZeroSupp.monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/zeroSuppression/FatEvts")
+process.l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
+process.l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
 
 process.l1tMonitorPath = cms.Path(
-    process.l1tStage2uGMTZeroSuppAllEvts +
-#    process.hltFatEventFilter +
-#    process.selfFatEventFilter +
     process.l1tStage2Unpack +
-    process.l1tStage2OnlineDQM
+    process.l1tStage2OnlineDQM +
+    process.hltFatEventFilter +
+#    process.selfFatEventFilter +
+    process.l1tStage2uGMTZeroSuppFatEvts
 )
 
 # Remove DQM Modules
