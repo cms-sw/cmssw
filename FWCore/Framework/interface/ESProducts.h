@@ -30,7 +30,9 @@
 namespace edm {
    namespace eventsetup {      
       namespace produce {
-         struct Produce {};
+         struct Produce {
+            Produce() {}
+         };
          
          template< typename T> struct OneHolder {
             OneHolder() {}
