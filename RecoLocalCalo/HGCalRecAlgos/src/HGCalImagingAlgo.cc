@@ -248,7 +248,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
   return maxdensity;
 }
 
-int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, double maxdensity, KDTreeBox &bounds, const int layer){
+int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, double maxdensity, KDTreeBox &bounds, const unsigned int layer){
 
   //this is called once per layer...
   //so when filling the cluster temporary vector of Hexels we resize each time by the number
@@ -256,8 +256,8 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 
   unsigned int clusterIndex = 0;
   float delta_c = 9999.;
-  if( layer<=28 ) delta_c = vecDeltas[0];
-  else if( layer<=40 ) delta_c = vecDeltas[1];
+  if( layer<=lastLayerEE ) delta_c = vecDeltas[0];
+  else if( layer<=lastLayerFH ) delta_c = vecDeltas[1];
   else delta_c = vecDeltas[2];
 
   std::vector<size_t> rs = sorted_indices(nd); // indices sorted by decreasing rho

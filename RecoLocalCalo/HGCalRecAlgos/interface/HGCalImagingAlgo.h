@@ -296,7 +296,7 @@ inline double distance(const Hexel &pt1, const Hexel &pt2) {   //2-d distance on
 }
 double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int);   //return max density
 double calculateDistanceToHigher(std::vector<KDNode> &, KDTree &);
-int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const int);
+int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int);
 math::XYZPoint calculatePosition(std::vector<KDNode> &);
 
 // attempt to find subclusters within a given set of hexels
