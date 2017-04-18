@@ -182,6 +182,12 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
 
+    ## Quark Gluon Likelihood
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
+    task.add(process.QGTaggerTask)
+
+    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
+
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
          src = process.patJets.jetSource,
@@ -251,9 +257,10 @@ def miniAOD_customizeCommon(process):
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
-    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-    task.add(process.ak4PFJets)
-    task.add(process.ak4PFJetsPuppi)
+    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
+        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+        task.add(process.ak4PFJets)
+        task.add(process.ak4PFJetsPuppi)
     process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX

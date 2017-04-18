@@ -31,6 +31,7 @@ class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
 class G4Step;
+class HcalTestNS;
 
 class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
@@ -89,8 +90,9 @@ private:
   HFShowerFibreBundle *         showerBundle;
   HEDarkening *                 m_HEDarkening;
   HFDarkening *                 m_HFDarkening;
+  HcalTestNS *                  hcalTestNS_;
   bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
-  bool                          testNumber, neutralDensity;
+  bool                          testNumber, neutralDensity, testNS_;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;

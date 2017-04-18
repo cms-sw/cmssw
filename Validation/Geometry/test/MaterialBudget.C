@@ -49,7 +49,7 @@ const std::vector<std::string> DETECTORS{"BeamPipe", "TIB", "TIDF", "TIDB",
       "Tracker", "TrackerSum",
       "Pixel", "Strip",
       "InnerTracker",
-      "Phase1PixelBarrel", "Phase2OTBarrel",
+      "Phase2PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap"};
 
 std::map<std::string, std::vector<std::string> > COMPOUNDS {

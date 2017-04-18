@@ -88,6 +88,7 @@ public:
       ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0),
       probabilityX_(0.0), probabilityY_(0.0), probabilityQ_(0.0), qBin_(0.0),
       isOnEdge_(false), hasBadPixels_(false), spansTwoROCs_(false), hasFilledProb_(false) {}
+      virtual ~ClusterParam() = default;
       const SiPixelCluster * theCluster;
       
       //--- Cluster-level quantities (may need more)
