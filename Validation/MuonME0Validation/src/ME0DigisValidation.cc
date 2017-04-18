@@ -39,13 +39,13 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   float bins[] = {62.3, 70.0, 77.7, 87.1, 96.4, 108.2, 119.9, 134.7, 149.5};
   int binnum = sizeof(bins)/sizeof(float) - 1;
     
-  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius; Entries", binnum, bins);
-  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius; Entries", binnum, bins);
-  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius [cm]; Entries", binnum, bins);
+  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius [cm]; Entries", binnum, bins);
+  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius [cm]; Entries", binnum, bins);
     
-  me0_strip_exp_bkg_rad_tot = ibooker.book1D( "me0_strip_exp_bkg_radius_tot", "Total expected neutron background; Radius; Hit Rate [Hz/cm^{2}]", binnum, bins);
-  me0_strip_exp_bkgElePos_rad = ibooker.book1D( "me0_strip_exp_bkgElePos_radius", "Expected neutron background: electrons+positrons; Radius; Hit Rate [Hz/cm^{2}]", binnum, bins);
-  me0_strip_exp_bkgNeutral_rad = ibooker.book1D( "me0_strip_exp_bkgNeutral_radius", "Expected neutron background: gammas+neutrons; Radius; Hit Rate [Hz/cm^{2}]", binnum, bins);
+  me0_strip_exp_bkg_rad_tot = ibooker.book1D( "me0_strip_exp_bkg_radius_tot", "Total expected neutron background; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
+  me0_strip_exp_bkgElePos_rad = ibooker.book1D( "me0_strip_exp_bkgElePos_radius", "Expected neutron background: electrons+positrons; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
+  me0_strip_exp_bkgNeutral_rad = ibooker.book1D( "me0_strip_exp_bkgNeutral_radius", "Expected neutron background: gammas+neutrons; Radius [cm]; Hit Rate [Hz/cm^{2}]", binnum, bins);
     
   std::vector<double> neuBkg, eleBkg;
   neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
