@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdio>
 #include <sstream>
+#include <memory>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
@@ -1292,7 +1293,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput) {
+  HcalElectronicsMap::Helper fObjectHelper;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -1318,7 +1321,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 	continue;
       }
     }
-    //    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
     int slot = atoi (items [2].c_str());
     int top = 1;
@@ -1345,31 +1347,26 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 
     // first, handle undefined cases
     if (items [8] == "NA") { // undefined channel
-      fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
+      fObjectHelper.mapEId2chId (elId, DetId (HcalDetId::Undefined));
     } else if (items [8] == "NT") { // undefined trigger channel
-      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+      fObjectHelper.mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     } else {
       HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
-      if (converter.isHcalDetId ()) { 
-	fObject->mapEId2chId (elId, converter.getId ());
+      if (converter.isHcalDetId() or converter.isHcalCalibDetId() or converter.isHcalZDCDetId()) { 
+        fObjectHelper.mapEId2chId (elId, converter.getId ());
       }
       else if (converter.isHcalTrigTowerDetId ()) {
-	fObject->mapEId2tId (elId, converter.getId ());
-      }
-      else if (converter.isHcalCalibDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
-      }
-      else if (converter.isHcalZDCDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
+        fObjectHelper.mapEId2tId (elId, converter.getId ());
       }
       else {
-	edm::LogWarning("Format Error") << "HcalElectronicsMap-> Unknown subdetector: " 
+        edm::LogWarning("Format Error") << "HcalElectronicsMap-> Unknown subdetector: " 
 		  << items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
       }
     }
   }
-  fObject->sort ();
-  return true;
+  auto fObject = std::make_unique<HcalElectronicsMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {

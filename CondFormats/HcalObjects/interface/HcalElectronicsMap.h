@@ -15,9 +15,6 @@ $Revision: 1.16 $
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#include <atomic>
-#endif
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -28,7 +25,44 @@ $Revision: 1.16 $
 // 
 class HcalElectronicsMap {
  public:
-  HcalElectronicsMap();
+
+  class PrecisionItem { 
+   public:
+    PrecisionItem () {mId = mElId = 0;}
+    PrecisionItem (uint32_t fId, uint32_t fElId) 
+      : mId (fId), mElId (fElId) {}
+    uint32_t mId;
+    uint32_t mElId;
+  
+   COND_SERIALIZABLE;
+  };
+  
+  class TriggerItem { 
+   public:
+    TriggerItem () {mElId = mTrigId = 0;}
+    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
+      : mTrigId (fTrigId), mElId (fElId) { }
+    uint32_t mTrigId;
+    uint32_t mElId;
+  
+   COND_SERIALIZABLE;
+  };
+
+  class Helper {
+   public:
+    Helper();
+    // map channels
+    bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
+    bool mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId);
+
+    std::vector<PrecisionItem> mPItems;
+    std::vector<TriggerItem> mTItems;
+
+   COND_TRANSIENT;
+  };
+
+  HcalElectronicsMap() {}
+  HcalElectronicsMap(const Helper& helper);
   ~HcalElectronicsMap();
 
   // swap function
@@ -69,34 +103,8 @@ class HcalElectronicsMap {
   std::vector <HcalGenericDetId> allPrecisionId () const;
   std::vector <HcalTrigTowerDetId> allTriggerId () const;
 
-  // map channels
-  bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
-  bool mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId);
-  // sorting
-  void sortById () const;
-  void sortByTriggerId () const;
-  void sort() {}
+  void initialize();
 
-  class PrecisionItem { 
-  public:
-    PrecisionItem () {mId = mElId = 0;}
-    PrecisionItem (uint32_t fId, uint32_t fElId) 
-      : mId (fId), mElId (fElId) {}
-    uint32_t mId;
-    uint32_t mElId;
-  
-  COND_SERIALIZABLE;
-};
-  class TriggerItem { 
-  public:
-    TriggerItem () {mElId = mTrigId = 0;}
-    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
-      : mTrigId (fTrigId), mElId (fElId) { }
-    uint32_t mTrigId;
-    uint32_t mElId;
-  
-  COND_SERIALIZABLE;
-};
  protected:
   const PrecisionItem* findById (unsigned long fId) const;
   const PrecisionItem* findPByElId (unsigned long fElId) const;
@@ -105,13 +113,13 @@ class HcalElectronicsMap {
   
   std::vector<PrecisionItem> mPItems;
   std::vector<TriggerItem> mTItems;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<std::vector<const PrecisionItem*>*> mPItemsById COND_TRANSIENT;
-  mutable std::atomic<std::vector<const TriggerItem*>*> mTItemsByTrigId COND_TRANSIENT;
-#else
-  mutable std::vector<const PrecisionItem*>* mPItemsById COND_TRANSIENT;
-  mutable std::vector<const TriggerItem*>* mTItemsByTrigId COND_TRANSIENT;
-#endif
+  std::vector<const PrecisionItem*> mPItemsById COND_TRANSIENT;
+  std::vector<const TriggerItem*> mTItemsByTrigId COND_TRANSIENT;
+
+ private:
+  // sorting
+  void sortById ();
+  void sortByTriggerId ();
 
  COND_SERIALIZABLE;
 };

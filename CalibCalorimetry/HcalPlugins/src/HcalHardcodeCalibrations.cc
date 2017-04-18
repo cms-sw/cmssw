@@ -602,9 +602,7 @@ std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronics
   const HcalTopology* topo=&(*htopo);
 
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  auto result = std::make_unique<HcalElectronicsMap>();
-  dbHardcode.makeHardcodeMap(*result,cells);
-  return result;
+  return dbHardcode.makeHardcodeMap(cells);
 }
 
 std::unique_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
