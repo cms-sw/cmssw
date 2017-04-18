@@ -655,7 +655,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
   }//loop over pairs
   LogTrace("MultiHitGeneratorFromChi2") << "triplet size=" << result.size();
-  std::cout << "MultiHitGeneratorFromChi2 " << "triplet size=" << result.size() << std::endl;
+  // std::cout << "MultiHitGeneratorFromChi2 " << "triplet size=" << result.size() << std::endl;
 }
 
 void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
