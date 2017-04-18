@@ -4,10 +4,13 @@ from DQM.CTPPS.totemDAQTriggerDQMSource_cfi import *
 
 from DQM.CTPPS.totemRPDQMSource_cfi import *
 
+from DQM.CTPPS.ctppsDiamondDQMSource_cfi import *
+
 from DQM.CTPPS.totemRPDQMHarvester_cfi import *
 
-totemDQM = cms.Sequence(
-  totemDAQTriggerDQMSource *
-  totemRPDQMSource *
-  totemRPDQMHarvester
+ctppsDQM = cms.Sequence(
+    totemDAQTriggerDQMSource *
+    totemRPDQMSource *
+    ctppsDiamondDQMSource *
+    totemRPDQMHarvester
 )
