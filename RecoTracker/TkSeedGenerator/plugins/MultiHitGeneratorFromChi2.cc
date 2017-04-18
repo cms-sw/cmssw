@@ -229,8 +229,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
                                         cacheHits& refittedHitStorage) {
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
-//  unsigned int debug_Id2 = detIdsToDebug[2];
-  
+#ifdef EDM_ML_DEBUG
+  unsigned int debug_Id2 = detIdsToDebug[2];
+#endif  
 
    std::array<bool, 3> bl;
    bl[0] = doublets.innerLayer().isBarrel;   
@@ -274,12 +275,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
             auto hi = layer3.theHits.begin()+i;
             auto angle = layer3.phi(i);
 	    auto myz = layer3.v[i];
-
-//            IfLogTrace(layer3.hit(i)->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
-//                                                                                   << " with pos: " << hi->hit()->globalPosition()
-//                                                                                   << " phi=" << hi->hit()->globalPosition().phi()
-//                                                                                   << " z=" << hi->hit()->globalPosition().z()
-//                                                                                   << " r=" << hi->hit()->globalPosition().perp();
+#ifdef EDM_ML_DEBUG
+             IfLogTrace(layer3.hit(i)->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
+                                                                                   << " with pos: " << hi->hit()->globalPosition()
+                                                                                   << " phi=" << hi->hit()->globalPosition().phi()
+                                                                                   << " z=" << hi->hit()->globalPosition().z()
+                                                                                   << " r=" << hi->hit()->globalPosition().perp();
+#endif
 	    //use (phi,r) for endcaps rather than (phi,z)
 	    if (myz < minz) { minz = myz;} else { if (myz > maxz) {maxz = myz;}}
 	    auto myerr = layer3.dv[i];
@@ -358,20 +360,31 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 #else
       refit2Hits(hit0,hit1,tsos0,tsos1,region,nomField,false);
 #endif
-      assert(hit0.isOwn()); assert(hit1.isOwn());
 
-      IfLogTrace(debugPair&&!passFilterHit0, "MultiHitGeneratorFromChi2") << "hit0 did not pass cluster shape filter";
       bool passFilterHit0 = filterHit(hit0->hit(),tsos0.globalMomentum());
+      IfLogTrace(debugPair&&!passFilterHit0, "MultiHitGeneratorFromChi2") << "hit0 did not pass cluster shape filter";
       if (!passFilterHit0) continue;
       bool passFilterHit1 = filterHit(hit1->hit(),tsos1.globalMomentum());
       IfLogTrace(debugPair&&!passFilterHit1, "MultiHitGeneratorFromChi2") << "hit1 did not pass cluster shape filter";
       if (!passFilterHit1) continue;
+      // refit hits
+      hit0.reset((SeedingHitSet::RecHitPointer)(cloner(*hit0,tsos0)));
+      hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,tsos1)));
 
+#ifdef EDM_ML_DEBUG
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "charge=" << tsos0.charge() << std::endl
+                                                       << "state1 pt=" << tsos0.globalMomentum().perp() << " eta=" << tsos0.globalMomentum().eta()  << " phi=" << tsos0.globalMomentum().phi() << std::endl
+                                                       << "state2 pt=" << tsos1.globalMomentum().perp() << " eta=" << tsos1.globalMomentum().eta()  << " phi=" << tsos1.globalMomentum().phi() << std::endl
+                                                       << "positions after refitting: " << hit0->globalPosition() << " " << hit1->globalPosition();
+#endif 
     } else {
       // not refit clone anyhow
       hit0.reset((BaseTrackerRecHit *)hit0->clone());
       hit1.reset((BaseTrackerRecHit *)hit1->clone());
     }
+
+    assert(hit0.isOwn()); assert(hit1.isOwn());
+
 
     //gc: create the RZ line for the pair
     SimpleLineRZ line(PixelRecoPointRZ(gp0.perp(),gp0.z()), PixelRecoPointRZ(gp1.perp(),gp1.z()));
@@ -693,15 +706,11 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   if ((gp1-cc).x()*p1.y() - (gp1-cc).y()*p1.x() > 0) q =-q;
 
   TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp1, p1, q, &ufield),*hit1->surface()).swap(state1);
-  hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
+  // hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
 
   TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp2, p2, q, &ufield),*hit2->surface()).swap(state2);
-  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
+  // hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
 
-  IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "charge=" << q << std::endl
-                                                   << "state1 pt=" << state1.globalMomentum().perp() << " eta=" << state1.globalMomentum().eta()  << " phi=" << state1.globalMomentum().phi() << std::endl
-                                                   << "state2 pt=" << state2.globalMomentum().perp() << " eta=" << state2.globalMomentum().eta()  << " phi=" << state2.globalMomentum().phi() << std::endl
-                                                   << "positions after refitting: " << hit1->globalPosition() << " " << hit2->globalPosition();
 }
 
 /*
