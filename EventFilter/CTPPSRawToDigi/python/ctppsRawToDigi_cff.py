@@ -41,7 +41,8 @@ from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # various error/warning/info output may be enabled with these flags
-#  totemRPRawToDigi.RawToDigi.verbosity = 1
+#  totemRPRawToDigi.RawUnpacking.verbosity = 1
+#  totemRPRawToDigi.RawToDigi.verbosity = 1 # or higher number for more output
 #  totemRPRawToDigi.RawToDigi.printErrorSummary = 1
 #  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
