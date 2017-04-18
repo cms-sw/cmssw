@@ -152,16 +152,14 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
       name = name.substr(0,(name.find("_refl")));
     }
     std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    std::pair<int,int> add = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
     std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
     if (itr == kount.end()) {
-      kount[shape] = add;
+      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     } else {
-      std::pair<int,int> old = (refl) ? 
+      kount[shape] = (refl) ? 
 	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
 	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-      kount[shape] = old;
     }
   }
   for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
@@ -183,16 +181,14 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
       name = name.substr(0,(name.find("_refl")));
     }
     std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    std::pair<int,int> add = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
     std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
     if (itr == kount.end()) {
-      kount[shape] = add;
+      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     } else {
-      std::pair<int,int> old = (refl) ? 
+      kount[shape] = (refl) ? 
 	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
 	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-      kount[shape] = old;
     }
   }
   for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
@@ -214,16 +210,14 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
       name = name.substr(0,(name.find("_refl")));
     }
     std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    std::pair<int,int> add = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
     std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
     if (itr == kount.end()) {
-      kount[shape] = add;
+      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
     } else {
-      std::pair<int,int> old = (refl) ? 
+      kount[shape] = (refl) ? 
 	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
 	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-      kount[shape] = old;
     }
   }
   for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
