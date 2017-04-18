@@ -42,6 +42,7 @@ class TotemVFATRawToDigi : public edm::stream::EDProducer<>
     ~TotemVFATRawToDigi();
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endStream() override;
 
   private:
     std::string subSystemName;
@@ -108,7 +109,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
 
     if (subSystem == ssTimingDiamond)
     {
-      
+
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
         fedIds.push_back(id);
     }
@@ -176,5 +177,10 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 }
 
 //----------------------------------------------------------------------------------------------------
+
+void TotemVFATRawToDigi::endStream()
+{
+  rawToDigiConverter.PrintSummaries();
+}
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-# trigger data
+# ---------- trigger data ----------
 from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
-# Si strips
+# ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
@@ -40,8 +40,13 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+# various error/warning/info output may be enabled with these flags
+#  totemRPRawToDigi.RawToDigi.verbosity = 1
+#  totemRPRawToDigi.RawToDigi.printErrorSummary = 1
+#  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
-# diamonds
+
+# ---------- diamonds ----------
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
