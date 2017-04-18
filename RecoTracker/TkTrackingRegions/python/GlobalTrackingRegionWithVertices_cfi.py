@@ -13,6 +13,7 @@ RegionPSetWithVerticesBlock = cms.PSet(
         ptMin = cms.double(0.9),
         useFoundVertices = cms.bool(True),
         useFakeVertices = cms.bool(False),
+        maxNVertices = cms.int32(-1),
         nSigmaZ = cms.double(4.0)
     )
 )
