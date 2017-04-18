@@ -92,6 +92,17 @@ public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService();
 
+  // query the time spent in a module/path/process (available after it has run)
+  double querySourceTime(edm::StreamID) const;
+  double queryEventTime(edm::StreamID) const;
+  double queryEventTime(edm::StreamID, std::string const& process) const;
+  double queryModuleTime(edm::StreamID, const edm::ModuleDescription & module) const;
+  double queryModuleTime(edm::StreamID, unsigned int id) const;
+  double queryModuleTimeByLabel(edm::StreamID, std::string const& module) const;
+  double queryModuleTimeByLabel(edm::StreamID, std::string const& process, const std::string & module) const;
+  double queryPathTime(edm::StreamID, std::string const& path) const;
+  double queryPathTime(edm::StreamID, std::string const& process, std::string const& path) const;
+
 private:
   void ignoredSignal(std::string signal) const;
   void unsupportedSignal(std::string signal) const;

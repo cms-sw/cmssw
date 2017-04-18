@@ -76,8 +76,8 @@ FastTimerService::PlotsPerElement::reset()
 void
 FastTimerService::PlotsPerElement::book(
     DQMStore::IBooker & booker,
-    std::string const & name,
-    std::string const & title,
+    std::string const& name,
+    std::string const& title,
     double range,
     double resolution,
     unsigned int lumisections)
@@ -207,7 +207,7 @@ FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& descripti
 
   // fill the modules that actually ran and the total time spent in each od them
   for (unsigned int i = 0; i < path.last; ++i) {
-    auto const & module = data.modules[description.modules_and_dependencies_[i]];
+    auto const& module = data.modules[description.modules_and_dependencies_[i]];
     module_counter_->Fill(i);
     module_time_thread_total_->Fill(i, ms(module.time_thread));
     module_time_real_total_->Fill(i, ms(module.time_real));
@@ -217,7 +217,7 @@ FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& descripti
 }
 
 
-FastTimerService::PlotsPerProcess::PlotsPerProcess(ProcessCallGraph::ProcessType const & process) :
+FastTimerService::PlotsPerProcess::PlotsPerProcess(ProcessCallGraph::ProcessType const& process) :
   event_(),
   paths_(process.paths_.size()),
   endpaths_(process.endPaths_.size())
@@ -300,7 +300,7 @@ FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job) :
   processes_()
 {
   processes_.reserve(job.processes().size());
-  for (auto const & process: job.processes())
+  for (auto const& process: job.processes())
     processes_.emplace_back(process);
 }
 
@@ -370,7 +370,7 @@ FastTimerService::PlotsPerJob::book(
     booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
     for (unsigned int id: process.modules_)
     {
-      auto const & module_name = job.module(id).moduleLabel();
+      auto const& module_name = job.module(id).moduleLabel();
       modules_[id].book(booker,
           module_name, module_name,
           module_range,
@@ -514,6 +514,105 @@ FastTimerService::~FastTimerService()
 {
 }
 
+double
+FastTimerService::querySourceTime(edm::StreamID sid) const
+{
+  auto const& stream = streams_[sid];
+  auto const& source = stream.modules[callgraph_.source().id()];
+  return ms(source.time_real);
+}
+
+double
+FastTimerService::queryEventTime(edm::StreamID sid) const
+{
+  auto const& stream = streams_[sid];
+  return ms(stream.total.time_real);
+}
+
+double
+FastTimerService::queryEventTime(edm::StreamID sid, std::string const& process) const
+{
+  unsigned int pid = callgraph_.processId(process);
+  auto const& stream = streams_[sid];
+  return ms(stream.processes[pid].total.time_real);
+}
+
+double
+FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDescription & md) const
+{
+  auto const& stream = streams_[sid];
+  auto const& module = stream.modules[md.id()];
+  return ms(module.time_real);
+}
+
+double
+FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) const
+{
+  auto const& stream = streams_[sid];
+  auto const& module = stream.modules[id];
+  //FIXME add a check that "id" is valid
+  return ms(module.time_real);
+}
+
+double
+FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& label) const
+{
+  for (unsigned int id: boost::irange(0u, callgraph_.size()))
+    if (callgraph_.module(id).moduleLabel() == label)
+      return queryModuleTime(sid, id);
+
+  //FIXME issue a LogWarning or raise an exception
+  return 0.;
+}
+
+double
+FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& process, const std::string & label) const
+{
+  for (unsigned int id: callgraph_.processDescription(process).modules_)
+    if (callgraph_.module(id).moduleLabel() == label)
+      return queryModuleTime(sid, id);
+
+  //FIXME issue a LogWarning or raise an exception
+  return 0.;
+}
+
+double
+FastTimerService::queryPathTime(edm::StreamID sid, std::string const& path) const
+{
+  auto const& stream = streams_[sid];
+  for (unsigned int pid: boost::irange(0ul, callgraph_.processes().size()))
+  {
+    auto const& desc = callgraph_.processDescription(pid);
+    for (unsigned int id: boost::irange(0ul, desc.paths_.size()))
+      if (desc.paths_[id].name_ == path)
+        return ms(stream.processes[pid].paths[id].total.time_real);
+    for (unsigned int id: boost::irange(0ul, desc.endPaths_.size()))
+      if (desc.paths_[id].name_ == path)
+        return ms(stream.processes[pid].endpaths[id].total.time_real);
+  }
+
+  //FIXME issue a LogWarning or raise an exception
+  return 0.;
+}
+
+double
+FastTimerService::queryPathTime(edm::StreamID sid, std::string const& process, std::string const& path) const
+{
+  auto const& stream = streams_[sid];
+  unsigned int pid = callgraph_.processId(process);
+  auto const& desc = callgraph_.processDescription(pid);
+  for (unsigned int id: boost::irange(0ul, desc.paths_.size()))
+    if (desc.paths_[id].name_ == path)
+      return ms(stream.processes[pid].paths[id].total.time_real);
+  for (unsigned int id: boost::irange(0ul, desc.endPaths_.size()))
+    if (desc.paths_[id].name_ == path)
+      return ms(stream.processes[pid].endpaths[id].total.time_real);
+
+  //FIXME issue a LogWarning or raise an exception
+  return 0.;
+}
+
+
 void
 FastTimerService::ignoredSignal(std::string signal) const
 {
@@ -530,7 +629,7 @@ FastTimerService::unsupportedSignal(std::string signal) const
 }
 
 void
-FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
+FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc)
 {
   ignoredSignal(__func__);
 }
@@ -542,7 +641,7 @@ FastTimerService::postGlobalBeginRun(edm::GlobalContext const&)
 }
 
 void
-FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
+FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
 {
   unsigned int sid = sc.streamID().value();
 
@@ -572,7 +671,7 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
 
 void
-FastTimerService::preallocate(edm::service::SystemBounds const & bounds)
+FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
 {
   concurrent_runs_    = bounds.maxNumberOfConcurrentRuns();
   concurrent_streams_ = bounds.maxNumberOfStreams();
@@ -592,12 +691,12 @@ FastTimerService::preallocate(edm::service::SystemBounds const & bounds)
 }
 
 void
-FastTimerService::preSourceConstruction(edm::ModuleDescription const & module) {
+FastTimerService::preSourceConstruction(edm::ModuleDescription const& module) {
   callgraph_.preSourceConstruction(module);
 }
 
 void
-FastTimerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const & pathsAndConsumes, edm::ProcessContext const & context) {
+FastTimerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes, edm::ProcessContext const & context) {
   callgraph_.preBeginJob(pathsAndConsumes, context);
 }
 
@@ -616,7 +715,7 @@ FastTimerService::postBeginJob() {
     stream.modules.resize(modules);
     stream.processes.resize(processes);
     for (unsigned int i = 0; i < processes; ++i) {
-      auto const & process = callgraph_.processDescription(i);
+      auto const& process = callgraph_.processDescription(i);
       stream.processes[i] = {
         Resources(),
         std::vector<ResourcesPerPath>(process.paths_.size()),
@@ -639,7 +738,7 @@ FastTimerService::postBeginJob() {
 }
 
 void
-FastTimerService::postStreamBeginRun(edm::StreamContext const & sc)
+FastTimerService::postStreamBeginRun(edm::StreamContext const& sc)
 {
   ignoredSignal(__func__);
 }
@@ -651,7 +750,7 @@ FastTimerService::preStreamEndRun(edm::StreamContext const&)
 }
 
 void
-FastTimerService::postStreamEndRun(edm::StreamContext const & sc)
+FastTimerService::postStreamEndRun(edm::StreamContext const& sc)
 {
   unsigned int sid = sc.streamID().value();
 
@@ -694,7 +793,7 @@ FastTimerService::preStreamBeginLumi(edm::StreamContext const&)
 }
 
 void
-FastTimerService::postStreamBeginLumi(edm::StreamContext const & sc) {
+FastTimerService::postStreamBeginLumi(edm::StreamContext const& sc) {
   ignoredSignal(__func__);
 }
 
@@ -705,7 +804,7 @@ FastTimerService::preStreamEndLumi(edm::StreamContext const&)
 }
 
 void
-FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
+FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
   unsigned int sid = sc.streamID().value();
 
   if (enable_dqm_) {
@@ -723,7 +822,7 @@ FastTimerService::preGlobalEndRun(edm::GlobalContext const&)
 }
 
 void
-FastTimerService::postGlobalEndRun(edm::GlobalContext const & gc)
+FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc)
 {
   ignoredSignal(__func__);
 
@@ -764,7 +863,7 @@ FastTimerService::postEndJob()
 
 /*
 void
-FastTimerService::printProcessSummary(Timing const & total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const
+FastTimerService::printProcessSummary(Timing const& total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const
 {
   // print a timing summary for the run or job, for each subprocess
   std::ostringstream out;
@@ -779,7 +878,7 @@ FastTimerService::printProcessSummary(Timing const & total, TimingPerProcess con
 }
 
 void
-FastTimerService::printSummary(Timing const & summary, std::string const & label) const
+FastTimerService::printSummary(Timing const& summary, std::string const & label) const
 {
   // print a timing summary for the run or job
   //edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
@@ -804,19 +903,19 @@ FastTimerService::printSummary(Timing const & summary, std::string const & label
   out << '\n';
   if (enable_timing_paths_ and not enable_timing_modules_) {
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
-    for (auto const & name: tns.getTrigPaths())
+    for (auto const& name: tns.getTrigPaths())
       out << "FastReport              "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_active / (double) summary.count << "  "
           << name << '\n';
     out << '\n';
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
-    for (auto const & name: tns.getEndPaths())
+    for (auto const& name: tns.getEndPaths())
       out << "FastReport              "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_active / (double) summary.count << "  "
           << name << '\n';
   } else if (enable_timing_paths_ and enable_timing_modules_) {
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
-    for (auto const & name: tns.getTrigPaths()) {
+    for (auto const& name: tns.getTrigPaths()) {
       out << "FastReport              "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_active        / (double) summary.count << " "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_overhead      / (double) summary.count << " "
@@ -825,7 +924,7 @@ FastTimerService::printSummary(Timing const & summary, std::string const & label
     }
     out << '\n';
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
-    for (auto const & name: tns.getEndPaths()) {
+    for (auto const& name: tns.getEndPaths()) {
       out << "FastReport              "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_active        / (double) summary.count << " "
           << std::right << std::setw(10) << stream_.paths[pid][name].summary_overhead      / (double) summary.count << " "
@@ -837,8 +936,8 @@ FastTimerService::printSummary(Timing const & summary, std::string const & label
   if (enable_timing_modules_) {
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
     for (auto & keyval: stream_.modules) {
-      std::string const & label  = keyval.first;
-      ModuleInfo  const & module = keyval.second;
+      std::string const& label  = keyval.first;
+      ModuleInfo  const& module = keyval.second;
       out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) summary.count << "  " << label << '\n';
     }
     //out << "FastReport " << (use_realtime_ ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
@@ -848,14 +947,16 @@ FastTimerService::printSummary(Timing const & summary, std::string const & label
 */
 
 void
-FastTimerService::preEvent(edm::StreamContext const & sc)
+FastTimerService::preEvent(edm::StreamContext const& sc)
 {
   ignoredSignal(__func__);
 }
 
 void
-FastTimerService::postEvent(edm::StreamContext const & sc)
+FastTimerService::postEvent(edm::StreamContext const& sc)
 {
+  ignoredSignal(__func__);
+
   unsigned int pid = callgraph_.processId(* sc.processContext());
   unsigned int sid = sc.streamID();
   auto & stream  = streams_[sid];
@@ -873,16 +974,16 @@ FastTimerService::postEvent(edm::StreamContext const & sc)
 
   std::ostringstream out;
   out << "Modules:\n";
-  auto const & source_d = callgraph_.source();
-  auto const & source   = stream.modules[source_d.id()];
+  auto const& source_d = callgraph_.source();
+  auto const& source   = stream.modules[source_d.id()];
   out << boost::format("  %10.3f ms    %10.3f ms    source %s\n") % ms(source.time_thread) % ms(source.time_real) % source_d.moduleLabel();
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const & proc_d = callgraph_.processDescription(i);
-    auto const & proc   = stream.processes[i];
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = stream.processes[i];
     out << boost::format("  %10.3f ms    %10.3f ms    process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
     for (unsigned int m: proc_d.modules_) {
-      auto const & module_d = callgraph_.module(m);
-      auto const & module   = stream.modules[m];
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = stream.modules[m];
       out << boost::format("  %10.3f ms    %10.3f ms      %s\n") % ms(module.time_thread) % ms(module.time_real) % module_d.moduleLabel();
     }
   }
@@ -892,18 +993,18 @@ FastTimerService::postEvent(edm::StreamContext const & sc)
   out << "Process:\n";
   out << boost::format("  %10.3f ms    %10.3f ms    source %s\n") % ms(source.time_thread) % ms(source.time_real) % source_d.moduleLabel();
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const & proc_d = callgraph_.processDescription(i);
-    auto const & proc   = stream.processes[i];
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = stream.processes[i];
     out << boost::format("  %10.3f ms    %10.3f ms    process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
     for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const & name = proc_d.paths_[p].name_;
-      auto const & path = proc.paths[p];
+      auto const& name = proc_d.paths_[p].name_;
+      auto const& path = proc.paths[p];
       out << boost::format("  %10.3f ms    %10.3f ms      %s (active)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
       out << boost::format("  %10.3f ms    %10.3f ms      %s (total)\n")  % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
     }
     for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const & name = proc_d.endPaths_[p].name_;
-      auto const & path = proc.endpaths[p];
+      auto const& name = proc_d.endPaths_[p].name_;
+      auto const& path = proc.endpaths[p];
       out << boost::format("  %10.3f ms    %10.3f ms      %s (active)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
       out << boost::format("  %10.3f ms    %10.3f ms      %s (total)\n")  % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
     }
@@ -929,7 +1030,7 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
 void
 FastTimerService::postSourceEvent(edm::StreamID sid)
 {
-  edm::ModuleDescription const & md = callgraph_.source();
+  edm::ModuleDescription const& md = callgraph_.source();
   unsigned int id  = md.id();
   auto & stream = streams_[sid];
 
@@ -938,7 +1039,7 @@ FastTimerService::postSourceEvent(edm::StreamID sid)
 
 
 void
-FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathContext const & pc)
+FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const & pc)
 {
   unsigned int sid = sc.streamID().value();
   unsigned int pid = callgraph_.processId(* sc.processContext());
@@ -951,7 +1052,7 @@ FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathContext c
 
 
 void
-FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathContext const & pc, edm::HLTPathStatus const & status)
+FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext const & pc, edm::HLTPathStatus const & status)
 {
   unsigned int sid = sc.streamID().value();
   unsigned int pid = callgraph_.processId(* sc.processContext());
@@ -959,30 +1060,30 @@ FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathContext 
   auto & stream = streams_[sid];
   auto & data = pc.isEndPath() ? stream.processes[pid].endpaths[id] : stream.processes[pid].paths[id];
 
-  auto const & path = pc.isEndPath() ? callgraph_.processDescription(pid).endPaths_[id] : callgraph_.processDescription(pid).paths_[id];
+  auto const& path = pc.isEndPath() ? callgraph_.processDescription(pid).endPaths_[id] : callgraph_.processDescription(pid).paths_[id];
   unsigned int index = path.modules_on_path_.empty() ? 0 : status.index() + 1;
   data.last          = path.modules_on_path_.empty() ? 0 : path.last_dependency_of_module_[status.index()];
 
   for (unsigned int i = 0; i < index; ++i) {
-    auto const & module = stream.modules[path.modules_on_path_[i]];
+    auto const& module = stream.modules[path.modules_on_path_[i]];
     data.active += module;
   }
   for (unsigned int i = 0; i < data.last; ++i) {
-    auto const & module = stream.modules[path.modules_and_dependencies_[i]];
+    auto const& module = stream.modules[path.modules_and_dependencies_[i]];
     data.total += module;
   }
 }
 
 void
-FastTimerService::preModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc)
+FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const & mcc)
 {
   thread().measure();
 }
 
 void
-FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc)
+FastTimerService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const & mcc)
 {
-  edm::ModuleDescription const & md = * mcc.moduleDescription();
+  edm::ModuleDescription const& md = * mcc.moduleDescription();
   unsigned int id  = md.id();
   unsigned int sid = sc.streamID().value();
   auto & stream = streams_[sid];
@@ -991,13 +1092,13 @@ FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::ModuleCall
 }
 
 void
-FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc)
+FastTimerService::preModuleEventDelayedGet(edm::StreamContext const& sc, edm::ModuleCallingContext const & mcc)
 {
   unsupportedSignal(__func__);
 }
 
 void
-FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc)
+FastTimerService::postModuleEventDelayedGet(edm::StreamContext const& sc, edm::ModuleCallingContext const & mcc)
 {
   unsupportedSignal(__func__);
 }
@@ -1125,7 +1226,7 @@ FastTimerService::postModuleStreamEndLumi(edm::StreamContext const&, edm::Module
 /*
 // associate to a path all the modules it contains
 void
-FastTimerService::fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules)
+FastTimerService::fillPathMap(unsigned int pid, std::string const& name, std::vector<std::string> const & modules)
 {
   for (auto & stream: stream_) {
 
@@ -1133,11 +1234,11 @@ FastTimerService::fillPathMap(unsigned int pid, std::string const & name, std::v
     pathmap.clear();
     pathmap.reserve( modules.size() );
     std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
-    for (auto const & module: modules) {
+    for (auto const& module: modules) {
       // fix the name of negated or ignored modules
-      std::string const & label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
+      std::string const& label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
 
-      auto const & it = stream.modules.find(label);
+      auto const& it = stream.modules.find(label);
       if (it == stream.modules.end()) {
         // no matching module was found
         pathmap.push_back( 0 );
@@ -1154,11 +1255,11 @@ FastTimerService::fillPathMap(unsigned int pid, std::string const & name, std::v
 }
 
 // find the first and last non-empty paths, optionally skipping the first one
-std::pair<std::string,std::string> FastTimerService::findFirstLast(unsigned int pid, std::vector<std::string> const & paths) {
+std::pair<std::string,std::string> FastTimerService::findFirstLast(unsigned int pid, std::vector<std::string> const& paths) {
   std::vector<std::string const *> p(paths.size(), nullptr);
 
   // mark the empty paths
-  auto address_if_non_empty = [&](std::string const & name){
+  auto address_if_non_empty = [&](std::string const& name){
     return stream_.front().paths[pid][name].modules.empty() ? nullptr : & name;
   };
   std::transform(paths.begin(), paths.end(), p.begin(), address_if_non_empty);
