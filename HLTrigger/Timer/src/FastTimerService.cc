@@ -83,7 +83,7 @@ FastTimerService::PlotsPerElement::book(
     unsigned int lumisections)
 {
   int bins = (int) std::ceil(range / resolution);
-  std::string y_title = (boost::format("events / %f ms") % resolution).str();
+  std::string y_title = (boost::format("events / %.1f ms") % resolution).str();
 
   time_thread_ = booker.book1D(
       name + " time_thread",
@@ -320,21 +320,6 @@ FastTimerService::PlotsPerJob::reset()
 }
 
 void
-FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob const& data, unsigned int ls)
-{
-  // fill total event plots
-  event_.fill(data.total, ls);
-
-  // fill modules plots
-  for (unsigned int id: boost::irange(0ul, modules_.size()))
-    modules_[id].fill(data.modules[id].total, ls);
-
-  for (unsigned int pid: boost::irange(0ul, processes_.size()))
-    processes_[pid].fill(job.processDescription(pid), data, data.processes[pid], ls);
-}
-
-
-void
 FastTimerService::PlotsPerJob::book(
     DQMStore::IBooker & booker,
     ProcessCallGraph const& job,
@@ -384,6 +369,20 @@ FastTimerService::PlotsPerJob::book(
     }
     booker.setCurrentFolder(basedir);
   }
+}
+
+void
+FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob const& data, unsigned int ls)
+{
+  // fill total event plots
+  event_.fill(data.total, ls);
+
+  // fill modules plots
+  for (unsigned int id: boost::irange(0ul, modules_.size()))
+    modules_[id].fill(data.modules[id].total, ls);
+
+  for (unsigned int pid: boost::irange(0ul, processes_.size()))
+    processes_[pid].fill(job.processDescription(pid), data, data.processes[pid], ls);
 }
 
 
@@ -756,7 +755,9 @@ FastTimerService::postStreamEndRun(edm::StreamContext const& sc)
 {
   unsigned int sid = sc.streamID().value();
 
-  if (enable_dqm_) {
+  // merge plots only after the last subprocess has run
+  unsigned int pid = callgraph_.processId(* sc.processContext());
+  if (enable_dqm_ and pid == callgraph_.processes().size() - 1) {
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsRunSummaryCache(sc.eventID().run(), sid, module_id_);
   }
@@ -809,7 +810,9 @@ void
 FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
   unsigned int sid = sc.streamID().value();
 
-  if (enable_dqm_) {
+  // merge plots only after the last subprocess has run
+  unsigned int pid = callgraph_.processId(* sc.processContext());
+  if (enable_dqm_ and pid == callgraph_.processes().size() - 1) {
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, module_id_);
   }
