@@ -16,7 +16,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
 #include <memory>
-#include <sys/time.h>
+#include <chrono>
 #include <iostream>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
@@ -45,13 +45,11 @@ class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
   reco::CaloCluster::AlgoId algoId;
 
   std::unique_ptr<HGCalImagingAlgo> algo;
-  //  std::unique_ptr<HGCalDepthPreClusterer> multicluster_algo;
   std::unique_ptr<HGCal3DClustering> multicluster_algo;
   bool doSharing;
   std::string detector;
 
   HGCalImagingAlgo::VerbosityLevel verbosity;
-  //  edm::EDGetTokenT<std::vector<reco::PFCluster> > hydraTokens[2];
 };
 
 DEFINE_FWK_MODULE(HGCalClusterTestProducer);
@@ -66,7 +64,6 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double kappa = ps.getParameter<double>("kappa");
   std::vector<double> multicluster_radii = ps.getParameter<std::vector<double> >("multiclusterRadii");
   double minClusters = ps.getParameter<unsigned>("minClusters");
-  //  bool realSpaceCone = ps.getParameter<bool>("realSpaceCone");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
   std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
   std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
@@ -102,13 +99,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
 
   auto sumes = consumesCollector();
 
-  //  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(ps, sumes, multicluster_radius, minClusters, realSpaceCone);
-  multicluster_algo = std::make_unique<HGCal3DClustering>(ps, sumes, multicluster_radius, minClusters);
-
-  // hydraTokens[0] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterGen") );
-  // hydraTokens[1] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterCaloFace") );
-
-  //std::cout << "Constructing HGCalClusterTestProducer" << std::endl;
+  multicluster_algo = std::make_unique<HGCal3DClustering>(ps, sumes, multicluster_radii, minClusters);
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
@@ -165,20 +156,9 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
 
-  //std::cout << "Density based cluster size: " << clusters->size() << std::endl;
-  //if(doSharing)
-  //std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
-
-  //  edm::Handle<std::vector<reco::PFCluster> > hydra[2];
   std::vector<std::string> names;
   names.push_back(std::string("gen"));
   names.push_back(std::string("calo_face"));
-  // for( unsigned i = 0 ; i < 2; ++i ) {
-  //   evt.getByToken(hydraTokens[i],hydra[i]);
-  //   std::cout << "hydra " << names[i] << " size : " << hydra[i]->size() << std::endl;
-  // }
-
-
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
@@ -200,19 +180,17 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
     multiclusters( new std::vector<reco::HGCalMultiCluster> ),
     multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
 
-  struct timeval now;
-  struct timeval then;
-  gettimeofday(&then,0);
+  std::chrono::high_resolution_clock::time_point then = std::chrono::high_resolution_clock::now();
   *multiclusters = multicluster_algo->makeClusters(clusterPtrs);
   if(doSharing)
     *multiclusters_sharing = multicluster_algo->makeClusters(clusterPtrsSharing);
   evt.put(std::move(multiclusters));
   if(doSharing)
     evt.put(std::move(multiclusters_sharing),"sharing");
-  gettimeofday(&now,0);
-  float delta = (now.tv_sec - then.tv_sec)*1000.;
-  delta += float (now.tv_usec - then.tv_usec)/1000.;
-  std::cout << "Time taken by multiclustering " << delta << " ms" << std::endl;
+  std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - then);
+  // delta += float (now.tv_usec - then.tv_usec)/1000.;
+  std::cout << "Time taken by multiclustering " << time_span.count() << " ms" << std::endl;
 }
 
 #endif

@@ -6,52 +6,54 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
 
-#include <list>
+#include <vector>
+#include <array>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
 #include "KDTreeLinkerAlgoT.h"
 
-class HGCal3DClustering 
+class HGCal3DClustering
 {
 public:
-  
- HGCal3DClustering() : radius(0.), minClusters(0.), clusterTools(nullptr)
+
+ HGCal3DClustering() : radii({0.,0.,0.}), minClusters(0), clusterTools(nullptr)
   {
   }
-  
- HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, double radius_in, uint32_t min_clusters) : 
-  radius(radius_in),
+
+ HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, std::vector<double> radii_in, uint32_t min_clusters) :
+  radii(radii_in),
   minClusters(min_clusters),
   points(2*(maxlayer+1)),
   minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
   maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
   es(0),
   zees(2*(maxlayer+1),0.),
-  clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes)) 
+  clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes))
   {
   }
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
-  void getEventSetup(const edm::EventSetup& es) 
-  { 
-    clusterTools->getEventSetup(es); 
+  void getEventSetup(const edm::EventSetup& es)
+  {
+    clusterTools->getEventSetup(es);
     rhtools_.getEventSetup(es);
   }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
-  //  typedef std::vector<reco::BasicCluster> MultiCluster;
 
-  std::vector<reco::HGCalMultiCluster> makeClusters(const reco::HGCalMultiCluster::ClusterCollection &);    
+  std::vector<reco::HGCalMultiCluster> makeClusters(const reco::HGCalMultiCluster::ClusterCollection &);
 
-private:  
+private:
 
   void organizeByLayer(const reco::HGCalMultiCluster::ClusterCollection &);
   void reset(){
-    for( std::vector< std::vector<KDNode> >::iterator it = points.begin(); it != points.end(); it++)
+    for( auto& it: points)
       {
-        it->clear();
+        it.clear();
+        std::vector<KDNode>().swap(it);
       }
     for(unsigned int i = 0; i < minpos.size(); i++)
       {
@@ -62,7 +64,7 @@ private:
   void layerIntersection(std::array<double,3> &to, const std::array<double,3> &from) const;
 
   //max number of layers
-  static const unsigned int maxlayer = 52;
+  static const unsigned int maxlayer = HGCalImagingAlgo::maxlayer;
 
   float radius;
   uint32_t minClusters;
@@ -78,10 +80,13 @@ private:
   std::vector< std::vector<KDNode> > points;
   std::vector<std::array<float,2> > minpos;
   std::vector<std::array<float,2> > maxpos;
-  std::vector<size_t> es;
-  std::vector<float>zees;
-  std::unique_ptr<hgcal::ClusterTools> clusterTools;
-  hgcal::RecHitTools rhtools_;
+  std::vector<size_t> es; /*!< vector to contain sorted indices of all clusters. */
+  std::vector<float> zees; /*!< vector to contain z position of each layer. */
+  std::unique_ptr<hgcal::ClusterTools> clusterTools; /*!< instance of tools to simplify cluster access. */
+  hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
+  static const unsigned int lastLayerEE = 28;
+  static const unsigned int lastLayerFH = 40;
+  static const unsigned int lastLayerBH = 52;
 
 };
 
