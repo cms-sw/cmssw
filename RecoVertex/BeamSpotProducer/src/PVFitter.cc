@@ -36,6 +36,7 @@ ________________________________________________________________**/
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnPrint.h" // Defines operator<< for cout << ierr  (Dario)
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 #include <iostream>    // Dario
 using namespace std ;  // Dario
@@ -67,6 +68,9 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig,
 void PVFitter::initialize(const edm::ParameterSet& iConfig,
                           edm::ConsumesCollector &iColl)
 {
+  //In order to make fitting ROOT histograms thread safe
+  // one must call this undocumented function
+  TMinuitMinimizer::UseStaticMinuit(false);
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
   vertexToken_       = iColl.consumes<reco::VertexCollection>(
       iConfig.getParameter<edm::ParameterSet>("PVFitter")
@@ -346,26 +350,25 @@ bool PVFitter::runFitter() {
     TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
 
     //Use our own copy for thread safety
-    TF1 gaus("localGaus","gaus");
+    TF1 gausx("localGausX","gaus");
+    TF1 gausy("localGausY","gaus");
+    TF1 gausz("localGausZ","gaus");
 
-    h1PVx->Fit(&gaus,"QLM0");
-    h1PVy->Fit(&gaus,"QLM0");
-    h1PVz->Fit(&gaus,"QLM0");
+    h1PVx->Fit(&gausx,"QLMN0");
+    h1PVy->Fit(&gausy,"QLMN0");
+    h1PVz->Fit(&gausz,"QLMN0");
 
-    TF1 *gausx  = h1PVx->GetFunction("localGaus");
-    TF1 *gausy  = h1PVy->GetFunction("localGaus");
-    TF1 *gausz  = h1PVz->GetFunction("localGaus");
 
-    fwidthX     = gausx->GetParameter(2);
-    fwidthY     = gausy->GetParameter(2);
-    fwidthZ     = gausz->GetParameter(2);
-    fwidthXerr  = gausx->GetParError(2);
-    fwidthYerr  = gausy->GetParError(2);
-    fwidthZerr  = gausz->GetParError(2);
+    fwidthX     = gausx.GetParameter(2);
+    fwidthY     = gausy.GetParameter(2);
+    fwidthZ     = gausz.GetParameter(2);
+    fwidthXerr  = gausx.GetParError(2);
+    fwidthYerr  = gausy.GetParError(2);
+    fwidthZerr  = gausz.GetParError(2);
     
-    double estX = gausx->GetParameter(1);
-    double estY = gausy->GetParameter(1); 
-    double estZ = gausz->GetParameter(1);
+    double estX = gausx.GetParameter(1);
+    double estY = gausy.GetParameter(1); 
+    double estZ = gausz.GetParameter(1);
     double errX = fwidthX*3.;
     double errY = fwidthY*3.; 
     double errZ = fwidthZ*3.;
@@ -373,13 +376,13 @@ bool PVFitter::runFitter() {
     if ( ! do3DFit_ ) {
 
       reco::BeamSpot::CovarianceMatrix matrix;
-      matrix(2,2) = gausz->GetParError(1) * gausz->GetParError(1);
+      matrix(2,2) = gausz.GetParError(1) * gausz.GetParError(1);
       matrix(3,3) = fwidthZerr * fwidthZerr;
       matrix(6,6) = fwidthXerr * fwidthXerr;
 
-      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(gausx->GetParameter(1),
-                                                        gausy->GetParameter(1),
-                                                        gausz->GetParameter(1) ),
+      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(gausx.GetParameter(1),
+                                                        gausy.GetParameter(1),
+                                                        gausz.GetParameter(1) ),
                                   fwidthZ,
                                   0., 0.,
                                   fwidthX,
