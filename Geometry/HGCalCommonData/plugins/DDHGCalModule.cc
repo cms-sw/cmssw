@@ -189,6 +189,8 @@ void DDHGCalModule::constructLayers(DDLogicalPart module,
 		  << " Tubs made of " << matName << " of dimensions " << rinB 
 		  << ", " << routF << ", " << 0.5*thick[ii] << ", 0.0, "
 		  << CLHEP::twopi/CLHEP::deg << std::endl;
+	std::cout << "DDHGCalModule test position in: " << glog.name() 
+		  << " number "	<< copy << std::endl;
 #endif
 	positionSensitive(glog,rinB,routF,cpv);
       }
