@@ -23,8 +23,6 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="TrackingTools/PatternTools"/>
-<use name="rootcore"/>
-<use name="root"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
