@@ -23,6 +23,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("GeneratorInterface.RivetInterface.genParticles2HepMC_cfi")
 process.load("GeneratorInterface.RivetInterface.particleLevel_cfi")
 
+process.path = cms.Path(process.genParticles2HepMC*process.particleLevel)
+
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("particleLevel.root"),
     outputCommands = cms.untracked.vstring(
