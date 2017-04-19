@@ -251,7 +251,7 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
         if( s2 == "all" || s2 == "All" || s2 == "ALl" ||
             s2 == "ALL" || s2 == "aLL" || s2 == "alL" ||
             s2 == "AlL" || s2 == "aLl" ) broadcastRange = true;
-        // all-all-default:
+        // ALL-ALL-default:
         if( broadcastAlgo && broadcastRange ){
             if( row != 0 ){
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
@@ -267,57 +267,69 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
             }
             default_bxmask_row = row;
             m_bx_mask_default = bx_mask[row];
+            continue;
         }
-        // to be implemented
-        if( broadcastAlgo && !broadcastRange ){
-        }
-        // algo-range-{0,1}:
-        if( !broadcastAlgo ){
-           unsigned long first = 0, last = 0;
-           if( broadcastRange ){
-               first = 0;
-               last = 3563;
-           } else {
-               char *dash = 0;
-               first = strtoul(s2.data(), &dash, 0);
-               while( *dash != '\0' && *dash != '-' ) ++dash;
-               last  = (*dash != '\0' ? strtoul(++dash, &dash, 0) : first);
-               // what could possibly go wrong?
-               if( *dash != '\0' ){
-                    edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
+        // interpret the range
+        unsigned long first = 0, last = 0;
+        if( broadcastRange ){
+            first = 0;
+            last = 3563;
+        } else {
+            char *dash = 0;
+            first = strtoul(s2.data(), &dash, 0);
+            while( *dash != '\0' && *dash != '-' ) ++dash;
+            last  = (*dash != '\0' ? strtoul(++dash, &dash, 0) : first);
+            // what could possibly go wrong?
+            if( *dash != '\0' ){
+                edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
                         << "\nWarning: parsing " << s2 << " as [" << first << "," << last << "] range"
                         << std::endl;
-               }
-           }
-
-           // what else could possibly go wrong?
-           if( first > last ){
+            }
+            if( first > 3563 ){
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
-                    << "\nWarning: inverse range "<< s2 << ", reordering as [" << last << "," << first << "]"
-                    << std::endl;
+                        << "\nWarning: start of interval is out of range: " << s2 << ", skipping the row"
+                        << std::endl;
+                continue;
+            }
+            if( last > 3563 ){
+                last = 3563;
+                edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
+                        << "\nWarning: end of interval is out of range: " << s2 << ", force [" << first << "," << last << "] range"
+                        << std::endl;
+            }
+            if( first > last ){
+                edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
+                       << "\nWarning: inverse range "<< s2 << ", reordering as [" << last << "," << first << "]"
+                       << std::endl;
                 std::swap(first,last);
-           }
+            }
+        }
+        // {algo,ALL}-{range,ALL}-{0,1}:
+        std::vector<std::string> algos;
+        if( !broadcastAlgo )
+            algos.push_back( bx_algo_name[row] );
+        else
+            for(const auto &i: non_default_bx_ranges) algos.push_back(i.first);
 
-           auto ranges = non_default_bx_ranges.insert
+        for(const std::string &algoName : algos){
+
+           std::set<Range_t,decltype(comp)> &ranges = non_default_bx_ranges.insert
            (
                std::pair< std::string, std::set<Range_t,decltype(comp)> >
                (
-                   bx_algo_name[row],  std::set<Range_t,decltype(comp)>(comp)
+                   algoName,  std::set<Range_t,decltype(comp)>(comp)
                )
            ).first->second; // I don't care if insert was successfull or if I've got a hold on existing range
 
-std::cout << bx_algo_name[row] << " " << first << "-" << last << " size=" << non_default_bx_ranges.size() << " and " << ranges.size() << std::endl;
-for(auto i : ranges) std::cout << i.first << "-" << i.second << std::endl;
-
-
-           // current range may or may not overlap with one of the already present ranges
+           // current range may or may not overlap with the already present ranges
            // if end of the predecessor starts before begin of the current range and begin
            //  of the successor starts after end of the current range there is no overlap
-           //  and we save this range only if it has mask different from the default
+           //  and I save this range only if it has mask different from the default
            //  otherwise modify predecessor/successor ranges accordingly
-           std::set<Range_t>::iterator pred = ranges.lower_bound(std::make_pair(first,last));
-           std::set<Range_t>::iterator succ = ranges.upper_bound(std::make_pair(first,last));
-           std::set<Range_t>::iterator curr = ranges.end();
+           std::set<Range_t>::iterator curr = ranges.end(); // inserted range
+           std::set<Range_t>::iterator succ = ranges.lower_bound(std::make_pair(first,last)); // successor starts at current or later
+           std::set<Range_t>::iterator pred = succ;
+           if( pred != ranges.begin() ) pred--; else pred = ranges.end();
 
            if( (pred == ranges.end() || pred->second < first) &&
                (succ == ranges.end() || succ->first > last) ){
@@ -328,22 +340,42 @@ for(auto i : ranges) std::cout << i.first << "-" << i.second << std::endl;
            } else {
                // pred/succ iterators are read-only, create intermediate adjusted copies
                Range_t newPred, newSucc;
-               bool modifiedPred = false, modifiedSucc = false;
+               bool modifiedPred = false, holeInPred = false, modifiedSucc = false, dropSucc = false;
                // overlap found with predecessor range
-               if( pred != ranges.end() && pred->second >= first ){
+               if( pred != ranges.end() && pred->second >= first && pred->second <= last ){
                    if( m_bx_mask_default != bx_mask[row] ){
-                       // extend predecessor range
-                       newPred.first  = pred->first;
-                       newPred.second = last;
+                       if( last == pred->second ){
+                           // both ranges end in the same place - nothing to do
+                           modifiedPred = false;
+                       } else {
+                           // extend predecessor range
+                           newPred.first  = pred->first;
+                           newPred.second = last;
+                           modifiedPred = true;
+                       }
                    } else {
                        // shrink predecessor range
                        newPred.first  = pred->first;
-                       newPred.second = first-1;
+                       newPred.second = first-1; // non-negative for the predecessor by design
+                       // by design pred->first < first, so the interval above is always valid
+                       modifiedPred = true;
                    }
-                   modifiedPred = true;
                }
-               // overlap found with successor interval
-               if( succ != ranges.end() && succ->first <= last){
+               // current range is fully contained in predecessor
+               if( pred != ranges.end() && pred->second > first && pred->second > last ){
+                   if( m_bx_mask_default != bx_mask[row] ){
+                       // no change to the predecessor range
+                       modifiedPred = false;
+                   } else {
+                       // make a "hole" in predecessor range
+                       newPred.first  = first;
+                       newPred.second = last;
+                       holeInPred = true;
+                       modifiedPred = true;
+                   }
+               }
+               // overlap found with successor range
+               if( succ != ranges.end() && succ->first <= last ){
                    if( m_bx_mask_default != bx_mask[row] ){
                        // extend successor range
                        newSucc.first  = first;
@@ -352,6 +384,8 @@ for(auto i : ranges) std::cout << i.first << "-" << i.second << std::endl;
                        // shrink successor range
                        newSucc.first  = last+1;
                        newSucc.second = succ->second;
+                       if( newSucc.first > 3563 || newSucc.first > newSucc.second )
+                           dropSucc = true;
                    }
                    modifiedSucc = true;
                }
@@ -363,13 +397,25 @@ for(auto i : ranges) std::cout << i.first << "-" << i.second << std::endl;
                    ranges.erase(pred,++succ);
                    curr = ranges.insert(newPred).first;
                } else {
+                   // merging is not the case, but I still need to propagate the new ranges back to the source
                    if( modifiedPred ){
-                       ranges.erase(pred);
-                       curr = ranges.insert(newPred).first;
+                       if( !holeInPred ){
+                           ranges.erase(pred);
+                           curr = ranges.insert(newPred).first;
+                       } else {
+                           // make a hole by splitting predecessor into two ranges
+                           Range_t r1(pred->first, newPred.first-1); // non-negative for the predecessor by design
+                           Range_t r2(newPred.second+1, pred->second);
+                           ranges.erase(pred);
+                           ranges.insert(r1).first;
+                           ranges.insert(r2).first;
+                           curr = ranges.end(); // hole cannot cover any additional ranges
+                       }
                    }
                    if( modifiedSucc ){
                        ranges.erase(succ);
-                       curr = ranges.insert(newSucc).first;
+                       if( !dropSucc )
+                           curr = ranges.insert(newSucc).first;
                    }
                }
            }
@@ -377,9 +423,13 @@ for(auto i : ranges) std::cout << i.first << "-" << i.second << std::endl;
            //  remove those from the consideration up until the last covered range
            //  that may or may not extend beyond the current range end 
            if( curr != ranges.end() ){ // insertion took place
-               std::set<Range_t>::iterator last_covered = ranges.lower_bound(std::make_pair(curr->second,0));
-               if( last_covered->first != curr->first ){ // last_covered is not current itself (i.e. it is different)
-                   if( curr->second < last_covered->second ){ // the range needs to be extended
+               std::set<Range_t,decltype(comp)>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second,0));
+               if( last_covered != ranges.begin() ) last_covered--; else last_covered = ranges.end();
+
+               if( last_covered != ranges.end() && last_covered->first != curr->first ){
+                   // ranges is not empty and last_covered is not current itself (i.e. it is different)
+                   if( curr->second < last_covered->second ){
+                       // the range needs to be extended
                        Range_t newRange(curr->first, last_covered->second);
                        ranges.erase(curr);
                        curr = ranges.insert(newRange).first;
