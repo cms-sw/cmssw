@@ -36,6 +36,8 @@ private:
   void fillLV(G4LogicalVolume * lv);
   void dumpSummary(std::ostream& out, std::string name);
   G4VPhysicalVolume * getTopPV();
+  void addName(std::string name);
+  void printSummary(std::ostream & out);
 
 private:
   std::vector<std::string>           nodeNames_;
@@ -44,6 +46,7 @@ private:
   G4VPhysicalVolume *                theTopPV_; 
   std::vector<G4LogicalVolume*>      lvs_, touch_;
   std::vector<G4VSolid*>             sls_;
+  std::map<DDSolidShape,std::pair<int,int> > kount_;
 };
 
 #endif

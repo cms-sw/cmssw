@@ -140,92 +140,34 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
   out << " Number of G4VSolid's: " << sls_.size() << G4endl;
   out << " Number of G4LogicalVolume's: " << lvs_.size() << G4endl;
   out << " Number of Touchable's: " << touch_.size() << G4endl;
-  std::map<DDSolidShape,std::pair<int,int> > kount;
-  int k(0);
   //First the solids
   out << G4endl << "Occurence of each type of shape among Solids" << G4endl;
+  kount_.clear();
   for (std::vector<G4VSolid*>::iterator it=sls_.begin(); it!=sls_.end(); ++it) {
     std::string name = (*it)->GetName();
-    bool refl(false);
-    if (name.find("_refl") < name.size()) {
-      refl = true;
-      name = name.substr(0,(name.find("_refl")));
-    }
-    std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
-    std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
-    if (itr == kount.end()) {
-      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
-    } else {
-      kount[shape] = (refl) ? 
-	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
-	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-    }
+    addName(name);
   }
-  for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
-       itr != kount.end(); ++itr, ++k) {
-    std::string shape = solidShape_[itr->first];
-    out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first
-	<< " : " << (itr->second).second << G4endl;
-  }
-  k = 0; kount.clear();
+  printSummary(out);
   //Then the logical volumes
   out << G4endl << "Occurence of each type of shape among Logical Volumes" 
       << G4endl;
+  kount_.clear();
   for (std::vector<G4LogicalVolume*>::iterator it = lvs_.begin(); 
        it != lvs_.end(); ++it) {
     std::string name = ((*it)->GetSolid())->GetName();
-    bool refl(false);
-    if (name.find("_refl") < name.size()) {
-      refl = true;
-      name = name.substr(0,(name.find("_refl")));
-    }
-    std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
-    std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
-    if (itr == kount.end()) {
-      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
-    } else {
-      kount[shape] = (refl) ? 
-	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
-	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-    }
+    addName(name);
   }
-  for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
-       itr != kount.end(); ++itr, ++k) {
-    std::string shape = solidShape_[itr->first];
-    out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first
-	<< " : " << (itr->second).second << G4endl;
-  }
-  k = 0; kount.clear();
+  printSummary(out);
   //Finally the touchables
   out << G4endl << "Occurence of each type of shape among Touchables" 
       << G4endl;
+  kount_.clear();
   for (std::vector<G4LogicalVolume*>::iterator it = touch_.begin(); 
        it != touch_.end(); ++it) {
     std::string name = ((*it)->GetSolid())->GetName();
-    bool refl(false);
-    if (name.find("_refl") < name.size()) {
-      refl = true;
-      name = name.substr(0,(name.find("_refl")));
-    }
-    std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-    DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
-    std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount.find(shape);
-    if (itr == kount.end()) {
-      kount[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
-    } else {
-      kount[shape] = (refl) ? 
-	std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
-	std::pair<int,int>(++((itr->second).first),((itr->second).second));
-    }
+    addName(name);
   }
-  for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr = kount.begin();
-       itr != kount.end(); ++itr, ++k) {
-    std::string shape = solidShape_[itr->first];
-    out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first
-	<< " : " << (itr->second).second << G4endl;
-  }
+  printSummary(out);
 }
 
 G4VPhysicalVolume * PrintGeomSummary::getTopPV() {
@@ -233,4 +175,31 @@ G4VPhysicalVolume * PrintGeomSummary::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
+void PrintGeomSummary::addName(std::string name) {
+  bool refl(false);
+  if (name.find("_refl") < name.size()) {
+    refl = true;
+    name = name.substr(0,(name.find("_refl")));
+  }
+  std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
+  DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
+  std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount_.find(shape);
+  if (itr == kount_.end()) {
+    kount_[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);
+  } else {
+    kount_[shape] = (refl) ? 
+      std::pair<int,int>(((itr->second).first),++((itr->second).second)) :
+      std::pair<int,int>(++((itr->second).first),((itr->second).second));
+  }
+}
+
+void PrintGeomSummary::printSummary(std::ostream & out) {
+  int k(0);
+  for (std::map<DDSolidShape,std::pair<int,int> >::iterator itr=kount_.begin();
+       itr != kount_.end(); ++itr, ++k) {
+    std::string shape = solidShape_[itr->first];
+    out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first
+	<< " : " << (itr->second).second << G4endl;
+  }
+}
 
