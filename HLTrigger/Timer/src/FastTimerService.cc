@@ -1311,11 +1311,16 @@ FastTimerService::postModuleStreamEndLumi(edm::StreamContext const&, edm::Module
 }
 
 
+namespace {
+
+  static std::atomic<unsigned int> unique_thread_id { 0 };
+
+} // namespace
+
 unsigned int
 FastTimerService::threadId()
 {
-  static unsigned int unique_thread_id = 0;
-  static thread_local unsigned int thread_id = unique_thread_id++;
+  static thread_local unsigned int thread_id { unique_thread_id.fetch_add(1) };
   return thread_id;
 }
 
