@@ -10,7 +10,6 @@
 #include "GMTSetup.h"
 
 #include <array>
-#include <sstream>
 
 namespace l1t {
    namespace stage2 {
@@ -56,9 +55,7 @@ namespace l1t {
          prod.produces<RegionalMuonCandBxCollection>("EMTF");
          prod.produces<MuonBxCollection>("Muon");
          for (int i=1; i<6; ++i) {
-            std::stringstream ss;
-            ss << "MuonCopy" << i;
-            prod.produces<MuonBxCollection>(ss.str().c_str());
+            prod.produces<MuonBxCollection>(("MuonCopy"+std::to_string(i)).c_str());
          }
          prod.produces<MuonBxCollection>("imdMuonsBMTF");
          prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
