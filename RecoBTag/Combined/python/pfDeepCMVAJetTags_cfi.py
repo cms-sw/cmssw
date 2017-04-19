@@ -5,5 +5,7 @@ pfDeepCMVAJetTags = cms.EDProducer(
 	src = cms.InputTag('pfDeepCMVATagInfos'),
   checkSVForDefaults = cms.bool(False),
   meanPadding = cms.bool(False),
-	NNConfig = cms.FileInPath('RecoBTag/Combined/data/Model_DeepCMVA.json')
+	NNConfig = cms.FileInPath('RecoBTag/Combined/data/Model_DeepCMVA.json'),
+  toAdd = cms.PSet(
+      ),
 )

@@ -42,6 +42,7 @@
 
 #include <fstream>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -82,6 +83,7 @@ private:
 	lwt::ValueMap inputs_; //typedef of unordered_map<string, float>
 	vector<string> outputs_;
 	vector<MVAVar> variables_;
+	map<string, string> toadd_;
 };
 
 //
@@ -113,11 +115,26 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 	//create NN and store the output names for the future
 	neural_network_ = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
 	outputs_ = config.outputs;
+	set<string> outset(outputs_.begin(), outputs_.end());
 
-	//produce one output kind per node 
-	for(auto outnode : config.outputs)	{
-		produces<JetTagCollection>(outnode);
+	//in case we want to merge some different outputs together
+	edm::ParameterSet toadd = iConfig.getParameter<edm::ParameterSet>("toAdd");
+	for(auto output : toadd.getParameterNamesForType<string>()) {		
+		string target = toadd.getParameter<string>(output);
+		if(outset.find(output) == outset.end())
+			throw cms::Exception("RuntimeError") << "The required output: " << output << " to be added to " << target << " could not be found among the NN outputs" << endl;
+		if(outset.find(target) == outset.end())
+			throw cms::Exception("RuntimeError") << "The required output: " << target << ", target of addition of " << output << " could not be found among the NN outputs" << endl;
+		toadd_[output] = target;
 	}
+
+	//produce one output kind per node 	
+	for(auto outnode : config.outputs)	{
+		if(toadd_.find(outnode) == toadd_.end()){ //produce output only if does not get added
+			produces<JetTagCollection>(outnode);
+		}
+	}
+
 
 	//get the set-up for the inputs
 	for(auto& input : config.inputs) {
@@ -207,6 +224,11 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 			//compute NN output(s)
 			nnout = neural_network_->compute(inputs_);
+			
+			//merge outputs
+			for(auto entry : toadd_) {
+				nnout[entry.second] += nnout[entry.first];
+			}
 		}
 
 		//ket the maps key
@@ -215,13 +237,14 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		//dump the NN output(s)
 		for(size_t i=0; i<outputs_.size(); ++i) {
 			(*output_tags[i])[key] = (defaulted) ? -1 : nnout[outputs_[i]];
-			//std::cout << i << ": " << nnout[outputs_[i]] << std::endl;
 		}
 	}
 
 	// put the output in the event
 	for(size_t i=0; i<outputs_.size(); ++i) {
-		iEvent.put(std::move(output_tags[i]), outputs_[i]);
+		if(toadd_.find(outputs_[i]) == toadd_.end()) {
+			iEvent.put(std::move(output_tags[i]), outputs_[i]);
+		}
 	}
 }
 

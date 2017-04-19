@@ -54,7 +54,6 @@ _patJets = cms.EDProducer("PATJetProducer",
         cms.InputTag('pfDeepCSVJetTags:probc'),
         cms.InputTag('pfDeepCSVJetTags:probudsg'),
         cms.InputTag('pfDeepCSVJetTags:probbb'),
-        cms.InputTag('pfDeepCSVJetTags:probcc'),
         # DeepCMVA
         # cms.InputTag('pfDeepCMVAJetTags:probb'),
         # cms.InputTag('pfDeepCMVAJetTags:probc'),
@@ -98,15 +97,5 @@ _patJets = cms.EDProducer("PATJetProducer",
     addResolutions = cms.bool(False),
     resolutions     = cms.PSet()
 )
-
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-_phaseI_taggers = cms.VInputTag(
-   *[i for i in _patJets.discriminatorSources if i.value() != 'pfDeepCSVJetTags:probcc']
-)
-phase1Pixel.toModify(
-   _patJets, 
-   discriminatorSources = _phaseI_taggers
-)
-
 
 patJets = _patJets.clone()
