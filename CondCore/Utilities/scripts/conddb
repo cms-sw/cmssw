@@ -932,9 +932,11 @@ def showFcsr_(args):
     lumi_hlt_fcsr = _convert_time( session, 'Lumi', run_hlt_fcsr )
     run_pcl_fcsr = _get_prompt_fcsr( session, 'Run' )
     lumi_pcl_fcsr = _convert_time( session, 'Lumi', run_pcl_fcsr )
-    time_pcl_fcsr = _convert_time( session, 'Time', run_pcl_fcsr )
+    time_converter = run_to_timestamp( session )
+    start, stop = time_converter.convertOne( run_pcl_fcsr )
+    time_pcl_fcsr = calendar.timegm( start.utctimetuple() ) << 32
     output(args,'FCSR for HLT (last Run started +1): %s ( Lumi: %s, Time: undefined )' %(run_hlt_fcsr,lumi_hlt_fcsr))
-    output(args,'FCSR for PCL (from Tier0 service) : %s ( Lumi: %s, Time: %s )' %(run_pcl_fcsr,lumi_pcl_fcsr,time_pcl_fcsr), newLine=False)
+    output(args,'FCSR for PCL (from Tier0 service) : %s ( Lumi: %s, Time: %s [%s])' %(run_pcl_fcsr,lumi_pcl_fcsr,time_pcl_fcsr,start), newLine=False)
 
 def list_(args):
     connection = connect(args)
@@ -1412,7 +1414,7 @@ def copy(args):
 
     args.type, args.first = _identify_object(session1, args.type, args.first)
 
-    copyTime = datetime.datetime.now()
+    copyTime = datetime.datetime.utcnow()
 
     if args.type == 'payload':
         if args.second is None:
@@ -1490,7 +1492,7 @@ def copy(args):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
                 logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-                copyTime = datetime.datetime.now()
+                copyTime = datetime.datetime.utcnow()
                 _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
 
         # Copy the map of the global tag
@@ -1684,9 +1686,9 @@ def edit(args):
                     action += 'End Of Validity changed'
                 if len(action): action += '.'
 
-                updatedHeader = Tag(name=name,description=new_header[0],synchronization=new_header[1],end_of_validity=new_header[2],modification_time=datetime.datetime.now()) 
+                updatedHeader = Tag(name=name,description=new_header[0],synchronization=new_header[1],end_of_validity=new_header[2],modification_time=datetime.datetime.utcnow()) 
                 session.merge(updatedHeader)
-                _update_tag_log(session,name,datetime.datetime.now(),action,note)
+                _update_tag_log(session,name,datetime.datetime.utcnow(),action,note)
                 session.commit()
                 logging.info('Tag header updated. Action(s): %s' %action)
                 return
@@ -1757,7 +1759,7 @@ def edit(args):
                     payload = _get_payload_full_hash(session, payload)
 
                 if insertion_timestamp == '-':
-                    insertion_time = datetime.datetime.now()
+                    insertion_time = datetime.datetime.utcnow()
                 else:
                     insertion_time = _parse_timestamp(insertion_timestamp)
                 new_table.append((int(since), insertion_time, payload))
@@ -1812,9 +1814,9 @@ def edit(args):
                 #session.delete(session.query(IOV).filter(IOV.tag_name==name, IOV.since==since, IOV.insertion_time==insertion_time))
             for since, insertion_time, payload in added:
                 if connection.is_official:
-                    insertion_time = datetime.datetime.now()
+                    insertion_time = datetime.datetime.utcnow()
                 session.add(IOV(tag_name=name, since=since, insertion_time=insertion_time, payload_hash=payload))
-            _update_tag_log(session,name,datetime.datetime.now(),action,note)
+            _update_tag_log(session,name,datetime.datetime.utcnow(),action,note)
             session.commit()
 
         elif args.type == 'gt':
