@@ -371,15 +371,24 @@ private:
 
   // per-thread measurements
   struct Measurement {
+    #ifdef DEBUG_THREAD_CONCURRENCY
+    std::thread::id                                  id;
+    #endif // DEBUG_THREAD_CONCURRENCY
     boost::chrono::thread_clock::time_point          time_thread;
     boost::chrono::high_resolution_clock::time_point time_real;
 
     void measure() {
+      #ifdef DEBUG_THREAD_CONCURRENCY
+      id = std::this_thread::get_id();
+      #endif // DEBUG_THREAD_CONCURRENCY
       time_thread = boost::chrono::thread_clock::now();
       time_real   = boost::chrono::high_resolution_clock::now();
     }
 
     void measure_and_store(Resources & store) {
+      #ifdef DEBUG_THREAD_CONCURRENCY
+      assert(std::this_thread::get_id() == id);
+      #endif // DEBUG_THREAD_CONCURRENCY
       auto new_time_thread = boost::chrono::thread_clock::now();
       auto new_time_real   = boost::chrono::high_resolution_clock::now();
       store.time_thread = new_time_thread - time_thread;
