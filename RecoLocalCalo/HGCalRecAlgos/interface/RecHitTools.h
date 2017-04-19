@@ -23,7 +23,9 @@ namespace hgcal {
     void getEventSetup(const edm::EventSetup&);
 
     GlobalPoint getPosition(const DetId& id) const;
-    
+    // zside returns +/- 1
+    int zside(const DetId& id) const;
+
     std::float_t getSiThickness(const DetId&) const;
     std::float_t getRadiusToSide(const DetId&) const;
 
