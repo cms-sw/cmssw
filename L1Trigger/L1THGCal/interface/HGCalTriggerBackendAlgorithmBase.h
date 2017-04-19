@@ -46,7 +46,7 @@ class HGCalTriggerBackendAlgorithmBase {
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll, 
 		   const edm::EventSetup& es,
-		   const edm::Event &e
+		   edm::Event &e
 		   ) = 0;
 
   virtual void putInEvent(edm::Event& evt) = 0;

@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 
 class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
@@ -28,26 +29,51 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         virtual geom_ordered_set getOrderedCellsFromModule( const unsigned ) const override final;
         virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned ) const override final;
 
+        virtual geom_set getNeighborsFromTriggerCell( const unsigned ) const override final;
+
         virtual GlobalPoint getTriggerCellPosition(const unsigned ) const override final;
         virtual GlobalPoint getModulePosition(const unsigned ) const override final;
 
+        virtual bool validTriggerCell( const unsigned ) const override final;
+
     private:
         edm::FileInPath l1tCellsMapping_;
+        edm::FileInPath l1tCellNeighborsMapping_;
+        edm::FileInPath l1tWaferNeighborsMapping_;
         edm::FileInPath l1tModulesMapping_;
 
         es_info es_info_;
 
+        // module related maps
         std::unordered_map<short, short> wafer_to_module_ee_;
         std::unordered_map<short, short> wafer_to_module_fh_;
         std::unordered_multimap<short, short> module_to_wafers_ee_;
         std::unordered_multimap<short, short> module_to_wafers_fh_;
 
+        // trigger cell related maps
         std::map<std::pair<short,short>, short> cells_to_trigger_cells_; // FIXME: something else than map<pair,short>?
         std::multimap<std::pair<short,short>, short> trigger_cells_to_cells_;// FIXME: something else than map<pair,short>?
         std::unordered_map<short, short> number_trigger_cells_in_wafers_; // the map key is the wafer type
         std::unordered_map<short, short> number_cells_in_wafers_; // the map key is the wafer type
 
+        // neighbor related maps
+        // trigger cell neighbors:
+        // - The key includes the trigger cell id and the wafer configuration.
+        // The wafer configuration is a 7 bits word encoding the type 
+        // (small or large cells) of the wafer containing the trigger cell
+        // (central wafer) as well as the type of the 6 surrounding wafers
+        // - The value is a set of (wafer_idx, trigger_cell_id)
+        // wafer_idx is a number between 0 and 7. 0=central wafer, 1..7=surrounding
+        // wafers 
+        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
+        // wafer neighbors:
+        // List of the 6 surrounding neighbors around each wafer
+        std::unordered_map<short, std::vector<short>> wafer_neighbors_ee_;
+        std::unordered_map<short, std::vector<short>> wafer_neighbors_fh_;
+
         void fillMaps(const es_info&);
+        void fillNeighborMaps(const es_info&);
+        unsigned packTriggerCell(unsigned, const std::vector<int>&) const;
 };
 
 
@@ -55,6 +81,8 @@ HGCalTriggerGeometryHexImp2::
 HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
+    l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
+    l1tWaferNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TWaferNeighborsMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 {
 }
@@ -77,10 +105,9 @@ void
 HGCalTriggerGeometryHexImp2::
 initialize(const es_info& esInfo)
 {
-    edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: There is no neighbor information.\n";
     es_info_ = esInfo;
     fillMaps(esInfo);
+    fillNeighborMaps(esInfo);
 
 }
 
@@ -191,7 +218,6 @@ getCellsFromModule( const unsigned module_id ) const
 
     HGCalDetId module_det_id(module_id);
     unsigned module = module_det_id.wafer();
-    int wafer_type = module_det_id.waferType();
     unsigned subdet = module_det_id.subdetId();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
@@ -210,10 +236,41 @@ getCellsFromModule( const unsigned module_id ) const
     geom_set cell_det_ids;
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
-        // loop on the cells in each wafer
+        // Find the type of the wafer
+        int wafer_type = module_det_id.waferType();
+        switch(subdet)
+        {
+            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+            // HGCalDetId::waferType() returns -1=coarse, 1=fine
+            // Convert to HGCalDetId waferType
+            case ForwardSubdetector::HGCEE:
+                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            default:
+                // Should not happen (subdet checked before)
+                break;
+        };
+        // loop on the cells in each wafer and return valid ones
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
-            cell_det_ids.emplace(HGCalDetId((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), wafer_itr->second, cell).rawId());
+            HGCalDetId cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, cell);
+            bool is_valid = false;
+            switch(subdet)
+            {
+                case ForwardSubdetector::HGCEE:
+                    is_valid |= es_info_.topo_ee->valid(cell_id);
+                    break;
+                case ForwardSubdetector::HGCHEF:
+                    is_valid |= es_info_.topo_fh->valid(cell_id);
+                    break;
+                default:
+                    is_valid = false;
+                    break;
+            } 
+            if(is_valid) cell_det_ids.emplace(cell_id.rawId());
         }
     }
     return cell_det_ids;
@@ -225,7 +282,6 @@ getOrderedCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     unsigned module = module_det_id.wafer();
-    int wafer_type = module_det_id.waferType();
     unsigned subdet = module_det_id.subdetId();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
@@ -244,10 +300,41 @@ getOrderedCellsFromModule( const unsigned module_id ) const
     geom_ordered_set cell_det_ids;
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
+        // Find the type of the wafer
+        int wafer_type = module_det_id.waferType();
+        switch(subdet)
+        {
+            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+            // HGCalDetId::waferType() returns -1=coarse, 1=fine
+            // Convert to HGCalDetId waferType
+            case ForwardSubdetector::HGCEE:
+                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            default:
+                // Should not happen (subdet checked before)
+                break;
+        };
         // loop on the cells in each wafer
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
-            cell_det_ids.emplace(HGCalDetId((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), wafer_itr->second, cell).rawId());
+            HGCalDetId cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, cell);
+            bool is_valid = false;
+            switch(subdet)
+            {
+                case ForwardSubdetector::HGCEE:
+                    is_valid |= es_info_.topo_ee->valid(cell_id);
+                    break;
+                case ForwardSubdetector::HGCHEF:
+                    is_valid |= es_info_.topo_fh->valid(cell_id);
+                    break;
+                default:
+                    is_valid = false;
+                    break;
+            } 
+            if(is_valid) cell_det_ids.emplace(cell_id.rawId());
         }
     }
     return cell_det_ids;
@@ -259,7 +346,6 @@ getTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     unsigned module = module_det_id.wafer();
-    int wafer_type = module_det_id.waferType();
     unsigned subdet = module_det_id.subdetId();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
@@ -279,10 +365,28 @@ getTriggerCellsFromModule( const unsigned module_id ) const
     // loop on the wafers included in the module
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
+        // Find the type of the wafer
+        int wafer_type = module_det_id.waferType();
+        switch(subdet)
+        {
+            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+            // HGCalDetId::waferType() returns -1=coarse, 1=fine
+            // Convert to HGCalDetId waferType
+            case ForwardSubdetector::HGCEE:
+                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            default:
+                // Should not happen (subdet checked before)
+                break;
+        };
         // loop on the trigger cells in each wafer
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
-            trigger_cell_det_ids.emplace(HGCalDetId((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), wafer_itr->second, trigger_cell).rawId());
+            HGCalDetId trigger_cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, trigger_cell);
+            if(validTriggerCell(trigger_cell_id)) trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
         }
     }
     return trigger_cell_det_ids;
@@ -294,7 +398,6 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     unsigned module = module_det_id.wafer();
-    int wafer_type = module_det_id.waferType();
     unsigned subdet = module_det_id.subdetId();
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
@@ -314,13 +417,127 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
     // loop on the wafers included in the module
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
+        // Find the type of the wafer
+        int wafer_type = module_det_id.waferType();
+        switch(subdet)
+        {
+            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+            // HGCalDetId::waferType() returns -1=coarse, 1=fine
+            // Convert to HGCalDetId waferType
+            case ForwardSubdetector::HGCEE:
+                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
+                break;
+            default:
+                // Should not happen (subdet checked before)
+                break;
+        };
         // loop on the trigger cells in each wafer
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
-            trigger_cell_det_ids.emplace(HGCalDetId((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), wafer_itr->second, trigger_cell).rawId());
+            HGCalDetId trigger_cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, trigger_cell);
+            if(validTriggerCell(trigger_cell_id)) trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
         }
     }
     return trigger_cell_det_ids;
+}
+
+
+
+HGCalTriggerGeometryBase::geom_set
+HGCalTriggerGeometryHexImp2::
+getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
+{
+    HGCalDetId trigger_cell_det_id(trigger_cell_id);
+    unsigned wafer = trigger_cell_det_id.wafer();
+    int wafer_type = trigger_cell_det_id.waferType();
+    unsigned subdet = trigger_cell_det_id.subdetId();
+    unsigned trigger_cell = trigger_cell_det_id.cell();
+    // Retrieve surrounding wafers (around the wafer containing
+    // the trigger cell)
+    const std::vector<short>* surrounding_wafers = nullptr;
+    try
+    {
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                surrounding_wafers = &wafer_neighbors_ee_.at(wafer);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                surrounding_wafers = &wafer_neighbors_fh_.at(wafer);
+                break;
+            default:
+                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer neighbours for subdet "<<subdet<<"\n";
+                return geom_set();
+        } 
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
+            << ". The wafer neighbor mapping should be modified. \n";
+    };
+    if(!surrounding_wafers)
+    {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
+            << ". The wafer neighbor mapping should be modified. \n";
+    }
+    // Find the types of the surrounding wafers
+    std::vector<int> types;
+    types.reserve(surrounding_wafers->size()+1); // includes the central wafer -> +1
+    types.emplace_back(wafer_type);
+    for(const auto w : *surrounding_wafers)
+    {
+        // if no neighbor, use the same type as the central one
+        // to create the wafer configuration
+        int wt = wafer_type;
+        if(w!=-1)
+        {
+            switch(subdet)
+            {
+                // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+                // HGCalDetId::waferType() returns -1=coarse, 1=fine
+                // Convert to HGCalDetId waferType
+                case ForwardSubdetector::HGCEE:
+                    wt = (es_info_.topo_ee->dddConstants().waferTypeT(w)==2?-1:1);
+                    break;
+                case ForwardSubdetector::HGCHEF:
+                    wt = (es_info_.topo_fh->dddConstants().waferTypeT(w)==2?-1:1);
+                    break;
+                default:
+                    // Should not arrive there. Subdet has been checked before
+                    return geom_set();
+            } 
+        }
+        types.emplace_back(wt);
+    }
+    // retrieve neighbors
+    unsigned trigger_cell_key = packTriggerCell(trigger_cell, types);
+    geom_set neighbor_detids;
+    try 
+    {
+        const auto& neighbors = trigger_cell_neighbors_.at(trigger_cell_key);
+        // create HGCalDetId of neighbors and check their validity
+        neighbor_detids.reserve(neighbors.size());
+        for(const auto& wafer_tc : neighbors)
+        {
+            unsigned neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers->at(wafer_tc.first-1));
+            int type = types.at(wafer_tc.first);
+            HGCalDetId neighbor_det_id((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second);
+            if(validTriggerCell(neighbor_det_id.rawId()))
+            {
+                neighbor_detids.emplace(neighbor_det_id.rawId());
+            }
+        }
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for trigger cell " << trigger_cell << " with  wafer configuration "
+            << std::bitset<7>(trigger_cell_key >> 8) << ". The trigger cell neighbor mapping should be modified. \n";
+    }
+    return neighbor_detids;
 }
 
 
@@ -417,6 +634,161 @@ fillMaps(const es_info& esInfo)
     }
     if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<waferType<<" "<<cell<<" "<<triggerCell<<"' \n";
     l1tCellsMappingStream.close();
+}
+
+void 
+HGCalTriggerGeometryHexImp2::
+fillNeighborMaps(const es_info& esInfo)
+{
+    // Fill trigger neighbor map
+    std::ifstream l1tCellNeighborsMappingStream(l1tCellNeighborsMapping_.fullPath());
+    if(!l1tCellNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborsMapping file\n";
+    for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
+    {
+        std::string line(&buffer[0]);
+        // Extract keys consisting of the wafer configuration
+        // and of the trigger cell id
+        // Match patterns (X,Y) 
+        // where X is a set of 7 bits
+        // and Y is a number with less than 4 digits
+        std::regex key_regex("\\(\\s*[01]{7}\\s*,\\s*\\d{1,3}\\s*\\)");
+        std::vector<std::string> key_tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
+        };
+        if(key_tokens.size()!=1)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TCellNeighborsMapping:\n"
+                << "  Cannot find the trigger cell key in line:\n"
+                << "  '"<<&buffer[0]<<"'\n";
+        }
+        std::regex digits_regex("([01]{7})|(\\d{1,3})");
+        std::vector<std::string>  pair {
+            std::sregex_token_iterator(key_tokens[0].begin(), key_tokens[0].end(), digits_regex), {}
+        };
+        // get cell id and wafer configuration
+        int trigger_cell = std::stoi(pair[1]);
+        std::vector<int> wafer_types;
+        wafer_types.reserve(pair[0].size());
+        // Convert waferType coarse=0, fine=1 to coarse=-1, fine=1
+        for(const auto c : pair[0]) wafer_types.emplace_back( (std::stoi(std::string(&c))?1:-1) );
+        unsigned map_key = packTriggerCell(trigger_cell, wafer_types);
+        // Extract neighbors
+        // Match patterns (X,Y) 
+        // where X is a number with less than 4 digits
+        // and Y is one single digit (the neighbor wafer, between 0 and 6)
+        std::regex neighbors_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d\\s*\\)");
+        std::vector<std::string> neighbors_tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
+        };
+        if(neighbors_tokens.size()==0)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TCellNeighborsMapping:\n"
+                << "  Cannot find any neighbor in line:\n"
+                << "  '"<<&buffer[0]<<"'\n";
+        }
+        auto itr_insert = trigger_cell_neighbors_.emplace(map_key, std::set<std::pair<short,short>>());
+        for(const auto& neighbor : neighbors_tokens)
+        {
+            std::vector<std::string>  pair_neighbor {
+                std::sregex_token_iterator(neighbor.begin(), neighbor.end(), digits_regex), {}
+            };
+            short neighbor_wafer(std::stoi(pair_neighbor[1]));
+            short neighbor_cell(std::stoi(pair_neighbor[0]));
+            itr_insert.first->second.emplace(neighbor_wafer, neighbor_cell);
+        }
+    }
+    if(!l1tCellNeighborsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborsMapping'\n";
+    l1tCellNeighborsMappingStream.close();
+
+    // Fill wafer neighbor map
+    std::ifstream l1tWaferNeighborsMappingStream(l1tWaferNeighborsMapping_.fullPath());
+    if(!l1tWaferNeighborsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TWaferNeighborsMapping file\n";
+    for(std::array<char,512> buffer; l1tWaferNeighborsMappingStream.getline(&buffer[0], 512); )
+    {
+        std::string line(&buffer[0]);
+        // split line using spaces as delimiter
+        std::regex delimiter("\\s+");
+        std::vector<std::string>  tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), delimiter, -1), {}
+        };
+        if(tokens.size()!=8)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TWaferNeighborsMapping in line:\n"
+                << "  '"<<&buffer[0]<<"'\n"
+                << "  A line should be composed of 8 integers separated by spaces:\n"
+                << "  subdet waferid neighbor1 neighbor2 neighbor3 neighbor4 neighbor5 neighbor6\n";
+        }
+        short subdet(std::stoi(tokens[0]));
+        short wafer(std::stoi(tokens[1]));
+
+        std::unordered_map<short, std::vector<short>>* wafer_neighbors;
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                wafer_neighbors = &wafer_neighbors_ee_;
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_neighbors = &wafer_neighbors_fh_;
+                break;
+            default:
+                throw cms::Exception("BadGeometry")
+                    << "Unknown subdet " << subdet << " in L1TWaferNeighborsMapping:\n"
+                    << "  '"<<&buffer[0]<<"'\n";
+        };
+        auto wafer_itr = wafer_neighbors->emplace(wafer, std::vector<short>());
+        for(auto neighbor_itr=tokens.cbegin()+2; neighbor_itr!=tokens.cend(); ++neighbor_itr)
+        {
+            wafer_itr.first->second.emplace_back(std::stoi(*neighbor_itr));
+        }
+    }
+}
+
+unsigned 
+HGCalTriggerGeometryHexImp2::
+packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) const
+{
+    unsigned packed_value = trigger_cell;
+    for(unsigned i=0; i<wafer_types.size(); i++)
+    {
+        // trigger cell id on 8 bits
+        // wafer configuration bits: 0=coarse, 1=fine
+        if(wafer_types.at(i)==1) packed_value += (0x1<<(8+i));
+    }
+    return packed_value;
+}
+
+bool 
+HGCalTriggerGeometryHexImp2::
+validTriggerCell(const unsigned trigger_cell_id) const
+{
+    // Check the validity of a trigger cell with the
+    // validity of the cells. One valid cell in the 
+    // trigger cell is enough to make the trigger cell
+    // valid.
+    HGCalDetId trigger_cell_det_id(trigger_cell_id);
+    unsigned subdet = trigger_cell_det_id.subdetId();
+    const geom_set cells = getCellsFromTriggerCell(trigger_cell_id);
+    bool is_valid = false;
+    for(const auto cell_id : cells)
+    {
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                is_valid |= es_info_.topo_ee->valid(cell_id);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                is_valid |= es_info_.topo_fh->valid(cell_id);
+                break;
+            default:
+                is_valid = false;
+                break;
+        } 
+        if(is_valid) break;
+    }
+    return is_valid;
 }
 
 
