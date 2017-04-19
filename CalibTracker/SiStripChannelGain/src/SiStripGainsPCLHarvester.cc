@@ -415,21 +415,21 @@ SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index)
     doStoreOnDB=true;
   }
   
-  std::vector<float>* theSiStripVector = NULL;
+  std::vector<float> theSiStripVector;
   unsigned int PreviousDetId = 0; 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
     stAPVGain* APV = APVsCollOrdered[a];
     if(APV==NULL){ printf("Bug\n"); continue; }
     if(APV->SubDet<=2)continue;
     if(APV->DetId != PreviousDetId){
-      if(theSiStripVector!=NULL){
-	SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
+      if(!theSiStripVector.empty()){
+	SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
 	if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
       }
-      theSiStripVector = new std::vector<float>;
+      theSiStripVector.clear();
       PreviousDetId = APV->DetId;
     }
-    theSiStripVector->push_back(APV->Gain);
+    theSiStripVector.push_back(APV->Gain);
     
     LogDebug("SiStripGainsPCLHarvester")<<" DetId: "<<APV->DetId 
 					<<" APV:   "<<APV->APVId
@@ -437,8 +437,8 @@ SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index)
 					<<std::endl;
 
   }
-  if(theSiStripVector!=NULL){
-    SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
+  if(!theSiStripVector.empty()){
+    SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
     if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
   }
   
