@@ -989,11 +989,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, un
      for ( auto& chamber1 : muon1.matches() )
      {
        // segmentIter1
-       std::vector<reco::MuonSegmentMatch> * segmentMatches1 = nullptr;
-       if      (muonType == reco::Muon::TrackerMuon) segmentMatches1 =  & chamber1.segmentMatches;
-       else if (muonType == reco::Muon::ME0Muon)     segmentMatches1 =  & chamber1.me0Matches;
-       else if (muonType == reco::Muon::GEMMuon)     segmentMatches1 =  & chamber1.gemMatches;
-       else throw cms::Exception("fillArbitrationInfo called with unsupported muonType");
+       std::vector<reco::MuonSegmentMatch> * segmentMatches1 = getSegmentMatches(chamber1, muonType);
 
        if(segmentMatches1->empty()) continue;
        chamberPairs.clear();
@@ -1019,10 +1015,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, un
                for ( auto& chamber2 : muon2.matches() )
                {
                  // segmentIter2
-                 std::vector<reco::MuonSegmentMatch> * segmentMatches2 = nullptr;
-                 if      (muonType == reco::Muon::TrackerMuon) segmentMatches2 =  & chamber2.segmentMatches;
-                 else if (muonType == reco::Muon::ME0Muon)     segmentMatches2 =  & chamber2.me0Matches;
-                 else if (muonType == reco::Muon::GEMMuon)     segmentMatches2 =  & chamber2.gemMatches;
+                 std::vector<reco::MuonSegmentMatch> * segmentMatches2 = getSegmentMatches(chamber2, muonType);
                  for ( auto& segment2 : *segmentMatches2 )
                  {
                    if(segment2.isMask()) continue; // has already been arbitrated
@@ -1103,7 +1096,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, un
      // station segment sort
      for( int stationIndex = 1; stationIndex < 5; ++stationIndex ) 
      {
-       for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+       for( int detectorIndex = 1; detectorIndex <= 5; ++detectorIndex ) // 1-5, as in DataFormats/MuonDetId/interface/MuonSubdetId.h
        {
          stationPairs.clear();
 
@@ -1111,10 +1104,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, un
          for ( auto& chamber : muon1.matches() )
          {
            if(!(chamber.station()==stationIndex && chamber.detector()==detectorIndex)) continue;
-           std::vector<reco::MuonSegmentMatch> * segmentMatches = nullptr;
-           if      (muonType == reco::Muon::TrackerMuon) segmentMatches =  & chamber.segmentMatches;
-           else if (muonType == reco::Muon::ME0Muon)     segmentMatches =  & chamber.me0Matches;
-           else if (muonType == reco::Muon::GEMMuon)     segmentMatches =  & chamber.gemMatches;
+           std::vector<reco::MuonSegmentMatch> * segmentMatches = getSegmentMatches(chamber, muonType);
            if (segmentMatches->empty()) continue;
 
            for ( auto& segment : *segmentMatches ) {

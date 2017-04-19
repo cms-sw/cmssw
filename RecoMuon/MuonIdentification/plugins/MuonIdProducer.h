@@ -122,6 +122,15 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    {
      return std::abs(a-b) < tol;
    }
+
+
+   /// get the segment matches of the appropriate type
+   std::vector<reco::MuonSegmentMatch> * getSegmentMatches(reco::MuonChamberMatch & chamber, unsigned int muonType) const {
+       if      (muonType == reco::Muon::TrackerMuon) return & chamber.segmentMatches;
+       else if (muonType == reco::Muon::ME0Muon)     return & chamber.me0Matches;
+       else if (muonType == reco::Muon::GEMMuon)     return & chamber.gemMatches;
+       else throw cms::Exception("getSegmentMatches called with unsupported muonType");
+   }
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
