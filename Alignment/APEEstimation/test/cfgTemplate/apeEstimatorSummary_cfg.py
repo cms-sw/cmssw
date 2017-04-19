@@ -77,7 +77,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
-process.GlobalTag.globaltag = 'GR_P_V56'
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
   connect = 'frontier://FrontierProd/CMS_CONDITIONS',
