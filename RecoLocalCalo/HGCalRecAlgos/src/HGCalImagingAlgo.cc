@@ -30,7 +30,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     }
     if(!dependSensor && hgrh.energy() < ecut) continue;
 
-    layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
+    layer += int(rhtools_.zside(detid)>0)*(maxlayer+1);
 
     // determine whether this is a half-hexagon
     bool isHalf = rhtools_.isHalfCell(detid);
