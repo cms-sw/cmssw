@@ -7,7 +7,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,23 +23,19 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
-namespace edm {
-   class ConfigurationDescriptions;
-}
-
-class ChargedHadronPFTrackIsolationProducer : public edm::stream::EDProducer<> 
+class ChargedHadronPFTrackIsolationProducer : public edm::global::EDProducer<> 
 {
 public:
 
   explicit ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg);
   ~ChargedHadronPFTrackIsolationProducer() {}
-  void produce(edm::Event& evt, const edm::EventSetup& es);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   // input collection
-  edm::InputTag srcCandidates_;
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> > Candidates_token;
+  edm::InputTag srccandidates_;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate> > candidates_token;
   double minTrackPt_;
   double minRawCaloEnergy_;
 
@@ -47,33 +43,34 @@ private:
 
 ChargedHadronPFTrackIsolationProducer::ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg)
 {
-  srcCandidates_ = cfg.getParameter<edm::InputTag>("src");
-  Candidates_token = consumes<edm::View<reco::PFCandidate> >(srcCandidates_);
+  srccandidates_ = cfg.getParameter<edm::InputTag>("src");
+  candidates_token = consumes<edm::View<reco::PFCandidate> >(srccandidates_);
   minTrackPt_ = cfg.getParameter<double>("minTrackPt");
   minRawCaloEnergy_ = cfg.getParameter<double>("minRawCaloEnergy");
   
   produces<edm::ValueMap<bool> >();
 }
 
-void ChargedHadronPFTrackIsolationProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+void ChargedHadronPFTrackIsolationProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const
 {
-  // get a view of our Candidates via the base candidates
+  // get a view of our candidates via the base candidates
   typedef edm::View<reco::PFCandidate> PFCandidateView;
-  edm::Handle<PFCandidateView> Candidates;
-  evt.getByToken(Candidates_token, Candidates);
+  edm::Handle<PFCandidateView> candidates;
+  evt.getByToken(candidates_token, candidates);
   
   std::vector<bool> values;
 
-  for( PFCandidateView::const_iterator c = Candidates->begin(); c!=Candidates->end(); ++c) {
+  for( auto const& c : *candidates ) {
     // Check that there is only one track in the block.
     unsigned int nTracks = 0;
-    if ((c->particleId()==1) && (c->pt()>minTrackPt_) && ((c->rawEcalEnergy()+c->rawHcalEnergy())>minRawCaloEnergy_)) {
-      const reco::PFCandidate::ElementsInBlocks& theElements = c->elementsInBlocks();
+    if ((c.particleId()==1) && (c.pt()>minTrackPt_) && ((c.rawEcalEnergy()+c.rawHcalEnergy())>minRawCaloEnergy_)) {
+      const reco::PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
       if( theElements.empty() ) continue;
       const reco::PFBlockRef blockRef = theElements[0].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-      for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         	 // Find the tracks in the block
-         reco::PFBlockElement::Type type = elements[iEle].type();
+      // Find the tracks in the block
+      for( auto const & ele : elements ) {
+         reco::PFBlockElement::Type type = ele.type();
          if( type== reco::PFBlockElement::TRACK)
            nTracks++;
       }
@@ -83,7 +80,7 @@ void ChargedHadronPFTrackIsolationProducer::produce(edm::Event& evt, const edm::
 
   std::unique_ptr<edm::ValueMap<bool> > out(new edm::ValueMap<bool>());
   edm::ValueMap<bool>::Filler filler(*out);
-  filler.insert(Candidates,values.begin(),values.end());
+  filler.insert(candidates,values.begin(),values.end());
   filler.fill();
   evt.put(std::move(out));
 }
