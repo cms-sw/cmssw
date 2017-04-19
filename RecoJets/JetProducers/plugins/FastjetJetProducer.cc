@@ -442,8 +442,6 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator> (new  fastjet::JetMedianBackgroundEstimator(rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_) );
       bge_rho->set_particles(fjInputs_);
       fastjet::contrib::ConstituentSubtractor * constituentSubtractor = new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
-      // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-      //constituentSubtractor->use_common_bge_for_rho_and_rhom(true); // for massless input particles it does not make any difference (rho_m is always zero)
 
       transformers.push_back( transformer_ptr(constituentSubtractor) );
     };
