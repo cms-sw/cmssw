@@ -438,8 +438,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // dqm configuration
   module_id_(                   edm::ModuleDescription::invalidID() ),
   enable_dqm_(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
-//enable_dqm_bypath_active_(    config.getUntrackedParameter<bool>(     "enableDQMbyPathActive"    ) ),
-//enable_dqm_bypath_total_(     config.getUntrackedParameter<bool>(     "enableDQMbyPathTotal"     ) ),
 //enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
 //enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
   enable_dqm_bynproc_(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
@@ -1340,10 +1338,11 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<bool>(        "printRunSummary",          true);
   desc.addUntracked<bool>(        "printJobSummary",          true);
   desc.addUntracked<bool>(        "enableDQM",                true);
-//desc.addUntracked<bool>(        "enableDQMbyPathActive",    false);
-//desc.addUntracked<bool>(        "enableDQMbyPathTotal",     true);
-//desc.addUntracked<bool>(        "enableDQMbyModule",        false);
-//desc.addUntracked<bool>(        "enableDQMbyLumiSection",   false);
+
+  // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyModule",        false, false), true)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyLumiSection",   false, false), true)->setComment("This parameter is obsolete and will be ignored.");
+
   desc.addUntracked<bool>(        "enableDQMbyProcesses",     false);
   desc.addUntracked<double>(      "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>(      "dqmTimeResolution",           5. );   // ms
@@ -1354,5 +1353,23 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<unsigned>(    "dqmLumiSectionsRange",     2500  );   // ~ 16 hours
   desc.addUntracked<std::string>( "dqmPath",                  "HLT/TimerService");
   desc.addUntracked<std::vector<std::string>>("highlightModules", {});
+
+  // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
+  // they will not be printed in the generated cfi.py file
+  desc.addOptionalNode(edm::ParameterDescription<bool>("useRealTimeClock",         true,  false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableTimingPaths",        true,  false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableTimingModules",      true,  false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableTimingExclusive",    false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableTimingSummary",      false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("skipFirstPath",            false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathActive",    false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathTotal",     true,  false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathOverhead",  false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathDetails",   false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathCounters",  true,  false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyPathExclusive", false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyModuleType",    false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMSummary",         false, false), false)->setComment("This parameter is obsolete and will be ignored.");
+
   descriptions.add("FastTimerService", desc);
 }
