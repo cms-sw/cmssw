@@ -50,7 +50,7 @@ filesRelValTTbarPileUpFastSimGENSIMDIGIRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/RelValTTbar_13/GEN-SIM-DIGI-RECO/PU25ns_80X_mcRun2_asymptotic_v4_FastSim-v2/10000/00AADAB6-63DD-E511-8C34-002618943953.root'
+        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/GEN-SIM-DIGI-RECO/PU25ns_90X_mcRun2_asymptotic_v5_FastSim-v1/00000/0039AD51-331A-E711-863C-0025905A60B4.root',
     )
 
 # /RelValTTbar_13/CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4-v1/GEN-SIM-RECO
@@ -63,7 +63,7 @@ filesRelValTTbarPileUpGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_8_0_0/RelValTTbar_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v4-v1/10000/42D6DF66-9DDA-E511-9200-0CC47A4D7670.root'
+        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/GEN-SIM-RECO/PU25ns_90X_mcRun2_asymptotic_v5-v1/00000/E27EA6EC-2B1A-E711-84EC-0CC47A4D75EC.root',
     )
 
 # /SingleMu/CMSSW_8_0_0-80X_dataRun2_v5_RelVal_mu2012D-v3/MINIAOD
