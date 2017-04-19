@@ -51,7 +51,8 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 #;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 # include "Configuration/StandardSequences/data/FakeConditions.cff"
