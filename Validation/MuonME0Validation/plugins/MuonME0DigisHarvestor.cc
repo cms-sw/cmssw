@@ -119,7 +119,7 @@ TH1F* MuonME0DigisHarvestor::ComputeBKG(TH1F* hist1, TH1F* hist2, std::string na
     }
 
     int nEvts = hist2->GetEntries();
-    float scale = 6*2*nEvts*9*25e-9;
+    float scale = 6*2*nEvts*3*25e-9;
     hist1->Scale(1.0/scale);
     return hist1;
     
