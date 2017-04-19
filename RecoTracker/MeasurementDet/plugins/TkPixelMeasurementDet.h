@@ -36,7 +36,13 @@ public:
 
   virtual ~TkPixelMeasurementDet() { }
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat ) const;
+  // all hits
+  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat) const override;
+
+  // only hits compatible with tsos 
+  RecHitContainer compHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat, float xl, float yl ) const;
+
+
 
  // simple hits
   virtual bool recHits(SimpleHitContainer & result,  
