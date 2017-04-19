@@ -147,9 +147,9 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
         rawDetIds.push_back(tempID.rawId());
       }
 
-      for( const auto& idx : ordered_hits ) {
-        const unsigned i = idx;
-        const reco::PFRecHit& matchrechit = hits[i];
+      for( const auto& jdx : ordered_hits ) {
+        const unsigned j = jdx;
+        const reco::PFRecHit& matchrechit = hits[j];
         for( const auto& iID : rawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
       }
     }
