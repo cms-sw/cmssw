@@ -413,22 +413,27 @@ private:
   private:
     // resources spent in all the modules in the path, including their dependencies
     PlotsPerElement total_;
+
+    // Note:
+    //   a TH1F has 7 significant digits, while a 24-hour long run could process
+    //   order of 10 billion events; a 64-bit long integer would work and might
+    //   be better suited than a double, but there is no "TH1L" in ROOT.
+
     // how many times each module and their dependencies has run
-    // Note: a TH1I might be better suited, but is not supported by the DQM
-    TH1F * module_counter_;
+    TH1D * module_counter_;
     // resources spent in each module and their dependencies
-    TH1F * module_time_thread_total_;
-    TH1F * module_time_real_total_;
+    TH1D * module_time_thread_total_;
+    TH1D * module_time_real_total_;
   };
 
   class PlotsPerProcess {
   public:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&, 
+    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
         double event_range, double event_resolution, double path_range, double path_resolution, unsigned int lumisections);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
-  
+
   private:
     // resources spent in all the modules of the (sub)process
     PlotsPerElement           event_;

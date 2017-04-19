@@ -174,23 +174,23 @@ FastTimerService::PlotsPerPath::book(
   total_.book(booker, "path", "path", range, resolution, lumisections);
 
   unsigned int bins = path.modules_and_dependencies_.size();
-  module_counter_ = booker.book1D(
+  module_counter_ = booker.book1DD(
       "module_counter",
       "module counter",
       bins + 1, -0.5, bins + 0.5
-      )->getTH1F();
+      )->getTH1D();
   module_counter_->SetYTitle("processing time [ms]");
-  module_time_thread_total_ = booker.book1D(
+  module_time_thread_total_ = booker.book1DD(
       "module_time_thread_total",
       "total module time (cpu)",
       bins, -0.5, bins - 0.5
-      )->getTH1F();
+      )->getTH1D();
   module_time_thread_total_->SetYTitle("processing time [ms]");
-  module_time_real_total_ = booker.book1D(
+  module_time_real_total_ = booker.book1DD(
       "module_time_real_total",
       "total module time (real)",
       bins, -0.5, bins - 0.5
-      )->getTH1F();
+      )->getTH1D();
   module_time_real_total_->SetYTitle("processing time [ms]");
   for (unsigned int bin: boost::irange(0u, bins)) {
     auto const& module = job[path.modules_and_dependencies_[bin]];
