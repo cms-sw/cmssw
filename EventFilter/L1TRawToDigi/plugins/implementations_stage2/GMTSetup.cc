@@ -5,7 +5,12 @@
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
+
 #include "GMTSetup.h"
+
+#include <array>
+#include <string>
 
 namespace l1t {
    namespace stage2 {
@@ -50,6 +55,9 @@ namespace l1t {
          prod.produces<RegionalMuonCandBxCollection>("OMTF");
          prod.produces<RegionalMuonCandBxCollection>("EMTF");
          prod.produces<MuonBxCollection>("Muon");
+         for (int i=1; i<6; ++i) {
+            prod.produces<MuonBxCollection>(("MuonCopy"+std::to_string(i)).c_str());
+         }
          prod.produces<MuonBxCollection>("imdMuonsBMTF");
          prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
          prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
@@ -68,19 +76,31 @@ namespace l1t {
       {
          UnpackerMap res;
 
-         auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
-         auto gmt_out_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
-         auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
-
          // input muons
+         auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
          for (int iLink = 72; iLink < 144; iLink += 2)
             res[iLink] = gmt_in_unp;
-         // output muons
-         for (int oLink = 1; oLink < 9; oLink += 2)
-            res[oLink] = gmt_out_unp;
+
          // internal muons
+         auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
          for (int oLink = 49; oLink < 63; oLink += 2)
             res[oLink] = gmt_imd_unp;
+
+         // output muons (6 copies)
+         std::array<std::shared_ptr<l1t::stage2::MuonUnpacker>, 6> gmt_out_unps;
+         int i = 0;
+         for (auto gmt_out_unp:gmt_out_unps) {
+            gmt_out_unp = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+            gmt_out_unp->setAlgoVersion(fw);
+            gmt_out_unp->setFedNumber(fed);
+            gmt_out_unp->setMuonCopy(i);
+
+            int oLinkMin = i*8+1;
+            for (int oLink = oLinkMin; oLink < oLinkMin+8; oLink += 2)
+               res[oLink] = gmt_out_unp;
+
+            ++i;
+         }
 
          return res;
       }

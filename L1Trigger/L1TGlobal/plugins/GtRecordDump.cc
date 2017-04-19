@@ -370,7 +370,9 @@ namespace l1t {
 		 for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
 	             cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0')<< ")";
 	             cout << "   Pt "  << std::dec << std::setw(3) << mu->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPt()  << ")";
+		     cout << "   EtaAtVtx " << std::dec << std::setw(3) << mu->hwEtaAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEtaAtVtx()&0x1ff) << ")";
 		     cout << "   Eta " << std::dec << std::setw(3) << mu->hwEta() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEta()&0x1ff) << ")";
+		     cout << "   PhiAtVtx " << std::dec << std::setw(3) << mu->hwPhiAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhiAtVtx() << ")";
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
@@ -775,9 +777,11 @@ cms_uint64_t GtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator mu)
 
   cms_uint64_t packedVal = 0;
 
-// Pack Bits                        
-  packedVal |= ((cms_uint64_t)(mu->hwPhi()            & 0x3ff) <<0);	// & 0x3ff) <<18);
-  packedVal |= ((cms_uint64_t)(mu->hwEta()            & 0x1ff) <<23);	// & 0x1ff) <<9);
+// Pack Bits
+  packedVal |= ((cms_uint64_t)(mu->hwPhi()            & 0x3ff) <<43);
+  packedVal |= ((cms_uint64_t)(mu->hwPhiAtVtx()       & 0x3ff) <<0);	// & 0x3ff) <<18);
+  packedVal |= ((cms_uint64_t)(mu->hwEta()            & 0x1ff) <<53);
+  packedVal |= ((cms_uint64_t)(mu->hwEtaAtVtx()       & 0x1ff) <<23);	// & 0x1ff) <<9);
   packedVal |= ((cms_uint64_t)(mu->hwPt()             & 0x1ff) <<10);	// & 0x1ff) <<0);
   packedVal |= ((cms_uint64_t)(mu->hwChargeValid()    & 0x1)   <<35);  // & 0x1)   <<28);
   packedVal |= ((cms_uint64_t)(mu->hwCharge()         & 0x1)   <<34);  // & 0x1)   <<29);
@@ -854,7 +858,7 @@ unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iter
   unsigned int packedVal = 0;
   //unsigned int shift = 12;
 
-// Pack Bits
+  // Pack Bits
   //packedVal |= ((etSum->hwPt()     & 0xfff)   << shift);
 
   //towercount takes 13 bits
