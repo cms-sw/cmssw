@@ -10,6 +10,7 @@
 #include "GMTSetup.h"
 
 #include <array>
+#include <string>
 
 namespace l1t {
    namespace stage2 {
