@@ -33,8 +33,8 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     return true;
   }
   
-
-  //  auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+  // do not use this as it does not account for APE...
+  // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
   auto le = stateOnThisDet.localError().positionError();
   LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
   float xl = le.xx();
@@ -43,7 +43,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     xl+=lape.xx();
     yl+=lape.yy();
   }
-  // 5 sigma
+  // 5 sigma to be on the safe side
   xl = 5.f*std::sqrt(xl);
   yl = 5.f*std::sqrt(yl);
 
@@ -76,7 +76,7 @@ TrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
-  const GeomDetUnit& gdu( specificGeomDet());
+  const GeomDetUnit& gdu(specificGeomDet());
 
   auto && params = cpe()->getParameters( * cluster, gdu, ltp );
   return std::make_shared<SiPixelRecHit>( std::get<0>(params), std::get<1>(params), std::get<2>(params), fastGeomDet(), cluster);
@@ -85,7 +85,7 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 
 TkPixelMeasurementDet::RecHitContainer
 TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const {
-  float xl = 100.f;
+  float xl = 100.f; // larger than any detector
   float yl = 100.f;
   return compHits(ts,data,xl,yl);
 }
@@ -104,9 +104,17 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
   const detset & detSet = data.pixelData().detSet(index());
   result.reserve(detSet.size());
 
-  LocalVector xmax(xl,0,0);
-  int xminus =  specificGeomDet().specificTopology().measurementPosition(ts.localPosition()-xmax).x();
-  int xplus =  0.5f+specificGeomDet().specificTopology().measurementPosition(ts.localPosition()+xmax).x();
+  // pixel topology is rectangular, all positions are independent
+  LocalVector  maxD(xl,yl,0);
+  auto PMinus = specificGeomDet().specificTopology().measurementPosition(ts.localPosition()-maxD);
+  auto PPlus =  specificGeomDet().specificTopology().measurementPosition(ts.localPosition()+maxD);
+
+  int xminus = PMinus.x();
+  int yminus = PMinus.y();
+  int xplus = PPlus.x()+0.5f;
+  int yplus = PPlus.y()+0.5f;
+
+
   // rechits are sorted in x...
   auto rightCluster = 
     std::find_if( detSet.begin(), detSet.end(), [xplus](const SiPixelCluster& cl) { return cl.minPixelRow() > xplus; });
@@ -128,7 +136,9 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
      }
 
      if (ci->maxPixelRow()<xminus) continue;
-     // in principle we can also check compatibility in y...
+     // also check compatibility in y... (does not add much)
+     if (ci->minPixelCol()>yplus) continue;
+     if (ci->maxPixelCol()<yminus) continue;
 
      if(data.pixelClustersToSkip().empty() or (not data.pixelClustersToSkip()[index]) ) {
        SiPixelClusterRef cluster = detSet.makeRefTo( data.pixelData().handle(), ci );
