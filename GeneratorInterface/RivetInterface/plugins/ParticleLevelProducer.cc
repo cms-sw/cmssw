@@ -34,7 +34,9 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset):
   analysisHandler_.addAnalysis(rivetAnalysis_);
 }
 
-void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets, std::unique_ptr<reco::GenParticleCollection> &consts, auto &constsRefHandle, int &iConstituent, std::unique_ptr<reco::GenParticleCollection> &tags, auto &tagsRefHandle, int &iTag)
+void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets,
+                                      std::unique_ptr<reco::GenParticleCollection> &consts, edm::RefProd<reco::GenParticleCollection>& constsRefHandle, int &iConstituent,
+                                      std::unique_ptr<reco::GenParticleCollection> &tags, edm::RefProd<reco::GenParticleCollection>& tagsRefHandle, int &iTag)
 {
   const auto pjet = jet.pseudojet();
 
