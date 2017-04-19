@@ -46,12 +46,28 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 				efficsOK[flavour]=isOK;
 			}
 			label= m_histoName.at(ind)+std::string("___");
+			TString labelEta = label;
+			TString labelPhi = label;
 			label+=flavour+TString("_disc_pT");
+			labelEta+=flavour+TString("_disc_eta");
+			labelPhi+=flavour+TString("_disc_phi");
 			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs pT' plot
 				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_pT").Data());
+			}
+			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+labelEta).Data(),(TString(dqmFolder_hist)+"/"+labelEta).Data(),num,den,2);
+			if (isOK) {
+			
+				//do the 'b-tag efficiency vs Eta' plot
+				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,(labelEta+"_efficiency_vs_eta").Data());
+			}
+			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+labelPhi).Data(),(TString(dqmFolder_hist)+"/"+labelPhi).Data(),num,den,2);
+			if (isOK) {
+			
+				//do the 'b-tag efficiency vs Phi' plot
+				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,(labelPhi+"_efficiency_vs_phi").Data());
 			}
 		} /// for mc labels
 		
@@ -68,7 +84,8 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 /*
    possible types: 
    type =0 for eff_vs_discriminator
-   type =1 for eff_vs_pT ot eff_vs_Eta
+   type =1 for eff_vs_pT
+   type =2 for eff_vs_eta or eff_vs_phi
  */
 	MonitorElement *denME = NULL;
 	MonitorElement *numME = NULL;
@@ -118,6 +135,30 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 		cutg_den->SetPoint(1,-10.1,9999);
 		cutg_den->SetPoint(2,1.1,9999);
 		cutg_den->SetPoint(3,1.1,0);
+		ptrden = denH2->ProjectionY("denumerator",0,-1,"[cutg_den]");
+		delete cutg_num;
+		delete cutg_den;
+	}
+
+	if (type==2) //efficiency_vs_eta: fill "ptrden" with projection of the plots contained in "den" and fill "ptrnum" with projection of the plots contained in "num", having btag>m_minTag
+	{
+		TH2F* numH2 = numME->getTH2F();
+		TH2F* denH2 = denME->getTH2F();
+
+		///numerator preparing
+		TCutG * cutg_num= new TCutG("cutg_num",4);
+		cutg_num->SetPoint(0,m_minTag,-10);
+		cutg_num->SetPoint(1,m_minTag,10);
+		cutg_num->SetPoint(2,1.1,10);
+		cutg_num->SetPoint(3,1.1,-10);
+		ptrnum = numH2->ProjectionY("numerator",0,-1,"[cutg_num]");
+
+		///denominator preparing
+		TCutG * cutg_den= new TCutG("cutg_den",4);
+		cutg_den->SetPoint(0,-10.1,-10);
+		cutg_den->SetPoint(1,-10.1,10);
+		cutg_den->SetPoint(2,1.1,10);
+		cutg_den->SetPoint(3,1.1,-10);
 		ptrden = denH2->ProjectionY("denumerator",0,-1,"[cutg_den]");
 		delete cutg_num;
 		delete cutg_den;
