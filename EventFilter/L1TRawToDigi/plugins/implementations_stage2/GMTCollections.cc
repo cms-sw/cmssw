@@ -2,6 +2,8 @@
 
 #include "GMTCollections.h"
 
+#include <string>
+
 namespace l1t {
    namespace stage2 {
       GMTCollections::~GMTCollections()
