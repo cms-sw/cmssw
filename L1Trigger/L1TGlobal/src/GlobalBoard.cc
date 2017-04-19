@@ -394,7 +394,7 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
 		  edm::LogWarning("L1TGlobal") << " Too many Muons ("<<nObj<<") for uGT Configuration maxMu =" <<nrL1Mu << std::endl;
 		}
 		   
-	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " Eta  " << mu->hwEta() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx " << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
 		nObj++;
               } //end loop over muons in bx
 	   } //end loop over bx   
