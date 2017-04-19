@@ -1,6 +1,30 @@
 // system include files
 #include <memory>
 
+// CMSSW includes
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
 // user include files
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLHarvester.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -210,19 +234,18 @@ SiStripGainsPCLHarvester::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
   if( InputHisto->GetEntries() < MinNrEntries)return;
   
   // perform fit with standard landau
-  TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
-  MyLandau->SetParameter(1,300);
-  InputHisto->Fit(MyLandau,"0QR WW");
+  TF1 MyLandau("MyLandau","landau",LowRange, HighRange);
+  MyLandau.SetParameter(1,300);
+  InputHisto->Fit(&MyLandau,"0QR WW");
   
   // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-  FitResults[0]         = MyLandau->GetParameter(1);  //MPV
-  FitResults[1]         = MyLandau->GetParError(1);   //MPV error
-  FitResults[2]         = MyLandau->GetParameter(2);  //Width
-  FitResults[3]         = MyLandau->GetParError(2);   //Width error
-  FitResults[4]         = MyLandau->GetChisquare() / MyLandau->GetNDF();  //Fit Chi2/NDF
-  FitResults[5]         = MyLandau->GetParameter(0);
+  FitResults[0]         = MyLandau.GetParameter(1);  //MPV
+  FitResults[1]         = MyLandau.GetParError(1);   //MPV error
+  FitResults[2]         = MyLandau.GetParameter(2);  //Width
+  FitResults[3]         = MyLandau.GetParError(2);   //Width error
+  FitResults[4]         = MyLandau.GetChisquare() / MyLandau.GetNDF();  //Fit Chi2/NDF
+  FitResults[5]         = MyLandau.GetParameter(0);
   
-  delete MyLandau;
 }
 
 //********************************************************************************//
