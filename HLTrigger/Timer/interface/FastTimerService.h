@@ -102,6 +102,7 @@ public:
   double queryModuleTimeByLabel(edm::StreamID, std::string const& process, const std::string & module) const;
   double queryPathTime(edm::StreamID, std::string const& path) const;
   double queryPathTime(edm::StreamID, std::string const& process, std::string const& path) const;
+  double queryHighlightTime(edm::StreamID sid) const;
 
 private:
   void ignoredSignal(std::string signal) const;
@@ -332,12 +333,14 @@ private:
 
   struct ResourcesPerJob {
     Resources                        total;
+    Resources                        highlight;
     std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
     unsigned                         events;
 
     void reset() {
       total.reset();
+      highlight.reset();
       for (auto & module: modules)
         module.reset();
       for (auto & process: processes)
@@ -346,7 +349,8 @@ private:
     }
 
     ResourcesPerJob & operator+=(ResourcesPerJob const& other) {
-      total += other.total;
+      total     += other.total;
+      highlight += other.highlight;
       assert(modules.size() == other.modules.size());
       for (unsigned int i: boost::irange(0ul, modules.size()))
         modules[i] += other.modules[i];
@@ -393,6 +397,7 @@ private:
     void reset();
     void book(DQMStore::IBooker &, std::string const& name, std::string const& title, double range, double resolution, unsigned int lumisections);
     void fill(Resources const&, unsigned int lumisection);
+    void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
   private:
     // resources spent in the module
@@ -454,6 +459,8 @@ private:
   private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
+    // resources spent in the highlighted modules
+    PlotsPerElement              highlight_;
     // resources spent in each module
     std::vector<PlotsPerElement> modules_;
     // resources spent in each (sub)process
@@ -511,6 +518,9 @@ private:
   const unsigned int            dqm_lumisections_range_;
   std::string                   dqm_path_;
 
+  std::vector<std::string>      highlight_module_labels_;
+  std::vector<unsigned int>     highlight_modules_;
+
   // log unsupported signals
   mutable tbb::concurrent_unordered_set<std::string> unsupported_signals_;      // keep track of unsupported signals received
 
@@ -520,6 +530,16 @@ private:
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
+
+  bool highlighted(std::string const& module) const {
+    // highlight_module_labels_ is sorted in the ctor
+    return std::binary_search(highlight_module_labels_.begin(), highlight_module_labels_.end(), module);
+  }
+
+  bool highlighted(unsigned int module) const {
+    // highlight_modules_ is sorted by contruction (see postBeginJob())
+    return std::binary_search(highlight_modules_.begin(), highlight_modules_.end(), module);
+  }
 };
 
 #endif // ! FastTimerService_h
