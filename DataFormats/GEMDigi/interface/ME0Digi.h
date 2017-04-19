@@ -28,7 +28,7 @@ public:
 
 private:
   uint16_t strip_;
-  int32_t  bx_; 
+  int16_t  bx_; 
 };
 
 std::ostream & operator<<(std::ostream & o, const ME0Digi& digi);
