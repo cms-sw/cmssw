@@ -161,11 +161,11 @@ namespace edm
 
     produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenLumiInfoHeader, edm::InLumi>();
-    produces<GenLumiInfoProduct, edm::InLumi>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenLumiInfoHeader, edm::Transtion::BeginLuminosityBlock>();
+    produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
     if(filter_)
-      produces<GenFilterInfo, edm::InLumi>(); 
+      produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>(); 
   }
 
   template <class HAD, class DEC>

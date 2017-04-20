@@ -53,7 +53,7 @@ using namespace std;
 
 
 EventCountProducer::EventCountProducer(const edm::ParameterSet& iConfig){
-  produces<edm::MergeableCounter, edm::InLumi>();
+  produces<edm::MergeableCounter, edm::Transition::EndLuminosityBlock>();
 }
 
 
