@@ -23,10 +23,9 @@ ________________________________________________________________**/
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Luminosity/interface/PCC.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 
-class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
-                                                             edm::one::WatchLuminosityBlocks> {
+class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,edm::one::WatchLuminosityBlocks>{
   public:
     explicit AlcaPCCProducer(const edm::ParameterSet&);
     ~AlcaPCCProducer();
@@ -42,7 +41,6 @@ class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProdu
 
     std::string trigstring_;      //specifies the trigger Rand or ZeroBias 
     int ftotalevents;
-    int resetNLumi_;
     int countEvt_;       //counter
     int countLumi_;      //counter
     int beginLumiOfPCC_;

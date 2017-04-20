@@ -25,7 +25,6 @@ process.alcaPCCProducer = cms.EDProducer("AlcaPCCProducer",
         WriteToDB = cms.bool(False),
         pixelClusterLabel = cms.InputTag("siPixelClustersForLumi"),
         #Mod factor to count lumi and the string to specify output 
-        resetEveryNLumi = cms.untracked.int32(100),
         trigstring = cms.untracked.string("alcaPCCRand") 
     ),
 )
