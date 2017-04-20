@@ -62,7 +62,7 @@ namespace {
   }
 }
 
-MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector & iC):
+MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC):
   doSeedPlots_(doSeedPlots),
   h_ptSIM(nullptr), h_etaSIM(nullptr), h_tracksSIM(nullptr), h_vertposSIM(nullptr), h_bunchxSIM(nullptr)
 {
@@ -190,6 +190,9 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   auto initTPselector = [&](auto& sel, auto& name) {
     sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name), iC));
   };
+  auto initTrackSelector = [&](auto& sel, auto& name) {
+    sel = makeRecoTrackSelectorFromTPSelectorParameters(pset.getParameter<ParameterSet>(name), beamSpotTag, iC);
+  };
   auto initGPselector = [&](auto& sel, auto& name) {
     sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name), iC));
   };
@@ -200,6 +203,10 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   initTPselector(TpSelectorForEfficiencyVsPt,   "TpSelectorForEfficiencyVsPt");
   initTPselector(TpSelectorForEfficiencyVsVTXR, "TpSelectorForEfficiencyVsVTXR");
   initTPselector(TpSelectorForEfficiencyVsVTXZ, "TpSelectorForEfficiencyVsVTXZ");
+
+  initTrackSelector(trackSelectorVsEta, "TpSelectorForEfficiencyVsEta");
+  initTrackSelector(trackSelectorVsPhi, "TpSelectorForEfficiencyVsPhi");
+  initTrackSelector(trackSelectorVsPt,  "TpSelectorForEfficiencyVsPt");
 
   initGPselector(generalGpSelector,             "generalGpSelector");
   initGPselector(GpSelectorForEfficiencyVsEta,  "GpSelectorForEfficiencyVsEta");
@@ -268,6 +275,35 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 }
 
 MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker() {}
+
+std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector& iC) {
+  edm::ParameterSet psetTrack;
+  psetTrack.copyForModify(pset);
+  psetTrack.eraseSimpleParameter("minHit");
+  psetTrack.eraseSimpleParameter("signalOnly");
+  psetTrack.eraseSimpleParameter("intimeOnly");
+  psetTrack.eraseSimpleParameter("chargedOnly");
+  psetTrack.eraseSimpleParameter("stableOnly");
+  psetTrack.addParameter("maxChi2", 1e10);
+  psetTrack.addParameter("minHit", 0);
+  psetTrack.addParameter("minPixelHit", 0);
+  psetTrack.addParameter("minLayer", 0);
+  psetTrack.addParameter("min3DLayer", 0);
+  psetTrack.addParameter("usePV", false);
+  psetTrack.addParameter("beamSpot", beamSpotTag);
+  psetTrack.addParameter("quality", std::vector<std::string>{});
+  psetTrack.addParameter("algorithm", std::vector<std::string>{});
+  psetTrack.addParameter("originalAlgorithm", std::vector<std::string>{});
+  psetTrack.addParameter("algorithmMaskContains", std::vector<std::string>{});
+
+  return std::make_unique<RecoTrackSelectorBase>(psetTrack, iC);
+}
+
+void MTVHistoProducerAlgoForTracker::init(const edm::Event& event, const edm::EventSetup& setup) {
+  trackSelectorVsEta->init(event, setup);
+  trackSelectorVsPhi->init(event, setup);
+  trackSelectorVsPt->init(event, setup);
+}
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   if(h_ptSIM != nullptr)
@@ -398,12 +434,14 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
 
   /// these are needed to calculate efficiency during the harvesting for the automated validation
   h_recoeta.push_back( ibook.book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
+  h_reco2eta.push_back( ibook.book1D("num_reco2_eta","N of selected reco track vs eta",nintEta,minEta,maxEta) );
   h_assoc2eta.push_back( ibook.book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
   h_loopereta.push_back( ibook.book1D("num_duplicate_eta","N of associated (recoToSim) duplicate tracks vs eta",nintEta,minEta,maxEta) );
   if(!doSeedPlots_) h_misideta.push_back( ibook.book1D("num_chargemisid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
   h_pileupeta.push_back( ibook.book1D("num_pileup_eta","N of associated (recoToSim) pileup tracks vs eta",nintEta,minEta,maxEta) );
   //
   h_recopT.push_back( ibook.book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
+  h_reco2pT.push_back( ibook.book1D("num_reco2_pT","N of selected reco track vs pT",nintPt,minPt,maxPt) );
   h_assoc2pT.push_back( ibook.book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintPt,minPt,maxPt) );
   h_looperpT.push_back( ibook.book1D("num_duplicate_pT","N of associated (recoToSim) duplicate tracks vs pT",nintPt,minPt,maxPt) );
   if(!doSeedPlots_) h_misidpT.push_back( ibook.book1D("num_chargemisid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
@@ -434,6 +472,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   h_pileup3Dlayer.push_back( ibook.book1D("num_pileup_3Dlayer","N of associated (recoToSim) pileup tracks vs 3D layer",nintLayers,minLayers,maxLayers) );
   //
   h_recopu.push_back( ibook.book1D("num_reco_pu","N of reco track vs pu",nintPu,minPu,maxPu) );
+  h_reco2pu.push_back( ibook.book1D("num_reco2_pu","N of selected reco track vs pu",nintPu,minPu,maxPu) );
   h_assoc2pu.push_back( ibook.book1D("num_assoc(recoToSim)_pu","N of associated (recoToSim) tracks vs pu",nintPu,minPu,maxPu) );
   h_looperpu.push_back( ibook.book1D("num_duplicate_pu","N of associated (recoToSim) duplicate tracks vs pu",nintPu,minPu,maxPu) );
   if(!doSeedPlots_) h_misidpu.push_back( ibook.book1D("num_chargemisid_pu","N of associated (recoToSim) charge misIDed tracks vs pu",nintPu,minPu,maxPu) );
@@ -527,7 +566,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   chi2_vs_nhits.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",nintHit,minHit,maxHit, 100,0,10, " ") );
 
   etares_vs_eta.push_back( ibook.book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
-  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","nrec vs nsim", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks) );
+  nrec_vs_nsim.push_back( ibook.book2D("nrec_vs_nsim","Number of selected reco tracks vs. number of selected sim tracks;TrackingParticles;Reco tracks", nintTracks,minTracks,maxTracks, nintTracks,minTracks,maxTracks) );
 
   chi2_vs_eta.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20, " " ));
   chi2_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20, " " ) );
@@ -535,10 +574,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   nhits_vs_eta.push_back( ibook.bookProfile("hits_eta","mean hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nPXBhits_vs_eta.push_back( ibook.bookProfile("PXBhits_vs_eta","mean # PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nPXFhits_vs_eta.push_back( ibook.bookProfile("PXFhits_vs_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nPXLhits_vs_eta.push_back( ibook.bookProfile("PXLhits_vs_eta","mean # PXL hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTIBhits_vs_eta.push_back( ibook.bookProfile("TIBhits_vs_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTIDhits_vs_eta.push_back( ibook.bookProfile("TIDhits_vs_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTOBhits_vs_eta.push_back( ibook.bookProfile("TOBhits_vs_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   nTEChits_vs_eta.push_back( ibook.bookProfile("TEChits_vs_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
+  nSTRIPhits_vs_eta.push_back( ibook.bookProfile("STRIPhits_vs_eta","mean # STRIP hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
 
   nLayersWithMeas_vs_eta.push_back( ibook.bookProfile("LayersWithMeas_eta","mean # Layers with measurement vs eta",
                                                       nintEta,minEta,maxEta,nintLayers,minLayers,maxLayers, " ") );
@@ -630,6 +671,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
     BinLogX(h_looperpT.back()->getTH1F());
     if(!doSeedPlots_) BinLogX(h_misidpT.back()->getTH1F());
     BinLogX(h_recopT.back()->getTH1F());
+    BinLogX(h_reco2pT.back()->getTH1F());
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_pileuppT.back()->getTH1F());
   }
@@ -795,6 +837,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto vertz = vertexTP.z();
 
   //efficiency vs. cut on MVA
+  //
+  // Note that this includes also pileup TPs, as "signalOnly"
+  // selection is applied only in the TpSelector*. Have to think if
+  // this is really what we want.
   if(isMatched) {
     for(size_t i=0; i<mvas.size(); ++i) {
       if(i<=selectsLoose) {
@@ -987,12 +1033,21 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     if(simPVPosition) {
       h_reco_simpvz[count]->Fill(simpvz);
     }
+    if((*trackSelectorVsEta)(track)) {
+      fillPlotNoFlow(h_reco2eta[count], eta);
+    }
+    if((*trackSelectorVsPt)(track)) {
+      fillPlotNoFlow(h_reco2pT[count], pt);
+    }
   }
   fillPlotNoFlow(h_recohit[count], nhits);
   fillPlotNoFlow(h_recolayer[count], nlayers);
   fillPlotNoFlow(h_recopixellayer[count], nPixelLayers);
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
+  if((*trackSelectorVsPhi)(track)) {
+    fillPlotNoFlow(h_reco2pu[count], numVertices);
+  }
 
   fillMVAHistos(h_reco_mva[count], h_reco_mvacut[count], h_reco_mva_hp[count], h_reco_mvacut_hp[count], mvas, selectsLoose, selectsHP);
 
@@ -1136,12 +1191,20 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     const auto eta = getEta(track.eta());
     chi2_vs_eta[count]->Fill(eta, track.normalizedChi2());
     nhits_vs_eta[count]->Fill(eta, track.numberOfValidHits());
-    nPXBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelBarrelHits());
-    nPXFhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidPixelEndcapHits());
-    nTIBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIBHits());
-    nTIDhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTIDHits());
-    nTOBhits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTOBHits());
-    nTEChits_vs_eta[count]->Fill(eta, track.hitPattern().numberOfValidStripTECHits());
+    const auto pxbHits = track.hitPattern().numberOfValidPixelBarrelHits();
+    const auto pxfHits = track.hitPattern().numberOfValidPixelEndcapHits();
+    const auto tibHits = track.hitPattern().numberOfValidStripTIBHits();
+    const auto tidHits = track.hitPattern().numberOfValidStripTIDHits();
+    const auto tobHits = track.hitPattern().numberOfValidStripTOBHits();
+    const auto tecHits = track.hitPattern().numberOfValidStripTECHits();
+    nPXBhits_vs_eta[count]->Fill(eta, pxbHits);
+    nPXFhits_vs_eta[count]->Fill(eta, pxfHits);
+    nPXLhits_vs_eta[count]->Fill(eta, pxbHits+pxfHits);
+    nTIBhits_vs_eta[count]->Fill(eta, tibHits);
+    nTIDhits_vs_eta[count]->Fill(eta, tidHits);
+    nTOBhits_vs_eta[count]->Fill(eta, tobHits);
+    nTEChits_vs_eta[count]->Fill(eta, tecHits);
+    nSTRIPhits_vs_eta[count]->Fill(eta, tibHits+tidHits+tobHits+tecHits);
     nLayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().trackerLayersWithMeasurement());
     nPXLlayersWithMeas_vs_eta[count]->Fill(eta, track.hitPattern().pixelLayersWithMeasurement());
     int LayersAll = track.hitPattern().stripLayersWithMeasurement();
@@ -1155,11 +1218,11 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
 }
 
 
-void MTVHistoProducerAlgoForTracker::fill_trackBased_histos(int count, int assTracks, int numRecoTracks, int numSimTracks){
+void MTVHistoProducerAlgoForTracker::fill_trackBased_histos(int count, int assTracks, int numRecoTracks, int numRecoTracksSelected, int numSimTracksSelected) {
 
    	h_tracks[count]->Fill(assTracks);
    	h_fakes[count]->Fill(numRecoTracks-assTracks);
-  	nrec_vs_nsim[count]->Fill(numRecoTracks,numSimTracks);
+   	nrec_vs_nsim[count]->Fill(numSimTracksSelected, numRecoTracksSelected);
 
 }
 

@@ -15,8 +15,10 @@ using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   : conf_          ( pSet )
-  , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName") )
-  , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel"))
+  , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName")  )
+  , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel") )
+  , ndof_          ( pSet.getParameter<int>        ("ndof")           )
+  , errorPrinted_  ( false )
   , nbvtx(NULL)
   , bsX(NULL)
   , bsY(NULL)
@@ -52,7 +54,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   vertexInputTag_   = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_   = consumes<reco::VertexCollection>(vertexInputTag_);
-  scoreToken_    = consumes<VertexScore>(vertexInputTag_);
+  scoreToken_    = consumes<VertexScore>           (vertexInputTag_);
   beamspotToken_ = consumes<reco::BeamSpot>        (beamSpotInputTag_);
 
 }
@@ -242,6 +244,7 @@ PrimaryVertexMonitor::~PrimaryVertexMonitor()
 
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(vertexToken_, recVtxs);
 
@@ -265,28 +268,50 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
+  // check upfront that refs to track are (likely) to be valid
+  {
+    bool ok = true;
+    for(const auto& v: *recVtxs) {
+      if(v.tracksSize() > 0) {
+	const auto& ref = v.trackRefAt(0);
+	if(ref.isNull() || !ref.isAvailable()) {
+	  if (!errorPrinted_)
+	    edm::LogWarning("PrimaryVertexMonitor")
+	      << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	  else 
+	    errorPrinted_ = true;
+	  ok = false;
+	}
+      }
+    }
+    if(!ok)
+      return;
+  }
+
   BeamSpot beamSpot = *beamSpotHandle;
 
   nbvtx->Fill(recVtxs->size()*1.);
   int ng=0;
   for (auto const & vx : (*recVtxs) )
-    if (vx.isValid() && !vx.isFake()  && vx.ndof()>=4.) ++ng;
+    if (vx.isValid() && !vx.isFake()  && vx.ndof()>=ndof_) ++ng;
   nbgvtx->Fill(ng*1.);
-
-  vertexPlots(recVtxs->front(), beamSpot, 1);
 
   if (scores.isValid() && (*scores).size()>0) {
     auto pvScore = (*scores).get(0);
     score[1]->Fill(std::sqrt(pvScore));
-    for (unsigned int i=1; i<(*scores).size(); ++i) score[0]->Fill(std::sqrt((*scores).get(i)));
+    for (unsigned int i=1; i<(*scores).size(); ++i) 
+      score[0]->Fill(std::sqrt((*scores).get(i)));
   }
 
   // fill PV tracks MEs (as now, for alignment)
-  pvTracksPlots(recVtxs->front());
+  if (recVtxs->size() > 0) {
 
-  for(reco::VertexCollection::const_iterator v=recVtxs->begin()+1; 
-      v!=recVtxs->end(); ++v){
-    vertexPlots(*v, beamSpot, 0);
+    vertexPlots  (recVtxs->front(), beamSpot, 1);
+    pvTracksPlots(recVtxs->front());
+    
+    for(reco::VertexCollection::const_iterator v=recVtxs->begin()+1; 
+	v!=recVtxs->end(); ++v)
+      vertexPlots(*v, beamSpot, 0);
   }
 
   // Beamline plots:
@@ -306,8 +331,6 @@ void
 PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
 {
 
-  const math::XYZPoint myVertex(v.position().x(),v.position().y(),v.position().z());
-
   if ( !v.isValid() ) return;
   if (  v.isFake()  ) return;
 
@@ -315,6 +338,8 @@ PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
     ntracks -> Fill ( 0 );
     return;
   }
+
+  const math::XYZPoint myVertex(v.position().x(),v.position().y(),v.position().z());
 
   size_t nTracks = 0;
   float sumPT = 0.;
@@ -336,8 +361,8 @@ PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
     float w        = v.trackWeight(*t);
     float chi2NDF  = (**t).normalizedChi2();
     float chi2Prob = TMath::Prob((**t).chi2(),(int)(**t).ndof());
-    float Dxy      = (**t).dxy(myVertex)*cmToUm;
-    float Dz       = (**t).dz(myVertex)*cmToUm;
+    float Dxy      = (**t).dxy(myVertex)*cmToUm;  // is it needed ?
+    float Dz       = (**t).dz(myVertex)*cmToUm;   // is it needed ?
     float DxyErr   = (**t).dxyError()*cmToUm;
     float DzErr    = (**t).dzError()*cmToUm;
 

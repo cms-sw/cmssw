@@ -63,7 +63,8 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalNumberingFromDDD: point = " << point
 	    << " det " << det << ":" << hsubdet << " eta/R " 
-	    << etaR << " phi " << hphi << std::endl;
+	    << etaR << " phi " << hphi << " depth " << depth
+	    << " layer " << lay << std::endl;
 #endif
   return unitID(hsubdet,etaR,hphi,depth,lay);
 }
@@ -107,13 +108,13 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 							  int lay) const {
 
 
-  std::pair<int,int> etaDepth = hcalConstants->getEtaDepth(det, etaR, phi, zside, depth, lay);
-  if (det == static_cast<int>(HcalBarrel) && lay > 17) {
+  if (det == static_cast<int>(HcalBarrel) && lay > 17)
     det = static_cast<int>(HcalOuter);
-  }
 
-  int units     = hcalConstants->unitPhi(det, etaDepth.first);
+  int units     = hcalConstants->unitPhi(det, etaR);
   int iphi_skip = hcalConstants->phiNumber(phi, units);
+
+  std::pair<int,int> etaDepth = hcalConstants->getEtaDepth(det, etaR, iphi_skip, zside, depth, lay);
 
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalNumberingFromDDD: phi units= " << units  

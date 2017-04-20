@@ -5,6 +5,11 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
+
+# The following import is provided for backward compatibility reasons.
+# The function used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+
 import sys
 import re
 import collections
@@ -169,10 +174,6 @@ def filesFromDASQuery(query,option="",s=None):
 	if len(sec)!=0:
 		print "found parent files:",sec
 	return (prim,sec)
-
-def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
-    from PhysicsTools.PatAlgos.tools.helpers import massReplaceInputTag
-    massReplaceInputTag(aProcess, oldT, newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
@@ -939,6 +940,8 @@ class ConfigBuilder(object):
 
 	if "DIGIPREMIX" in self.stepMap.keys():
             self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+            self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawPreMixing_cff"
+            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'

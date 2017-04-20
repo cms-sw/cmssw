@@ -372,6 +372,10 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
 
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
+  // Since this accesses the data, the operation must be
+  // be locked.
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
   std::set<MonitorElement>::const_iterator e = data_.end();
   std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
   while (i != e) {
@@ -391,9 +395,6 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
     MonitorElement global_me(*i, MonitorElementNoCloneTag());
     global_me.globalize();
 
-    // Since this accesses the data, the operation must be
-    // be locked.
-    std::lock_guard<std::mutex> guard(book_mutex_);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
       if (verbose_ > 1)
@@ -441,6 +442,11 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
               << " module: " << moduleId << std::endl;
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
+
+  // Since this accesses the data, the operation must be
+  // be locked.
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
   std::set<MonitorElement>::const_iterator e = data_.end();
   std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
 
@@ -459,9 +465,6 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     MonitorElement global_me(*i, MonitorElementNoCloneTag());
     global_me.globalize();
     global_me.setLumi(lumi);
-    // Since this accesses the data, the operation must be
-    // be locked.
-    std::lock_guard<std::mutex> guard(book_mutex_);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
       if (verbose_ > 1)

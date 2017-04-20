@@ -11,6 +11,7 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
+#include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 
 class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
  public:
@@ -67,6 +68,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   CosmicTrackingParticleSelector cosmictpSelector;
   TrackingParticleSelector dRtpSelector;				      
   TrackingParticleSelector dRtpSelectorNoPtCut;
+  std::unique_ptr<RecoTrackSelectorBase> dRTrackSelector;
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
   edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;

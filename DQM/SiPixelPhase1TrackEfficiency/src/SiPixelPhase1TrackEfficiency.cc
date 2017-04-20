@@ -49,6 +49,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   // get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
+  if (!tracks.isValid()) return;
 
   for (auto const & track : *tracks) {
 
@@ -59,7 +60,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
     auto const & trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for(unsigned int h=0;h<track.recHitsSize();h++){
-       auto hit = *(hb+h);
+      
+      auto hit = *(hb+h);
       if(!hit->isValid()) continue;
 
       DetId id = hit->geographicalId();
@@ -103,7 +105,6 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       MeasurementPoint mp = topol.measurementPosition(lp);
       int row = (int) mp.x();
       int col = (int) mp.y();
-
 
       if (isHitValid)   {
         histo[VALID].fill(id, &iEvent, col, row);
