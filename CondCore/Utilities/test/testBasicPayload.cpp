@@ -29,9 +29,13 @@ int run( const std::string& connectionString ){
       editor.setDescription("Test for timestamp selection");
     }
     for( int i=0;i<10;i++ ){
-      cond::BasicPayload  p( i*10.1, i+1. );
+      cond::BasicPayload  p( i*10.1, i+1.,100 );
+      for( size_t j=0;j<100;j++ ) p.m_vec[j]= 1;
+      for( size_t j=3;j<7;j++ )
+	for( size_t i=3;i<7;i++) p.m_vec[j*10+i]= 0;
       auto pid = session.storePayload( p );
       editor.insert( i*100+1, pid );
+      p.print();
     }
     editor.flush();
     std::cout <<"> iov changes flushed..."<<std::endl;

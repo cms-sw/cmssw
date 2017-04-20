@@ -93,7 +93,14 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXB,
 		 false,
 		 BIG_PIX_PER_ROC_X,
-		 BIG_PIX_PER_ROC_Y); 
+		 BIG_PIX_PER_ROC_Y);
+    // Phase2 case
+        if(gdsubdetmap[i] == GeometricDet::PixelPhase2Barrel) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2PXB,
+		 true,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y);
+	//
     if(gdsubdetmap[i] == GeometricDet::PixelEndCap)
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
 		 false,

@@ -60,6 +60,9 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 #include <fstream>
@@ -195,6 +198,15 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
+  //Retrieve the thresolds cuts from DB for the PCL
+  if (runAtPCL_) {
+    edm::ESHandle<AlignPCLThresholds> thresholdHandle;
+    setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
+    auto th = thresholdHandle.product();    
+    theThresholds = std::make_shared<AlignPCLThresholds>();
+    storeThresholds(th->getNrecords(),th->getThreshold_Map());
+  } 
+
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
@@ -313,6 +325,13 @@ bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCa
   return true;
 }
 
+//____________________________________________________
+bool MillePedeAlignmentAlgorithm::storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap)
+{
+  theThresholds->setAlignPCLThresholds(nRecords,thresholdMap);
+  return true;
+}
+
 //_____________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::processesEvents()
 {
@@ -328,8 +347,11 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
 {
   if (isMode(myPedeRunBit)) {
     if (runAtPCL_) {
+
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
-                                   thePedeLabels);
+				   thePedeLabels,
+				   theThresholds
+				   );
       mpReader.read();
       return mpReader.storeAlignments();
     } else {

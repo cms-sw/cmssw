@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <numeric>
-//#include <iostream>
 
 using namespace std;
 using namespace edm;
@@ -42,7 +41,6 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   beamSpotLabel_      	(parameters_.getUntrackedParameter<InputTag>("BeamSpotLabel")),
   numberOfValuesToSave_ (0)
 {
-  dbe_ = Service<DQMStore>().operator->();
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
@@ -116,21 +114,21 @@ AlcaBeamMonitor::~AlcaBeamMonitor() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::beginJob() {
+void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & iSetup) {
   string name;
   string title;
-  dbe_->setCurrentFolder(monitorName_+"Debug");
+  ibooker.setCurrentFolder(monitorName_+"Debug");
   for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); itM++){
     for(map<string,MonitorElement*>::iterator itMM=itM->second["run"].begin(); itMM!=itM->second["run"].end(); itMM++){
       name = string("h") + itM->first + itMM->first;
       title = itM->first + "_{0} " + itMM->first;
       if(itM->first == "x" || itM->first == "y"){
         if(itMM->first == "Coordinate"){
-          itMM->second = dbe_->book1D(name,title,1001,-0.2525,0.2525);
+          itMM->second = ibooker.book1D(name,title,1001,-0.2525,0.2525);
 	}
 	else if(itMM->first == "PrimaryVertex fit-DataBase" || itMM->first == "PrimaryVertex fit-BeamFit" || itMM->first == "PrimaryVertex fit-Scalers"
 	     || itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
-          itMM->second = dbe_->book1D(name,title,1001,-0.02525,0.02525);
+          itMM->second = ibooker.book1D(name,title,1001,-0.02525,0.02525);
 	}
 	else{
 	  //assert(0);
@@ -138,13 +136,13 @@ void AlcaBeamMonitor::beginJob() {
       }
       else if(itM->first == "z"){
         if(itMM->first == "Coordinate"){
-          itMM->second = dbe_->book1D(name,title,101,-5.05,5.05);
+          itMM->second = ibooker.book1D(name,title,101,-5.05,5.05);
 	}
 	else if(itMM->first == "PrimaryVertex fit-DataBase" || itMM->first == "PrimaryVertex fit-BeamFit" || itMM->first == "PrimaryVertex fit-Scalers"){
-          itMM->second = dbe_->book1D(name,title,101,-0.505,0.505);
+          itMM->second = ibooker.book1D(name,title,101,-0.505,0.505);
 	}
 	else if(itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
-          itMM->second = dbe_->book1D(name,title,1001,-5.005,5.005);
+          itMM->second = ibooker.book1D(name,title,1001,-5.005,5.005);
 	}
 	else{
 	  //assert(0);
@@ -152,7 +150,7 @@ void AlcaBeamMonitor::beginJob() {
       }
       else if(itM->first == "sigmaX" || itM->first == "sigmaY"){
         if(itMM->first == "Coordinate"){
-          itMM->second = dbe_->book1D(name,title,100,0,0.015);
+          itMM->second = ibooker.book1D(name,title,100,0,0.015);
 	}
 	else if(itMM->first == "PrimaryVertex fit-DataBase" || itMM->first == "PrimaryVertex fit-BeamFit" || itMM->first == "PrimaryVertex fit-Scalers"
 	     || itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
@@ -164,11 +162,11 @@ void AlcaBeamMonitor::beginJob() {
       }
       else if(itM->first == "sigmaZ"){
         if(itMM->first == "Coordinate"){
-          itMM->second = dbe_->book1D(name,title,110,0,11);
+          itMM->second = ibooker.book1D(name,title,110,0,11);
 	}
 	else if(itMM->first == "PrimaryVertex fit-DataBase" || itMM->first == "PrimaryVertex fit-BeamFit" || itMM->first == "PrimaryVertex fit-Scalers"
 	     || itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
-          itMM->second = dbe_->book1D(name,title,101,-5.05,5.05);
+          itMM->second = ibooker.book1D(name,title,101,-5.05,5.05);
 	}
 	else{
 	  //assert(0);
@@ -189,23 +187,19 @@ void AlcaBeamMonitor::beginJob() {
       }		
     }
   }
-  dbe_->setCurrentFolder(monitorName_+"Service");
-  theValuesContainer_ = dbe_->bookProfile("hHistoLumiValues","Histo Lumi Values", 3*numberOfValuesToSave_, 0., 3*numberOfValuesToSave_, 100., -100., 9000., " ");
+  ibooker.setCurrentFolder(monitorName_+"Service");
+  theValuesContainer_ = ibooker.bookProfile("hHistoLumiValues","Histo Lumi Values", 3*numberOfValuesToSave_, 0., 3*numberOfValuesToSave_, 100., -100., 9000., " ");
   theValuesContainer_->setLumiFlag();
 
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"Validation");
+  ibooker.setCurrentFolder(monitorName_+"Validation");
   //Book histograms
-  hD0Phi0_ = dbe_->bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.5,0.5,"");
+  hD0Phi0_ = ibooker.bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.5,0.5,"");
   hD0Phi0_->setAxisTitle("#phi_{0} (rad)",1);
   hD0Phi0_->setAxisTitle("d_{0} (cm)",2);
 
-  dbe_->setCurrentFolder(monitorName_+"Debug");
-  hDxyBS_ = dbe_->book1D("hDxyBS","dxy_{0} w.r.t. Beam spot (All Tracks)",100,-0.1,0.1);
+  ibooker.setCurrentFolder(monitorName_+"Debug");
+  hDxyBS_ = ibooker.book1D("hDxyBS","dxy_{0} w.r.t. Beam spot (All Tracks)",100,-0.1,0.1);
   hDxyBS_->setAxisTitle("dxy_{0} w.r.t. Beam spot (cm)",1);
 }
 
@@ -556,18 +550,4 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
   }
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::endRun(const Run& iRun, const EventSetup& context){
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::endJob(const LuminosityBlock& iLumi, const EventSetup& iSetup){
-}
-
-
 DEFINE_FWK_MODULE(AlcaBeamMonitor);
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

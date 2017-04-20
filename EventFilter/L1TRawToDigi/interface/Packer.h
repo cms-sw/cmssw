@@ -14,6 +14,7 @@ namespace l1t {
    class Packer {
       public:
          virtual Blocks pack(const edm::Event&, const PackerTokens*) = 0;
+         virtual ~Packer() = default;
    };
 
    typedef std::vector<std::shared_ptr<Packer>> Packers;

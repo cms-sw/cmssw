@@ -7,7 +7,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 template<typename Object, bool any=false>
 class  StringCutEventSelector : public EventSelector {
