@@ -73,20 +73,21 @@ process.source = cms.Source("EmptySource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 ### To get default APEs from GT
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+from CondCore.CondDB.CondDB_cfi import *
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
-process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-  connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-  toGet = [
-	cms.PSet(
-	  record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-	  tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
-	),
-  ],
+process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
+	connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+	timetype = cms.string("runnumber"),
+	toGet = cms.VPSet(
+		cms.PSet(
+			record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+			tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
+		)
+	)
 )
 process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
 
