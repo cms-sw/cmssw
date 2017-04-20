@@ -77,9 +77,6 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_energy_.emplace_back(cl3d_itr->energy());
     cl3d_eta_.emplace_back(cl3d_itr->eta());
     cl3d_phi_.emplace_back(cl3d_itr->phi());
-
-    /* loop over the trigger cells pertinent to a cluster */    
-    const edm::PtrVector<l1t::HGCalCluster> pertinentClu = cl3d_itr->clusters();
     cl3d_nclu_.emplace_back(cl3d_itr->clusters().size());
   }
 }

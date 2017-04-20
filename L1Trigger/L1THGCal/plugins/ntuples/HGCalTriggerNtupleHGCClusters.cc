@@ -80,9 +80,6 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl_eta_.emplace_back(cl_itr->eta());
     cl_phi_.emplace_back(cl_itr->phi());
     cl_layer_.emplace_back(cl_itr->layer());
-
-    /* loop over the trigger cells pertinent to a cluster */
-    const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC = cl_itr->triggercells();
     cl_ncells_.emplace_back(cl_itr->triggercells().size());
   }
 }
