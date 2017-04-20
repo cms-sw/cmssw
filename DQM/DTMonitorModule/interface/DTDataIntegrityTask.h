@@ -13,7 +13,6 @@
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -38,7 +37,7 @@ class DTROS25Data;
 class DTDDUData;
 class DTTimeEvolutionHisto;
 
-class DTDataIntegrityTask: public thread_unsafe::DQMEDAnalyzer {
+class DTDataIntegrityTask: public DQMEDAnalyzer {
 
 public:
 

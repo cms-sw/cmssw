@@ -11,7 +11,6 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("Trigger
 
 from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 
-
 # Ingredient: offlineBeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 

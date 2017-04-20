@@ -21,13 +21,25 @@
 SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig)
 {
-  srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("src"));
+  pixelSrcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelSrc"));
+
+  stripSrcToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("stripSrc"));
 }
 
 void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> input;
-  iEvent.getByToken(srcToken_, input);
-  if (!input.isValid()) return;
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputPixel;
+  iEvent.getByToken(pixelSrcToken_, inputPixel);
+  if (!inputPixel.isValid()) return;
+
+  edm::Handle<edmNew::DetSetVector<SiStripCluster>> inputStrip;
+  iEvent.getByToken(stripSrcToken_, inputStrip);
+  if (inputStrip.isValid())
+  {
+    if (inputStrip.product()->data().size())
+    {
+      histo[PIXEL_TO_STRIP_RATIO].fill((double)inputPixel.product()->data().size() / (double) inputStrip.product()->data().size(), DetId(0), &iEvent);
+    }
+  } 
 
   bool hasClusters=false;
 
@@ -36,7 +48,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   assert(tracker.isValid());
 
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
-  for (it = input->begin(); it != input->end(); ++it) {
+  for (it = inputPixel->begin(); it != inputPixel->end(); ++it) {
     auto id = DetId(it->detId());
 
     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );

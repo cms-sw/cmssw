@@ -19,9 +19,9 @@ namespace evf{
 						   
       explicit ExceptionGenerator( const edm::ParameterSet&);
       ~ExceptionGenerator(){};
-      void beginRun(edm::Run& r, const edm::EventSetup& iSetup);
-      void analyze(const edm::Event & e, const edm::EventSetup& c);
-      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
+      void analyze(const edm::Event & e, const edm::EventSetup& c) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     private:
       int actionId_;

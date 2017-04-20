@@ -273,17 +273,17 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
     if tightBTagNTkHits:
         if not runIVF:
-            print "-------------------------------------------------------------------"
-            print " Warning: For a complete switch to the legacy tight b-tag track"
-            print "          selection, please also enable the \'runIVF\' switch."
-            print "-------------------------------------------------------------------"
+            sys.stderr.write("-------------------------------------------------------------------\n")
+            sys.stderr.write(" Warning: For a complete switch to the legacy tight b-tag track\n")
+            sys.stderr.write("          selection, please also enable the \'runIVF\' switch.\n")
+            sys.stderr.write("-------------------------------------------------------------------\n")
         if btagPrefix == '':
-            print "-------------------------------------------------------------------"
-            print " Warning: With the tight b-tag track selection enabled, it is"
-            print "          advisable to set \'btagPrefix\' to a non-empty string to"
-            print "          avoid unintentional modifications to the default"
-            print "          b tagging setup that might be loaded in the same job."
-            print "-------------------------------------------------------------------"
+            sys.stderr.write("-------------------------------------------------------------------\n")
+            sys.stderr.write(" Warning: With the tight b-tag track selection enabled, it is\n")
+            sys.stderr.write("          advisable to set \'btagPrefix\' to a non-empty string to\n")
+            sys.stderr.write("          avoid unintentional modifications to the default\n")
+            sys.stderr.write("          b tagging setup that might be loaded in the same job.\n")
+            sys.stderr.write("-------------------------------------------------------------------\n")
 
     ## define c tagging CvsL SV source (for now tied to the default SV source
     ## in the first part of the module label, product instance label and process name)
@@ -297,10 +297,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
         runIVFforCTagOnly = True
         runIVF = True
-        print "-------------------------------------------------------------------"
-        print " Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary"
-        print "       vertices will be remade."
-        print "-------------------------------------------------------------------"
+        sys.stderr.write("-------------------------------------------------------------------\n")
+        sys.stderr.write(" Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary\n")
+        sys.stderr.write("       vertices will be remade.\n")
+        sys.stderr.write("-------------------------------------------------------------------\n")
     ## adjust svSources
     if runIVF and btagPrefix != '':
         if runIVFforCTagOnly:
@@ -1494,11 +1494,11 @@ class UpdateJetCollection(ConfigToolBase):
 
         ## run btagging if required by user
         if (bTagging):
-            print "**************************************************************"
-            print "b tagging needs to be run on uncorrected jets. Hence, the JECs"
-            print "will first be undone for 'updatedPatJets%s' and then applied to"%(_labelName+postfix)
-            print "'updatedPatJetsTransientCorrected%s'."%(_labelName+postfix)
-            print "**************************************************************"
+            sys.stderr.write("**************************************************************\n")
+            sys.stderr.write("b tagging needs to be run on uncorrected jets. Hence, the JECs\n")
+            sys.stderr.write("will first be undone for 'updatedPatJets%s' and then applied to\n" % (_labelName+postfix) )
+            sys.stderr.write("'updatedPatJetsTransientCorrected%s'.\n" % (_labelName+postfix) )
+            sys.stderr.write("**************************************************************\n")
             _jetSource = cms.InputTag('updatedPatJets'+_labelName+postfix)
             ## insert new jet collection with jet corrections applied and btag info added
             self(
@@ -1542,11 +1542,11 @@ class UpdateJetCollection(ConfigToolBase):
             checkJetCorrectionsFormat(jetCorrections)
             ## reset MET corrrection
             if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
-                print "-------------------------------------------------------------------"
-                print " Warning: MET correction was set to " + jetCorrections[2] + " but"
-                print "          will be ignored. Please set it to \"None\" to avoid"
-                print "          getting this warning."
-                print "-------------------------------------------------------------------"
+                sys.stderr.write("-------------------------------------------------------------------\n")
+                sys.stderr.write(" Warning: MET correction was set to " + jetCorrections[2] + " but\n")
+                sys.stderr.write("          will be ignored. Please set it to \"None\" to avoid\n")
+                sys.stderr.write("          getting this warning.\n")
+                sys.stderr.write("-------------------------------------------------------------------\n")
                 jetCorrectionsList = list(jetCorrections)
                 jetCorrectionsList[2] = 'None'
                 jetCorrections = tuple(jetCorrectionsList)
@@ -1594,7 +1594,7 @@ class AddJetID(ConfigToolBase):
         jetIdTag=self._parameters['jetIdTag'].value
 
         jetIdLabel = jetIdTag + 'JetID'
-        print "Making new jet ID label with label " + jetIdTag
+        sys.stderr.write("Making new jet ID label with label " + jetIdTag + "\n")
 
         ## replace jet id sequence
         task = getPatAlgosToolsTask(process)
@@ -1657,44 +1657,44 @@ class SetTagInfos(ConfigToolBase):
 setTagInfos=SetTagInfos()
 
 def deprecatedOptionOutputModule(obj):
-    print "-------------------------------------------------------"
-    print " Error: the option 'outputModule' is not supported"
-    print "        anymore by:"
-    print "                   ", obj._label
-    print "        please use 'outputModules' now and specify the"
-    print "        names of all needed OutModules in there"
-    print "        (default: ['out'])"
-    print "-------------------------------------------------------"
+    sys.stderr.write("-------------------------------------------------------\n")
+    sys.stderr.write(" Error: the option 'outputModule' is not supported\n")
+    sys.stderr.write("        anymore by:\n")
+    sys.stderr.write("                     " + obj._label + "\n")
+    sys.stderr.write("        please use 'outputModules' now and specify the\n")
+    sys.stderr.write("        names of all needed OutModules in there\n")
+    sys.stderr.write("        (default: ['out'])\n")
+    sys.stderr.write("-------------------------------------------------------\n")
     raise KeyError("Unsupported option 'outputModule' used in '"+obj._label+"'")
 
 def undefinedLabelName(obj):
-    print "-------------------------------------------------------"
-    print " Error: the jet 'labelName' is not defined."
-    print "        All added jets must have 'labelName' defined."
-    print "-------------------------------------------------------"
+    sys.stderr.write("-------------------------------------------------------\n")
+    sys.stderr.write(" Error: the jet 'labelName' is not defined.\n")
+    sys.stderr.write("        All added jets must have 'labelName' defined.\n")
+    sys.stderr.write("-------------------------------------------------------\n")
     raise KeyError("Undefined jet 'labelName' used in '"+obj._label+"'")
 
 def unsupportedJetAlgorithm(obj):
-    print "-------------------------------------------------------"
-    print " Error: Unsupported jet algorithm detected."
-    print "        The supported algorithms are:"
+    sys.stderr.write("-------------------------------------------------------\n")
+    sys.stderr.write(" Error: Unsupported jet algorithm detected.\n")
+    sys.stderr.write("        The supported algorithms are:\n")
     for key in supportedJetAlgos.keys():
-        print "        " + key.upper() + ", " + key.lower() + ": " + supportedJetAlgos[key]
-    print "-------------------------------------------------------"
+        sys.stderr.write("        " + key.upper() + ", " + key.lower() + ": " + supportedJetAlgos[key] + "\n")
+    sys.stderr.write("-------------------------------------------------------\n")
     raise KeyError("Unsupported jet algorithm used in '"+obj._label+"'")
 
 def rerunningIVF():
-    print "-------------------------------------------------------------------"
-    print " Warning: You are attempting to remake the IVF secondary vertices"
-    print "          already produced by the standard reconstruction. This"
-    print "          option is not enabled by default so please use it only if"
-    print "          you know what you are doing."
-    print "-------------------------------------------------------------------"
+    sys.stderr.write("-------------------------------------------------------------------\n")
+    sys.stderr.write(" Warning: You are attempting to remake the IVF secondary vertices\n")
+    sys.stderr.write("          already produced by the standard reconstruction. This\n")
+    sys.stderr.write("          option is not enabled by default so please use it only if\n")
+    sys.stderr.write("          you know what you are doing.\n")
+    sys.stderr.write("-------------------------------------------------------------------\n")
 
 def rerunningIVFMiniAOD():
-    print "-------------------------------------------------------------------"
-    print " Warning: You are attempting to remake IVF secondary vertices from"
-    print "          MiniAOD. If that was your intention, note that secondary"
-    print "          vertices remade from MiniAOD will have somewhat degraded"
-    print "          performance compared to those remade from RECO/AOD."
-    print "-------------------------------------------------------------------"
+    sys.stderr.write("-------------------------------------------------------------------\n")
+    sys.stderr.write(" Warning: You are attempting to remake IVF secondary vertices from\n")
+    sys.stderr.write("          MiniAOD. If that was your intention, note that secondary\n")
+    sys.stderr.write("          vertices remade from MiniAOD will have somewhat degraded\n")
+    sys.stderr.write("          performance compared to those remade from RECO/AOD.\n")
+    sys.stderr.write("-------------------------------------------------------------------\n")

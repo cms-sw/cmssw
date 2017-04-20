@@ -12,7 +12,7 @@ std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
       "InnerService", "TOB",
       "TEC", "TkStrct", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
-      "Phase1PixelBarrel", "Phase2OTBarrel",
+      "Phase2PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap",
       "BeamPipe",
       "Tracker", "TrackerSum",
@@ -21,7 +21,7 @@ std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
 
 void setTDRStyle() {
 
-  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR"); 
 
 // For the canvas:
   tdrStyle->SetCanvasBorderMode(0);
@@ -224,8 +224,8 @@ void MaterialBudget_Simul_vs_Reco(const char * reco_file, const char * label="")
 }
 
 void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulative_matbdg) {
-  std::vector<std::string> sDETS = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
-  std::vector<unsigned int> sLAYS = {3, 2, 4, 3, 6, 9};
+  std::vector<std::string> sDETS = {"Phase2PixelBarrel", "Phase22OTBarrel", "Phase2PixelEndcap", "Phase2OTForward" };
+  std::vector<unsigned int> sLAYS = {4, 6, 11, 5};
   std::vector<std::string> sPREF = {"Original_RadLen_vs_Eta_", "RadLen_vs_Eta_"};
   std::vector<int> sCOLORS = {kRed, kBlue, kGreen, kYellow, kOrange, kPink};
   std::vector<TProfile*> profs;
@@ -304,7 +304,7 @@ void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulat
 
 void createPlots(TString plot, TH1D ** cumulative_matbdg){
   std::cout << "Sim at entrance: " << *cumulative_matbdg << std::endl;
-  std::vector<const char *> IBs{"TIB", "TIDF", "TIDB", "InnerServices", "Phase1PixelBarrel"};
+  std::vector<const char *> IBs{"TIB", "TIDF", "TIDB", "InnerServices", "Phase2PixelBarrel"};
 
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
@@ -441,7 +441,7 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
 
   setColorIfExists(hist_x0_detectors, "BeamPipe", kpipe); // Beam Pipe	 = dark gray
   setColorIfExists(hist_x0_detectors, "Pixel", kpixel);   // Pixel 	 = dark blue
-  setColorIfExists(hist_x0_detectors, "Phase1PixelBarrel", kpixel);
+   setColorIfExists(hist_x0_detectors, "Phase2PixelBarrel", kpixel);
   setColorIfExists(hist_x0_detectors, "Phase2OTBarrel", ktib);
   setColorIfExists(hist_x0_detectors, "Phase2OTForward", ktec);
   setColorIfExists(hist_x0_detectors, "Phase2PixelEndcap", ktib);

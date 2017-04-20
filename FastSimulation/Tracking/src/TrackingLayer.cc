@@ -1,4 +1,5 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 const TrackingLayer::eqfct TrackingLayer::_eqfct;
 
