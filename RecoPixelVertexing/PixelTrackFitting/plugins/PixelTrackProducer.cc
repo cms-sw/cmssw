@@ -98,7 +98,7 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     reco::TrackExtra::Chi2sFive chi2s;
     for (unsigned int i = 0; i < nHits; ++i){
 	chi2s.push_back(0);
-        trajParams.push_back(LocalTrajectoryParameters(v,1.));
+	trajParams.push_back(LocalTrajectoryParameters(v,1.));
     }
     theTrackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
     trackExtras->push_back(theTrackExtra);
