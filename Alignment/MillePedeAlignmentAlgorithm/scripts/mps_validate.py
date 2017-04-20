@@ -31,7 +31,7 @@ def main():
         "-j", "--job", help="chose jobmX directory (default: ini-file)", default=-1, type=int)
     parser.add_argument(
         "-t", "--time", help="chose MillePedeUser_X Tree (default: ini-file)", default=-1, type=int)
-    parser.add_argument("-i", "--ini", help="specify a ini file", default="-1")
+    parser.add_argument("-i", "--ini", help="specify a ini file")
     parser.add_argument("-m", "--message",
                         help="identification on every plot", default="")
     parser.add_argument("-p", "--jobdatapath",
@@ -48,7 +48,7 @@ def main():
     config = mpsv.iniparser.ConfigData()
     
     # create logging handler
-    if(args.logging):
+    if args.logging:
         handler = logging.FileHandler("validation.log", mode="w")
         handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter("%(levelname)s %(asctime)s (%(pathname)s line %(lineno)d): %(message)s",
@@ -61,14 +61,14 @@ def main():
     config.parseConfig(os.path.join(config.mpspath, "default.ini"))
     
     # copy of ini file in current directory
-    if (args.copy):
+    if args.copy:
         logger.info("create copy of validation_user.ini in current directory")
         shutil.copy2(os.path.join(config.mpspath, "default.ini"), "validation_user.ini")
         sys.exit()
         
 
     # parse user ini file
-    if (args.ini != "-1"):
+    if args.ini != None:
         logger.info("start to parse the user ini: {0}".format(args.ini))
         config.parseConfig(args.ini)
 
@@ -104,7 +104,7 @@ def main():
     # draw the plots of the millePedeMonitor_merge.root file
     #
 
-    if (config.showmonitor == 1):
+    if config.showmonitor:
         try:
             logger.info("start to collect the plots of the millePedeMonitor_merge.root file")
             mpsv.monitorPlot.plot(config)
@@ -116,7 +116,7 @@ def main():
     # parse the alignment_merge.py file
     #
 
-    if (config.showadditional == 1):
+    if config.showadditional:
         logger.info("start to parse the alignment_merge.py file")
         try:
             additionalData = mpsv.additionalparser.AdditionalData()
@@ -130,7 +130,7 @@ def main():
     # parse the file pede.dump.gz and return a PedeDumpData Object
     #
 
-    if (config.showdump == 1):
+    if config.showdump:
         try:
             logger.info("start to parse the pede.dump.gz file")
             pedeDump = mpsv.dumpparser.parse(
@@ -143,7 +143,7 @@ def main():
     # time dependend big structures
     #
 
-    if (config.showtime == 1):
+    if config.showtime:
         try:
             logger.info("create the time dependent plots")
             mpsv.timeStructure.plot(treeFile, alignables, config)
@@ -155,7 +155,7 @@ def main():
     # big structures
     #
 
-    if (config.showhighlevel == 1):
+    if config.showhighlevel:
         try:
             logger.info("create the high level plots")
             mpsv.bigStructure.plot(MillePedeUser, alignables, config)
@@ -168,7 +168,7 @@ def main():
     # and part of structure
     #
 
-    if (config.showmodule == 1):
+    if config.showmodule:
         try:
             logger.info("create the module plots")
             mpsv.bigModule.plot(MillePedeUser, alignables, config)
@@ -180,7 +180,7 @@ def main():
     # create TEX, beamer
     #
 
-    if (config.showtex == 1):
+    if config.showtex:
         try:
             logger.info("create the latex file")
             mpsv.pdfCreator.create(alignables, pedeDump, additionalData,
@@ -189,7 +189,7 @@ def main():
             logging.error("latex creation failure - {0} {1}".format(type(e), e))
             raise
         
-    if (config.showbeamer == 1):
+    if config.showbeamer:
         try:
             logger.info("create the latex beamer file")
             mpsv.beamerCreator.create(alignables, pedeDump, additionalData,
@@ -205,7 +205,7 @@ def main():
         logger.info("Remove temporary latex files: "+pattern)
         map(os.remove, glob.glob(pattern))
         
-    if (config.showhtml == 1):
+    if config.showhtml:
         try:
             logger.info("create the HTML file")
             mpsv.htmlCreator.create(alignables, pedeDump, additionalData,
