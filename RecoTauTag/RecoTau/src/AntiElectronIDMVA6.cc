@@ -612,10 +612,9 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
   if ( !usePhiAtEcalEntranceExtrapolation ){
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	  pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-      sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
-      sumEnergyPhi += (*pfCandidate)->energy();
+    for (auto const& pfc : signalPFCands){
+      sumPhiTimesEnergy += pfc->positionAtECALEntrance().phi()*pfc->energy();
+      sumEnergyPhi += pfc->energy();
     }
   }
   else{
@@ -624,7 +623,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
       reco::Candidate const*  signalCand = signalPFCands[o].get();
       float phi = thePFTau.phi();
       math::XYZPoint aPos; 
-      if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
+      if ( atECalEntrance(signalCand, aPos) ) phi = aPos.Phi();
       sumPhiTimesEnergy += phi*signalCand->energy();     
       sumEnergy += signalCand->energy();
     }
@@ -837,7 +836,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   else{
     TauPhi= -99.;
     for (unsigned int o = 0; o < signalPFCands.size(); o++ ) {
-      reco::Candidate const*  signalCand = dynamic_cast<reco::Candidate const*> (signalPFCands[o].get());
+      reco::Candidate const*  signalCand = signalPFCands[o].get();
       float phi = thePFTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -1170,7 +1169,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEnt
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
     for (unsigned int o = 0; o < signalCands.size(); o++ ) {
-      reco::Candidate const* signalCand = dynamic_cast<reco::Candidate const*> (signalCands[o].get());
+      reco::Candidate const* signalCand = signalCands[o].get();
       float phi = theTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
