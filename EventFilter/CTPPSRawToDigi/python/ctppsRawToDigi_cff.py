@@ -5,6 +5,7 @@ from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRaw
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
+
 # ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
@@ -47,6 +48,7 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 #  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
 
+
 # ---------- diamonds ----------
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
@@ -70,8 +72,11 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+ctppsDiamondRawToDigi.RawToDigi.testCRC = 0 # no need to test CRC for diamonds
 
-# pixels
+
+
+# ---------- pixels ----------
 ctppsPixelDAQMappingESSourceXML = cms.ESSource("CTPPSPixelDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem= cms.untracked.string("RPix"),
