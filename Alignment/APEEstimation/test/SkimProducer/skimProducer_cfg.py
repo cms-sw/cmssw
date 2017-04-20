@@ -118,7 +118,7 @@ if isZmumu20: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_
 if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
 
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
@@ -153,12 +153,16 @@ if options.useTrackList:
     process.MuSkim.src = 'TrackList'
     process.TriggerSelectionSequence *= process.TrackList
 
+import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+#~ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonIsolated')
+process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlZMuMu')
 
 ##
 ## Path
 ##
 process.path = cms.Path(
     process.offlineBeamSpot*
+    process.seqTrackselRefit*
     process.MuSkim
 )
 
