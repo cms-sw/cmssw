@@ -27,6 +27,11 @@ const bool clock_gettime_monotonic_raw::is_available = true;
 #endif // HAVE_POSIX_CLOCK_MONOTONIC_RAW
 
 
+#ifdef HAVE_POSIX_CLOCK_BOOTTIME
+const bool clock_gettime_boottime::is_available = true;
+#endif // HAVE_POSIX_CLOCK_BOOTTIME
+
+
 #ifdef HAVE_POSIX_CLOCK_PROCESS_CPUTIME_ID
 const bool clock_gettime_process_cputime::is_available = (sysconf(_SC_CPUTIME) > 0);
 #endif // HAVE_POSIX_CLOCK_PROCESS_CPUTIME_ID
