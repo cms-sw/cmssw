@@ -27,7 +27,7 @@
     <Vector name="Layers" type="numeric" nEntries="1"> 
        8</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="1"> 
-      70.5*mm
+      71.5*mm
     </Vector>
     <Vector name="LayerType" type="numeric" nEntries="8"> 
       0, 7, 3, 2, 5, 5, 5, 4
