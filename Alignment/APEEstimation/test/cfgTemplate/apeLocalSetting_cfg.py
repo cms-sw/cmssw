@@ -45,9 +45,8 @@ process = cms.Process("APE")
 #;;;;;;;;;;;;;;;new line;;;;;;;;;;;;;;;
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
