@@ -9,31 +9,31 @@
 
 namespace l1t 
 {
-    
+
     class HGCalTriggerCell;
     typedef BXVector<HGCalTriggerCell> HGCalTriggerCellBxCollection;
-    
+
     class HGCalTriggerCell : public L1Candidate 
     {
-        
+
         public:
-        
-            HGCalTriggerCell() { }
-        
+
+            HGCalTriggerCell() {}
+
             HGCalTriggerCell( const LorentzVector& p4,
                     int pt=0,
                     int eta=0,
                     int phi=0,
                     int qual=0, 
                     uint32_t detid=0);
-        
+
             ~HGCalTriggerCell();
-            
-            void setDetId(uint32_t detid) { detid_ = detid; }
-            void setPosition(const GlobalPoint& position) { position_ = position; }
-            
+
+            void setDetId(uint32_t detid) {detid_ = detid;}
+            void setPosition(const GlobalPoint& position) {position_ = position;}
+
             uint32_t detId() const {return detid_;}
-            const GlobalPoint& position() const { return position_; }
+            const GlobalPoint& position() const {return position_;}
             
             int zside() const {                
                 HGCalDetId trgdetid(detid_);                
@@ -55,7 +55,7 @@ namespace l1t
             double mipPt_;
 
     };
-    
+
 }
 
 #endif
