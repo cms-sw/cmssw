@@ -428,7 +428,7 @@ private:
   public:
     PlotsPerElement();
     void reset();
-    void book(DQMStore::IBooker &, std::string const& name, std::string const& title, double range, double resolution, unsigned int lumisections);
+    void book(DQMStore::IBooker &, std::string const& name, std::string const& title, double range, double resolution, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill_fraction(Resources const&, Resources const&, unsigned int lumisection);
 
@@ -445,7 +445,7 @@ private:
   public:
     PlotsPerPath();
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, double range, double resolution, unsigned int lumisections);
+    void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, double range, double resolution, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
   private:
@@ -469,7 +469,8 @@ private:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
     void reset();
     void book(DQMStore::IBooker &, ProcessCallGraph const&, ProcessCallGraph::ProcessType const&,
-        double event_range, double event_resolution, double path_range, double path_resolution, unsigned int lumisections);
+        double event_range, double event_resolution, double path_range, double path_resolution,
+        unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
 
   private:
@@ -486,7 +487,8 @@ private:
     void reset();
     void book(DQMStore::IBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
         double event_range, double event_resolution, double path_range, double path_resolution,
-        double module_range, double module_resolution, unsigned int lumisections);
+        double module_range, double module_resolution, unsigned int lumisections,
+        bool bymodule, bool byls);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
 
   private:
@@ -536,10 +538,8 @@ private:
   unsigned int                  module_id_;                     // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
 
   bool                          enable_dqm_;                    // non const, depends on the availability of the DQMStore
-//const bool                    enable_dqm_bypath_active_;
-//const bool                    enable_dqm_bypath_total_;
-//const bool                    enable_dqm_bymodule_;
-//const bool                    enable_dqm_byls_;
+  const bool                    enable_dqm_bymodule_;
+  const bool                    enable_dqm_byls_;
   const bool                    enable_dqm_bynproc_;
 
   const double                  dqm_eventtime_range_;
