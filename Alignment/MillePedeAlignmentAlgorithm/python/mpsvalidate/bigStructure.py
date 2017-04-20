@@ -75,7 +75,8 @@ def plot(MillePedeUser, alignables, config):
                     if (abs(line.Par[big.data[i]]) != 999999):
                         # set name of the structure
                         big.histoAxis[i].SetBinLabel(
-                            big.binPosition[i], alignables.get_name_by_objid(line.ObjId))
+                            big.binPosition[i],
+                            str(line.Name) if len(line.Name) <= 13 else str(line.Name)[:12]+".")
                         # fill with data, big.data[i] xyz or rot data
                         # transform xyz data from cm to #mu m
                         if (mode == "xyz"):

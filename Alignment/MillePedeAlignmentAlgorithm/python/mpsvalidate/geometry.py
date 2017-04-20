@@ -20,9 +20,6 @@ class Alignables:
         self.structures = []
         self.config = config
 
-    def get_name_by_objid(self, objid):
-        return geometrydata.data[objid].name
-
     def get_subdetid(self, objid):
         return geometrydata.data[objid].subdetid
 
@@ -55,10 +52,9 @@ class Alignables:
             # check which structures were aligned
             if (entry.ObjId != 1 and 999999 not in map(abs, entry.Par)):
                 # check if structure is not yet in the list
-                if not any(x.name == self.get_name_by_objid(entry.ObjId)
-                           for x in self.structures):
+                if not any(x.name == str(entry.Name) for x in self.structures):
                     # create new structure object
-                    name = self.get_name_by_objid(entry.ObjId)
+                    name = str(entry.Name)
                     subdetid = self.get_subdetid(entry.ObjId)
                     discriminator = self.get_discriminator(entry.ObjId)
                     ndiscriminator = self.get_ndiscriminator(entry.ObjId)
