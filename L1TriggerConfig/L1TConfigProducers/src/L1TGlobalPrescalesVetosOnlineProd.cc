@@ -36,7 +36,7 @@ public:
 };
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {
-    xmlModel = iConfig.getParameter<int>("xmlModel");
+    xmlModel = iConfig.getParameter<int32_t>("xmlModel");
 }
 
 std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
@@ -118,7 +118,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         for(auto algo : pMenu->getAlgorithmMap())
            algoName2bit[algo.first] = algo.second.getIndex();
 
-    } else {
+    } else { // xmlModel <= 2016 
         // identity
         for(unsigned int algoBit = 0; algoBit < m_numberPhysTriggers; algoBit++)
            algoName2bit[std::to_string(algoBit)] = algoBit;
@@ -305,6 +305,10 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Algo bx mask
+    unsigned int m_bx_mask_default = 1;
+
+if( xmlModel > 2016 ){
+
     l1t::XmlConfigParser xmlReader_mask_algobx;
     l1t::TriggerSystem ts_mask_algobx;
     ts_mask_algobx.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
@@ -320,7 +324,6 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     std::vector<unsigned int> bx_mask      = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>("mask");
 
     int default_bxmask_row = -1;
-    unsigned int m_bx_mask_default = 1;
     typedef std::pair<unsigned long,unsigned long> Range_t;
     // auto comp = [] (Range_t a, Range_t b){ return a.first < b.first; };
     struct RangeComp_t { bool operator()(const Range_t& a, const Range_t& b) const { return a.first < b.first; } };
@@ -555,6 +558,33 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
       }
     }
 
+} else { // xmlModel <= 2016 
+
+    // old algo bx mask
+    l1t::XmlConfigParser xmlReader_mask_algobx;
+    l1t::TriggerSystem ts_mask_algobx;
+    ts_mask_algobx.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
+
+    // run the parser 
+    xmlReader_mask_algobx.readDOMFromString( xmlPayload_mask_algobx ); // initialize it
+    xmlReader_mask_algobx.readRootElement( ts_mask_algobx, "uGT" ); // extract all of the relevant context
+    ts_mask_algobx.setConfigured();
+
+    const std::map<std::string, l1t::Parameter>& settings_mask_algobx = ts_mask_algobx.getParameters("uGtProcessor");
+    std::map<std::string,unsigned int> mask_algobx_columns = settings_mask_algobx.at("algorithmBxMask").getColumnIndices();
+    std::vector<unsigned int> bunches = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>("bx/algo");
+
+    unsigned int numCol_mask_algobx = mask_algobx_columns.size();
+
+    int NumAlgoBitsInMask = numCol_mask_algobx - 1;
+    for( int iBit=0; iBit<NumAlgoBitsInMask; iBit++ ){
+      std::vector<unsigned int> algo = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>(std::to_string(iBit).c_str());
+      for(unsigned int bx=0; bx<bunches.size(); bx++){
+          if( algo[bx]!=m_bx_mask_default ) triggerAlgoBxMaskAlgoTrig[ bunches[bx] ].push_back(iBit);
+      }
+    }
+
+}
 /////////////
 
   l1t::PrescalesVetosHelper data_( new L1TGlobalPrescalesVetos() );

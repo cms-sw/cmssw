@@ -6,5 +6,5 @@ L1TGlobalPrescalesVetosOnlineProd = cms.ESProducer("L1TGlobalPrescalesVetosOnlin
     onlineAuthentication = cms.string('.'),
     forceGeneration = cms.bool(False),
     onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
-    xmlModel = cms.int(2016)
+    xmlModel = cms.int32(2016)
 )
