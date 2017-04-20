@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <strings.h> // strcasecmp
 // To compile run these lines in your CMSSW_X_Y_Z/src/ :
 /*
 cmsenv
@@ -136,10 +137,8 @@ std::cout << "prescales[" << iSet << "][" << algoBit << "(" << algoName << ")] "
         std::find_if( algo_mask_finor.cbegin(),
                       algo_mask_finor.cend(),
                       [] (const std::string &s){
-                          // simpler than overweight std::tolower(s[], std::locale()) solution:
-                          return s == "all" || s == "All" || s == "ALl" ||
-                                 s == "ALL" || s == "aLL" || s == "alL" ||
-                                 s == "AlL" || s == "aLl";
+                          // simpler than overweight std::tolower(s[], std::locale()) POSIX solution (thx to BA):
+                          return strcasecmp("all", s.c_str()) == 0;
                       }
         );
     if( default_finor_row == algo_mask_finor.cend() ){
@@ -155,9 +154,7 @@ std::cout << "prescales[" << iSet << "][" << algoBit << "(" << algoName << ")] "
 
     for(unsigned int row=0; row<algo_mask_finor.size(); row++){
         std::string  algoName = algo_mask_finor[row];
-        if( algoName == "all" || algoName == "All" || algoName == "ALl" ||
-            algoName == "ALL" || algoName == "aLL" || algoName == "alL" ||
-            algoName == "AlL" || algoName == "aLl" ) continue;
+        if( strcasecmp("all", algoName.c_str()) == 0 ) continue;
         unsigned int algoBit  = algoName2bit[algoName];
         unsigned int mask     = mask_mask_finor[row];
         if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
@@ -187,10 +184,8 @@ std::cout << "triggerMasks[" << algoBit << "(" << algoName << ")] " << mask << s
         std::find_if( algo_mask_veto.cbegin(),
                       algo_mask_veto.cend(),
                       [] (const std::string &s){
-                          // simpler than overweight std::tolower(s[], std::locale()) solution:
-                          return s == "all" || s == "All" || s == "ALl" ||
-                                 s == "ALL" || s == "aLL" || s == "alL" ||
-                                 s == "AlL" || s == "aLl";
+                          // simpler than overweight std::tolower(s[], std::locale()) POSIX solution (thx to BA):
+                          return strcasecmp("all", s.c_str()) == 0;
                       }
         );
     if( default_veto_row == algo_mask_veto.cend() ){
@@ -206,9 +201,7 @@ std::cout << "triggerMasks[" << algoBit << "(" << algoName << ")] " << mask << s
 
     for(unsigned int row=0; row<algo_mask_veto.size(); row++){
         std::string  algoName = algo_mask_veto[row];
-        if( algoName == "all" || algoName == "All" || algoName == "ALl" ||
-            algoName == "ALL" || algoName == "aLL" || algoName == "alL" ||
-            algoName == "AlL" || algoName == "aLl" ) continue;
+        if( strcasecmp("all", algoName.c_str()) == 0 ) continue;
         unsigned int algoBit  = algoName2bit[algoName];
         unsigned int veto    = veto_mask_veto[row];
         if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
@@ -236,8 +229,9 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
     int default_bxmask_row = -1;
     unsigned int m_bx_mask_default = 1;
     typedef std::pair<unsigned long,unsigned long> Range_t;
-    auto comp = [] (Range_t a, Range_t b){ return a.first < b.first; };
-    std::map<std::string, std::set<Range_t,decltype(comp)>> non_default_bx_ranges;
+    // auto comp = [] (Range_t a, Range_t b){ return a.first < b.first; };
+    struct RangeComp_t { bool operator()(const Range_t& a, const Range_t& b) const { return a.first < b.first; } };
+    std::map<std::string, std::set<Range_t,RangeComp_t>> non_default_bx_ranges;
 
     for(unsigned int row = 0; row < bx_algo_name.size(); row++){
         const std::string &s1 = bx_algo_name[row];
@@ -245,12 +239,8 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
         // find "all" broadcast keywords
         bool broadcastAlgo  = false;
         bool broadcastRange = false;
-        if( s1 == "all" || s1 == "All" || s1 == "ALl" ||
-            s1 == "ALL" || s1 == "aLL" || s1 == "alL" ||
-            s1 == "AlL" || s1 == "aLl" ) broadcastAlgo = true;
-        if( s2 == "all" || s2 == "All" || s2 == "ALl" ||
-            s2 == "ALL" || s2 == "aLL" || s2 == "alL" ||
-            s2 == "AlL" || s2 == "aLl" ) broadcastRange = true;
+        if( strcasecmp("all", s1.c_str()) == 0 ) broadcastAlgo  = true;
+        if( strcasecmp("all", s2.c_str()) == 0 ) broadcastRange = true;
         // ALL-ALL-default:
         if( broadcastAlgo && broadcastRange ){
             if( row != 0 ){
@@ -313,13 +303,14 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
 
         for(const std::string &algoName : algos){
 
-           std::set<Range_t,decltype(comp)> &ranges = non_default_bx_ranges.insert
-           (
-               std::pair< std::string, std::set<Range_t,decltype(comp)> >
-               (
-                   algoName,  std::set<Range_t,decltype(comp)>(comp)
-               )
-           ).first->second; // I don't care if insert was successfull or if I've got a hold on existing range
+           std::set<Range_t,RangeComp_t> &ranges = non_default_bx_ranges[algoName];
+///           std::set<Range_t,decltype(comp)> &ranges = non_default_bx_ranges.insert
+///           (
+///               std::pair< std::string, std::set<Range_t,decltype(comp)> >
+///               (
+///                   algoName,  std::set<Range_t,decltype(comp)>(comp)
+///               )
+///           ).first->second; // I don't care if insert was successfull or if I've got a hold on existing range
 
            // current range may or may not overlap with the already present ranges
            // if end of the predecessor starts before begin of the current range and begin
@@ -423,7 +414,7 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
            //  remove those from the consideration up until the last covered range
            //  that may or may not extend beyond the current range end 
            if( curr != ranges.end() ){ // insertion took place
-               std::set<Range_t,decltype(comp)>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second,0));
+               std::set<Range_t,RangeComp_t>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second,0));
                if( last_covered != ranges.begin() ) last_covered--; else last_covered = ranges.end();
 
                if( last_covered != ranges.end() && last_covered->first != curr->first ){
@@ -446,7 +437,7 @@ std::cout << "triggerVetoMasks[" << algoBit << "(" << algoName << ")] " << int(v
               << std::endl;
     }
 
-    for(const std::pair<std::string, std::set<Range_t,decltype(comp)>> &algo : non_default_bx_ranges){
+    for(const std::pair<std::string, std::set<Range_t,RangeComp_t>> &algo : non_default_bx_ranges){
         const std::string &algoName = algo.first;
         unsigned int algoBit  = algoName2bit[algoName];
         for(auto range : algo.second)
