@@ -11,7 +11,6 @@ ________________________________________________________________**/
 // C++ standard
 #include <string>
 // CMS
-#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
