@@ -11,6 +11,7 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/METReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <library   file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
