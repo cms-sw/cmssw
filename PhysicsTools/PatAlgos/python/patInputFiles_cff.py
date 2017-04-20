@@ -11,8 +11,8 @@ filesRelValTTbarPileUpMINIAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/MINIAODSIM/90X_upgrade2017_realistic_v20-v2/00000/16132980-3019-E711-AD34-0025905A6110.root'
-    )
+   '/store/relval/CMSSW_9_1_0_pre2/RelValTTbar_13/MINIAODSIM/PU25ns_90X_mcRun2_asymptotic_v5-v1/00000/A868B9C9-2C1A-E711-ADC4-0025905B8604.root', #crasha patTuple_updateJets_fromMiniAOD_cfg.py [1]
+   )
 
 # /RelValProdTTbar_13/CMSSW_8_0_0-80X_mcRun2_asymptotic_v4-v1/AODSIM
 filesRelValProdTTbarAODSIM = cms.untracked.vstring(
