@@ -73,20 +73,7 @@ class OniaPhotonConversionProducer : public edm::stream::EDProducer<> {
   int convAlgo_;
   std::vector<int>   convQuality_;
   
-  int total_conversions;
-  int selection_fail;
-  int algo_fail;
-  int flag_fail;
-  int pizero_fail;
-  int duplicates;
-  int TkVtxC;
-  int CInnerHits;
-  int highpurity_count;
-  int final_conversion;
-  int store_conversion;
-
   std::string convSelectionCuts_;
-  bool wantSummary_;
 
 };
 
