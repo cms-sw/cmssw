@@ -16,7 +16,7 @@ l1tStage2uGMT = cms.EDAnalyzer(
 l1tStage2uGMTIntermediateBMTF = cms.EDAnalyzer(
     "L1TStage2uGMTMuon",
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsBMTF"),
-    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/BMTF"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/BMTF"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from BMTF "),
     verbose = cms.untracked.bool(False),
 )
@@ -24,7 +24,7 @@ l1tStage2uGMTIntermediateBMTF = cms.EDAnalyzer(
 l1tStage2uGMTIntermediateOMTFNeg = cms.EDAnalyzer(
     "L1TStage2uGMTMuon",
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFNeg"),
-    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/OMTF_neg"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
@@ -32,7 +32,7 @@ l1tStage2uGMTIntermediateOMTFNeg = cms.EDAnalyzer(
 l1tStage2uGMTIntermediateOMTFPos = cms.EDAnalyzer(
     "L1TStage2uGMTMuon",
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFPos"),
-    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/OMTF_pos"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF pos. "),
     verbose = cms.untracked.bool(False),
 )
@@ -40,7 +40,7 @@ l1tStage2uGMTIntermediateOMTFPos = cms.EDAnalyzer(
 l1tStage2uGMTIntermediateEMTFNeg = cms.EDAnalyzer(
     "L1TStage2uGMTMuon",
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFNeg"),
-    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/EMTF_neg"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
@@ -48,7 +48,7 @@ l1tStage2uGMTIntermediateEMTFNeg = cms.EDAnalyzer(
 l1tStage2uGMTIntermediateEMTFPos = cms.EDAnalyzer(
     "L1TStage2uGMTMuon",
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFPos"),
-    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/EMTF_pos"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF pos. "),
     verbose = cms.untracked.bool(False),
 )
@@ -73,7 +73,7 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
                                       0x0003FC00,
                                       0x00000000),
     # no masks defined for caption IDs 0 and 3-11
-    maxFEDReadoutSize = cms.untracked.int32(6000),
+    maxFEDReadoutSize = cms.untracked.int32(9000),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression"),
     verbose = cms.untracked.bool(False),
 )
