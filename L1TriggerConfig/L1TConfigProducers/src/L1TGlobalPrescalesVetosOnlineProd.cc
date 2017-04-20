@@ -1,6 +1,9 @@
+#include <strings.h> // strcasecmp
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <unordered_map>
+#include <utility>
 
 #include "tmEventSetup/tmEventSetup.hh"
 #include "tmEventSetup/esTriggerMenu.hh"
@@ -24,6 +27,7 @@
 
 class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos> {
 private:
+    int xmlModel;
 public:
     virtual std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
 
@@ -31,7 +35,9 @@ public:
     ~L1TGlobalPrescalesVetosOnlineProd(void){}
 };
 
-L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {}
+L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {
+    xmlModel = iConfig.getParameter<int>("xmlModel");
+}
 
 std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
     using namespace edm::es;
@@ -43,18 +49,24 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         throw std::runtime_error("Empty objecKey");
     }
 
+    unsigned int m_numberPhysTriggers = 512;
+
+    // dictionary that maps algorithm name to it's index
+    std::unordered_map<std::string, int, std::hash<std::string>> algoName2bit;
 
     std::string uGTtscKey = objectKey.substr(0, objectKey.find(":"));
     std::string uGTrsKey  = objectKey.substr(objectKey.find(":")+1, std::string::npos);
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
 
-    std::string l1_menu_key;
-    std::vector< std::string > queryStrings ;
-    queryStrings.push_back( "L1_MENU" ) ;
+    if( xmlModel > 2016 ){
 
-    // select L1_MENU from CMS_TRG_L1_CONF.UGT_KEYS where ID = objectKey ;
-    l1t::OMDSReader::QueryResults queryResult =
+        std::string l1_menu_key;
+        std::vector< std::string > queryStrings ;
+        queryStrings.push_back( "L1_MENU" ) ;
+
+        // select L1_MENU from CMS_TRG_L1_CONF.UGT_KEYS where ID = objectKey ;
+        l1t::OMDSReader::QueryResults queryResult =
             m_omdsReader.basicQuery( queryStrings,
                                      stage2Schema,
                                      "UGT_KEYS",
@@ -62,24 +74,24 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                                      m_omdsReader.singleAttribute(uGTtscKey)
                                    ) ;
 
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU for ID = " << uGTtscKey << " " ;
-        throw std::runtime_error("Broken key");
-    }
+        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+            edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU for ID = " << uGTtscKey << " " ;
+            throw std::runtime_error("Broken key");
+        }
 
-    if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
+        if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
 
-    edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << uGTtscKey;
+        edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << uGTtscKey;
 
-    if( uGTtscKey.empty() ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "TSC key is empty, returning";
-        throw std::runtime_error("Empty objectKey");
-    }
+        if( uGTtscKey.empty() ){
+            edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "TSC key is empty, returning";
+            throw std::runtime_error("Empty objectKey");
+        }
 
-    std::vector< std::string > queryColumns;
-    queryColumns.push_back( "CONF" ) ;
+        std::vector< std::string > queryColumns;
+        queryColumns.push_back( "CONF" ) ;
 
-    queryResult =
+        queryResult =
             m_omdsReader.basicQuery( queryColumns,
                                      stage2Schema,
                                      "UGT_L1_MENU",
@@ -87,31 +99,33 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                                      m_omdsReader.singleAttribute(uGTtscKey)
                                    ) ;
 
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << uGTtscKey;
-        throw std::runtime_error("Broken key");
+        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+            edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << uGTtscKey;
+            throw std::runtime_error("Broken key");
+        }
+
+        std::string l1Menu;
+        queryResult.fillVariable( "CONF", l1Menu );
+    ///
+        std::istringstream iss(l1Menu);
+
+        std::shared_ptr<L1TUtmTriggerMenu> pMenu(
+            const_cast<L1TUtmTriggerMenu*>(
+                reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss))
+            )
+        );
+
+        for(auto algo : pMenu->getAlgorithmMap())
+           algoName2bit[algo.first] = algo.second.getIndex();
+
+    } else {
+        // identity
+        for(unsigned int algoBit = 0; algoBit < m_numberPhysTriggers; algoBit++)
+           algoName2bit[std::to_string(algoBit)] = algoBit;
+
     }
 
-    std::string l1Menu;
-    queryResult.fillVariable( "CONF", l1Menu );
-///
-    std::istringstream iss(l1Menu);
-
-    std::shared_ptr<L1TUtmTriggerMenu> pMenu(
-        const_cast<L1TUtmTriggerMenu*>(
-            reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss))
-        )
-    );
-
-    std::map<std::string,int> algoName2bit;
-
-    const std::map<std::string, L1TUtmAlgorithm>& algoMap = pMenu->getAlgorithmMap();
-
-    for(auto algo : algoMap)
-        algoName2bit[algo.first] = algo.second.getIndex();
-
-
-    queryColumns.clear() ;
+    std::vector< std::string > queryColumns;
     queryColumns.push_back( "ALGOBX_MASK"     ) ;
     queryColumns.push_back( "ALGO_FINOR_MASK" ) ;
     queryColumns.push_back( "ALGO_FINOR_VETO" ) ;
@@ -120,7 +134,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     std::string prescale_key, bxmask_key, mask_key, vetomask_key;
     std::string xmlPayload_prescale, xmlPayload_mask_algobx, xmlPayload_mask_finor, xmlPayload_mask_veto;
     try {
-        std::map<std::string,std::string> subKeys = l1t::OnlineDBqueryHelper::fetch( queryColumns, "UGT_RS_KEYS", objectKey, m_omdsReader );
+        std::map<std::string,std::string> subKeys = l1t::OnlineDBqueryHelper::fetch( queryColumns, "UGT_RS_KEYS", uGTrsKey, m_omdsReader );
         prescale_key = subKeys["ALGO_PRESCALE"];
         bxmask_key   = subKeys["ALGOBX_MASK"];
         mask_key     = subKeys["ALGO_FINOR_MASK"];
@@ -150,10 +164,6 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     output4.close();
 
 //////////////////
-
-
-    unsigned int m_numberPhysTriggers = 512;
-
 
     std::vector<std::vector<int> > prescales;
     std::vector<unsigned int> triggerMasks;
@@ -224,10 +234,8 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         std::find_if( algo_mask_finor.cbegin(),
                       algo_mask_finor.cend(),
                       [] (const std::string &s){
-                          // simpler than overweight std::tolower(s[], std::locale()) solution:
-                          return s == "all" || s == "All" || s == "ALl" ||
-                                 s == "ALL" || s == "aLL" || s == "alL" ||
-                                 s == "AlL" || s == "aLl";
+                          // simpler than overweight std::tolower(s[], std::locale()) POSIX solution (thx to BA):
+                          return strcasecmp("all", s.c_str()) == 0;
                       }
         );
     if( default_finor_row == algo_mask_finor.cend() ){
@@ -243,9 +251,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
 
     for(unsigned int row=0; row<algo_mask_finor.size(); row++){
         std::string  algoName = algo_mask_finor[row];
-        if( algoName == "all" || algoName == "All" || algoName == "ALl" ||
-            algoName == "ALL" || algoName == "aLL" || algoName == "alL" ||
-            algoName == "AlL" || algoName == "aLl" ) continue;
+        if( strcasecmp("all", algoName.c_str()) == 0 ) continue;
         unsigned int algoBit  = algoName2bit[algoName];
         unsigned int mask     = mask_mask_finor[row];
         if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
@@ -273,10 +279,8 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         std::find_if( algo_mask_veto.cbegin(),
                       algo_mask_veto.cend(),
                       [] (const std::string &s){
-                          // simpler than overweight std::tolower(s[], std::locale()) solution:
-                          return s == "all" || s == "All" || s == "ALl" ||
-                                 s == "ALL" || s == "aLL" || s == "alL" ||
-                                 s == "AlL" || s == "aLl";
+                          // simpler than overweight std::tolower(s[], std::locale()) POSIX solution (thx to BA):
+                          return strcasecmp("all", s.c_str()) == 0;
                       }
         );
     if( default_veto_row == algo_mask_veto.cend() ){
@@ -292,9 +296,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
 
     for(unsigned int row=0; row<algo_mask_veto.size(); row++){
         std::string  algoName = algo_mask_veto[row];
-        if( algoName == "all" || algoName == "All" || algoName == "ALl" ||
-            algoName == "ALL" || algoName == "aLL" || algoName == "alL" ||
-            algoName == "AlL" || algoName == "aLl" ) continue;
+        if( strcasecmp("all", algoName.c_str()) == 0 ) continue;
         unsigned int algoBit  = algoName2bit[algoName];
         unsigned int veto    = veto_mask_veto[row];
         if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
@@ -320,8 +322,9 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     int default_bxmask_row = -1;
     unsigned int m_bx_mask_default = 1;
     typedef std::pair<unsigned long,unsigned long> Range_t;
-    auto comp = [] (Range_t a, Range_t b){ return a.first < b.first; };
-    std::map<std::string, std::set<Range_t,decltype(comp)>> non_default_bx_ranges;
+    // auto comp = [] (Range_t a, Range_t b){ return a.first < b.first; };
+    struct RangeComp_t { bool operator()(const Range_t& a, const Range_t& b) const { return a.first < b.first; } };
+    std::map<std::string, std::set<Range_t,RangeComp_t>> non_default_bx_ranges;
 
     for(unsigned int row = 0; row < bx_algo_name.size(); row++){
         const std::string &s1 = bx_algo_name[row];
@@ -329,12 +332,8 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         // find "all" broadcast keywords
         bool broadcastAlgo  = false;
         bool broadcastRange = false;
-        if( s1 == "all" || s1 == "All" || s1 == "ALl" ||
-            s1 == "ALL" || s1 == "aLL" || s1 == "alL" ||
-            s1 == "AlL" || s1 == "aLl" ) broadcastAlgo = true;
-        if( s2 == "all" || s2 == "All" || s2 == "ALl" ||
-            s2 == "ALL" || s2 == "aLL" || s2 == "alL" ||
-            s2 == "AlL" || s2 == "aLl" ) broadcastRange = true;
+        if( strcasecmp("all", s1.c_str()) == 0 ) broadcastAlgo  = true;
+        if( strcasecmp("all", s2.c_str()) == 0 ) broadcastRange = true;
         // ALL-ALL-default:
         if( broadcastAlgo && broadcastRange ){
             if( row != 0 ){
@@ -397,13 +396,14 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
 
         for(const std::string &algoName : algos){
 
-           std::set<Range_t,decltype(comp)> &ranges = non_default_bx_ranges.insert
-           (
-               std::pair< std::string, std::set<Range_t,decltype(comp)> >
-               (
-                   algoName,  std::set<Range_t,decltype(comp)>(comp)
-               )
-           ).first->second; // I don't care if insert was successfull or if I've got a hold on existing range
+           std::set<Range_t,RangeComp_t> &ranges = non_default_bx_ranges[algoName];
+//           .insert
+//           (
+//               std::pair< std::string, std::set<Range_t,RangeComp_t> >
+//               (
+//                   algoName,  std::set<Range_t,RangeComp_t>()
+//               )
+//           ).first->second; // I don't care if insert was successfull or if I've got a hold on existing range
 
            // current range may or may not overlap with the already present ranges
            // if end of the predecessor starts before begin of the current range and begin
@@ -507,7 +507,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
            //  remove those from the consideration up until the last covered range
            //  that may or may not extend beyond the current range end 
            if( curr != ranges.end() ){ // insertion took place
-               std::set<Range_t,decltype(comp)>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second,0));
+               std::set<Range_t,RangeComp_t>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second,0));
                if( last_covered != ranges.begin() ) last_covered--; else last_covered = ranges.end();
 
                if( last_covered != ranges.end() && last_covered->first != curr->first ){
@@ -530,7 +530,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
               << std::endl;
     }
 
-    for(const std::pair<std::string, std::set<Range_t,decltype(comp)>> &algo : non_default_bx_ranges){
+    for(const std::pair<std::string, std::set<Range_t,RangeComp_t>> &algo : non_default_bx_ranges){
         const std::string &algoName = algo.first;
         unsigned int algoBit  = algoName2bit[algoName];
         for(auto range : algo.second)
