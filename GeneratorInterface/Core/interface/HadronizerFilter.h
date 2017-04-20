@@ -161,7 +161,7 @@ namespace edm
 
     produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenLumiInfoHeader, edm::Transtion::BeginLuminosityBlock>();
+    produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
     produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
     produces<GenRunInfoProduct, edm::Transition::EndRun>();
     if(filter_)
