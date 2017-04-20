@@ -45,10 +45,10 @@ class GEMChamberMasker : public edm::stream::EDProducer<>
 
       // ----------member data ---------------------------
   edm::InputTag digiTag_;
-  bool GE11Minus_;
-  bool GE11Plus_; 
-  bool GE21Minus_;
-  bool GE21Plus_; 
+  bool ge11Minus_;
+  bool ge11Plus_; 
+  bool ge21Minus_;
+  bool ge21Plus_; 
 
   edm::EDGetTokenT<GEMDigiCollection> m_digiTag;
   std::map<unsigned int, float> m_maskedGEMIDs;
@@ -69,10 +69,10 @@ class GEMChamberMasker : public edm::stream::EDProducer<>
 //
 GEMChamberMasker::GEMChamberMasker(const edm::ParameterSet& iConfig) : 
   digiTag_(iConfig.getParameter<edm::InputTag>("digiTag") ),
-  GE11Minus_(iConfig.getParameter<bool>("GE11Minus") ),
-  GE11Plus_(iConfig.getParameter<bool>("GE11Plus") ),
-  GE21Minus_(iConfig.getParameter<bool>("GE21Minus") ),
-  GE21Plus_(iConfig.getParameter<bool>("GE21Plus") )
+  ge11Minus_(iConfig.getParameter<bool>("ge11Minus") ),
+  ge11Plus_(iConfig.getParameter<bool>("ge11Plus") ),
+  ge21Minus_(iConfig.getParameter<bool>("ge21Minus") ),
+  ge21Plus_(iConfig.getParameter<bool>("ge21Plus") )
 {
 
   m_digiTag = consumes<GEMDigiCollection>(digiTag_); 
@@ -104,24 +104,20 @@ GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<GEMDigiCollection> gemDigis;
       iEvent.getByToken(m_digiTag, gemDigis);
       
-      GEMDigiCollection::DigiRangeIterator gemLayerIdIt  = gemDigis->begin();
-      GEMDigiCollection::DigiRangeIterator gemLayerIdEnd = gemDigis->end();
-
-
       
-      for (; gemLayerIdIt != gemLayerIdEnd; ++gemLayerIdIt)
+      for ( gemLayerId : (*gemDigis) )
 	{
-	  auto chambId = (*gemLayerIdIt).first.chamberId();
+	  auto chambId = gemLayerId.first.chamberId();
 
-	  bool keepDigi = (!GE11Minus_  && chambId.station()==1 && chambId.region()<0 ) ||
-		          (!GE11Plus_   && chambId.station()==1 && chambId.region()>0 ) ||
-		          (!GE21Minus_  && chambId.station()==2 && chambId.region()<0 ) ||
-		          (!GE21Plus_   && chambId.station()==2 && chambId.region()>0 ) ;
+	  bool keepDigi = (!ge11Minus_  && chambId.station()==1 && chambId.region()<0 ) ||
+		          (!ge11Plus_   && chambId.station()==1 && chambId.region()>0 ) ||
+		          (!ge21Minus_  && chambId.station()==2 && chambId.region()<0 ) ||
+		          (!ge21Plus_   && chambId.station()==2 && chambId.region()>0 ) ;
 
           uint32_t rawId = chambId.rawId();
           if(keepDigi || m_maskedGEMIDs.find(rawId) == m_maskedGEMIDs.end())
 	    {
-              filteredDigis->put((*gemLayerIdIt).second,(*gemLayerIdIt).first);
+              filteredDigis->put(gemLayerId.second,gemLayerId.first);
 	    }
 	}
 
@@ -159,10 +155,10 @@ GEMChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonGEMDigis"));
-  desc.add<bool>("GE11Minus", true);
-  desc.add<bool>("GE11Plus",  true);
-  desc.add<bool>("GE21Minus", true);
-  desc.add<bool>("GE21Plus",  true);
+  desc.add<bool>("ge11Minus", true);
+  desc.add<bool>("ge11Plus",  true);
+  desc.add<bool>("ge21Minus", true);
+  desc.add<bool>("ge21Plus",  true);
 
   descriptions.addDefault(desc);
 

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 from RecoLocalMuon.MuonSysAging.DTChamberMasker_cfi import DTChamberMasker
 
@@ -6,7 +7,7 @@ def appendDTChamberMaskerAtUnpacking(process):
 
     if hasattr(process,'muonDTDigis') and hasattr(process,'RawToDigi'):
         
-        print "[appendDTChamberMasker] : Found muonDTDigis, applying filter"
+        sys.stderr.write("[appendDTChamberMasker] : Found muonDTDigis, applying filter\n")
 
         process.preDtDigis = process.muonDTDigis.clone()
         process.muonDTDigis = DTChamberMasker.clone()
@@ -37,7 +38,7 @@ def appendDTChamberMaskerAtHLT(process):
        ( hasattr(process,'HLTMuonLocalRecoSequence') or \
          hasattr(process,'HLTMuonLocalRecoMeanTimerSequence')) :
 
-        print "[appendDTChamberMasker] : Found hltMuonDTDigis, applying filter"
+        sys.stderr.write("[appendDTChamberMasker] : Found hltMuonDTDigis, applying filter\n")
 
         process.preHltDtDigis = process.hltMuonDTDigis.clone()
         process.hltMuonDTDigis = DTChamberMasker.clone()
@@ -70,7 +71,7 @@ def appendDTChamberMaskerBeforeL1Trigger(process):
 
     if hasattr(process,'simDtTriggerPrimitiveDigis') and hasattr(process,'SimL1TMuonCommon') :
 
-        print "[appendDTChamberMasker] : Found simMuonDtTriggerPrimitivesDigis, applying filter"
+        sys.stderr.write("[appendDTChamberMasker] : Found simMuonDtTriggerPrimitivesDigis, applying filter\n")
 
         process.preSimDtTriggerDigis = DTChamberMasker.clone()
 

@@ -47,8 +47,8 @@ class ME0ChamberMasker : public edm::stream::EDProducer<>
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
-  bool ME0Minus_;
-  bool ME0Plus_;
+  bool me0Minus_;
+  bool me0Plus_;
   edm::InputTag digiTag_;
   edm::EDGetTokenT<ME0DigiPreRecoCollection> m_digiTag;
   std::map<unsigned int, float> m_maskedME0IDs;
@@ -68,8 +68,8 @@ class ME0ChamberMasker : public edm::stream::EDProducer<>
 // constructors and destructor
 //
 ME0ChamberMasker::ME0ChamberMasker(const edm::ParameterSet& iConfig) : 
- ME0Minus_(iConfig.getParameter<bool>("ME0Minus") ),
- ME0Plus_(iConfig.getParameter<bool>("ME0Plus") ), 
+ me0Minus_(iConfig.getParameter<bool>("me0Minus") ),
+ me0Plus_(iConfig.getParameter<bool>("me0Plus") ), 
  digiTag_(iConfig.getParameter<edm::InputTag>("digiTag") )
 {
 
@@ -101,21 +101,18 @@ ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<ME0DigiPreRecoCollection> me0Digis;
       iEvent.getByToken(m_digiTag, me0Digis);
       
-      ME0DigiPreRecoCollection::DigiRangeIterator me0LayerIdIt  = me0Digis->begin();
-      ME0DigiPreRecoCollection::DigiRangeIterator me0LayerIdEnd = me0Digis->end();
-      
-      for (; me0LayerIdIt != me0LayerIdEnd; ++me0LayerIdIt)
+      for ( auto me0LayerId : (*me0Digis) )
 	{
 
-	  auto chambId = (*me0LayerIdIt).first.chamberId();
+	  auto chambId = me0LayerId.first.chamberId();
 
-	  bool keepDigi = (!ME0Minus_  && chambId.region() < 0 ) || 
-	                  (!ME0Plus_   && chambId.region() > 0 ) ;
+	  bool keepDigi = (!me0Minus_  && chambId.region() < 0 ) || 
+	                  (!me0Plus_   && chambId.region() > 0 ) ;
 	  
 	  uint32_t rawId = chambId.rawId();
 	  if(keepDigi || m_maskedME0IDs.find(rawId) == m_maskedME0IDs.end())
 	    {
-	      filteredDigis->put((*me0LayerIdIt).second,(*me0LayerIdIt).first);
+	      filteredDigis->put(me0LayerId.second,me0LayerId.first);
 	    }
           
 	}
@@ -156,8 +153,8 @@ ME0ChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonME0Digis"));
-  desc.add<bool>("ME0Minus", true);
-  desc.add<bool>("ME0Plus",  true);
+  desc.add<bool>("me0Minus", true);
+  desc.add<bool>("me0Plus",  true);
   descriptions.addDefault(desc);
 
 }

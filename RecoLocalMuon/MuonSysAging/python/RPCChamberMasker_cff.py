@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cfi import RPCChamberMasker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
@@ -20,7 +21,7 @@ def appendRPCChamberMaskerBeforeRecHits(process):
 
     if hasattr(process,'rpcRecHits') :
 
-        print "[appendRPCChamberMasker] : Found rpcRecHits, applying filter"
+        sys.stderr.write("[appendRPCChamberMasker] : Found rpcRecHits, applying filter\n")
 
         process.rpcRecHits = process.rpcRecHits.clone()
         process.rpcAgedDigis = RPCChamberMasker.clone()
@@ -51,7 +52,7 @@ def appendRPCChamberMaskerAtUnpacking(process):
 
     if hasattr(process,'muonRPCDigis') :
 
-        print "[appendRPCChamberMasker] : Found muonRPCDigis, applying filter"
+        sys.stderr.write("[appendRPCChamberMasker] : Found muonRPCDigis, applying filter\n")
 
         process.preRPCDigis = process.muonRPCDigis.clone()
         process.muonRPCDigis = RPCChamberMasker.clone()

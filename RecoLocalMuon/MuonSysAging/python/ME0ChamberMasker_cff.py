@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 from RecoLocalMuon.MuonSysAging.ME0ChamberMasker_cfi import ME0ChamberMasker
 from SimMuon.GEMDigitizer.muonME0ReDigis_cfi import simMuonME0ReDigis
@@ -7,7 +8,7 @@ def appendME0ChamberMaskerAtReco(process):
 
     if hasattr(process,'RawToDigi') :
 
-        print "[appendME0ChamberMasker] : Found RawToDigi, appending filter"
+        sys.stderr.write("[appendME0ChamberMasker] : Found RawToDigi, appending filter\n")
 
         process.simMuonME0Digis = ME0ChamberMasker.clone()
         process.simMuonME0ReDigis = simMuonME0ReDigis.clone()
