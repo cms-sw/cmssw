@@ -58,12 +58,14 @@ def main():
 
     # parse default ini file
     logger.info("start to parse the default.ini")
-    config.parseConfig(os.path.join(config.mpspath, "default.ini"))
+    config.parseConfig(os.path.join(config.mpspath, "templates",
+                                    "mpsvalidate_default.ini"))
     
     # copy of ini file in current directory
     if args.copy:
         logger.info("create copy of validation_user.ini in current directory")
-        shutil.copy2(os.path.join(config.mpspath, "default.ini"), "validation_user.ini")
+        shutil.copy2(os.path.join(config.mpspath, "templates", "mpsvalidate_default.ini"),
+                     "validation_user.ini")
         sys.exit()
         
 

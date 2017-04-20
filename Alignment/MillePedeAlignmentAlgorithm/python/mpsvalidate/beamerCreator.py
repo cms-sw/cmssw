@@ -48,7 +48,8 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     logger = logging.getLogger("mpsvalidate")
     
     # load template
-    with open(os.path.join(config.mpspath, "beamer_template.tex"), "r") as template:
+    with open(os.path.join(config.mpspath, "templates",
+                           "mpsvalidate_beamer_template.tex")) as template:
         data = template.read()
         template.close()
 
