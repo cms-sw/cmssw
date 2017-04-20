@@ -316,18 +316,9 @@ FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const& des
     endpaths_[id].fill(description.endPaths_[id], data, process.endpaths[id], ls);
 }
 
-
-FastTimerService::PlotsPerJob::PlotsPerJob() :
+FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
   event_(),
-  highlight_(),
-  modules_(),
-  processes_()
-{
-}
-
-FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job) :
-  event_(),
-  highlight_(),
+  highlight_(groups.size()),
   modules_(job.size()),
   processes_()
 {
@@ -340,7 +331,8 @@ void
 FastTimerService::PlotsPerJob::reset()
 {
   event_.reset();
-  highlight_.reset();
+  for (auto & module: highlight_)
+    module.reset();
   for (auto & module: modules_)
     module.reset();
   for (auto & process: processes_)
@@ -351,6 +343,7 @@ void
 FastTimerService::PlotsPerJob::book(
     DQMStore::IBooker & booker,
     ProcessCallGraph const& job,
+    std::vector<GroupOfModules> const& groups,
     double event_range,
     double event_resolution,
     double path_range,
@@ -368,17 +361,21 @@ FastTimerService::PlotsPerJob::book(
       event_resolution,
       lumisections);
 
-  highlight_.book(booker,
-      "highlight", "Highlight",
-      event_range,
-      event_resolution,
-      lumisections);
-
   modules_[job.source().id()].book(booker,
       "source", "Source",
       module_range,
       module_resolution,
       lumisections);
+
+  // plot the time spent in few given groups of modules
+  for (unsigned int group: boost::irange(0ul, groups.size())) {
+    auto const & label = groups[group].label;
+    highlight_[group].book(booker,
+        "highlight " + label, "Highlight " + label,
+        event_range,
+        event_resolution,
+        lumisections);
+  }
 
   // plots per subprocess (event, modules, paths and endpaths)
   for (unsigned int pid: boost::irange(0ul, job.processes().size())) {
@@ -411,8 +408,9 @@ FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesPerJob
   // fill total event plots
   event_.fill(data.total, ls);
 
-  // fill total event plots
-  highlight_.fill_fraction(data.total, data.highlight, ls);
+  // fill highltight plots
+  for (unsigned int group: boost::irange(0ul, highlight_.size()))
+    highlight_[group].fill_fraction(data.total, data.highlight[group], ls);
 
   // fill modules plots
   for (unsigned int id: boost::irange(0ul, modules_.size()))
@@ -450,8 +448,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   dqm_lumisections_range_(      config.getUntrackedParameter<unsigned int>( "dqmLumiSectionsRange" ) ),
   dqm_path_(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // highlight configuration
-  highlight_module_labels_(     config.getUntrackedParameter<std::vector<std::string>>("highlightModules") ),
-  highlight_modules_()          // filled in postBeginJob()
+  highlight_module_psets_(      config.getUntrackedParameter<std::vector<edm::ParameterSet>>("highlightModules") ),
+  highlight_modules_(           highlight_module_psets_.size())         // filled in postBeginJob()
 {
   registry.watchPreallocate(                this, & FastTimerService::preallocate );
   registry.watchPreBeginJob(                this, & FastTimerService::preBeginJob );
@@ -517,9 +515,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostModuleEventDelayedGet(  this, & FastTimerService::postModuleEventDelayedGet );
   registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
   registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
-
-  // sort for faster access
-  std::sort(highlight_module_labels_.begin(), highlight_module_labels_.end());
 }
 
 FastTimerService::~FastTimerService()
@@ -527,11 +522,18 @@ FastTimerService::~FastTimerService()
 }
 
 double
+FastTimerService::queryModuleTime_(edm::StreamID sid, unsigned int id) const
+{
+  // private version, assume "id" is valid
+  auto const& stream = streams_[sid];
+  auto const& module = stream.modules[id];
+  return ms(module.total.time_real);
+}
+
+double
 FastTimerService::querySourceTime(edm::StreamID sid) const
 {
-  auto const& stream = streams_[sid];
-  auto const& source = stream.modules[callgraph_.source().id()];
-  return ms(source.total.time_real);
+  return queryModuleTime_(sid, callgraph_.source().id());
 }
 
 double
@@ -552,18 +554,17 @@ FastTimerService::queryEventTime(edm::StreamID sid, std::string const& process) 
 double
 FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDescription & md) const
 {
-  auto const& stream = streams_[sid];
-  auto const& module = stream.modules[md.id()];
-  return ms(module.total.time_real);
+  return queryModuleTime_(sid, md.id());
 }
 
 double
 FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) const
 {
-  auto const& stream = streams_[sid];
-  auto const& module = stream.modules[id];
-  //FIXME add a check that "id" is valid
-  return ms(module.total.time_real);
+  if (id < callgraph_.size())
+    return queryModuleTime_(sid, id);
+
+  // FIXME issue a LogWarning, raise an exception, or return NaN
+  return 0.;
 }
 
 double
@@ -571,9 +572,9 @@ FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& l
 {
   for (unsigned int id: boost::irange(0u, callgraph_.size()))
     if (callgraph_.module(id).moduleLabel() == label)
-      return queryModuleTime(sid, id);
+      return queryModuleTime_(sid, id);
 
-  //FIXME issue a LogWarning or raise an exception
+  // FIXME issue a LogWarning, raise an exception, or return NaN
   return 0.;
 }
 
@@ -582,9 +583,9 @@ FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& p
 {
   for (unsigned int id: callgraph_.processDescription(process).modules_)
     if (callgraph_.module(id).moduleLabel() == label)
-      return queryModuleTime(sid, id);
+      return queryModuleTime_(sid, id);
 
-  //FIXME issue a LogWarning or raise an exception
+  // FIXME issue a LogWarning, raise an exception, or return NaN
   return 0.;
 }
 
@@ -603,7 +604,7 @@ FastTimerService::queryPathTime(edm::StreamID sid, std::string const& path) cons
         return ms(stream.processes[pid].endpaths[id].total.time_real);
   }
 
-  //FIXME issue a LogWarning or raise an exception
+  // FIXME issue a LogWarning, raise an exception, or return NaN
   return 0.;
 }
 
@@ -620,15 +621,20 @@ FastTimerService::queryPathTime(edm::StreamID sid, std::string const& process, s
     if (desc.paths_[id].name_ == path)
       return ms(stream.processes[pid].endpaths[id].total.time_real);
 
-  //FIXME issue a LogWarning or raise an exception
+  // FIXME issue a LogWarning, raise an exception, or return NaN
   return 0.;
 }
 
 double
-FastTimerService::queryHighlightTime(edm::StreamID sid) const
+FastTimerService::queryHighlightTime(edm::StreamID sid, std::string const& label) const
 {
   auto const& stream = streams_[sid];
-  return ms(stream.highlight.time_real);
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size()))
+    if (highlight_modules_[group].label == label)
+      return ms(stream.highlight[group].time_real);
+
+  // FIXME issue a LogWarning, raise an exception, or return NaN
+  return 0.;
 }
 
 
@@ -676,6 +682,7 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
     {
       booker.setCurrentFolder(dqm_path_);
       stream_plots_[sid].book(booker, callgraph_,
+          highlight_modules_,
           dqm_eventtime_range_,
           dqm_eventtime_resolution_,
           dqm_pathtime_range_,
@@ -720,31 +727,29 @@ FastTimerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAnd
 void
 FastTimerService::postBeginJob() {
   unsigned int modules   = callgraph_.size();
-  unsigned int processes = callgraph_.processes().size();
 
   // module highlights
-  highlight_modules_.reserve(highlight_module_labels_.size());
-  for (unsigned int i = 0; i < modules; ++i)
-    if (highlighted(callgraph_.module(i).moduleLabel()))
-      highlight_modules_.push_back(i);
+  for (unsigned int group: boost::irange(0ul, highlight_module_psets_.size())) {
+    // copy and sort for faster search via std::binary_search
+    auto labels = highlight_module_psets_[group].getUntrackedParameter<std::vector<std::string>>("modules");
+    std::sort(labels.begin(), labels.end());
+
+    highlight_modules_[group].label = highlight_module_psets_[group].getUntrackedParameter<std::string>("label");
+    highlight_modules_[group].modules.reserve(labels.size());
+    // convert the module labels in module ids
+    for (unsigned int i = 0; i < modules; ++i) {
+      auto const & label = callgraph_.module(i).moduleLabel();
+      if (std::binary_search(labels.begin(), labels.end(), label))
+        highlight_modules_[group].modules.push_back(i);
+    }
+  }
+  highlight_module_psets_.clear();
 
   // allocate the resource measurements per thread
   threads_.resize(concurrent_threads_);
 
   // allocate the resource counters for each stream, process, path and module
-  ResourcesPerJob temp;
-  // FIXME move this into the constructor for ResourcesPerJob ?
-  temp.reset();
-  temp.modules.resize(modules);
-  temp.processes.resize(processes);
-  for (unsigned int i = 0; i < processes; ++i) {
-    auto const& process = callgraph_.processDescription(i);
-    temp.processes[i] = {
-      Resources(),
-      std::vector<ResourcesPerPath>(process.paths_.size()),
-      std::vector<ResourcesPerPath>(process.endPaths_.size())
-    };
-  }
+  ResourcesPerJob temp(callgraph_, highlight_modules_);
   streams_.resize(concurrent_streams_, temp);
   run_summary_.resize(concurrent_runs_, temp);
   job_summary_ = temp;
@@ -753,12 +758,12 @@ FastTimerService::postBeginJob() {
   if (enable_dqm_ and not edm::Service<DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     enable_dqm_ = false;
-    // FIXME LogWarning ?
+    // FIXME issue a LogWarning ?
   }
 
   // allocate the structures to hold pointers to the DQM plots
   if (enable_dqm_)
-    stream_plots_.resize(concurrent_threads_, PlotsPerJob(callgraph_));
+    stream_plots_.resize(concurrent_threads_, PlotsPerJob(callgraph_, highlight_modules_));
 
 }
 
@@ -942,14 +947,14 @@ void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
   }
   out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
   out << '\n';
-  if (not highlight_modules_.empty()) {
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
     out << "FastReport       CPU time      Real time  Highlighted modules\n";
-    for (unsigned int m: highlight_modules_) {
+    for (unsigned int m: highlight_modules_[group].modules) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
       out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
     }
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.highlight.time_thread) % ms(data.highlight.time_real);
+    out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(data.highlight[group].time_thread) % ms(data.highlight[group].time_real) % highlight_modules_[group].label;
     out << '\n';
   }
 }
@@ -993,26 +998,26 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     % (ms(data.total.time_thread) / data.events)
     % (ms(data.total.time_real) / data.events);
   out << '\n';
-  out << "FastReport       CPU time      Real time  Processes and Paths\n";
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n")
+  out << "FastReport       CPU time                     Real time                 Processes and Paths\n";
+  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
     % (ms(source.total.time_thread) / data.events)
     % (ms(source.total.time_real) / data.events)
     % source_d.moduleLabel();
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
     auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n")
+    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
       % (ms(proc.total.time_thread) / data.events)
       % (ms(proc.total.time_real) / data.events)
       % proc_d.name_;
     for (unsigned int p = 0; p < proc.paths.size(); ++p) {
       auto const& name = proc_d.paths_[p].name_;
       auto const& path = proc.paths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n")
+      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
        % (ms(path.active.time_thread) / data.events)
        % (ms(path.active.time_real) / data.events)
        % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n")
+      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
        % (ms(path.total.time_thread) / data.events)
        % (ms(path.total.time_real) / data.events)
        % name;
@@ -1020,23 +1025,23 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
       auto const& name = proc_d.endPaths_[p].name_;
       auto const& path = proc.endpaths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n")
+      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
        % (ms(path.active.time_thread) / data.events)
        % (ms(path.active.time_real) / data.events)
        % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n")
+      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
        % (ms(path.total.time_thread) / data.events)
        % (ms(path.total.time_real) / data.events)
        % name;
     }
   }
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n")
+  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
        % (ms(data.total.time_thread) / data.events)
        % (ms(data.total.time_real) / data.events);
   out << '\n';
-  if (not highlight_modules_.empty()) {
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
     out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Highlighted modules\n";
-    for (unsigned int m: highlight_modules_) {
+    for (unsigned int m: highlight_modules_[group].modules) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
       out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
@@ -1044,9 +1049,10 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
         % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
         % module_d.moduleLabel();
     }
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
-      % (ms(data.total.time_thread) / data.events)
-      % (ms(data.total.time_real) / data.events);
+    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
+      % (ms(data.highlight[group].time_thread) / data.events)
+      % (ms(data.highlight[group].time_real) / data.events)
+      % highlight_modules_[group].label;
     out << '\n';
   }
 }
@@ -1079,8 +1085,9 @@ FastTimerService::postEvent(edm::StreamContext const& sc)
     return;
 
   // highlighted modules
-  for (unsigned int i: highlight_modules_)
-    stream.highlight += stream.modules[i].total;
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size()))
+    for (unsigned int i: highlight_modules_[group].modules)
+      stream.highlight[group] += stream.modules[i].total;
 
   // avoid concurrent access to the summary objects
   {
@@ -1352,7 +1359,11 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<double>(      "dqmModuleTimeResolution",     0.2);   // ms
   desc.addUntracked<unsigned>(    "dqmLumiSectionsRange",     2500  );   // ~ 16 hours
   desc.addUntracked<std::string>( "dqmPath",                  "HLT/TimerService");
-  desc.addUntracked<std::vector<std::string>>("highlightModules", {});
+
+  edm::ParameterSetDescription highlightModulesDescription;
+  highlightModulesDescription.addUntracked<std::vector<std::string>>("modules", {});
+  highlightModulesDescription.addUntracked<std::string>("label", "producers");
+  desc.addVPSetUntracked("highlightModules", highlightModulesDescription, {});
 
   // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
   // they will not be printed in the generated cfi.py file

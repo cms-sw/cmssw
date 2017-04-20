@@ -40,17 +40,7 @@
 /*
 procesing time is diveded into
  - source
- - pre-event processing overhead
- - event processing
- - post-event processing overhead
-
-until lumi-processing and run-processing are taken into account, they will count as inter-event overhead
-
-event processing time is diveded into
- - trigger processing (from the begin of the first path to the end of the last path)
- - trigger overhead
- - endpath processing (from the begin of the first endpath to the end of the last endpath)
- - endpath overhead
+ - event processing, sum of the time spent in all the modules
 */
 
 /*
@@ -92,6 +82,10 @@ public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService();
 
+private:
+  double queryModuleTime_(edm::StreamID, unsigned int id) const;
+
+public:
   // query the time spent in a module/path/process (available after it has run)
   double querySourceTime(edm::StreamID) const;
   double queryEventTime(edm::StreamID) const;
@@ -102,7 +96,7 @@ public:
   double queryModuleTimeByLabel(edm::StreamID, std::string const& process, const std::string & module) const;
   double queryPathTime(edm::StreamID, std::string const& path) const;
   double queryPathTime(edm::StreamID, std::string const& process, std::string const& path) const;
-  double queryHighlightTime(edm::StreamID sid) const;
+  double queryHighlightTime(edm::StreamID sid, std::string const& label) const;
 
 private:
   void ignoredSignal(std::string signal) const;
@@ -222,6 +216,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+  // highlight a group of modules
+  struct GroupOfModules {
+    std::string                 label;
+    std::vector<unsigned int>   modules;
+  };
+
   // resources being monitored by the service
   struct Resources {
     boost::chrono::nanoseconds time_thread;
@@ -305,6 +305,14 @@ private:
     std::vector<ResourcesPerPath> paths;
     std::vector<ResourcesPerPath> endpaths;
 
+    ResourcesPerProcess(ProcessCallGraph::ProcessType const& process) :
+      total(),
+      paths(process.paths_.size()),
+      endpaths(process.endPaths_.size())
+    {
+    }
+
+
     void reset() {
       total.reset();
       for (auto & path: paths)
@@ -333,14 +341,29 @@ private:
 
   struct ResourcesPerJob {
     Resources                        total;
-    Resources                        highlight;
+    std::vector<Resources>           highlight;
     std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
     unsigned                         events;
 
+    ResourcesPerJob() = default;
+
+    ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
+      total(),
+      highlight( groups.size() ),
+      modules( job.size() ),
+      processes(),
+      events(0)
+    {
+      processes.reserve(job.processes().size());
+      for (auto const& process: job.processes())
+        processes.emplace_back(process);
+    }
+
     void reset() {
       total.reset();
-      highlight.reset();
+      for (auto & module: highlight)
+        module.reset();
       for (auto & module: modules)
         module.reset();
       for (auto & process: processes)
@@ -350,7 +373,9 @@ private:
 
     ResourcesPerJob & operator+=(ResourcesPerJob const& other) {
       total     += other.total;
-      highlight += other.highlight;
+      assert(highlight.size() == other.highlight.size());
+      for (unsigned int i: boost::irange(0ul, highlight.size()))
+        highlight[i] += other.highlight[i];
       assert(modules.size() == other.modules.size());
       for (unsigned int i: boost::irange(0ul, modules.size()))
         modules[i] += other.modules[i];
@@ -397,7 +422,6 @@ private:
       time_real   = new_time_real;
     }
   };
-
 
   // plots associated to each module or other element (path, process, etc)
   class PlotsPerElement {
@@ -458,18 +482,18 @@ private:
 
   class PlotsPerJob {
   public:
-    PlotsPerJob();
-    PlotsPerJob(ProcessCallGraph const&);
+    PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
     void reset();
-    void book(DQMStore::IBooker &, ProcessCallGraph const&, double event_range, double event_resolution,
-        double path_range, double path_resolution, double module_range, double module_resolution, unsigned int lumisections);
+    void book(DQMStore::IBooker &, ProcessCallGraph const&, std::vector<GroupOfModules> const&,
+        double event_range, double event_resolution, double path_range, double path_resolution,
+        double module_range, double module_resolution, unsigned int lumisections);
     void fill(ProcessCallGraph const&, ResourcesPerJob const&, unsigned int ls);
 
   private:
     // resources spent in all the modules of the job
     PlotsPerElement              event_;
     // resources spent in the highlighted modules
-    PlotsPerElement              highlight_;
+    std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
     std::vector<PlotsPerElement> modules_;
     // resources spent in each (sub)process
@@ -527,8 +551,9 @@ private:
   const unsigned int            dqm_lumisections_range_;
   std::string                   dqm_path_;
 
-  std::vector<std::string>      highlight_module_labels_;
-  std::vector<unsigned int>     highlight_modules_;
+  std::vector<edm::ParameterSet>
+                                highlight_module_psets_;        // non-const, cleared in postBeginJob()
+  std::vector<GroupOfModules>   highlight_modules_;             // non-const, filled in postBeginJob()
 
   // log unsupported signals
   mutable tbb::concurrent_unordered_set<std::string> unsupported_signals_;      // keep track of unsupported signals received
@@ -539,16 +564,6 @@ private:
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
-
-  bool highlighted(std::string const& module) const {
-    // highlight_module_labels_ is sorted in the ctor
-    return std::binary_search(highlight_module_labels_.begin(), highlight_module_labels_.end(), module);
-  }
-
-  bool highlighted(unsigned int module) const {
-    // highlight_modules_ is sorted by contruction (see postBeginJob())
-    return std::binary_search(highlight_modules_.begin(), highlight_modules_.end(), module);
-  }
 };
 
 #endif // ! FastTimerService_h
