@@ -50,8 +50,12 @@ namespace {
 }
 
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
-  MultiTrackValidatorBase(pset,consumesCollector()),
+  associators(pset.getUntrackedParameter< std::vector<edm::InputTag> >("associators")),
+  label(pset.getParameter< std::vector<edm::InputTag> >("label")),
+  parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+  ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false)),
+  useAssociators_(pset.getParameter< bool >("UseAssociators")),
   calculateDrSingleCollection_(pset.getUntrackedParameter<bool>("calculateDrSingleCollection")),
   doPlotsOnlyForTruePV_(pset.getUntrackedParameter<bool>("doPlotsOnlyForTruePV")),
   doSummaryPlots_(pset.getUntrackedParameter<bool>("doSummaryPlots")),
@@ -64,12 +68,37 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
 {
-  ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
+  const edm::InputTag& label_tp_effic_tag = pset.getParameter< edm::InputTag >("label_tp_effic");
+  const edm::InputTag& label_tp_fake_tag = pset.getParameter< edm::InputTag >("label_tp_fake");
+
+  if(pset.getParameter<bool>("label_tp_effic_refvector")) {
+    label_tp_effic_refvector = consumes<TrackingParticleRefVector>(label_tp_effic_tag);
+  }
+  else {
+    label_tp_effic = consumes<TrackingParticleCollection>(label_tp_effic_tag);
+  }
+  if(pset.getParameter<bool>("label_tp_fake_refvector")) {
+    label_tp_fake_refvector = consumes<TrackingParticleRefVector>(label_tp_fake_tag);
+  }
+  else {
+    label_tp_fake = consumes<TrackingParticleCollection>(label_tp_fake_tag);
+  }
+  label_pileupinfo = consumes<std::vector<PileupSummaryInfo> >(pset.getParameter< edm::InputTag >("label_pileupinfo"));
+  for(const auto& tag: pset.getParameter<std::vector<edm::InputTag>>("sim")) {
+    simHitTokens_.push_back(consumes<std::vector<PSimHit>>(tag));
+  }
+
+  for (auto& itag : label) {
+    labelToken.push_back(consumes<edm::View<reco::Track> >(itag));
+  }
+
   edm::InputTag beamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
+  bsSrc = consumes<reco::BeamSpot>(beamSpotTag);
+
+  ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, beamSpotTag, doSeedPlots_, consumesCollector());
 
   dirName_ = pset.getParameter<std::string>("dirName");
-  UseAssociators = pset.getParameter< bool >("UseAssociators");
 
   tpNLayersToken_ = consumes<edm::ValueMap<unsigned int> >(pset.getParameter<edm::InputTag>("label_tp_nlayers"));
   tpNPixelLayersToken_ = consumes<edm::ValueMap<unsigned int> >(pset.getParameter<edm::InputTag>("label_tp_npixellayers"));
@@ -159,7 +188,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     labelTokenForDrCalculation = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("trackCollectionForDrCalculation"));
   }
 
-  if(UseAssociators) {
+  if(useAssociators_) {
     for (auto const& src: associators) {
       associatorTokens.push_back(consumes<reco::TrackToTrackingParticleAssociator>(src));
     }
@@ -619,7 +648,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     reco::SimToRecoCollection const * simRecCollPFull=nullptr;
     reco::RecoToSimCollection const * recSimCollP=nullptr;
     reco::RecoToSimCollection recSimCollL;
-    if(!UseAssociators) {
+    if(!useAssociators_) {
       Handle<reco::SimToRecoCollection > simtorecoCollectionH;
       event.getByToken(associatormapStRs[ww], simtorecoCollectionH);
       simRecCollPFull = simtorecoCollectionH.product();
@@ -650,7 +679,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       LogTrace("TrackValidator") << "Analyzing "
                                  << label[www] << " with "
                                  << associators[ww] <<"\n";
-      if(UseAssociators){
+      if(useAssociators_){
         edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
         event.getByToken(associatorTokens[ww], theAssociator);
 
