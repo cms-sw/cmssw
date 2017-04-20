@@ -177,9 +177,7 @@ def miniAOD_customizeCommon(process):
     #
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileupJetId)
-    task.add(process.pileupJetIdCalculator)
-    task.add(process.pileupJetIdEvaluator)
+    task.add(process.pileUpJetIDTask)
 
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
@@ -253,9 +251,10 @@ def miniAOD_customizeCommon(process):
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
-    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-    task.add(process.ak4PFJets)
-    task.add(process.ak4PFJetsPuppi)
+    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
+        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+        task.add(process.ak4PFJets)
+        task.add(process.ak4PFJetsPuppi)
     process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX

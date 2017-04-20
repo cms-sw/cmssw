@@ -11,6 +11,7 @@ namespace l1t {
    class Unpacker {
       public:
          virtual bool unpack(const Block& block, UnpackerCollections *coll) = 0;
+         virtual ~Unpacker() = default;
    };
 }
 

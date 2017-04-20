@@ -24,7 +24,7 @@
 ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geometry, const unsigned int numberOfStrips, const unsigned int numberOfPartitions) {
 	//First test geometry to make sure that it is compatible with our assumptions
 	const auto& chambers = geometry->chambers();
-	if(!chambers.size())
+	if(chambers.empty())
 		throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - No ME0Chambers in geometry.";
 	const auto* mainChamber = chambers.front();
 	const unsigned int nLayers = chambers.front()->nLayers();
@@ -135,7 +135,7 @@ TrapezoidalStripTopology * ME0ReDigiProducer::TemporaryGeometry::buildTopo(const
 
 ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 		bxWidth            (25.0),
-		useBuiltinGeo      (ps.getParameter<bool>("useBuiltinGeo")),
+		useCusGeoFor1PartGeo(ps.getParameter<bool>("useCusGeoFor1PartGeo")),
 		numberOfStrips      (ps.getParameter<unsigned int>("numberOfStrips")),
 		numberOfPartitions (ps.getParameter<unsigned int>("numberOfPartitions")),
 		neutronAcceptance  (ps.getParameter<double>("neutronAcceptance")),
@@ -157,8 +157,9 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 	}
 	geometry = 0;
 	tempGeo = 0;
+	useBuiltinGeo = true;
 
-	if(!useBuiltinGeo){
+	if(useCusGeoFor1PartGeo){
 		if(numberOfStrips == 0)
 			throw cms::Exception("Setup") << "ME0ReDigiProducer::ME0PreRecoDigiProducer() - Must have at least one strip if using custom geometry.";
 		if(numberOfPartitions == 0)
@@ -183,11 +184,20 @@ void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSe
 	eventSetup.get<MuonGeometryRecord>().get(hGeom);
 	geometry= &*hGeom;
 
+	const auto& chambers = geometry->chambers();
+	if(chambers.empty())
+		throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No ME0Chambers in geometry.";
+
+	const unsigned int nLayers = chambers.front()->nLayers();
+	if(!nLayers) throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No layers in ME0 geometry.";
+
+	const unsigned int nPartitions = chambers.front()->layers()[0]->nEtaPartitions();
+
+	if(useCusGeoFor1PartGeo && nPartitions == 1){
+		useBuiltinGeo = false;
+	}
+
 	if(useBuiltinGeo){
-		const auto& chambers = geometry->chambers();
-		if(!chambers.size())
-			throw cms::Exception("Setup") << "ME0ReDigiProducer::beginRun() - No ME0Chambers in geometry.";
-		const unsigned int nLayers = chambers.front()->nLayers();
 		if(nLayers != layerReadout.size() )
 			throw cms::Exception("Configuration") << "ME0ReDigiProducer::beginRun() - The geometry has "<<nLayers
 			<< " layers, but the readout of "<<layerReadout.size() << " were specified with the layerReadout parameter."  ;

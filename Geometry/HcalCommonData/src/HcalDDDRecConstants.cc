@@ -595,6 +595,19 @@ void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
   }
 }
 
+bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
+					 std::vector<HcalDetId>& ids) const {
+  if (tobemerged) {
+    std::map<HcalDetId,HcalDetId>::const_iterator itr;
+    for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr) 
+      ids.push_back(itr->first);
+  } else{
+    std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr;
+    for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr) 
+      ids.push_back(itr->first);
+  }
+  return (ids.size() > 0);
+}
 
 void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zside,
 				       std::vector<std::pair<int,double> >& phis,
