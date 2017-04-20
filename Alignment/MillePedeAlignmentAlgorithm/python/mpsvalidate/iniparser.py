@@ -9,6 +9,9 @@ import ConfigParser
 import logging
 import os
 
+from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper \
+    import checked_out_MPS
+
 
 class ConfigData:
     """ stores the config data of the ini files or the console parameters
@@ -16,7 +19,10 @@ class ConfigData:
 
     def __init__(self):
         # get path to modules, defaut ini and templates
-        self.mpspath = os.path.join(os.path.dirname(__file__))
+        self.mpspath = os.path.join(os.environ["CMSSW_BASE"]
+                                    if checked_out_MPS()[0]
+                                    else os.environ["CMSSW_RELEASE_BASE"], "src",
+                                    "Alignment", "MillePedeAlignmentAlgorithm")
 
         # General
         # jobmX dir

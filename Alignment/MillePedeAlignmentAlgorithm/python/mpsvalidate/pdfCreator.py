@@ -23,7 +23,8 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     logger = logging.getLogger("mpsvalidate")
 
     # load template
-    with open(os.path.join(config.mpspath, "tex_template.tex"), "r") as template:
+    with open(os.path.join(config.mpspath, "templates",
+                           "mpsvalidate_tex_template.tex")) as template:
         data = template.read()
         template.close()
 
