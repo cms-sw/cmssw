@@ -19,6 +19,7 @@ import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate as mpsv
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
@@ -273,6 +274,20 @@ def create_mass_storage_directory(mps_dir_name, general_options):
     return mss_dir
 
 
+def create_tracker_tree(global_tag, first_run):
+    """Method to create hidden 'TrackerTree.root'.
+
+    Arguments:
+    - `global_tag`: global tag from which the tracker geometry is taken
+    - `first_run`: run to specify IOV within `global_tag`
+    """
+
+    config = mpsv.iniparser.ConfigData()
+    config.jobDataPath = "."    # current directory
+    config.globalTag = global_tag
+    config.firstRun = first_run
+    return mpsv.trackerTree.check(config)
+
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
 
@@ -474,6 +489,7 @@ if args.weight:
             if setting is not None: command.extend(["-a", setting])
             print " ".join(command)
             handle_process_call(command, args.verbose)
+            create_tracker_tree(globalTag, first_run)
 
     # remove temporary file
     handle_process_call(["rm", thisCfgTemplate])
@@ -693,9 +709,7 @@ for setting in pedesettings:
         for name,weight in weight_conf:
             handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
-        if firstPedeConfig:
-            firstPedeConfig = False
-        else:
+        if not firstPedeConfig:
             # create new mergejob
             handle_process_call(["mps_setupm.pl"], True)
 
@@ -724,6 +738,13 @@ for setting in pedesettings:
         if setting is not None: command.extend(["-a", setting])
         print " ".join(command)
         handle_process_call(command, args.verbose)
+        tracker_tree_path = create_tracker_tree(datasetOptions["globaltag"],
+                                                generalOptions["FirstRunForStartGeometry"])
+        if firstPedeConfig:
+            os.symlink(tracker_tree_path,
+                       os.path.abspath(os.path.join("jobData", lib.JOBDIR[-1],
+                                                    ".TrackerTree.root")))
+            firstPedeConfig = False
 
     # remove temporary file
     handle_process_call(["rm", thisCfgTemplate])

@@ -107,6 +107,7 @@ push @JOBSP3,"";
 print "Create dir jobData/$theJobDir\n";
 system "rm -rf jobData/$theJobDir";
 system "mkdir jobData/$theJobDir";
+system "ln -s `readlink -e .TrackerTree.root` jobData/$theJobDir/";
 
 # build the absolute job directory path (needed by mps_scriptm)
 $thePwd = `pwd`;
