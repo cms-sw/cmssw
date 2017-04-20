@@ -77,9 +77,9 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
     LogError("HLTPrescaleRecorder")<<"PoolDBOutputService requested as destination but unavailable!";
   }
 
-  if (run_)   produces<HLTPrescaleTable,edm::InRun>("Run");
-  if (lumi_)  produces<HLTPrescaleTable,edm::InLumi>("Lumi");
-  if (event_) produces<HLTPrescaleTable,edm::InEvent>("Event");
+  if (run_)   produces<HLTPrescaleTable,edm::Transition::EndRun>("Run");
+  if (lumi_)  produces<HLTPrescaleTable,edm::Transition::EndLuminosityBlock>("Lumi");
+  if (event_) produces<HLTPrescaleTable,edm::Transition::Event>("Event");
 
 }
 

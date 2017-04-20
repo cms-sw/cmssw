@@ -15,7 +15,7 @@ MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
       inputFileName_(iConfig.getParameter<std::string>("inputBinaryFile")),
       fileBlobLabel_(iConfig.getParameter<std::string>("fileBlobLabel")) {
   // We define what this producer produces: A FileBlobCollection
-  produces<FileBlobCollection, edm::InLumi>(fileBlobLabel_);
+  produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
 }
 
 MillePedeFileConverter::~MillePedeFileConverter() {}
