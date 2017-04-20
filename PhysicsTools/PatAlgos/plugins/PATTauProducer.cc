@@ -72,16 +72,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   // tau ID configurables
   addTauID_ = iConfig.getParameter<bool>( "addTauID" );
   if ( addTauID_ ) {
-    // it might be a single tau ID
-    if (iConfig.existsAs<edm::InputTag>("tauIDSource")) {
-      tauIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("tauIDSource")));
-    }
-    // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
-      // please don't configure me twice
-      if (!tauIDSrcs_.empty()){
-	throw cms::Exception("Configuration") << "PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
-      }
       // read the different tau ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
@@ -92,7 +83,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
       "PATTauProducer: id addTauID is true, you must specify either:\n" <<
-      "\tInputTag tauIDSource = <someTag>\n" << "or\n" <<
       "\tPSet tauIDSources = { \n" <<
       "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
       "\t}\n";
