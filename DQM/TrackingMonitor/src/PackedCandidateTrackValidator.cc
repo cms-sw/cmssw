@@ -27,8 +27,15 @@
 #include <iomanip>
 
 namespace {
-  template<typename T> void fillNoFlow(MonitorElement* h, T val){
-    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  template<typename T> void fillNoFlow(MonitorElement* me, T val){
+    auto h = me->getTH1();
+    const auto xaxis = h->GetXaxis();
+    if(val <= xaxis->GetXmin())
+      h->AddBinContent(xaxis->GetFirst());
+    else if(val >= xaxis->GetXmax())
+      h->AddBinContent(xaxis->GetLast());
+    else
+      h->Fill(val);
   }
 
   class HitPatternPrinter {
