@@ -31,8 +31,8 @@ class Alignables:
         discriminator = self.get_discriminator(objid)
         ndiscriminator = {key: [] for key in discriminator}
         # open TrackerTree.root file
-        treeFile = ROOT.TFile(os.path.join(self.config.mpspath, "python",
-                                           "mpsvalidate", "TrackerTree.root"))
+        treeFile = ROOT.TFile(os.path.join(self.config.jobDataPath,
+                                           ".TrackerTree.root"))
         tree = treeFile.Get("TrackerTreeGenerator/TrackerTree/TrackerTree")
 
         for entry in tree:
@@ -90,8 +90,8 @@ class Alignables:
         # list of all detids in the structure
         detids = []
         # open TrackerTree.root file
-        treeFile = ROOT.TFile(os.path.join(self.config.mpspath, "python",
-                                           "mpsvalidate", "TrackerTree.root"))
+        treeFile = ROOT.TFile(os.path.join(self.config.jobDataPath,
+                                           ".TrackerTree.root"))
         tree = treeFile.Get("TrackerTreeGenerator/TrackerTree/TrackerTree")
 
         for entry in tree:

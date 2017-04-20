@@ -42,6 +42,10 @@ class ConfigData:
         self.limit = {}
         # statboxsize
         self.statboxsize = -1
+        # global tag
+        self.globalTag = None
+        # first run to pick for the geometry in self.globalTag
+        self.firstRun = None
 
         # what should be created
         self.showmonitor    = False
