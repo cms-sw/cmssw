@@ -38,6 +38,8 @@
 #include <string>
 #include <map>
 
+//#define EDM_ML_DEBUG
+
 class HGCalHitCalibration : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit HGCalHitCalibration(const edm::ParameterSet&);
@@ -55,10 +57,9 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> _recHitsBH;
   edm::EDGetTokenT<std::vector<CaloParticle> > _caloParticles;
 
-  std::string                detector;
+  bool                       rawRecHits;
   int                        algo;
   HGCalDepthPreClusterer     pre;
-  bool                       rawRecHits;
   hgcal::RecHitTools         recHitTools;
 
   TH1F* h_EoP_CPene_100_calib_fraction;
@@ -73,11 +74,10 @@ private:
 
 
 HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig) :
-  detector(iConfig.getParameter<std::string >("detector")),
   rawRecHits(iConfig.getParameter<bool>("rawRecHits")) {
 
   usesResource(TFileService::kSharedResource);
-
+  std::string detector = iConfig.getParameter<std::string >("detector");
   if(detector=="all") {
     _recHitsEE = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit","HGCEERecHits"));
     _recHitsFH = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
@@ -111,93 +111,38 @@ void
 HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  //size should be HGC layers 52 is enough
-  Energy_layer_calib.clear();
-  Energy_layer_calib_fraction.clear();
-  for(unsigned int ij=0; ij<60; ++ij){
-    Energy_layer_calib.push_back(0.);
-    Energy_layer_calib_fraction.push_back(0.);
-  }
 
   recHitTools.getEventSetup(iSetup);
 
   edm::Handle<HGCRecHitCollection> recHitHandleEE;
   edm::Handle<HGCRecHitCollection> recHitHandleFH;
   edm::Handle<HGCRecHitCollection> recHitHandleBH;
+  iEvent.getByToken(_recHitsEE,recHitHandleEE);
+  iEvent.getByToken(_recHitsFH,recHitHandleFH);
+  iEvent.getByToken(_recHitsBH,recHitHandleBH);
   
   edm::Handle<std::vector<CaloParticle> > caloParticleHandle;
   iEvent.getByToken(_caloParticles, caloParticleHandle);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
-  
-  //make a map detid-rechit
-  std::map<DetId,const HGCRecHit*> hitmap;
-  switch(algo){
-  case 1:
-    {
-      iEvent.getByToken(_recHitsEE,recHitHandleEE);
-      iEvent.getByToken(_recHitsFH,recHitHandleFH);
-      iEvent.getByToken(_recHitsBH,recHitHandleBH);
-      const auto& rechitsEE = *recHitHandleEE;
-      const auto& rechitsFH = *recHitHandleFH;
-      const auto& rechitsBH = *recHitHandleBH;
-      for(unsigned int i = 0; i < rechitsEE.size(); ++i){
-	hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
-      }
-      for(unsigned int i = 0; i < rechitsFH.size(); ++i){
-	hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
-      }
-      for(unsigned int i = 0; i < rechitsBH.size(); ++i){
-	hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
-      }
-      break;
-    }
-  case 2:
-    {
-      iEvent.getByToken(_recHitsEE,recHitHandleEE);
-      const HGCRecHitCollection& rechitsEE = *recHitHandleEE;
-      for(unsigned int i = 0; i < rechitsEE.size(); i++){
-	hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
-      }
-      break;
-    }
-  case 3:
-    {
-      iEvent.getByToken(_recHitsFH,recHitHandleFH);
-      iEvent.getByToken(_recHitsBH,recHitHandleBH);
-      const auto& rechitsFH = *recHitHandleFH;
-      const auto& rechitsBH = *recHitHandleBH;
-      for(unsigned int i = 0; i < rechitsFH.size(); i++){
-	hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
-      }
-      for(unsigned int i = 0; i < rechitsBH.size(); i++){
-	hitmap[rechitsBH[i].detid()] = &rechitsBH[i];
-      }
-      break;
-    }
-  default:
-    break;
-  }
 
   // loop over caloParticles
   for (std::vector<CaloParticle>::const_iterator it_caloPart = caloParticles.begin(); it_caloPart != caloParticles.end(); ++it_caloPart) {
     const SimClusterRefVector simClusterRefVector = it_caloPart->simClusters();
 
-    Energy_layer_calib.clear();
-    Energy_layer_calib_fraction.clear();
-    for(unsigned int ij=0; ij<60; ++ij) {
-      Energy_layer_calib.push_back(0.);
-      Energy_layer_calib_fraction.push_back(0.);
-    }
-
+    //size should be HGC layers 52 is enough
+    Energy_layer_calib.assign(60,0.);
+    Energy_layer_calib_fraction.assign(60,0.);
+    
     int seedDet = 0;
     float seedEnergy = 0.;
     int simClusterCount = 0;
     
-    for (CaloParticle::sc_iterator it_sc = simClusterRefVector.begin(); it_sc != simClusterRefVector.end(); ++it_sc) {
-      const SimCluster simCluster = (*(*it_sc));
+    for ( const auto & simCluster : simClusterRefVector) {
       ++simClusterCount;
-      //      std::cout << ">>> simCluster.energy() = " << simCluster.energy() << std::endl;
-      const std::vector<std::pair<uint32_t,float> > hits_and_fractions = simCluster.hits_and_fractions();
+#ifdef EDM_ML_DEBUG
+      std::cout << ">>> simCluster.energy() = " << simCluster->energy() << std::endl;
+#endif
+      const std::vector<std::pair<uint32_t,float> > hits_and_fractions = simCluster->hits_and_fractions();
 
       //loop over hits      
       for (std::vector<std::pair<uint32_t,float> >::const_iterator it_haf = hits_and_fractions.begin(); it_haf != hits_and_fractions.end(); ++it_haf) {
@@ -206,14 +151,20 @@ HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
         // dump raw RecHits and match
 	if (rawRecHits) {
-	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCEE) {
+	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCEE &&
+	      (algo == 1 || algo == 2)) {
 	    const HGCRecHitCollection& rechitsEE = *recHitHandleEE;
 	    // loop over EE RecHits
 	    for (HGCRecHitCollection::const_iterator it_hit = rechitsEE.begin(); it_hit < rechitsEE.end(); ++it_hit) {
 	      const HGCalDetId detid = it_hit->detid();
 	      unsigned int layer = recHitTools.getLayerWithOffset(detid);
 	      if(detid == hitid){
-		if(hitlayer != layer) {std::cout << " recHit ID problem EE " << std::endl; return;}
+		if(hitlayer != layer) {
+#ifdef EDM_ML_DEBUG
+		  std::cout << " recHit ID problem EE " << std::endl;
+#endif
+		  return;
+		}
 		Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
 		LayerOccupancy->Fill(layer);
 		if(seedEnergy < it_hit->energy()){
@@ -224,14 +175,20 @@ HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      }
 	    }
 	  }
-	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCHEF) {
+	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCHEF &&
+	      (algo == 1 || algo == 3)) {
 	    const HGCRecHitCollection& rechitsFH = *recHitHandleFH;
 	    // loop over HEF RecHits
 	    for (HGCRecHitCollection::const_iterator it_hit = rechitsFH.begin(); it_hit < rechitsFH.end(); ++it_hit) {
 	      const HGCalDetId detid = it_hit->detid();
 	      unsigned int layer = recHitTools.getLayerWithOffset(detid);
 	      if(detid == hitid){
-		if(hitlayer != layer) {std::cout << " recHit ID problem FH " << std::endl; return;}
+		if (hitlayer != layer) {
+#ifdef EDM_ML_DEBUG
+		  std::cout << " recHit ID problem FH " << std::endl; 
+#endif
+		  return;
+		}
 		Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
 		LayerOccupancy->Fill(layer);
 		if(seedEnergy < it_hit->energy()){
@@ -242,14 +199,20 @@ HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      }
 	    }
 	  }
-	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCHEB) {
+	  if (hitid.det() == DetId::Forward && hitid.subdetId() == HGCHEB &&
+	      (algo == 1 || algo == 3)) {
 	    const HGCRecHitCollection& rechitsBH = *recHitHandleBH;
 	    // loop over BH RecHits
 	    for (HGCRecHitCollection::const_iterator it_hit = rechitsBH.begin(); it_hit < rechitsBH.end(); ++it_hit) {
 	      const HcalDetId detid = it_hit->detid();
 	      unsigned int layer = recHitTools.getLayerWithOffset(detid);
 	      if(detid == hitid){
-		if(hitlayer != layer) {std::cout << " recHit ID problem BH " << std::endl; return;}
+		if (hitlayer != layer) {
+#ifdef EDM_ML_DEBUG
+		  std::cout << " recHit ID problem BH " << std::endl; 
+#endif
+		  return;
+		}
 		Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
 		LayerOccupancy->Fill(layer);
 		if(seedEnergy < it_hit->energy()){
