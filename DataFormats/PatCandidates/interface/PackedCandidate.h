@@ -620,14 +620,6 @@ namespace pat {
         uint16_t dphidphi;
     };
 
-  private:
-    void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix & m, uint16_t packed, int i,int j) const {
-      m(i,j)= covarianceParameterization().unpack(packed,covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
-    }
-    uint16_t packCovarianceElement(const reco::TrackBase::CovarianceMatrix &m,int i,int j) const {
-      return covarianceParameterization().pack(m(i,j),covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
-    }
-
     // for the neutral fractions
     void setRawCaloFraction(float p);                      /// Set the fraction of Ecal needed for HF and neutral isolated charged hadrons
     float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
@@ -637,6 +629,14 @@ namespace pat {
      // isolated charged hadrons
     void setIsIsolatedChargedHadron(bool p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
     bool isIsolatedChargedHadron() const { return isIsolatedChargedHadron_; }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
+
+  private:
+    void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix & m, uint16_t packed, int i,int j) const {
+      m(i,j)= covarianceParameterization().unpack(packed,covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
+    }
+    uint16_t packCovarianceElement(const reco::TrackBase::CovarianceMatrix &m,int i,int j) const {
+      return covarianceParameterization().pack(m(i,j),covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
+    }
 
   protected:
     friend class ::testPackedCandidate;
