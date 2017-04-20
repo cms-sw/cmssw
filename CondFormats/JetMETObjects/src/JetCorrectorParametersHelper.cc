@@ -83,7 +83,40 @@ void JetCorrectorParametersHelper::init(const JetCorrectorParameters::Definition
     {
       handleError("JetCorrectorParametersHelper","The mapping of bin lower bounds to indices does not contain all possible entries!!!");
     }
+  // This function checks that all of the middle binned parameters (not the first or last) contain the same range of bins.
+  // If not an exception will be thrown as the mapping will work only if all bins but the last are uniform.
+  if (SIZE>2) checkMiddleBinUniformity(mRecordsLocal);
 }
+
+void JetCorrectorParametersHelper::checkMiddleBinUniformity(const std::vector<JetCorrectorParameters::Record>& mRecords) const
+{
+  unsigned N = SIZE-2;
+  size_t nRec = mRecords.size();
+  std::vector<int> fN(N,-1);
+  //The order of looping (records or dimensions) does not matter because you have to go through all of them once anyway
+  //Loop over each binned dimension that isn't the first or the last
+  for (unsigned idim=1; idim<=N; idim++) {
+    int nBoundaryPassed = 0;
+    if (fN[idim-1]==-1) fN[idim-1] = mBinBoundaries[idim].size();
+    //Loop over the mRecords vector
+    for (unsigned iRecord=0; iRecord<nRec; iRecord++) {
+      if (mRecords[iRecord].xMin(idim)!=mBinBoundaries[idim][nBoundaryPassed%fN[idim-1]]) {
+        throw cms::Exception("MissingRecord") << "found a missing record in binned dimension " << idim << " after record " << iRecord << std::endl
+                                              << "\tthe bin lower bound should have been " << mBinBoundaries[idim][nBoundaryPassed%fN[idim-1]]
+                                              << ", but was instead " <<  mRecords[iRecord].xMin(idim) << std::endl
+                                              << "\tall binned dimensions, besides the last one, must have uniform binning." << std::endl
+                                              << mRecords[iRecord-1] << std::endl << mRecords[iRecord] << std::endl;
+      }
+      else if((iRecord==nRec-1 || mRecords[iRecord].xMin(idim)!=mRecords[iRecord+1].xMin(idim))) {
+        nBoundaryPassed++;
+      }
+      else {
+        continue;
+      }
+    }
+  }
+}
+
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters::JetCorrectorParametersHelper sanity checks -
 //--- checks that some conditions are met before finding the bin index ---
@@ -93,7 +126,7 @@ void JetCorrectorParametersHelper::binIndexChecks(unsigned N, const std::vector<
   if (N != fX.size())
     {
       std::stringstream sserr;
-      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
+      sserr<<"The number of binned variables, "<<N<<", doesn't correspond to the number requested, "<<fX.size();
       handleError("JetCorrectorParametersHelper",sserr.str());
     }
 }
@@ -123,8 +156,10 @@ int JetCorrectorParametersHelper::binIndexN(const std::vector<float>& fX,
     tmpIt = std::lower_bound(mBinBoundaries[idim].begin(),mBinBoundaries[idim].end(),fX[idim]);
     // lower_bound finds the entry with the next highest value to fX[0]
     // so unless the two values are equal, you want the next lowest bin boundary
-    if (*tmpIt != fX[idim])
-      tmpIt-=1;
+    if (tmpIt == mBinBoundaries[idim].end())
+      tmpIt = mBinBoundaries[idim].begin()+mBinBoundaries[idim].size()-1;
+    else if (*tmpIt != fX[idim])
+      tmpIt -= 1;
     fN[idim] = *tmpIt;
   }
 
@@ -138,7 +173,8 @@ int JetCorrectorParametersHelper::binIndexN(const std::vector<float>& fX,
       else
       {
         std::stringstream sserr;
-        sserr<<"couldn't find the index boundaries for dimension "<<Nm1;
+        sserr<<"couldn't find the index boundaries for dimension "<<Nm1<<std::endl
+             <<"looking for last bin with N-1 values of "<<to_find_Nm1<<std::endl;
         handleError("JetCorrectorParametersHelper",sserr.str());
         return -1;
       }
