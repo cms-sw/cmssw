@@ -72,13 +72,11 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   // tau ID configurables
   addTauID_ = iConfig.getParameter<bool>( "addTauID" );
   if ( addTauID_ ) {
-    if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
-      // read the different tau ID names
-      edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
-      std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-	tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
-      }
+    // read the different tau ID names
+    edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
+    std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+    for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+      tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
     }
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
