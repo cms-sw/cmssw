@@ -82,7 +82,8 @@ FastTimerService::PlotsPerElement::book(
     std::string const& title,
     double range,
     double resolution,
-    unsigned int lumisections)
+    unsigned int lumisections,
+    bool byls)
 {
   int bins = (int) std::ceil(range / resolution);
   std::string y_title = (boost::format("events / %.1f ms") % resolution).str();
@@ -104,6 +105,9 @@ FastTimerService::PlotsPerElement::book(
   time_real_->StatOverflows(true);
   time_real_->SetXTitle("processing time [ms]");
   time_real_->SetYTitle(y_title.c_str());
+
+  if (not byls)
+    return;
 
   time_thread_byls_ = booker.bookProfile(
       name + " time_thread_byls",
@@ -191,12 +195,13 @@ FastTimerService::PlotsPerPath::book(
     ProcessCallGraph::PathType const& path,
     double range,
     double resolution,
-    unsigned int lumisections)
+    unsigned int lumisections,
+    bool byls)
 {
   const std::string basedir = booker.pwd();
   booker.setCurrentFolder(basedir + "/path " + path.name_);
 
-  total_.book(booker, "path", "path", range, resolution, lumisections);
+  total_.book(booker, "path", path.name_, range, resolution, lumisections, byls);
 
   unsigned int bins = path.modules_and_dependencies_.size();
   module_counter_ = booker.book1DD(
@@ -273,14 +278,16 @@ FastTimerService::PlotsPerProcess::book(
     double event_resolution,
     double path_range,
     double path_resolution,
-    unsigned int lumisections)
+    unsigned int lumisections,
+    bool byls)
 {
   const std::string basedir = booker.pwd();
   event_.book(booker,
       "process " + process.name_, "process " + process.name_,
       event_range,
       event_resolution,
-      lumisections);
+      lumisections,
+      byls);
   booker.setCurrentFolder(basedir + "/process " + process.name_ + " paths");
   for (unsigned int id: boost::irange(0ul, paths_.size()))
   {
@@ -288,7 +295,8 @@ FastTimerService::PlotsPerProcess::book(
         job, process.paths_[id],
         path_range,
         path_resolution,
-        lumisections);
+        lumisections,
+        byls);
   }
   for (unsigned int id: boost::irange(0ul, endpaths_.size()))
   {
@@ -296,7 +304,8 @@ FastTimerService::PlotsPerProcess::book(
         job, process.endPaths_[id],
         path_range,
         path_resolution,
-        lumisections);
+        lumisections,
+        byls);
   }
   booker.setCurrentFolder(basedir);
 }
@@ -350,7 +359,9 @@ FastTimerService::PlotsPerJob::book(
     double path_resolution,
     double module_range,
     double module_resolution,
-    unsigned int lumisections)
+    unsigned int lumisections,
+    bool bymodule,
+    bool byls)
 {
   const std::string basedir = booker.pwd();
 
@@ -359,13 +370,15 @@ FastTimerService::PlotsPerJob::book(
       "event", "Event",
       event_range,
       event_resolution,
-      lumisections);
+      lumisections,
+      byls);
 
   modules_[job.source().id()].book(booker,
       "source", "Source",
       module_range,
       module_resolution,
-      lumisections);
+      lumisections,
+      byls);
 
   // plot the time spent in few given groups of modules
   for (unsigned int group: boost::irange(0ul, groups.size())) {
@@ -374,7 +387,8 @@ FastTimerService::PlotsPerJob::book(
         "highlight " + label, "Highlight " + label,
         event_range,
         event_resolution,
-        lumisections);
+        lumisections,
+        byls);
   }
 
   // plots per subprocess (event, modules, paths and endpaths)
@@ -386,19 +400,23 @@ FastTimerService::PlotsPerJob::book(
         event_resolution,
         path_range,
         path_resolution,
-        lumisections);
-
-    booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
-    for (unsigned int id: process.modules_)
-    {
-      auto const& module_name = job.module(id).moduleLabel();
-      modules_[id].book(booker,
-          module_name, module_name,
-          module_range,
-          module_resolution,
-          lumisections);
+        lumisections,
+        byls);
+    
+    if (bymodule) {
+      booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
+      for (unsigned int id: process.modules_)
+      {
+        auto const& module_name = job.module(id).moduleLabel();
+        modules_[id].book(booker,
+            module_name, module_name,
+            module_range,
+            module_resolution,
+            lumisections,
+            byls);
+      }
+      booker.setCurrentFolder(basedir);
     }
-    booker.setCurrentFolder(basedir);
   }
 }
 
@@ -436,8 +454,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // dqm configuration
   module_id_(                   edm::ModuleDescription::invalidID() ),
   enable_dqm_(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
-//enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
-//enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
+  enable_dqm_bymodule_(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+  enable_dqm_byls_(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),
   enable_dqm_bynproc_(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
   dqm_eventtime_range_(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
   dqm_eventtime_resolution_(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),            // ms
@@ -689,7 +707,9 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
           dqm_pathtime_resolution_,
           dqm_moduletime_range_,
           dqm_moduletime_resolution_,
-          dqm_lumisections_range_);
+          dqm_lumisections_range_,
+          enable_dqm_bymodule_,
+          enable_dqm_byls_);
     };
 
     // book MonitorElements for this stream
@@ -1345,11 +1365,8 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<bool>(        "printRunSummary",          true);
   desc.addUntracked<bool>(        "printJobSummary",          true);
   desc.addUntracked<bool>(        "enableDQM",                true);
-
-  // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
-  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyModule",        false, false), true)->setComment("This parameter is obsolete and will be ignored.");
-  desc.addOptionalNode(edm::ParameterDescription<bool>("enableDQMbyLumiSection",   false, false), true)->setComment("This parameter is obsolete and will be ignored.");
-
+  desc.addUntracked<bool>(        "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(        "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(        "enableDQMbyProcesses",     false);
   desc.addUntracked<double>(      "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>(      "dqmTimeResolution",           5. );   // ms
