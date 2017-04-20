@@ -21,6 +21,9 @@ materialDumperAnalyzer = cms.EDAnalyzer("TrackingRecoMaterialAnalyser",
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(materialDumperAnalyzer, TrackerRecHitBuilder='WithTrackAngle')
 
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(materialDumperAnalyzer, TrackerRecHitBuilder='WithTrackAngle')
+
 materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)
 
