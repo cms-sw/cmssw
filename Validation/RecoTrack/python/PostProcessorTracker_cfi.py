@@ -217,6 +217,19 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
+# nrec/nsim makes sense only for
+# - all tracks vs. all in-time TrackingParticles
+# - PV tracks vs. signal TrackingParticles
+postProcessorTrackNrecVsNsim = cms.EDAnalyzer("DQMGenericClient",
+    subDirs = cms.untracked.vstring("Tracking/TrackFromPV/*", "Tracking/TrackAllTPEffic/*"),
+    efficiency = cms.vstring(
+        "nrecPerNsim 'Tracks/TrackingParticles vs #eta' num_reco2_eta num_simul_eta simpleratio",
+        "nrecPerNsimPt 'Tracks/TrackingParticles vs p_{T}' num_reco2_pT num_simul_pT simpleratio",
+        "nrecPerNsim_vs_pu 'Tracks/TrackingParticles vs pu' num_reco2_pu num_simul_pu simpleratio",
+    ),
+    resolution = cms.vstring()
+)
+
 postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackConversion", "Tracking/TrackGsf", "Tracking/TrackBHadron"),
     efficiency = cms.vstring(
@@ -229,11 +242,19 @@ postProcessorTrackSummary = cms.EDAnalyzer("DQMGenericClient",
     resolution = cms.vstring()
 )
 
-postProcessorTrackSequence = cms.Sequence(postProcessorTrack+postProcessorTrackSummary)
+postProcessorTrackSequence = cms.Sequence(
+    postProcessorTrack+
+    postProcessorTrackNrecVsNsim+
+    postProcessorTrackSummary
+)
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackSeeding/*", "Tracking/TrackBuilding/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
 postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackSeeding", "Tracking/TrackBuilding"])
 
-postProcessorTrackSequenceTrackingOnly = cms.Sequence(postProcessorTrackTrackingOnly+postProcessorTrackSummaryTrackingOnly)
+postProcessorTrackSequenceTrackingOnly = cms.Sequence(
+    postProcessorTrackTrackingOnly+
+    postProcessorTrackNrecVsNsim+
+    postProcessorTrackSummaryTrackingOnly
+)

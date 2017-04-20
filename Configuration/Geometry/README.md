@@ -7,7 +7,7 @@ Tracker:
 * T2: Phase2 flat tracker (v2016-04-12) w/ phase 1 (extended) pixel- DEPRECATED, superseded by T4
 * T3: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.6)
 * T4: Phase2 flat tracker (v2016-04-12) w/ phase 2 pixel (v4.0.2.6)
-* T5: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.5)
+* T5: Phase2 tilted tracker (v3.6.13) w/ phase 2 pixel (v4.0.2.5)
 
 Calorimeters:
 * C1: Run2 calorimeters

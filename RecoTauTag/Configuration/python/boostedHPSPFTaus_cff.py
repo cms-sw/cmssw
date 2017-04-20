@@ -38,3 +38,9 @@ boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
     verbosity = cms.int32(0)
 )
 
+boostedHPSPFTausTask = cms.Task(
+    pfPileUpForBoostedTaus,
+    pfNoPileUpForBoostedTaus,
+    ca8PFJetsCHSprunedForBoostedTaus,
+    boostedTauSeeds
+)

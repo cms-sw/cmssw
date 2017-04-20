@@ -140,6 +140,7 @@ _pageNameMap = {
     "v0": "V0",
     "miniaod": "MiniAOD",
     "timing": "Timing",
+    "hlt": "HLT",
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
@@ -256,6 +257,7 @@ class PlotPurpose:
     class Vertexing: pass
     class MiniAOD: pass
     class Timing: pass
+    class HLT: pass
 
 class Page(object):
     def __init__(self, title, sampleName):
@@ -453,19 +455,21 @@ class Page(object):
         return _sectionNameMapOrder.get(section, section)
 
     def _orderSets(self, keys):
+        keys_sorted = sorted(keys)
         ret = []
         for section in _sectionNameMapOrder.keys():
-            if section in keys:
+            if section in keys_sorted:
                 ret.append(section)
                 keys.remove(section)
-        ret.extend(keys)
+        ret.extend(keys_sorted)
         return ret
 
 class PageSet(object):
-    def __init__(self, title, sampleName, sample, fastVsFull, pileupComparison):
+    def __init__(self, title, sampleName, sample, fastVsFull, pileupComparison, dqmSubFolderTranslatedToSectionName=None):
         self._title = title
         self._sampleName = sampleName
         self._pages = collections.OrderedDict()
+        self._dqmSubFolderTranslatedToSectionName = dqmSubFolderTranslatedToSectionName
 
         self._prefix = ""
         if sample.fastsim():
@@ -506,7 +510,10 @@ class PageSet(object):
         sectionName = plotterFolder.getSection()
         if sectionName is None:
             if plotterFolder.getPage() is not None and dqmSubFolder is not None:
-                sectionName = dqmSubFolder.translated
+                if self._dqmSubFolderTranslatedToSectionName is not None:
+                    sectionName = self._dqmSubFolderTranslatedToSectionName(dqmSubFolder.translated)
+                else:
+                    sectionName = dqmSubFolder.translated
             else:
                 sectionName = ""
 
@@ -628,6 +635,7 @@ class IndexSection:
         self._vertexPage = PageSet(*params)
         self._miniaodPage = PageSet(*params)
         self._timingPage = PageSet(*params)
+        self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
         self._otherPages = PageSet(*params)
 
         self._purposePageMap = {
@@ -636,6 +644,7 @@ class IndexSection:
             PlotPurpose.Vertexing: self._vertexPage,
             PlotPurpose.MiniAOD: self._miniaodPage,
             PlotPurpose.Timing: self._timingPage,
+            PlotPurpose.HLT: self._hltPages,
         }
 
     def addPlots(self, plotterFolder, dqmSubFolder, plotFiles):
@@ -657,7 +666,7 @@ class IndexSection:
             "  <ul>",
             ]
 
-        for pages in [self._summaryPage, self._iterationPages, self._vertexPage, self._miniaodPage, self._timingPage, self._otherPages]:
+        for pages in [self._summaryPage, self._iterationPages, self._vertexPage, self._miniaodPage, self._timingPage, self._hltPages, self._otherPages]:
             labelFiles = pages.write(baseDir)
             for label, fname in labelFiles:
                 ret.append('   <li><a href="%s">%s</a></li>' % (fname, label))

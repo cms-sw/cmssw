@@ -257,13 +257,19 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
 						    int phi, int zside, 
 						    int depth, int lay) {
 
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDEsimConstants:getEtaDepth: I/P " << det << ":" << etaR
+	    << ":" << phi << ":" << zside << ":" << depth << ":" << lay << "\n";
+#endif
   //Modify the depth index
+  if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
+    etaR = 18;
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
   } else if (det == static_cast<int>(HcalOuter)) {
     depth = 4;
   } else {
     if (lay >= 0) {
-      depth= layerGroup(det, etaR, phi, zside, lay-1);
+      depth = layerGroup(det, etaR, phi, zside, lay-1);
       if (etaR == hpar->noff[0] && lay > 1) {
 	int   kphi   = phi + int((hpar->phioff[3]+0.1)/hpar->phibin[etaR-1]);
 	kphi         = (kphi-1)%4 + 1;
@@ -286,8 +292,10 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int det, int etaR,
       }
     }
   }
-  if ((det == static_cast<int>(HcalEndcap)) && (etaR == 17) && (lay == 1))
-    etaR = 18;
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalDDDEsimConstants:getEtaDepth: O/P " << etaR << ":" << depth
+	    << std::endl;
+#endif
   return std::pair<int,int>(etaR,depth);
 }
 
