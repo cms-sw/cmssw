@@ -102,6 +102,16 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
         mParameters.push_back(getFloat(tokens[i]));
     }
 }
+std::ostream& operator<<(std::ostream& out, const JetCorrectorParameters::Record& fBin)
+{
+  for(unsigned j=0;j<fBin.nVar();j++)
+    out<<fBin.xMin(j)<<" "<<fBin.xMax(j)<<" ";
+  out<<fBin.nParameters()<<" ";
+  for(unsigned j=0;j<fBin.nParameters();j++)
+    out<<fBin.parameter(j)<<" ";
+  out<<std::endl;
+  return out;
+}
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
