@@ -88,8 +88,12 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     simHitTokens_.push_back(consumes<std::vector<PSimHit>>(tag));
   }
 
+  std::vector<edm::InputTag> doResolutionPlotsForLabels = pset.getParameter<std::vector<edm::InputTag> >("doResolutionPlotsForLabels");
+  doResolutionPlots_.reserve(label.size());
   for (auto& itag : label) {
     labelToken.push_back(consumes<edm::View<reco::Track> >(itag));
+    const bool doResol = doResolutionPlotsForLabels.empty() || (std::find(cbegin(doResolutionPlotsForLabels), cend(doResolutionPlotsForLabels), itag) != cend(doResolutionPlotsForLabels));
+    doResolutionPlots_.push_back(doResol);
   }
 
   edm::InputTag beamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
@@ -273,14 +277,16 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
       ibook.setCurrentFolder(dirName.c_str());
 
+      const bool doResolutionPlots = doResolutionPlots_[www];
+
       if(doSimTrackPlots_) {
-        histoProducerAlgo_->bookSimTrackHistos(ibook);
+        histoProducerAlgo_->bookSimTrackHistos(ibook, doResolutionPlots);
         if(doPVAssociationPlots_) histoProducerAlgo_->bookSimTrackPVAssociationHistos(ibook);
       }
 
       //Booking histograms concerning with reconstructed tracks
       if(doRecoTrackPlots_) {
-        histoProducerAlgo_->bookRecoHistos(ibook);
+        histoProducerAlgo_->bookRecoHistos(ibook, doResolutionPlots);
         if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
         if (doPVAssociationPlots_) histoProducerAlgo_->bookRecoPVAssociationHistos(ibook);
         if (doMVAPlots_) histoProducerAlgo_->bookMVAHistos(ibook, mvaQualityCollectionTokens_[www].size());
@@ -994,8 +1000,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	histoProducerAlgo_->fill_simAssociated_recoTrack_histos(w,*track);
 
-	TrackingParticleRef tpr = tpFound->val.begin()->first;
-
 	/* TO BE FIXED LATER
 	if (associators[ww]=="trackAssociatorByChi2"){
 	  //association chi2
@@ -1011,13 +1015,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	*/
 
 
-	//Get tracking particle parameters at point of closest approach to the beamline
-	TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
-	TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
-	int chargeTP = tpr->charge();
+        if(doResolutionPlots_[www]) {
+          //Get tracking particle parameters at point of closest approach to the beamline
+          TrackingParticleRef tpr = tpFound->val.begin()->first;
+          TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
+          TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
+          int chargeTP = tpr->charge();
 
-	histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(w,momentumTP,vertexTP,chargeTP,
-							     *track,bs.position());
+          histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(w,momentumTP,vertexTP,chargeTP,
+                                                                *track,bs.position());
+        }
 
 
 	//TO BE FIXED

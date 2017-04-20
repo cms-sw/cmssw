@@ -80,6 +80,9 @@ class MultiTrackValidator : public DQMEDAnalyzer {
   const bool doPVAssociationPlots_;
   const bool doSeedPlots_;
   const bool doMVAPlots_;
+
+  std::vector<bool> doResolutionPlots_;
+
   std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
  private:

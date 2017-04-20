@@ -42,9 +42,9 @@ class MTVHistoProducerAlgoForTracker {
   void init(const edm::Event& event, const edm::EventSetup& setup);
 
   void bookSimHistos(DQMStore::IBooker& ibook);
-  void bookSimTrackHistos(DQMStore::IBooker& ibook);
+  void bookSimTrackHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook);
-  void bookRecoHistos(DQMStore::IBooker& ibook);
+  void bookRecoHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
   void bookRecodEdxHistos(DQMStore::IBooker& ibook);
   void bookSeedHistos(DQMStore::IBooker& ibook);
