@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import os
-
 from RecoLocalMuon.MuonSysAging.DTChamberMasker_cff  import *
 from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cff import *
 from RecoLocalMuon.MuonSysAging.CSCChamberMasker_cff import *

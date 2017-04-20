@@ -181,12 +181,12 @@ CSCChamberMasker::copyDigis(edm::Event & event,
     {
       edm::Handle<C> digis;
       event.getByToken(digiToken, digis);
-      for (typename C::DigiRangeIterator j = digis->begin(); j != digis->end(); j++) 
+      for ( auto j : (*digis) ) 
 	{
-          typename std::vector<T>::const_iterator digiItr = (*j).second.first;
-          typename std::vector<T>::const_iterator last = (*j).second.second;
+          auto digiItr = j.second.first;
+          auto last    = j.second.second;
 
-          CSCDetId const cscDetId=(*j).first;
+          CSCDetId const cscDetId = j.first;
 
           for( ; digiItr != last; ++digiItr) 
 	    {
@@ -211,12 +211,12 @@ CSCChamberMasker::ageDigis(edm::Event & event,
       edm::Handle<C> digis;
       event.getByToken(digiToken, digis);
       
-      for (typename C::DigiRangeIterator j = digis->begin(); j != digis->end(); j++) 
+      for ( auto j : (*digis) ) 
 	{
-          typename std::vector<T>::const_iterator digiItr = (*j).second.first;
-          typename std::vector<T>::const_iterator last = (*j).second.second;
+          auto digiItr = j.second.first;
+          auto last    = j.second.second;
 	  
-          CSCDetId const cscDetId=(*j).first;
+          CSCDetId const cscDetId = j.first;
 	  
           // Since lookups are chamber-centric, make new DetId with layer=0
           CSCDetId chId = CSCDetId(cscDetId.endcap(), cscDetId.station(), cscDetId.ring(), cscDetId.chamber(), 0);

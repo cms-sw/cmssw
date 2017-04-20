@@ -124,15 +124,12 @@ RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<RPCDigiCollection> rpcDigis;
       iEvent.getByToken(m_digiTag, rpcDigis);
       
-      RPCDigiCollection::DigiRangeIterator rpcLayerIdIt  = rpcDigis->begin();
-      RPCDigiCollection::DigiRangeIterator rpcLayerIdEnd = rpcDigis->end();
-      
-      for (; rpcLayerIdIt != rpcLayerIdEnd; ++rpcLayerIdIt)
+      for ( auto rpcLayerId : (*rpcDigis) )
 	{
-          int id = ((*rpcLayerIdIt).first).rawId();
+          int id = (rpcLayerId.first).rawId();
 	  auto chEffIt = m_ChEffs.find(id);
 	  if ((chEffIt != m_ChEffs.end()) && (randGen.flat() <= chEffIt->second))
-	    filteredDigis->put((*rpcLayerIdIt).second,(*rpcLayerIdIt).first);
+	    filteredDigis->put(rpcLayerId.second,rpcLayerId.first);
 	}
     }
   iEvent.put(std::move(filteredDigis));

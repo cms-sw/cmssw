@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 from RecoLocalMuon.MuonSysAging.CSCChamberMasker_cfi import CSCChamberMasker
 
@@ -6,7 +7,7 @@ def appendCSCChamberMaskerAtUnpacking(process):
 
     if hasattr(process,'muonCSCDigis') :
         
-        print "[appendCSCChamberMasker] : Found muonCSCDigis, applying filter"
+        sys.stderr.write("[appendCSCChamberMasker] : Found muonCSCDigis, applying filter\n")
 
         process.preCSCDigis = process.muonCSCDigis.clone()
         process.muonCSCDigis = CSCChamberMasker.clone()
@@ -37,7 +38,7 @@ def appendCSCChamberMaskerAtHLT(process):
 
     if hasattr(process,'hltMuonCSCDigis') :
 
-        print "[appendCSCChamberMasker] : Found hltMuonCSCDigis, applying filter"
+        sys.stderr.write("[appendCSCChamberMasker] : Found hltMuonCSCDigis, applying filter\n")
 
         process.preHltCSCDigis = process.hltMuonCSCDigis.clone()
         process.hltMuonCSCDigis = CSCChamberMasker.clone()

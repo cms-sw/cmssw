@@ -123,17 +123,14 @@ DTChamberMasker::produce(edm::Event& event, const edm::EventSetup& conditions)
       edm::Handle<DTDigiCollection> dtDigis;
       event.getByToken(m_digiToken, dtDigis);
   
-      DTDigiCollection::DigiRangeIterator dtLayerIdIt  = dtDigis->begin();
-      DTDigiCollection::DigiRangeIterator dtLayerIdEnd = dtDigis->end();
-      
-      for (; dtLayerIdIt != dtLayerIdEnd; ++dtLayerIdIt)
+      for ( auto dtLayerId : (*dtDigis) )
 	{
 	  
-	  uint32_t rawId = ((*dtLayerIdIt).first).chamberId().rawId();
+	  uint32_t rawId = (dtLayerId.first).chamberId().rawId();
 	  auto chEffIt = m_ChEffs.find(rawId);
 
 	  if (chEffIt == m_ChEffs.end() || randGen.flat() <= chEffIt->second)
-	    filteredDigis->put((*dtLayerIdIt).second,(*dtLayerIdIt).first);
+	    filteredDigis->put(dtLayerId.second,dtLayerId.first);
 	  
 	}
 

@@ -1,22 +1,16 @@
 
 <library file="*.cc" name="RecoLocalMuonMuonSysAgingPlugins"> 
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="CommonTools/UtilAlgos"/>
-  <use name="DataFormats/HepMCCandidate"/>
   <use name="CondFormats/RecoMuonObjects"/>
-  <use name="rootgraphics"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="CalibMuon/CSCCalibration"/>
-  <use name="CondFormats/CSCObjects"/>
-  <use name="DataFormats/CSCDigi"/>
-  <use name="DataFormats/CSCRecHit"/>
   <use name="DataFormats/Common"/>
-  <use name="DataFormats/GeometryVector"/>
+  <use name="DataFormats/DTDigi"/>
+  <use name="DataFormats/CSCDigi"/>
+  <use name="DataFormats/RPCDigi"/>
   <use name="DataFormats/MuonDetId"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/GeometryVector"/>
   <use name="Geometry/DTGeometry"/>
   <use name="Geometry/CSCGeometry"/>
   <use name="Geometry/RPCGeometry"/>
