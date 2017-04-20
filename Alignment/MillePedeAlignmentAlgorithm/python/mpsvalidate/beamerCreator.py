@@ -106,7 +106,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         logger.error("data not found - {0} {1}".format(type(e), e))
     
     # table of input files with number of tracks
-    if (config.showmonitor):
+    if config.showmonitor:
         out.add("\subsection{Datasets with tracks}")
         text = """\\begin{table}[h]
             \centering

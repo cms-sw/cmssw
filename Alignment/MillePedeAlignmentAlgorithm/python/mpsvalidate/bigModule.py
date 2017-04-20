@@ -294,7 +294,7 @@ def plot(MillePedeUser, alignables, config):
     # make plots with substructure
     #
 
-    if (config.showsubmodule == 1):
+    if config.showsubmodule:
         alignables.create_children_list()
         for modeNumber, mode in enumerate(["xyz", "rot", "dist"]):
             for structNumber, struct in enumerate(alignables.structures):
