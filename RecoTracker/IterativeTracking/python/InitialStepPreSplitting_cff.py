@@ -108,7 +108,7 @@ trackingPhase1QuadProp.toModify(initialStepSeedsPreSplitting, seedingHitSets = "
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 initialStepTrajectoryFilterBasePreSplitting = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    minimumNumberOfHits = 3,
+    minimumNumberOfHits = 4,
     minPt = 0.2,
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
@@ -128,9 +128,9 @@ import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('initialStepChi2EstPreSplitting'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0),
+    MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
-    pTChargeCutThreshold = cms.double(15.)
+#    pTChargeCutThreshold = cms.double(15.)
 )
 _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
@@ -142,8 +142,8 @@ initialStepTrajectoryBuilderPreSplitting = RecoTracker.CkfPattern.GroupedCkfTraj
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = cms.string('initialStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
+#    maxDPhiForLooperReconstruction = cms.double(2.0),
+#    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -163,7 +163,9 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'initialStepTrackCandidatesPreSplitting',
     AlgorithmName = cms.string('initialStep'),
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    Fitter = cms.string('FlexibleKFFittingSmoother'),
+    NavigationSchool ='',
+    MeasurementTrackerEvent = ''
     )
 initialStepTracksPreSplitting.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
 
