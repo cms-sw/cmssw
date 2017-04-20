@@ -250,7 +250,6 @@ edm::EventSetup const &)
 
 //--------- Hits ---
    int pixBinW = 4;
-//   for(int rp=0; rp<NRPotsMAX; rp++) {
      for(int rp=RPn_first; rp<RPn_last; rp++) { // only installed pixel pots
        ID.setRP(rp);
        string rpd, rpTitle;
@@ -259,6 +258,7 @@ edm::EventSetup const &)
        strcpy(cstr2, rpTitle.c_str());   
 	yah->SetBinLabel(rp - RPn_first +1, cstr2); // h
        yah2->SetBinLabel(rp - RPn_first +1, cstr2); //h2
+       delete cstr2;
 
        if(RPstatus[stn][rp]==0) continue;
        int indexP = getRPindex(arm,stn,rp);
@@ -429,11 +429,11 @@ if(pixDigi.isValid())
       for(int r=0; r<NROCsMAX; r++) if(HitsMultROC[indp][r] > 0) ++rocf[r];
       for(int r=0; r<NROCsMAX; r++) h2HitsMultROC[index]->Fill(p,r,HitsMultROC[indp][r]);
     }
-    int max = 0, rmax=-2;
-    for(int r=0; r<NROCsMAX; r++) if(max < rocf[r]) 
-    { max = rocf[r]; rmax = r; }
+    int max = 0;
+    for(int r=0; r<NROCsMAX; r++) if(max < rocf[r]) max = rocf[r];
     for(int r=0; r<NROCsMAX; r++) hRPotActivROCs[index]->Fill(r,rocf[r]);
-    hRPotActivROCsMax[index]->Fill(rmax,max);
+    for(int r=0; r<NROCsMAX; r++) if(rocf[r] == max)
+      hRPotActivROCsMax[index]->Fill(r,max);
     if(max > 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
   }
 
