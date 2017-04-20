@@ -32,44 +32,31 @@ public:
 };
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2) : 
-  RecSegment(buildDetId(proto_segment.front()->me0Id())),
-  theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
-  theTimeValue = 0.0;
-  theTimeUncrt = 0.0;
-  for(unsigned int i=0; i<proto_segment.size(); ++i)
-    theME0RecHits.push_back(*proto_segment[i]);
-}
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, float chi2) :
+  RecSegment(buildDetId(proto_segment.front()->me0Id())), theOrigin(origin), theLocalDirection(direction), theCovMatrix(errors),
+    theChi2(chi2), theTimeValue(0.), theTimeUncrt(0.), theDeltaPhi(0.){
+  for(const auto* rh : proto_segment ) theME0RecHits.push_back(*rh);
+ }
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
-	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr) : 
-  RecSegment(buildDetId(proto_segment.front()->me0Id())),
-  theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
-  theTimeValue = time;
-  theTimeUncrt = timeErr;
-
-  for(unsigned int i=0; i<proto_segment.size(); ++i)
-    theME0RecHits.push_back(*proto_segment[i]);
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, float chi2, float time, float timeErr, float deltaPhi) :
+  RecSegment(buildDetId(proto_segment.front()->me0Id())), theOrigin(origin),  theLocalDirection(direction), theCovMatrix(errors),
+  theChi2(chi2),theTimeValue(time), theTimeUncrt(timeErr), theDeltaPhi(deltaPhi){
+  for(const auto* rh : proto_segment ) theME0RecHits.push_back(*rh);
 }
 
 ME0Segment::~ME0Segment() {}
 
 std::vector<const TrackingRecHit*> ME0Segment::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<ME0RecHit>::const_iterator irh = theME0RecHits.begin(); irh!=theME0RecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
-  }
+  for(const auto& rh : theME0RecHits ) pointersOfRecHits.push_back(&rh);
   return pointersOfRecHits;
 }
 
 std::vector<TrackingRecHit*> ME0Segment::recHits() {
-  
+
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<ME0RecHit>::iterator irh = theME0RecHits.begin(); irh!=theME0RecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
-  }
+  for(auto& rh : theME0RecHits ) pointersOfRecHits.push_back(&rh);
   return pointersOfRecHits;
 }
 
@@ -123,4 +110,3 @@ std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
 
   return os;  
 }
-

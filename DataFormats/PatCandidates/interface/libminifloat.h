@@ -45,6 +45,14 @@ class MiniFloatConverter {
             conv.i32&=mask;
             return conv.flt;
         }
+        inline static float reduceMantissaToNbits(const float &f, int bits)
+        {
+            uint32_t mask = (0xFFFFFFFF >> (23-bits)) << (23-bits);
+            union { float flt; uint32_t i32; } conv;
+            conv.flt=f;
+            conv.i32&=mask;
+            return conv.flt;
+        }
 
         inline static float max() {
             union { float flt; uint32_t i32; } conv;

@@ -34,7 +34,7 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'TEC':         'TEC',
                  'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
                  'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
-                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
+                 'Phase2PixelBarrel': 'Phase2PixelBarrel',
                  'Phase2OTBarrel': 'Phase2OTBarrel',
                  'Phase2PixelEndcap': 'Phase2PixelEndcap',
                  'Phase2OTForward': 'Phase2OTForward'}
@@ -90,6 +90,8 @@ elif options.geom == 'run2':
 
 elif options.geom == 'phaseIID4':
   process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
+elif options.geom == 'phaseIID11':
+  process.load("Configuration.Geometry.GeometryExtended2023D11_cff")
 else:
   print("Unknown geometry %s" % options.geom)
   sys.exit(1)

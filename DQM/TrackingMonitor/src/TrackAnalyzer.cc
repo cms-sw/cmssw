@@ -1816,6 +1816,10 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
     double EtaMin     = conf_.getParameter<double>("EtaMin");
     double EtaMax     = conf_.getParameter<double>("EtaMax");
 
+    int    PtBin = conf_.getParameter<int>(   "TrackPtBin");
+    double PtMin = conf_.getParameter<double>("TrackPtMin");
+    double PtMax = conf_.getParameter<double>("TrackPtMax");
+
     // book hit property histograms
     // ---------------------------------------------------------------------------------//
     ibooker.setCurrentFolder(TopFolder_+"/HitProperties");
@@ -1834,12 +1838,15 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
 
       recHitsPerSubDet_mes.detectorTag = det;
       int detID = -1;
-      if ( det == "TIB" ) detID = StripSubdetector::TIB;
-      if ( det == "TOB" ) detID = StripSubdetector::TOB;
-      if ( det == "TID" ) detID = StripSubdetector::TID;
-      if ( det == "TEC" ) detID = StripSubdetector::TEC;
-      if ( det == "PixBarrel" ) detID = PixelSubdetector::PixelBarrel;
-      if ( det == "PixEndcap" ) detID = PixelSubdetector::PixelEndcap;
+      if ( det == "TIB" ) detID = StripSubdetector::TIB; // 3
+      if ( det == "TOB" ) detID = StripSubdetector::TOB; // 5
+      if ( det == "TID" ) detID = StripSubdetector::TID; // 4
+      if ( det == "TEC" ) detID = StripSubdetector::TEC; // 6
+      if ( det == "PixBarrel" ) detID = PixelSubdetector::PixelBarrel; // 1
+      if ( det == "PixEndcap" ) detID = PixelSubdetector::PixelEndcap; // 2
+      if ( det == "Pixel" ) detID = 0;
+      if ( det == "Strip" ) detID = 7;
+      
       recHitsPerSubDet_mes.detectorId  = detID;
 
       histname = "NumberOfRecHitsPerTrack_" + det + "_" + CategoryName;
@@ -1857,6 +1864,11 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
       recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsEta->setAxisTitle("Number of " + det + " valid RecHits in each Track",2);
 
+      histname = "NumberOfRecHitsPerTrackVsPt_" + det + "_" + CategoryName;
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPt = ibooker.bookProfile(histname, histname, PtBin, PtMin, PtMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]",1);
+      recHitsPerSubDet_mes.NumberOfRecHitsPerTrackVsPt->setAxisTitle("Number of " + det + " valid RecHits in each Track",2);
+
       histname = "NumberOfLayersPerTrack_" + det + "_" + CategoryName;
       recHitsPerSubDet_mes.NumberOfLayersPerTrack = ibooker.book1D(histname, histname, detBin, -0.5, double(detBin)-0.5);
       recHitsPerSubDet_mes.NumberOfLayersPerTrack->setAxisTitle("Number of " + det + " valid Layers in each Track",1);
@@ -1872,6 +1884,11 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta->setAxisTitle("Track #eta",1);
       recHitsPerSubDet_mes.NumberOfLayersPerTrackVsEta->setAxisTitle("Number of " + det + " valid Layers in each Track",2);
 
+      histname = "NumberOfLayersPerTrackVsPt_" + det + "_" + CategoryName;
+      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPt = ibooker.bookProfile(histname, histname, PtBin, PtMin, PtMax, detBin, -0.5, double(detBin)-0.5,"");
+      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]",1);
+      recHitsPerSubDet_mes.NumberOfLayersPerTrackVsPt->setAxisTitle("Number of " + det + " valid Layers in each Track",2);
+
       TkRecHitsPerSubDetMEMap.insert(std::pair<std::string,TkRecHitsPerSubDetMEs>(det,recHitsPerSubDet_mes));
 
       
@@ -1886,6 +1903,7 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track & track)
     
   double phi   = track.phi();
   double eta   = track.eta();
+  double pt    = track.pt();
 
   for ( std::map<std::string,TkRecHitsPerSubDetMEs>::iterator it = TkRecHitsPerSubDetMEMap.begin();
        it != TkRecHitsPerSubDetMEMap.end(); it++ ) {
@@ -1894,29 +1912,45 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track & track)
     int nValidRecHits = 0;
     int substr = it->second.detectorId;
     switch(substr) {
+    case 0 :
+      nValidLayers  = track.hitPattern().pixelBarrelLayersWithMeasurement() 
+	+ track.hitPattern().pixelEndcapLayersWithMeasurement();    // case 0: pixel
+      nValidRecHits = track.hitPattern().numberOfValidPixelBarrelHits()
+	+ track.hitPattern().numberOfValidPixelEndcapHits();        // case 0: pixel
+      break;
     case StripSubdetector::TIB :
-      nValidLayers  = track.hitPattern().stripTIBLayersWithMeasurement();       // case 0: strip TIB
-      nValidRecHits = track.hitPattern().numberOfValidStripTIBHits();           // case 0: strip TIB
+      nValidLayers  = track.hitPattern().stripTIBLayersWithMeasurement();       // case 3: strip TIB
+      nValidRecHits = track.hitPattern().numberOfValidStripTIBHits();           // case 3: strip TIB
       break;
     case StripSubdetector::TID :
-      nValidLayers  = track.hitPattern().stripTIDLayersWithMeasurement();       // case 0: strip TID
-      nValidRecHits = track.hitPattern().numberOfValidStripTIDHits();           // case 0: strip TID
+      nValidLayers  = track.hitPattern().stripTIDLayersWithMeasurement();       // case 4: strip TID
+      nValidRecHits = track.hitPattern().numberOfValidStripTIDHits();           // case 4: strip TID
       break;
     case StripSubdetector::TOB :
-      nValidLayers  = track.hitPattern().stripTOBLayersWithMeasurement();       // case 0: strip TOB
-      nValidRecHits = track.hitPattern().numberOfValidStripTOBHits();           // case 0: strip TOB
+      nValidLayers  = track.hitPattern().stripTOBLayersWithMeasurement();       // case 5: strip TOB
+      nValidRecHits = track.hitPattern().numberOfValidStripTOBHits();           // case 5: strip TOB
       break;
     case StripSubdetector::TEC :
-      nValidLayers  = track.hitPattern().stripTECLayersWithMeasurement();       // case 0: strip TEC
-      nValidRecHits = track.hitPattern().numberOfValidStripTECHits();           // case 0: strip TEC
+      nValidLayers  = track.hitPattern().stripTECLayersWithMeasurement();       // case 6: strip TEC
+      nValidRecHits = track.hitPattern().numberOfValidStripTECHits();           // case 6: strip TEC
       break;
     case PixelSubdetector::PixelBarrel :
-      nValidLayers  = track.hitPattern().pixelBarrelLayersWithMeasurement();    // case 0: pixel PXB
-      nValidRecHits = track.hitPattern().numberOfValidPixelBarrelHits();        // case 0: pixel PXB
+      nValidLayers  = track.hitPattern().pixelBarrelLayersWithMeasurement();    // case 1: pixel PXB
+      nValidRecHits = track.hitPattern().numberOfValidPixelBarrelHits();        // case 1: pixel PXB
       break;
     case PixelSubdetector::PixelEndcap :
-      nValidLayers  = track.hitPattern().pixelEndcapLayersWithMeasurement();    // case 0: pixel PXF
-      nValidRecHits = track.hitPattern().numberOfValidPixelEndcapHits();        // case 0: pixel PXF
+      nValidLayers  = track.hitPattern().pixelEndcapLayersWithMeasurement();    // case 2: pixel PXF
+      nValidRecHits = track.hitPattern().numberOfValidPixelEndcapHits();        // case 2: pixel PXF
+      break;
+    case 7 :
+      nValidLayers  = track.hitPattern().stripTIBLayersWithMeasurement()       // case 7: strip
+	+ track.hitPattern().stripTIDLayersWithMeasurement()
+	+ track.hitPattern().stripTOBLayersWithMeasurement()
+	+ track.hitPattern().stripTECLayersWithMeasurement();
+      nValidRecHits = track.hitPattern().numberOfValidStripTIBHits()           // case 7: strip
+	+ track.hitPattern().numberOfValidStripTIDHits()
+	+ track.hitPattern().numberOfValidStripTOBHits()
+	+ track.hitPattern().numberOfValidStripTECHits();
       break;
     default :
       break;
@@ -1926,10 +1960,12 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track & track)
     it->second.NumberOfRecHitsPerTrack      -> Fill(nValidRecHits); 
     it->second.NumberOfRecHitsPerTrackVsPhi -> Fill(phi,    nValidRecHits);
     it->second.NumberOfRecHitsPerTrackVsEta -> Fill(eta,    nValidRecHits);
+    it->second.NumberOfRecHitsPerTrackVsPt  -> Fill(pt,     nValidRecHits);
     
     it->second.NumberOfLayersPerTrack      -> Fill(nValidLayers);
     it->second.NumberOfLayersPerTrackVsPhi -> Fill(phi,     nValidLayers);
     it->second.NumberOfLayersPerTrackVsEta -> Fill(eta,     nValidLayers);
+    it->second.NumberOfLayersPerTrackVsPt  -> Fill(pt,      nValidLayers);
   }
 
 }

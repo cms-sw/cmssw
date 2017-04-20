@@ -14,6 +14,8 @@ muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMu
 )
 ### This is also needed for seeding
 from RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi import hitCollectorForOutInMuonSeeds
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(hitCollectorForOutInMuonSeeds, MinPtForHitRecoveryInGluedDet=1e9)
 
 ###### EVENT-SETUP STUFF #######
 ###---------- Trajectory Cleaner, deciding how overlapping track candidates are arbitrated  ----------------
@@ -35,8 +37,6 @@ _muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
     MaxChi2 = cms.double(80.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 
 )
-from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
-_tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForInOutBase, MinPtForHitRecoveryInGluedDet=1e9)
 muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxSagitta = cms.double(-1.)
 )

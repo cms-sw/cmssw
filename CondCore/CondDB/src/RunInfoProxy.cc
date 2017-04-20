@@ -93,7 +93,6 @@ namespace cond {
       
        std::string dummy;
        m_session->runInfoSchema().runInfoTable().getInclusiveRunRange( low, up, m_data->runList );
-       std::cout <<"Min="<<std::get<0>(m_data->runList.front())<<" max="<<std::get<0>(m_data->runList.back())<<std::endl;
     }
 
     void RunInfoProxy::load( const boost::posix_time::ptime& low, const boost::posix_time::ptime& up ){

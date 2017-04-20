@@ -46,6 +46,7 @@ from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *
 from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
+from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 l1TdeRCT.rctSourceData = 'gctDigis'
 
 # DQM Offline Step 2 cfi/cff imports
@@ -139,7 +140,8 @@ l1TriggerOnline = cms.Sequence(
 l1TriggerOffline = cms.Sequence(
     l1TriggerOnline *
     dqmEnvL1TriggerReco *
-    l1tStage2CaloLayer2OfflineDQM
+    l1tStage2CaloLayer2OfflineDQM *
+    l1tEGammaOfflineDQM
 )
 
 #
@@ -151,7 +153,8 @@ l1TriggerEmulatorOnline = cms.Sequence(
 
 l1TriggerEmulatorOffline = cms.Sequence(
     l1TriggerEmulatorOnline *
-    l1tStage2CaloLayer2OfflineDQMEmu
+    l1tStage2CaloLayer2OfflineDQMEmu *
+    l1tEGammaOfflineDQMEmu
 )
 #
 
