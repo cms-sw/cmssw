@@ -115,7 +115,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
   ChargedHadronIsolation_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
   minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
-  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
   covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
 {
