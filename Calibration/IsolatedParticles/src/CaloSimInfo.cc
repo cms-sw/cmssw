@@ -8,12 +8,15 @@
 
 #include<iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
   double timeOfFlight(DetId id, const CaloGeometry* geo, bool debug) {
 
     double R   = geo->getPosition(id).mag();
     double tmp = R/CLHEP::c_light/CLHEP::ns;
+#ifdef EDM_ML_DEBUG
     if (debug) {
       DetId::Detector det = id.det();
       int subdet   = id.subdetId();
@@ -52,6 +55,7 @@ namespace spr{
 		<< "/" << theta/CLHEP::deg << " Dist " << dist/CLHEP::cm 
 		<< " R " << R << " TOF " << tmp << ":" << tmp1 << std::endl;
     }
+#endif
     return tmp;
   }
 

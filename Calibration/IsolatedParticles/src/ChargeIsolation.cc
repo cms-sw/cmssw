@@ -8,23 +8,28 @@
 
 #include<iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
 
   double chargeIsolationEcal(unsigned int trkIndex, std::vector<spr::propagatedTrackID>& vdetIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
   
     const DetId coreDet = vdetIds[trkIndex].detIdECAL;
+#ifdef EDM_ML_DEBUG
     if (debug) {
       if (coreDet.subdetId() == EcalBarrel) 
 	std::cout << "DetId " << (EBDetId)(coreDet) << " Flag " << vdetIds[trkIndex].okECAL << std::endl;
       else
 	std::cout << "DetId " << (EEDetId)(coreDet) << " Flag " << vdetIds[trkIndex].okECAL << std::endl;
     }
-
+#endif
     double maxNearP = -1.0;
     if (vdetIds[trkIndex].okECAL) {
       std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+#ifdef EDM_ML_DEBUG
       if (debug) std::cout << "chargeIsolationEcal:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size() << std::endl;
+#endif
 
       for (unsigned int indx=0; indx<vdetIds.size(); ++indx) {
 	if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okECAL) {
@@ -47,8 +52,9 @@ namespace spr{
     const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "chargeIsolation:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size() << std::endl;
-
+#endif
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
@@ -68,13 +74,17 @@ namespace spr{
 	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
+#ifdef EDM_ML_DEBUG
 	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EBDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
+#endif
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = endcapGeom->getClosestCell(point2);
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
+#ifdef EDM_ML_DEBUG
 	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
+#endif
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  }
@@ -89,21 +99,25 @@ namespace spr{
   double chargeIsolationHcal(unsigned int trkIndex, std::vector<spr::propagatedTrackID> & vdetIds, const HcalTopology* topology, int ieta, int iphi, bool debug) {
   
     std::vector<DetId> dets(1,vdetIds[trkIndex].detIdHCAL);
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "DetId " << (HcalDetId)(dets[0]) << " Flag " << vdetIds[trkIndex].okHCAL << std::endl;
     }
-
+#endif
     double maxNearP = -1.0;
     if (vdetIds[trkIndex].okHCAL) {
       std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
+#ifdef EDM_ML_DEBUG
       if (debug) std::cout << "chargeIsolationHcal:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size() << std::endl;
-
+#endif
       for (unsigned indx = 0; indx<vdetIds.size(); ++indx) {
 	if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okHCAL) {
 	  const DetId anyCell = vdetIds[indx].detIdHCAL;
 	  if (!spr::chargeIsolation(anyCell,vdets)) {
 	    const reco::Track* pTrack = &(*(vdetIds[indx].trkItr));
+#ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolationHcal Cell " << (HcalDetId)(anyCell) << " pt " << pTrack->p() << std::endl;
+#endif
 	    if (maxNearP < pTrack->p()) maxNearP = pTrack->p();
 	  }
 	}
@@ -117,18 +131,19 @@ namespace spr{
   double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
 
     std::vector<DetId> dets(1,ClosestCell);
-
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << (HcalDetId) ClosestCell << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
     std::vector<DetId>::iterator it;  
   
+#ifdef EDM_ML_DEBUG
     if (debug) {
       for (unsigned int i=0; i<vdets.size(); i++) {
 	std::cout << "HcalDetId in " <<2*ieta+1 << "x" << 2*iphi+1 << " " << (HcalDetId) vdets[i] << std::endl;
       }
     }
-
+#endif
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
   
@@ -142,21 +157,24 @@ namespace spr{
 	std::pair<math::XYZPoint,bool> info = spr::propagateHCAL(pTrack2,bField);
 	const GlobalPoint point2(info.first.x(),info.first.y(),info.first.z());
 
+#ifdef EDM_ML_DEBUG
 	if (debug) {
 	  std::cout << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " " << pTrack2->phi() << std::endl;
 	}
-
+#endif
 	if (info.second) {
 	  const DetId anyCell = gHB->getClosestCell(point2);
 	  if (!spr::chargeIsolation(anyCell,vdets)) {	
 	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
 	  }
+#ifdef EDM_ML_DEBUG
 	  if (debug){
 	    std::cout << "maxNearP " << maxNearP << " thisCell " 
 		      << (HcalDetId)anyCell << " (" 
 		      << info.first.x() << "," << info.first.y() <<","
 		      << info.first.z() << ")" << std::endl;
 	  }
+#endif
 	}
       }
     }
@@ -238,7 +256,9 @@ namespace spr{
     double maxNearP = -1.0;
     nNearTRKs = 0;
     if (trkDirs[trkIndex].okHCAL) {
+#ifdef EDM_ML_DEBUG
       if (debug) std::cout << "chargeIsolationCone with " << trkDirs.size() << " tracks " << std::endl;
+#endif
       for (unsigned int indx=0; indx<trkDirs.size(); ++indx) {
 	if (indx != trkIndex && trkDirs[indx].ok && trkDirs[indx].okHCAL) {
 	  int isConeChargedIso = spr::coneChargeIsolation(trkDirs[trkIndex].pointHCAL, trkDirs[indx].pointHCAL, trkDirs[trkIndex].directionHCAL, dR);
@@ -250,7 +270,9 @@ namespace spr{
 	}
       }
     }
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP " << maxNearP << std::endl;
+#endif
     return maxNearP;
   }
 
