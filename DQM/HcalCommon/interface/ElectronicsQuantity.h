@@ -421,8 +421,8 @@ namespace hcaldqm
 			virtual uint32_t getBin(HcalElectronicsId const&);
 
 			virtual int nbins() {
-				std::cout << "[debug] CrateQuantity: returning nbins = " << _crates.size() << std::endl;
-				return _crates.size();}
+				return _crates.size();
+			}
 			virtual double min() {return 0;}
 			virtual double max() {return _crates.size();}
 			virtual std::vector<std::string> getLabels();
