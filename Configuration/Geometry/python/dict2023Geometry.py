@@ -447,7 +447,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/me0/TDR_Dev/me0.xml',
         ],
         2 : [
-            'Geometry/MuonCommonData/data/muonNumbering/TDR_Dev/muonNumbering.xml',
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml',
         ],
         3 : [
             'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
