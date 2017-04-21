@@ -96,12 +96,12 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     try:
         out.add("\subsection{Alignment Configuration}")
         text = "\\textbf{{PedeSteerer method:}} {{{0}}}\\\\\n".format(
-            additionalData.pedeSteererMethod)
+            additionalData.pede_steerer_method)
         text += "\\textbf{{PedeSteerer options:}}\\\\\n"
-        for line in additionalData.pedeSteererOptions:
+        for line in additionalData.pede_steerer_options:
             text += "{{{0}}}\\\\\n".format(line)
         text += "\\textbf{{PedeSteerer command:}} {0}\\\\\n".format(
-            additionalData.pedeSteererCommand)
+            additionalData.pede_steerer_command)
         out.addSlide("Alignment Configuration", text)
     except Exception as e:
         logger.error("data not found - {0} {1}".format(type(e), e))
