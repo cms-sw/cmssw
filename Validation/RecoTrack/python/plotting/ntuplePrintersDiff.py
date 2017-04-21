@@ -748,10 +748,11 @@ class _RecHitPrinter(_IndentPrinter):
         lst = []
         for hit in hits:
             matched = ""
+            glued = ""
             coord = ""
             if hit.isValidHit():
                 if hasattr(hit, "matchedSimHitInfos"):
-                    matched = "from %s " % HitSimType.toString(hit.simType())
+                    matched = " from %s " % HitSimType.toString(hit.simType())
                     matches = []
                     hasChargeFraction = False
                     for shInfo in hit.matchedSimHitInfos():
@@ -769,8 +770,13 @@ class _RecHitPrinter(_IndentPrinter):
                         matched += " "+",".join(matches)
 
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
+                if isinstance(hit, GluedHit):
+                    glued = "monoHit %d stereoHit %d " % (hit.monoHit().index(), hit.stereoHit().index())
+
             detId = parseDetId(hit.detId())
-            lst.append(self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched))
+            lst.append(self._prefix+"{layer} {hit} detid {detid} {detidParsed} {glued}{coord}{matched}".format(layer=hit.layerStr(), hit=hit.index(),
+                                                                                                               detid=detId.detid, detidParsed=str(detId),
+                                                                                                               glued=glued, coord=coord, matched=matched))
         return lst
 
 class _TrackingParticleMatchPrinter(object):
