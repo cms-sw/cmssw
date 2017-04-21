@@ -2,6 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalClusteringImpl_h__
 
 #include <array> 
+#include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -46,6 +47,7 @@ private:
     double triggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
+    /* Number of Endcaps = 2, Maximum number of layer in EE + FH = 28 + 12 = 40 */
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                  std::array<std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>,40>,2> & reshuffledTriggerCells );
 

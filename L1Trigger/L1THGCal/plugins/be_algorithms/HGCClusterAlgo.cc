@@ -124,7 +124,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                     cellThickness = hgchefTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
                 }
                 else if( subdet == HGCHEB ){
-                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgigger cells are not yet implemented";
+                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trigger cells are not yet implemented";
                 }
 
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
