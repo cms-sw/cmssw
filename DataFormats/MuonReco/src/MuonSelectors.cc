@@ -572,7 +572,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     int nMatch = 0;
     for ( const auto& chamberMatch : muon.matches() )
     {
-      if ( chamberMatch.detector() != 5 ) continue;
+      if ( chamberMatch.detector() != MuonSubdetId::ME0 ) continue;
 
       const double trkX = chamberMatch.x;
       const double errX = chamberMatch.xErr;
@@ -600,9 +600,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
       }
     }
 
-    if ( nMatch >= minNumberOfMatches ) return true;
-    else return false;
+  return ( nMatch >= minNumberOfMatches );
   } // ME0Mu
+    
   if ( type == GEMMu )
   {
     if ( minNumberOfMatches == 0 ) return true;
@@ -610,7 +610,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     int nMatch = 0;
     for ( const auto& chamberMatch : muon.matches() )
     {
-      if ( chamberMatch.detector() != 4 ) continue;
+      if ( chamberMatch.detector() != MuonSubdetId::GEM ) continue;
 
       const double trkX = chamberMatch.x;
       const double errX = chamberMatch.xErr;
@@ -638,8 +638,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
       }
     }
 
-    if ( nMatch >= minNumberOfMatches ) return true;
-    else return false;
+   return ( nMatch >= minNumberOfMatches );
    } // GEMMu
 
    return goodMuon;
