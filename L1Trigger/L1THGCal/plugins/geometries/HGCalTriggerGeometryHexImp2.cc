@@ -74,6 +74,9 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         void fillMaps(const es_info&);
         void fillNeighborMaps(const es_info&);
         unsigned packTriggerCell(unsigned, const std::vector<int>&) const;
+        // returns transverse wafer type: -1=coarse, 1=fine, 0=undefined
+        int detIdWaferType(unsigned subdet, short wafer) const;
+        bool validCellId(unsigned subdet, unsigned cell_id) const;
 };
 
 
@@ -236,41 +239,13 @@ getCellsFromModule( const unsigned module_id ) const
     geom_set cell_det_ids;
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
-        // Find the type of the wafer
-        int wafer_type = module_det_id.waferType();
-        switch(subdet)
-        {
-            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
-            // HGCalDetId::waferType() returns -1=coarse, 1=fine
-            // Convert to HGCalDetId waferType
-            case ForwardSubdetector::HGCEE:
-                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            default:
-                // Should not happen (subdet checked before)
-                break;
-        };
+        int wafer_type = detIdWaferType(subdet, wafer_itr->second);
+        if(wafer_type==0) wafer_type = module_det_id.waferType();
         // loop on the cells in each wafer and return valid ones
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
             HGCalDetId cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, cell);
-            bool is_valid = false;
-            switch(subdet)
-            {
-                case ForwardSubdetector::HGCEE:
-                    is_valid |= es_info_.topo_ee->valid(cell_id);
-                    break;
-                case ForwardSubdetector::HGCHEF:
-                    is_valid |= es_info_.topo_fh->valid(cell_id);
-                    break;
-                default:
-                    is_valid = false;
-                    break;
-            } 
-            if(is_valid) cell_det_ids.emplace(cell_id.rawId());
+            if(validCellId(subdet, cell_id)) cell_det_ids.emplace(cell_id.rawId());
         }
     }
     return cell_det_ids;
@@ -300,41 +275,13 @@ getOrderedCellsFromModule( const unsigned module_id ) const
     geom_ordered_set cell_det_ids;
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
-        // Find the type of the wafer
-        int wafer_type = module_det_id.waferType();
-        switch(subdet)
-        {
-            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
-            // HGCalDetId::waferType() returns -1=coarse, 1=fine
-            // Convert to HGCalDetId waferType
-            case ForwardSubdetector::HGCEE:
-                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            default:
-                // Should not happen (subdet checked before)
-                break;
-        };
+        int wafer_type = detIdWaferType(subdet, wafer_itr->second);
+        if(wafer_type==0) wafer_type = module_det_id.waferType();
         // loop on the cells in each wafer
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
             HGCalDetId cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), wafer_type, wafer_itr->second, cell);
-            bool is_valid = false;
-            switch(subdet)
-            {
-                case ForwardSubdetector::HGCEE:
-                    is_valid |= es_info_.topo_ee->valid(cell_id);
-                    break;
-                case ForwardSubdetector::HGCHEF:
-                    is_valid |= es_info_.topo_fh->valid(cell_id);
-                    break;
-                default:
-                    is_valid = false;
-                    break;
-            } 
-            if(is_valid) cell_det_ids.emplace(cell_id.rawId());
+            if(validCellId(subdet, cell_id)) cell_det_ids.emplace(cell_id.rawId());
         }
     }
     return cell_det_ids;
@@ -365,23 +312,8 @@ getTriggerCellsFromModule( const unsigned module_id ) const
     // loop on the wafers included in the module
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
-        // Find the type of the wafer
-        int wafer_type = module_det_id.waferType();
-        switch(subdet)
-        {
-            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
-            // HGCalDetId::waferType() returns -1=coarse, 1=fine
-            // Convert to HGCalDetId waferType
-            case ForwardSubdetector::HGCEE:
-                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            default:
-                // Should not happen (subdet checked before)
-                break;
-        };
+        int wafer_type = detIdWaferType(subdet, wafer_itr->second);
+        if(wafer_type==0) wafer_type = module_det_id.waferType();
         // loop on the trigger cells in each wafer
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
@@ -417,23 +349,8 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
     // loop on the wafers included in the module
     for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
     {
-        // Find the type of the wafer
-        int wafer_type = module_det_id.waferType();
-        switch(subdet)
-        {
-            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
-            // HGCalDetId::waferType() returns -1=coarse, 1=fine
-            // Convert to HGCalDetId waferType
-            case ForwardSubdetector::HGCEE:
-                wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer_itr->second)==2?-1:1);
-                break;
-            default:
-                // Should not happen (subdet checked before)
-                break;
-        };
+        int wafer_type = detIdWaferType(subdet, wafer_itr->second);
+        if(wafer_type==0) wafer_type = module_det_id.waferType();
         // loop on the trigger cells in each wafer
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
@@ -493,24 +410,8 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
         // if no neighbor, use the same type as the central one
         // to create the wafer configuration
         int wt = wafer_type;
-        if(w!=-1)
-        {
-            switch(subdet)
-            {
-                // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
-                // HGCalDetId::waferType() returns -1=coarse, 1=fine
-                // Convert to HGCalDetId waferType
-                case ForwardSubdetector::HGCEE:
-                    wt = (es_info_.topo_ee->dddConstants().waferTypeT(w)==2?-1:1);
-                    break;
-                case ForwardSubdetector::HGCHEF:
-                    wt = (es_info_.topo_fh->dddConstants().waferTypeT(w)==2?-1:1);
-                    break;
-                default:
-                    // Should not arrive there. Subdet has been checked before
-                    return geom_set();
-            } 
-        }
+        if(w!=-1) wt = detIdWaferType(subdet, w);
+        if(wt==0) return geom_set(); // invalid wafer type
         types.emplace_back(wt);
     }
     // retrieve neighbors
@@ -586,6 +487,7 @@ fillMaps(const es_info& esInfo)
     short module  = 0;
     for(; l1tModulesMappingStream>>subdet>>wafer>>module; )
     {
+        int wafer_type = detIdWaferType(subdet, wafer);
         switch(subdet)
         {
             case ForwardSubdetector::HGCEE:
@@ -594,8 +496,6 @@ fillMaps(const es_info& esInfo)
                 wafer_to_module_ee_.emplace(wafer,module);
                 module_to_wafers_ee_.emplace(module, wafer);
                 // fill number of cells for a given wafer type
-                // translate wafer type 1/2 to 1/-1 
-                int wafer_type = esInfo.topo_ee->dddConstants().waferTypeT(wafer)==1?1:-1;
                 number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_ee->dddConstants().numberCellsHexagon(wafer));
                 break;
             }
@@ -605,8 +505,6 @@ fillMaps(const es_info& esInfo)
                 wafer_to_module_fh_.emplace(wafer,module);
                 module_to_wafers_fh_.emplace(module, wafer);
                 // fill number of cells for a given wafer type
-                // translate wafer type 1/2 to 1/-1
-                int wafer_type = esInfo.topo_fh->dddConstants().waferTypeT(wafer)==1?1:-1;
                 number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_fh->dddConstants().numberCellsHexagon(wafer));
                 break;
             }
@@ -760,6 +658,29 @@ packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) cons
     return packed_value;
 }
 
+
+int 
+HGCalTriggerGeometryHexImp2::
+detIdWaferType(unsigned subdet, short wafer) const
+{
+    int wafer_type = 0;
+    switch(subdet)
+    {
+        // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+        // HGCalDetId::waferType() returns -1=coarse, 1=fine
+        // Convert to HGCalDetId waferType
+        case ForwardSubdetector::HGCEE:
+            wafer_type = (es_info_.topo_ee->dddConstants().waferTypeT(wafer)==2?-1:1);
+            break;
+        case ForwardSubdetector::HGCHEF:
+            wafer_type = (es_info_.topo_fh->dddConstants().waferTypeT(wafer)==2?-1:1);
+            break;
+        default:
+            break;
+    };
+    return wafer_type;
+}
+
 bool 
 HGCalTriggerGeometryHexImp2::
 validTriggerCell(const unsigned trigger_cell_id) const
@@ -774,20 +695,29 @@ validTriggerCell(const unsigned trigger_cell_id) const
     bool is_valid = false;
     for(const auto cell_id : cells)
     {
-        switch(subdet)
-        {
-            case ForwardSubdetector::HGCEE:
-                is_valid |= es_info_.topo_ee->valid(cell_id);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                is_valid |= es_info_.topo_fh->valid(cell_id);
-                break;
-            default:
-                is_valid = false;
-                break;
-        } 
+        is_valid |= validCellId(subdet, cell_id);
         if(is_valid) break;
     }
+    return is_valid;
+}
+
+bool
+HGCalTriggerGeometryHexImp2::
+validCellId(unsigned subdet, unsigned cell_id) const
+{
+    bool is_valid = false;
+    switch(subdet)
+    {
+        case ForwardSubdetector::HGCEE:
+            is_valid = es_info_.topo_ee->valid(cell_id);
+            break;
+        case ForwardSubdetector::HGCHEF:
+            is_valid = es_info_.topo_fh->valid(cell_id);
+            break;
+        default:
+            is_valid = false;
+            break;
+    } 
     return is_valid;
 }
 
