@@ -19,9 +19,7 @@ TriggerSummaryAnalyzerRAW::TriggerSummaryAnalyzerRAW(const edm::ParameterSet& ps
   inputToken_(consumes<trigger::TriggerEventWithRefs>(inputTag_))
 { }
 
-TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW()
-{
-}
+TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW() = default;
 
 //
 // member functions

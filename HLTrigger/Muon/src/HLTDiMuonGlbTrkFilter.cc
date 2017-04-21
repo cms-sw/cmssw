@@ -141,8 +141,8 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
       }
   }
 
-  for ( std::set<unsigned int>::const_iterator itr = mus.begin(); itr != mus.end(); ++itr )
-    filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands,*itr));
+  for (unsigned int mu : mus)
+    filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands,mu));
 
   return npassed>0;
 }

@@ -21,7 +21,7 @@ HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
   candToken_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(candTag_);
 }
 
-HLTEcalIsolationFilter::~HLTEcalIsolationFilter(){}
+HLTEcalIsolationFilter::~HLTEcalIsolationFilter()= default;
 
 void
 HLTEcalIsolationFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -33,9 +33,9 @@
 class HLTLevel1Pattern : public edm::EDFilter {
 public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
-  ~HLTLevel1Pattern();
+  ~HLTLevel1Pattern() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::InputTag     m_gtReadoutRecord;
@@ -89,9 +89,7 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
     m_triggerPattern[i] = (bool) pattern[i];
 }
 
-HLTLevel1Pattern::~HLTLevel1Pattern()
-{
-}
+HLTLevel1Pattern::~HLTLevel1Pattern() = default;
 
 void
 HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

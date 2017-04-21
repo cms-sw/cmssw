@@ -43,9 +43,7 @@ HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet
   LogDebug("") << "Requesting track to be isolated within cone of " << min_isol_;
 }
 
-HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
-{
-}
+HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter() = default;
 
 void
 HLTPixlMBForAlignmentFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -90,8 +88,8 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
    vector<double> ptstore;
    vector<int> itstore;
    bool accept = false;
-   RecoChargedCandidateCollection::const_iterator apixl(tracks->begin());
-   RecoChargedCandidateCollection::const_iterator epixl(tracks->end());
+   auto apixl(tracks->begin());
+   auto epixl(tracks->end());
    RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
    int itrk = 0;
    double zvtxfit = 0.0;
@@ -157,10 +155,10 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
              itsep.push_back(locisol.at(j));
            } else {
              bool is_separated = true;
-             for (unsigned int k=0; k<itsep.size(); k++){
+             for (int k : itsep){
 //             ...and the other ones, that are on the 'final acceptance' list already, if min_trks_ > 2
-               double phisep = phistore.at(itsep.at(k))-phistore.at(locisol.at(j));
-               double etasep = etastore.at(itsep.at(k))-etastore.at(locisol.at(j));
+               double phisep = phistore.at(k)-phistore.at(locisol.at(j));
+               double etasep = etastore.at(k)-etastore.at(locisol.at(j));
                double sep = sqrt(phisep*phisep + etasep*etasep);
                if (sep < min_sep_) {
 //               this one was no good, too close to some other already accepted
@@ -184,8 +182,8 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
      // we now move them to the filterproduct
 
      if (accept) {
-       for (unsigned int ipos=0; ipos < itsep.size(); ipos++) {
-         int iaddr=itstore.at(itsep.at(ipos));
+       for (int ipos : itsep) {
+         int iaddr=itstore.at(ipos);
          filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
        }
        // std::cout << "Accept this event " << std::endl;
