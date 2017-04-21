@@ -79,8 +79,12 @@ def get_process_object(cfg):
     sys.path.append(os.path.dirname(cfg)) # add location to python path
     cache_stdout = sys.stdout
     sys.stdout = open(os.devnull, "w")    # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    try:
+        __configuration = \
+            importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    except Exception as e:
+        print "Problem detected in configuration file '{0}'.".format(cfg)
+        raise e
     sys.stdout = cache_stdout
     sys.path.pop()                        # clean up python path again
     try:

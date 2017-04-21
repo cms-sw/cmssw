@@ -73,22 +73,28 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     try:
         out += "\subsection{Alignment Configuration}\n"
         out += "\\textbf{{PedeSteerer method:}} {{{0}}}\\\\\n".format(
-            additionalData.pedeSteererMethod)
+            additionalData.pede_steerer_method)
         out += "\\textbf{{PedeSteerer options:}}\\\\\n"
-        for line in additionalData.pedeSteererOptions:
+        for line in additionalData.pede_steerer_options:
             out += "{{{0}}}\\\\\n".format(line)
         out += "\\textbf{{PedeSteerer command:}} {0}\\\\\n".format(
-            additionalData.pedeSteererCommand)
+            additionalData.pede_steerer_command)
 
-        for selector in additionalData.pattern:
-            out += "\\textbf{{{0}:}}\\\\\n".format(additionalData.pattern[selector][3])
-            for line in additionalData.pattern[selector][0]:
-                for i in line:
-                    out += "{0}  ".format(i)
-                out += "\\\\\n"
-            for line in additionalData.pattern[selector][2]:
-                out += "{0}\\\\\n".format(line)
-            out += "\\\\\n"
+        for i in sorted(additionalData.selectors):
+            out += "\\textbf{{{0}:}}\n".format(additionalData.selectors[i]["name"])
+            out += "\\begin{verbatim}\n"
+            for line in additionalData.selectors[i]["selector"].dumpPython().split("\n"):
+                out += line + "\n"
+            out += "\\end{verbatim}\n"
+
+        if len(additionalData.iov_definition) > 0:
+            out += "\\textbf{{IOV defintion:}}\n"
+            out += "\\begin{verbatim}\n"
+            for line in additionalData.iov_definition.dumpPython().split("\n"):
+                out += line + "\n"
+            out += "\\end{verbatim}\n\n"
+        out += "\n"
+
     except Exception as e:
         logger.error("data not found - {0} {1}".format(type(e), e))
 
