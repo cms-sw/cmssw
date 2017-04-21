@@ -76,8 +76,8 @@ private:
   int ieta_bins_HF;
   float ieta_min_HF, ieta_max_HF;
 
-  std::string    g4Label, hcalHits, outFile_, hep17_;
-  bool           verbose_, checkHit_, testNumber_;
+  std::string    g4Label, hcalHits, outFile_;
+  bool           verbose_, checkHit_, testNumber_, hep17_;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
 

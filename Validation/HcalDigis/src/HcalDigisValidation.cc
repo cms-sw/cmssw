@@ -39,7 +39,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
     testNumber_= iConfig.getParameter<bool>("TestNumber");
-    hep17_     = iConfig.getUntrackedParameter<std::string>("hep17","unset");
+    hep17_     = iConfig.getParameter<bool>("hep17");
 
     // register for data access
     if (iConfig.exists("simHits"))
@@ -277,7 +277,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
         book1D(ib, histo, digiAmp);
 
-        if(hep17_ == "yes" && bsubdet=="HE"){
+        if(hep17_ && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_HEP17");
            book1D(ib, histo, digiAmpWide);
 	}
@@ -285,7 +285,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_%s", depth, sub);
 	  book1D(ib, histo, digiAmp);
-           if(hep17_ == "yes" && bsubdet=="HE"){
+           if(hep17_ && bsubdet=="HE"){
               sprintf(histo, "HcalDigiTask_signal_amplitude_depth%d_HEP17", depth);
 	      book1D(ib, histo, digiAmpWide);
 	   }
@@ -293,7 +293,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
         book2D(ib, histo, nbin, digiAmp);
-        if(hep17_ == "yes" && bsubdet=="HE"){
+        if(hep17_ && bsubdet=="HE"){
            sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_HEP17");
            book2D(ib, histo, nbin, digiAmpWide);
 	}
@@ -301,7 +301,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth%d_%s", depth, sub);
 	  book1D(ib, histo, nbin);
-	  if(hep17_ == "yes" && bsubdet=="HE"){
+	  if(hep17_ && bsubdet=="HE"){
              sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth%d_HEP17", depth);
              book1D(ib, histo, nbin);
 	  }
@@ -1062,7 +1062,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
                 if (val > 100.) {
 		  fill1D("HcalDigiTask_ADC0_adc_depth" + str(depth) + "_" + subdet_, noiseADC);
-                  if(hep17_ == "yes"){
+                  if(hep17_){
                      if(!isHEP17){
       		        strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth" + str(depth) + "_" + subdet_;
 		        fill1D(strtmp, double(ii), val);
@@ -1077,7 +1077,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                 }
 
                 if (closen == 1) {
-                  if(hep17_ == "yes"){
+                  if(hep17_){
                      if(!isHEP17){
 		        strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
 		        fill2D(strtmp, double(ii), val);
@@ -1156,7 +1156,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             }
 
 
-            if(hep17_ == "yes"){	    
+            if(hep17_){	    
                if(!isHEP17){
                   strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
                   fill1D(strtmp, v_ampl[0]);
