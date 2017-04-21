@@ -160,14 +160,14 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
     std::vector<RPC4DHit> PointsForGMT;
 
-    for(std::vector<RPC4DHit>::iterator Point = GlobalRPC4DHitsNoBx0.begin(); Point!=GlobalRPC4DHitsNoBx0.end(); ++Point){
-      float phiP = Point->gp.phi();
-      float etaP = Point->gp.eta();
+    for(auto & Point : GlobalRPC4DHitsNoBx0){
+      float phiP = Point.gp.phi();
+      float etaP = Point.gp.eta();
       //std::cout<<"\t \t GMT   phi="<<phi<<" eta="<<eta<<std::endl;
       //std::cout<<"\t \t Point phi="<<phiP<<" eta="<< etaP<<std::endl;
       //std::cout<<"\t \t "<<fabs(phi-phiP)<<" < 0,1? "<<fabs(eta-etaP)<<" < 0.20 ?"<<std::endl;
       if(fabs(phi-phiP) <=0.1 && fabs(eta-etaP)<=0.20){
-	PointsForGMT.push_back(*Point);
+	PointsForGMT.push_back(Point);
 	//std::cout<<"\t \t match!"<<std::endl;
       }
     }
@@ -189,7 +189,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     bool incr = true;
 
     //std::cout<<"\t \t loop on the RPCHit4D!!!"<<std::endl;
-    for(std::vector<RPC4DHit>::iterator point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
+    for(auto point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
       //float r=point->gp.mag();
       outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
       incr &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.

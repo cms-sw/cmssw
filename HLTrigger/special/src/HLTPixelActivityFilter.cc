@@ -13,11 +13,11 @@
 class HLTPixelActivityFilter : public HLTFilter {
 public:
   explicit HLTPixelActivityFilter(const edm::ParameterSet&);
-  ~HLTPixelActivityFilter();
+  ~HLTPixelActivityFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_clusters_;      // minimum number of clusters
@@ -49,9 +49,7 @@ HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) 
     LogDebug("") << "...but no more than " << max_clusters_ << " clusters";
 }
 
-HLTPixelActivityFilter::~HLTPixelActivityFilter()
-{
-}
+HLTPixelActivityFilter::~HLTPixelActivityFilter() = default;
 
 void
 HLTPixelActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

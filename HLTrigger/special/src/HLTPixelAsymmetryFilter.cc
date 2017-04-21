@@ -28,9 +28,7 @@ HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config
   LogDebug("") << "Only clusters with a charge larger than " << clus_thresh_ << " electrons will be used ";
 }
 
-HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter()
-{
-}
+HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter() = default;
 
 void
 HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

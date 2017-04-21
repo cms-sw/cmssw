@@ -32,9 +32,7 @@ TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps) :
                                                      
 }
 
-TriggerJSONMonitoring::~TriggerJSONMonitoring()
-{
-}
+TriggerJSONMonitoring::~TriggerJSONMonitoring() = default;
 
 void
 TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -160,8 +158,8 @@ TriggerJSONMonitoring::resetRun(bool changed){
     datasetContents_ = hltConfig_.datasetContents();
 
     L1AlgoNames_.resize(m_l1tAlgoMask->gtTriggerMask().size());         
-    for (unsigned int i = 0; i < L1AlgoNames_.size(); i++) {
-      L1AlgoNames_.at(i) = "";
+    for (auto & L1AlgoName : L1AlgoNames_) {
+      L1AlgoName = "";
     }
     //Get L1 algorithm trigger names -      
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
@@ -170,8 +168,8 @@ TriggerJSONMonitoring::resetRun(bool changed){
     }
 
     L1TechNames_.resize(m_l1tTechMask->gtTriggerMask().size());    
-    for (unsigned int i = 0; i < L1TechNames_.size(); i++) {
-      L1TechNames_.at(i) = "";
+    for (auto & L1TechName : L1TechNames_) {
+      L1TechName = "";
     }
     //Get L1 technical trigger names -           
     for (CItAlgo itAlgo = technicalMap.begin(); itAlgo != technicalMap.end(); itAlgo++) {
@@ -263,8 +261,8 @@ TriggerJSONMonitoring::resetLumi(){
     hltErrors_[i] = 0;
   }
   //Reset per-dataset counter         
-  for (unsigned int i = 0; i < hltDatasets_.size(); i++) {
-    hltDatasets_[i] = 0;
+  for (unsigned int & hltDataset : hltDatasets_) {
+    hltDataset = 0;
   }
   //Reset L1 per-algo counters -     
   for (unsigned int i = 0; i < L1AlgoAccept_.size(); i++) {
@@ -353,13 +351,13 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     Json::StyledWriter writer;
 
     Json::Value hltNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < hltNames_.size(); ui++){
-      hltNamesVal.append(hltNames_.at(ui));
+    for (auto & hltName : hltNames_){
+      hltNamesVal.append(hltName);
     }
 
     Json::Value datasetNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < datasetNames_.size(); ui++){
-      datasetNamesVal.append(datasetNames_.at(ui));
+    for (auto & datasetName : datasetNames_){
+      datasetNamesVal.append(datasetName);
     }
 
     hltIni["Path-Names"]    = hltNamesVal;
@@ -378,18 +376,18 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     Json::Value l1Ini;
 
     Json::Value l1AlgoNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1AlgoNames_.size(); ui++){
-      l1AlgoNamesVal.append(L1AlgoNames_.at(ui));
+    for (auto & L1AlgoName : L1AlgoNames_){
+      l1AlgoNamesVal.append(L1AlgoName);
     }
 
     Json::Value l1TechNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1TechNames_.size(); ui++){
-      l1TechNamesVal.append(L1TechNames_.at(ui));
+    for (auto & L1TechName : L1TechNames_){
+      l1TechNamesVal.append(L1TechName);
     }
 
     Json::Value eventTypeVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){
-      eventTypeVal.append(L1GlobalType_.at(ui));
+    for (auto & ui : L1GlobalType_){
+      eventTypeVal.append(ui);
     }
 
     l1Ini["L1-Algo-Names"] = l1AlgoNamesVal;
@@ -470,8 +468,8 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
       iSummary->hltReject->update(hltReject_.at(ui));
       iSummary->hltErrors->update(hltErrors_.at(ui));
     }
-    for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
-      iSummary->hltDatasets->update(hltDatasets_.at(ui));
+    for (unsigned int hltDataset : hltDatasets_){
+      iSummary->hltDatasets->update(hltDataset);
     }
     iSummary->prescaleIndex = prescaleIndex_;
 

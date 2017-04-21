@@ -76,7 +76,7 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle< HepMCProduct > EvtHandle ;
    iEvent.getByToken(theGenToken, EvtHandle) ;
    const GenEvent* Evt = EvtHandle->GetEvent() ;
-   if (Evt != 0 ) {   
+   if (Evt != nullptr ) {   
      edm::LogVerbatim ("MuEnrichFltr")  << "------------------------------";
      for ( HepMC::GenEvent::particle_const_iterator
 	     part=Evt->particles_begin(); part!=Evt->particles_end(); ++part )

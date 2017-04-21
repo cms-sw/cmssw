@@ -28,9 +28,7 @@ HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) : HL
   clusterInputToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(inputTag_);
 }
 
-HLTTrackerHaloFilter::~HLTTrackerHaloFilter()
-{
-}
+HLTTrackerHaloFilter::~HLTTrackerHaloFilter() = default;
 
 void
 HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
