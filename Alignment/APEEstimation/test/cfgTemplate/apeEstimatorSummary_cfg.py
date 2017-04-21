@@ -79,8 +79,9 @@ from CondCore.CondDB.CondDB_cfi import *
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
+CondDBAlignmentError = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
 process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
-	connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+	CondDBAlignmentError,
 	timetype = cms.string("runnumber"),
 	toGet = cms.VPSet(
 		cms.PSet(

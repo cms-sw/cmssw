@@ -185,8 +185,9 @@ elif isData:
 ##
 ## Choose Alignment (w/o touching APE)
 if options.alignRcd=='design':
+	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
 	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+		CondDBAlignment,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(
@@ -199,8 +200,9 @@ if options.alignRcd=='design':
 
   
 elif options.alignRcd == 'misalTest':
+	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
 	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+		CondDBAlignment,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(
@@ -212,8 +214,9 @@ elif options.alignRcd == 'misalTest':
 	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 elif options.alignRcd == 'mp1799':
+	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'))
 	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'),
+		CondDBAlignment,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(
@@ -225,8 +228,9 @@ elif options.alignRcd == 'mp1799':
 	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
    
 elif options.alignRcd == 'hp1370':
+	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
 	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'),
+		CondDBAlignment,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(
@@ -251,8 +255,9 @@ else:
 
 ## APE
 if options.iterNumber!=0:
+	CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
 	process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
-		connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'),
+		CondDBAlignmentError,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(

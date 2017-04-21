@@ -119,12 +119,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
+CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber)+'.db'))
 process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",
-    CondDBSetup,
+    CondDBAlignmentError,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber)+'.db'),
     toPut = cms.VPSet(
         cms.PSet(
 	    record = cms.string('TrackerAlignmentErrorExtendedRcd'),
