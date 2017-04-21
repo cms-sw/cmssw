@@ -23,7 +23,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   //useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
   //HEP17 configuration
-  hep17_        = conf.getUntrackedParameter<std::string>("hep17","unset");
+  hep17_        = conf.getUntrackedParameter<bool>("hep17");
 
   //Collections
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
@@ -186,7 +186,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 	emean_vs_ieta_HEM3.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
       }
 
-      if(hep17_ == "yes"){
+      if(hep17_){
          for (int depth = 1; depth <= maxDepthHE_; depth++) {
             sprintf  (histo, "emean_vs_ieta_HEP17_depth%d",depth );
             emean_vs_ieta_HEP17.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, -10., 2000., " ") );
@@ -371,7 +371,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HE" ) ;
       meRecHitsEnergyHEM3 = ibooker.book1D(histo, histo, 2010, -10., 2000.);
       
-      if(hep17_ == "yes"){
+      if(hep17_){
          sprintf (histo, "HcalRecHitTask_energy_of_rechits_HEP17" ) ;
          meRecHitsEnergyHEP17.push_back(ibooker.book1D(histo, histo, 2010 , -10. , 2000.)); 
       
@@ -398,7 +398,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM0_HE" ) ;
       meRecHitsEnergyM3vM0HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
-      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM2_HE" ) ;
       meRecHitsEnergyM3vM2HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
       sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HE" ) ;
@@ -624,7 +624,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     //    double z   = cz[i];
 
     //This will be true if hep17 == "yes" and the rechit is in the hep17 wedge
-    bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_ == "yes");
+    bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_);
 
     //Make sure that an invalid depth won't cause an error. We should probably report the problem as well.
     if( depth < 1 ) continue;
@@ -772,6 +772,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       int sub    = csub[i];
       double eta = ceta[i]; 
       double phi = cphi[i]; 
+      double ieta = cieta[i]; 
+      double iphi = ciphi[i]; 
       double en  = cen[i]; 
       double enM0  = cenM0[i]; 
       double enM3  = cenM3[i]; 
@@ -779,7 +781,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       double t   = ctime[i];
       double depth = cdepth[i];
 
-      bool isHEP17 = (sub == 2) && (phi >= 63) && (phi <= 66) && (eta > 0) && (hep17_ == "yes");
+      bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_);
 
 //       int   ieta = cieta[i];
 

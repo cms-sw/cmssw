@@ -13,7 +13,7 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     emulTPs     = cms.InputTag("emulDigis"),
     dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     TestNumber  = cms.bool(False),
-    hep17       = cms.untracked.string("no")
+    hep17       = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -27,7 +27,7 @@ run2_HCAL_2017.toModify(hcaldigisAnalyzer,
 
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toModify(hcaldigisAnalyzer,
-    hep17 = cms.untracked.string("yes")
+    hep17 = cms.bool(True)
 )
     
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal

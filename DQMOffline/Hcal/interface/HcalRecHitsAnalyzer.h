@@ -75,7 +75,7 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::string ecalselector_;
   std::string eventype_;
   std::string sign_;
-  std::string hep17_;
+  bool hep17_;
   std::string mc_;
   bool        famos_;
 

@@ -11,11 +11,11 @@ hcalRecHitsAnalyzer = cms.EDAnalyzer("HcalRecHitsAnalyzer",
     eventype                  = cms.untracked.string('multi'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    hep17                     = cms.untracked.string("no")
+    hep17                     = cms.untracked.bool(False)
 #    useAllHistos              = cms.untracked.bool(False)                                 
 )
 
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toModify(hcalRecHitsAnalyzer,
-      hep17 = cms.untracked.string("yes")
+      hep17 = cms.untracked.bool(True)
 )

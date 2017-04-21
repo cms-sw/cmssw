@@ -11,7 +11,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   testNumber_= ps.getParameter<bool>("TestNumber");
-  hep17_   = ps.getUntrackedParameter<std::string>("hep17","unset");
+  hep17_   = ps.getParameter<bool>("hep17");
   checkHit_= true;
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
@@ -325,7 +325,7 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHEPhiHit_->Fill(double(phi));
 
 	  bool isHEP17 = (phi>=63)&&(phi<=66)&&(eta>0); 
-	  if(hep17_ == "yes"){
+	  if(hep17_){
 	    if(!isHEP17){
 	      meHEEneHit_->Fill(energy);
 	      meHEEneHit2_->Fill(energy);
