@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -81,7 +82,7 @@ namespace pat {
             const edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCandsNoLep_;
-            std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
+            std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
             const int covarianceVersion_;
@@ -118,7 +119,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
     SVWhiteLists_.push_back(
-      consumes<edm::View< reco::CompositePtrCandidate > >(itag)
+      consumes<edm::View< reco::Candidate > >(itag)
       );
   }
 
@@ -167,16 +168,25 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
            
 
     std::set<unsigned int> whiteList;
+    std::set<reco::TrackRef> whiteListTk;
     for(auto itoken : SVWhiteLists_) {
-      edm::Handle<edm::View<reco::CompositePtrCandidate > > svWhiteListHandle;
+      edm::Handle<edm::View<reco::Candidate > > svWhiteListHandle;
       iEvent.getByToken(itoken, svWhiteListHandle);
-      const edm::View<reco::CompositePtrCandidate > &  svWhiteList=*(svWhiteListHandle.product());
+      const edm::View<reco::Candidate > &  svWhiteList=*(svWhiteListHandle.product());
       for(unsigned int i=0; i<svWhiteList.size();i++) {
+	//Whitelist via Ptrs
         for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
           const edm::Ptr<reco::Candidate> & c = svWhiteList[i].sourceCandidatePtr(j);
           if(c.id() == cands.id()) whiteList.insert(c.key());
 
         }
+	//Whitelist via RecoCharged
+	for(auto dau = svWhiteList[i].begin(); dau != svWhiteList[i].end() ; dau++){
+            const reco::RecoChargedCandidate * chCand=dynamic_cast<const reco::RecoChargedCandidate *>(&(*dau));
+	    if(chCand!=nullptr) {
+		whiteListTk.insert(chCand->track());
+	    }
+	}
       }
     }
  
@@ -245,7 +255,9 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           outPtrP->back().setLostInnerHits( lostHits );
           if(outPtrP->back().pt() > minPtForTrackProperties_ || 
 	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
-	     whiteList.find(ic)!=whiteList.end()) {
+	     whiteList.find(ic)!=whiteList.end() || 
+             (cand.trackRef().isNonnull() &&  whiteListTk.find(cand.trackRef())!=whiteListTk.end())
+	    ) {
             if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);}
             else { 
                 if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
