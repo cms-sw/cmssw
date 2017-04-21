@@ -13,7 +13,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalW
 	mcShape_(mcShape),
 	recoShape_(recoShape),
 	photoelectronsToAnalog_(photoelectronsToAnalog),
-	darkCurrent_(darkCurrent)
+	darkCurrent_(darkCurrent),
+	doSipmRadiationDamage_(false)
 {
 }
 
@@ -28,6 +29,14 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet & p)
 	mcShape_(p.getParameter<int>("mcShape")),
 	recoShape_(p.getParameter<int>("recoShape")),
 	photoelectronsToAnalog_(p.getParameter<double>("photoelectronsToAnalog")),
-	darkCurrent_(p.getParameter<std::vector<double>>("darkCurrent"))
+	darkCurrent_(p.getParameter<std::vector<double>>("darkCurrent")),
+	doSipmRadiationDamage_(p.getParameter<bool>("doRadiationDamage"))
 {
+	if(doSipmRadiationDamage_) sipmRadiationDamage_ = HcalSiPMRadiationDamage(darkCurrent_,p.getParameter<edm::ParameterSet>("radiationDamage"));
 }
+
+const double HcalHardcodeParameters::darkCurrent(unsigned index, double intlumi) const {
+	if(doSipmRadiationDamage_ and intlumi>0) return sipmRadiationDamage_.getDarkCurrent(intlumi,index);
+	return darkCurrent_.at(index);
+}
+

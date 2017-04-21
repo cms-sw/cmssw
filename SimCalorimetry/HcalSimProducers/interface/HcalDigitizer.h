@@ -11,7 +11,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
+#include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
@@ -156,8 +156,10 @@ private:
   int theHOSiPMCode;
   
   double deliveredLumi;
-  HEDarkening* m_HEDarkening;
-  HFRecalibration* m_HFRecalibration;
+  bool agingFlagHB, agingFlagHE;
+  const HBHEDarkening* m_HBDarkening;
+  const HBHEDarkening* m_HEDarkening;
+  std::unique_ptr<HFRecalibration> m_HFRecalibration;
 
   std::vector<double> injectedHitsEnergy_;
   std::vector<double> injectedHitsTime_;
