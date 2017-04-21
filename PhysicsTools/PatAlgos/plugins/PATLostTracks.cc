@@ -23,6 +23,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 namespace {
   bool passesQuality(const reco::Track& trk,const std::vector<reco::TrackBase::TrackQuality>& allowedQuals){
@@ -63,6 +64,8 @@ namespace pat {
     const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
     const edm::EDGetTokenT<reco::TrackCollection>          tracks_;
     const edm::EDGetTokenT<reco::VertexCollection>         vertices_;
+    const edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>         kshorts_;
+    const edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>         lambdas_;
     const edm::EDGetTokenT<reco::VertexCollection>         pv_;
     const edm::EDGetTokenT<reco::VertexCollection>         pvOrigs_;
     const double minPt_;
@@ -80,6 +83,8 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   tracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTracks"))),
   vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("secondaryVertices"))),
+  kshorts_(consumes<reco::VertexCompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("kshorts"))),
+  lambdas_(consumes<reco::VertexCompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("lambdas"))),
   pv_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
   pvOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   minPt_(iConfig.getParameter<double>("minPt")),
@@ -122,6 +127,11 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByToken( vertices_, vertices );
 
+    edm::Handle<reco::VertexCompositeCandidateCollection> kshorts;
+    iEvent.getByToken( kshorts_, kshorts );
+    edm::Handle<reco::VertexCompositeCandidateCollection> lambdas;
+    iEvent.getByToken( lambdas_, lambdas );
+
     edm::Handle<reco::VertexCollection> pvs;
     iEvent.getByToken( pv_, pvs );
     reco::VertexRef pv(pvs.id());
@@ -158,6 +168,18 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     for(const auto& secVert : *vertices){
         for(auto trkIt = secVert.tracks_begin();trkIt!=secVert.tracks_end();trkIt++){
 	    if(trkStatus[trkIt->key()]==TrkStatus::NOTUSED)  trkStatus[trkIt->key()]=TrkStatus::VTX;
+	}
+    }
+    for(const auto& v0 : *kshorts){
+        for(size_t dIdx=0;dIdx<v0.numberOfDaughters(); dIdx++){
+	    size_t key= (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
+	    if(trkStatus[key]==TrkStatus::NOTUSED)  trkStatus[key]=TrkStatus::VTX;
+	}
+    }
+    for(const auto& v0 : *lambdas){
+        for(size_t dIdx=0;dIdx<v0.numberOfDaughters(); dIdx++){
+	    size_t key= (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
+	    if(trkStatus[key]==TrkStatus::NOTUSED)  trkStatus[key]=TrkStatus::VTX;
 	}
     }
     std::vector<int> mapping(tracks->size(),-1);  

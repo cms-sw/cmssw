@@ -14,6 +14,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedSecondaryVertices_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedV0s_cff      import *
 from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
@@ -35,6 +36,8 @@ slimmingTask = cms.Task(
     slimmedPhotons,
     slimmedTaus,
     slimmedSecondaryVertices,
+    slimmedKshortVertices,
+    slimmedLambdaVertices,
     slimmedMETs,
     metFilterPathsTask,
     reducedEgamma,
