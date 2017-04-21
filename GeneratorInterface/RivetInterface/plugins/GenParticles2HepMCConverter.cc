@@ -37,7 +37,7 @@ private:
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   edm::ESHandle<ParticleDataTable> pTable_;
 
-  std::set<int> signalParticlePdgIds_;
+  std::vector<int> signalParticlePdgIds_;
 
 private:
   inline HepMC::FourVector FourVector(const reco::Candidate::Point& point)
@@ -58,8 +58,7 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
 {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
-  auto signalParticlePdgIds = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
-  signalParticlePdgIds_.insert(signalParticlePdgIds.begin(), signalParticlePdgIds.end());
+  signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
   produces<edm::HepMCProduct>("unsmeared");
 }
@@ -164,7 +163,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
       for ( auto p = (*v)->particles_begin(HepMC::children);
             p != (*v)->particles_end(HepMC::children); ++p ) {
         const int pdgId = (*p)->pdg_id();
-        if ( signalParticlePdgIds_.count(pdgId) != 0 ) {
+        if ( std::find(signalParticlePdgIds_.begin(), signalParticlePdgIds_.end(), pdgId) != signalParticlePdgIds_.end() ) {
           hepmc_event->set_signal_process_vertex(*v);
           hasSignalVertex = true;
           break;
