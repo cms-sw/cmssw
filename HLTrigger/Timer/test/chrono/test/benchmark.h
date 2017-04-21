@@ -12,6 +12,45 @@
 #include <stdexcept>
 #include <chrono>
 
+// std chrono types
+template <class Rep, class Period>
+double to_seconds(std::chrono::duration<Rep, Period> duration) {
+    return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
+}
+
+template <class Rep, class Period>
+double to_nanoseconds(std::chrono::duration<Rep, Period> duration) {
+    return std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(duration).count();
+}
+
+#ifdef HAVE_BOOST_CHRONO
+// boost headers
+#include <boost/chrono/chrono.hpp>
+
+// boost chrono types
+template <class Rep, class Period>
+double to_seconds(boost::chrono::duration<Rep, Period> duration) {
+    return boost::chrono::duration_cast<boost::chrono::duration<double>>(duration).count();
+}
+
+template <class Rep, class Period>
+double to_nanoseconds(boost::chrono::duration<Rep, Period> duration) {
+    return boost::chrono::duration_cast<boost::chrono::duration<double, boost::nano>>(duration).count();
+}
+#endif // HAVE_BOOST_CHRONO
+
+
+// native chrono types
+template <class Rep, class Period>
+double to_seconds(native::native_duration<Rep, Period> duration) {
+    return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
+}
+
+template <class Rep, class Period>
+double to_nanoseconds(native::native_duration<Rep, Period> duration) {
+    return std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(duration).count();
+}
+
 
 static constexpr unsigned int SIZE = 1000000;
 
@@ -111,13 +150,13 @@ public:
 
   // return the delta between two time_points, expressed in seconds
   double delta(const time_point & start, const time_point & stop) const {
-    return std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count();
+    return to_seconds(stop - start);
   }
 
   // extract the characteristics of the timer from the measurements
   void compute() {
     // per-call overhead
-    overhead = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count() / SIZE;
+    overhead = to_seconds(stop - start) / SIZE;
 
     // resolution (min, median and average of the increments)
     std::vector<double> steps;
@@ -156,9 +195,9 @@ public:
     std::cout << "Performance of " << description << std::endl;
     std::cout << "\tAverage time per call: " << std::right << std::setw(10) << overhead    * 1e9 << " ns" << std::endl;
     if (not std::chrono::treat_as_floating_point<typename clock_type::rep>::value) {
-      typename clock_type::duration             tick(1);
-      std::chrono::duration<double, std::nano>  ns = std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(tick);
-      std::cout << "\tClock tick period:     " << std::right << std::setw(10) << ns.count() << " ns" << std::endl;
+      typename clock_type::duration tick(1);
+      double                        ns = to_nanoseconds(tick);
+      std::cout << "\tClock tick period:     " << std::right << std::setw(10) << ns << " ns" << std::endl;
     } else {
       std::cout << "\tClock tick period:     " << std::right << std::setw(10) << "n/a" << std::endl;
     }
