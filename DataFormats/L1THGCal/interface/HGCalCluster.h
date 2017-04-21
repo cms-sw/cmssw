@@ -65,11 +65,15 @@ namespace l1t {
       const GlobalPoint& centre() const { return centre_; }
       const GlobalPoint& centreProj() const { return centreProj_; }
 
+      HGCalDetId hgcalSeedDetId() const {  
+          HGCalDetId hgcid( seedDetId_ ); 
+          return hgcid; 
+      }
       uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
       uint32_t layer()     const;
       int32_t zside()      const;
       uint32_t module()    const { return module_; }
-
+      
       ClusterShapes shapes;
 
       /* operators */
@@ -84,7 +88,7 @@ namespace l1t {
       edm::PtrVector<l1t::HGCalTriggerCell> triggercells_;
         
       /* seed detId */
-      uint32_t seedDetId_;
+      uint32_t seedDetId_;     
       
       /* Centre weighted with energy */
       GlobalPoint centre_;

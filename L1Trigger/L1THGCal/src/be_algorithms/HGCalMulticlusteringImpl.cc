@@ -38,10 +38,11 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
-        for(std::vector<l1t::HGCalMulticluster>::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
-            if( this->isPertinent(**clu, *mclu, dr_) ){
+        for( auto& mclu : multiclustersTmp ){
+            if( this->isPertinent(**clu, mclu, dr_) ){
                 tcPertinentMulticlusters.push_back(imclu);
             }
+            ++imclu;
         }
         if( tcPertinentMulticlusters.size() == 0 ){
             multiclustersTmp.emplace_back( *clu );
@@ -49,11 +50,11 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         else{
             unsigned minDist = 1;
             unsigned targetMulticlu = 0; 
-            for( std::vector<int>::const_iterator imclu = tcPertinentMulticlusters.begin(); imclu != tcPertinentMulticlusters.end(); ++imclu ){
-                double d = ( multiclustersTmp.at(*imclu).centreProj() - (*clu)->centreProj() ).mag() ;
+            for( auto& imclu : tcPertinentMulticlusters ){
+                double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
                 if( d < minDist ){
                     minDist = d;
-                    targetMulticlu = *imclu;
+                    targetMulticlu = imclu;
                 }
             } 
 

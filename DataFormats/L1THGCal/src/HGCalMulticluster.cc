@@ -45,7 +45,10 @@ void HGCalMulticluster::addCluster( const edm::Ptr<l1t::HGCalCluster> & clu )
     Basic3DVector<float> cluCentreVector( clu->centre() );
 
     centreVector = centreVector*mipPt_ + cluCentreVector*clu->mipPt();
-    centreVector = centreVector / ( mipPt_+clu->mipPt() ) ;
+
+    if(  mipPt_+clu->mipPt() != 0 ){
+        centreVector = centreVector / ( mipPt_+clu->mipPt() ) ;
+    }
 
     centre_ = GlobalPoint( centreVector );
 
@@ -53,7 +56,10 @@ void HGCalMulticluster::addCluster( const edm::Ptr<l1t::HGCalCluster> & clu )
     Basic3DVector<float> cluCentreProjVector( clu->centreProj() );
 
     centreProjVector = centreProjVector*mipPt_ + cluCentreProjVector*clu->mipPt();
-    centreProjVector = centreProjVector / ( mipPt_+clu->mipPt() ) ;
+
+    if( mipPt_+clu->mipPt() != 0 ){
+        centreProjVector = centreProjVector / ( mipPt_+clu->mipPt() ) ;
+    }
 
     centreProj_ = GlobalPoint( centreProjVector );
         
@@ -90,10 +96,10 @@ double HGCalMulticluster::hOverE() const
 
     const edm::PtrVector<l1t::HGCalCluster>& cls = this->clusters();
     for( edm::PtrVector<l1t::HGCalCluster>::iterator iclu = cls.begin(); iclu!=cls.end(); ++iclu){
-        if( (*iclu)->subdetId() == 3 ){
+        if( (*iclu)->subdetId() == HGCEE ){
             pt_em += (*iclu)->p4().Pt();
         }
-        else if( (*iclu)->subdetId() > 3 ){
+        else if( (*iclu)->subdetId() == HGCHEF ||  (*iclu)->subdetId() == HGCHEB ){
             pt_had += (*iclu)->p4().Pt();
         }        
     }
