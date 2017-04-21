@@ -10,7 +10,7 @@
 
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <memory>
@@ -42,7 +42,7 @@ class HGCalTriggerBackendAlgorithmBase {
   virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
     
   //runs the trigger algorithm, storing internally the results
-  virtual void setProduces(edm::EDProducer& prod) const = 0;
+  virtual void setProduces(edm::stream::EDProducer<>& prod) const = 0;
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll, 
 		   const edm::EventSetup& es,
