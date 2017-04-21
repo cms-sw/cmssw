@@ -565,15 +565,15 @@ fillNeighborMaps(const es_info& esInfo)
                 << "  '"<<&buffer[0]<<"'\n";
         }
         std::regex digits_regex("([01]{7})|(\\d{1,3})");
-        std::vector<std::string>  pair {
+        std::vector<std::string>  type_tc {
             std::sregex_token_iterator(key_tokens[0].begin(), key_tokens[0].end(), digits_regex), {}
         };
         // get cell id and wafer configuration
-        int trigger_cell = std::stoi(pair[1]);
+        int trigger_cell = std::stoi(type_tc[1]);
         std::vector<int> wafer_types;
-        wafer_types.reserve(pair[0].size());
+        wafer_types.reserve(type_tc[0].size());
         // Convert waferType coarse=0, fine=1 to coarse=-1, fine=1
-        for(const auto c : pair[0]) wafer_types.emplace_back( (std::stoi(std::string(&c))?1:-1) );
+        for(const char c : type_tc[0]) wafer_types.emplace_back( (std::stoi(std::string(&c))?1:-1) );
         unsigned map_key = packTriggerCell(trigger_cell, wafer_types);
         // Extract neighbors
         // Match patterns (X,Y) 
