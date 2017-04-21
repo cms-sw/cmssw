@@ -172,8 +172,8 @@ private:
     std::string CalibPrefix_; //("GainCalibration");
     std::string CalibSuffix_; //("");
 
-    std::vector<stAPVGain*> APVsCollOrdered;
-    std::unordered_map<unsigned int, stAPVGain*> APVsColl; 
+    std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
+    std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
     
 };
 
