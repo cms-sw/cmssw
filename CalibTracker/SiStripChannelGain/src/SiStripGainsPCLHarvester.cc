@@ -109,8 +109,8 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   edm::LogInfo("SiStripGainsPCLHarvester") << "Starting harvesting statistics" << std::endl;
     
   std::string DQM_dir = m_DQMdir;
- 
-  std::string stag = dqm_tag_[statCollectionFromMode(m_calibrationMode.c_str())].c_str();
+   
+  std::string stag =  *(std::find(dqm_tag_.begin(), dqm_tag_.end(),m_calibrationMode));
   if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
 
   std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;

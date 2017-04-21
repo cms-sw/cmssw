@@ -88,18 +88,3 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
 
 };
-
-
-inline int
-SiStripGainsPCLHarvester::statCollectionFromMode(const char* tag) const
-{
-  std::vector<std::string>::const_iterator it=dqm_tag_.begin();
-  while(it!=dqm_tag_.end()) {
-    if(*it==std::string(tag)) return it-dqm_tag_.begin();
-    it++;
-  }
-  
-  if (std::string(tag)=="") return 0;  // return StdBunch calibration mode for backward compatibility
-  
-  return None;
-}
