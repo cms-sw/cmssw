@@ -10,7 +10,6 @@
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
-
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
   //loop over all hits and create the Hexel structure, skip energies below ecut
   computeThreshold();
@@ -24,8 +23,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     if(dependSensor){
       if (layer<= lastLayerFH)
 	thickness = rhtools_.getSiThickness(detid);
-      HGCalDetId hgDetId(detid);
-      double storedThreshold=thresholds[layer-1][layer<=lastLayerFH ? hgDetId.wafer() : 0];
+      double storedThreshold=thresholds[layer-1][layer<=lastLayerFH ? rhtools_.getWafer(detid) : 0];
       if(hgrh.energy() <  storedThreshold) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
     }
     if(!dependSensor && hgrh.energy() < ecut) continue;
@@ -70,10 +68,10 @@ void HGCalImagingAlgo::makeClusters()
 
     hit_kdtree[i].build(points[i],bounds);
 
-    int actualLayer = int(abs(i-(maxlayer+1))); //maps back from index used for KD trees to actual layer
+    unsigned int actualLayer = i > maxlayer ? (i-(maxlayer+1)) : i; // maps back from index used for KD trees to actual layer
 
     double maxdensity = calculateLocalDensity(points[i],hit_kdtree[i], actualLayer);
-    calculateDistanceToHigher(points[i],hit_kdtree[i]);
+    calculateDistanceToHigher(points[i]);
     findAndAssignClusters(points[i],hit_kdtree[i],maxdensity,bounds,actualLayer);
   }
   //make the cluster vector
@@ -198,7 +196,7 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &
   return maxdensity;
 }
 
-double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTree &lp){
+double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
 
 
   //sort vector of Hexels by decreasing local density
@@ -216,9 +214,10 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
   //start by setting delta for the highest density hit to
   //the most distant hit - this is a convention
 
-  for(unsigned int j = 0; j < nd.size(); j++){
-    double tmp = distance2(nd[rs[0]].data, nd[j].data);
-    dist2 = tmp > dist2 ? tmp : dist2;
+  for (auto& j: nd) {
+    double tmp = distance2(nd[rs[0]].data, j.data);
+    if (tmp > dist2)
+      dist2 = tmp;
   }
   nd[rs[0]].data.delta = std::sqrt(dist2);
   nd[rs[0]].data.nearestHigher = nearestHigher;
@@ -226,20 +225,21 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
   //now we save the largest distance as a starting point
 
   const double max_dist2 = dist2;
+  const unsigned int nd_size = nd.size();
 
-  for(unsigned int oi = 1; oi < nd.size(); ++oi){ // start from second-highest density
+  for(unsigned int oi = 1; oi < nd_size; ++oi){ // start from second-highest density
     dist2 = max_dist2;
     unsigned int i = rs[oi];
     // we only need to check up to oi since hits
     // are ordered by decreasing density
     // and all points coming BEFORE oi are guaranteed to have higher rho
     // and the ones AFTER to have lower rho
-    for(unsigned int oj = 0; oj < oi; oj++){
+    for(unsigned int oj = 0; oj < oi; ++oj){
       unsigned int j = rs[oj];
       double tmp = distance2(nd[i].data, nd[j].data);
       if(tmp <= dist2){ //this "<=" instead of "<" addresses the (rare) case when there are only two hits
-	dist2 = tmp;
-	nearestHigher = j;
+	    dist2 = tmp;
+	    nearestHigher = j;
       }
     }
     nd[i].data.delta = std::sqrt(dist2);
@@ -530,46 +530,40 @@ void HGCalImagingAlgo::computeThreshold() {
 
   std::vector<double> dummy;
   dummy.resize(maxNumberOfWafersPerLayer, 0);
-  thresholds.resize(maxlayer,dummy);
-  float thickness=-9999;
-  unsigned thickIndex = -1;
-  float sigmaNoise = -9999.;
+  thresholds.resize(maxlayer, dummy);
   int previouswafer=-999;
-  int layer = -999;
-  int wafer=-999;
 
   for(unsigned icalo=0;icalo<2;++icalo)
     {
       const std::vector<DetId>& listDetId( icalo==0 ? listee : listfh);
-      unsigned nDetIds=listDetId.size();
 
-      for(unsigned i=0;i<nDetIds;++i)
+      for(auto& detid: listDetId)
 	{
-	  HGCalDetId detid = listDetId[i];
-	  wafer=detid.wafer();
+	  int wafer = rhtools_.getWafer(detid);
 	  if(wafer==previouswafer) continue;
-	  previouswafer=detid.wafer();
+	  previouswafer = wafer;
 	  // no need to do it twice
-	  if(detid.zside()<0) continue;
-	  layer = rhtools_.getLayerWithOffset(detid);
+	  if(rhtools_.zside(detid)<0) continue;
+	  int layer = rhtools_.getLayerWithOffset(detid);
 
-	  thickness = rhtools_.getSiThickness(detid);
+	  float thickness = rhtools_.getSiThickness(detid);
+      int thickIndex = -1;
 	  if( thickness>99. && thickness<101.) thickIndex=0;
 	  else if( thickness>199. && thickness<201. ) thickIndex=1;
 	  else if( thickness>299. && thickness<301. ) thickIndex=2;
 	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
-	  sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+	  float sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
 	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
 	}
     }
 
   // now BH, much faster
-  for ( unsigned ilayer=layer+1;ilayer<=maxlayer;++ilayer)
+  for ( unsigned ilayer=lastLayerFH+1;ilayer<=maxlayer;++ilayer)
     {
-      sigmaNoise = 0.001 * noiseMip * dEdXweights[ilayer];
-      dummy.clear();
-      dummy.push_back(sigmaNoise*ecut);
-      thresholds[ilayer-1]=dummy;
+      float sigmaNoise = 0.001 * noiseMip * dEdXweights[ilayer];
+      std::vector<double> bhDummy;
+      bhDummy.push_back(sigmaNoise*ecut);
+      thresholds[ilayer-1]=bhDummy;
     }
   initialized=true;
 }

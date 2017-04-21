@@ -77,7 +77,7 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
 	}
 	std::array<double,3> to{ {0.,0.,zees[j]} };
 	layerIntersection(to,from);
-        unsigned int layer = int(abs(j-(maxlayer+1))); //maps back from index used for KD trees to actual layer
+        unsigned int layer = j > maxlayer ? (j-(maxlayer+1)) : j; //maps back from index used for KD trees to actual layer
         float radius = 9999.;
         if(layer <= lastLayerEE) radius = radii[0];
         else if(layer <= lastLayerFH) radius = radii[1];
