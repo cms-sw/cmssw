@@ -64,7 +64,7 @@ trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMe
         cms.InputTag("muonSeededTracksInOutSelector","MVAVals"),
         cms.InputTag("muonSeededTracksOutInSelector","MVAVals"),
     ),
-    setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1))),
+    setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1, 2))),
     FoundHitBonus  = 100.0,
     LostHitPenalty =   1.0,
     indivShareFrac = cms.vdouble(1.0, 0.16, 0.095, 0.09, 0.095,0.095, 0.095, 0.08),
