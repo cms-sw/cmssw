@@ -20,7 +20,7 @@ void HGCalTriggerBackendProcessor::setGeometry(const HGCalTriggerGeometryBase* c
 }
 
 
-void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
+void HGCalTriggerBackendProcessor::setProduces(edm::stream::EDProducer<>& prod) const {
   for( const auto& algo : algorithms_ ) {
     algo->setProduces(prod);
   }

@@ -128,7 +128,7 @@ namespace HGCalTriggerBackend{
             }
 
             // setProduces
-            virtual void setProduces(edm::EDProducer& prod) const override final
+            virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
             {
                 prod.produces<l1t::HGCalClusterBxCollection>(name());
             }
