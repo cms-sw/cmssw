@@ -121,17 +121,15 @@ getTriggerCellFromCell( const unsigned cell_id ) const
     HGCalDetId cell_det_id(cell_id);
     int wafer_type = cell_det_id.waferType();
     unsigned cell = cell_det_id.cell();
-    unsigned trigger_cell = 0;
-    try
+    // FIXME: better way to do this cell->TC mapping?
+    auto trigger_cell_itr = cells_to_trigger_cells_.find(std::make_pair(wafer_type,cell));
+    if(trigger_cell_itr==cells_to_trigger_cells_.end())
     {
-        // FIXME: better way to do this cell->TC mapping?
-        trigger_cell = cells_to_trigger_cells_.at(std::make_pair(wafer_type,cell));
-    }
-    catch (const std::out_of_range& e) {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: HGCal  cell " << cell << " is not mapped to any trigger cell for the wafer type " << wafer_type
             << ". The trigger cell mapping should be modified.\n";
     }
+    unsigned trigger_cell = trigger_cell_itr->second;
     return HGCalDetId((ForwardSubdetector)cell_det_id.subdetId(), cell_det_id.zside(), cell_det_id.layer(), cell_det_id.waferType(), cell_det_id.wafer(), trigger_cell).rawId();
 }
 
@@ -142,27 +140,29 @@ getModuleFromCell( const unsigned cell_id ) const
     HGCalDetId cell_det_id(cell_id);
     unsigned wafer = cell_det_id.wafer();
     unsigned subdet = cell_det_id.subdetId();
-    unsigned module = 0;
-    try
+    std::unordered_map<short, short>::const_iterator module_itr;
+    bool out_of_range_error = false;
+    switch(subdet)
     {
-        switch(subdet)
-        {
-            case ForwardSubdetector::HGCEE:
-                module = wafer_to_module_ee_.at(wafer);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                module = wafer_to_module_fh_.at(wafer);
-                break;
-            default:
-                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
-                return 0;
-        };
-    }
-    catch (const std::out_of_range& e) {
+        case ForwardSubdetector::HGCEE:
+            module_itr = wafer_to_module_ee_.find(wafer);
+            if(module_itr==wafer_to_module_ee_.end()) out_of_range_error = true;
+            break;
+        case ForwardSubdetector::HGCHEF:
+            module_itr = wafer_to_module_fh_.find(wafer);
+            if(module_itr==wafer_to_module_fh_.end()) out_of_range_error = true;
+            break;
+        default:
+            edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
+            return 0;
+    };
+    if(out_of_range_error)
+    {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Wafer " << wafer << " is not mapped to any trigger module for subdetector " << subdet
             << ". The module mapping should be modified. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/HGCALTriggerPrimitivesSimulation#Trigger_geometry for details.\n";
     }
+    unsigned module = module_itr->second;
     return HGCalDetId((ForwardSubdetector)cell_det_id.subdetId(), cell_det_id.zside(), cell_det_id.layer(), cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
@@ -173,27 +173,29 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     unsigned wafer = trigger_cell_det_id.wafer();
     unsigned subdet = trigger_cell_det_id.subdetId();
-    unsigned module = 0;
-    try 
+    std::unordered_map<short, short>::const_iterator module_itr;
+    bool out_of_range_error = false;
+    switch(subdet)
     {
-        switch(subdet)
-        {
-            case ForwardSubdetector::HGCEE:
-                module = wafer_to_module_ee_.at(wafer);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                module = wafer_to_module_fh_.at(wafer);
-                break;
-            default:
-                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
-                return 0;
-        } 
-    }
-    catch (const std::out_of_range& e) {
+        case ForwardSubdetector::HGCEE:
+            module_itr = wafer_to_module_ee_.find(wafer);
+            if(module_itr==wafer_to_module_ee_.end()) out_of_range_error = true;
+            break;
+        case ForwardSubdetector::HGCHEF:
+            module_itr = wafer_to_module_fh_.find(wafer);
+            if(module_itr==wafer_to_module_fh_.end()) out_of_range_error = true;
+            break;
+        default:
+            edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
+            return 0;
+    };
+    if(out_of_range_error)
+    {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Wafer " << wafer << " is not mapped to any trigger module for subdetector " << subdet
             << ". The module mapping should be modified. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/HGCALTriggerPrimitivesSimulation#Trigger_geometry for details.\n";
-    };
+    }
+    unsigned module = module_itr->second;
     return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), trigger_cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
@@ -374,38 +376,34 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
     unsigned trigger_cell = trigger_cell_det_id.cell();
     // Retrieve surrounding wafers (around the wafer containing
     // the trigger cell)
-    const std::vector<short>* surrounding_wafers = nullptr;
-    try
+    std::unordered_map<short, std::vector<short>>::const_iterator surrounding_wafers_itr;
+    bool out_of_range_error = false;
+    switch(subdet)
     {
-        switch(subdet)
-        {
-            case ForwardSubdetector::HGCEE:
-                surrounding_wafers = &wafer_neighbors_ee_.at(wafer);
-                break;
-            case ForwardSubdetector::HGCHEF:
-                surrounding_wafers = &wafer_neighbors_fh_.at(wafer);
-                break;
-            default:
-                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer neighbours for subdet "<<subdet<<"\n";
-                return geom_set();
-        } 
-    }
-    catch (const std::out_of_range& e) {
+        case ForwardSubdetector::HGCEE:
+            surrounding_wafers_itr = wafer_neighbors_ee_.find(wafer);
+            if(surrounding_wafers_itr==wafer_neighbors_ee_.end()) out_of_range_error = true;
+            break;
+        case ForwardSubdetector::HGCHEF:
+            surrounding_wafers_itr = wafer_neighbors_fh_.find(wafer);
+            if(surrounding_wafers_itr==wafer_neighbors_fh_.end()) out_of_range_error = true;
+            break;
+        default:
+            edm::LogError("HGCalTriggerGeometry") << "Unknown wafer neighbours for subdet "<<subdet<<"\n";
+            return geom_set();
+    } 
+    if(out_of_range_error)
+    {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
             << ". The wafer neighbor mapping should be modified. \n";
     };
-    if(!surrounding_wafers)
-    {
-        throw cms::Exception("BadGeometry")
-            << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
-            << ". The wafer neighbor mapping should be modified. \n";
-    }
+    const std::vector<short>& surrounding_wafers = surrounding_wafers_itr->second;
     // Find the types of the surrounding wafers
     std::vector<int> types;
-    types.reserve(surrounding_wafers->size()+1); // includes the central wafer -> +1
+    types.reserve(surrounding_wafers.size()+1); // includes the central wafer -> +1
     types.emplace_back(wafer_type);
-    for(const auto w : *surrounding_wafers)
+    for(const auto w : surrounding_wafers)
     {
         // if no neighbor, use the same type as the central one
         // to create the wafer configuration
@@ -417,26 +415,32 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
     // retrieve neighbors
     unsigned trigger_cell_key = packTriggerCell(trigger_cell, types);
     geom_set neighbor_detids;
-    try 
+    auto neighbors_itr = trigger_cell_neighbors_.find(trigger_cell_key);
+    if(neighbors_itr==trigger_cell_neighbors_.end())
     {
-        const auto& neighbors = trigger_cell_neighbors_.at(trigger_cell_key);
-        // create HGCalDetId of neighbors and check their validity
-        neighbor_detids.reserve(neighbors.size());
-        for(const auto& wafer_tc : neighbors)
-        {
-            unsigned neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers->at(wafer_tc.first-1));
-            int type = types.at(wafer_tc.first);
-            HGCalDetId neighbor_det_id((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second);
-            if(validTriggerCell(neighbor_det_id.rawId()))
-            {
-                neighbor_detids.emplace(neighbor_det_id.rawId());
-            }
-        }
-    }
-    catch (const std::out_of_range& e) {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Neighbors are not defined for trigger cell " << trigger_cell << " with  wafer configuration "
             << std::bitset<7>(trigger_cell_key >> 8) << ". The trigger cell neighbor mapping should be modified. \n";
+    }
+    const auto& neighbors = neighbors_itr->second;
+    // create HGCalDetId of neighbors and check their validity
+    neighbor_detids.reserve(neighbors.size());
+    for(const auto& wafer_tc : neighbors)
+    {
+        if(wafer_tc.first-1>=(int)surrounding_wafers.size())
+        {
+            throw cms::Exception("BadGeometry")
+                << "HGCalTriggerGeometry: Undefined wafer neighbor number "<<wafer_tc.first
+                << " for wafer " << wafer << " and trigger cell " << trigger_cell
+                << ". The neighbor mapping files should be modified.";
+        }
+        unsigned neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers.at(wafer_tc.first-1));
+        int type = types.at(wafer_tc.first);
+        HGCalDetId neighbor_det_id((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second);
+        if(validTriggerCell(neighbor_det_id.rawId()))
+        {
+            neighbor_detids.emplace(neighbor_det_id.rawId());
+        }
     }
     return neighbor_detids;
 }
