@@ -29,6 +29,3 @@ run2_HCAL_2017.toModify( hcalRecoAnalyzer, TestNumber = cms.bool(True) )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalRecoAnalyzer, SimHitCollectionLabel = cms.untracked.InputTag("famosSimHits","HcalHits") )
-
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify(hcalRecoAnalyzer, mc = cms.untracked.string('no') )
