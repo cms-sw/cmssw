@@ -98,8 +98,8 @@ DTDAQInfo::~DTDAQInfo() {}
     vector<int> fedInIDs = sumFED->m_fed_in;   
 
     // the range of DT feds
-    static int FEDIDmin = FEDNumbering::MINDTFEDID;
-    static int FEDIDMax = FEDNumbering::MAXDTFEDID;
+    const int FEDIDmin = FEDNumbering::MINDTFEDID;
+    const int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
     // loop on all active feds
     for(vector<int>::const_iterator fed = fedInIDs.begin();

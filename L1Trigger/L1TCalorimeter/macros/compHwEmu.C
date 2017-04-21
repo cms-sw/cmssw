@@ -363,14 +363,14 @@ void compHwEmu (
 
   // HF feature bits Demux
   TH1D* hwMinBiasHFp0 = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/minbiashfp0/et");
-  TH1D* emMinBiasHFp0 = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/minbiashfp0/et");
+  TH1D* emMinBiasHFp0 = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/minbiashfp0/et");
   TH1D* hwMinBiasHFm0 = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/minbiashfm0/et");
-  TH1D* emMinBiasHFm0 = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/minbiashfm0/et");
+  TH1D* emMinBiasHFm0 = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/minbiashfm0/et");
 
   TH1D* hwMinBiasHFp1 = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/minbiashfp1/et");
-  TH1D* emMinBiasHFp1 = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/minbiashfp1/et");
+  TH1D* emMinBiasHFp1 = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/minbiashfp1/et");
   TH1D* hwMinBiasHFm1 = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/minbiashfm1/et");
-  TH1D* emMinBiasHFm1 = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/minbiashfm1/et");
+  TH1D* emMinBiasHFm1 = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/minbiashfm1/et");
 
   // HF feature bits MP
   TH1D* hwMPMinBiasHFp0 = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpminbiashfp0/et");
