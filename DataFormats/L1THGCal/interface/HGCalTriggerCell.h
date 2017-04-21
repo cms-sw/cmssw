@@ -29,19 +29,17 @@ namespace l1t
 
             ~HGCalTriggerCell();
 
-            void setDetId(uint32_t detid) {detid_ = detid;}
+            void setDetId(uint32_t detid) {detid_ = HGCalDetId(detid);}
             void setPosition(const GlobalPoint& position) {position_ = position;}
 
-            uint32_t detId() const {return detid_;}
+            uint32_t detId() const {return detid_.rawId();}
             const GlobalPoint& position() const {return position_;}
             
             int zside() const {                
-                HGCalDetId trgdetid(detid_);                
-                return trgdetid.zside();               
+                return detid_.zside();               
             }
             int layer() const {                
-                HGCalDetId trgdetid(detid_);                
-                return trgdetid.layer();               
+                return detid_.layer();               
             }
             
             void   setMipPt( double value ) { mipPt_ = value; }
@@ -49,7 +47,7 @@ namespace l1t
             
         private:
             
-            uint32_t detid_;
+            HGCalDetId detid_;
             GlobalPoint position_;
             
             double mipPt_;
