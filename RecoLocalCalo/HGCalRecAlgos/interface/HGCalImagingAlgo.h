@@ -295,7 +295,7 @@ inline double distance(const Hexel &pt1, const Hexel &pt2) {   //2-d distance on
         return std::sqrt(distance2(pt1,pt2));
 }
 double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int);   //return max density
-double calculateDistanceToHigher(std::vector<KDNode> &, KDTree &);
+double calculateDistanceToHigher(std::vector<KDNode> &);
 int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int);
 math::XYZPoint calculatePosition(std::vector<KDNode> &);
 
