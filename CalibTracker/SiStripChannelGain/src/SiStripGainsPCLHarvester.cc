@@ -82,7 +82,7 @@ SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSetup& i
 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
 
-    stAPVGain* APV = APVsCollOrdered[a];
+    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
 
     if(APV->SubDet==PixelSubdetector::PixelBarrel || APV->SubDet==PixelSubdetector::PixelEndcap) continue;
     
@@ -167,7 +167,7 @@ SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_
   for(auto it = APVsColl.begin();it!=APVsColl.end();it++,I++){
     
     if(I%TreeStep==0){printf(".");fflush(stdout);}
-    stAPVGain* APV = it->second;
+    std::shared_ptr<stAPVGain> APV = it->second;
     if(APV->Bin<0) APV->Bin = chvsidx->GetXaxis()->FindBin(APV->Index);
     
     if(APV->isMasked){APV->Gain=APV->PreviousGain; MASKED++; continue;}
@@ -179,7 +179,7 @@ SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_
     }else if(CalibrationLevel==1){
       int SecondAPVId = APV->APVId;
       if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
-      stAPVGain* APV2 = APVsColl[(APV->DetId<<4) | SecondAPVId];
+      std::shared_ptr<stAPVGain> APV2 = APVsColl[(APV->DetId<<4) | SecondAPVId];
       if(APV2->Bin<0) APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
       TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
       if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
@@ -187,7 +187,7 @@ SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_
       for(unsigned int i=0;i<16;i++){  //loop up to 6APV for Strip and up to 16 for Pixels
 	auto tmpit = APVsColl.find((APV->DetId<<4) | i); 
 	if(tmpit==APVsColl.end())continue;
-	stAPVGain* APV2 = tmpit->second;
+	std::shared_ptr<stAPVGain> APV2 = tmpit->second;
 	if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
 	if(APV2->Bin<0) APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
 	TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
@@ -287,7 +287,7 @@ SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es){
 	unsigned int         NAPV     = Topo.nstrips()/128;
 	
 	for(unsigned int j=0;j<NAPV;j++){
-	  stAPVGain* APV = new stAPVGain;
+	  auto APV = std::make_shared<stAPVGain>();
 	  APV->Index         = Index;
 	  APV->Bin           = -1;
 	  APV->DetId         = Detid.rawId();
@@ -333,8 +333,7 @@ SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es){
 	
 	for(unsigned int j=0;j<NROCRow;j++){
 	  for(unsigned int i=0;i<NROCCol;i++){
-	    
-	    stAPVGain* APV = new stAPVGain;
+	    auto APV = std::make_shared<stAPVGain>();
 	    APV->Index         = Index;
 	    APV->Bin           = -1;
 	    APV->DetId         = Detid.rawId();
@@ -418,7 +417,7 @@ SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index)
   std::vector<float> theSiStripVector;
   unsigned int PreviousDetId = 0; 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
-    stAPVGain* APV = APVsCollOrdered[a];
+    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
     if(APV==NULL){ printf("Bug\n"); continue; }
     if(APV->SubDet<=2)continue;
     if(APV->DetId != PreviousDetId){

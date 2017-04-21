@@ -115,7 +115,7 @@ SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run, const edm::EventSetup& i
 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
 
-    stAPVGain* APV = APVsCollOrdered[a];
+    std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
 
     if(APV->SubDet==PixelSubdetector::PixelBarrel || APV->SubDet==PixelSubdetector::PixelEndcap) continue;
     
@@ -216,7 +216,7 @@ void SiStripGainsPCLWorker::processEvent() {
     if((*trackchi2ndof )[TI]  > MaxTrackChiOverNdf   )continue;
     if((*trackalgo     )[TI]  > MaxTrackingIteration )continue;
     
-    stAPVGain* APV = APVsColl[((*rawid)[i]<<4) | ((*firststrip)[i]/128)];   //works for both strip and pixel thanks to firstStrip encoding for pixel in the calibTree
+    std::shared_ptr<stAPVGain> APV = APVsColl[((*rawid)[i]<<4) | ((*firststrip)[i]/128)];   //works for both strip and pixel thanks to firstStrip encoding for pixel in the calibTree
     
     if(APV->SubDet>2 && (*farfromedge)[i]        == false           )continue;
     if(APV->SubDet>2 && (*overlapping)[i]        == true            )continue;
@@ -347,7 +347,7 @@ SiStripGainsPCLWorker::checkBookAPVColls(const edm::EventSetup& es){
 	unsigned int         NAPV     = Topo.nstrips()/128;
 	
 	for(unsigned int j=0;j<NAPV;j++){
-	  stAPVGain* APV = new stAPVGain;
+	  auto APV = std::make_shared<stAPVGain>();
 	  APV->Index         = Index;
 	  APV->Bin           = -1;
 	  APV->DetId         = Detid.rawId();
@@ -394,7 +394,7 @@ SiStripGainsPCLWorker::checkBookAPVColls(const edm::EventSetup& es){
 	for(unsigned int j=0;j<NROCRow;j++){
 	  for(unsigned int i=0;i<NROCCol;i++){
 	    
-	    stAPVGain* APV = new stAPVGain;
+	    auto APV = std::make_shared<stAPVGain>();
 	    APV->Index         = Index;
 	    APV->Bin           = -1;
 	    APV->DetId         = Detid.rawId();

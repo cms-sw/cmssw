@@ -84,8 +84,8 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       edm::ESHandle<TrackerGeometry> tkGeom_;
       const TrackerGeometry *bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
 
-      std::vector<stAPVGain*> APVsCollOrdered;
-      std::unordered_map<unsigned int, stAPVGain*> APVsColl; 
+      std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
+      std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
 
 };
 
