@@ -15,6 +15,8 @@
 
 // tbb headers
 #include <tbb/concurrent_unordered_set.h>
+#include <tbb/enumerable_thread_specific.h>
+
 
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -515,11 +517,9 @@ private:
   std::vector<ResourcesPerJob>  run_summary_;                   // whole event time accounting per-run
   std::mutex                    summary_mutex_;                 // synchronise access to the summary objects across different threads
 
-  // per-thread quantities, indexed by a thread_local id
-  std::vector<Measurement>      threads_;
-
-  // define a unique id per thread
-  static unsigned int threadId();
+  // per-thread quantities, lazily allocated
+  tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
+                                threads_;
 
   // retrieve the current thread's per-thread quantities
   Measurement & thread();
