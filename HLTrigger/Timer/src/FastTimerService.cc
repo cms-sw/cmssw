@@ -17,9 +17,6 @@
 #include <boost/format.hpp>
 #include <boost/range/irange.hpp>
 
-// tbb headers
-#include <tbb/concurrent_vector.h>
-
 // CMSSW headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -765,9 +762,6 @@ FastTimerService::postBeginJob() {
   }
   highlight_module_psets_.clear();
 
-  // allocate the resource measurements per thread
-  threads_.resize(concurrent_threads_);
-
   // allocate the resource counters for each stream, process, path and module
   ResourcesPerJob temp(callgraph_, highlight_modules_);
   streams_.resize(concurrent_streams_, temp);
@@ -783,7 +777,7 @@ FastTimerService::postBeginJob() {
 
   // allocate the structures to hold pointers to the DQM plots
   if (enable_dqm_)
-    stream_plots_.resize(concurrent_threads_, PlotsPerJob(callgraph_, highlight_modules_));
+    stream_plots_.resize(concurrent_streams_, PlotsPerJob(callgraph_, highlight_modules_));
 
 }
 
@@ -1336,23 +1330,10 @@ FastTimerService::postModuleStreamEndLumi(edm::StreamContext const&, edm::Module
 }
 
 
-namespace {
-
-  static std::atomic<unsigned int> unique_thread_id { 0 };
-
-} // namespace
-
-unsigned int
-FastTimerService::threadId()
-{
-  static thread_local unsigned int thread_id { unique_thread_id.fetch_add(1) };
-  return thread_id;
-}
-
 FastTimerService::Measurement &
 FastTimerService::thread()
 {
-  return threads_.at(threadId());
+  return threads_.local();
 }
 
 
