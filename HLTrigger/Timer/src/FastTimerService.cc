@@ -54,6 +54,213 @@ double ms(boost::chrono::duration<Rep, Period> duration)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// resources being monitored by the service
+
+// Resources
+
+FastTimerService::Resources::Resources() :
+  time_thread(boost::chrono::nanoseconds::zero()),
+  time_real(boost::chrono::nanoseconds::zero())
+{ }
+
+void
+FastTimerService::Resources::reset() {
+  time_thread = boost::chrono::nanoseconds::zero();
+  time_real   = boost::chrono::nanoseconds::zero();
+}
+
+FastTimerService::Resources &
+FastTimerService::Resources::operator+=(Resources const& other) {
+  time_thread += other.time_thread;
+  time_real   += other.time_real;
+  return *this;
+}
+
+FastTimerService::Resources
+FastTimerService::Resources::operator+(Resources const& other) const {
+  Resources result(*this);
+  result += other;
+  return result;
+}
+
+// ResourcesPerModule
+
+FastTimerService::ResourcesPerModule::ResourcesPerModule()
+  = default;
+
+void
+FastTimerService::ResourcesPerModule::reset() {
+  total.reset();
+  events = 0;
+}
+
+FastTimerService::ResourcesPerModule &
+FastTimerService::ResourcesPerModule::operator+=(ResourcesPerModule const& other) {
+  total  += other.total;
+  events += other.events;
+  return *this;
+}
+
+FastTimerService::ResourcesPerModule
+FastTimerService::ResourcesPerModule::operator+(ResourcesPerModule const& other) const {
+  ResourcesPerModule result(*this);
+  result += other;
+  return result;
+}
+
+
+// ResourcesPerPath
+
+FastTimerService::ResourcesPerPath::ResourcesPerPath()
+  = default;
+
+void
+FastTimerService::ResourcesPerPath::reset() {
+  active.reset();
+  total.reset();
+  last = 0;
+  status = false;
+}
+
+FastTimerService::ResourcesPerPath &
+FastTimerService::ResourcesPerPath::operator+=(ResourcesPerPath const& other) {
+  active += other.active;
+  total  += other.total;
+  last   = 0;           // summing these makes no sense, reset them instead
+  status = false;
+  return *this;
+}
+
+FastTimerService::ResourcesPerPath
+FastTimerService::ResourcesPerPath::operator+(ResourcesPerPath const& other) const {
+  ResourcesPerPath result(*this);
+  result += other;
+  return result;
+}
+
+
+// ResourcesPerProcess
+
+FastTimerService::ResourcesPerProcess::ResourcesPerProcess(ProcessCallGraph::ProcessType const& process) :
+  total(),
+  paths(process.paths_.size()),
+  endpaths(process.endPaths_.size())
+{
+}
+
+void
+FastTimerService::ResourcesPerProcess::reset() {
+  total.reset();
+  for (auto & path: paths)
+    path.reset();
+  for (auto & path: endpaths)
+    path.reset();
+}
+
+FastTimerService::ResourcesPerProcess &
+FastTimerService::ResourcesPerProcess::operator+=(ResourcesPerProcess const& other) {
+  total += other.total;
+  assert(paths.size() == other.paths.size());
+  for (unsigned int i: boost::irange(0ul, paths.size()))
+    paths[i]    += other.paths[i];
+  assert(endpaths.size() == other.endpaths.size());
+  for (unsigned int i: boost::irange(0ul, endpaths.size()))
+    endpaths[i] += other.endpaths[i];
+  return *this;
+}
+
+FastTimerService::ResourcesPerProcess
+FastTimerService::ResourcesPerProcess::operator+(ResourcesPerProcess const& other) const {
+  ResourcesPerProcess result(*this);
+  result += other;
+  return result;
+}
+
+
+// ResourcesPerJob
+
+FastTimerService::ResourcesPerJob::ResourcesPerJob()
+  = default;
+
+FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
+  total(),
+  highlight( groups.size() ),
+  modules( job.size() ),
+  processes(),
+  events(0)
+{
+  processes.reserve(job.processes().size());
+  for (auto const& process: job.processes())
+    processes.emplace_back(process);
+}
+
+void
+FastTimerService::ResourcesPerJob::reset() {
+  total.reset();
+  for (auto & module: highlight)
+    module.reset();
+  for (auto & module: modules)
+    module.reset();
+  for (auto & process: processes)
+    process.reset();
+  events = 0;
+}
+
+FastTimerService::ResourcesPerJob &
+FastTimerService::ResourcesPerJob::operator+=(ResourcesPerJob const& other) {
+  total     += other.total;
+  assert(highlight.size() == other.highlight.size());
+  for (unsigned int i: boost::irange(0ul, highlight.size()))
+    highlight[i] += other.highlight[i];
+  assert(modules.size() == other.modules.size());
+  for (unsigned int i: boost::irange(0ul, modules.size()))
+    modules[i] += other.modules[i];
+  assert(processes.size() == other.processes.size());
+  for (unsigned int i: boost::irange(0ul, processes.size()))
+    processes[i] += other.processes[i];
+  events += other.events;
+  return *this;
+}
+
+FastTimerService::ResourcesPerJob
+FastTimerService::ResourcesPerJob::operator+(ResourcesPerJob const& other) const {
+  ResourcesPerJob result(*this);
+  result += other;
+  return result;
+}
+
+
+// per-thread measurements
+
+// Measurement
+
+FastTimerService::Measurement::Measurement()
+  = default;
+
+void
+FastTimerService::Measurement::measure() {
+  #ifdef DEBUG_THREAD_CONCURRENCY
+  id = std::this_thread::get_id();
+  #endif // DEBUG_THREAD_CONCURRENCY
+  time_thread = boost::chrono::thread_clock::now();
+  time_real   = boost::chrono::high_resolution_clock::now();
+}
+
+void
+FastTimerService::Measurement::measure_and_store(Resources & store) {
+  #ifdef DEBUG_THREAD_CONCURRENCY
+  assert(std::this_thread::get_id() == id);
+  #endif // DEBUG_THREAD_CONCURRENCY
+  auto new_time_thread = boost::chrono::thread_clock::now();
+  auto new_time_real   = boost::chrono::high_resolution_clock::now();
+  store.time_thread = new_time_thread - time_thread;
+  store.time_real   = new_time_real   - time_real;
+  time_thread = new_time_thread;
+  time_real   = new_time_real;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 FastTimerService::PlotsPerElement::PlotsPerElement() :
   time_thread_(nullptr),
   time_thread_byls_(nullptr),
@@ -532,9 +739,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
 }
 
-FastTimerService::~FastTimerService()
-{
-}
+FastTimerService::~FastTimerService() = default;
 
 double
 FastTimerService::queryModuleTime_(edm::StreamID sid, unsigned int id) const

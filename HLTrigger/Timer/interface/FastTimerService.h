@@ -40,7 +40,7 @@
 
 
 /*
-procesing time is diveded into
+procesing time is divided into
  - source
  - event processing, sum of the time spent in all the modules
 */
@@ -143,6 +143,9 @@ private:
   void prePathEvent(edm::StreamContext const&, edm::PathContext const&);
   void postPathEvent(edm::StreamContext const&, edm::PathContext const&, edm::HLTPathStatus const&);
 
+  void preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
   // these signal pairs are guaranteed to be called within the same thread
 
   //void preOpenFile(std::string const&, bool);
@@ -202,9 +205,6 @@ private:
   void preModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
-  void preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
-  void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
-
   void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
@@ -220,209 +220,93 @@ public:
 private:
   // highlight a group of modules
   struct GroupOfModules {
+  public:
     std::string                 label;
     std::vector<unsigned int>   modules;
   };
 
   // resources being monitored by the service
   struct Resources {
+  public:
+    Resources();
+    void reset();
+    Resources & operator+=(Resources const& other);
+    Resources operator+(Resources const& other) const;
+
+  public:
     boost::chrono::nanoseconds time_thread;
     boost::chrono::nanoseconds time_real;
-
-    Resources() :
-      time_thread(boost::chrono::nanoseconds::zero()),
-      time_real(boost::chrono::nanoseconds::zero())
-    { }
-
-    void reset() {
-      time_thread = boost::chrono::nanoseconds::zero();
-      time_real   = boost::chrono::nanoseconds::zero();
-    }
-
-    Resources & operator+=(Resources const& other) {
-      time_thread += other.time_thread;
-      time_real   += other.time_real;
-      return *this;
-    }
-
-    Resources operator+(Resources const& other) const {
-      Resources result(*this);
-      result += other;
-      return result;
-    }
   };
 
   struct ResourcesPerModule {
+  public:
+    ResourcesPerModule();
+    void reset();
+    ResourcesPerModule & operator+=(ResourcesPerModule const& other);
+    ResourcesPerModule operator+(ResourcesPerModule const& other) const;
+
+  public:
     Resources total;
     unsigned  events;
-
-    void reset() {
-      total.reset();
-      events = 0;
-    }
-
-    ResourcesPerModule & operator+=(ResourcesPerModule const& other) {
-      total  += other.total;
-      events += other.events;
-      return *this;
-    }
-
-    ResourcesPerModule operator+(ResourcesPerModule const& other) const {
-      ResourcesPerModule result(*this);
-      result += other;
-      return result;
-    }
   };
 
   struct ResourcesPerPath {
+  public:
+    ResourcesPerPath();
+    void reset();
+    ResourcesPerPath & operator+=(ResourcesPerPath const& other);
+    ResourcesPerPath operator+(ResourcesPerPath const& other) const;
+
+  public:
     Resources active;       // resources used by all modules on this path
     Resources total;        // resources used by all modules on this path, and their dependencies
     unsigned  last;         // one-past-the last module that ran on this path
     bool      status;       // whether the path accepted or rejected the event
-
-    void reset() {
-      active.reset();
-      total.reset();
-      last = 0;
-      status = false;
-    }
-
-    ResourcesPerPath & operator+=(ResourcesPerPath const& other) {
-      active += other.active;
-      total  += other.total;
-      last   = 0;           // summing these makes no sense, reset them instead
-      status = false;
-      return *this;
-    }
-
-    ResourcesPerPath operator+(ResourcesPerPath const& other) const {
-      ResourcesPerPath result(*this);
-      result += other;
-      return result;
-    }
   };
 
   struct ResourcesPerProcess {
+  public:
+    ResourcesPerProcess(ProcessCallGraph::ProcessType const& process);
+    void reset();
+    ResourcesPerProcess & operator+=(ResourcesPerProcess const& other);
+    ResourcesPerProcess operator+(ResourcesPerProcess const& other) const;
+
+  public:
     Resources                     total;
     std::vector<ResourcesPerPath> paths;
     std::vector<ResourcesPerPath> endpaths;
-
-    ResourcesPerProcess(ProcessCallGraph::ProcessType const& process) :
-      total(),
-      paths(process.paths_.size()),
-      endpaths(process.endPaths_.size())
-    {
-    }
-
-
-    void reset() {
-      total.reset();
-      for (auto & path: paths)
-        path.reset();
-      for (auto & path: endpaths)
-        path.reset();
-    }
-
-    ResourcesPerProcess & operator+=(ResourcesPerProcess const& other) {
-      total += other.total;
-      assert(paths.size() == other.paths.size());
-      for (unsigned int i: boost::irange(0ul, paths.size()))
-        paths[i]    += other.paths[i];
-      assert(endpaths.size() == other.endpaths.size());
-      for (unsigned int i: boost::irange(0ul, endpaths.size()))
-        endpaths[i] += other.endpaths[i];
-      return *this;
-    }
-
-    ResourcesPerProcess operator+(ResourcesPerProcess const& other) const {
-      ResourcesPerProcess result(*this);
-      result += other;
-      return result;
-    }
   };
 
   struct ResourcesPerJob {
+  public:
+    ResourcesPerJob();
+    ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
+    void reset();
+    ResourcesPerJob & operator+=(ResourcesPerJob const& other);
+    ResourcesPerJob operator+(ResourcesPerJob const& other) const;
+
+  public:
     Resources                        total;
     std::vector<Resources>           highlight;
     std::vector<ResourcesPerModule>  modules;
     std::vector<ResourcesPerProcess> processes;
     unsigned                         events;
-
-    ResourcesPerJob() = default;
-
-    ResourcesPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups) :
-      total(),
-      highlight( groups.size() ),
-      modules( job.size() ),
-      processes(),
-      events(0)
-    {
-      processes.reserve(job.processes().size());
-      for (auto const& process: job.processes())
-        processes.emplace_back(process);
-    }
-
-    void reset() {
-      total.reset();
-      for (auto & module: highlight)
-        module.reset();
-      for (auto & module: modules)
-        module.reset();
-      for (auto & process: processes)
-        process.reset();
-      events = 0;
-    }
-
-    ResourcesPerJob & operator+=(ResourcesPerJob const& other) {
-      total     += other.total;
-      assert(highlight.size() == other.highlight.size());
-      for (unsigned int i: boost::irange(0ul, highlight.size()))
-        highlight[i] += other.highlight[i];
-      assert(modules.size() == other.modules.size());
-      for (unsigned int i: boost::irange(0ul, modules.size()))
-        modules[i] += other.modules[i];
-      assert(processes.size() == other.processes.size());
-      for (unsigned int i: boost::irange(0ul, processes.size()))
-        processes[i] += other.processes[i];
-      events += other.events;
-      return *this;
-    }
-
-    ResourcesPerJob operator+(ResourcesPerJob const& other) const {
-      ResourcesPerJob result(*this);
-      result += other;
-      return result;
-    }
   };
 
 
   // per-thread measurements
   struct Measurement {
+  public:
+    Measurement();
+    void measure();
+    void measure_and_store(Resources & store);
+
+  public:
     #ifdef DEBUG_THREAD_CONCURRENCY
     std::thread::id                                  id;
     #endif // DEBUG_THREAD_CONCURRENCY
     boost::chrono::thread_clock::time_point          time_thread;
     boost::chrono::high_resolution_clock::time_point time_real;
-
-    void measure() {
-      #ifdef DEBUG_THREAD_CONCURRENCY
-      id = std::this_thread::get_id();
-      #endif // DEBUG_THREAD_CONCURRENCY
-      time_thread = boost::chrono::thread_clock::now();
-      time_real   = boost::chrono::high_resolution_clock::now();
-    }
-
-    void measure_and_store(Resources & store) {
-      #ifdef DEBUG_THREAD_CONCURRENCY
-      assert(std::this_thread::get_id() == id);
-      #endif // DEBUG_THREAD_CONCURRENCY
-      auto new_time_thread = boost::chrono::thread_clock::now();
-      auto new_time_real   = boost::chrono::high_resolution_clock::now();
-      store.time_thread = new_time_thread - time_thread;
-      store.time_real   = new_time_real   - time_real;
-      time_thread = new_time_thread;
-      time_real   = new_time_real;
-    }
   };
 
   // plots associated to each module or other element (path, process, etc)
