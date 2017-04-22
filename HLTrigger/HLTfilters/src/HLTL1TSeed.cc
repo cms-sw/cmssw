@@ -28,7 +28,7 @@
 #include "HLTrigger/HLTfilters/interface/HLTL1TSeed.h"
 
 using namespace std;
-
+using ObjectTypeInCond=L1TObjectTypeInCond;
 
 // constructors
 HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) : 
