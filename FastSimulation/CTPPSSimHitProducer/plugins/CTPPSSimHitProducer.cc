@@ -48,7 +48,7 @@ Implementation:
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-#include "SimTransport/CTPPSHectorProducer/interface/CTPPSHectorParameters.h"
+#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
 //
