@@ -62,6 +62,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    fillGlobalTrackRefits_   = iConfig.getParameter<bool>("fillGlobalTrackRefits");
+   arbitrateTrackerMuons_   = iConfig.getParameter<bool>("arbitrateTrackerMuons");
    //SK: (maybe temporary) run it only if the global is also run
    fillTrackerKink_         = false;
    if (fillGlobalTrackQuality_)  fillTrackerKink_ =  iConfig.getParameter<bool>("fillTrackerKink");
@@ -636,9 +637,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   // muon arbitration
-   fillArbitrationInfo( outputMuons.get() );
-   arbitrateMuons( outputMuons.get(), caloMuons.get() );
+   if (arbitrateTrackerMuons_){
+     fillArbitrationInfo( outputMuons.get() );
+     arbitrateMuons( outputMuons.get(), caloMuons.get() );
+   }
 
    LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
 
@@ -1314,6 +1316,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;  
   desc.setAllowAnything();
   
+  desc.add<bool>("arbitrateTrackerMuons",false);
+
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));

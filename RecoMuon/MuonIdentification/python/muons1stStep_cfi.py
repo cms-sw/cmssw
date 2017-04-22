@@ -77,7 +77,10 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
                                           OverlapDTheta = cms.double(0.02), # 1.14 degrees
                                           ClusterDPhi   = cms.double(0.6), # 34 degrees
                                           ClusterDTheta = cms.double(0.02) # 1.14
-    )
+    ),
+
+    # tracker muon arbitration
+    arbitrateTrackerMuons = cms.bool(True)
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
