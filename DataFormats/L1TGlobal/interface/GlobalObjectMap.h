@@ -31,7 +31,7 @@
 // class declaration
 class GlobalObjectMap
 {
-
+  using ObjectTypeInCond=L1TObjectTypeInCond;
 public:
 
     /// constructor(s)

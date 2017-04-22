@@ -60,6 +60,7 @@
 
 using namespace edm;
 using namespace std;
+using ObjectTypeInCond=L1TObjectTypeInCond;
 
 namespace l1t {
 

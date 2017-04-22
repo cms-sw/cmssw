@@ -53,6 +53,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // forward declarations
+using ObjectTypeInCond=L1TObjectTypeInCond;
 
 // constructor
 l1t::GlobalBoard::GlobalBoard() :
