@@ -200,6 +200,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double ptThresholdToFillCandidateP4WithGlobalFit_;
    double sigmaThresholdToFillCandidateP4WithGlobalFit_;
    
+   bool arbitrateTrackerMuons_;
+
    bool debugWithTruthMatching_;
 
    edm::Handle<reco::TrackCollection>             innerTrackCollectionHandle_;
