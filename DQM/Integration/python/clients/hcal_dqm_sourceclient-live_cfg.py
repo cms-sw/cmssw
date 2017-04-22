@@ -88,6 +88,12 @@ process.emulTPDigis.FrontEndFormatError = \
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 process.emulTPDigis.FG_threshold = cms.uint32(2)
 process.emulTPDigis.InputTagFEDRaw = rawTag
+process.emulTPDigis.upgradeHF = cms.bool(True)
+process.emulTPDigis.upgradeHE = cms.bool(True)
+process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+process.emulTPDigis.numberOfSamplesHF = cms.int32(2)
+process.emulTPDigis.numberOfPresamplesHF = cms.int32(1)
 process.hcalDigis.InputLabel = rawTag
 
 #-------------------------------------
