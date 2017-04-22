@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimTransport.CTPPSHectorProducer.HectorTransport_cfi as TransportParameters
+import SimTransport.HectorProducer.HectorTransportCTPPS_cfi as TransportParameters
 
 TPBeam1          = TransportParameters.LHCTransport.CTPPSHector.Beam1
 TPBeam2          = TransportParameters.LHCTransport.CTPPSHector.Beam2

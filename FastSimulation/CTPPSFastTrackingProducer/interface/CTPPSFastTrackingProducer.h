@@ -24,7 +24,7 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "SimTransport/CTPPSHectorProducer/interface/CTPPSHectorParameters.h"
+#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
 //#include "FastSimulation/CTPPSSimHitProducer/plugins/FastCTPPSParameters.h"
 
 //CLHEP
