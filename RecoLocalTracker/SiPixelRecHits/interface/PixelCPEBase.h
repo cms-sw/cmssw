@@ -92,7 +92,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     //--- Cluster-level quantities (may need more)
     float cotalpha;
     float cotbeta;
-    //bool  zneg; // Not used, AH
 
     // G.Giurgiu (05/14/08) track local coordinates
     float trk_lp_x;
@@ -101,7 +100,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
     // with track angles to handle surface deformations (bows/kinks)
     Topology::LocalTrackPred loc_trk_pred;
-    //LocalTrajectoryParameters loc_traj_param; // Not used, AH
 
     // ggiurgiu@jhu.edu (10/18/2008)
     bool with_track_angle; 
