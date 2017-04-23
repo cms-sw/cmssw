@@ -64,8 +64,9 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     }
 
     /* making the collection of multiclusters */
+    multiclusters.resize(0, multiclustersTmp.size());
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-        multiclusters.push_back( 0, multiclustersTmp.at(i) );
+        multiclusters.set( 0, i, multiclustersTmp.at(i) );
     }
     
 }
