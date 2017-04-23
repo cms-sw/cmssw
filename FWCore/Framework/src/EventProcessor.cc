@@ -1713,6 +1713,7 @@ namespace edm {
       //looper_->doStreamEndRun(schedule_->streamID(),runPrincipal, es);
     }
     {
+      runPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
       for_all(subProcesses_, [&runPrincipal, &ts, cleaningUpAfterException](auto& subProcess){subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException); });
@@ -1827,6 +1828,7 @@ namespace edm {
       //looper_->doStreamEndLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
     }
     {
+      lumiPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(lumiPrincipal, es, cleaningUpAfterException);
       for_all(subProcesses_, [&lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){	subProcess.doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException); });
