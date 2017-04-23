@@ -19,6 +19,10 @@
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelClusterType.h"
+#else
+#include "PixelClusterType.h"
+
 #endif
 
 struct SiPixelGenErrorEntry { //!< Basic template entry corresponding to a single set of track angles
@@ -115,8 +119,9 @@ class SiPixelGenError {
   
 	
 // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm.
-  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
-            float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus,
+           bool irradiationCorrection, PixelClusterType typey, PixelClusterType typex,  
+           float& pixmx, float& sigmay, float& sigmax, float& deltay, float& deltax);
   // Overloaded method to provide only the LA parameters
   int qbin(int id);
 

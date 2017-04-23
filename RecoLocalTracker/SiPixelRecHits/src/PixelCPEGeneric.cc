@@ -6,7 +6,7 @@
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelClusterType.h"
 
 // Services
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -177,23 +177,31 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
   if ( UseErrorsFromTemplates_ ) {
 
+      int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
+      int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
+      int minPixelCol = theClusterParam.theCluster->minPixelCol();
+      int minPixelRow = theClusterParam.theCluster->minPixelRow();
+
+      unsigned int sizex = theClusterParam.theCluster->sizeX();
+      unsigned int sizey = theClusterParam.theCluster->sizeY();
+
+      // Find if cluster contains double (big) pixels.
+      bool bigInX = theDetParam.theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow );
+      bool bigInY = theDetParam.theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
+
+      auto xtype = sizex>1 ? PixelClusterType::Multi : ( bigInX ? PixelClusterType::Big : PixelClusterType::One); 
+      auto ytype = sizey>1 ? PixelClusterType::Multi : ( bigInY ? PixelClusterType::Big : PixelClusterType::One);
+
+
       float qclus = theClusterParam.theCluster->charge();     
       float locBz = theDetParam.bz;
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
       
       theClusterParam.pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
       theClusterParam.sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
-      theClusterParam.deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
       theClusterParam.sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
+      theClusterParam.deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
       theClusterParam.deltax = -999.9; // CPE Generic x-bias for multi-pixel cluster
-      theClusterParam.sy1    = -999.9; // CPE Generic y-error for single single-pixel
-      theClusterParam.dy1    = -999.9; // CPE Generic y-bias for single single-pixel cluster
-      theClusterParam.sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
-      theClusterParam.dy2    = -999.9; // CPE Generic y-bias for single double-pixel cluster
-      theClusterParam.sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
-      theClusterParam.dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
-      theClusterParam.sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
-      theClusterParam.dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
   
 
       SiPixelGenError gtempl(thePixelGenError_);
@@ -202,12 +210,12 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       //int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
       //if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
 
-      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  
-					   theClusterParam.pixmx, theClusterParam.sigmay, theClusterParam.deltay, 
-					   theClusterParam.sigmax, theClusterParam.deltax, theClusterParam.sy1, 
-					   theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, 
-					   theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );  
-      
+      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,
+                                           IrradiationBiasCorrection_, ytype, xtype,  
+					   theClusterParam.pixmx, 
+                                           theClusterParam.sigmay, theClusterParam.sigmax, 
+                                           theClusterParam.deltay, theClusterParam.deltax 
+                                         );
       // now use the charge widths stored in the new generic template headers (change to the
       // incorrect sign convention of the base class)       
       bool useLAWidthFromGenError = false;
@@ -219,21 +227,10 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       if(MYDEBUG) cout<<" GenError: "<<gtemplID_<<endl;
 
       // These numbers come in microns from the qbin(...) call. Transform them to cm.
-      theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
-      theClusterParam.dx1 = theClusterParam.dx1 * micronsToCm;
-      theClusterParam.dx2 = theClusterParam.dx2 * micronsToCm;
-      
-      theClusterParam.deltay = theClusterParam.deltay * micronsToCm;
-      theClusterParam.dy1 = theClusterParam.dy1 * micronsToCm;
-      theClusterParam.dy2 = theClusterParam.dy2 * micronsToCm;
-      
-      theClusterParam.sigmax = theClusterParam.sigmax * micronsToCm;
-      theClusterParam.sx1 = theClusterParam.sx1 * micronsToCm;
-      theClusterParam.sx2 = theClusterParam.sx2 * micronsToCm;
-      
       theClusterParam.sigmay = theClusterParam.sigmay * micronsToCm;
-      theClusterParam.sy1 = theClusterParam.sy1 * micronsToCm;
-      theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
+      theClusterParam.sigmax = theClusterParam.sigmax * micronsToCm;
+      theClusterParam.deltay = theClusterParam.deltay * micronsToCm;
+      theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
       
   } // if ( UseErrorsFromTemplates_ )
   
@@ -253,8 +250,8 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
   //--- subtract these two points in the formula.
 
   //--- Upper Right corner of Lower Left pixel -- in measurement frame
-  MeasurementPoint meas_URcorn_LLpix( theClusterParam.theCluster->minPixelRow()+1.0,
-				      theClusterParam.theCluster->minPixelCol()+1.0 );
+  MeasurementPoint meas_URcorn_LLpix( theClusterParam.theCluster->minPixelRow()+1,
+				      theClusterParam.theCluster->minPixelCol()+1 );
 
   //--- Lower Left corner of Upper Right pixel -- in measurement frame
   MeasurementPoint meas_LLcorn_URpix( theClusterParam.theCluster->maxPixelRow(),
@@ -344,36 +341,20 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
   // Apply irradiation corrections. NOT USED FOR NOW
   if ( IrradiationBiasCorrection_ ) {
+
     if ( theClusterParam.theCluster->sizeX() == 1 ) {  // size=1	  
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      //float tmp1 =  (0.5 * theDetParam.lorentzShiftInCmX);
-      //cout << "Apply correction correction_dx1 = " << theClusterParam.dx1 << " to xPos = " << xPos;
-      xPos = xPos - (0.5 * theDetParam.lorentzShiftInCmX);
-      // Find if pixel is double (big). 
-      bool bigInX = theDetParam.theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );	  
-      if ( !bigInX ) xPos -= theClusterParam.dx1;	   
-      else           xPos -= theClusterParam.dx2;
-      //cout<<" to "<<xPos<<" "<<(tmp1+theClusterParam.dx1)<<endl;
-    } else { // size>1
-      //cout << "Apply correction correction_deltax = " << theClusterParam.deltax << " to xPos = " << xPos;
-      xPos -= theClusterParam.deltax;
-      //cout<<" to "<<xPos<<endl;
+      xPos -= 0.5f * theDetParam.lorentzShiftInCmX;
     }
+    //cout << "Apply correction correction_deltax = " << theClusterParam.deltax << " to xPos = " << xPos;
+    xPos -= theClusterParam.deltax;
     
     if ( theClusterParam.theCluster->sizeY() == 1 ) {
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      yPos = yPos - (0.5 * theDetParam.lorentzShiftInCmY);
-      
-      // Find if pixel is double (big). 
-      bool bigInY = theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() );      
-      if ( !bigInY ) yPos -= theClusterParam.dy1;
-      else           yPos -= theClusterParam.dy2;
-      
-    } else { 
-      //cout << "Apply correction correction_deltay = " << theClusterParam.deltay << " to yPos = " << yPos << endl;
-      yPos -= theClusterParam.deltay; 
-    }
- 
+      yPos -= 0.5f * theDetParam.lorentzShiftInCmY;
+    }  
+    //cout << "Apply correction correction_deltay = " << theClusterParam.deltay << " to yPos = " << yPos << endl;
+    yPos -= theClusterParam.deltay; 
   } // if ( IrradiationBiasCorrection_ )
 	
   //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
@@ -590,25 +571,10 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
   bool edgex = ( theDetParam.theRecTopol->isItEdgePixelInX( minPixelRow ) ) || ( theDetParam.theRecTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theDetParam.theRecTopol->isItEdgePixelInY( minPixelCol ) ) || ( theDetParam.theRecTopol->isItEdgePixelInY( maxPixelCol ) );
 
-  unsigned int sizex = theClusterParam.theCluster->sizeX();
-  unsigned int sizey = theClusterParam.theCluster->sizeY();
-  if(MYDEBUG) {
-    if( int(sizex) != (maxPixelRow - minPixelRow+1) ) cout<<" wrong x"<<endl;
-    if( int(sizey) != (maxPixelCol - minPixelCol+1) ) cout<<" wrong y"<<endl;
-  }
-
-  // Find if cluster contains double (big) pixels. 
-  bool bigInX = theDetParam.theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
-  bool bigInY = theDetParam.theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-
   if(localPrint) {
    cout<<" edge clus "<<xerr<<" "<<yerr<<endl;  //dk
-   if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
    if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
    cout<<" before if "<<UseErrorsFromTemplates_<<" "<<theClusterParam.qBin_<<endl;
-   if(theClusterParam.qBin_ == 0) 
-     cout<<" qbin 0! "<<edgex<<" "<<edgey<<" "<<bigInX<<" "<<bigInY<<" "
-	<<sizex<<" "<<sizey<<endl;
   }
 
   if likely(UseErrorsFromTemplates_ ) {
@@ -617,25 +583,22 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
       //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;
       
       if ( !edgex ) { // Only use this for non-edge clusters
-	if ( sizex == 1 ) {
-	  if ( !bigInX ) {xerr = theClusterParam.sx1;} 
-	  else           {xerr = theClusterParam.sx2;}
-	} else {xerr = theClusterParam.sigmax;}		  
+	xerr = theClusterParam.sigmax; 
       }
 	      
       if ( !edgey ) { // Only use for non-edge clusters
-	if ( sizey == 1 ) {
-	  if ( !bigInY ) {yerr = theClusterParam.sy1;}
-	  else           {yerr = theClusterParam.sy2;}
-	} else {yerr = theClusterParam.sigmay;}		  
+	yerr = theClusterParam.sigmay;		  
       }
 
       if(localPrint) {
-	cout<<" in if "<<edgex<<" "<<edgey<<" "<<sizex<<" "<<sizey<<endl;
-	cout<<" errors  "<<xerr<<" "<<yerr<<" "<<theClusterParam.sx1<<" "<<theClusterParam.sx2<<" "<<theClusterParam.sigmax<<endl;  //dk
+	cout<<" in if "<<edgex<<" "<<edgey<<" "<<endl;
+	cout<<" errors  "<<xerr<<","<<yerr<<" "<<theClusterParam.sigmax <<','<<theClusterParam.sigmay<<endl;  //dk
       }
 
   } else  { // simple errors
+
+     unsigned int sizex = theClusterParam.theCluster->sizeX();
+     unsigned int sizey = theClusterParam.theCluster->sizeY();
 
     // This are the simple errors, hardcoded in the code 
     //cout << "Track angles are not known " << endl; 
@@ -681,6 +644,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
       }
      } // end endcap
     }
+
 
     if(inflate_errors) {
       int n_bigx = 0;
