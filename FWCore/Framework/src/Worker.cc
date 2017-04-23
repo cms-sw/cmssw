@@ -208,7 +208,9 @@ private:
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
     
-    actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+    if(iPrincipal.branchType()==InEvent) {
+      actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+    }
 
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
@@ -220,7 +222,9 @@ private:
       }
     }
     
-    preActionBeforeRunEventAsync(iTask,moduleCallingContext_,iPrincipal);
+    if(iPrincipal.branchType()==InEvent) {
+      preActionBeforeRunEventAsync(iTask,moduleCallingContext_,iPrincipal);
+    }
     
     if(0 == iTask->decrement_ref_count()) {
       //if everything finishes before we leave this routine, we need to launch the task
