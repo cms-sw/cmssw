@@ -405,6 +405,12 @@ private:
   tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
                                 threads_;
 
+  // atomic variables to keep track of the completion of each step, process by process
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_lumisection_check_;
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_run_check_;
+  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
+
   // retrieve the current thread's per-thread quantities
   Measurement & thread();
 
@@ -448,6 +454,13 @@ private:
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
+
+  // check if this is the first process being signalled
+  bool isFirstSubprocess(edm::StreamContext const&);
+  bool isFirstSubprocess(edm::GlobalContext const&);
+
+  // check if this is the lest process being signalled
+  bool isLastSubprocess(std::atomic<unsigned int>& check);
 };
 
 #endif // ! FastTimerService_h
