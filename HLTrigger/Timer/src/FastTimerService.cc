@@ -678,31 +678,31 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostBeginJob(               this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(                 this, & FastTimerService::postEndJob );
   registry.watchPreGlobalBeginRun(          this, & FastTimerService::preGlobalBeginRun );
-  registry.watchPostGlobalBeginRun(         this, & FastTimerService::postGlobalBeginRun );
-  registry.watchPreGlobalEndRun(            this, & FastTimerService::preGlobalEndRun );
+//registry.watchPostGlobalBeginRun(         this, & FastTimerService::postGlobalBeginRun );
+//registry.watchPreGlobalEndRun(            this, & FastTimerService::preGlobalEndRun );
   registry.watchPostGlobalEndRun(           this, & FastTimerService::postGlobalEndRun );
   registry.watchPreStreamBeginRun(          this, & FastTimerService::preStreamBeginRun );
-  registry.watchPostStreamBeginRun(         this, & FastTimerService::postStreamBeginRun );
-  registry.watchPreStreamEndRun(            this, & FastTimerService::preStreamEndRun );
+//registry.watchPostStreamBeginRun(         this, & FastTimerService::postStreamBeginRun );
+//registry.watchPreStreamEndRun(            this, & FastTimerService::preStreamEndRun );
   registry.watchPostStreamEndRun(           this, & FastTimerService::postStreamEndRun );
-  registry.watchPreGlobalBeginLumi(         this, & FastTimerService::preGlobalBeginLumi );
-  registry.watchPostGlobalBeginLumi(        this, & FastTimerService::postGlobalBeginLumi );
-  registry.watchPreGlobalEndLumi(           this, & FastTimerService::preGlobalEndLumi );
-  registry.watchPostGlobalEndLumi(          this, & FastTimerService::postGlobalEndLumi );
+//registry.watchPreGlobalBeginLumi(         this, & FastTimerService::preGlobalBeginLumi );
+//registry.watchPostGlobalBeginLumi(        this, & FastTimerService::postGlobalBeginLumi );
+//registry.watchPreGlobalEndLumi(           this, & FastTimerService::preGlobalEndLumi );
+//registry.watchPostGlobalEndLumi(          this, & FastTimerService::postGlobalEndLumi );
   registry.watchPreStreamBeginLumi(         this, & FastTimerService::preStreamBeginLumi );
-  registry.watchPostStreamBeginLumi(        this, & FastTimerService::postStreamBeginLumi );
-  registry.watchPreStreamEndLumi(           this, & FastTimerService::preStreamEndLumi );
+//registry.watchPostStreamBeginLumi(        this, & FastTimerService::postStreamBeginLumi );
+//registry.watchPreStreamEndLumi(           this, & FastTimerService::preStreamEndLumi );
   registry.watchPostStreamEndLumi(          this, & FastTimerService::postStreamEndLumi );
-  registry.watchPreEvent(                   this, & FastTimerService::preEvent );
+//registry.watchPreEvent(                   this, & FastTimerService::preEvent );
   registry.watchPostEvent(                  this, & FastTimerService::postEvent );
   registry.watchPrePathEvent(               this, & FastTimerService::prePathEvent );
   registry.watchPostPathEvent(              this, & FastTimerService::postPathEvent );
   registry.watchPreSourceConstruction(      this, & FastTimerService::preSourceConstruction);
 //registry.watchPostSourceConstruction(     this, & FastTimerService::postSourceConstruction);
-  registry.watchPreSourceRun(               this, & FastTimerService::preSourceRun );
-  registry.watchPostSourceRun(              this, & FastTimerService::postSourceRun );
-  registry.watchPreSourceLumi(              this, & FastTimerService::preSourceLumi );
-  registry.watchPostSourceLumi(             this, & FastTimerService::postSourceLumi );
+//registry.watchPreSourceRun(               this, & FastTimerService::preSourceRun );
+//registry.watchPostSourceRun(              this, & FastTimerService::postSourceRun );
+//registry.watchPreSourceLumi(              this, & FastTimerService::preSourceLumi );
+//registry.watchPostSourceLumi(             this, & FastTimerService::postSourceLumi );
   registry.watchPreSourceEvent(             this, & FastTimerService::preSourceEvent );
   registry.watchPostSourceEvent(            this, & FastTimerService::postSourceEvent );
 //registry.watchPreModuleBeginJob(          this, & FastTimerService::preModuleBeginJob );
@@ -713,30 +713,30 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
 //registry.watchPostModuleBeginStream(      this, & FastTimerService::postModuleBeginStream );
 //registry.watchPreModuleEndStream(         this, & FastTimerService::preModuleEndStream );
 //registry.watchPostModuleEndStream(        this, & FastTimerService::postModuleEndStream );
-  registry.watchPreModuleGlobalBeginRun(    this, & FastTimerService::preModuleGlobalBeginRun );
-  registry.watchPostModuleGlobalBeginRun(   this, & FastTimerService::postModuleGlobalBeginRun );
-  registry.watchPreModuleGlobalEndRun(      this, & FastTimerService::preModuleGlobalEndRun );
-  registry.watchPostModuleGlobalEndRun(     this, & FastTimerService::postModuleGlobalEndRun );
-  registry.watchPreModuleGlobalBeginLumi(   this, & FastTimerService::preModuleGlobalBeginLumi );
-  registry.watchPostModuleGlobalBeginLumi(  this, & FastTimerService::postModuleGlobalBeginLumi );
-  registry.watchPreModuleGlobalEndLumi(     this, & FastTimerService::preModuleGlobalEndLumi );
-  registry.watchPostModuleGlobalEndLumi(    this, & FastTimerService::postModuleGlobalEndLumi );
-  registry.watchPreModuleStreamBeginRun(    this, & FastTimerService::preModuleStreamBeginRun );
-  registry.watchPostModuleStreamBeginRun(   this, & FastTimerService::postModuleStreamBeginRun );
-  registry.watchPreModuleStreamEndRun(      this, & FastTimerService::preModuleStreamEndRun );
-  registry.watchPostModuleStreamEndRun(     this, & FastTimerService::postModuleStreamEndRun );
-  registry.watchPreModuleStreamBeginLumi(   this, & FastTimerService::preModuleStreamBeginLumi );
-  registry.watchPostModuleStreamBeginLumi(  this, & FastTimerService::postModuleStreamBeginLumi );
-  registry.watchPreModuleStreamEndLumi(     this, & FastTimerService::preModuleStreamEndLumi );
-  registry.watchPostModuleStreamEndLumi(    this, & FastTimerService::postModuleStreamEndLumi );
-  registry.watchPreModuleEventPrefetching(  this, & FastTimerService::preModuleEventPrefetching );
-  registry.watchPostModuleEventPrefetching( this, & FastTimerService::postModuleEventPrefetching );
+//registry.watchPreModuleGlobalBeginRun(    this, & FastTimerService::preModuleGlobalBeginRun );
+//registry.watchPostModuleGlobalBeginRun(   this, & FastTimerService::postModuleGlobalBeginRun );
+//registry.watchPreModuleGlobalEndRun(      this, & FastTimerService::preModuleGlobalEndRun );
+//registry.watchPostModuleGlobalEndRun(     this, & FastTimerService::postModuleGlobalEndRun );
+//registry.watchPreModuleGlobalBeginLumi(   this, & FastTimerService::preModuleGlobalBeginLumi );
+//registry.watchPostModuleGlobalBeginLumi(  this, & FastTimerService::postModuleGlobalBeginLumi );
+//registry.watchPreModuleGlobalEndLumi(     this, & FastTimerService::preModuleGlobalEndLumi );
+//registry.watchPostModuleGlobalEndLumi(    this, & FastTimerService::postModuleGlobalEndLumi );
+//registry.watchPreModuleStreamBeginRun(    this, & FastTimerService::preModuleStreamBeginRun );
+//registry.watchPostModuleStreamBeginRun(   this, & FastTimerService::postModuleStreamBeginRun );
+//registry.watchPreModuleStreamEndRun(      this, & FastTimerService::preModuleStreamEndRun );
+//registry.watchPostModuleStreamEndRun(     this, & FastTimerService::postModuleStreamEndRun );
+//registry.watchPreModuleStreamBeginLumi(   this, & FastTimerService::preModuleStreamBeginLumi );
+//registry.watchPostModuleStreamBeginLumi(  this, & FastTimerService::postModuleStreamBeginLumi );
+//registry.watchPreModuleStreamEndLumi(     this, & FastTimerService::preModuleStreamEndLumi );
+//registry.watchPostModuleStreamEndLumi(    this, & FastTimerService::postModuleStreamEndLumi );
+//registry.watchPreModuleEventPrefetching(  this, & FastTimerService::preModuleEventPrefetching );
+//registry.watchPostModuleEventPrefetching( this, & FastTimerService::postModuleEventPrefetching );
   registry.watchPreModuleEvent(             this, & FastTimerService::preModuleEvent );
   registry.watchPostModuleEvent(            this, & FastTimerService::postModuleEvent );
   registry.watchPreModuleEventDelayedGet(   this, & FastTimerService::preModuleEventDelayedGet );
   registry.watchPostModuleEventDelayedGet(  this, & FastTimerService::postModuleEventDelayedGet );
-  registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
-  registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
+//registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
+//registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
 }
 
 FastTimerService::~FastTimerService() = default;
@@ -894,6 +894,8 @@ FastTimerService::postGlobalBeginRun(edm::GlobalContext const&)
 void
 FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
 {
+  ignoredSignal(__func__);
+
   unsigned int sid = sc.streamID().value();
 
   // reset counters and book the DQM plots during the main process being run
@@ -923,8 +925,6 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
       edm::Service<DQMStore>()->bookTransaction(bookTransactionCallback, sc.eventID().run(), sid, module_id_);
     }
   }
-
-  ignoredSignal(__func__);
 }
 
 
@@ -1021,6 +1021,8 @@ FastTimerService::preStreamEndRun(edm::StreamContext const&)
 void
 FastTimerService::postStreamEndRun(edm::StreamContext const& sc)
 {
+  ignoredSignal(__func__);
+
   unsigned int sid = sc.streamID().value();
 
   // merge plots only after the last subprocess has run
@@ -1029,8 +1031,6 @@ FastTimerService::postStreamEndRun(edm::StreamContext const& sc)
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsRunSummaryCache(sc.eventID().run(), sid, module_id_);
   }
-
-  ignoredSignal(__func__);
 }
 
 void
@@ -1060,17 +1060,18 @@ FastTimerService::postGlobalEndLumi(edm::GlobalContext const&)
 void
 FastTimerService::preStreamBeginLumi(edm::StreamContext const& sc)
 {
+  ignoredSignal(__func__);
+
   // reset counters only during the main process transition
   if (isFirstSubprocess(sc)) {
     unsigned int sid = sc.streamID().value();
     subprocess_lumisection_check_[sid] = 0;
   }
-
-  ignoredSignal(__func__);
 }
 
 void
-FastTimerService::postStreamBeginLumi(edm::StreamContext const& sc) {
+FastTimerService::postStreamBeginLumi(edm::StreamContext const& sc)
+{
   ignoredSignal(__func__);
 }
 
@@ -1082,6 +1083,8 @@ FastTimerService::preStreamEndLumi(edm::StreamContext const&)
 
 void
 FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
+  ignoredSignal(__func__);
+
   unsigned int sid = sc.streamID().value();
 
   // merge plots only after the last subprocess has run
@@ -1090,8 +1093,6 @@ FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, module_id_);
   }
-
-  ignoredSignal(__func__);
 }
 
 void
@@ -1465,25 +1466,25 @@ FastTimerService::postModuleEventDelayedGet(edm::StreamContext const& sc, edm::M
 void
 FastTimerService::preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&)
 {
-  unsupportedSignal(__func__);
+  ignoredSignal(__func__);
 }
 
 void
 FastTimerService::postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&)
 {
-  unsupportedSignal(__func__);
+  ignoredSignal(__func__);
 }
 
 void
 FastTimerService::preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&)
 {
-  unsupportedSignal(__func__);
+  ignoredSignal(__func__);
 }
 
 void
 FastTimerService::postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&)
 {
-  unsupportedSignal(__func__);
+  ignoredSignal(__func__);
 }
 
 void
