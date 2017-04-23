@@ -53,7 +53,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // forward declarations
-using ObjectTypeInCond=L1TObjectTypeInCond;
 
 // constructor
 l1t::GlobalBoard::GlobalBoard() :
@@ -750,12 +749,12 @@ void l1t::GlobalBoard::runGTL(
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-	  std::vector<ObjectTypeInCond> otypes;	  
+	  std::vector<L1TObjectTypeInCond> otypes;	  
 	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
 	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
 	    int myChip = -1;
 	    int found =0;
-	    ObjectTypeInCond otype;	      
+	    L1TObjectTypeInCond otype;	      
 	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
 	      myChip++;
 	      auto match = imap->find(iop->tokenName);
