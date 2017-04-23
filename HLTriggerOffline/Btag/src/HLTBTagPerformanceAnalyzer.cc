@@ -198,8 +198,8 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		double pTmin=30;
 		double pTMax=330;
 		int nBinsPhi=54;
-		double phimin=-3.14;
-		double phiMax=3.14;
+		double phimin=-M_PI;
+		double phiMax=M_PI;
 		int nBinsEta=40;
 		double etamin=-2.4;
 		double etaMax=2.4;
