@@ -419,14 +419,6 @@ void SiPixelGenError::postInit(std::vector< SiPixelGenErrorStore > & thePixelTem
 //! \param deltay - (output) the estimated y-bias for CPEGeneric in microns
 //! \param sigmax - (output) the estimated x-error for CPEGeneric in microns
 //! \param deltax - (output) the estimated x-bias for CPEGeneric in microns
-//! \param sy1 - (output) the estimated y-error for 1 single-pixel clusters in microns
-//! \param dy1 - (output) the estimated y-bias for 1 single-pixel clusters in microns
-//! \param sy2 - (output) the estimated y-error for 1 double-pixel clusters in microns
-//! \param dy2 - (output) the estimated y-bias for 1 double-pixel clusters in microns
-//! \param sx1 - (output) the estimated x-error for 1 single-pixel clusters in microns
-//! \param dx1 - (output) the estimated x-bias for 1 single-pixel clusters in microns
-//! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
-//! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
 // ************************************************************************************************************
 // a simpler method just to return the LA
 int SiPixelGenError::qbin(int id) {
@@ -460,10 +452,9 @@ int SiPixelGenError::qbin(int id) {
 }
   //-----------------------------------------------------------------------
   // Full method 
-int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, 
-			  float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
-                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, 
-			  float& sx2, float& dx2)
+int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus,
+           bool irradiationCorrection, PixelClusterType typey, PixelClusterType typex,
+           float& pixmx, float& sigmay, float& sigmax, float& deltay, float& deltax)
 {
    // Interpolate for a new set of track angles
    
@@ -578,15 +569,6 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
-   // Interpolate/store all y-related quantities (flip displacements when flip_y)
-   
-   dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
-   if(flip_y) {dy1 = -dy1;}
-   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-   dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
-   if(flip_y) {dy2 = -dy2;}
-   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
-   
    auto qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
    qavg *= qcorrect;
    auto qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
@@ -626,18 +608,41 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       }
    }
    
-   auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
-   if(flip_y) {yavggen = -yavggen;}
-   auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
-   
+
+   // Interpolate/store all y-related quantities (flip displacements when flip_y)
+
+   switch (typey) {
+     case PixelClusterType::Multi: 
+        sigmay  =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
+        break;
+     case PixelClusterType::One:
+        sigmay  = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
+        break;
+     case PixelClusterType::Big:
+        sigmay = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
+        break;
+   }
+   if (irradiationCorrection) {
+   switch (typey) {
+     case PixelClusterType::Multi:
+        deltay = (1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+        break;
+     case PixelClusterType::One:
+        deltay = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+        break;
+     case PixelClusterType::Big:
+        deltay = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+        break;
+   }
+    if(flip_y) {deltay = -deltay;}
+   }
    
    // next, loop over all x-angle entries, first, find relevant y-slices
    
    auto iylow = 0;
    auto iyhigh = 0;
    auto yxratio = 0.f;
-   
-   
+      
    {
       auto j = std::lower_bound(templ.cotbetaX,templ.cotbetaX+Nyx,acotb);
       if (j==templ.cotbetaX+Nyx) { --j;  yxratio = 1.f; }
@@ -663,31 +668,40 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       ilow = ihigh-1;
    }
    
-   
-   
-   dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
-   sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
-   dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
-   sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
-   
+
    // pixmax is the maximum allowed pixel charge (used for truncation)
-   
    pixmx=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iylow][ihigh].pixmax)
    +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
    
-   auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
-   +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
-   
-   auto xrmsgen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
-   +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
-   
-   
-   
-   //  Take the errors and bias from the correct charge bin
-	
-   sigmay = yrmsgen; deltay = yavggen;
-   
-   sigmax = xrmsgen; deltax = xavggen;
+
+   switch (typex) {
+     case PixelClusterType::Multi:
+        sigmax  = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
+                + yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
+        break;
+     case PixelClusterType::One:
+        sigmax  = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
+  	break;
+     case PixelClusterType::Big:
+        sigmax  = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
+  	break;
+   }
+
+   if (irradiationCorrection) {
+   switch (typex) {
+     case PixelClusterType::Multi:
+        deltax = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
+               + yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+        break;
+     case PixelClusterType::One:
+	deltax = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
+        break;
+     case PixelClusterType::Big:
+	deltax = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
+        break;
+   }
+   }
+
    
    // If the charge is too small (then flag it)
    
