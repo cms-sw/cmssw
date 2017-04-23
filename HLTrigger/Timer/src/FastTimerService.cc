@@ -606,7 +606,7 @@ FastTimerService::PlotsPerJob::book(
         path_resolution,
         lumisections,
         byls);
-    
+
     if (bymodule) {
       booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
       for (unsigned int id: process.modules_)
@@ -879,8 +879,10 @@ FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc)
   ignoredSignal(__func__);
 
   // reset the run counters only during the main process being run
-  if (not gc.processContext()->isSubProcess())
+  if (isFirstSubprocess(gc)) {
+    subprocess_global_run_check_[gc.runIndex()] = 0;
     run_summary_[gc.runIndex()].reset();
+  }
 }
 
 void
@@ -894,28 +896,32 @@ FastTimerService::preStreamBeginRun(edm::StreamContext const& sc)
 {
   unsigned int sid = sc.streamID().value();
 
-  // book the DQM plots for each stream during the main process being run
-  if (enable_dqm_ and not sc.processContext()->isSubProcess()) {
+  // reset counters and book the DQM plots during the main process being run
+  if (isFirstSubprocess(sc)) {
+    subprocess_run_check_[sid] = 0;
 
-    // define a callback to book the MonitorElements
-    auto bookTransactionCallback = [&, this] (DQMStore::IBooker & booker)
-    {
-      booker.setCurrentFolder(dqm_path_);
-      stream_plots_[sid].book(booker, callgraph_,
-          highlight_modules_,
-          dqm_eventtime_range_,
-          dqm_eventtime_resolution_,
-          dqm_pathtime_range_,
-          dqm_pathtime_resolution_,
-          dqm_moduletime_range_,
-          dqm_moduletime_resolution_,
-          dqm_lumisections_range_,
-          enable_dqm_bymodule_,
-          enable_dqm_byls_);
-    };
+    // book the DQM plots
+    if (enable_dqm_) {
+      // define a callback to book the MonitorElements
+      auto bookTransactionCallback = [&, this] (DQMStore::IBooker & booker)
+      {
+        booker.setCurrentFolder(dqm_path_);
+        stream_plots_[sid].book(booker, callgraph_,
+            highlight_modules_,
+            dqm_eventtime_range_,
+            dqm_eventtime_resolution_,
+            dqm_pathtime_range_,
+            dqm_pathtime_resolution_,
+            dqm_moduletime_range_,
+            dqm_moduletime_resolution_,
+            dqm_lumisections_range_,
+            enable_dqm_bymodule_,
+            enable_dqm_byls_);
+      };
 
-    // book MonitorElements for this stream
-    edm::Service<DQMStore>()->bookTransaction(bookTransactionCallback, sc.eventID().run(), sid, module_id_);
+      // book MonitorElements for this stream
+      edm::Service<DQMStore>()->bookTransaction(bookTransactionCallback, sc.eventID().run(), sid, module_id_);
+    }
   }
 
   ignoredSignal(__func__);
@@ -931,6 +937,20 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
 
   if (enable_dqm_bynproc_)
     dqm_path_ += (boost::format("/Running %d processes") % concurrent_threads_).str();
+
+  // allocate atomic variables to keep track of the completion of each step, process by process
+  subprocess_event_check_       = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
+  for (unsigned int i = 0; i < concurrent_streams_; ++i)
+    subprocess_event_check_[i] = 0;
+  subprocess_lumisection_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
+  for (unsigned int i = 0; i < concurrent_streams_; ++i)
+    subprocess_lumisection_check_[i] = 0;
+  subprocess_run_check_         = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
+  for (unsigned int i = 0; i < concurrent_streams_; ++i)
+    subprocess_run_check_[i] = 0;
+  subprocess_global_run_check_  = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
+  for (unsigned int i = 0; i < concurrent_runs_; ++i)
+    subprocess_global_run_check_[i] = 0;
 
   // assign a pseudo module id to the FastTimerService
   module_id_ = edm::ModuleDescription::getUniqueID();
@@ -1004,8 +1024,8 @@ FastTimerService::postStreamEndRun(edm::StreamContext const& sc)
   unsigned int sid = sc.streamID().value();
 
   // merge plots only after the last subprocess has run
-  unsigned int pid = callgraph_.processId(* sc.processContext());
-  if (enable_dqm_ and pid == callgraph_.processes().size() - 1) {
+  bool last = isLastSubprocess(subprocess_run_check_[sid]);
+  if (enable_dqm_ and last) {
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsRunSummaryCache(sc.eventID().run(), sid, module_id_);
   }
@@ -1038,8 +1058,14 @@ FastTimerService::postGlobalEndLumi(edm::GlobalContext const&)
 }
 
 void
-FastTimerService::preStreamBeginLumi(edm::StreamContext const&)
+FastTimerService::preStreamBeginLumi(edm::StreamContext const& sc)
 {
+  // reset counters only during the main process transition
+  if (isFirstSubprocess(sc)) {
+    unsigned int sid = sc.streamID().value();
+    subprocess_lumisection_check_[sid] = 0;
+  }
+
   ignoredSignal(__func__);
 }
 
@@ -1059,8 +1085,8 @@ FastTimerService::postStreamEndLumi(edm::StreamContext const& sc) {
   unsigned int sid = sc.streamID().value();
 
   // merge plots only after the last subprocess has run
-  unsigned int pid = callgraph_.processId(* sc.processContext());
-  if (enable_dqm_ and pid == callgraph_.processes().size() - 1) {
+  bool last = isLastSubprocess(subprocess_lumisection_check_[sid]);
+  if (enable_dqm_ and last) {
     DQMStore & store = * edm::Service<DQMStore>();
     store.mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, module_id_);
   }
@@ -1080,11 +1106,8 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc)
   ignoredSignal(__func__);
 
   // handle the summaries only after the last subprocess has run
-  unsigned int pid = callgraph_.processId(* gc.processContext());
-  if (pid != callgraph_.processes().size() - 1)
-    return;
-
-  if (print_run_summary_) {
+  bool last = isLastSubprocess(subprocess_global_run_check_[gc.runIndex()]);
+  if (print_run_summary_ and last) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, run_summary_[gc.runIndex()], "Run");
   }
@@ -1276,6 +1299,28 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   }
 }
 
+// check if this is the first process being signalled
+bool
+FastTimerService::isFirstSubprocess(edm::StreamContext const& sc)
+{
+  return (not sc.processContext()->isSubProcess());
+}
+
+bool
+FastTimerService::isFirstSubprocess(edm::GlobalContext const& gc)
+{
+  return (not gc.processContext()->isSubProcess());
+}
+
+// check if this is the last process being signalled
+bool
+FastTimerService::isLastSubprocess(std::atomic<unsigned int>& check)
+{
+  // release-acquire semantic guarantees that all writes in this and other threads are visible
+  // after this operation; full sequentially-consistent ordering is (probably) not needed.
+  unsigned int old_value = check.fetch_add(1, std::memory_order_acq_rel);
+  return (old_value == callgraph_.processes().size() - 1);
+}
 
 void
 FastTimerService::preEvent(edm::StreamContext const& sc)
@@ -1300,7 +1345,8 @@ FastTimerService::postEvent(edm::StreamContext const& sc)
   stream.total += data;
 
   // handle the summaries and fill the plots only after the last subprocess has run
-  if (pid != callgraph_.processes().size() - 1)
+  bool last = isLastSubprocess(subprocess_event_check_[sid]);
+  if (not last)
     return;
 
   // highlighted modules
@@ -1331,6 +1377,8 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
   auto & stream = streams_[sid];
   stream.reset();
   ++stream.events;
+
+  subprocess_event_check_[sid] = 0;
 
   thread().measure();
 }
