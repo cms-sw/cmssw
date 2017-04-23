@@ -204,7 +204,7 @@ private:
   
   void Worker::prefetchAsync(WaitingTask* iTask, ParentContext const& parentContext, Principal const& iPrincipal) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
     

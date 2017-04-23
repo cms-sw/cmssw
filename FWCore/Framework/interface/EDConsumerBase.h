@@ -67,7 +67,7 @@ namespace edm {
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
-    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const { return itemsToGetFromEvent_; }
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const { return itemsToGetFromBranch_[iType]; }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
     bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
@@ -184,7 +184,7 @@ namespace edm {
     // for each of the 3 labels needed to id the data
     std::vector<char> m_tokenLabels;
 
-    std::vector<ProductResolverIndexAndSkipBit> itemsToGetFromEvent_;
+    std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
     bool frozen_;
   };
