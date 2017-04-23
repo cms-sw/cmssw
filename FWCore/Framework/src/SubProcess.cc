@@ -445,6 +445,7 @@ namespace edm {
     rp.setComplete();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
+    rp.setAtEndTransition(true);
     schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
     for_all(subProcesses_, [&rp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doEndRun(rp, ts, cleaningUpAfterException); });
   }
@@ -503,6 +504,7 @@ namespace edm {
     lbp.setComplete();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
+    lbp.setAtEndTransition(true);
     schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
     for_all(subProcesses_, [&lbp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doEndLuminosityBlock(lbp, ts, cleaningUpAfterException); });
   }
