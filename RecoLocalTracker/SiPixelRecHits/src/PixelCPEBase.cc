@@ -265,16 +265,11 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
 
-  //theClusterParam.loc_traj_param = ltp;
-
+  /*
   LocalVector localDir = ltp.momentum();
-  
-  
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-  
-  /*
   // Danek's definition 
   alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
   if ( isFlipped() )                    // &&& check for FPIX !!!
@@ -283,9 +278,8 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
   */
   
   
-  theClusterParam.cotalpha = locx/locz;
-  theClusterParam.cotbeta  = locy/locz;
-  //theClusterParam.zneg = (locz < 0); // Not used, AH
+  theClusterParam.cotalpha = ltp.dxdz(); // locx/locz;
+  theClusterParam.cotbeta  = ltp.dydz(); // locy/locz;
   
   
   LocalPoint trk_lp = ltp.position();
@@ -294,10 +288,9 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
   
   theClusterParam.with_track_angle = true;
 
-
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
-  AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  theClusterParam.loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
+  theClusterParam.loc_trk_pred = 
+      Topology::LocalTrackPred(theClusterParam.trk_lp_x, theClusterParam.trk_lp_y, theClusterParam.cotalpha, theClusterParam.cotbeta);
   
 }
 

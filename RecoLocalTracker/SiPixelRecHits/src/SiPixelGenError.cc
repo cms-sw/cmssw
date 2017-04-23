@@ -513,7 +513,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    // for some cosmics, the ususal gymnastics are incorrect
    
    float cotb; bool flip_y;
-   if(thePixelTemp_[index].head.Dtype == 0) {
+   if unlikely(thePixelTemp_[index].head.Dtype == 0) {
       cotb = acotb;
       flip_y = false;
       if(cotbeta < 0.f) {flip_y = true;}
@@ -704,7 +704,6 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 
    
    // If the charge is too small (then flag it)
-   
    if(qtotal < 0.95f*qmin) {binq = 5;} else {if(qtotal < 0.95f*qmin2) {binq = 4;}}
    
    return binq;

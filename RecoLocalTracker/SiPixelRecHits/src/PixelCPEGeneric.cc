@@ -175,19 +175,20 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
   //cout<<" main la width "<<chargeWidthX<<" "<<chargeWidthY<<endl;
 
-  if ( UseErrorsFromTemplates_ ) {
+  int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
+  int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
+  int minPixelCol = theClusterParam.theCluster->minPixelCol();
+  int minPixelRow = theClusterParam.theCluster->minPixelRow();
 
-      int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
-      int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
-      int minPixelCol = theClusterParam.theCluster->minPixelCol();
-      int minPixelRow = theClusterParam.theCluster->minPixelRow();
+
+  if likely( UseErrorsFromTemplates_ ) {
 
       unsigned int sizex = theClusterParam.theCluster->sizeX();
       unsigned int sizey = theClusterParam.theCluster->sizeY();
 
-      // Find if cluster contains double (big) pixels.
-      bool bigInX = theDetParam.theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow );
-      bool bigInY = theDetParam.theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
+      // Find if size1 cluster is a double (big) pixels.
+      bool bigInX = theDetParam.theRecTopol->isItBigPixelInX(minPixelRow);
+      bool bigInY = theDetParam.theRecTopol->isItBigPixelInY(minPixelCol);
 
       auto xtype = sizex>1 ? PixelClusterType::Multi : ( bigInX ? PixelClusterType::Big : PixelClusterType::One); 
       auto ytype = sizey>1 ? PixelClusterType::Multi : ( bigInY ? PixelClusterType::Big : PixelClusterType::One);
@@ -234,10 +235,10 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       
   } // if ( UseErrorsFromTemplates_ )
   
-  float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
-  float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
-  float Q_f_Y = 0.0;        //!< Q of the first  pixel  in Y 
-  float Q_l_Y = 0.0;        //!< Q of the last   pixel  in Y
+  int Q_f_X;        //!< Q of the first  pixel  in X 
+  int Q_l_X;        //!< Q of the last   pixel  in X
+  int Q_f_Y;        //!< Q of the first  pixel  in Y 
+  int Q_l_Y;        //!< Q of the last   pixel  in Y
   collect_edge_charges( theClusterParam, 
 			Q_f_X, Q_l_X, 
 			Q_f_Y, Q_l_Y );
@@ -250,12 +251,12 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
   //--- subtract these two points in the formula.
 
   //--- Upper Right corner of Lower Left pixel -- in measurement frame
-  MeasurementPoint meas_URcorn_LLpix( theClusterParam.theCluster->minPixelRow()+1,
-				      theClusterParam.theCluster->minPixelCol()+1 );
+  MeasurementPoint meas_URcorn_LLpix( minPixelRow+1,
+				      minPixelCol+1 );
 
   //--- Lower Left corner of Upper Right pixel -- in measurement frame
-  MeasurementPoint meas_LLcorn_URpix( theClusterParam.theCluster->maxPixelRow(),
-				      theClusterParam.theCluster->maxPixelCol() );
+  MeasurementPoint meas_LLcorn_URpix( maxPixelRow,
+				      maxPixelCol );
 
   //--- These two now converted into the local  
   LocalPoint local_URcorn_LLpix;
@@ -340,7 +341,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
   yPos = yPos + shiftY;
 
   // Apply irradiation corrections. NOT USED FOR NOW
-  if ( IrradiationBiasCorrection_ ) {
+  if unlikely( IrradiationBiasCorrection_ ) {
 
     if ( theClusterParam.theCluster->sizeX() == 1 ) {  // size=1	  
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
@@ -427,8 +428,9 @@ generic_position_formula( int size,                //!< Size of this projection.
   //
   //  bool usedEdgeAlgo = false;
   if ( (size >= size_cut) || (
-       ( W_eff/pitch < eff_charge_cut_low ) |
-       ( W_eff/pitch > eff_charge_cut_high ) ) ) 
+       ( W_eff < pitch*eff_charge_cut_low ) |
+       ( W_eff > pitch*eff_charge_cut_high ) ) 
+     ) 
     {
       W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
       //  usedEdgeAlgo = true;
@@ -500,18 +502,17 @@ generic_position_formula( int size,                //!< Size of this projection.
 void
 PixelCPEGeneric::
 collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluster
-		     float & Q_f_X,              //!< output, Q first  in X 
-		     float & Q_l_X,              //!< output, Q last   in X
-		     float & Q_f_Y,              //!< output, Q first  in Y 
-		     float & Q_l_Y               //!< output, Q last   in Y
+		     int & Q_f_X,              //!< output, Q first  in X 
+		     int & Q_l_X,              //!< output, Q last   in X
+		     int & Q_f_Y,              //!< output, Q first  in Y 
+		     int & Q_l_Y               //!< output, Q last   in Y
 		     ) const
 {
   ClusterParamGeneric & theClusterParam = static_cast<ClusterParamGeneric &>(theClusterParamBase);
 
   // Initialize return variables.
-  Q_f_X = Q_l_X = 0.0;
-  Q_f_Y = Q_l_Y = 0.0;
-
+  Q_f_X = Q_l_X = 0;
+  Q_f_Y = Q_l_Y = 0;
 
   // Obtain boundaries in index units
   int xmin = theClusterParam.theCluster->minPixelRow();
@@ -519,6 +520,7 @@ collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluste
   int ymin = theClusterParam.theCluster->minPixelCol();
   int ymax = theClusterParam.theCluster->maxPixelCol();
 
+  int pixmx = TruncatePixelCharge_ ? theClusterParam.pixmx : std::numeric_limits<int>::max();
 
   // Iterate over the pixels.
   int isize = theClusterParam.theCluster->size();
@@ -526,9 +528,8 @@ collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluste
     {
       auto const & pixel = theClusterParam.theCluster->pixel(i); 
       // ggiurgiu@fnal.gov: add pixel charge truncation
-      float pix_adc = pixel.adc;
-      if ( UseErrorsFromTemplates_ && TruncatePixelCharge_ ) 
-	pix_adc = std::min(pix_adc, theClusterParam.pixmx );
+      int pix_adc = pixel.adc;
+      pix_adc = std::min(pix_adc, pixmx );
 
       //
       // X projection
