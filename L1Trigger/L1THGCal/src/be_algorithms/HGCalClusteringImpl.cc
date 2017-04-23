@@ -92,8 +92,9 @@ void HGCalClusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCe
     }
 
     /* store clusters in the persistent collection */
+    clusters.resize(0, clustersTmp.size());
     for( unsigned i(0); i<clustersTmp.size(); ++i ){
-        clusters.push_back( 0, clustersTmp.at(i) );
+        clusters.set( 0, i, clustersTmp.at(i) );
     }
     
 }
