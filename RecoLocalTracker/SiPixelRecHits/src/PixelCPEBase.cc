@@ -561,18 +561,17 @@ SiPixelRecHitQuality::QualWordType
 PixelCPEBase::rawQualityWord(ClusterParam & theClusterParam) const
 {
   SiPixelRecHitQuality::QualWordType qualWord(0);
-  float probabilityXY;
-  if ( theClusterParam.probabilityX_ !=0 && theClusterParam.probabilityY_ !=0 ) 
-     probabilityXY = theClusterParam.probabilityX_ * theClusterParam.probabilityY_ * (1.f - std::log(theClusterParam.probabilityX_ * theClusterParam.probabilityY_) ) ;
-  else 
-     probabilityXY = 0;
-  SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
+  if (theClusterParam.hasFilledProb_) {
+    float probabilityXY=0;
+    if ( theClusterParam.probabilityX_ !=0 && theClusterParam.probabilityY_ !=0 ) 
+       probabilityXY = theClusterParam.probabilityX_ * theClusterParam.probabilityY_ * (1.f - std::log(theClusterParam.probabilityX_ * theClusterParam.probabilityY_) ) ;
+    SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam.probabilityQ_ , 
+    SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam.probabilityQ_ , 
                                                       qualWord );
-  
-  SiPixelRecHitQuality::thePacking.setQBin          ( (int)theClusterParam.qBin_, 
+  }
+  SiPixelRecHitQuality::thePacking.setQBin          ( theClusterParam.qBin_, 
                                                       qualWord );
   
   SiPixelRecHitQuality::thePacking.setIsOnEdge      ( theClusterParam.isOnEdge_,
