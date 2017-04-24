@@ -122,8 +122,8 @@ namespace Rivet {
 
     /// @name Histograms
     //@{
-    enum { PT_220_300_dj=0, PT_300_450_dj, PT_450_500_dj, PT_500_600_dj,
-           PT_600_800_dj, PT_800_1000_dj, PT_1000_1500_dj, N_PT_BINS_dj } BINS_dj;
+    enum BINS_dj { PT_220_300_dj=0, PT_300_450_dj, PT_450_500_dj, PT_500_600_dj,
+                   PT_600_800_dj, PT_800_1000_dj, PT_1000_1500_dj, N_PT_BINS_dj };
     Histo1DPtr _h_ungroomedJet0pt, _h_ungroomedJet1pt;
     Histo1DPtr _h_ungroomedAvgJetMass_dj[N_PT_BINS_dj];
     Histo1DPtr _h_filteredAvgJetMass_dj[N_PT_BINS_dj];
