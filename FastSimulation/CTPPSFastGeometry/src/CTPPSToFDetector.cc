@@ -83,7 +83,7 @@ bool CTPPSToFDetector::get_CellCenter(int cell_id, double& x, double& y)
 {
     if (cell_id==0) return false;
     //if(!isValidCellId(cell_id)) return 0;
-    unsigned int y_idx=int(cell_id/100);
+    unsigned int y_idx=int(cell_id*0.01);
     unsigned int x_idx=cell_id-y_idx*100;
     x = (CellColumn.at(x_idx-1).first+CellColumn.at(x_idx-1).second)/2.0;
     y = (CellRow.at(y_idx-1).first+CellRow.at(y_idx-1).second)/2.0;
