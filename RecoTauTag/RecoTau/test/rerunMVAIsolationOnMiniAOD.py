@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("rerunMVAIsolationOnMiniAOD")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometrySimDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+## Geometry and Detector Conditions (needed for a few tau reco steps)
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

@@ -15,6 +15,9 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -62,6 +65,7 @@ private:
 
   std::unique_ptr<PATTauDiscriminator> category_output_;
   bool usePhiAtEcalEntranceExtrapolation_;
+  double bField_;
 		
   int verbosity_;
 };
@@ -74,6 +78,10 @@ void PATTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& evt, 
   category_output_.reset(new PATTauDiscriminator(TauRefProd(taus_)));
 
   evt.getByToken(electronToken, Electrons);
+
+  edm::ESHandle<MagneticField> pSetup;
+  es.get<IdealMagneticFieldRecord>().get(pSetup);
+  bField_ = pSetup->inTesla(GlobalPoint(0,0,0)).z();
 }
 
 double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTauRef) const
@@ -104,7 +112,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
 	double deltaREleTau = deltaR(theElectron.p4(), theTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if( deltaREleTau < 0.3 ){ 	
-	  double mva_match = mva_->MVAValue(*theTauRef, theElectron, usePhiAtEcalEntranceExtrapolation_);	  
+	  double mva_match = mva_->MVAValue(*theTauRef, theElectron, usePhiAtEcalEntranceExtrapolation_, bField_);	  
 	  bool hasGsfTrack = 0;
           pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
           if( abs(packedLeadTauCand->pdgId()) == 11 ) 
@@ -142,7 +150,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
      } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*theTauRef, usePhiAtEcalEntranceExtrapolation_);
+      mvaValue = mva_->MVAValue(*theTauRef, usePhiAtEcalEntranceExtrapolation_, bField_);
       bool hasGsfTrack = 0;
       pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
       if( abs(packedLeadTauCand->pdgId()) == 11 ) hasGsfTrack = 1;
