@@ -265,17 +265,12 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
                             const LocalTrajectoryParameters & ltp) const
 {
    //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
-   
-   //theClusterParam.loc_traj_param = ltp;
-   
+   /*
+   //theClusterParam.loc_traj_param = ltp;   
    LocalVector localDir = ltp.momentum();
-   
-   
    float locx = localDir.x();
    float locy = localDir.y();
    float locz = localDir.z();
-   
-   /*
     // Danek's definition
     alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
     if ( isFlipped() )                    // &&& check for FPIX !!!
@@ -284,9 +279,8 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
     */
    
    
-   theClusterParam.cotalpha = locx/locz;
-   theClusterParam.cotbeta  = locy/locz;
-   //theClusterParam.zneg = (locz < 0); // Not used, AH
+   theClusterParam.cotalpha = ltp.dxdz();
+   theClusterParam.cotbeta  = ltp.dydz();
    
    
    LocalPoint trk_lp = ltp.position();
@@ -295,10 +289,10 @@ computeAnglesFromTrajectory( DetParam const & theDetParam, ClusterParam & theClu
    
    theClusterParam.with_track_angle = true;
    
-   
    // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
-   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-   theClusterParam.loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
+   theClusterParam.loc_trk_pred = 
+      Topology::LocalTrackPred(theClusterParam.trk_lp_x, theClusterParam.trk_lp_y, 
+                               theClusterParam.cotalpha,theClusterParam.cotbeta);
    
 }
 
@@ -569,18 +563,17 @@ SiPixelRecHitQuality::QualWordType
 PixelCPEBase::rawQualityWord(ClusterParam & theClusterParam) const
 {
    SiPixelRecHitQuality::QualWordType qualWord(0);
-   float probabilityXY;
-   if ( theClusterParam.probabilityX_ !=0 && theClusterParam.probabilityY_ !=0 )
-      probabilityXY = theClusterParam.probabilityX_ * theClusterParam.probabilityY_ * (1.f - std::log(theClusterParam.probabilityX_ * theClusterParam.probabilityY_) ) ;
-   else
-      probabilityXY = 0;
-   SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
-                                                      qualWord );
+   if (theClusterParam.hasFilledProb_) {
+     float probabilityXY=0;
+     if ( theClusterParam.probabilityX_ !=0 && theClusterParam.probabilityY_ !=0 )
+       probabilityXY = theClusterParam.probabilityX_ * theClusterParam.probabilityY_ * (1.f - std::log(theClusterParam.probabilityX_ * theClusterParam.probabilityY_) ) ;
+     SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
+                                                        qualWord );
    
-   SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam.probabilityQ_ ,
-                                                      qualWord );
-   
-   SiPixelRecHitQuality::thePacking.setQBin          ( (int)theClusterParam.qBin_, 
+     SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam.probabilityQ_ ,
+                                                        qualWord );
+   }
+   SiPixelRecHitQuality::thePacking.setQBin          ( theClusterParam.qBin_, 
                                                       qualWord );
    
    SiPixelRecHitQuality::thePacking.setIsOnEdge      ( theClusterParam.isOnEdge_,

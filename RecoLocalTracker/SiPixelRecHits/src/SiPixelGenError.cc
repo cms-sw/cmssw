@@ -462,7 +462,7 @@ int SiPixelGenError::qbin(int id) {
 //-----------------------------------------------------------------------
 // Full method
 int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus,
-                          float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
+                          int& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1,
                           float& sx2, float& dx2)
 {
