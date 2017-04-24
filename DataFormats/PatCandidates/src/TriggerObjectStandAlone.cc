@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
 
 
 using namespace pat;
@@ -25,6 +26,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone() :
   TriggerObject()
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -36,6 +38,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const TriggerObject & trigObj 
   TriggerObject( trigObj )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -47,6 +50,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const trigger::TriggerObject &
   TriggerObject( trigObj )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -58,6 +62,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::LeafCandidate & le
   TriggerObject( leafCand )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -69,6 +74,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::LorentzV
   TriggerObject( vec, id )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -77,6 +83,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::PolarLor
   TriggerObject( vec, id )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -185,6 +192,8 @@ std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool path
 // Checks, if a certain HLT filter label or L1 condition name is assigned
 bool TriggerObjectStandAlone::hasFilterOrCondition( const std::string & name ) const
 {
+  checkIfFiltersAreUnpacked();
+
   // Move to wild-card parser, if needed
   if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, filterLabels_ );
   // Return, if filter label is assigned
@@ -260,6 +269,13 @@ bool TriggerObjectStandAlone::checkIfPathsAreUnpacked(bool throwIfPacked) const 
    if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger path names. Before accessing path names you must call unpackPathNames with an edm::TriggerNames object. You can get the latter from the edm::Event or fwlite::Event and the TriggerResults\n");
    return unpacked;
 }
+bool TriggerObjectStandAlone::checkIfFiltersAreUnpacked(bool throwIfPacked) const {
+   bool unpacked = filterLabelIndices_.empty();
+   if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger filter labels. Before accessing filter labels you must call unpackFilterLabels with the proper std::vector<std::string> object from the event.\n");
+   return unpacked;
+}
+
+
 
 void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) {
     if (!pathIndices_.empty()) {
@@ -306,3 +322,46 @@ void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) {
     pathNames_.swap(paths);
 }
 
+void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &names) {
+    if (!filterLabelIndices_.empty()) {
+        throw cms::Exception("RuntimeError", "Error, trying to pack filter labels for an already packed TriggerObjectStandAlone");
+    }
+    std::vector<std::string> unmatched;
+    std::vector<uint16_t> indices;
+    indices.reserve(filterLabels_.size());
+   
+    auto start = names.begin(), fail = names.end();
+    for (unsigned int i = 0, n = filterLabels_.size(); i < n; ++i) {
+        auto match = std::lower_bound(names.begin(), names.end(), filterLabels_[i]);
+        if (match != fail && *match == filterLabels_[i]) {
+            indices.push_back(match - start);
+        } else {
+            unmatched.push_back(std::move(filterLabels_[i]));
+            static std::atomic<int> _warn(0);
+            if (++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index" << std::endl;
+        }
+    }
+    std::sort(indices.begin(), indices.end()); // try reduce enthropy
+    filterLabelIndices_.swap(indices);
+    filterLabels_.swap(unmatched);
+}
+
+void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> &labels) {
+    if (filterLabelIndices_.empty()) return;
+
+    std::vector<std::string> mylabels(filterLabels_);
+    for (unsigned int i = 0, n = filterLabelIndices_.size(), m = labels.size(); i < n; ++i) {
+        if (filterLabelIndices_[i] >= m) throw cms::Exception("RuntimeError", "Error, filter label index out of bounds");
+        mylabels.push_back(labels[i]);
+    }
+    filterLabelIndices_.clear();
+    filterLabels_.swap(mylabels);
+}
+
+void TriggerObjectStandAlone::packP4() {
+    setP4(reco::Particle::PolarLorentzVector(
+                MiniFloatConverter::reduceMantissaToNbitsRounding<14>(pt()),
+                MiniFloatConverter::reduceMantissaToNbitsRounding<11>(eta()),
+                MiniFloatConverter::reduceMantissaToNbits<11>(phi()),
+                MiniFloatConverter::reduceMantissaToNbitsRounding<8>(mass()) ));
+}

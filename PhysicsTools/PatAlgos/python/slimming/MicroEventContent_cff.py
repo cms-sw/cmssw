@@ -42,7 +42,7 @@ MicroEventContent = cms.PSet(
         'keep double_fixedGridRhoFastjetCentralChargedPileUp__*',
         'keep double_fixedGridRhoFastjetCentralNeutral__*',
 
-        'keep *_selectedPatTrigger_*_*',
+        'keep *_slimmedPatTrigger_*_*',
         'keep patPackedTriggerPrescales_patTrigger__*',
         'keep patPackedTriggerPrescales_patTrigger_l1max_*',
         'keep patPackedTriggerPrescales_patTrigger_l1min_*',
