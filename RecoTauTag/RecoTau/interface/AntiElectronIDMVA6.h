@@ -123,17 +123,17 @@ class AntiElectronIDMVA6
 
    // this function can be called for all categories
    double MVAValue(const reco::PFTau& thePFTau, 
-		   const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation);
+		   const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation, double bField);
    // this function can be called for category 1 only !!
-   double MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation);
+   double MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation, double bField);
 
    // this function can be called for all categories
    double MVAValue(const pat::Tau& theTau, 
-		   const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation);
+		   const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation, double bField);
    // this function can be called for category 1 only !!
-   double MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation);
+   double MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation, double bField);
    // track extrapolation to ECAL entrance (used to re-calculate varibales that might not be available on miniAOD)
-   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint &pos);    
+   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint &pos, double bField);    
 
  private:   
 

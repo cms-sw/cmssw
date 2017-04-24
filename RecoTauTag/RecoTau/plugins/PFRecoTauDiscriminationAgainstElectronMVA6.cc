@@ -18,6 +18,9 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -71,6 +74,7 @@ private:
 
   std::unique_ptr<PFTauDiscriminator> category_output_;
   bool usePhiAtEcalEntranceExtrapolation_;
+  double bField_;
 
   int verbosity_;
 };
@@ -83,6 +87,10 @@ void PFRecoTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& ev
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
 
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
+
+  edm::ESHandle<MagneticField> pSetup;
+  es.get<IdealMagneticFieldRecord>().get(pSetup);
+  bField_ = pSetup->inTesla(GlobalPoint(0,0,0)).z();
 }
 
 double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& thePFTauRef) const
@@ -149,7 +157,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
-	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_, bField_);
 	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
 	  if ( !hasGsfTrack )
             hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
@@ -186,7 +194,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
+      mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_, bField_);
       bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
       
       //// Veto taus that go to Ecal crack
