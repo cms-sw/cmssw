@@ -10,7 +10,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, nonA
 
 #energy corrector for corrected cluster producer
 hgcalLayerClusters =  cms.EDProducer(
-    "HGCalClusterTestProducer",
+    "HGCalClusterProducer",
     detector = cms.string("all"),
     doSharing = cms.bool(False),
     deltac = cms.vdouble(2.,2.,2.),
