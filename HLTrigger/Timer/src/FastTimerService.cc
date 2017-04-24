@@ -38,19 +38,23 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// convert any std::chrono::duration to milliseconds
-template <class Rep, class Period>
-double ms(std::chrono::duration<Rep, Period> duration)
-{
-  return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(duration).count();;
-}
+namespace {
 
-// convert any boost::chrono::duration to milliseconds
-template <class Rep, class Period>
-double ms(boost::chrono::duration<Rep, Period> duration)
-{
-  return boost::chrono::duration_cast<boost::chrono::duration<double, boost::milli>>(duration).count();;
-}
+  // convert any std::chrono::duration to milliseconds
+  template <class Rep, class Period>
+  double ms(std::chrono::duration<Rep, Period> duration)
+  {
+    return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(duration).count();;
+  }
+
+  // convert any boost::chrono::duration to milliseconds
+  template <class Rep, class Period>
+  double ms(boost::chrono::duration<Rep, Period> duration)
+  {
+    return boost::chrono::duration_cast<boost::chrono::duration<double, boost::milli>>(duration).count();;
+  }
+
+} // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
