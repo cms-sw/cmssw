@@ -2,6 +2,7 @@
 #define HcalAlgos_HcalHardcodeParameters_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMRadiationDamage.h"
 
 #include <vector>
 
@@ -31,7 +32,7 @@ class HcalHardcodeParameters {
 		const int mcShape() const { return mcShape_; }
 		const int recoShape() const { return recoShape_; }
 		const double photoelectronsToAnalog() const { return photoelectronsToAnalog_; }
-		const double darkCurrent(unsigned index) const { return darkCurrent_.at(index); }
+		const double darkCurrent(unsigned index, double intlumi) const;
 		
 	private:
 		//member variables
@@ -42,6 +43,8 @@ class HcalHardcodeParameters {
 		int mcShape_, recoShape_;
 		double photoelectronsToAnalog_;
 		std::vector<double> darkCurrent_;
+		bool doSipmRadiationDamage_;
+		HcalSiPMRadiationDamage sipmRadiationDamage_;
 };
 
 #endif

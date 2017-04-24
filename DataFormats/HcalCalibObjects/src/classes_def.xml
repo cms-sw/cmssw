@@ -1,7 +1,4 @@
 <lcgdict>
-  <class name="HEDarkening" ClassVersion="0">
-   <version ClassVersion="0" checksum="3959036241"/>
-  </class>
   <class name="HOCalibVariables" ClassVersion="16">
    <version ClassVersion="16" checksum="2161587371"/>
   </class>
