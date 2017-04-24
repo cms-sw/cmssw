@@ -23,8 +23,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronNHitSeedFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -41,6 +41,7 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
   
   candToken_         = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
   l1PixelSeedsToken_ = consumes<reco::ElectronSeedCollection> (l1PixelSeedsTag_);
+  l1PixelNHitSeedsToken_ = consumes<reco::ElectronNHitSeedCollection> (l1PixelSeedsTag_);
   
   sPhi1B_         = iConfig.getParameter< double >("s_a_phi1B") ;
   sPhi1I_         = iConfig.getParameter< double >("s_a_phi1I") ;
@@ -63,27 +64,7 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter()
 {}
 
-float HLTElectronPixelMatchFilter::calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
-{
-  const float dPhi1Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sPhi1B_ : sPhi1I_ : sPhi1F_;
-  float dPhi1 = charge<0 ? seed->dPhi1()/dPhi1Const :  seed->dPhi1Pos()/dPhi1Const; 
-  return dPhi1*dPhi1;
-}
 
-float HLTElectronPixelMatchFilter::calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
-{
-  const float dPhi2Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sPhi2B_ : sPhi2I_ : sPhi2F_;
-  float dPhi2 = charge <0 ? seed->dPhi2()/dPhi2Const :  seed->dPhi2Pos()/dPhi2Const;
-  return dPhi2*dPhi2;
-}
-
-
-float HLTElectronPixelMatchFilter::calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge)const
-{
-  const float dRZ2Const = seed->subDet1()==1 ? seed->subDet2()==1 ? sZ2B_ : sR2I_ : sR2F_;
-  float dRZ2 = charge<0 ? seed->dRz2()/dRZ2Const : seed->dRz2Pos()/dRZ2Const;
-  return dRZ2*dRZ2;
-}
 
 void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -131,7 +112,10 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   
   //get hold of the pixel seed - supercluster association map
   edm::Handle<reco::ElectronSeedCollection> l1PixelSeeds;
-  iEvent.getByToken(l1PixelSeedsToken_, l1PixelSeeds);
+  iEvent.getByToken(l1PixelSeedsToken_, l1PixelSeeds); 
+  edm::Handle<reco::ElectronNHitSeedCollection> l1PixelNHitSeeds;
+  iEvent.getByToken(l1PixelNHitSeedsToken_, l1PixelNHitSeeds);
+  
   
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
@@ -140,7 +124,10 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
     ref = recoecalcands[i];
     reco::SuperClusterRef recr2 = ref->superCluster();
     
-    int nmatch = getNrOfMatches(l1PixelSeeds, recr2);
+    int nmatch = 0;
+    if(l1PixelNHitSeeds.isValid()) nmatch = getNrOfMatches(l1PixelNHitSeeds, recr2);
+    else if(l1PixelSeeds.isValid()) nmatch = getNrOfMatches(l1PixelSeeds, recr2);
+
 
     if (!isPixelVeto_) {
       if ( nmatch >= npixelmatchcut_) {
@@ -161,22 +148,30 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   return accept;
 }
 
+
+int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronNHitSeedCollection>& eleSeeds,
+						reco::SuperClusterRef& candSCRef)const
+{
+  int nrMatch=0;
+  for(auto seed : *eleSeeds){
+    edm::RefToBase<reco::CaloCluster> caloCluster = seed.caloCluster() ;
+    reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+    if(&(*candSCRef) ==  &(*scRef)){
+      nrMatch++;
+    }//end sc ref match
+  }//end loop over ele seeds
+  return nrMatch;
+}
+
 int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCollection>& eleSeeds,
 						reco::SuperClusterRef& candSCRef)const
 {
   int nrMatch=0;
-  for(reco::ElectronSeedCollection::const_iterator seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
-    edm::RefToBase<reco::CaloCluster> caloCluster = seedIt->caloCluster() ;
+  for(auto seed : *eleSeeds){
+    edm::RefToBase<reco::CaloCluster> caloCluster = seed.caloCluster() ;
     reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
     if(&(*candSCRef) ==  &(*scRef)){
-      if(useS_){
-	float s2Neg = calDPhi1Sq(seedIt,-1) + calDPhi2Sq(seedIt,-1) + calDZ2Sq(seedIt,-1);
-	float s2Pos = calDPhi1Sq(seedIt,1) + calDPhi2Sq(seedIt,1) + calDZ2Sq(seedIt,1);
-	
-	const float s2Thres = seedIt->subDet1()==1 ? seedIt->subDet2()==1 ? s2BarrelThres_ : s2InterThres_ : s2ForwardThres_; 
-	if(s2Neg<s2Thres || s2Pos<s2Thres) nrMatch++ ;
-      }
-      else nrMatch++;
+      nrMatch++;
     }//end sc ref match
   }//end loop over ele seeds
   return nrMatch;
