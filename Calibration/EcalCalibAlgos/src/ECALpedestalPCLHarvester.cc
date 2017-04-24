@@ -15,7 +15,7 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include <iostream>
-#include <sstream>
+#include <string>
 
 ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
     currentPedestals_(0),channelStatus_(0){
@@ -30,12 +30,11 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
-
+    std::string hname;
 
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
-        std::stringstream hname;
-        hname << "AlCaReco/EcalPedestalsPCL/eb_" << i;
-        MonitorElement* ch= igetter_.get(hname.str());
+        hname = "AlCaReco/EcalPedestalsPCL/eb_" + std::to_string(i);
+        MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
 
@@ -64,9 +63,9 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
 
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
-        std::stringstream hname;
-        hname <<"AlCaReco/EcalPedestalsPCL/ee_"<<i;
-        MonitorElement* ch= igetter_.get(hname.str());
+        hname = "AlCaReco/EcalPedestalsPCL/ee_" + std::to_string(i);
+
+        MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
 
