@@ -42,7 +42,7 @@ HLTJetVBFFilter<T>::HLTJetVBFFilter(const edm::ParameterSet& iConfig) : HLTFilte
 }
 
 template<typename T>
-HLTJetVBFFilter<T>::~HLTJetVBFFilter(){}
+HLTJetVBFFilter<T>::~HLTJetVBFFilter()= default;
 
 template<typename T>
 void

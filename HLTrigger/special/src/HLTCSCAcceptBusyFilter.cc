@@ -48,8 +48,8 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
 
 public:
   explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
-  virtual ~HLTCSCAcceptBusyFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTCSCAcceptBusyFilter() override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
@@ -135,30 +135,30 @@ bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(unsigned int maxRecHitsPerC
   const unsigned int nRings(4);
   const unsigned int nChambers(36);
   unsigned int allRechits[nEndcaps][nStations][nRings][nChambers];
-  for(unsigned int iE = 0;iE<nEndcaps;++iE){
+  for(auto & allRechit : allRechits){
     for(unsigned int iS = 0;iS<nStations;++iS){
       for(unsigned int iR = 0;iR<nRings;++iR){
 	for(unsigned int iC = 0;iC<nChambers;++iC){
-	  allRechits[iE][iS][iR][iC] = 0;
+	  allRechit[iS][iR][iC] = 0;
 	}
       }
     }
   }
 
-  for(CSCRecHit2DCollection::const_iterator it = recHits->begin(); it != recHits->end(); it++) {
+  for(auto const & it : *recHits) {
     ++allRechits
-      [(*it).cscDetId().endcap()-1]
-      [(*it).cscDetId().station()-1]
-      [(*it).cscDetId().ring()-1]
-      [(*it).cscDetId().chamber()-1];
+      [it.cscDetId().endcap()-1]
+      [it.cscDetId().station()-1]
+      [it.cscDetId().ring()-1]
+      [it.cscDetId().chamber()-1];
   }
 
-  for(unsigned int iE = 0;iE<nEndcaps;++iE){
+  for(auto & allRechit : allRechits){
     for(unsigned int iS = 0;iS<nStations;++iS){
       for(unsigned int iR = 0;iR<nRings;++iR){
 	for(unsigned int iC = 0;iC<nChambers;++iC){
-	  if(allRechits[iE][iS][iR][iC] > maxNRecHitsPerChamber) {
-	    maxNRecHitsPerChamber = allRechits[iE][iS][iR][iC];
+	  if(allRechit[iS][iR][iC] > maxNRecHitsPerChamber) {
+	    maxNRecHitsPerChamber = allRechit[iS][iR][iC];
 	  }
 	  if(maxNRecHitsPerChamber > maxRecHitsPerChamber) {
 	    return true;

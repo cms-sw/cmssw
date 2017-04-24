@@ -63,7 +63,7 @@ HLTEgammaGenericQuadraticFilter::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add("hltEgammaGenericQuadraticFilter", desc);
 }
 
-HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter(){}
+HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter()= default;
 
 
 // ------------ method called to produce the data  ------------
@@ -96,9 +96,9 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   // look at all photons, check cuts and add to filter object
   int n = 0;
 
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    ref = recoecalcands[i];
+    ref = recoecalcand;
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
 
     float vali = mapi->val;

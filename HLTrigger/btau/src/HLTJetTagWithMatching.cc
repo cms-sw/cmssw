@@ -51,13 +51,11 @@ HLTJetTagWithMatching<T>::HLTJetTagWithMatching(const edm::ParameterSet & config
 }
 
 template<typename T>
-HLTJetTagWithMatching<T>::~HLTJetTagWithMatching()
-{
-}
+HLTJetTagWithMatching<T>::~HLTJetTagWithMatching() = default;
 
 template<typename T> float HLTJetTagWithMatching<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags, float minDr){
          float tmpCSV = -20 ;
-         for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
+         for (auto jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
          float tmpDr = reco::deltaR(*jet,*(jetb->first));
  
          if (tmpDr < minDr) {

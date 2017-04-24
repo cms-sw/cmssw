@@ -52,7 +52,7 @@ HLTDiJetEtaTopologyFilter<T>::HLTDiJetEtaTopologyFilter(const edm::ParameterSet&
 }
 
 template<typename T>
-HLTDiJetEtaTopologyFilter<T>::~HLTDiJetEtaTopologyFilter(){}
+HLTDiJetEtaTopologyFilter<T>::~HLTDiJetEtaTopologyFilter()= default;
 
 template<typename T>
 void

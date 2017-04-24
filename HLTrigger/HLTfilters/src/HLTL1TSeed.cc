@@ -429,23 +429,23 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     std::vector<GlobalLogicParser::OperandToken>& algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
-    for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
+    for (auto & i : algOpTokenVector) {
 
         // rest token result 
         //
-        (algOpTokenVector[i]).tokenResult = false;
+        i.tokenResult = false;
 
     }
 
     // Update m_l1AlgoLogicParser and store emulator results for algOpTokens 
     // /////////////////////////////////////////////////////////////////////
-    for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
+    for (auto & i : algOpTokenVector) {
 
-        std::string algoName = (algOpTokenVector[i]).tokenName;
+        std::string algoName = i.tokenName;
 
         const GlobalObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoName);
 
-        if(objMap == 0) {
+        if(objMap == nullptr) {
 
           throw cms::Exception("FailModule") << "\nAlgorithm " << algoName 
             << ", requested as seed by a HLT path, cannot be matched to a L1 algo name in any GlobalObjectMap\n" 
@@ -458,7 +458,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
           int bit = objMap->algoBitNumber();
           bool finalAlgoDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
-          (algOpTokenVector[i]).tokenResult = finalAlgoDecision;
+          i.tokenResult = finalAlgoDecision;
 
         }
 
@@ -489,7 +489,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
       const GlobalObjectMap* objMap = gtObjectMapRecord->getObjectMap(algoSeedName);
 
-      if(objMap == 0) {
+      if(objMap == nullptr) {
 
           // Should not get here
           //
@@ -551,10 +551,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[condNumber];
 
-        for (size_t jOb =0; jOb < condObjType.size(); jOb++) {
+        for (auto & jOb : condObjType) {
 
           LogTrace("HLTL1TSeed")
-          << setw(15) << "\tcondObjType = " << condObjType[jOb] << endl;
+          << setw(15) << "\tcondObjType = " << jOb << endl;
 
         }
 
@@ -574,14 +574,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         LogTrace("HLTL1TSeed")
         << setw(15) << "\tcondCombinations = " << condComb->size() << endl;
 
-        for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
+        for (auto const & itComb : (*condComb)) {
 
             LogTrace("HLTL1TSeed")
             << setw(15) << "\tnew combination" << endl;
 
             // loop over objects in a combination for a given condition
             //
-            for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
+            for (auto itObject = itComb.begin(); itObject != itComb.end(); itObject++) {
 
                 // in case of object-less triggers (e.g. L1_ZeroBias) condObjType vector is empty, so don't seed!
                 //
@@ -595,7 +595,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                 }
 
                 // the index of the object type is the same as the index of the object
-                size_t iType = std::distance((*itComb).begin(), itObject);
+                size_t iType = std::distance(itComb.begin(), itObject);
 
                 // get object type and push indices on the list
                 //
