@@ -136,9 +136,12 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   }
 
   paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
-  paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEtSumXPUSLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
+  //paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
+  //paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
+  //paramsHelper.setEtSumXPUSLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
   paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
