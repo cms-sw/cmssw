@@ -1,5 +1,5 @@
-#ifndef __RecoLocalCalo_HGCRecProducers_PFClusterProducer_H__
-#define __RecoLocalCalo_HGCRecProducers_PFClusterProducer_H__
+#ifndef __RecoLocalCalo_HGCRecProducers_HGCalClusterProducer_H__
+#define __RecoLocalCalo_HGCRecProducers_HGCalClusterProducer_H__
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -29,10 +29,10 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
+class HGCalClusterProducer : public edm::stream::EDProducer<> {
  public:
-  HGCalClusterTestProducer(const edm::ParameterSet&);
-  ~HGCalClusterTestProducer() { }
+  HGCalClusterProducer(const edm::ParameterSet&);
+  ~HGCalClusterProducer() { }
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -52,9 +52,9 @@ class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
   HGCalImagingAlgo::VerbosityLevel verbosity;
 };
 
-DEFINE_FWK_MODULE(HGCalClusterTestProducer);
+DEFINE_FWK_MODULE(HGCalClusterProducer);
 
-HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) :
+HGCalClusterProducer::HGCalClusterProducer(const edm::ParameterSet &ps) :
   algoId(reco::CaloCluster::undefined),
   doSharing(ps.getParameter<bool>("doSharing")),
   detector(ps.getParameter<std::string >("detector")),              //one of EE, EF or "both"
@@ -108,7 +108,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   produces<std::vector<reco::HGCalMultiCluster> >("sharing");
 }
 
-void HGCalClusterTestProducer::produce(edm::Event& evt,
+void HGCalClusterProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
 
   edm::Handle<HGCRecHitCollection> ee_hits;
@@ -190,7 +190,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
   std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - then);
   // delta += float (now.tv_usec - then.tv_usec)/1000.;
-  edm::LogInfo ("HGCalClusterTestProducer") << "Time taken by multiclustering " << time_span.count() << " ms";
+  edm::LogInfo ("HGCalClusterProducer") << "Time taken by multiclustering " << time_span.count() << " ms";
 }
 
 #endif
