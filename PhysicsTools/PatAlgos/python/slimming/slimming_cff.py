@@ -6,6 +6,7 @@ from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
+from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
@@ -26,6 +27,7 @@ slimmingTask = cms.Task(
     primaryVertexAssociation,
     genParticlesTask,
     selectedPatTrigger,
+    slimmedPatTrigger,
     slimmedJets,
     slimmedJetsAK8,
     slimmedGenJets,

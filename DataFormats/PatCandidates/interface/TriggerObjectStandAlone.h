@@ -33,8 +33,10 @@ namespace pat {
       /// Keeping the old names of the data members for backward compatibility,
       /// although they refer only to HLT objects.
 
-      /// Vector of labels of all HLT filters or names od L1 conditions the trigger objects has been used in
+      /// Vector of labels of all HLT filters or names of L1 conditions the trigger objects has been used in
       std::vector< std::string > filterLabels_;
+      std::vector< uint16_t >    filterLabelIndices_; 
+
       /// Vector of names of all HLT paths or L1 algorithms the trigger objects has been used in
       std::vector< std::string > pathNames_;  
       std::vector< uint16_t >    pathIndices_; 
@@ -63,7 +65,7 @@ namespace pat {
       /// Adds a new HLT path or L1 algorithm name
       void addPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted );
       /// Gets all HLT filter labels or L1 condition names
-      const std::vector< std::string > & filtersOrConditions() const { return filterLabels_; };
+      const std::vector< std::string > & filtersOrConditions() const { checkIfFiltersAreUnpacked(); return filterLabels_; };
       /// Gets all HLT path or L1 algorithm names
       std::vector< std::string > pathsOrAlgorithms( bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const;
       /// Checks, if a certain HLT filter label or L1 condition name is assigned
@@ -76,6 +78,8 @@ namespace pat {
 
       /// Check if trigger names have been packed by calling packPathNames() and not yet unpacked
       bool checkIfPathsAreUnpacked(bool throwIfPacked=true) const ;
+      /// Check if trigger names have been packed by calling packFilterLabels() and not yet unpacked
+      bool checkIfFiltersAreUnpacked(bool throwIfPacked=true) const ;
 
     public:
 
@@ -151,6 +155,13 @@ namespace pat {
       void packPathNames(const edm::TriggerNames &names) ;
       ///  unpack trigger names into indices 
       void unpackPathNames(const edm::TriggerNames &names) ;
+      ///  pack filter labels into indices; note that the labels must be sorted!
+      void packFilterLabels(const std::vector<std::string> &labels) ;
+      ///  unpack filter labels into indices
+      void unpackFilterLabels(const std::vector<std::string> &labels) ;
+
+      /// reduce the precision on the 4-vector
+      void packP4();
 
   };
 
