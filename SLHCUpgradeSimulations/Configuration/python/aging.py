@@ -8,22 +8,34 @@ def getHcalDigitizer(process):
         return process.mix.digitizers.hcal
     return None
 
+# change assumptions about lumi rate
+def setScenarioHLLHC(module,scenarioHLLHC):
+    if scenarioHLLHC=="nominal":
+        from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import _years_LHC, _years_HLLHC_nominal
+        module.years = _years_LHC + _years_HLLHC_nominal
+    elif scenarioHLLHC=="ultimate":
+        from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import _years_LHC, _years_HLLHC_ultimate
+        module.years = _years_LHC + _years_HLLHC_ultimate
+    return module
+
 # turnon = True enables default, False disables
 # recalibration and darkening always together
-def ageHB(process,turnon):
+def ageHB(process,turnon,scenarioHLLHC):
     if turnon:
         from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import HBDarkeningEP
         process.HBDarkeningEP = HBDarkeningEP
+        process.HBDarkeningEP = setScenarioHLLHC(process.HBDarkeningEP,scenarioHLLHC)
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.HBDarkening = cms.bool(turnon)
     if hasattr(process,'es_hardcode'):
         process.es_hardcode.HBRecalibration = cms.bool(turnon)
     return process
 
-def ageHE(process,turnon):
+def ageHE(process,turnon,scenarioHLLHC):
     if turnon:
         from CalibCalorimetry.HcalPlugins.HBHEDarkening_cff import HEDarkeningEP
         process.HEDarkeningEP = HEDarkeningEP
+        process.HEDarkeningEP = setScenarioHLLHC(process.HEDarkeningEP,scenarioHLLHC)
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.HEDarkening = cms.bool(turnon)
     if hasattr(process,'es_hardcode'):
@@ -46,11 +58,7 @@ def ageSiPM(process,turnon,lumi):
 
     return process
 
-def ageHcal(process,lumi):
-    instLumi=1.0e34
-    if lumi>=1000:
-        instLumi=5.0e34
-
+def ageHcal(process,lumi,instLumi,scenarioHLLHC):
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
 
@@ -64,27 +72,27 @@ def ageHcal(process,lumi):
         process.es_hardcode.iLumi = cms.double(float(lumi))
 
     # functions to enable individual subdet aging
-    process = ageHB(process,True)
-    process = ageHE(process,True)
+    process = ageHB(process,True,scenarioHLLHC)
+    process = ageHE(process,True,scenarioHLLHC)
     process = ageHF(process,True)
     process = ageSiPM(process,True,lumi)
 
     return process
 
 def turn_on_HB_aging(process):
-    process = ageHB(process,True)
+    process = ageHB(process,True,"")
     return process
 
 def turn_off_HB_aging(process):
-    process = ageHB(process,False)
+    process = ageHB(process,False,"")
     return process
 
 def turn_on_HE_aging(process):
-    process = ageHE(process,True)
+    process = ageHE(process,True,"")
     return process
     
 def turn_off_HE_aging(process):
-    process = ageHE(process,False)
+    process = ageHE(process,False,"")
     return process
     
 def turn_on_HF_aging(process):
@@ -106,34 +114,11 @@ def hf_complete_aging(process):
     if hcaldigi is not None: hcaldigi.HFDarkening = cms.untracked.bool(False)
     return process
 
-def ageEcal(process,lumi):
-
-    instLumi=1.0e34
-    if lumi>=1000:
-        instLumi=5.0e34
-        
+def ageEcal(process,lumi,instLumi):
     if hasattr(process,'g4SimHits'):
         #these lines need to be further activiated by tuning on 'complete' aging for ecal 
         process.g4SimHits.ECalSD.InstLuminosity = cms.double(instLumi)
         process.g4SimHits.ECalSD.DelivLuminosity = cms.double(float(lumi))
-    return process
-
-def customise_aging_300(process):
-
-    process=ageHcal(process,300)
-    process=ageEcal(process,300)
-    return process
-
-def customise_aging_1000(process):
-
-    process=ageHcal(process,1000)
-    process=ageEcal(process,1000)
-    return process
-
-def customise_aging_3000(process):
-
-    process=ageHcal(process,3000)
-    process=ageEcal(process,3000)
     return process
 
 def ecal_complete_aging(process):
@@ -141,4 +126,29 @@ def ecal_complete_aging(process):
         process.g4SimHits.ECalSD.AgeingWithSlopeLY = cms.untracked.bool(True)
     if hasattr(process,'ecal_digi_parameters'):    
         process.ecal_digi_parameters.UseLCcorrection = cms.untracked.bool(False)
+    return process
+
+def customise_aging_300(process):
+    process=ageHcal(process,300,5.0e34,"nominal")
+    process=ageEcal(process,300,5.0e34)
+    return process
+
+def customise_aging_1000(process):
+    process=ageHcal(process,1000,5.0e34,"nominal")
+    process=ageEcal(process,1000,5.0e34)
+    return process
+
+def customise_aging_3000(process):
+    process=ageHcal(process,3000,5.0e34,"nominal")
+    process=ageEcal(process,3000,5.0e34)
+    return process
+
+def customise_aging_3000_ultimate(process):
+    process=ageHcal(process,3000,7.5e34,"ultimate")
+    process=ageEcal(process,3000,7.5e34)
+    return process
+
+def customise_aging_4500_ultimate(process):
+    process=ageHcal(process,4500,7.5e34,"ultimate")
+    process=ageEcal(process,4500,7.5e34)
     return process
