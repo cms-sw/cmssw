@@ -52,7 +52,7 @@ AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet& iConfig){
   countLumi_ = 0;
   beginLumiOfBSFit_ = endLumiOfBSFit_ = -1;
   
-  produces<reco::BeamSpot, edm::InLumi>("alcaBeamSpot");
+  produces<reco::BeamSpot, edm::Transition::EndLuminosityBlock>("alcaBeamSpot");
 }
 
 //--------------------------------------------------------------------------------------------------
