@@ -12,6 +12,11 @@
 
 using namespace HGCalTriggerBackend;
 
+enum clusterType{
+    dRC2d,
+    NNC2d
+};
+
 template<typename FECODEC, typename DATA>
 class HGCClusterAlgo : public Algorithm<FECODEC> 
 {
@@ -35,7 +40,11 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
         clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType")) 
         {
-
+            if(clusteringAlgorithmType_=="dRC2d"){
+                typeAlgo_ = dRC2d;
+            }else if(clusteringAlgorithmType_=="NNC2d"){
+                typeAlgo_ = NNC2d;
+            }
         }
     
         virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
@@ -44,8 +53,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
             prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
         }
-    
-    
+            
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
 
 
@@ -86,6 +94,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         /* algorithm type */
         std::string clusteringAlgorithmType_;
+        clusterType typeAlgo_;
 };
 
 
@@ -124,7 +133,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                     cellThickness = hgchefTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
                 }
                 else if( subdet == HGCHEB ){
-                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgigger cells are not yet implemented";
+                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trigger cells are not yet implemented";
                 }
 
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
@@ -153,10 +162,10 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to C2d clustering */
-    if(clusteringAlgorithmType_=="dRC2d"){
+    switch(typeAlgo_){
+    case dRC2d : 
         clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
-    }
-    else if(clusteringAlgorithmType_=="NNC2d"){
+    case NNC2d:
         clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
     }
 

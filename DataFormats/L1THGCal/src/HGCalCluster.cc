@@ -38,7 +38,7 @@ HGCalCluster::~HGCalCluster()
 void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
 {
     
-    if( triggercells_.size() == 0 ){ 
+    if( triggercells_.empty() ){ 
         seedDetId_ = tc->detId();
         seedMipPt_ = tc->mipPt();
     }
@@ -48,11 +48,15 @@ void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
     Basic3DVector<float> centreVector( centre_ );
 
     centreVector = centreVector*mipPt_ + tcVector*tc->mipPt();
-    centreVector = centreVector / ( mipPt_ + tc->mipPt() ) ;
-
+    if( mipPt_ + tc->mipPt()!=0 ){
+        centreVector = centreVector / ( mipPt_ + tc->mipPt() ) ;
+    }
+    
     centre_ = GlobalPoint( centreVector );
-    centreProj_= GlobalPoint( centreVector / centreVector.z() );
-
+    
+    if( centreVector.z()!=0 ){
+        centreProj_= GlobalPoint( centreVector / centreVector.z() );
+    }
     /* update cluster energies */
     mipPt_ += tc->mipPt();
 
@@ -79,9 +83,7 @@ double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
 uint32_t HGCalCluster::subdetId()  const
 {
 
-    HGCalDetId seedDetId( seedDetId_ );
-    
-    return seedDetId.subdetId();
+    return this->hgcalSeedDetId().subdetId();
 
 }
 
@@ -89,22 +91,17 @@ uint32_t HGCalCluster::subdetId()  const
 uint32_t HGCalCluster::layer() const
 {
     
-    HGCalDetId seedDetId( seedDetId_ );    
-
-    return seedDetId.layer();
+    return this->hgcalSeedDetId().layer();
 
 }
 
 
 int32_t HGCalCluster::zside() const
 {
-    
-    HGCalDetId seedDetId( seedDetId_ );    
-    
-    return seedDetId.zside();
+
+    return this->hgcalSeedDetId().zside();
 
 }
-
 
 
 bool HGCalCluster::operator<(const HGCalCluster& cl) const
