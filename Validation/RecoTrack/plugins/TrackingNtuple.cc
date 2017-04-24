@@ -89,6 +89,8 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
+#include <utility>
 
 #include "TTree.h"
 
@@ -186,6 +188,66 @@ namespace {
       }
     }
   }
+
+
+  /// No-op function used in the trick of CombineDetId::impl2()
+  template <typename ...Args> void call_nop(Args&&... args) {}
+
+  template <typename ...Types>
+  class CombineDetId {
+  public:
+    CombineDetId() {}
+
+    /// Return the raw DetId, assumes that the first type is
+    /// DetIdCommon that has operator[]()
+    unsigned int operator[](size_t i) const {
+      return std::get<0>(content_)[i];
+    }
+
+    template <typename ...Args>
+    void book(Args&&... args) {
+      impl([&](auto& vec) { vec.book(std::forward<Args>(args)...); });
+    }
+
+    template <typename ...Args>
+    void push_back(Args&&... args) {
+      impl([&](auto& vec) { vec.push_back(std::forward<Args>(args)...); });
+    }
+
+    template <typename ...Args>
+    void resize(Args&&... args) {
+      impl([&](auto& vec) { vec.resize(std::forward<Args>(args)...); });
+    }
+
+    template <typename ...Args>
+    void set(Args&&... args) {
+      impl([&](auto& vec) { vec.set(std::forward<Args>(args)...); });
+    }
+
+    void clear() {
+      impl([&](auto& vec) { vec.clear(); });
+    }
+
+  private:
+    // Trick to not repeate std::index_sequence_for in each of the methods above
+    template <typename F>
+    void impl(F&& func) {
+      impl2(std::index_sequence_for<Types...>{}, std::forward<F>(func));
+    }
+
+    // Trick to exploit parameter pack expansion in function call
+    // arguments to call a member function for each tuple element
+    // (with the same signature). The comma operator is needed to
+    // return a value from the expression as an argument for the
+    // call_nop.
+    template <std::size_t ...Is, typename F>
+    void impl2(std::index_sequence<Is...>, F&& func) {
+      call_nop( (func(std::get<Is>(content_)) , 0)...);
+    }
+
+    std::tuple<Types...> content_;
+  };
+
 
   std::map<unsigned int, double>  chargeFraction(const SiPixelCluster& cluster, const DetId& detId,
                                                  const edm::DetSetVector<PixelDigiSimLink>& digiSimLink) {
@@ -471,6 +533,281 @@ private:
   HistoryBase tracer_;
 
   TTree* t;
+
+  // DetId branches
+#define BOOK(name) tree->Branch((prefix+"_"+#name).c_str(), &name);
+  class DetIdCommon {
+  public:
+    DetIdCommon() {};
+
+    unsigned int operator[](size_t i) const {
+      return detId[i];
+    }
+
+    void book(const std::string& prefix, TTree *tree) {
+      BOOK(detId);
+      BOOK(subdet);
+      BOOK(layer);
+      BOOK(side);
+      BOOK(module);
+    }
+
+    void push_back(const TrackerTopology& tTopo, const DetId& id) {
+      detId .push_back(id.rawId()      );
+      subdet.push_back(id.subdetId()   );
+      layer .push_back(tTopo.layer(id) );
+      module.push_back(tTopo.module(id));
+
+      unsigned short s = 0;
+      switch(id.subdetId()) {
+      case StripSubdetector::TIB:
+        s = tTopo.tibSide(id);
+        break;
+      case StripSubdetector::TOB:
+        s = tTopo.tobSide(id);
+        break;
+      default:
+        s = tTopo.side(id);
+      }
+      side.push_back(s);
+    }
+
+    void resize(size_t size) {
+      detId.resize(size);
+      subdet.resize(size);
+      layer.resize(size);
+      side.resize(size);
+      module.resize(size);
+    }
+
+    void set(size_t index, const TrackerTopology& tTopo, const DetId& id) {
+      detId [index] = id.rawId();
+      subdet[index] = id.subdetId();
+      layer [index] = tTopo.layer(id);
+      side  [index] = tTopo.side(id);
+      module[index] = tTopo.module(id);
+    }
+
+    void clear() {
+      detId.clear();
+      subdet.clear();
+      layer.clear();
+      side.clear();
+      module.clear();
+    }
+
+  private:
+    std::vector<unsigned int> detId;
+    std::vector<unsigned short> subdet;
+    std::vector<unsigned short> layer; // or disk/wheel
+    std::vector<unsigned short> side;
+    std::vector<unsigned short> module;
+  };
+
+  class DetIdPixelOnly {
+  public:
+    DetIdPixelOnly() {}
+
+    void book(const std::string& prefix, TTree *tree) {
+      BOOK(ladder);
+      BOOK(blade);
+      BOOK(panel);
+    }
+
+    void push_back(const TrackerTopology& tTopo, const DetId& id) {
+      const bool isBarrel = id.subdetId() == PixelSubdetector::PixelBarrel;
+      ladder.push_back( isBarrel ? tTopo.pxbLadder(id)   : 0 );
+      blade .push_back( isBarrel ? 0                     : tTopo.pxfBlade(id) );
+      panel .push_back( isBarrel ? 0                     : tTopo.pxfPanel(id) );
+    }
+
+    void clear() {
+      ladder.clear();
+      blade.clear();
+      panel.clear();
+    }
+
+  private:
+    std::vector<unsigned short> ladder;
+    std::vector<unsigned short> blade;
+    std::vector<unsigned short> panel;
+  };
+
+  class DetIdOTCommon {
+  public:
+    DetIdOTCommon() {}
+
+    void book(const std::string& prefix, TTree *tree) {
+      BOOK(order);
+      BOOK(ring);
+      BOOK(rod);
+    }
+
+    void push_back(const TrackerTopology& tTopo, const DetId& id) {
+      const auto parsed = parse(tTopo, id);
+      order      .push_back(parsed.order      );
+      ring       .push_back(parsed.ring       );
+      rod        .push_back(parsed.rod        );
+    }
+
+    void resize(size_t size) {
+      order.resize(size);
+      ring.resize(size);
+      rod.resize(size);
+    }
+
+    void set(size_t index, const TrackerTopology& tTopo, const DetId& id)  {
+      const auto parsed = parse(tTopo, id);
+      order      [index] = parsed.order      ;
+      ring       [index] = parsed.ring       ;
+      rod        [index] = parsed.rod        ;
+    }
+
+    void clear() {
+      order.clear();
+      ring.clear();
+      rod.clear();
+    }
+
+  private:
+    struct Parsed {
+      // use int here instead of short to avoid compilation errors due
+      // to narrowing conversion (less boilerplate than explicit static_casts)
+      unsigned int order = 0;
+      unsigned int ring = 0;
+      unsigned int rod = 0;
+    };
+    Parsed parse(const TrackerTopology& tTopo, const DetId& id) const {
+      switch(id.subdetId()) {
+      case StripSubdetector::TIB:
+        return Parsed{tTopo.tibOrder(id), 0, 0};
+      case StripSubdetector::TID:
+        return Parsed{tTopo.tidOrder(id), tTopo.tidRing(id), 0};
+      case StripSubdetector::TOB:
+        return Parsed{0, 0, tTopo.tobRod(id)};
+      case StripSubdetector::TEC:
+        return Parsed{tTopo.tecOrder(id), tTopo.tecRing(id), 0};
+      default:
+        return Parsed{};
+      };
+    }
+
+    std::vector<unsigned short> order;
+    std::vector<unsigned short> ring;
+    std::vector<unsigned short> rod;
+  };
+
+  class DetIdStripOnly {
+  public:
+    DetIdStripOnly() {}
+
+    void book(const std::string& prefix, TTree *tree) {
+      BOOK(string);
+      BOOK(petalNumber);
+      BOOK(isStereo);
+      BOOK(isRPhi);
+      BOOK(isGlued);
+    }
+
+    void push_back(const TrackerTopology& tTopo, const DetId& id) {
+      const auto parsed = parse(tTopo, id);
+      string     .push_back(parsed.string     );
+      petalNumber.push_back(parsed.petalNumber);
+      isStereo   .push_back(tTopo.isStereo(id));
+      isRPhi     .push_back(tTopo.isRPhi(id));
+      isGlued    .push_back(parsed.glued);
+    }
+
+    void resize(size_t size) {
+      string     .resize(size);
+      petalNumber.resize(size);
+      isStereo   .resize(size);
+      isRPhi     .resize(size);
+      isGlued    .resize(size);
+    }
+
+    void set(size_t index, const TrackerTopology& tTopo, const DetId& id) {
+      const auto parsed = parse(tTopo, id);
+      string     [index] = parsed.string     ;
+      petalNumber[index] = parsed.petalNumber;
+      isStereo   [index] = tTopo.isStereo(id);
+      isRPhi     [index] = tTopo.isRPhi(id);
+      isGlued    [index] = parsed.glued;
+    }
+
+    void clear() {
+      string.clear();
+      isStereo.clear();
+      isRPhi.clear();
+      isGlued.clear();
+      petalNumber.clear();
+    }
+
+  private:
+    struct Parsed {
+      // use int here instead of short to avoid compilation errors due
+      // to narrowing conversion (less boilerplate than explicit static_casts)
+      unsigned int string = 0;
+      unsigned int petalNumber = 0;
+      bool glued = false;
+    };
+    Parsed parse(const TrackerTopology& tTopo, const DetId& id) const {
+      switch(id.subdetId()) {
+      case StripSubdetector::TIB:
+        return Parsed{tTopo.tibString(id), 0, tTopo.tibIsDoubleSide(id)};
+      case StripSubdetector::TID:
+        return Parsed{0, 0, tTopo.tidIsDoubleSide(id)};
+      case StripSubdetector::TOB:
+        return Parsed{0, 0, tTopo.tobIsDoubleSide(id)};
+      case StripSubdetector::TEC:
+        return Parsed{0, tTopo.tecPetalNumber(id), tTopo.tecIsDoubleSide(id)};
+      default:
+        return Parsed{};
+      }
+    }
+
+    std::vector<unsigned short> string;
+    std::vector<unsigned short> petalNumber;
+    std::vector<unsigned short> isStereo;
+    std::vector<unsigned short> isRPhi;
+    std::vector<unsigned short> isGlued;
+  };
+
+  class DetIdPhase2OTOnly {
+  public:
+    DetIdPhase2OTOnly() {}
+
+    void book(const std::string& prefix, TTree *tree) {
+      BOOK(isLower);
+      BOOK(isUpper);
+      BOOK(isStack);
+    }
+
+    void push_back(const TrackerTopology& tTopo, const DetId& id) {
+      isLower.push_back(tTopo.isLower(id));
+      isUpper.push_back(tTopo.isUpper(id));
+      isStack.push_back(tTopo.stack(id) == 0); // equivalent to *IsDoubleSide() but without the hardcoded layer+ring requirements
+    }
+
+    void clear() {
+      isLower.clear();
+      isUpper.clear();
+      isStack.clear();
+    }
+
+  private:
+    std::vector<unsigned short> isLower;
+    std::vector<unsigned short> isUpper;
+    std::vector<unsigned short> isStack;
+  };
+#undef BOOK
+
+  using DetIdPixel = CombineDetId<DetIdCommon, DetIdPixelOnly>;
+  using DetIdStrip = CombineDetId<DetIdCommon, DetIdOTCommon, DetIdStripOnly>;
+  using DetIdPhase2OT = CombineDetId<DetIdCommon, DetIdOTCommon, DetIdPhase2OTOnly>;
+  using DetIdAll = CombineDetId<DetIdCommon, DetIdPixelOnly, DetIdOTCommon, DetIdStripOnly>;
+  using DetIdAllPhase2 = CombineDetId<DetIdCommon, DetIdPixelOnly, DetIdOTCommon, DetIdPhase2OTOnly>;
+
   // event
   edm::RunNumber_t ev_run;
   edm::LuminosityBlockNumber_t ev_lumi;
@@ -566,9 +903,7 @@ private:
   // pixel hits
   // (first) index runs through hits
   std::vector<short> pix_isBarrel ;
-  std::vector<unsigned short> pix_det    ;
-  std::vector<unsigned short> pix_lay    ;
-  std::vector<unsigned int> pix_detId    ;
+  DetIdPixel pix_detId;
   std::vector<std::vector<int> > pix_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > pix_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > pix_simHitIdx; // second index runs through SimHits inducing this hit
@@ -589,10 +924,7 @@ private:
   // strip hits
   // (first) index runs through hits
   std::vector<short> str_isBarrel ;
-  std::vector<short> str_isStereo ;
-  std::vector<unsigned short> str_det    ;
-  std::vector<unsigned short> str_lay    ;
-  std::vector<unsigned int> str_detId    ;
+  DetIdStrip str_detId;
   std::vector<std::vector<int> > str_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > str_simHitIdx; // second index runs through SimHits inducing this hit
@@ -613,9 +945,7 @@ private:
   // strip matched hits
   // (first) index runs through hits
   std::vector<short> glu_isBarrel ;
-  std::vector<unsigned int> glu_det      ;
-  std::vector<unsigned int> glu_lay      ;
-  std::vector<unsigned int> glu_detId    ;
+  DetIdStrip glu_detId;
   std::vector<int> glu_monoIdx  ;
   std::vector<int> glu_stereoIdx;
   std::vector<std::vector<int> > glu_seeIdx; // second index runs through seeds containing this hit
@@ -634,9 +964,7 @@ private:
   // phase2 Outer Tracker hits
   // (first) index runs through hits
   std::vector<short> ph2_isBarrel ;
-  std::vector<unsigned short> ph2_det    ;
-  std::vector<unsigned short> ph2_lay    ;
-  std::vector<unsigned int> ph2_detId    ;
+  DetIdPhase2OT ph2_detId;
   std::vector<std::vector<int> > ph2_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > ph2_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > ph2_simHitIdx; // second index runs through SimHits inducing this hit
@@ -658,16 +986,14 @@ private:
   // invalid (missing/inactive/etc) hits
   // (first) index runs through hits
   std::vector<short> inv_isBarrel;
-  std::vector<unsigned short> inv_det;
-  std::vector<unsigned short> inv_lay;
-  std::vector<unsigned int> inv_detId;
+  DetIdAll inv_detId;
+  DetIdAllPhase2 inv_detId_phase2;
   std::vector<unsigned short> inv_type;
   ////////////////////
   // sim hits
   // (first) index runs through hits
-  std::vector<unsigned short> simhit_det;
-  std::vector<unsigned short> simhit_lay;
-  std::vector<unsigned int> simhit_detId;
+  DetIdAll simhit_detId;
+  DetIdAllPhase2 simhit_detId_phase2;
   std::vector<float> simhit_x;
   std::vector<float> simhit_y;
   std::vector<float> simhit_z;
@@ -798,6 +1124,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     }
   }
 
+  if(includeAllHits_) {
+    if(includeStripHits_ && includePhase2OTHits_) {
+      throw cms::Exception("Configuration") << "Both stripDigiSimLink and phase2OTSimLink are set, please set only either one (this information is used to infer if you're running phase0/1 or phase2 detector)";
+    }
+    if(!includeStripHits_ && !includePhase2OTHits_) {
+      throw cms::Exception("Configuration") << "Neither stripDigiSimLink or phase2OTSimLink are set, please set either one.";
+    }
+  }
+
   const bool tpRef = iConfig.getUntrackedParameter<bool>("trackingParticlesRef");
   const auto tpTag = iConfig.getUntrackedParameter<edm::InputTag>("trackingParticles");
   if(tpRef) {
@@ -910,9 +1245,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   if(includeAllHits_) {
     //pixels
     t->Branch("pix_isBarrel"  , &pix_isBarrel );
-    t->Branch("pix_det"       , &pix_det      );
-    t->Branch("pix_lay"       , &pix_lay      );
-    t->Branch("pix_detId"     , &pix_detId    );
+    pix_detId.book("pix", t);
     t->Branch("pix_trkIdx"    , &pix_trkIdx   );
     if(includeSeeds_) {
       t->Branch("pix_seeIdx"    , &pix_seeIdx   );
@@ -935,10 +1268,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     //strips
     if(includeStripHits_){
       t->Branch("str_isBarrel"  , &str_isBarrel );
-      t->Branch("str_isStereo"  , &str_isStereo );
-      t->Branch("str_det"       , &str_det      );
-      t->Branch("str_lay"       , &str_lay      );
-      t->Branch("str_detId"     , &str_detId    );
+      str_detId.book("str", t);
       t->Branch("str_trkIdx"    , &str_trkIdx   );
       if(includeSeeds_) {
         t->Branch("str_seeIdx"    , &str_seeIdx   );
@@ -959,9 +1289,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
       t->Branch("str_bbxi"  , &str_bbxi );
       //matched hits
       t->Branch("glu_isBarrel"  , &glu_isBarrel );
-      t->Branch("glu_det"       , &glu_det      );
-      t->Branch("glu_lay"       , &glu_lay      );
-      t->Branch("glu_detId"     , &glu_detId    );
+      glu_detId.book("glu", t);
       t->Branch("glu_monoIdx"   , &glu_monoIdx  );
       t->Branch("glu_stereoIdx" , &glu_stereoIdx);
       if(includeSeeds_) {
@@ -982,9 +1310,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     //phase2 OT
     if(includePhase2OTHits_){
       t->Branch("ph2_isBarrel"  , &ph2_isBarrel );
-      t->Branch("ph2_det"       , &ph2_det      );
-      t->Branch("ph2_lay"       , &ph2_lay      );
-      t->Branch("ph2_detId"     , &ph2_detId    );
+      ph2_detId.book("ph2", t);
       t->Branch("ph2_trkIdx"    , &ph2_trkIdx   );
       if(includeSeeds_) {
         t->Branch("ph2_seeIdx"    , &ph2_seeIdx   );
@@ -1006,14 +1332,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     }
     //invalid hits
     t->Branch("inv_isBarrel"  , &inv_isBarrel );
-    t->Branch("inv_det"       , &inv_det      );
-    t->Branch("inv_lay"       , &inv_lay      );
-    t->Branch("inv_detId"     , &inv_detId    );
+    if(includeStripHits_)  inv_detId.book("inv", t);
+    else                   inv_detId_phase2.book("inv", t);
     t->Branch("inv_type"      , &inv_type    );
     //simhits
-    t->Branch("simhit_det"     ,  &simhit_det);
-    t->Branch("simhit_lay"    ,  &simhit_lay);
-    t->Branch("simhit_detId"   ,  &simhit_detId);
+    if(includeStripHits_) simhit_detId.book("simhit", t);
+    else                  simhit_detId_phase2.book("simhit", t);
     t->Branch("simhit_x"       ,  &simhit_x);
     t->Branch("simhit_y"       ,  &simhit_y);
     t->Branch("simhit_z"       ,  &simhit_z);
@@ -1203,8 +1527,6 @@ void TrackingNtuple::clearVariables() {
   sim_simHitIdx   .clear();
   //pixels
   pix_isBarrel .clear();
-  pix_det      .clear();
-  pix_lay      .clear();
   pix_detId    .clear();
   pix_trkIdx   .clear();
   pix_seeIdx   .clear();
@@ -1224,9 +1546,6 @@ void TrackingNtuple::clearVariables() {
   pix_bbxi .clear();
   //strips
   str_isBarrel .clear();
-  str_isStereo .clear();
-  str_det      .clear();
-  str_lay      .clear();
   str_detId    .clear();
   str_trkIdx   .clear();
   str_seeIdx   .clear();
@@ -1246,8 +1565,6 @@ void TrackingNtuple::clearVariables() {
   str_bbxi .clear();
   //matched hits
   glu_isBarrel .clear();
-  glu_det      .clear();
-  glu_lay      .clear();
   glu_detId    .clear();
   glu_monoIdx  .clear();
   glu_stereoIdx.clear();
@@ -1265,8 +1582,6 @@ void TrackingNtuple::clearVariables() {
   glu_bbxi     .clear();
   //phase2 OT
   ph2_isBarrel .clear();
-  ph2_det      .clear();
-  ph2_lay      .clear();
   ph2_detId    .clear();
   ph2_trkIdx   .clear();
   ph2_seeIdx   .clear();
@@ -1285,14 +1600,12 @@ void TrackingNtuple::clearVariables() {
   ph2_bbxi .clear();
   //invalid hits
   inv_isBarrel .clear();
-  inv_det      .clear();
-  inv_lay      .clear();
   inv_detId    .clear();
+  inv_detId_phase2.clear();
   inv_type     .clear();
   // simhits
-  simhit_det.clear();
-  simhit_lay.clear();
   simhit_detId.clear();
+  simhit_detId_phase2.clear();
   simhit_x.clear();
   simhit_y.clear();
   simhit_z.clear();
@@ -1745,12 +2058,11 @@ void TrackingNtuple::fillSimHits(const TrackerGeometry& tracker,
     const auto pos = det->surface().toGlobal(simhit.localPosition());
     const float tof = simhit.timeOfFlight();
 
-    const auto simHitIndex = simhit_detId.size();
+    const auto simHitIndex = simhit_x.size();
     simHitRefKeyToIndex[simHitKey] = simHitIndex;
 
-    simhit_det.push_back(detId.subdetId());
-    simhit_lay.push_back(tTopo.layer(detId));
-    simhit_detId.push_back(detId.rawId());
+    if(includeStripHits_) simhit_detId.push_back(tTopo, detId);
+    else                  simhit_detId_phase2.push_back(tTopo, detId);
     simhit_x.push_back(pos.x());
     simhit_y.push_back(pos.y());
     simhit_z.push_back(pos.z());
@@ -1794,9 +2106,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                            clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Pixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
-      pix_det      .push_back( hitId.subdetId() );
-      pix_lay      .push_back( lay );
-      pix_detId    .push_back( hitId.rawId() );
+      pix_detId    .push_back( tTopo, hitId );
       pix_trkIdx   .emplace_back(); // filled in fillTracks
       pix_seeIdx   .emplace_back(); // filled in fillSeeds
       pix_simHitIdx.push_back( simHitData.matchingSimHit );
@@ -1851,9 +2161,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   iEvent.getByToken(stripStereoRecHitToken_, stereoHits);
   int totalStripHits = rphiHits->dataSize()+stereoHits->dataSize();
   str_isBarrel .resize(totalStripHits);
-  str_isStereo .resize(totalStripHits);
-  str_det      .resize(totalStripHits);
-  str_lay      .resize(totalStripHits);
   str_detId    .resize(totalStripHits);
   str_trkIdx   .resize(totalStripHits); // filled in fillTracks
   str_seeIdx   .resize(totalStripHits); // filled in fillSeeds
@@ -1872,7 +2179,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_radL .resize(totalStripHits);
   str_bbxi .resize(totalStripHits);
 
-  auto fill = [&](const SiStripRecHit2DCollection& hits, const char *name, bool isStereo) {
+  auto fill = [&](const SiStripRecHit2DCollection& hits, const char *name) {
     for(const auto& detset: hits) {
       const DetId hitId = detset.detId();
       for(const auto& hit: detset) {
@@ -1885,10 +2192,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
                                              clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Strip);
         str_isBarrel [key] = (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB);
-        str_isStereo [key] = isStereo;
-        str_det      [key] = hitId.subdetId();
-        str_lay      [key] = lay;
-        str_detId    [key] = hitId.rawId();
+        str_detId.set(key, tTopo, hitId);
         str_simHitIdx[key] = simHitData.matchingSimHit;
         str_simType  [key] = static_cast<int>(simHitData.type);
         str_x    [key] = ttrh->globalPosition().x();
@@ -1924,8 +2228,8 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
     }
   };
 
-  fill(*rphiHits, "stripRPhiHit", false);
-  fill(*stereoHits, "stripStereoHit", true);
+  fill(*rphiHits, "stripRPhiHit");
+  fill(*stereoHits, "stripStereoHit");
 }
 
 void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
@@ -1942,9 +2246,7 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
       const int lay = tTopo.layer(hitId);
       monoStereoClusterList.emplace_back(hit->monoHit().cluster().key(),hit->stereoHit().cluster().key());
       glu_isBarrel .push_back( (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB) );
-      glu_det      .push_back( hitId.subdetId() );
-      glu_lay      .push_back( tTopo.layer(hitId) );
-      glu_detId    .push_back( hitId.rawId() );
+      glu_detId    .push_back( tTopo, hitId );
       glu_monoIdx  .push_back( hit->monoHit().cluster().key() );
       glu_stereoIdx.push_back( hit->stereoHit().cluster().key() );
       glu_seeIdx   .emplace_back(); // filled in fillSeeds
@@ -1995,9 +2297,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                            clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT);
 
       ph2_isBarrel .push_back( hitId.subdetId()==1 );
-      ph2_det      .push_back( hitId.subdetId() );
-      ph2_lay      .push_back( lay );
-      ph2_detId    .push_back( hitId.rawId() );
+      ph2_detId    .push_back( tTopo, hitId );
       ph2_trkIdx   .emplace_back(); // filled in fillTracks
       ph2_seeIdx   .emplace_back(); // filled in fillSeeds
       ph2_simHitIdx.push_back( simHitData.matchingSimHit );
@@ -2477,9 +2777,8 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         hitType.push_back( static_cast<int>(HitType::Invalid) );
 
         inv_isBarrel.push_back( hitId.subdetId()==1 );
-        inv_det     .push_back( hitId.subdetId() );
-        inv_lay     .push_back( tTopo.layer(hitId) );
-        inv_detId   .push_back( hitId.rawId() );
+        if(includeStripHits_)  inv_detId.push_back( tTopo, hitId );
+        else                   inv_detId_phase2.push_back( tTopo, hitId );
         inv_type    .push_back( hit->getType() );
 
       }
@@ -2593,7 +2892,7 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
         type = static_cast<HitType>(simhit_hitType[ip->simHitIdx][0]);
       LogTrace("TrackingNtuple") << "simhit=" << ip->simHitIdx << " type=" << static_cast<int>(type);
       hitIdx.push_back(ip->simHitIdx);
-      const auto detid = DetId(simhit_detId[ip->simHitIdx]);
+      const auto detid = DetId(includeStripHits_ ? simhit_detId[ip->simHitIdx] : simhit_detId_phase2[ip->simHitIdx]);
       if(detid.det() != DetId::Tracker) {
         throw cms::Exception("LogicError") << "Encountered SimHit for TP " << tp.key() << " with DetId " << detid.rawId() << " whose det() is not Tracker but " << detid.det();
       }

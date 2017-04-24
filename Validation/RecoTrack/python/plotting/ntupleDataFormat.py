@@ -86,7 +86,66 @@ class _Object(object):
         """Return object index."""
         return self._index
 
-class _HitObject(_Object):
+class _DetIdStrAdaptor(object):
+    """Adaptor class for objects containgin DetId (hits)."""
+    def __init__(self):
+        super(_DetIdStrAdaptor, self).__init__()
+
+    def layerStr(self):
+        """Returns a string describing the layer of the hit."""
+        self._checkIsValid()
+        subdet = getattr(self._tree, self._prefix+"_subdet")[self._index]
+        side = ""
+        if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC]:
+            sideNum = getattr(self._tree, self._prefix+"_side")[self._index]
+            if sideNum == 1:
+                side = "-"
+            elif sideNum == 2:
+                side = "+"
+            else:
+                side = "?"
+        return "%s%d%s" % (SubDet.toString(subdet),
+                           getattr(self._tree, self._prefix+"_layer")[self._index],
+                           side)
+
+    def detIdStr(self):
+        """Returns a string describing the DetId fields."""
+        self._checkIsValid
+        get = lambda name: getattr(self._tree, self._prefix+"_"+name)[self._index]
+        def stereo():
+            if hasattr(self._tree, self._prefix+"_isStereo"):
+                if get("isStereo"):
+                    return " isStereo"
+                if get("isRPhi"):
+                    return " isRPhi"
+                if get("isGlued"):
+                    return " isGlued"
+                return ""
+            else:
+                if get("isLower"):
+                    return " isLower"
+                if get("isUpper"):
+                    return " isUpper"
+                if get("isStack"):
+                    return " isStack"
+                return ""
+
+        subdet = get("subdet")
+        if subdet == SubDet.BPix:
+            return "ladder {} module {}".format(get("ladder"), get("module"))
+        if subdet == SubDet.FPix:
+            return "blade {} panel {} module {}".format(get("blade"), get("panel"), get("module"))
+        if subdet == SubDet.TIB:
+            return "side {} order {} string {} module {}{}".format(get("side"), get("order"), get("string"), get("module"), stereo())
+        if subdet == SubDet.TID:
+            return "ring {} order {} module {}{}".format(get("ring"), get("order"), get("module"), stereo())
+        if subdet == SubDet.TOB:
+            return "side {} rod {} module {}{}".format(get("side"), get("rod"), get("module"), stereo())
+        if subdet == SubDet.TEC:
+            return "order {} petal {} ring {} module {}{}".format(get("order"), get("petalNumber"), get("ring"), get("module"), stereo())
+        raise Exception("Unknown subdet %d" % subdet)
+
+class _HitObject(_Object, _DetIdStrAdaptor):
     """Adaptor class for pixel/strip hit objects."""
     def __init__(self, tree, index, prefix):
         """Constructor.
@@ -227,28 +286,6 @@ class _SimHitMatchAdaptor(object):
         self._checkIsValid()
         for imatch in xrange(self._nMatchedSimHits()):
             yield SimHitMatchInfo(self._tree, self._index, imatch, self._prefix)
-
-class _LayerStrAdaptor(object):
-    """Adaptor class for layerStr() method."""
-    def __init__(self):
-        super(_LayerStrAdaptor, self).__init__()
-
-    def layerStr(self):
-        """Returns a string describing the layer of the hit."""
-        self._checkIsValid()
-        subdet = getattr(self._tree, self._prefix+"_det")[self._index]
-        side = ""
-        if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC]:
-            detid = parseDetId(getattr(self._tree, self._prefix+"_detId")[self._index])
-            if detid.side == 1:
-                side = "-"
-            elif detid.side == 2:
-                side = "+"
-            else:
-                side = "?"
-        return "%s%d%s" % (SubDet.toString(subdet),
-                           getattr(self._tree, self._prefix+"_lay")[self._index],
-                           side)
 
 class _TrackingParticleMatchAdaptor(object):
     """Adaptor class for objects matched to TrackingParticles."""
@@ -642,7 +679,7 @@ class Tracks(_Collection):
         super(Tracks, self).__init__(tree, "trk_pt", Track)
 
 ##########
-class PixelHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
+class PixelHit(_HitObject, _SimHitMatchAdaptor):
     """Class representing a pixel hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -667,7 +704,7 @@ class PixelHits(_Collection):
         super(PixelHits, self).__init__(tree, "pix_isBarrel", PixelHit)
 
 ##########
-class StripHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
+class StripHit(_HitObject, _SimHitMatchAdaptor):
     """Class representing a strip hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -692,7 +729,7 @@ class StripHits(_Collection):
         super(StripHits, self).__init__(tree, "str_isBarrel", StripHit)
 
 ##########
-class GluedHit(_Object, _LayerStrAdaptor):
+class GluedHit(_Object, _DetIdStrAdaptor):
     """Class representing a matched strip hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -741,7 +778,7 @@ class GluedHits(_Collection):
         super(GluedHits, self).__init__(tree, "glu_isBarrel", GluedHit)
 
 ##########
-class InvalidHit(_Object):
+class InvalidHit(_Object, _DetIdStrAdaptor):
     # repeating TrackingRecHit::Type
     Type = _Enum(
         missing = 1,
@@ -766,12 +803,11 @@ class InvalidHit(_Object):
 
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
-        det = self._tree.inv_det[self._index]
         invalid_type = self._tree.inv_type[self._index]
-        return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type.toString(invalid_type))
+        return super(InvalidHit, self).layerStr() + " (%s)"%InvalidHit.Type.toString(invalid_type)
 
 ##########
-class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
+class Phase2OTHit(_HitObject, _SimHitMatchAdaptor):
     """Class representing a phase2 OT hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -864,7 +900,7 @@ class Seeds(_Collection):
         return Seed(self._tree, offset+iseed)
 
 ##########
-class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):
+class SimHit(_Object, _DetIdStrAdaptor, _RecoHitAdaptor):
     """Class representing a SimHit which has not induced a RecHit."""
     def __init__(self, tree, index):
         """Constructor.
