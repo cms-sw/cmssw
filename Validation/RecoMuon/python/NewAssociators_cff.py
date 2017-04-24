@@ -36,7 +36,13 @@ MABH.EfficiencyCut_muon = 0.     # for high pt muons this is a better choice
 MABH.PurityCut_muon = 0.75
 MABH.includeZeroHitMuons = False
 #
+# temporary fix for Phase2
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( MABH, EfficiencyCut_track = 0. )
+phase2_tracker.toModify( MABH, PurityCut_track = 0. )
+#
 MABHhlt = MABH.clone()
+MABHhlt.EfficiencyCut_track = 0. # backup solution as UseGrouped/UseSplitting are always assumed to be true
 MABHhlt.DTrechitTag = 'hltDt1DRecHits'
 MABHhlt.ignoreMissingTrackCollection = True
 ################################################
