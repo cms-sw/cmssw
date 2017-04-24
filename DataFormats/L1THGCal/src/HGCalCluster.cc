@@ -39,7 +39,7 @@ void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
 {
     
     if( triggercells_.empty() ){ 
-        seedDetId_ = tc->detId();
+        seedDetId_ = HGCalDetId(tc->detId());
         seedMipPt_ = tc->mipPt();
     }
 
@@ -83,7 +83,7 @@ double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
 uint32_t HGCalCluster::subdetId()  const
 {
 
-    return this->hgcalSeedDetId().subdetId();
+    return seedDetId_.subdetId();
 
 }
 
@@ -91,7 +91,7 @@ uint32_t HGCalCluster::subdetId()  const
 uint32_t HGCalCluster::layer() const
 {
     
-    return this->hgcalSeedDetId().layer();
+    return seedDetId_.layer();
 
 }
 
@@ -99,7 +99,7 @@ uint32_t HGCalCluster::layer() const
 int32_t HGCalCluster::zside() const
 {
 
-    return this->hgcalSeedDetId().zside();
+    return seedDetId_.zside();
 
 }
 

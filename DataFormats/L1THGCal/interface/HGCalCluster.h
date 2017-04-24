@@ -58,17 +58,13 @@ namespace l1t {
       
       double mipPt()       const { return mipPt_; }
       double seedMipPt()   const { return seedMipPt_; }
-      uint32_t seedDetId() const { return seedDetId_; }
+      uint32_t seedDetId() const { return seedDetId_.rawId(); }
       
       double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
       
       const GlobalPoint& centre() const { return centre_; }
       const GlobalPoint& centreProj() const { return centreProj_; }
 
-      HGCalDetId hgcalSeedDetId() const {  
-          HGCalDetId hgcid( seedDetId_ ); 
-          return hgcid; 
-      }
       uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
       uint32_t layer()     const;
       int32_t zside()      const;
@@ -88,7 +84,7 @@ namespace l1t {
       edm::PtrVector<l1t::HGCalTriggerCell> triggercells_;
         
       /* seed detId */
-      uint32_t seedDetId_;     
+      HGCalDetId seedDetId_;     
       
       /* Centre weighted with energy */
       GlobalPoint centre_;
