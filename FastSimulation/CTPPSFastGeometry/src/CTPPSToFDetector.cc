@@ -47,9 +47,9 @@ void CTPPSToFDetector::AddHit(double x, double y, double tof) {
     if (ToFInfo.find(cellid)==ToFInfo.end()) ToFInfo[cellid]; // add empty cell
     std::vector<double>* tofs = &(ToFInfo.find(cellid)->second);
     int ntof = tofs->size();
-    int i=0;
+    int i=0; double oneOverRes=1.0/fToFResolution;
     for(;i<ntof;i++) {
-        if (fabs(tofs->at(i)-tof)/fToFResolution<3) {
+        if (fabs(tofs->at(i)-tof)*oneOverRes<3) {
             tofs->at(i)=(tofs->at(i)+tof)/2.;
             nADC.at(cellid).at(i)++;
             return;
