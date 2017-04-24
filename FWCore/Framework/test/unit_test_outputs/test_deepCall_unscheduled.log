@@ -552,6 +552,12 @@ ModuleCallingContext state = Running
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 1000030
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
+++++++ starting: end lumi for module: stream = 0 label = 'result4' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'result4' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'result2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'result2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'result1' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'result1' id = 4
 ++++++ starting: end lumi for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
@@ -576,12 +582,6 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000030
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
 
-++++++ starting: end lumi for module: stream = 0 label = 'result1' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'result1' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'result2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'result2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'result4' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'result4' id = 6
 ++++++ starting: end lumi for module: stream = 0 label = 'get' id = 2
 ++++++ finished: end lumi for module: stream = 0 label = 'get' id = 2
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
@@ -622,6 +622,12 @@ ModuleCallingContext state = Running
 ++++++ finished: global end lumi for module: label = 'TriggerResults' id = 1
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
+++++++ starting: end run for module: stream = 0 label = 'result4' id = 6
+++++++ finished: end run for module: stream = 0 label = 'result4' id = 6
+++++++ starting: end run for module: stream = 0 label = 'result2' id = 5
+++++++ finished: end run for module: stream = 0 label = 'result2' id = 5
+++++++ starting: end run for module: stream = 0 label = 'result1' id = 4
+++++++ finished: end run for module: stream = 0 label = 'result1' id = 4
 ++++++ starting: end run for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -646,12 +652,6 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000030
     ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
 
-++++++ starting: end run for module: stream = 0 label = 'result1' id = 4
-++++++ finished: end run for module: stream = 0 label = 'result1' id = 4
-++++++ starting: end run for module: stream = 0 label = 'result2' id = 5
-++++++ finished: end run for module: stream = 0 label = 'result2' id = 5
-++++++ starting: end run for module: stream = 0 label = 'result4' id = 6
-++++++ finished: end run for module: stream = 0 label = 'result4' id = 6
 ++++++ starting: end run for module: stream = 0 label = 'get' id = 2
 ++++++ finished: end run for module: stream = 0 label = 'get' id = 2
 ++++ finished: end run: stream = 0 run = 1 time = 1000030

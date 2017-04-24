@@ -204,7 +204,7 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
@@ -220,7 +220,6 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
     }else if(maxavailableLS==0){
       //this run not existing (yet)
       session->transaction().commit();
-      mydbservice->disconnect(session);
       return;
     }
     if(m_cachesize!=0){
@@ -343,10 +342,8 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 ExpressLumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int luminum){

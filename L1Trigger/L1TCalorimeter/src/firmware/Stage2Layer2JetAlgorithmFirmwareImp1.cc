@@ -456,6 +456,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
       //Check jet is above the calibration threshold, if not do nothing
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::regionEta( jet->hwEta() );
 
@@ -491,6 +492,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::regionEta( jet->hwEta() );
 
@@ -521,6 +523,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
       if(jet->hwPt() < calibThreshold) continue;
+      if(jet->hwPt() >= 0xFFFF) continue;
 
       int etaBin = CaloTools::bin16Eta( jet->hwEta() );
 
