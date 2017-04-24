@@ -90,7 +90,7 @@ GEMCoPadProcessor::run(const GEMPadDigiClusterCollection* in_clusters)
 }
 
 
-std::vector<GEMCoPadDigi>
+const std::vector<GEMCoPadDigi>&
 GEMCoPadProcessor::readoutCoPads()
 {
   return gemCoPadV;

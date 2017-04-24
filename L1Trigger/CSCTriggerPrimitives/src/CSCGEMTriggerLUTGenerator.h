@@ -7,7 +7,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include <vector>
-#include <map>
 
 class CSCGEMTriggerLUTGenerator
 {
@@ -23,7 +22,7 @@ public:
   void generateLUTsME11(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubSector, unsigned theTrigChamber);
   void generateLUTsME21(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubSector, unsigned theTrigChamber);
 
-  int assignGEMRoll(const std::map<int,std::pair<double,double> >&, double eta);
+  int assignGEMRoll(const std::vector<std::pair<double,double> >&, double eta);
   
  private:
   const CSCGeometry* csc_g;

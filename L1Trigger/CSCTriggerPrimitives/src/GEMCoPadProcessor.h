@@ -40,7 +40,7 @@ class GEMCoPadProcessor
   enum {MAX_CoPad_BINS = 3};
 
   /** Returns vector of CoPads in the read-out time window, if any. */
-  std::vector<GEMCoPadDigi> readoutCoPads();
+  const std::vector<GEMCoPadDigi>& readoutCoPads();
 
  private:
   // declusterizes the clusters into single pad digis
