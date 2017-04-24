@@ -67,11 +67,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float theThickness;
     float thePitchX;
     float thePitchY;
-    //float theDetR;
-    //float theDetZ;
-    //float theNumOfRow; //Not used, AH
-    //float theNumOfCol; //Not used, AH
-    //float theSign; //Not used, AH
 
     float bz; // local Bz
     LocalVector driftDirection;
@@ -84,10 +79,13 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 
   struct ClusterParam
   {
-    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0),
-      probabilityX_(0.0), probabilityY_(0.0), probabilityQ_(0.0), qBin_(0.0),
-      isOnEdge_(false), hasBadPixels_(false), spansTwoROCs_(false), hasFilledProb_(false) {}
+    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl){}
+
     const SiPixelCluster * theCluster;
+
+    // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods
+    // with track angles to handle surface deformations (bows/kinks)
+    Topology::LocalTrackPred loc_trk_pred;
 
     //--- Cluster-level quantities (may need more)
     float cotalpha;
@@ -97,22 +95,17 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float trk_lp_x;
     float trk_lp_y;
 
-    // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
-    // with track angles to handle surface deformations (bows/kinks)
-    Topology::LocalTrackPred loc_trk_pred;
-
-    // ggiurgiu@jhu.edu (10/18/2008)
-    bool with_track_angle; 
-
     //--- Probability
     float probabilityX_ ; 
     float probabilityY_ ; 
     float probabilityQ_ ; 
-    float qBin_ ;
+    int qBin_ ;
     bool  isOnEdge_ ;
-    bool  hasBadPixels_ ;
     bool  spansTwoROCs_ ;
-    bool  hasFilledProb_ ;
+    bool  hasBadPixels_ =false;
+    bool  hasFilledProb_ =false;
+    // ggiurgiu@jhu.edu (10/18/2008)
+    bool with_track_angle;
   };
 
 public:
