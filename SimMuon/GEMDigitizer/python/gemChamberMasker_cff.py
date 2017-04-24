@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from RecoLocalMuon.MuonSysAging.GEMChamberMasker_cfi import GEMChamberMasker
+from SimMuon.GEMDigitizer.gemChamberMasker_cfi import gemChamberMasker as _gemChamberMasker
 from SimMuon.GEMDigitizer.muonGEMPadDigis_cfi import simMuonGEMPadDigis
 from SimMuon.GEMDigitizer.muonGEMPadDigiClusters_cfi import simMuonGEMPadDigiClusters
 
@@ -14,7 +14,7 @@ def appendGEMChamberMaskerAtReco(process):
 
         process.simMuonGEMPadDigis = simMuonGEMPadDigis.clone()
         process.simMuonGEMPadDigiClusters = simMuonGEMPadDigiClusters.clone()
-        process.simMuonGEMDigis = GEMChamberMasker.clone()
+        process.simMuonGEMDigis = _gemChamberMasker.clone()
         process.simMuonGEMDigis.digiTag =  cms.InputTag("simMuonGEMDigis", \
                                                         processName = cms.InputTag.skipCurrentProcess())
 

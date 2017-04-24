@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    RecoLocalMuon/MuonSysAging
+// Package:    SimMuon/CSCDigitizer
 // Class:      CSCChamberMasker
 // 
-/**\class CSCChamberMasker CSCChamberMasker.cc RecoLocalMuon/MuonSysAging/plugins/CSCChamberMasker.cc
+/**\class CSCChamberMasker CSCChamberMasker.cc SimMuon/CSCDigitizer/plugins/CSCChamberMasker.cc
 
  Description: Class to mask CSC digis on a chamber by chamber basis
 
@@ -297,7 +297,7 @@ CSCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("rpcDigiTag",        edm::InputTag("simMuonCSCDigis:MuonCSCRPCDigi"));
   desc.add<edm::InputTag>("alctDigiTag",       edm::InputTag("simMuonCSCDigis:MuonCSCALCTDigi"));
   desc.add<edm::InputTag>("clctDigiTag",       edm::InputTag("simMuonCSCDigis:MuonCSCCLCTDigi"));
-  descriptions.addDefault(desc);
+  descriptions.add("cscChamberMasker",desc);
 
 }
 

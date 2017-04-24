@@ -155,7 +155,7 @@ ME0ChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonME0Digis"));
   desc.add<bool>("me0Minus", true);
   desc.add<bool>("me0Plus",  true);
-  descriptions.addDefault(desc);
+  descriptions.add("me0ChamberMasker",desc);
 
 }
 

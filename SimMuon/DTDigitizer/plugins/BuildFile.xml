@@ -1,5 +1,5 @@
 
-<library file="*.cc" name="RecoLocalMuonMuonSysAgingPlugins"> 
+<library file="*.cc" name="SimMuonDTDigitizerPlugins"> 
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
@@ -7,13 +7,9 @@
   <use name="CondFormats/RecoMuonObjects"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/DTDigi"/>
-  <use name="DataFormats/CSCDigi"/>
-  <use name="DataFormats/RPCDigi"/>
   <use name="DataFormats/MuonDetId"/>
   <use name="DataFormats/GeometryVector"/>
   <use name="Geometry/DTGeometry"/>
-  <use name="Geometry/CSCGeometry"/>
-  <use name="Geometry/RPCGeometry"/>
   <use name="Geometry/Records"/>
   <use name="CondFormats/DataRecord"/>
 

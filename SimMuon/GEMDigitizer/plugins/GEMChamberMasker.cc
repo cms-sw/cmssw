@@ -160,7 +160,7 @@ GEMChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("ge21Minus", true);
   desc.add<bool>("ge21Plus",  true);
 
-  descriptions.addDefault(desc);
+  descriptions.add("gemChamberMasker",desc);
 
 }
 

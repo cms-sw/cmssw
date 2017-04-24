@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from RecoLocalMuon.MuonSysAging.DTChamberMasker_cfi import DTChamberMasker
+from SimMuon.DTDigitizer.dtChamberMasker_cfi import dtChamberMasker as _dtChamberMasker
 
 def appendDTChamberMaskerAtUnpacking(process):
 
@@ -10,7 +10,7 @@ def appendDTChamberMaskerAtUnpacking(process):
         sys.stderr.write("[appendDTChamberMasker] : Found muonDTDigis, applying filter\n")
 
         process.preDtDigis = process.muonDTDigis.clone()
-        process.muonDTDigis = DTChamberMasker.clone()
+        process.muonDTDigis = _dtChamberMasker.clone()
 
         process.muonDTDigis.digiTag = cms.InputTag('preDtDigis') 
 
@@ -41,7 +41,7 @@ def appendDTChamberMaskerAtHLT(process):
         sys.stderr.write("[appendDTChamberMasker] : Found hltMuonDTDigis, applying filter\n")
 
         process.preHltDtDigis = process.hltMuonDTDigis.clone()
-        process.hltMuonDTDigis = DTChamberMasker.clone()
+        process.hltMuonDTDigis = _dtChamberMasker.clone()
 
         process.hltMuonDTDigis.digiTag = "preHltDtDigis"
 
@@ -73,7 +73,7 @@ def appendDTChamberMaskerBeforeL1Trigger(process):
 
         sys.stderr.write("[appendDTChamberMasker] : Found simMuonDtTriggerPrimitivesDigis, applying filter\n")
 
-        process.preSimDtTriggerDigis = DTChamberMasker.clone()
+        process.preSimDtTriggerDigis = _dtChamberMasker.clone()
 
         process.simDtTriggerPrimitiveDigis.digiTag = "preSimDtDigis"
 

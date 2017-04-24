@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    RecoLocalMuon/MuonSysAging
+// Package:    SimMuon/DTDigitizer
 // Class:      DTChamberMasker
 // 
-/**\class DTChamberMasker DTChamberMasker.cc RecoLocalMuon/MuonSysAging/plugins/DTChamberMasker.cc
+/**\class DTChamberMasker DTChamberMasker.cc SimMuon/DTDigitizer/plugins/DTChamberMasker.cc
 
  Description: Class to mask DT digis on a chamber by chamber basis
 
@@ -162,7 +162,7 @@ DTChamberMasker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonDTDigis"));
-  descriptions.addDefault(desc);
+  descriptions.add("dtChamberMasker",desc);
 
 }
 

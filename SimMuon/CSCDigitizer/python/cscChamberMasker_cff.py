@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from RecoLocalMuon.MuonSysAging.CSCChamberMasker_cfi import CSCChamberMasker
+from SimMuon.CSCDigitizer.cscChamberMasker_cfi import cscChamberMasker as _cscChamberMasker
 
 def appendCSCChamberMaskerAtUnpacking(process):
 
@@ -10,7 +10,7 @@ def appendCSCChamberMaskerAtUnpacking(process):
         sys.stderr.write("[appendCSCChamberMasker] : Found muonCSCDigis, applying filter\n")
 
         process.preCSCDigis = process.muonCSCDigis.clone()
-        process.muonCSCDigis = CSCChamberMasker.clone()
+        process.muonCSCDigis = _cscChamberMasker.clone()
 
         process.muonCSCDigis.stripDigiTag = cms.InputTag("preCSCDigis", "MuonCSCStripDigi")
         process.muonCSCDigis.wireDigiTag = cms.InputTag("preCSCDigis", "MuonCSCWireDigi") 
@@ -41,7 +41,7 @@ def appendCSCChamberMaskerAtHLT(process):
         sys.stderr.write("[appendCSCChamberMasker] : Found hltMuonCSCDigis, applying filter\n")
 
         process.preHltCSCDigis = process.hltMuonCSCDigis.clone()
-        process.hltMuonCSCDigis = CSCChamberMasker.clone()
+        process.hltMuonCSCDigis = _cscChamberMasker.clone()
 
         process.hltMuonCSCDigis.stripDigiTag = cms.InputTag("preHltCSCDigis", "MuonCSCStripDigi")
         process.hltMuonCSCDigis.wireDigiTag = cms.InputTag("preHltCSCDigis", "MuonCSCWireDigi") 
