@@ -18,9 +18,7 @@ HLTTriggerTypeFilter::HLTTriggerTypeFilter(const edm::ParameterSet& iConfig) :
 {
 }
 
-HLTTriggerTypeFilter::~HLTTriggerTypeFilter()
-{
-}
+HLTTriggerTypeFilter::~HLTTriggerTypeFilter() = default;
 
 void
 HLTTriggerTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

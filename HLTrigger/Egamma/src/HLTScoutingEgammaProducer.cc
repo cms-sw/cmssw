@@ -48,8 +48,7 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
     produces<ScoutingPhotonCollection>();
 }
 
-HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer()
-{ }
+HLTScoutingEgammaProducer::~HLTScoutingEgammaProducer() = default;
 
 // ------------ method called to produce the data  ------------
 void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const

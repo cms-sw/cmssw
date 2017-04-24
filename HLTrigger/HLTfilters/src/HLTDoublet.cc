@@ -68,9 +68,7 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
 }
 
 template<typename T1, typename T2>
-HLTDoublet<T1,T2>::~HLTDoublet()
-{
-}
+HLTDoublet<T1,T2>::~HLTDoublet() = default;
 template<typename T1, typename T2>
 void
 HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

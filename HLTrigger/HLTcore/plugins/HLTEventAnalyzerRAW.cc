@@ -55,9 +55,7 @@ HLTEventAnalyzerRAW::HLTEventAnalyzerRAW(const edm::ParameterSet& ps) :
 
 }
 
-HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW()
-{
-}
+HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW() = default;
 
 //
 // member functions
