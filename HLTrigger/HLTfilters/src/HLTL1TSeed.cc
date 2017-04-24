@@ -29,7 +29,6 @@
 
 using namespace std;
 
-
 // constructors
 HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet) : 
   HLTStreamFilter(parSet),
@@ -519,7 +518,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       if(!algoSeedResult) continue; 
 
       const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
-      const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
+      const std::vector<L1TObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
       const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
 
       LogTrace("HLTL1TSeed")
