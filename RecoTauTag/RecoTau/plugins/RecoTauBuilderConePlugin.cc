@@ -145,18 +145,18 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
   for(const RecoTauPiZero& piZero : piZeros) {
     double photonSumPt_insideSignalCone = 0.;
     double photonSumPt_outsideSignalCone = 0.;
-      int numPhotons = piZero.numberOfDaughters();
-      for(int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
-	const reco::Candidate* photon = piZero.daughter(idxPhoton);
-	double dR = deltaR(photon->p4(), aTau.p4());
-	if(dR < aTau.signalConeSize() ){
-	  photonSumPt_insideSignalCone += photon->pt();
-	  } else {
-	    photonSumPt_outsideSignalCone += photon->pt();
-	  }
-	}
-	if( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*aTau.pt())  ||
-	    photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*aTau.pt()) ) ++nPiZeros;
+    int numPhotons = piZero.numberOfDaughters();
+    for(int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
+      const reco::Candidate* photon = piZero.daughter(idxPhoton);
+      double dR = deltaR(photon->p4(), aTau.p4());
+      if(dR < aTau.signalConeSize() ){
+	photonSumPt_insideSignalCone += photon->pt();
+      } else {
+	photonSumPt_outsideSignalCone += photon->pt();
+      }
+    }
+    if( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*aTau.pt())  ||
+	photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*aTau.pt()) ) ++nPiZeros;
   }
   // Find the maximum number of PiZeros our parameterization can hold
   const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
@@ -174,10 +174,9 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
     dm = PFTau::kNull;
   }
   aTau.setDecayMode(dm);
-  
   return;
 }
-
+  
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
