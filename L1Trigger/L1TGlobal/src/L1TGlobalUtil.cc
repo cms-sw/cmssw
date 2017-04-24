@@ -40,6 +40,9 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(){
     m_numberPhysTriggers = 512; //need to get this out of the EventSetup
     m_PreScaleColumn = 0;
     m_readPrescalesFromFile = false;
+
+    m_prescaleFactorsAlgoTrig = 0ULL;
+    m_triggerMaskAlgoTrig = 0ULL;
 }
 
 l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
@@ -164,13 +167,13 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 
       LogDebug("l1t|Global")<< "Number of bunch crossings stored: " << (*m_triggerMaskAlgoTrig).size() << endl;
 
-      std::map<int, std::vector<int> > triggerAlgoMaskAlgoTrig = *m_triggerMaskAlgoTrig;
-      std::map<int, std::vector<int> >::iterator it=triggerAlgoMaskAlgoTrig.begin();
+      const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
+      std::map<int, std::vector<int> >::const_iterator it=triggerAlgoMaskAlgoTrig->begin();
 
       std::vector<int> maskedBxs;
       (m_masks[algBit]).first  = algName;
       (m_masks[algBit]).second = maskedBxs;
-      while(it != triggerAlgoMaskAlgoTrig.end())
+      while(it != triggerAlgoMaskAlgoTrig->end())
 	{
 	  std::vector<int> masks = it->second;
 	  //std::cout<< "BX: " << it->first<<" VecSize: "<< masks.size();
@@ -243,14 +246,14 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 
 	   LogDebug("l1t|Global") << "Number of bunch crossings stored: " <<  (*m_triggerMaskAlgoTrig).size() << endl;
 
-	   std::map<int, std::vector<int> > triggerAlgoMaskAlgoTrig = *m_triggerMaskAlgoTrig;
-	   std::map<int, std::vector<int> >::iterator it=triggerAlgoMaskAlgoTrig.begin();
+	   const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
+	   std::map<int, std::vector<int> >::const_iterator it=triggerAlgoMaskAlgoTrig->begin();
 
 	   std::vector<int> maskedBxs;
 	   (m_masks[algBit]).first  = algName;
 	   (m_masks[algBit]).second = maskedBxs;
 
-	   while(it != triggerAlgoMaskAlgoTrig.end())
+	   while(it != triggerAlgoMaskAlgoTrig->end())
 	     {
 	       std::vector<int> masks = it->second;
 	       //std::cout<< "BX: " << it->first<<" VecSize: "<< masks.size();
