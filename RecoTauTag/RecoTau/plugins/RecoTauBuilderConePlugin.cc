@@ -129,9 +129,9 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
   int charge = 0;
   int leadCharge = aTau.leadPFChargedHadrCand().isNonnull() ? aTau.leadPFChargedHadrCand()->charge() : 0;
   const std::vector<reco::PFCandidatePtr>& pfChs = aTau.signalPFChargedHadrCands();
-  for(std::vector<reco::PFCandidatePtr>::const_iterator pfCh = pfChs.begin();
-      pfCh != pfChs.end(); ++pfCh)
-    charge += (*pfCh)->charge();
+  for(const reco::PFCandidatePtr& pfCh : pfChs){
+    charge += pfCh->charge();
+  }
   charge = charge==0 ? leadCharge : charge;
   aTau.setCharge(charge);
   
@@ -142,36 +142,39 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
   PFTau::hadronicDecayMode dm = PFTau::kNull; 
   unsigned int nPiZeros = 0;
   const std::vector<RecoTauPiZero>& piZeros = aTau.signalPiZeroCandidates();
-  for(std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
-      piZero != piZeros.end(); ++piZero) {
+  for(const RecoTauPiZero& piZero : piZeros) {
     double photonSumPt_insideSignalCone = 0.;
     double photonSumPt_outsideSignalCone = 0.;
-      int numPhotons = piZero->numberOfDaughters();
-      for(int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
-	const reco::Candidate* photon = piZero->daughter(idxPhoton);
-	double dR = deltaR(photon->p4(), aTau.p4());
-	if(dR < aTau.signalConeSize() ){
-	  photonSumPt_insideSignalCone += photon->pt();
-	  } else {
-	    photonSumPt_outsideSignalCone += photon->pt();
-	  }
-	}
-	if( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*aTau.pt())  ||
-	    photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*aTau.pt()) ) ++nPiZeros;
+    int numPhotons = piZero.numberOfDaughters();
+    for(int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
+      const reco::Candidate* photon = piZero.daughter(idxPhoton);
+      double dR = deltaR(photon->p4(), aTau.p4());
+      if(dR < aTau.signalConeSize() ){
+	photonSumPt_insideSignalCone += photon->pt();
+      } else {
+	photonSumPt_outsideSignalCone += photon->pt();
+      }
     }
-    // Find the maximum number of PiZeros our parameterization can hold
-    const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
-    // Determine our track index
-    unsigned int nCharged = pfChs.size();
+    if( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*aTau.pt())  ||
+	photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*aTau.pt()) ) ++nPiZeros;
+  }
+  // Find the maximum number of PiZeros our parameterization can hold
+  const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
+  // Determine our track index
+  unsigned int nCharged = pfChs.size();
+  if(nCharged>0){
     unsigned int trackIndex = (nCharged - 1)*(maxPiZeros + 1);
     // Check if we handle the given number of tracks
     if(trackIndex >= PFTau::kRareDecayMode) 
       dm = PFTau::kRareDecayMode;    
     else
       dm = static_cast<PFTau::hadronicDecayMode>(trackIndex + std::min(nPiZeros,maxPiZeros) );
-    aTau.setDecayMode(dm);
-    
-    return;
+  }
+  else{
+    dm = PFTau::kNull;
+  }
+  aTau.setDecayMode(dm);
+  return;
 }
 
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
