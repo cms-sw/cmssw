@@ -121,7 +121,7 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row/col")
                    .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row", "EXTEND_X")
-                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_Y")
                    .save(),
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/col")
                    .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
@@ -131,7 +131,7 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
                    .save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row/col")
                    .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_X")
-                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_Y")
                    .save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/col")
                    .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
