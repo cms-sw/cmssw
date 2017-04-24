@@ -6,7 +6,8 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Math"/>
-<use   name="DataFormats/HcalCalibObjects"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/CaloTest"/>
