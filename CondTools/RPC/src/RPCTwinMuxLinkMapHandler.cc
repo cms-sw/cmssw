@@ -1,6 +1,7 @@
 #include "CondTools/RPC/interface/RPCTwinMuxLinkMapHandler.h"
 
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,7 +42,7 @@ void RPCTwinMuxLinkMapHandler::getNewObjects()
     std::string tm_name, link_name;
     int wheel, fed, sector, amc_number, tm_input;
 
-    RPCAMCLinkMap * twinmux_link_map_object = new RPCAMCLinkMap();
+    std::unique_ptr<RPCAMCLinkMap> twinmux_link_map_object(new RPCAMCLinkMap());
     RPCAMCLinkMap::map_type & twinmux_link_map
         = twinmux_link_map_object->getMap();
     RPCLBLink lb_link;
@@ -92,7 +93,7 @@ void RPCTwinMuxLinkMapHandler::getNewObjects()
     }
 
     edm::LogInfo("RPCTwinMuxLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(twinmux_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(twinmux_link_map_object.release(), since_run_));
 }
 
 std::string RPCTwinMuxLinkMapHandler::id() const

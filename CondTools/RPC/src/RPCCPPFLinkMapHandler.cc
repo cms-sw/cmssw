@@ -1,6 +1,7 @@
 #include "CondTools/RPC/interface/RPCCPPFLinkMapHandler.h"
 
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +45,7 @@ void RPCCPPFLinkMapHandler::getNewObjects()
     std::string cppf_name, link_name;
     int side, sector, amc_number, cppf_input;
 
-    RPCAMCLinkMap * cppf_link_map_object = new RPCAMCLinkMap();
+    std::unique_ptr<RPCAMCLinkMap> cppf_link_map_object(new RPCAMCLinkMap());
     RPCAMCLinkMap::map_type & cppf_link_map
         = cppf_link_map_object->getMap();
     RPCLBLink lb_link;
@@ -85,7 +86,7 @@ void RPCCPPFLinkMapHandler::getNewObjects()
     }
 
     edm::LogInfo("RPCCPPFLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(cppf_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(cppf_link_map_object.release(), since_run_));
 }
 
 std::string RPCCPPFLinkMapHandler::id() const
