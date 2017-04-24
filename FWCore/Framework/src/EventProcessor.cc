@@ -1635,7 +1635,14 @@ namespace edm {
     }
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
-      schedule_->processOneGlobal<Traits>(runPrincipal, es);
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+      schedule_->processOneGlobalAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),runPrincipal, es);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
+
       for_all(subProcesses_, [&runPrincipal, &ts](auto& subProcess){ subProcess.doBeginRun(runPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
@@ -1750,7 +1757,13 @@ namespace edm {
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
-      schedule_->processOneGlobal<Traits>(lumiPrincipal, es);
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+      schedule_->processOneGlobalAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),lumiPrincipal, es);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
       for_all(subProcesses_, [&lumiPrincipal, &ts](auto& subProcess){ subProcess.doBeginLuminosityBlock(lumiPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
