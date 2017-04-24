@@ -63,6 +63,7 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.embedPreshowerClusters         = False  ## process.patPhotons.embed in AOD externally stored the photon's preshower clusters
     process.patPhotons.embedRecHits         = False  ## process.patPhotons.embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer
     process.patPhotons.addPFClusterIso = cms.bool(True)
+    process.patPhotons.saveRegressionData = cms.bool(False)
 
     #add puppi isolation in miniAOD
     process.patPhotons.addPuppiIsolation = cms.bool(True)
