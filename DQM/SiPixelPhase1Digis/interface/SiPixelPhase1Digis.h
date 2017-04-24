@@ -22,7 +22,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
     NDIGIS, // number of digis per event and module
     NDIGISINCLUSIVE, //Total number of digis in BPix and FPix
     NDIGIS_FED, // number of digis per event and FED
-//    NDIGIS_FEDtrend, // number of digis per event and FED 
+    NDIGIS_FEDtrend, // number of digis per event and FED 
     EVENT, // event frequency
     MAP, // digi hitmap per module
     OCCUPANCY, // like map but coarser
