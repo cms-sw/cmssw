@@ -277,7 +277,7 @@ namespace l1t {
 
                    // Combination
 		   const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = oMap.operandTokenVector();
-		   const std::vector<ObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
+		   const std::vector<L1TObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
 //		   const std::vector<CombinationsInCond>& condCombinations = oMapcombinationVector();
 		   
 		   for(size_t iCond=0; iCond<opTokenVecObjMap.size(); iCond++) {
