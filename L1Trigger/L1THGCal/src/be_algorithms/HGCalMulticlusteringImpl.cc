@@ -38,7 +38,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
-        for( auto& mclu : multiclustersTmp ){
+        for( const auto& mclu : multiclustersTmp ){
             if( this->isPertinent(**clu, mclu, dr_) ){
                 tcPertinentMulticlusters.push_back(imclu);
             }
@@ -50,7 +50,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         else{
             unsigned minDist = 1;
             unsigned targetMulticlu = 0; 
-            for( auto& imclu : tcPertinentMulticlusters ){
+            for( int imclu : tcPertinentMulticlusters ){
                 double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
                 if( d < minDist ){
                     minDist = d;

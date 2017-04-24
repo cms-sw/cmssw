@@ -12,6 +12,14 @@
 
 class HGCalClusteringImpl{
 
+private:
+    static const unsigned kNSides_{2};
+    // FIXME: currently there is no access to the HGCal DDDConstants
+    // So cannot retrieve the following constants.
+    static const unsigned kLayersEE_{28};
+    static const unsigned kLayersFH_{12};
+    static const unsigned kLayers_{kLayersEE_+kLayersFH_};
+
 public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
@@ -49,7 +57,7 @@ private:
     std::string clusteringAlgorithmType_;
     /* Number of Endcaps = 2, Maximum number of layer in EE + FH = 28 + 12 = 40 */
     void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
-                                 std::array<std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>,40>,2> & reshuffledTriggerCells );
+                                 std::array<std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>, kNSides_> & reshuffledTriggerCells );
 
 
 };
