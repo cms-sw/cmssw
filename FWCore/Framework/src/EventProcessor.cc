@@ -34,6 +34,7 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
+#include "FWCore/Framework/src/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -1637,13 +1638,16 @@ namespace edm {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
-      schedule_->processOneGlobalAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),runPrincipal, es);
+      beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                         *schedule_,
+                                         runPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
       globalWaitTask->wait_for_all();
       if(globalWaitTask->exceptionPtr() != nullptr) {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
-
-      for_all(subProcesses_, [&runPrincipal, &ts](auto& subProcess){ subProcess.doBeginRun(runPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1759,12 +1763,16 @@ namespace edm {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
-      schedule_->processOneGlobalAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),lumiPrincipal, es);
+      beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                         *schedule_,
+                                         lumiPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
       globalWaitTask->wait_for_all();
       if(globalWaitTask->exceptionPtr() != nullptr) {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
-      for_all(subProcesses_, [&lumiPrincipal, &ts](auto& subProcess){ subProcess.doBeginLuminosityBlock(lumiPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
