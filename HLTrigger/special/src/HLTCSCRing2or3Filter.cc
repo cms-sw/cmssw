@@ -22,7 +22,7 @@ HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig) : H
   cscrechitsToken = consumes<CSCRecHit2DCollection>(m_input);
 }
 
-HLTCSCRing2or3Filter::~HLTCSCRing2or3Filter() { }
+HLTCSCRing2or3Filter::~HLTCSCRing2or3Filter() = default;
 
 void
 HLTCSCRing2or3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -44,17 +44,17 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
 
    std::map<int, std::vector<const CSCRecHit2D*> > chamber_tohit;
 
-   for (CSCRecHit2DCollection::const_iterator hit = hits->begin();  hit != hits->end();  ++hit) {
-      CSCDetId id(hit->geographicalId());
+   for (auto const & hit : *hits) {
+      CSCDetId id(hit.geographicalId());
       int chamber_id = CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), 0).rawId();
 
       if (id.ring() == 2  ||  id.ring() == 3) {
 	 std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.find(chamber_id);
 	 if (chamber_iter == chamber_tohit.end()) {
 	    std::vector<const CSCRecHit2D*> newlist;
-	    newlist.push_back(&(*hit));
+	    newlist.push_back(&hit);
 	 }
-	 chamber_tohit[chamber_id].push_back(&(*hit));
+	 chamber_tohit[chamber_id].push_back(&hit);
       } // end if this ring is selected
    } // end loop over hits
 
@@ -70,8 +70,8 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
 	 }
 
 	 unsigned int pairs_in_window = 0;
-	 for (std::vector<const CSCRecHit2D*>::const_iterator hit1 = chamber_iter->second.begin();  hit1 != chamber_iter->second.end();  ++hit1) {
-	    for (std::vector<const CSCRecHit2D*>::const_iterator hit2 = chamber_iter->second.begin();  hit2 != hit1;  ++hit2) {
+	 for (auto hit1 = chamber_iter->second.begin();  hit1 != chamber_iter->second.end();  ++hit1) {
+	    for (auto hit2 = chamber_iter->second.begin();  hit2 != hit1;  ++hit2) {
 	       GlobalPoint pos1 = cscGeometry->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
 	       GlobalPoint pos2 = cscGeometry->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
 

@@ -29,7 +29,7 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFi
   }
 }
 
-HLTHcalNoiseFilter::~HLTHcalNoiseFilter() { }
+HLTHcalNoiseFilter::~HLTHcalNoiseFilter() = default;
 
 void
 HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -81,15 +81,15 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
        TowerContainer.clear();
        JetContainer.clear();
        CaloTower seedTower;
-       for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
-	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) and (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
-	   JetContainer.push_back(*calojetIter);
+       for(auto const & calojetIter : *calojetHandle) {
+	 if( ((calojetIter.et())*cosh(calojetIter.eta()) > JetMinE_) and (calojetIter.energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
+	   JetContainer.push_back(calojetIter);
 	   double maxTowerE = 0.0;
-	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
-	     double dR = deltaR((*calojetIter).eta(),(*calojetIter).phi(),(*kal).eta(),(*kal).phi());
-	     if( (dR < 0.50) and (kal->p() > maxTowerE) ) {
-	       maxTowerE = kal->p();
-	       seedTower = *kal;
+	   for(auto const & kal : *towerHandle) {
+	     double dR = deltaR(calojetIter.eta(),calojetIter.phi(),kal.eta(),kal.phi());
+	     if( (dR < 0.50) and (kal.p() > maxTowerE) ) {
+	       maxTowerE = kal.p();
+	       seedTower = kal;
 	     }
 	   }
 	   TowerContainer.push_back(seedTower);

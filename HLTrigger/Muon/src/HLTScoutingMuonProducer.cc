@@ -42,8 +42,7 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
     produces<ScoutingVertexCollection>("displacedVtx");
 }
 
-HLTScoutingMuonProducer::~HLTScoutingMuonProducer()
-{ }
+HLTScoutingMuonProducer::~HLTScoutingMuonProducer() = default;
 
 // ------------ method called to produce the data  ------------
 void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
@@ -97,17 +96,17 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 	if (vtxProb < minVtxProbCut) continue;
 	
 	// Get the 2 tracks associated to displaced vertex
-	reco::Vertex::trackRef_iterator trackIt =  dispvtx.tracks_begin();
+	auto trackIt =  dispvtx.tracks_begin();
 	reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
 	trackIt++;
 	reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
 	
 	// Get the muons associated with the tracks
 	int iFoundRefs = 0;
-	for (reco::RecoChargedCandidateCollection::const_iterator cand=ChargedCandidateCollection->begin(); cand!=ChargedCandidateCollection->end(); cand++) {
-	  reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-	  if(tkRef == vertextkRef1) {ivtxMuPair.first= (*cand); iFoundRefs++ ;}
-	  if(tkRef == vertextkRef2) {ivtxMuPair.second= (*cand); iFoundRefs++ ;}
+	for (auto const & cand : *ChargedCandidateCollection) {
+	  reco::TrackRef tkRef = cand.get<reco::TrackRef>();
+	  if(tkRef == vertextkRef1) {ivtxMuPair.first= cand; iFoundRefs++ ;}
+	  if(tkRef == vertextkRef2) {ivtxMuPair.second= cand; iFoundRefs++ ;}
 	}
 	if (iFoundRefs<2) continue;
 	vtxMuPair.push_back(ivtxMuPair);

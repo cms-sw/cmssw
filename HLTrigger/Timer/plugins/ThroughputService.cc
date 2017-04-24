@@ -34,9 +34,7 @@ ThroughputService::ThroughputService(const edm::ParameterSet & config, edm::Acti
   registry.watchPostEvent(          this, & ThroughputService::postEvent );
 }
 
-ThroughputService::~ThroughputService()
-{
-}
+ThroughputService::~ThroughputService() = default;
 
 void
 ThroughputService::preallocate(edm::service::SystemBounds const & bounds)

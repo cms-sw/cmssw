@@ -18,9 +18,7 @@ EventHeader::EventHeader() :
   _Debug( false )
 { }
 
-EventHeader::~EventHeader() {
-
-}
+EventHeader::~EventHeader() = default;
 
 /*  Setup the analysis to put the branch-variables into the tree. */
 void EventHeader::setup(edm::ConsumesCollector && iC, TTree* HltTree) {

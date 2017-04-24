@@ -66,9 +66,7 @@ HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iC
 }
 
 template<typename T>
-HLTGlobalSums<T>::~HLTGlobalSums()
-{
-}
+HLTGlobalSums<T>::~HLTGlobalSums() = default;
 
 template<typename T>
 void

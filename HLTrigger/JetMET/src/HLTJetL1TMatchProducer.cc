@@ -31,10 +31,7 @@ void HLTJetL1TMatchProducer<T>::beginJob()
 }
 
 template<typename T>
-HLTJetL1TMatchProducer<T>::~HLTJetL1TMatchProducer()
-{
-
-}
+HLTJetL1TMatchProducer<T>::~HLTJetL1TMatchProducer() = default;
 
 template<typename T>
 void HLTJetL1TMatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

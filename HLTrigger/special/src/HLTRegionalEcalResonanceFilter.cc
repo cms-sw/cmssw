@@ -309,7 +309,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle); 
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_es=0;
+  CaloSubdetectorTopology *topology_es=nullptr;
   if (geometry_es) {
     topology_es  = new EcalPreshowerTopology(geoHandle);
   }else{
@@ -357,51 +357,47 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
     
     
     ///Now save all rechits in the selected clusters
-    for(int i = 0; i < int(indClusSelected.size()); i++){
-      int ind = indClusSelected[i];
-      reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection_eb->begin() + ind; 
+    for(int ind : indClusSelected){
+      auto it_bc3 = clusterCollection_eb->begin() + ind; 
       const std::vector< std::pair<DetId, float> > &vid =  it_bc3->hitsAndFractions(); 
-      for (std::vector<std::pair<DetId,float> >::const_iterator idItr = vid.begin();idItr != vid.end ();++idItr){
-	EcalRecHitCollection::const_iterator hit  = hitCollection_eb->find(idItr->first);
+      for (auto const & idItr : vid){
+	auto hit  = hitCollection_eb->find(idItr.first);
 	if( hit == hitCollection_eb->end()) continue;  //this should not happen.
 	selEBRecHitCollection->push_back(*hit); 
-	selectedEBDetIds.push_back(idItr->first);
+	selectedEBDetIds.push_back(idItr.first);
       }
     }
     
     
     if( store5x5RecHitEB_ ){
       ///stroe 5x5 of good clusters, 5x5 arleady got 
-      for(int i = 0; i < int( indCandClus.size()); i++){
-	int ind = indCandClus[i];
-	vector<EcalRecHit> v5x5 =  RecHits5x5_clus[ind]; 
-	for(int n=0; n< int(v5x5.size()); n++){
-	  DetId ed = v5x5[n].id(); 
-	  std::vector<DetId>::iterator itdet = find(selectedEBDetIds.begin(),selectedEBDetIds.end(),ed); 
+      for(int ind : indCandClus){
+		vector<EcalRecHit> v5x5 =  RecHits5x5_clus[ind]; 
+	for(auto & n : v5x5){
+	  DetId ed = n.id(); 
+	  auto itdet = find(selectedEBDetIds.begin(),selectedEBDetIds.end(),ed); 
 	  if( itdet == selectedEBDetIds.end()){
 	    selectedEBDetIds.push_back(ed); 
-	    selEBRecHitCollection->push_back(v5x5[n]);
+	    selEBRecHitCollection->push_back(n);
 	  }
 	}
       }
       
       
       ///store 5x5 of Iso clusters, need to getWindow of 5x5 
-      for(int i = 0; i < int( indIsoClus.size()); i++){
-	int ind = indIsoClus[i];
-	
-	std::vector<int>::iterator  it = find(indCandClus.begin(),indCandClus.end(), ind);  ///check if already saved in the good cluster vector
+      for(int ind : indIsoClus){
+		auto  it = find(indCandClus.begin(),indCandClus.end(), ind);  ///check if already saved in the good cluster vector
 	if( it != indCandClus.end()) continue; 
 	
-	reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection_eb->begin() + ind;
+	auto it_bc3 = clusterCollection_eb->begin() + ind;
 	DetId seedId = it_bc3->seed();
 	std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seedId,5,5);
 	for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
 	  DetId ed = *idItr;
-	  EcalRecHitCollection::const_iterator rit = hitCollection_eb->find( ed );
+	  auto rit = hitCollection_eb->find( ed );
 	  if ( rit == hitCollection_eb->end() ) continue;
 	  if( ! checkStatusOfEcalRecHit(channelStatus, *rit) ) continue; 
-	  std::vector<DetId>::iterator itdet = find(selectedEBDetIds.begin(),selectedEBDetIds.end(),ed);
+	  auto itdet = find(selectedEBDetIds.begin(),selectedEBDetIds.end(),ed);
 	  if( itdet == selectedEBDetIds.end()){
 	    selectedEBDetIds.push_back(ed);
 	    selEBRecHitCollection->push_back(*rit);
@@ -468,26 +464,25 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
 		 indCandClus,indIsoClus, indClusSelected);
     
     ///Now save all rechits in the selected clusters
-    for(int i = 0; i < int(indClusSelected.size()); i++){
-      int ind = indClusSelected[i];
-      reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection_ee->begin() + ind; 
+    for(int ind : indClusSelected){
+      auto it_bc3 = clusterCollection_ee->begin() + ind; 
       const std::vector< std::pair<DetId, float> > &vid =  it_bc3->hitsAndFractions(); 
-      for (std::vector<std::pair<DetId,float> >::const_iterator idItr = vid.begin();idItr != vid.end ();++idItr){
-	EcalRecHitCollection::const_iterator hit  = hitCollection_ee->find(idItr->first);
+      for (auto const & idItr : vid){
+	auto hit  = hitCollection_ee->find(idItr.first);
 	if( hit == hitCollection_ee->end()) continue;  //this should not happen.
 	selEERecHitCollection->push_back(*hit); 
-	selectedEEDetIds.push_back(idItr->first);
+	selectedEEDetIds.push_back(idItr.first);
       }
       ///save preshower rechits 
       if(storeRecHitES_){
 	std::set<DetId> used_strips_before = m_used_strips;  
 	makeClusterES(it_bc3->x(),it_bc3->y(),it_bc3->z(),geometry_es,topology_es);
-	std::set<DetId>::const_iterator ites = m_used_strips.begin();
+	auto ites = m_used_strips.begin();
 	for(; ites != m_used_strips.end(); ++ ites ){
 	  ESDetId d1 = ESDetId(*ites);
-	  std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
+	  auto ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
 	  if( (ites2 == used_strips_before.end())){
-	    std::map<DetId, EcalRecHit>::iterator itmap = m_esrechit_map.find(d1);
+	    auto itmap = m_esrechit_map.find(d1);
 	    selESRecHitCollection->push_back(itmap->second);
 	  }
 	}
@@ -497,36 +492,33 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
 
     if( store5x5RecHitEE_ ){
       ///store 5x5 of good clusters, 5x5 arleady got 
-      for(int i = 0; i < int( indCandClus.size()); i++){
-	int ind = indCandClus[i];
-	vector<EcalRecHit> v5x5 =  RecHits5x5_clus[ind]; 
-	for(int n=0; n< int(v5x5.size()); n++){
-	  DetId ed = v5x5[n].id(); 
-	  std::vector<DetId>::iterator itdet = find(selectedEEDetIds.begin(),selectedEEDetIds.end(),ed); 
+      for(int ind : indCandClus){
+		vector<EcalRecHit> v5x5 =  RecHits5x5_clus[ind]; 
+	for(auto & n : v5x5){
+	  DetId ed = n.id(); 
+	  auto itdet = find(selectedEEDetIds.begin(),selectedEEDetIds.end(),ed); 
 	  if( itdet == selectedEEDetIds.end()){
 	    selectedEEDetIds.push_back(ed); 
-	    selEERecHitCollection->push_back(v5x5[n]);
+	    selEERecHitCollection->push_back(n);
 	  }
 	}
       }
       
       
       ///store 5x5 of Iso clusters, need to getWindow of 5x5 
-      for(int i = 0; i < int( indIsoClus.size()); i++){
-	int ind = indIsoClus[i];
-	
-	std::vector<int>::iterator  it = find(indCandClus.begin(),indCandClus.end(), ind);  ///check if already saved in the good cluster vector
+      for(int ind : indIsoClus){
+		auto  it = find(indCandClus.begin(),indCandClus.end(), ind);  ///check if already saved in the good cluster vector
 	if( it != indCandClus.end()) continue; 
 	
-	reco::BasicClusterCollection::const_iterator	it_bc3 = clusterCollection_ee->begin() + ind;
+	auto	it_bc3 = clusterCollection_ee->begin() + ind;
 	DetId seedId = it_bc3->seed();
 	std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seedId,5,5);
 	for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
 	  DetId ed = *idItr;
-	  EcalRecHitCollection::const_iterator rit = hitCollection_ee->find( ed );
+	  auto rit = hitCollection_ee->find( ed );
 	  if ( rit == hitCollection_ee->end() ) continue;
 	  if( ! checkStatusOfEcalRecHit(channelStatus, *rit) ) continue; 
-	  std::vector<DetId>::iterator itdet = find(selectedEEDetIds.begin(),selectedEEDetIds.end(),ed);
+	  auto itdet = find(selectedEEDetIds.begin(),selectedEEDetIds.end(),ed);
 	  if( itdet == selectedEEDetIds.end()){
 	    selectedEEDetIds.push_back(ed);
 	    selEERecHitCollection->push_back(*rit);
@@ -584,15 +576,15 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
   
   vector<int> indClusPi0Candidates;  ///those clusters identified as pi0s
   if( detector ==EcalBarrel && removePi0CandidatesForEta_){
-    for( reco::BasicClusterCollection::const_iterator it_bc = clusterCollection->begin(); it_bc != clusterCollection->end();it_bc++){
-      for( reco::BasicClusterCollection::const_iterator it_bc2 = it_bc + 1 ; it_bc2 != clusterCollection->end();it_bc2++){
+    for( auto it_bc = clusterCollection->begin(); it_bc != clusterCollection->end();it_bc++){
+      for( auto it_bc2 = it_bc + 1 ; it_bc2 != clusterCollection->end();it_bc2++){
 	float m_pair,pt_pair,eta_pair, phi_pair; 
 	calcPaircluster(*it_bc,*it_bc2, m_pair, pt_pair,eta_pair,phi_pair); 
 	if(m_pair > massLowPi0Cand_ && m_pair < massHighPi0Cand_){
 	  int indtmp[2]={ int( it_bc - clusterCollection->begin()), int( it_bc2 - clusterCollection->begin())};
-	  for( int k=0;k<2; k++){
-	    std::vector<int>::iterator it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),indtmp[k]);
-	    if( it == indClusPi0Candidates.end()) indClusPi0Candidates.push_back(indtmp[k]);
+	  for(int & k : indtmp){
+	    auto it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),k);
+	    if( it == indClusPi0Candidates.end()) indClusPi0Candidates.push_back(k);
 	  }
 	}
       }
@@ -635,10 +627,10 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
 
   map<int,bool> passShowerShape_clus;  //if this cluster passed showershape cut, so no need to compute the quantity again for each loop
   
-  for( reco::BasicClusterCollection::const_iterator it_bc = clusterCollection->begin(); it_bc != clusterCollection->end();it_bc++){
+  for( auto it_bc = clusterCollection->begin(); it_bc != clusterCollection->end();it_bc++){
     
     if( detector == EcalBarrel && removePi0CandidatesForEta_){
-      std::vector<int>::iterator it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc - clusterCollection->begin()) );
+      auto it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc - clusterCollection->begin()) );
       if( it != indClusPi0Candidates.end()) continue; 
     }
     
@@ -648,16 +640,16 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
     float pt1 = v1.Rho();   // Rho is equivalent to Pt when using XYZVector  
  
     int ind1 = int( it_bc - clusterCollection->begin() );
-    std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind1);
+    auto  itmap = passShowerShape_clus.find(ind1);
     if( itmap != passShowerShape_clus.end()){
       if( itmap->second == false){
 	continue; 
       }
     }
     
-    for( reco::BasicClusterCollection::const_iterator it_bc2 = it_bc + 1 ; it_bc2 != clusterCollection->end();it_bc2++){
+    for( auto it_bc2 = it_bc + 1 ; it_bc2 != clusterCollection->end();it_bc2++){
       if( detector ==EcalBarrel && removePi0CandidatesForEta_){
-	std::vector<int>::iterator it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc2 - clusterCollection->begin()) );
+	auto it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc2 - clusterCollection->begin()) );
 	if( it != indClusPi0Candidates.end()) continue; 
       }
 
@@ -667,7 +659,7 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
       float pt2 = v2.Rho();   // Rho is equivalent to Pt when using XYZVector         
       
       int ind2 = int( it_bc2 - clusterCollection->begin() );
-      std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind2);
+      auto  itmap = passShowerShape_clus.find(ind2);
       if( itmap != passShowerShape_clus.end()){
 	if( itmap->second == false){
 	  continue; 
@@ -719,7 +711,7 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
       IsoClus.push_back(ind2); 
       
       float Iso = 0;
-      for( reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection->begin(); it_bc3 != clusterCollection->end();it_bc3++){
+      for( auto it_bc3 = clusterCollection->begin(); it_bc3 != clusterCollection->end();it_bc3++){
 	if( it_bc3->seed() == it_bc->seed() || it_bc3->seed() == it_bc2->seed()) continue; 
 	float drcl = GetDeltaR(eta_pair,it_bc3->eta(),phi_pair,it_bc3->phi()); 
 	float dretacl = fabs( eta_pair - it_bc3->eta()); 
@@ -772,8 +764,8 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
       bool failShowerShape = false;
       for(int n=0; n<2; n++){
 	int ind = IsoClus[n];
-	reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection->begin() + ind; 
-	std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind);
+	auto it_bc3 = clusterCollection->begin() + ind; 
+	auto  itmap = passShowerShape_clus.find(ind);
 	
 	if( itmap != passShowerShape_clus.end()){ // if we havent reached the end
 	  if( itmap->second == false){
@@ -841,17 +833,17 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
 	int ind = IsoClus[iii];
 	
 	if( iii < 2){
-	  std::vector<int>::iterator it = find(indCandClus.begin(),indCandClus.end(), ind);  ///good cluster 
+	  auto it = find(indCandClus.begin(),indCandClus.end(), ind);  ///good cluster 
 	  if( it == indCandClus.end()) indCandClus.push_back(ind);
 	  else continue; 
 	}
 	else{
-	  std::vector<int>::iterator it = find(indIsoClus.begin(),indIsoClus.end(), ind);  //iso cluster 
+	  auto it = find(indIsoClus.begin(),indIsoClus.end(), ind);  //iso cluster 
 	  if( it == indIsoClus.end()) indIsoClus.push_back(ind);
 	  else continue; 
 	}
 	
-	std::vector<int>::iterator it = find(indClusSelected.begin(),indClusSelected.end(),ind); 
+	auto it = find(indClusSelected.begin(),indClusSelected.end(),ind); 
 	if( it != indClusSelected.end()) continue; 
 	indClusSelected.push_back(ind);
       }      
@@ -954,14 +946,14 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
 	dx = x-seedx;
 	dy = y-seedy; 
       }
-      EcalRecHitCollection::const_iterator rit = recHits->find( ed );
+      auto rit = recHits->find( ed );
       if ( rit == recHits->end() ) continue; 
       if( ! checkStatusOfEcalRecHit(channelStatus, *rit) ) continue; 
       
       float energy = (*rit).energy();
       e5x5 += energy; 
       
-      std::vector<std::pair<DetId,float> >::const_iterator idItrF = std::find( vid.begin(),vid.end(), std::make_pair(ed,1.0f));  ///has to add "f", make it float 
+      auto idItrF = std::find( vid.begin(),vid.end(), std::make_pair(ed,1.0f));  ///has to add "f", make it float 
       if( idItrF == vid.end()){ ///only store those not belonging to this cluster
 	rechit5x5.push_back(*rit);
       }else{ /// S4, S9 are defined inside the cluster, the same as below. 
@@ -978,8 +970,8 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
     
   }else{
     
-    for (std::vector<std::pair<DetId,float> >::const_iterator idItr = vid.begin();idItr != vid.end ();++idItr){
-      DetId ed = idItr->first; 
+    for (auto const & idItr : vid){
+      DetId ed = idItr.first; 
       if( InBarrel == true){
 	EBDetId ebd = EBDetId(ed); 
 	x = ebd.ieta();
@@ -994,7 +986,7 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
 	dx = x-seedx;
 	dy = y-seedy; 
       }
-      EcalRecHitCollection::const_iterator rit = recHits->find( ed );
+      auto rit = recHits->find( ed );
       if ( rit == recHits->end() ) {
 	continue; 
       }
