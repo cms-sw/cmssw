@@ -43,15 +43,14 @@ class CTPPSFastRecHit {
         unsigned int cellId() const {return theCellId;}
 
         void setTof(float tof) {theTof=tof;}
-	
-	void setLocal3DPoint(const Local3DPoint& entry){theEntryPoint = entry;}
-	
-	void setDetUnitId(unsigned int detId){theDetUnitId = detId;}
+
+        void setLocal3DPoint(const Local3DPoint& entry){theEntryPoint = entry;}
+
+        void setDetUnitId(unsigned int detId){theDetUnitId = detId;}
 
 	void setCellId(unsigned int cellId){theCellId = cellId;}
 
 
-		
     protected: 
         // properties
         Local3DPoint theEntryPoint; // position at entry
