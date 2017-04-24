@@ -702,9 +702,7 @@ std::unique_ptr<HcalDcsValues> HcalHardcodeCalibrations::produceDcsValues (const
 std::unique_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
 
-  auto result = std::make_unique<HcalDcsMap>();
-  dbHardcode.makeHardcodeDcsMap(*result);
-  return result;
+  return dbHardcode.makeHardcodeDcsMap();
 }
 
 std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (const HcalRecoParamsRcd& rec) {

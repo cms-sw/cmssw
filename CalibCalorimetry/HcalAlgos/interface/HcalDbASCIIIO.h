@@ -97,7 +97,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
   bool getObject (std::istream& fInput, HcalDcsValues* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
-  bool getObject (std::istream& fInput, HcalDcsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject);
 
   bool getObject (std::istream& fInput, HcalRecoParams* fObject);
