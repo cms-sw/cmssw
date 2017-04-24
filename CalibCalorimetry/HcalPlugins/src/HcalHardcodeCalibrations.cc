@@ -13,6 +13,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -123,7 +124,7 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
-	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
+	hb_recalibration(nullptr), he_recalibration(nullptr), hf_recalibration(nullptr), setHEdsegm(false), setHBdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -149,17 +150,32 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
-  // HE and HF recalibration preparation
+  // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
+    bool hb_recalib = iConfig.getParameter<bool>("HBRecalibration");
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
-    if(he_recalib) {
-      double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
-      he_recalibration = new HERecalibration(iLumi,cutoff);
+    if(hb_recalib) {
+      hb_recalibration.reset(
+        new HBHERecalibration(
+          iLumi,
+          iConfig.getParameter<double>("HBreCalibCutoff"),
+          iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()
+        )
+      );
     }
-    if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
+    if(he_recalib) {
+      he_recalibration.reset(
+        new HBHERecalibration(
+          iLumi,
+          iConfig.getParameter<double>("HEreCalibCutoff"),
+          iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()
+        )
+      );
+    }
+    if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration.reset(new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
     
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
@@ -290,8 +306,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 
 HcalHardcodeCalibrations::~HcalHardcodeCalibrations()
 {
-  if (he_recalibration != 0 ) delete he_recalibration;
-  if (hf_recalibration != 0 ) delete hf_recalibration;
 }
 
 //
@@ -430,8 +444,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
   const HcalTopology* topo=&(*htopo);
  
   //set depth segmentation for HB/HE recalib - only happens once
-//  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
-  if((he_recalibration && !setHEdsegm)) {
+  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
     std::vector<std::vector<int>> m_segmentation;
     int maxEta = topo->lastHERing();
     m_segmentation.resize(maxEta);
@@ -439,15 +452,17 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       topo->getDepthSegmentation(i+1,m_segmentation[i]);
     }
     if(he_recalibration && !setHEdsegm){
-      he_recalibration->setDsegm(m_segmentation);
+      edm::ESHandle<HBHEDarkening> hdark;
+      rcd.getRecord<HBHEDarkeningRecord>().get("HE",hdark);
+      he_recalibration->setup(m_segmentation,&*hdark);
       setHEdsegm = true;
     }
-    /*
     if(hb_recalibration && !setHBdsegm){
-      hb_recalibration->setDsegm(m_segmentation);
+      edm::ESHandle<HBHEDarkening> hdark;
+      rcd.getRecord<HBHEDarkeningRecord>().get("HB",hdark);
+      hb_recalibration->setup(m_segmentation,&*hdark);
       setHBdsegm = true;
     }
-    */
   }
  
   auto result = std::make_unique<HcalRespCorrs>(topo);
@@ -469,7 +484,15 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       corr = 0.5/1.2;
     }
 
-    if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
+    if ((hb_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) {
+      int depth_ = HcalDetId(cell).depth();
+      int ieta_  = HcalDetId(cell).ieta();
+      corr *= hb_recalibration->getCorr(ieta_, depth_); 
+#ifdef DebugLog      
+      std::cout << "HB ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
+    }
+    else if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr *= he_recalibration->getCorr(ieta_, depth_); 
@@ -828,7 +851,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
   auto result = std::make_unique<HcalSiPMParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo);
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo,iLumi);
     result->addValues(item);
   }
   return result;
@@ -869,8 +892,12 @@ std::unique_ptr<HcalTPParameters> HcalHardcodeCalibrations::produceTPParameters 
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
+	desc.add<bool>("HBRecalibration",false);
+	desc.add<double>("HBreCalibCutoff",20.);
+	desc.add<edm::FileInPath>("HBmeanenergies",edm::FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHB.txt"));
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
+	desc.add<edm::FileInPath>("HEmeanenergies",edm::FileInPath("CalibCalorimetry/HcalPlugins/data/meanenergiesHE.txt"));
 	desc.add<bool>("HFRecalibration",false);
 	desc.add<bool>("GainWidthsForTrigPrims",false);
 	desc.add<bool>("useHBUpgrade",false);
@@ -883,7 +910,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useLayer0Weight",false);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
-	
+
 	edm::ParameterSetDescription desc_hb;
 	desc_hb.add<std::vector<double>>("gain", std::vector<double>({0.19}));
 	desc_hb.add<std::vector<double>>("gainWidth", std::vector<double>({0.0}));
@@ -896,7 +923,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<int>("recoShape",105);
 	desc_hb.add<double>("photoelectronsToAnalog",0.0);
 	desc_hb.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hb.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
+
+	edm::ParameterSetDescription desc_hbRaddam;
+	desc_hbRaddam.add<double>("temperatureBase",20.0);
+	desc_hbRaddam.add<double>("temperatureNew",-5.0);
+	desc_hbRaddam.add<double>("intlumiOffset",150);
+	desc_hbRaddam.add<double>("depVsTemp",0.0631);
+	desc_hbRaddam.add<double>("intlumiToNeutrons",3.67e8);
+	desc_hbRaddam.add<std::vector<double>>("depVsNeutrons",{5.69e-11,7.90e-11});
 
 	edm::ParameterSetDescription desc_hbUpgrade;
 	desc_hbUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
@@ -910,6 +946,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<int>("recoShape",203);
 	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+	desc_hbUpgrade.add<bool>("doRadiationDamage", true);
+	desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -924,7 +962,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<int>("recoShape",105);
 	desc_he.add<double>("photoelectronsToAnalog",0.0);
 	desc_he.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_he.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
+
+	edm::ParameterSetDescription desc_heRaddam;
+	desc_heRaddam.add<double>("temperatureBase",20.0);
+	desc_heRaddam.add<double>("temperatureNew",5.0);
+	desc_heRaddam.add<double>("intlumiOffset",75);
+	desc_heRaddam.add<double>("depVsTemp",0.0631);
+	desc_heRaddam.add<double>("intlumiToNeutrons",2.92e8);
+	desc_heRaddam.add<std::vector<double>>("depVsNeutrons",{5.69e-11,7.90e-11});
 
 	edm::ParameterSetDescription desc_heUpgrade;
 	desc_heUpgrade.add<std::vector<double>>("gain", std::vector<double>({0.00111111111111}));
@@ -938,6 +985,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<int>("recoShape",203);
 	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+	desc_heUpgrade.add<bool>("doRadiationDamage", true);
+	desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -952,6 +1001,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<int>("recoShape",301);
 	desc_hf.add<double>("photoelectronsToAnalog",0.0);
 	desc_hf.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hf.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -966,6 +1016,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<int>("recoShape",301);
 	desc_hfUpgrade.add<double>("photoelectronsToAnalog",0.0);
 	desc_hfUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_hfUpgrade.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
 	edm::ParameterSetDescription desc_hfrecal;
@@ -987,6 +1038,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<int>("recoShape",201);
 	desc_ho.add<double>("photoelectronsToAnalog",4.0);
 	desc_ho.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
+	desc_ho.add<bool>("doRadiationDamage", false);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	edm::ParameterSetDescription validator_sipm;

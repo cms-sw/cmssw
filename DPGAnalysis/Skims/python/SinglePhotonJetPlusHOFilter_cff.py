@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 SinglePhotonJetPlusHOFilterSkim = cms.EDFilter("SinglePhotonJetPlusHOFilter",
     Photons = cms.InputTag("photons"),
-    PFJets = cms.InputTag("ak4PFJets","","RECO"),
-    particleFlowClusterHO = cms.InputTag("particleFlowClusterHO","","RECO"),
+    PFJets = cms.InputTag("ak4PFJets"),
+    particleFlowClusterHO = cms.InputTag("particleFlowClusterHO"),
     Ptcut = cms.untracked.double(90.0), 
     Etacut = cms.untracked.double(1.5),
     HOcut = cms.untracked.double(5.0), 

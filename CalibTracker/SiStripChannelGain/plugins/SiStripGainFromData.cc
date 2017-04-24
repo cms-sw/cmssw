@@ -66,16 +66,13 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 
 
 using namespace edm;
 using namespace reco;
 using namespace std;
-using namespace __gnu_cxx;
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash;
 
 
 struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain; char Side;};
@@ -284,7 +281,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       };
 
       std::vector<stAPVGain*> APVsCollOrdered;
-      __gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual > APVsColl;
+      std::unordered_map<unsigned int, stAPVGain*> APVsColl;
 };
 
 SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
@@ -643,7 +640,7 @@ SiStripGainFromData::algoEndJob() {
       TH1D* Proj = NULL;
       double* FitResults = new double[5];
       I=0;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
          if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());
          I++;
          stAPVGain* APV = it->second;
@@ -670,7 +667,7 @@ SiStripGainFromData::algoEndJob() {
 	    }
          }else if(CalibrationLevel>1){
 //	     printf("%8i %i--> %4.0f + %4.0f\n",APV->DetId, APV->APVId, 0.0, Proj->GetEntries());
-             for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it2 = APVsColl.begin();it2!=APVsColl.end();it2++){
+             for(auto it2 = APVsColl.begin();it2!=APVsColl.end();it2++){
                 stAPVGain* APV2 = it2->second;
              
                 if(APV2->DetId != APV->DetId)continue;
@@ -766,7 +763,7 @@ SiStripGainFromData::algoEndJob() {
       unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
       MPVmean = 300;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
 
          stAPVGain*   APV = it->second;
          if(APV->MPV>0){

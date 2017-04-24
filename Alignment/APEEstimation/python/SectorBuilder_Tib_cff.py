@@ -109,7 +109,7 @@ TibLayer1Rphi = TibLayer1.clone(
 )
 TibLayer1Stereo = TibLayer1.clone(
     name = 'TibLayer1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TibLayer2Rphi = TibLayer2.clone(
     name = 'TibLayer2Rphi',
@@ -117,7 +117,7 @@ TibLayer2Rphi = TibLayer2.clone(
 )
 TibLayer2Stereo = TibLayer2.clone(
     name = 'TibLayer2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 
 TIBLayerSeparation = cms.VPSet(
