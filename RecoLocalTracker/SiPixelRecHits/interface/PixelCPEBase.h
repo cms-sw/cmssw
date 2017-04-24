@@ -69,6 +69,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float thePitchY;
 
     float bz; // local Bz
+    float bx; // local Bx                                                                                             
     LocalVector driftDirection;
     float widthLAFractionX;    // Width-LA to Offset-LA in X
     float widthLAFractionY;    // same in Y
@@ -79,6 +80,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 
   struct ClusterParam
   {
+    virtual ~ClusterParam() = default;
     ClusterParam(const SiPixelCluster & cl) : theCluster(&cl){}
 
     const SiPixelCluster * theCluster;
