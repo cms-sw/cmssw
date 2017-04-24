@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cfi import RPCChamberMasker
+from SimMuon.RPCDigitizer.rpcChamberMasker_cfi import rpcChamberMasker as _rpcChamberMasker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
 def appendRPCChamberMaskerAtReco(process):
@@ -23,8 +23,10 @@ def appendRPCChamberMaskerBeforeRecHits(process):
 
         sys.stderr.write("[appendRPCChamberMasker] : Found rpcRecHits, applying filter\n")
 
+        process.rpcAgedDigis = _rpcChamberMasker.clone()
+        process.rpcAgedDigis.digiTag = cms.InputTag('simMuonRPCDigis')
+
         process.rpcRecHits = process.rpcRecHits.clone()
-        process.rpcAgedDigis = RPCChamberMasker.clone()
         process.rpcRecHits.rpcDigiLabel = cms.InputTag('rpcAgedDigis')
 
         process.filteredRpcDigiSequence = cms.Sequence(process.rpcAgedDigis \
@@ -55,7 +57,7 @@ def appendRPCChamberMaskerAtUnpacking(process):
         sys.stderr.write("[appendRPCChamberMasker] : Found muonRPCDigis, applying filter\n")
 
         process.preRPCDigis = process.muonRPCDigis.clone()
-        process.muonRPCDigis = RPCChamberMasker.clone()
+        process.muonRPCDigis = _rpcChamberMasker.clone()
 
         if hasattr(process,"RandomNumberGeneratorService") :
             process.RandomNumberGeneratorService.muonRPCDigis = cms.PSet(

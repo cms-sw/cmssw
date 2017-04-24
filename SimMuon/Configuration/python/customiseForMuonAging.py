@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalMuon.MuonSysAging.DTChamberMasker_cff  import *
-from RecoLocalMuon.MuonSysAging.RPCChamberMasker_cff import *
-from RecoLocalMuon.MuonSysAging.CSCChamberMasker_cff import *
-from RecoLocalMuon.MuonSysAging.GEMChamberMasker_cff import *
-from RecoLocalMuon.MuonSysAging.ME0ChamberMasker_cff import *
+from SimMuon.DTDigitizer.dtChamberMasker_cff  import *
+from SimMuon.RPCDigitizer.rpcChamberMasker_cff import *
+from SimMuon.CSCDigitizer.cscChamberMasker_cff import *
+from SimMuon.GEMDigitizer.gemChamberMasker_cff import *
+from SimMuon.GEMDigitizer.me0ChamberMasker_cff import *
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
