@@ -27,7 +27,36 @@ $Revision: 1.1 $
 // 
 class HcalDcsMap {
  public:
-  HcalDcsMap();
+
+  class Item { 
+   public:
+    Item () {mId = mDcsId = 0;}
+    Item (uint32_t fId, uint32_t fDcsId) 
+      : mId (fId), mDcsId (fDcsId) {}
+    uint32_t mId;
+    uint32_t mDcsId;
+  
+   COND_SERIALIZABLE;
+  };
+
+  class Helper {
+   public:
+    Helper();
+    // map channels
+    // DCS type is a part of DcsDetId but it does not make sense to keep
+    // duplicate records in the map for DCS channels where only type is different.
+    // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
+    // inside this method
+    bool mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId);
+
+    std::vector<Item> mItems;
+    std::vector<const Item*> mItemsByDcsId;
+
+   COND_TRANSIENT;
+  };
+
+  HcalDcsMap() {}
+  HcalDcsMap(const Helper& helper);
   ~HcalDcsMap();
   
   // swap function
@@ -65,29 +94,6 @@ class HcalDcsMap {
   // to extract proper HcalDcsDetId from the map
   const std::vector<HcalDcsDetId> lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const;
 
-  // map channels
-  // DCS type is a part of DcsDetId but it does not make sense to keep
-  // duplicate records in the map for DCS channels where only type is different.
-  // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
-  // inside this method
-  bool mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId);
-
-  // sorting
-  void sortById () const;
-  void sortByDcsId () const;
-  void sort() {}
-
-  class Item { 
-  public:
-    Item () {mId = mDcsId = 0;}
-    Item (uint32_t fId, uint32_t fDcsId) 
-      : mId (fId), mDcsId (fDcsId) {}
-    uint32_t mId;
-    uint32_t mDcsId;
-  
-  COND_SERIALIZABLE;
-};
-
   class const_iterator{
   public:
     friend class HcalDcsMap;
@@ -109,27 +115,52 @@ class HcalDcsMap {
   const_iterator endById(void) const;
   const_iterator endByDcsId(void) const;
 
+  void initialize();
+
+  template <class Less>
+  static const std::vector<const Item *> findByIdT (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByIdT){
+    Item target (fId, 0);
+    std::vector<const HcalDcsMap::Item *> result;
+
+    Less lessByIdT;
+    auto item = std::lower_bound (itemsByIdT.begin(), itemsByIdT.end(), &target, lessByIdT);
+    if (item == itemsByIdT.end() || (*item)->mId != fId){
+      //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fId;
+      return result;
+    }
+    else{
+      if(item != itemsByIdT.end() && !lessByIdT(&target, *item)){
+        result.push_back( *item );
+        ++item;
+      }
+    }
+    return result;
+  }
+  static const std::vector<const Item *> findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById);
+  static const std::vector<const Item *> findByDcsId (unsigned long fDcsId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId);
+
+  //sorting
+  template <class Less>
+  static void sortByIdT(const std::vector<Item>& items, std::vector<const Item*>& itemsByIdT){
+    itemsByIdT.clear();
+    itemsByIdT.reserve(items.size());
+    for(const auto& i : items){
+      if (i.mDcsId) itemsByIdT.push_back(&i);
+    }
+    std::sort (itemsByIdT.begin(), itemsByIdT.end(), Less());
+  }
+  static void sortById(const std::vector<Item>& items, std::vector<const Item*>& itemsById);
+  static void sortByDcsId(const std::vector<Item>& items, std::vector<const Item*>& itemsByDcsId);
+
  protected:
-  const std::vector<const Item *> findById (unsigned long fId) const;
-  const std::vector<const Item *> findByDcsId (unsigned long fDcsId) const;
-  
   // these are inspired by the emap. Not clear if they are needed
   // for this DCS map at all since it's many-to-many map
   std::vector <HcalDcsDetId> allHcalDcsDetId () const;
   std::vector <HcalGenericDetId> allHcalDetId () const;
 
   std::vector<Item> mItems;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<std::vector<const Item*>*> mItemsById COND_TRANSIENT;
-  mutable std::atomic<std::vector<const Item*>*> mItemsByDcsId COND_TRANSIENT;
-  const std::vector<const Item*>* getItemsById(void){return mItemsById.load(std::memory_order_acquire);}
-  const std::vector<const Item*>* getItemsByDcsId(void){return mItemsByDcsId.load(std::memory_order_acquire);}
-#else
-  mutable std::vector<const Item*> mItemsById COND_TRANSIENT;
-  mutable std::vector<const Item*> mItemsByDcsId COND_TRANSIENT;
-  const std::vector<const Item*>* getItemsById(void){return &mItemsById;}
-  const std::vector<const Item*>* getItemsByDcsId(void){return &mItemsByDcsId;}
-#endif
+  std::vector<const Item*> mItemsById COND_TRANSIENT;
+  std::vector<const Item*> mItemsByDcsId COND_TRANSIENT;
 
  COND_SERIALIZABLE;
 };

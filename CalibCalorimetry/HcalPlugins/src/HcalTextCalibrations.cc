@@ -317,7 +317,7 @@ std::unique_ptr<HcalDcsValues>
 }
 
 std::unique_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
-  return get_impl<HcalDcsMap> (mInputs ["DcsMap"]);
+  return create_impl<HcalDcsMap> (mInputs ["DcsMap"]);
 }
 
 std::unique_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd& rcd) {

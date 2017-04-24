@@ -1629,8 +1629,10 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
 // Format of the ASCII file:
 // line# Ring Slice Subchannel Subdetector Eta Phi Depth
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
+namespace HcalDbASCIIIO {
+template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput) {
   char buffer [1024];
+  HcalDcsMap::Helper fObjectHelper;
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
@@ -1642,55 +1644,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
 	continue;
       }
     }
-    //    std::cout << "HcalDcsMap-> processing line: " << buffer << std::endl;
-    //int ring = atoi (items [1].c_str());
     int ring = atoi(items[1].c_str());
     unsigned int slice = atoi (items [2].c_str());
     unsigned int subchannel = atoi (items [3].c_str());
     HcalDcsDetId::DcsType type = HcalDcsDetId::DCSUNKNOWN;
-//    if(items[4].find("HV")!=std::string::npos){
-//      type = HcalDcsDetId::HV;
-//    }
-//    else if (items[4].find("BV")!=std::string::npos){
-//      type = HcalDcsDetId::BV;
-//    }
-//    else if (items[4].find("CATH")!=std::string::npos){
-//      type = HcalDcsDetId::CATH;
-//    }
-//    else if (items[4].find("DYN7")!=std::string::npos){
-//      type = HcalDcsDetId::DYN7;
-//    }
-//    else if (items[4].find("DYN8")!=std::string::npos){
-//      type = HcalDcsDetId::DYN8;
-//    }
-//    else if (items[4].find("RM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::RM_TEMP;
-//    }
-//    else if (items[4].find("CCM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::CCM_TEMP;
-//    }
-//    else if (items[4].find("CALIB_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::CALIB_TEMP;
-//    }
-//    else if (items[4].find("LVTTM_TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::LVTTM_TEMP;
-//    }
-//    else if (items[4].find("TEMP")!=std::string::npos){
-//      type = HcalDcsDetId::TEMP;
-//    }
-//    else if (items[4].find("QPLL_LOCK")!=std::string::npos){
-//      type = HcalDcsDetId::QPLL_LOCK;
-//    }
-//    else if (items[4].find("STATUS")!=std::string::npos){
-//      type = HcalDcsDetId::STATUS;
-//    }
-//    else if (items[4].find("DCS_MAX")!=std::string::npos){
-//      type = HcalDcsDetId::DCS_MAX;
-//    }
-//    else{
-//      edm::LogError("MapFormat") << "HcalDcsMap-> Unknown DCS Type, line is not accepted: " << items[4];
-//      continue;
-//    }
     HcalOtherSubdetector subdet = HcalOtherEmpty;
     if (items[4].find("CALIB")!=std::string::npos){
       subdet = HcalCalibration;
@@ -1725,10 +1682,11 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
 					      << items [7] << std::endl; 
       continue;
     }
-    fObject->mapGeomId2DcsId(id, dcsId);
+    fObjectHelper.mapGeomId2DcsId(id, dcsId);
   }
-  fObject->sort ();
-  return true;
+  auto fObject = std::make_unique<HcalDcsMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 // Format of the ASCII file:
