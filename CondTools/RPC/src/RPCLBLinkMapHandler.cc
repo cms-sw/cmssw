@@ -172,7 +172,7 @@ void RPCLBLinkMapHandler::getNewObjects()
     int first_strip(0), slope(1);
     std::uint16_t channels(0x0);
 
-    RPCLBLinkMap * lb_link_map_object = new RPCLBLinkMap();
+    std::unique_ptr<RPCLBLinkMap> lb_link_map_object(new RPCLBLinkMap());
     RPCLBLinkMap::map_type & lb_link_map
         = lb_link_map_object->getMap();
     RPCLBLink lb_link;
@@ -226,7 +226,7 @@ void RPCLBLinkMapHandler::getNewObjects()
     }
 
     edm::LogInfo("RPCLBLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(lb_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(lb_link_map_object.release(), since_run_));
 }
 
 std::string RPCLBLinkMapHandler::id() const

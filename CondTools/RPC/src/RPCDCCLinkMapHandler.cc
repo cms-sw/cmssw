@@ -70,7 +70,7 @@ void RPCDCCLinkMapHandler::getNewObjects()
     int dcc(0), dcc_input(0), tb_input(0);
     std::string lb_name("");
 
-    RPCDCCLinkMap * dcc_link_map_object = new RPCDCCLinkMap();
+    std::unique_ptr<RPCDCCLinkMap> dcc_link_map_object(new RPCDCCLinkMap());
     RPCDCCLinkMap::map_type & dcc_link_map
         = dcc_link_map_object->getMap();
     RPCLBLink lb_link;
@@ -107,7 +107,7 @@ void RPCDCCLinkMapHandler::getNewObjects()
     }
 
     edm::LogInfo("RPCDCCLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(dcc_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(dcc_link_map_object.release(), since_run_));
 }
 
 std::string RPCDCCLinkMapHandler::id() const
