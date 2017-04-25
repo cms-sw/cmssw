@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="pat::DiObjectProxy" />
+  <class name="pat::MiniIsolation" />
 </lcgdict>

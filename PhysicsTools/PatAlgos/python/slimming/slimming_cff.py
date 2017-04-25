@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cff import *
+from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
@@ -21,6 +22,7 @@ from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingPro
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
+    isolatedTracks,
     lostTracks,
     offlineSlimmedPrimaryVertices,
     primaryVertexAssociation,

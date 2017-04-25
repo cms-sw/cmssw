@@ -21,6 +21,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+
 namespace pat {
 
   class PATElectronSlimmer : public edm::stream::EDProducer<> {
@@ -41,6 +43,7 @@ namespace pat {
     const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
     const edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
     const bool linkToPackedPF_;
+    const bool computeMiniIso_;
     const StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
     const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
     const bool modifyElectron_;
@@ -67,6 +70,7 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso")),
     saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
     reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
@@ -102,7 +106,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf;
     Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
     Handle<pat::PackedCandidateCollection> pc;
-    if (linkToPackedPF_) {
+    if (linkToPackedPF_ || computeMiniIso_) {
         iEvent.getByToken(reco2pf_, reco2pf);
         iEvent.getByToken(pf2pc_, pf2pc);
         iEvent.getByToken(pc_, pc);
@@ -136,6 +140,20 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         if (dropSaturation_(electron)) { electron.setSaturationInfo(reco::GsfElectron::SaturationInfo()); }
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
+
+        if(computeMiniIso_){
+            pat::MiniIsolation miniiso;
+            // veto on candidates in deadcone only in endcap
+            if(fabs(electron.p4().eta()) > 1.479)
+                miniiso = pat::GetMiniPFIsolation(pc.product(), electron.p4(), 0.05, 0.2, 10., 0.0, 0.015, 0.015, 0.08, 0.);
+            else
+                miniiso = pat::GetMiniPFIsolation(pc.product(), electron.p4(), 0.05, 0.2, 10., 0.0, 0., 0., 0., 0.);
+            electron.setMiniPFIsolation(miniiso);
+        }else{
+            pat::MiniIsolation miniiso = {9999., 9999., 9999., 9999.};
+            electron.setMiniPFIsolation(miniiso);
+        }
+
         if (linkToPackedPF_) {
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
             keys.clear();
