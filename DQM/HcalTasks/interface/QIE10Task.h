@@ -45,20 +45,20 @@ class QIE10Task : public hcaldqm::DQTask
 		int _ped;
 
 		//	filters
-		hcaldqm::filter::HashFilter _filter_C36;
-		hcaldqm::filter::HashFilter _filter_DA;
+		hcaldqm::filter::HashFilter _filter_slot[36];
+
 
 		//	Electronics Maps/Hashes
 		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		
 		//	hcaldqm::Containers
-		hcaldqm::ContainerProf1D	_cShapeCut_EChannel;
-		hcaldqm::Container2D	_cLETDCvsADC_EChannel[10];
-		hcaldqm::Container2D	_cTETDCvsADC_EChannel[10];
-		hcaldqm::Container1D _cLETDC_EChannel[10];
-		hcaldqm::Container1D _cADC_EChannel[10];
-		hcaldqm::Container2D _cOccupancy_depth;
+		hcaldqm::ContainerProf1D	_cShapeCut_EChannel[36];
+		hcaldqm::Container2D	_cLETDCvsADC_EChannel[10][36];
+		hcaldqm::Container2D    _cLETDCvsTS_EChannel[36];
+		hcaldqm::Container1D _cLETDC_EChannel[10][36];
+		hcaldqm::Container1D _cADC_EChannel[10][36];
+		hcaldqm::Container1D _cLETDCTime_EChannel[36];
 
 		//	Correlation Plots for 8 vs 10
 		hcaldqm::Container2D _cADCCorrelation10vs8_DChannel[10];
@@ -80,9 +80,15 @@ class QIE10Task : public hcaldqm::DQTask
 		//	hcaldqm::Containers overall
 		hcaldqm::ContainerSingleProf1D	_cShapeCut;
 		hcaldqm::ContainerSingle2D		_cLETDCvsADC;
-		hcaldqm::ContainerSingle2D		_cTETDCvsADC;
 		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
+
+		//occupancy per crate/slot
+		hcaldqm::Container2D _cOccupancy_Crate;
+		hcaldqm::Container2D _cOccupancy_CrateSlot;
+
+		// Detector coordinates
+		hcaldqm::Container2D _cOccupancy_depth;
 };
 
 #endif
