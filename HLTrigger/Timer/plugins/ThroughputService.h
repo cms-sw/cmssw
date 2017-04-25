@@ -24,7 +24,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "HLTrigger/Timer/interface/FastTimer.h"
 
 class ThroughputService {
 public:
@@ -64,7 +63,7 @@ private:
   double                                m_time_resolution;
 
   // DQM service-related data members
-  unsigned int                          m_module_id;                // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore 
+  unsigned int                          m_module_id;                // pseudo module id for the ThroughputService, needed by the thread-safe DQMStore 
   std::string                           m_dqm_path;
 };
 

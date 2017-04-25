@@ -661,39 +661,23 @@ if 'GlobalTag' in %%(dict)s:
 # instrument the menu with the modules and EndPath needed for timing studies
 """
 
+      self.data += '\n# configure the FastTimerService\n'
       if not 'FastTimerService' in self.data:
-        self.data += '\n# configure the FastTimerService\n'
         self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
-      else:
-        self.data += '\n# configure the FastTimerService\n'
 
-      self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
-%(process)s.FastTimerService.useRealTimeClock          = True
-# enable specific features
-%(process)s.FastTimerService.enableTimingPaths         = True
-%(process)s.FastTimerService.enableTimingModules       = True
-%(process)s.FastTimerService.enableTimingExclusive     = True
-# print a text summary at the end of the job
-%(process)s.FastTimerService.enableTimingSummary       = True
-# skip the first path (disregard the time spent loading event and conditions data)
-%(process)s.FastTimerService.skipFirstPath             = True
+      self.data += """# print a text summary at the end of the job
+%(process)s.FastTimerService.printJobSummary           = True
+
 # enable DQM plots
 %(process)s.FastTimerService.enableDQM                 = True
-# enable most per-path DQM plots
-%(process)s.FastTimerService.enableDQMbyPathActive     = True
-%(process)s.FastTimerService.enableDQMbyPathTotal      = True
-%(process)s.FastTimerService.enableDQMbyPathOverhead   = False
-%(process)s.FastTimerService.enableDQMbyPathDetails    = True
-%(process)s.FastTimerService.enableDQMbyPathCounters   = True
-%(process)s.FastTimerService.enableDQMbyPathExclusive  = True
+
 # disable per-module DQM plots
 %(process)s.FastTimerService.enableDQMbyModule         = False
-%(process)s.FastTimerService.enableDQMbyModuleType     = False
-# enable per-event DQM sumary plots
-%(process)s.FastTimerService.enableDQMSummary          = True
+
 # enable per-event DQM plots by lumisection
 %(process)s.FastTimerService.enableDQMbyLumiSection    = True
 %(process)s.FastTimerService.dqmLumiSectionsRange      = 2500
+
 # set the time resolution of the DQM plots
 %(process)s.FastTimerService.dqmTimeRange              = 1000.
 %(process)s.FastTimerService.dqmTimeResolution         =    5.
@@ -701,6 +685,7 @@ if 'GlobalTag' in %%(dict)s:
 %(process)s.FastTimerService.dqmPathTimeResolution     =    0.5
 %(process)s.FastTimerService.dqmModuleTimeRange        =   40.
 %(process)s.FastTimerService.dqmModuleTimeResolution   =    0.2
+
 # set the base DQM folder for the plots
 %(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
 %(process)s.FastTimerService.enableDQMbyProcesses      = True
