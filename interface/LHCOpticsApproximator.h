@@ -73,6 +73,11 @@ class LHCOpticsApproximator : public TNamed
         double mad_init_thy, double mad_init_xi, double d_mad_xi=0.001);
     std::vector<LHCApertureApproximator> GetApertures() {return apertures_;}
 
+	beam_type GetBeamType() const
+	{
+		return beam;
+	}
+
   private:
     void Init();
     double s_begin_;  // begin of transport along the reference orbit
