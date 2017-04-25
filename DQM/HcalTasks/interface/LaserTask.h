@@ -49,10 +49,12 @@ class LaserTask : public hcaldqm::DQTask
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
+		edm::InputTag	_tagHEP17;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
@@ -66,6 +68,7 @@ class LaserTask : public hcaldqm::DQTask
 		//	Cuts and variables
 		int _nevents;
 		double _lowHBHE;
+		double _lowHEP17;
 		double _lowHO;
 		double _lowHF;
 		uint32_t _laserType;
