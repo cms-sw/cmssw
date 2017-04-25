@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/HLT/V28 (CMSSW_9_0_0_HLT1)
+# /dev/CMSSW_9_0_1/HLT/V29 (CMSSW_9_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V28')
+  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V29')
 )
 
 process.transferSystem = cms.PSet( 
@@ -72431,7 +72431,7 @@ process.MC_CaloMET_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCal
 process.MC_CaloMET_JetIdCleaned_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloMETJetIdCleaned + process.HLTDoCaloSequence + process.hltMet + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetIDOpenFilter + process.HLTEndSequence )
 process.MC_AK4CaloJets_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK4CaloJets + process.HLTAK4CaloJetsSequence + process.hltCaloJetCollection20Filter + process.HLTEndSequence )
 process.MC_AK4CaloJetsFromPV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK4CaloJetsFromPV + process.HLTAK4CaloJetsSequence + process.HLTNoPUSequence + process.hltCaloJetFromPVCollection20Filter + process.hltHtMhtFromPVForMC + process.hltCaloHtMhtFromPVOpenFilter + process.HLTEndSequence )
-process.MC_CaloBTagCSV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloBTagCSV + process.HLTAK4CaloJetsSequence + process.HLTBtagCSVSequenceL3 + process.hltCaloJetCollection20Filter + process.hltBTagPFCSVp056Single + process.HLTEndSequence )
+process.MC_CaloBTagCSV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloBTagCSV + process.HLTAK4CaloJetsSequence + process.HLTBtagCSVSequenceL3 + process.hltCaloJetCollection20Filter + process.hltBTagCaloCSVp067Single + process.HLTEndSequence )
 process.MC_CaloHT_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloHT + process.HLTAK4CaloJetsSequence + process.hltHtMhtForMC + process.hltCaloHTOpenFilter + process.HLTEndSequence )
 process.MC_CaloMHT_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloMHT + process.HLTAK4CaloJetsSequence + process.hltHtMhtForMC + process.hltMhtFilter + process.HLTEndSequence )
 process.MC_AK8PFJets_v6 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK8PFJets + process.HLTAK8PFJetsSequence + process.hltAK8PFJetCollection20Filter + process.HLTEndSequence )

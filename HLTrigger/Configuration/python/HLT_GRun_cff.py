@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/GRun/V12 (CMSSW_9_0_0_HLT1)
+# /dev/CMSSW_9_0_1/GRun/V13 (CMSSW_9_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V13')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -9157,6 +9157,15 @@ fragment.hltInclusiveSecondaryVertexFinderTagInfos = cms.EDProducer( "SecondaryV
 fragment.hltCombinedSecondaryVertexBJetTagsCalo = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltCombinedSecondaryVertexV2" ),
     tagInfos = cms.VInputTag( 'hltImpactParameterTagInfos','hltInclusiveSecondaryVertexFinderTagInfos' )
+)
+fragment.hltBTagCaloCSVp067Single = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltSelector8CentralJetsL1FastJet" ),
+    MinTag = cms.double( 0.62 ),
+    MaxTag = cms.double( 99999.0 )
 )
 fragment.hltPreMCCaloHT = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -22696,7 +22705,7 @@ fragment.MC_CaloMET_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMC
 fragment.MC_CaloMET_JetIdCleaned_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloMETJetIdCleaned + fragment.HLTDoCaloSequence + fragment.hltMet + fragment.HLTAK4CaloJetsSequence + fragment.hltMetCleanUsingJetID + fragment.hltMETCleanUsingJetIDOpenFilter + fragment.HLTEndSequence )
 fragment.MC_AK4CaloJets_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK4CaloJets + fragment.HLTAK4CaloJetsSequence + fragment.hltCaloJetCollection20Filter + fragment.HLTEndSequence )
 fragment.MC_AK4CaloJetsFromPV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK4CaloJetsFromPV + fragment.HLTAK4CaloJetsSequence + fragment.HLTNoPUSequence + fragment.hltCaloJetFromPVCollection20Filter + fragment.hltHtMhtFromPVForMC + fragment.hltCaloHtMhtFromPVOpenFilter + fragment.HLTEndSequence )
-fragment.MC_CaloBTagCSV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloBTagCSV + fragment.HLTAK4CaloJetsSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltCaloJetCollection20Filter + fragment.hltBTagPFCSVp056Single + fragment.HLTEndSequence )
+fragment.MC_CaloBTagCSV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloBTagCSV + fragment.HLTAK4CaloJetsSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltCaloJetCollection20Filter + fragment.hltBTagCaloCSVp067Single + fragment.HLTEndSequence )
 fragment.MC_CaloHT_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloHT + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltCaloHTOpenFilter + fragment.HLTEndSequence )
 fragment.MC_CaloMHT_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloMHT + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltMhtFilter + fragment.HLTEndSequence )
 fragment.MC_AK8PFJets_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK8PFJets + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFJetCollection20Filter + fragment.HLTEndSequence )
