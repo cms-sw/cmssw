@@ -218,9 +218,13 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
         double mTau = 1.77682;
         double mAOne = tau->p4().M();
         double pAOneMag = tau->p();
-        double thetaGJmax = std::asin( (std::pow(mTau,2) - std::pow(mAOne,2) ) / ( 2 * mTau * pAOneMag ) );
-        double thetaGJmeasured = std::acos( ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * decayDistMag ) );
-        gjAngleDiff = thetaGJmeasured - thetaGJmax;
+        double argumentThetaGJmax = (std::pow(mTau,2) - std::pow(mAOne,2) ) / ( 2 * mTau * pAOneMag );
+        double argumentThetaGJmeasured = ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * decayDistMag );
+        if ( std::fabs(argumentThetaGJmax) <= 1. && std::fabs(argumentThetaGJmeasured) <= 1. ) {
+            double thetaGJmax = std::asin( argumentThetaGJmax );
+            double thetaGJmeasured = std::acos( argumentThetaGJmeasured );
+            gjAngleDiff = thetaGJmeasured - thetaGJmax;
+        }
     }
 		
     if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
