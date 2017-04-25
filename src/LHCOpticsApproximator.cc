@@ -67,13 +67,13 @@ LHCOpticsApproximator::LHCOpticsApproximator()
 }
 
 
+
 bool LHCOpticsApproximator::Transport(double *in, double *out, bool check_apertures)
 {
   if(in==NULL || out==NULL || !trained_)
     return false;
 
   bool res = CheckInputRange(in);
-//  std::cout<<"CheckInputRange: "<<res<<std::endl;
 
   out[0] = x_parametrisation.Eval(in);
   out[1] = theta_x_parametrisation.Eval(in);
@@ -81,20 +81,44 @@ bool LHCOpticsApproximator::Transport(double *in, double *out, bool check_apertu
   out[3] = theta_y_parametrisation.Eval(in);
   out[4] = in[4];
 
-//  std::cout<<"apertures_.size() : "<<apertures_.size()<<std::endl;
   if(check_apertures)
   {
-//    std::cout<<"Checking apertures =============="<<std::endl;
     for(int i=0; i<apertures_.size(); i++)
     {
-//      std::cout<<"aperture "<<i<<" checked : ";
       res = res && apertures_[i].CheckAperture(in);
-//      std::cout<<"++++  "<<i<<" "<<res<<std::endl;
     }
   }
-//  std::cout<<"accepted: "<<res<<std::endl;
+
   return res;
 }
+
+
+
+bool LHCOpticsApproximator::Transport(const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures)
+{
+  if(in==NULL || out==NULL || !trained_)
+    return false;
+
+  Double_t input[5];
+  Double_t output[5];
+  input[0] = in->x;
+  input[1] = in->theta_x;
+  input[2] = in->y;
+  input[3] = in->theta_y;
+  input[4] = in->ksi;
+
+  bool res = Transport(input, output, check_apertures);
+
+  out->x = output[0];
+  out->theta_x = output[1];
+  out->y = output[2];
+  out->theta_y = output[3];
+  out->ksi = output[4];
+
+  return res;
+}
+
+
 
 bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3], double in_momentum[3], double out_pos[3], double out_momentum[3],
         bool check_apertures, double z2_z1_dist)
@@ -128,29 +152,6 @@ bool LHCOpticsApproximator::Transport_m_GeV(double in_pos[3], double in_momentum
   return res;
 }
 
-bool LHCOpticsApproximator::Transport(const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures)
-{
-  if(in==NULL || out==NULL || !trained_)
-    return false;
-
-  Double_t input[5];
-  Double_t output[5];
-  input[0] = in->x;
-  input[1] = in->theta_x;
-  input[2] = in->y;
-  input[3] = in->theta_y;
-  input[4] = in->ksi;
-
-  bool res = Transport(input, output, check_apertures);
-
-  out->x = output[0];
-  out->theta_x = output[1];
-  out->y = output[2];
-  out->theta_y = output[3];
-  out->ksi = output[4];
-
-  return res;
-}
 
 
 LHCOpticsApproximator::LHCOpticsApproximator(const LHCOpticsApproximator &org) : TNamed(org), x_parametrisation(org.x_parametrisation), theta_x_parametrisation(org.theta_x_parametrisation), y_parametrisation(org.y_parametrisation), theta_y_parametrisation(org.theta_y_parametrisation)
@@ -844,7 +845,7 @@ void LHCOpticsApproximator::WriteHistograms(TH1D *err_hists[4], TH2D *err_inp_co
   gDirectory->cd("..");
 }
 
-void LHCOpticsApproximator::PrintInputRange()
+void LHCOpticsApproximator::PrintInputRange() const
 {
   const TVectorD* min_var = x_parametrisation.GetMinVariables();
   const TVectorD* max_var = x_parametrisation.GetMaxVariables();
@@ -858,7 +859,7 @@ void LHCOpticsApproximator::PrintInputRange()
 }
 
 
-bool LHCOpticsApproximator::CheckInputRange(double *in)  //x, thx, y, thy, ksi
+bool LHCOpticsApproximator::CheckInputRange(double *in) const
 {
   const TVectorD* min_var = x_parametrisation.GetMinVariables();
   const TVectorD* max_var = x_parametrisation.GetMaxVariables();
@@ -867,9 +868,8 @@ bool LHCOpticsApproximator::CheckInputRange(double *in)  //x, thx, y, thy, ksi
   for(int i=0; i<5; i++)
   {
     res = res && in[i]>=(*min_var)(i) && in[i]<=(*max_var)(i);
-//    std::cout<<"test ranges: "<<in[i]<<" "<<(*min_var)(i)<<" "<<in[i]<<" "<<(*max_var)(i)<<std::endl;
   }
-//  std::cout<<"result dupa:"<<res<<std::endl;
+
   return res;
 }
 
@@ -933,7 +933,7 @@ bool LHCApertureApproximator::CheckAperture(MadKinematicDescriptor *in)  //x, th
 }
 */
 
-void LHCOpticsApproximator::PrintOpticalFunctions()
+void LHCOpticsApproximator::PrintOpticalFunctions() const
 {
   std::cout<<std::endl<<"Linear terms of optical functions:"<<std::endl;
   for(int i=0; i<4; i++)
@@ -942,7 +942,8 @@ void LHCOpticsApproximator::PrintOpticalFunctions()
   }
 }
 
-void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parametrization, const std::string &coord_name, const std::vector<std::string> &input_vars)
+void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parametrization, const std::string &coord_name,
+	const std::vector<std::string> &input_vars) const
 {
   double in[5];
   double out;
@@ -952,7 +953,7 @@ void LHCOpticsApproximator::PrintCoordinateOpticalFunctions(TMultiDimFet &parame
 
   for(int j=0; j<5; j++)
       in[j]=0.0;
-      
+
   const TVectorD* min_var = x_parametrisation.GetMinVariables();
   const TVectorD* max_var = x_parametrisation.GetMaxVariables();
 
@@ -1019,6 +1020,7 @@ void LHCOpticsApproximator::GetLineariasedTransportMatrixX(
   transp_matrix(0,1) = MADX_momentum_correction_factor*(x2_dthx-x1)/d_mad_thx;
   transp_matrix(1,1) = (thx2_dthx-thx1)/d_mad_thx;
 }
+
 
 //real angles in the matrix, MADX convention used only for input
 void LHCOpticsApproximator::GetLineariasedTransportMatrixY(
