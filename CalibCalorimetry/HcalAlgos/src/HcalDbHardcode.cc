@@ -474,8 +474,8 @@ std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::v
   return std::make_unique<HcalElectronicsMap>(emapHelper);
 }
 
-void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) {
-
+std::unique_ptr<HcalFrontEndMap> HcalDbHardcode::makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) {
+  HcalFrontEndMap::Helper emapHelper;
   std::stringstream mystream;
   std::string detector[5] = {"XX","HB","HE","HO","HF"};
   for (const auto& fId : cells) {
@@ -502,7 +502,7 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 	mystream << tempbuff;
 	rbx = mystream.str();
 	mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       } else if (subdet == HcalForward) {
 	det = detector[subdet];
 	int  hfphi(0);
@@ -518,7 +518,7 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 	mystream << tempbuff;
 	rbx = mystream.str();
 	mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       } else if (subdet == HcalOuter) {
 	det = detector[subdet];
 	int ring(0), sector(0);
@@ -536,11 +536,11 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
         mystream << tempbuff;
 	rbx = mystream.str();
         mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       }
     }
   }
-  emap.sort();
+  return std::make_unique<HcalFrontEndMap>(emapHelper);
 }
 
 int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* topo){

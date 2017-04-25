@@ -48,13 +48,16 @@ namespace {
 namespace {
   struct InitHcalDcsMap {void operator()(HcalDcsMap& e){ e.initialize();}};
 }
+namespace {
+  struct InitHcalFrontEndMap {void operator()(HcalFrontEndMap& e){ e.initialize();}};
+}
 
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
 REGISTER_PLUGIN_INIT(HcalElectronicsMapRcd,HcalElectronicsMap,InitHcalElectronicsMap);
-REGISTER_PLUGIN(HcalFrontEndMapRcd,HcalFrontEndMap);
+REGISTER_PLUGIN_INIT(HcalFrontEndMapRcd,HcalFrontEndMap,InitHcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
 REGISTER_PLUGIN(HcalQIETypesRcd,HcalQIETypes);

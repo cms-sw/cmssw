@@ -832,9 +832,7 @@ std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (c
   const HcalTopology* topo=&(*htopo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
 
-  auto result = std::make_unique<HcalFrontEndMap>();
-  dbHardcode.makeHardcodeFrontEndMap(*result, cells);
-  return result;
+  return dbHardcode.makeHardcodeFrontEndMap(cells);
 }
 
 

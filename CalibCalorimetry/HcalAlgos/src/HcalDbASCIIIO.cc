@@ -1791,8 +1791,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput) {
   char buffer [1024];
+  HcalFrontEndMap::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
@@ -1803,14 +1805,14 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
       continue;
     }
     ++good;
-    //    std::cout << "HcalFrontEndMap-> processing line: " << buffer << std::endl;
     DetId id = HcalDbASCIIIO::getId (items);
     int   rm = atoi (items [5].c_str());
-    fObject->loadObject (id, rm, items[4]);
+    fObjectHelper.loadObject (id, rm, items[4]);
   }
-  fObject->sort ();
   edm::LogInfo("MapFormat") << "HcalFrontEndMap:: processed " << good << " records in " << all << " record" << std::endl;
-  return true;
+  auto fObject = std::make_unique<HcalFrontEndMap>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject) {
