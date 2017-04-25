@@ -74,7 +74,7 @@ namespace HGCalTriggerBackend{
             void addToClusterShapes(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi, float r=0.0){
                 auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
                 auto iterator = pair.first;
-                iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
+                iterator -> second . second . shapes().Add( energy,eta,phi,r); // last is r, for 3d clusters
             }
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
@@ -95,7 +95,7 @@ namespace HGCalTriggerBackend{
                 pp4.SetM  (  0  ) ;
                 p4 += pp4;
                 iterator -> second . second . setP4(p4);
-                //iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
+                //iterator -> second . second . shapes().Add( energy,eta,phi,r); // last is r, for 3d clusters
                 return ;
             }
 
