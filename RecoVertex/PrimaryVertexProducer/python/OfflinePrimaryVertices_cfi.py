@@ -52,3 +52,9 @@ offlinePrimaryVertices = cms.EDProducer(
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(offlinePrimaryVertices,
                             TkFilterParameters = dict(minPixelLayersWithHits = 0))
+
+
+# higher eta cut for the phase 2 tracker
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker 
+phase2_tracker.toModify(offlinePrimaryVertices, 
+                        TkFilterParameters = dict(maxEta = 4.0))
