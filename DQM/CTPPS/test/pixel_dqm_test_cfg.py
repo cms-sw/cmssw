@@ -24,13 +24,10 @@ process.source = cms.Source("PoolSource",
 #fileNames=cms.untracked.vstring('file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root')
 labelRawDataLikeMC = cms.untracked.bool(False),
 fileNames = 
-#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/run273062_ls0001-2_stream.root')
-#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/simevent_CTPPS_DIG_CLU_100.root')
 #cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/simevent_CTPPS_DIG_CLU_2_TEST_5000.root')
-#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/digis_PixelAlive_1294_153_RAW_v3.root')
-#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/digis_PixelAlive_1294_151_RAW_v2.root')
-#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/scratch_bk/data/digis_PixelAlive_1294_151_RAW_v2_900p1.root')
-cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/public/CTPPS/data/digis_PixelAlive_1294_151_RAW_v2_900p1.root')
+#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/public/CTPPS/data/digis_PixelAlive_1294_151_RAW_v2_900p1.root')
+#cms.untracked.vstring('file:/afs/cern.ch/user/p/popov/public/CTPPS/data/digis_PixelAlive_P5_2_RAW.root')
+cms.untracked.vstring('root://eoscms//eos/cms/store/group/dpg_ctpps/comm_ctpps/digis_PixelAlive_P5_2_RAW.root')
 
 )
 
