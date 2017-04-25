@@ -1,6 +1,6 @@
 #!/bin/bash
 
-n_events="1E4"
+n_events="1E5"
 seed="1"
 
 configs=()

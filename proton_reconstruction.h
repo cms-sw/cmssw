@@ -6,7 +6,7 @@
 #include "Minuit2/FCNBase.h"
 #include "TFitterMinuit.h"
 
-#include "SimG4CMS/TotemRPProtTranspPar/interface/LHCOpticsApproximator.h"
+#include "LHCOpticsApproximator.h"
 
 #include <map>
 #include <string>

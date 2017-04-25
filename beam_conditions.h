@@ -12,6 +12,7 @@ struct BeamConditions
   double si_vtx = 10E-6;          // vertex size, m
   double si_beam_div = 20E-6;     // beam divergence, rad
 
+  // TODO: to be confirmed by Valentina !
   double vtx0_y = 550E-6;         // vertex offset, m
 
   double half_crossing_angle_45 = +179.394E-6;   // crossing angle, sector 45 (beam 2), rad

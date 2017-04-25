@@ -1,8 +1,8 @@
 #include "track_lite.h"
 #include "beam_conditions.h"
-#include "proton_reconstruction.h"
+//#include "proton_reconstruction.h"
 
-#include "SimG4CMS/TotemRPProtTranspPar/interface/LHCOpticsApproximator.h"
+#include "LHCOpticsApproximator.h"
 
 #include "TRandom3.h"
 #include "TH1D.h"
@@ -59,7 +59,8 @@ void BuildTrackCollection(LHCSector sector, double vtx_x, double vtx_y, double t
 {
   // settings
   const bool check_appertures = true;
-  const bool invert_beam_coord_sytems = true;
+  // TODO
+  //const bool invert_beam_coord_sytems = true;
 
   // start with no tracks
   tracks.clear();
@@ -82,7 +83,9 @@ void BuildTrackCollection(LHCSector sector, double vtx_x, double vtx_y, double t
     kin_in[4] = - xi;
 
     double kin_out[5];
-    bool proton_trasported = it.second->Transport(kin_in, kin_out, check_appertures, invert_beam_coord_sytems);
+	// TODO
+    //bool proton_trasported = it.second->Transport(kin_in, kin_out, check_appertures, invert_beam_coord_sytems);
+    bool proton_trasported = it.second->Transport(kin_in, kin_out, check_appertures);
 
     // stop if proton not transportable
     if (!proton_trasported)
@@ -225,7 +228,7 @@ int main(int argc, const char **argv)
 
   unsigned int seed = 1;
 
-  string file_optics = "parametrisation/version3/parametrization_6500GeV_0p4_185_reco.root";
+  string file_optics = "parametrisations/version4-vale1/parametrization_6500GeV_0p4_185_reco.root";
 
   string file_output = "test_reconstruction.root";
 
@@ -293,22 +296,26 @@ int main(int argc, const char **argv)
   TFile *f_in_optics = TFile::Open(file_optics.c_str());
 
   map<unsigned int, LHCOpticsApproximator*> optics_45, optics_56; // map: RP id --> optics
-  optics_45[2] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_1_lhcb2");
-  optics_45[3] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_2_lhcb2");
+  // TODO
+  //optics_45[2] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_1_lhcb2");
+  //optics_45[3] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_2_lhcb2");
   
   optics_56[102] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_1_lhcb1");
   optics_56[103] = (LHCOpticsApproximator *) f_in_optics->Get("ip5_to_station_150_h_2_lhcb1");
 
   // initialise proton reconstruction
+  // TODO
+  /*
   ProtonReconstruction protonReconstruction;
   if (protonReconstruction.Init(file_optics) != 0)
     return 1;
+	*/
 
   // prepare plots - hit distributions
   map<unsigned int, TH2D*> m_rp_h2_y_vs_x;
   for (unsigned int rpId : { 2, 3, 102, 103} )
   {
-    m_rp_h2_y_vs_x[rpId] = new TH2D("", ";x;y", 100, 0., 30E-3, 100, -10E-3, +10E-3);
+    m_rp_h2_y_vs_x[rpId] = new TH2D("", ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3);
   }
 
   // prepare plots - histograms
@@ -426,7 +433,8 @@ int main(int argc, const char **argv)
 
     // proton transport
     TrackDataCollection tracks_45;
-    BuildTrackCollection(sector45, vtx_x, vtx_y, th_x_45, th_y_45, xi_45, optics_45, tracks_45);
+	// TODO
+    //BuildTrackCollection(sector45, vtx_x, vtx_y, th_x_45, th_y_45, xi_45, optics_45, tracks_45);
 
     TrackDataCollection tracks_56;
     BuildTrackCollection(sector56, vtx_x, vtx_y, th_x_56, th_y_56, xi_56, optics_56, tracks_56);
@@ -448,6 +456,8 @@ int main(int argc, const char **argv)
     }
 
     // run reconstruction
+	// TODO
+#if 0
     if (debug)
       printf("  reconstruction in 45\n");
 
@@ -469,6 +479,7 @@ int main(int argc, const char **argv)
       printf("    proton: ");
       proton_56.Print();
     }
+#endif
 
     // fill plots
     for (const auto it : tracks_45)
@@ -477,6 +488,8 @@ int main(int argc, const char **argv)
     for (const auto it : tracks_56)
       m_rp_h2_y_vs_x[it.first]->Fill(it.second.x, it.second.y);
 
+// TODO
+#if 0
     if (proton_45.valid)
     {
       const double de_vtx_x = proton_45.vtx_x - vtx_x;
@@ -530,6 +543,7 @@ int main(int argc, const char **argv)
       p_de_th_y_vs_xi_56->Fill(xi_56, de_th_y);
       p_de_xi_vs_xi_56->Fill(xi_56, de_xi);
     }
+#endif
   }
 
   // save plots
