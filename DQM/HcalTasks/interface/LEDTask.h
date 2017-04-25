@@ -44,10 +44,12 @@ class LEDTask : public hcaldqm::DQTask
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
+		edm::InputTag	_tagHEP17;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
@@ -60,6 +62,7 @@ class LEDTask : public hcaldqm::DQTask
 
 		//	Cuts
 		double _lowHBHE;
+		double _lowHEP17;
 		double _lowHO;
 		double _lowHF;
 
