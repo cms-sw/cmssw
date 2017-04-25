@@ -34,6 +34,10 @@ namespace hcaldqm
 			//	some counters
 			int _totalLS;
 
+			// Crate and crate eid lists
+			std::vector<int> _vCrates;
+			std::vector<uint32_t> _vhashCrates;
+
 			//	all FEDs
 			std::vector<int>		_vFEDs;
 			std::vector<uint32_t>	_vhashFEDs;
