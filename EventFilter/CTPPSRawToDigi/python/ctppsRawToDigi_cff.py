@@ -18,13 +18,13 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
     ),
     # during TS2 (2016)
     cms.PSet(
-      validityRange = cms.EventRange("280386:min - 281600:max"),
+      validityRange = cms.EventRange("280385:min - 281600:max"),
       mappingFileNames = cms.vstring(),
       maskFileNames = cms.vstring()
     ),
     # after TS2 (2016)
     cms.PSet(
-      validityRange = cms.EventRange("281601:min - 999999999:max"),
+      validityRange = cms.EventRange("281600:min - 999999999:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_from_fill_5330.xml"),
       maskFileNames = cms.vstring()
     )
@@ -48,7 +48,7 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
     ),
     # after diamonds inserted in DAQ
     cms.PSet(
-      validityRange = cms.EventRange("283820:min - 999999999:max"),
+      validityRange = cms.EventRange("283819:min - 999999999:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"),
       maskFileNames = cms.vstring()
     )
