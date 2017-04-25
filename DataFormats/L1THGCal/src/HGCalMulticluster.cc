@@ -1,5 +1,4 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 using namespace l1t;
 
@@ -12,8 +11,8 @@ HGCalMulticluster::HGCalMulticluster( const LorentzVector p4,
 }
 
 
-HGCalMulticluster::HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &tcSeed )
-    : HGCalClusterT<l1t::HGCalCluster>(tcSeed)
+HGCalMulticluster::HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &clusterSeed )
+    : HGCalClusterT<l1t::HGCalCluster>(clusterSeed)
 {
 }
 
