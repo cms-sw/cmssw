@@ -69,10 +69,11 @@ def getSequence(process, collection,
         }
     options["TrackRefitter"]["First"] = {
         "NavigationSchool": "",
+        "TTRHBuilder": TTRHBuilder,
         }
     options["TrackRefitter"]["Second"] = {
         "NavigationSchool": "",
-        "TTRHBuilder": TTRHBuilder
+        "TTRHBuilder": TTRHBuilder,
         }
     options["TrackHitFilter"]["Tracker"] = {
         "useTrajectories": True,
@@ -84,11 +85,11 @@ def getSequence(process, collection,
         "rejectLowAngleHits": True,
         "usePixelQualityFlag": usePixelQualityFlag,
         "StoNcommands": cms.vstring("ALL 12.0"),
-        "TrackAngleCut": 0.087
+        "TrackAngleCut": 0.087,
         }
     options["TrackFitter"]["HitFilteredTracks"] = {
         "NavigationSchool": "",
-        "TTRHBuilder": TTRHBuilder
+        "TTRHBuilder": TTRHBuilder,
         }
 
 
@@ -131,6 +132,9 @@ def getSequence(process, collection,
         if cosmicTrackSplitting:
             options["TrackSplitting"] = {}
             options["TrackSplitting"]["TrackSplitting"] = {}
+            #options["TrackFitter"]["HitFilteredTracks"].update({
+            #    "TrajectoryInEvent": True,
+            #    })
         if not used0cut:
             options["TrackSelector"]["Alignment"].update({
                     "d0Min": -99999.0,
@@ -211,7 +215,7 @@ def getSequence(process, collection,
     elif cosmicTrackSplitting:
         mods = [("TrackRefitter", "First", {"method": "load",
                                             "clone": True}),
-                ("TrackHitFilter", "Tracker", {"method": "load"}),
+                #("TrackHitFilter", "Tracker", {"method": "load"}),
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackSplitting", "TrackSplitting", {"method": "load"}),
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"}),

@@ -2,15 +2,18 @@
 ######################################################################
 TrackSplittingTemplate="""
 
+#adding this ~doubles the efficiency of selection
+process.FittingSmootherRKP5.EstimateCut = -1
+
 .oO[subdetselection]Oo.
 
 process.cosmicValidation = cms.EDAnalyzer("CosmicSplitterValidation",
     ifSplitMuons = cms.bool(False),
     ifTrackMCTruth = cms.bool(False),	
     checkIfGolden = cms.bool(False),	
-    splitTracks = cms.InputTag("TrackRefitter2","","splitter"),
+    splitTracks = cms.InputTag("FinalTrackRefitter","","splitter"),
     splitGlobalMuons = cms.InputTag("muons","","splitter"),
-    originalTracks = cms.InputTag("TrackRefitter1","","splitter"),
+    originalTracks = cms.InputTag("FirstTrackRefitter","","splitter"),
     originalGlobalMuons = cms.InputTag("muons","","Rec")
 )
 """
