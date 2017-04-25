@@ -138,7 +138,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     HistLim tp_hl_ntp(640, -20, 3180);
     HistLim tp_hl_ntp_sub(404, -20, 2000);
     HistLim tp_hl_ieta(85, -42.5, 42.5);
-    HistLim tp_hl_iphi(72,-0.5,71.5);
+    HistLim tp_hl_iphi(74,-0.5,73.5);
     
 
     book1D(ib,"HcalDigiTask_tp_et", tp_hl_et);

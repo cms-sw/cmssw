@@ -111,7 +111,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     ieta_max_ = iEtaMax + 1.5;
     ieta_bins_ = (int) (ieta_max_ - ieta_min_);
 
-    }
+  }
 
  void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
 
@@ -226,27 +226,34 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
          sprintf  (histo, "occupancy_map_HF%d",depth );
          occupancy_map_HF.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       }
-
-      //These are drawn
-
+      
+      // nrechits vs iphi
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HB%d",depth );
-         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+
+         sprintf  (histo, "nrechits_vs_iphi_HBP_d%d",depth );
+         nrechits_vs_iphi_HBP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HBM_d%d",depth );
+         nrechits_vs_iphi_HBM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HE%d",depth );
-         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HEP_d%d",depth );
+         nrechits_vs_iphi_HEP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HEM_d%d",depth );
+         nrechits_vs_iphi_HEM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
-      sprintf  (histo, "occupancy_vs_ieta_HO" );
-      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
+      sprintf  (histo, "nrechits_vs_iphi_HOP" );
+      nrechits_vs_iphi_HOP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
+      sprintf  (histo, "nrechits_vs_iphi_HOM" );
+      nrechits_vs_iphi_HOM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_);
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
-         sprintf  (histo, "occupancy_vs_ieta_HF%d",depth );
-         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HFP_d%d",depth );
+         nrechits_vs_iphi_HFP.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
+         sprintf  (histo, "nrechits_vs_iphi_HFM_d%d",depth );
+         nrechits_vs_iphi_HFM.push_back( ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_) );
       }
-
 
       //All status word histos except HF67 are drawn
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HB" ) ;
@@ -665,6 +672,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 	 emean_vs_ieta_HBM0[depth-1]->Fill(double(ieta), enM0);
 	 emean_vs_ieta_HBM3[depth-1]->Fill(double(ieta), enM3);
 	 occupancy_map_HB[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HBP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HBM[depth-1]->Fill(double(iphi));
       }
       if ( sub == 2){
 	 if(!isHEP17){
@@ -677,14 +686,20 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 	    emean_vs_ieta_HEP17M3[depth-1]->Fill(double(ieta), enM3);
          }
 	 occupancy_map_HE[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HEP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HEM[depth-1]->Fill(double(iphi));
       }
       if ( sub == 3){
 	 emean_vs_ieta_HO->Fill(double(ieta), en);
 	 occupancy_map_HO->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HOP->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HOM->Fill(double(iphi));
       }
       if ( sub == 4){
 	 emean_vs_ieta_HF[depth-1]->Fill(double(ieta), en);
 	 occupancy_map_HF[depth-1]->Fill(double(ieta),double(iphi));
+	 if (ieta>0) nrechits_vs_iphi_HFP[depth-1]->Fill(double(iphi));
+	 else        nrechits_vs_iphi_HFM[depth-1]->Fill(double(iphi));
       }
     }
 
