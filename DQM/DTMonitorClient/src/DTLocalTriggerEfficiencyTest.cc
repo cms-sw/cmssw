@@ -128,7 +128,7 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibook
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
-	    int sector_id = (wh+3)+(sect-1)*5;
+	    int sector_id = (wh+wheelArrayShift)+(sect-1)*5;
 	    uint32_t indexCh = chId.rawId();
 
 
