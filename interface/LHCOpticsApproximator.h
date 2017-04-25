@@ -67,21 +67,23 @@ class LHCOpticsApproximator : public TNamed
 
 	/// \brief transports a proton
 	/// structure of input and output vectors: x, theta_x, y, theta_y, xi
+	/// check_apertures: flag whether appertures should be checked
+	/// invert_beam_coord_sytems: set to true unless you have a reason to do differently
 	/// returns true if transport possible, double
-    bool Transport(double *in, double *out, bool check_apertures=false);
+    bool Transport(double *in, double *out, bool check_apertures=false, bool invert_beam_coord_sytems=true);
 
 	/// \brief transports a proton
-    bool Transport(const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures=false);
+    bool Transport(const MadKinematicDescriptor *in, MadKinematicDescriptor *out, bool check_apertures=false, bool invert_beam_coord_sytems=true);
 
 	/// \brief transports a proton
 	/// pos: position (x, y and z) in m
 	/// momentum: momentum in GeV
-    bool Transport_m_GeV(double in_pos[3], double in_momentum[3], double out_pos[3], double out_momentum[3],
-        bool check_apertures, double z2_z1_dist);
+    bool Transport_m_GeV(double in_pos[3], double in_momentum[3], double out_pos[3], double out_momentum[3], double z2_z1_dist,
+        bool check_apertures, bool invert_beam_coord_sytems=true);
 
     void PrintInputRange() const;
 
-    bool CheckInputRange(double *in) const;
+    bool CheckInputRange(double *in, bool invert_beam_coord_sytems=true) const;
 
     void AddRectEllipseAperture(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y);
 
@@ -159,10 +161,12 @@ class LHCApertureApproximator : public LHCOpticsApproximator
     enum aperture_type {NO_APERTURE, RECTELLIPSE};
 
     LHCApertureApproximator();
+
     LHCApertureApproximator(const LHCOpticsApproximator &in, double rect_x, double rect_y, double r_el_x, double r_el_y,
         aperture_type type = RECTELLIPSE);
 
-    bool CheckAperture(double *in);
+    bool CheckAperture(double *in, bool invert_beam_coord_sytems=true);
+
   private:
     double rect_x_, rect_y_, r_el_x_, r_el_y_;
     aperture_type ap_type_;
