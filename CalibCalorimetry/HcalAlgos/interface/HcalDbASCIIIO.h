@@ -118,7 +118,6 @@ namespace HcalDbASCIIIO {
 
   bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
-  bool getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
 
   bool getObject (std::istream& fInput, HcalTPParameters* fObject);

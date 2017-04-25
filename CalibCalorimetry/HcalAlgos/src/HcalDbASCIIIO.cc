@@ -1887,8 +1887,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters&
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject) {
+namespace HcalDbASCIIIO {
+template<> std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput) {
   char buffer [1024];
+  HcalSiPMCharacteristics::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
@@ -1908,11 +1910,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fO
     float cTalk  = atof (items [5].c_str());
     int   auxi1  = atoi (items [6].c_str());
     float auxi2  = atof (items [7].c_str());
-    fObject->loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
+    fObjectHelper.loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
   }
-  fObject->sort ();
   edm::LogInfo("MapFormat") << "HcalSiPMCharacteristics:: processed " << good << " records in " << all << " record" << std::endl;
-  return true;
+  auto fObject = std::make_unique<HcalSiPMCharacteristics>(fObjectHelper);
+  return fObject;
+}
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject) {
