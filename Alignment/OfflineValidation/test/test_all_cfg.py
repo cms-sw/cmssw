@@ -219,7 +219,7 @@ if isDA:
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA'),
+                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
                                                                      TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.8),  # moderate annealing speed
                                                                                                    Tmin = cms.double(4.),            # end of annealing
                                                                                                    vertexSize = cms.double(0.05),    # ~ resolution / sqrt(Tmin)
