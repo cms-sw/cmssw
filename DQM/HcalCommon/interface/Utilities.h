@@ -125,6 +125,10 @@ namespace hcaldqm
 		int getTPSubDet(HcalTrigTowerDetId const&);
 		int getTPSubDetPM(HcalTrigTowerDetId const&);
 
+		// Get a list of all crates
+		std::vector<int> getCrateList(HcalElectronicsMap const* emap);
+		std::map<int, uint32_t> getCrateHashMap(HcalElectronicsMap const* emap);
+
 		//	returns a list of FEDs sorted.
 		std::vector<int> getFEDList(HcalElectronicsMap const*);
 		std::vector<int> getFEDVMEList(HcalElectronicsMap const*);
