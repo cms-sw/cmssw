@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-
-from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
-alcaSiStripGainsAfterAbortGapHarvester = SiStripCalib.clone()
-alcaSiStripGainsAfterAbortGapHarvester.AlgoMode            = cms.untracked.string('PCL')
-alcaSiStripGainsAfterAbortGapHarvester.FirstSetOfConstants = cms.untracked.bool(False)
+from CalibTracker.SiStripChannelGain.SiStripGainsPCLHarvester_cfi import SiStripGainsPCLHarvester
+alcaSiStripGainsAfterAbortGapHarvester = SiStripGainsPCLHarvester.clone()
 alcaSiStripGainsAfterAbortGapHarvester.calibrationMode     = cms.untracked.string('AagBunch')
 alcaSiStripGainsAfterAbortGapHarvester.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap')
-alcaSiStripGainsAfterAbortGapHarvester.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
-alcaSiStripGainsAfterAbortGapHarvester.harvestingMode      = cms.untracked.bool(True)
-alcaSiStripGainsAfterAbortGapHarvester.Record              = cms.string('SiStripApvGainRcdAfterAbortGap')
+alcaSiStripGainsAfterAbortGapHarvester.Record              = cms.untracked.string('SiStripApvGainRcdAfterAbortGap')
