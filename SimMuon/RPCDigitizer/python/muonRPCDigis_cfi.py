@@ -35,7 +35,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simMuonRPCDigis, InputCollection = 'MuonSimHitsMuonRPCHits')
 
-simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
+_simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
     Noise = cms.bool(True),
     digiModelConfig = cms.PSet(
         signalPropagationSpeed = cms.double(0.66),
@@ -84,4 +84,4 @@ simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
 )
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith( simMuonRPCDigis, simMuonRPCDigisPhaseII )
+phase2_muon.toReplaceWith( simMuonRPCDigis, _simMuonRPCDigisPhaseII )
