@@ -209,9 +209,6 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
   MonitorElement* SET_HF;
   MonitorElement* phiMET_HF;
 
-  MonitorElement* Ntowers_vs_iphi_HFP; 
-  MonitorElement* Ntowers_vs_iphi_HFM; 
-
   MonitorElement* emTiming_HF;
   MonitorElement* hadTiming_HF;
   MonitorElement* emEnergyTiming_HF;
