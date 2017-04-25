@@ -50,21 +50,6 @@ private:
   int                                      maxDepthHO_, maxDepthHF_;
   int                                      maxDepth_;
 
-  struct HistLim {
-    HistLim(int nbin, double mini, double maxi)
-    : n(nbin), min(mini), max(maxi) {
-    }
-    int n;
-    double min;
-    double max;
-  };
-
-  std::map<std::string, MonitorElement*> *msm_;
-
-  void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
-  void fill2D(std::string name, double X, double Y, double weight = 1);
-  std::string str(int x);
-
   int iphi_bins;
   float iphi_min, iphi_max;
   int ieta_bins_HB;
@@ -84,6 +69,7 @@ private:
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
   MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_, *meEtaPhiHit_;
+  std::vector<MonitorElement*> meEtaPhiHitDepth_;
   MonitorElement *mePhiHit_, *mePhiHitb_, *meEnergyHit_, *meTimeHit_, *meTimeWHit_;
   MonitorElement *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_, *meHFDepHitw_;
   MonitorElement *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;

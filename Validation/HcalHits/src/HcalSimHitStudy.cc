@@ -20,13 +20,9 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
 			  << hcalHits << " / "<< checkHit_ 
 			  << "   Output: " << outFile_;
 
-  msm_ = new std::map<std::string, MonitorElement*>();
-
 }
 
-HcalSimHitStudy::~HcalSimHitStudy() {
-  delete msm_;
-}
+HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run, edm::EventSetup const & es)
 {
@@ -88,6 +84,8 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
   ieta_max_HO = iEtaHOMax + 1.5;
   ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
 
+  Char_t hname[100];
+  Char_t htitle[100];
 
     ib.setCurrentFolder("HcalHitsV/HcalSimHitsTask");
 
@@ -106,13 +104,12 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meDepthHit_ = ib.book1D("Hit11","Depths in HCal",        20,0.,20.);
       meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          ieta_bins_HF,ieta_min_HF,ieta_max_HF);
       meEtaPhiHit_   = ib.book2D("Hit12b","Eta-phi in HCal",          ieta_bins_HF,ieta_min_HF,ieta_max_HF,iphi_bins,iphi_min,iphi_max);
-
-      Char_t histo[100];
-      HistLim ietaLim(ieta_bins_HF,ieta_min_HF,ieta_max_HF);
-      HistLim iphiLim(iphi_bins,iphi_min,iphi_max);     
       for (int depth = 1; depth <= maxDepth_; depth++) {
-	sprintf(histo,"Eta-phi in HCal d%d", depth);
-	book2D(ib, histo, ietaLim, iphiLim);
+	sprintf(hname,"Hit12bd%d", depth);
+	sprintf(htitle,"Eta-phi in HCal d%d", depth);
+	meEtaPhiHitDepth_.push_back( ib.book2D(hname, htitle, 
+					       ieta_bins_HF,ieta_min_HF,ieta_max_HF,
+					       iphi_bins,iphi_min,iphi_max) );
       }
       //KC: There are different phi segmentation schemes, this plot uses wider bins to represent the most sparse segmentation
       mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  iphi_bins,iphi_min,iphi_max);
@@ -287,8 +284,7 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
 	meEtaPhiHit_->Fill(double(eta),double(phi));
-
-	fill2D("Eta-phi in HCal d" + str(depth), double(eta), double(phi));
+	meEtaPhiHitDepth_[depth-1]->Fill(double(eta),double(phi));
 
 	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
 	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
@@ -441,18 +437,4 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 		      << " HE " << nHE << " HO " << nHO << " HF " << nHF 
 		      << " Bad " << nBad << " All " << nHit;
 
-}
-
-void HcalSimHitStudy::book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
-    if (!msm_->count(name)) (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
-}
-
-void HcalSimHitStudy::fill2D(std::string name, double X, double Y, double weight) {
-    msm_->find(name)->second->Fill(X, Y, weight);
-}
-
-std::string HcalSimHitStudy::str(int x) {
-    std::stringstream out;
-    out << x;
-    return out.str();
 }
