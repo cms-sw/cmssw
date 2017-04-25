@@ -380,7 +380,7 @@ static double kst5disk=kt4disk*kt4disk*(1<<(2*t4shift2));
 
 static int rprojdiskbitshift=6;
 static int phiderdiskbitshift=20;
-static int rderdiskbitshift=8;  //7
+static int rderdiskbitshift=7;
 static double krprojshiftdisk=krprojdisk*(1<<rprojdiskbitshift);
 
 static double kphiprojdisk=kphi0parsdisk*4.0;
