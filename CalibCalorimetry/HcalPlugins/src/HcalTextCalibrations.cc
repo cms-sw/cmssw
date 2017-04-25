@@ -369,7 +369,7 @@ std::unique_ptr<HcalSiPMParameters> HcalTextCalibrations::produceSiPMParameters 
 }
 
 std::unique_ptr<HcalSiPMCharacteristics> HcalTextCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
-  return get_impl<HcalSiPMCharacteristics> (mInputs ["SiPMCharacteristics"]);
+  return create_impl<HcalSiPMCharacteristics> (mInputs ["SiPMCharacteristics"]);
 }
 
 std::unique_ptr<HcalTPChannelParameters> HcalTextCalibrations::produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd) {

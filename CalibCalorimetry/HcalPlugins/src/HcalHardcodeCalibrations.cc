@@ -854,9 +854,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
 std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
 
-  auto result = std::make_unique<HcalSiPMCharacteristics>();
-  dbHardcode.makeHardcodeSiPMCharacteristics(*result);
-  return result;
+  return dbHardcode.makeHardcodeSiPMCharacteristics();
 }
 
 

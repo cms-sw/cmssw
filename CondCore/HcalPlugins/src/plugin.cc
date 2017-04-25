@@ -51,6 +51,9 @@ namespace {
 namespace {
   struct InitHcalFrontEndMap {void operator()(HcalFrontEndMap& e){ e.initialize();}};
 }
+namespace {
+  struct InitHcalSiPMCharacteristics {void operator()(HcalSiPMCharacteristics& e){ e.initialize();}};
+}
 
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
@@ -84,7 +87,7 @@ REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd,OOTPileupCorrectionMapColl);
 REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
 REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
-REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
+REGISTER_PLUGIN_INIT(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics,InitHcalSiPMCharacteristics);
 REGISTER_PLUGIN(HcalTPParametersRcd,HcalTPParameters);
 REGISTER_PLUGIN(HcalTPChannelParametersRcd,HcalTPChannelParameters);
 REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HcalItemCollById<HFPhase1PMTData>);
