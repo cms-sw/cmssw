@@ -31,28 +31,28 @@ StandardSpecifications1D.append(
   )
   
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                                .reduce("COUNT")
                                .groupBy("PXBarrel/PXLayer/OnlineBlock") 
                                .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                                .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                                .reduce("COUNT")
                                .groupBy("PXForward/PXDisk/OnlineBlock") 
                                .groupBy("PXForward/PXDisk", "EXTEND_Y")
                                .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                      .reduce("COUNT")
                      .groupBy("PXBarrel/OnlineBlock") 
                      .groupBy("PXBarrel", "EXTEND_Y")
                      .save()
   )
 StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock/DetId/Event") # per-layer with history for online
+      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
                      .reduce("COUNT")
                      .groupBy("PXForward/OnlineBlock") 
                      .groupBy("PXForward", "EXTEND_Y")
