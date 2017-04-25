@@ -13,8 +13,8 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
                                             const l1t::HGCalMulticluster & mclu, 
                                             double dR ) const
 {
-    HGCalDetId cluDetId( clu.seedDetId() );
-    HGCalDetId firstClusterDetId( mclu.firstClusterDetId() );
+    HGCalDetId cluDetId( clu.detId() );
+    HGCalDetId firstClusterDetId( mclu.detId() );
     
     if( cluDetId.zside() != firstClusterDetId.zside() ){
         return false;
@@ -58,7 +58,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
                 }
             } 
 
-            multiclustersTmp.at( targetMulticlu ).addCluster( *clu );
+            multiclustersTmp.at( targetMulticlu ).addConstituent( *clu );
             
         }        
     }
