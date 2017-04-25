@@ -33,13 +33,13 @@ ROOTLIBS      += `$(ROOTCONF) --glibs`
 ROOTINCL      = -I`$(ROOTCONF) --incdir`
 
 
-# AFS resources (lxplus6, without CMSSW env) - headers
-CMSINCL       += -I/afs/cern.ch/sw/lcg/external/XercesC/3.1.1/x86_64-slc6-gcc47-opt/include
-CMSINCL       += -I/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc48-opt/include
+# headers
+CMSINCL       += -I/cvmfs/cms.cern.ch/slc6_amd64_gcc530/external/xerces-c/3.1.3/include
+CMSINCL       += -I/cvmfs/cms.cern.ch/slc6_amd64_gcc530/external/clhep/2.3.4.2-mlhled/include
 
-# AFS resources (lxplus6, without CMSSW env) - libs
-CMSLIB        += -L/afs/cern.ch/sw/lcg/external/XercesC/3.1.1/x86_64-slc6-gcc47-opt/lib
-CMSLIB        += -L/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc48-opt/lib -lCLHEP-2.2.0.4 -lCLHEP-Vector-2.2.0.4
+# libs
+CMSLIB        += -L/cvmfs/cms.cern.ch/slc6_amd64_gcc530/external/xerces-c/3.1.3/lib
+CMSLIB        += -L/cvmfs/cms.cern.ch/slc6_amd64_gcc530/external/clhep/2.3.4.2-mlhled/lib -lCLHEP
 
 # local resources - libs
 CMSLIB        += -lxerces-c
@@ -49,7 +49,7 @@ CMSINCL       += $(ROOTINCL)
 
 # Linux
 CXX           = g++
-CXXFLAGS      = -O3  -fPIC  -pthread -std=c++11 #-pedantic -Wall
+CXXFLAGS      = -O3  -fPIC  -pthread -std=c++1y #-pedantic -Wall
 LD            = g++
 LDFLAGS       = -O3
 SOFLAGS       = -shared
