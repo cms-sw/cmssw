@@ -1,0 +1,44 @@
+
+<TESTSCONFIGURATION>
+<!-- Example EMTF Quality tests - currently commented out
+    <QTEST name="DeadChannels_EMTF_2D">
+        <TYPE>DeadChannel</TYPE>
+        <PARAM name="error">0.80</PARAM>
+        <PARAM name="warning">0.50</PARAM>
+        <PARAM name="threshold">0</PARAM>
+    </QTEST>
+
+    <QTEST name="HotChannels_EMTF_2D">
+        <TYPE>NoisyChannel</TYPE>
+        <PARAM name="error">0.80</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+        <PARAM name="tolerance">10</PARAM>
+        <PARAM name="neighbours">3</PARAM>
+    </QTEST>
+
+    <QTEST name="Errors_check">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="error">.001</PARAM>
+        <PARAM name="warning">.1</PARAM>
+        <PARAM name="xmin">-2</PARAM>
+        <PARAM name="xmax">-1</PARAM>
+    </QTEST> 
+
+    <LINK name="*emtfErrors">
+        <TestName activate="true">Errors_check</TestName>
+    </LINK>
+
+
+    <LINK name="*emtfChamberOccupancy">
+        <TestName activate="true">DeadChannels_EMTF_2D</TestName>
+        <TestName activate="true">HotChannels_EMTF_2D</TestName>
+    </LINK>
+
+    <LINK name="*emtfTrackOccupancy">
+        <TestName activate="true">DeadChannels_EMTF_2D</TestName>
+        <TestName activate="true">HotChannels_EMTF_2D</TestName>
+    </LINK>
+
+
+</TESTSCONFIGURATION>
+-->

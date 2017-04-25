@@ -35,6 +35,8 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::EMTFTrackCollection> trackToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken;
   std::string monitorDir;
+  bool isData;
+  bool filterBX;
   bool verbose;
 
   MonitorElement* emtfErrors;
@@ -50,18 +52,26 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackPt;
+  MonitorElement* emtfTrackPtCoarse;
+  MonitorElement* emtfTrackBX1D;
   MonitorElement* emtfTrackEta;
+  MonitorElement* emtfTrackEtaCoarse;
   MonitorElement* emtfTrackPhi;
+  MonitorElement* emtfTrackPhiCoarse;
   MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackOccupancy;
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
   MonitorElement* emtfTrackQualityVsMode;
+  MonitorElement* emtfTrackSectorIndex;
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
+  MonitorElement* emtfMuonhwPtCoarse;
   MonitorElement* emtfMuonhwEta;
+  MonitorElement* emtfMuonhwEtaCoarse;
   MonitorElement* emtfMuonhwPhi;
+  MonitorElement* emtfMuonhwPhiCoarse;
   MonitorElement* emtfMuonhwQual;
 };
 
