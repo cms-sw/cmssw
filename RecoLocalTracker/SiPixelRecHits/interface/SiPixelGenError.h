@@ -116,7 +116,8 @@ public:
    
    
    // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm.
-   int qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, int& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
+   int qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, bool irradiationCorrections,
+            int& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
             float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
    // Overloaded method to provide only the LA parameters
    int qbin(int id);

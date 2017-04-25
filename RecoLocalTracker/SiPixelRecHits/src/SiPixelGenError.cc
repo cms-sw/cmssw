@@ -461,7 +461,7 @@ int SiPixelGenError::qbin(int id) {
 }
 //-----------------------------------------------------------------------
 // Full method
-int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus,
+int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, bool irradiationCorrections,
                           int& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1,
                           float& sx2, float& dx2)
@@ -616,13 +616,6 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    // Interpolate/store all y-related quantities (flip displacements when flip_y)
    
-   dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
-   if(flip_y) {dy1 = -dy1;}
-   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-   dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
-   if(flip_y) {dy2 = -dy2;}
-   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
-   
    auto qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
    qavg *= qcorrect;
    auto qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
@@ -662,9 +655,9 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       }
    }
    
-   auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
-   if(flip_y) {yavggen = -yavggen;}
    auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
+   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
+   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
    
    
    // next, loop over all x-angle entries, first, find relevant y-slices
@@ -701,11 +694,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
-   dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
-   if(flip_x) {dx1 = -dx1;}
    sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
-   dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
-   if(flip_x) {dx2 = -dx2;}
    sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
    
    // pixmax is the maximum allowed pixel charge (used for truncation)
@@ -713,20 +702,35 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    pixmx=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iylow][ihigh].pixmax)
    +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
    
-   auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
-   +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
-   if(flip_x) {xavggen = -xavggen;}
-   
    auto xrmsgen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
    +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
    
    
+   if(irradiationCorrections) {
+      auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+      if(flip_y) {yavggen = -yavggen;}
+      deltay = yavggen;
+      dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+      if(flip_y) {dy1 = -dy1;}
+      dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+      if(flip_y) {dy2 = -dy2;}
+
+      auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+      if(flip_x) {xavggen = -xavggen;}
+      deltax = xavggen;
+      dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
+      if(flip_x) {dx1 = -dx1;}
+      dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
+      if(flip_x) {dx2 = -dx2;}
+   }
+
    
    //  Take the errors and bias from the correct charge bin
    
-   sigmay = yrmsgen; deltay = yavggen;
+   sigmay = yrmsgen;
    
-   sigmax = xrmsgen; deltax = xavggen;
+   sigmax = xrmsgen;
    
    // If the charge is too small (then flag it)
    

@@ -203,7 +203,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       //int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
       //if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
       
-      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus,
+      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus, IrradiationBiasCorrection_,
                                           theClusterParam.pixmx, theClusterParam.sigmay, theClusterParam.deltay,
                                           theClusterParam.sigmax, theClusterParam.deltax, theClusterParam.sy1,
                                           theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1,
@@ -349,7 +349,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
          // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
          //float tmp1 =  (0.5 * theDetParam.lorentzShiftInCmX);
          //cout << "Apply correction correction_dx1 = " << theClusterParam.dx1 << " to xPos = " << xPos;
-         xPos = xPos - (0.5 * theDetParam.lorentzShiftInCmX);
+         xPos = xPos - (0.5f * theDetParam.lorentzShiftInCmX);
          // Find if pixel is double (big).
          bool bigInX = theDetParam.theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );
          if ( !bigInX ) xPos -= theClusterParam.dx1;
