@@ -57,7 +57,7 @@ if phase2_muon.isChosen():
             IRPC_time_resolution = cms.double(0.1),
             IRPC_electronics_jitter = cms.double(0.025)
             ),
-        doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
+        doBkgNoise = cms.bool(False), #False - no noise and bkg simulation
         Signal = cms.bool(True),
         mixLabel = cms.string('mix'),                                 
         InputCollection = cms.string('g4SimHitsMuonRPCHits'),
