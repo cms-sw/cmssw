@@ -16,7 +16,33 @@
 // 
 class HcalFrontEndMap {
 public:
-  HcalFrontEndMap();
+
+  class PrecisionItem { 
+   public:
+    PrecisionItem () {mId = mRM = 0; mRBX = "";}
+    PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
+      : mId (fId), mRM (fRM), mRBX (fRBX) {}
+    uint32_t    mId;
+    int         mRM;
+    std::string mRBX;
+    
+    COND_SERIALIZABLE;
+  };
+
+  class Helper {
+   public:
+    Helper();
+    /// load a new entry
+    bool loadObject(DetId fId, int rm, std::string rbx);
+    
+    std::vector<PrecisionItem> mPItems;
+    std::vector<const PrecisionItem*> mPItemsById;
+    
+   COND_TRANSIENT;
+  };
+
+  HcalFrontEndMap() {}
+  HcalFrontEndMap(const Helper& helper);
   ~HcalFrontEndMap();
 
   // swap function
@@ -29,9 +55,6 @@ public:
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   HcalFrontEndMap(HcalFrontEndMap&& other);
 #endif
-
-  /// load a new entry
-  bool loadObject(DetId fId, int rm, std::string rbx);
 
   /// brief lookup the RM associated with the given logical id
   //return Null item if no such mapping
@@ -48,30 +71,16 @@ public:
   std::vector <int>         allRMs() const;
   std::vector <std::string> allRBXs() const;
 
+  static const PrecisionItem* findById (uint32_t fId, const std::vector<const PrecisionItem*>& mPItemsById);
+
   // sorting
-  void sortById () const;
-  void sort() {}
+  static void sortById (const std::vector<PrecisionItem>& items, std::vector<const PrecisionItem*>& itemsById);
+  void initialize();
   
-  class PrecisionItem { 
-  public:
-    PrecisionItem () {mId = mRM = 0; mRBX = "";}
-    PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
-      : mId (fId), mRM (fRM), mRBX (fRBX) {}
-    uint32_t    mId;
-    int         mRM;
-    std::string mRBX;
-    
-    COND_SERIALIZABLE;
-  };
 protected:
-  const PrecisionItem* findById (uint32_t fId) const;
   
   std::vector<PrecisionItem> mPItems;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<std::vector<const PrecisionItem*>*> mPItemsById COND_TRANSIENT;
-#else
-  mutable std::vector<const PrecisionItem*>* mPItemsById COND_TRANSIENT;
-#endif
+  std::vector<const PrecisionItem*> mPItemsById COND_TRANSIENT;
 
   COND_SERIALIZABLE;
 };

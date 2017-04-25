@@ -294,7 +294,7 @@ std::unique_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap 
 }
 
 std::unique_ptr<HcalFrontEndMap> HcalTextCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
-  return get_impl<HcalFrontEndMap> (mInputs ["FrontEndMap"]);
+  return create_impl<HcalFrontEndMap> (mInputs ["FrontEndMap"]);
 }
 
 std::unique_ptr<HcalValidationCorrs> HcalTextCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {

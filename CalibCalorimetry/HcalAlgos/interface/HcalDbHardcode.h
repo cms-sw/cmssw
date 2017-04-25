@@ -88,6 +88,7 @@ class HcalDbHardcode {
     std::unique_ptr<HcalElectronicsMap> makeHardcodeMap(const std::vector<HcalGenericDetId>& cells);
     std::unique_ptr<HcalDcsMap> makeHardcodeDcsMap();
     void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells);
+    std::unique_ptr<HcalFrontEndMap> makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells);
     HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo, double intlumi);
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
     HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);

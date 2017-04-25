@@ -88,7 +88,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
   bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
-  bool getObject (std::istream& fInput, HcalFrontEndMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject);
 
   bool getObject (std::istream& fInput, HcalValidationCorrs* fObject);
