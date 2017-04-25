@@ -123,17 +123,17 @@ class AntiElectronIDMVA6
 
    // this function can be called for all categories
    double MVAValue(const reco::PFTau& thePFTau, 
-		   const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation, double bField);
+		   const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation);
    // this function can be called for category 1 only !!
-   double MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation, double bField);
+   double MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation);
 
    // this function can be called for all categories
    double MVAValue(const pat::Tau& theTau, 
-		   const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation, double bField);
+		   const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation);
    // this function can be called for category 1 only !!
-   double MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation, double bField);
+   double MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation);
    // track extrapolation to ECAL entrance (used to re-calculate varibales that might not be available on miniAOD)
-   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint &pos, double bField);    
+   bool atECalEntrance(const reco::Candidate* part, math::XYZPoint &pos);    
 
  private:   
 
@@ -174,6 +174,7 @@ class AntiElectronIDMVA6
 
    std::vector<TFile*> inputFilesToDelete_;
 
+   double bField_;
    int verbosity_;
 };
 
