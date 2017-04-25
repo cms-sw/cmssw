@@ -10,6 +10,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
+	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
@@ -17,12 +19,15 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	_tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger",
 		edm::InputTag("tbunpacker"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
 
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
+		20);
+	_lowHEP17 = ps.getUntrackedParameter<double>("lowHEP17",
 		20);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
 		20);
@@ -288,6 +293,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	edm::Handle<HBHEDigiCollection>		chbhe;
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<QIE10DigiCollection>		chf;
+	edm::Handle<QIE11DigiCollection>		chep17;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available "
@@ -298,6 +304,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	if (!e.getByToken(_tokHF, chf))
 		_logger.dqmthrow("Collection QIE10DigiCollection isn't available "
 			+ _tagHF.label() + " " + _tagHF.instance());
+	if (!e.getByToken(_tokHEP17, chep17))
+		_logger.dqmthrow("Collection QIE11DigiCollection isn't available "
+			+ _tagHEP17.label() + " " + _tagHEP17.instance());
 
 //	int currentEvent = e.eventAuxiliary().id().event();
 
@@ -325,6 +334,37 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 				_cShapeCut_FEDSlot.fill(eid, i, 
 					digi.sample(i).nominal_fC()-2.5);
 			}
+		}
+	}
+	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+		++it)
+	{
+		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
+		HcalDetId const& did = digi.detid();
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (!rawid) {
+			char unknown_id_string[50];
+			sprintf(unknown_id_string, "Detid %d, ieta %d, iphi %d, depth %d, is not in emap. Skipping.", int(did), did.ieta(), did.iphi(), did.depth());
+			_logger.warn(unknown_id_string);
+			continue;
+		}
+		HcalElectronicsId const& eid(rawid);
+
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		if (sumQ<_lowHEP17)
+			continue;
+
+		double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,
+			digi.samples()-1);
+		_xSignalSum.get(did)+=sumQ;
+		_xSignalSum2.get(did)+=sumQ*sumQ;
+		_xTimingSum.get(did)+=aveTS;
+		_xTimingSum2.get(did)+=aveTS*aveTS;
+		_xEntries.get(did)++;
+
+		for (int i=0; i<digi.samples(); i++) {
+			_cShapeCut_FEDSlot.fill(eid, i, 
+				adc2fC[digi[i].adc()]-2.5);
 		}
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
