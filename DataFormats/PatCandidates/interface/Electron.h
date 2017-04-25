@@ -32,6 +32,8 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+
 // Define typedefs for convenience
 namespace pat {
   class Electron;
@@ -58,7 +60,7 @@ namespace pat {
       /// default constructor
       Electron();
       /// constructor from reco::GsfElectron
-      Electron(const reco::GsfElectron & anElectron);
+     Electron(const reco::GsfElectron & anElectron);
       /// constructor from a RefToBase to a reco::GsfElectron (to be superseded by Ptr counterpart)
       Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef);
       /// constructor from a Ptr to a reco::GsfElectron
@@ -266,6 +268,9 @@ namespace pat {
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
 
+      MiniIsolation miniPFIsolation() const { return miniPFIsolation_; }
+      void setMiniPFIsolation(MiniIsolation mpfi) { miniPFIsolation_ = mpfi; }
+
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
@@ -387,6 +392,8 @@ namespace pat {
       float  ip_[IpTypeSize];    
       /// Impact parameter uncertainty as recommended by the tracking group
       float  eip_[IpTypeSize];      
+
+      MiniIsolation miniPFIsolation_;
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;

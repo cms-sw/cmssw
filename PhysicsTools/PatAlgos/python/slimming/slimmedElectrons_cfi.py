@@ -15,6 +15,7 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    dropExtrapolations  = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropClassifications  = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    linkToPackedPFCandidates = cms.bool(True),
+   computeMiniIso = cms.bool(True),
    recoToPFMap = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap"),
    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
    saveNonZSClusterShapes = cms.string("pt > 5"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
