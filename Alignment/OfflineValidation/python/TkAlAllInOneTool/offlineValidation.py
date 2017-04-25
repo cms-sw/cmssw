@@ -64,11 +64,9 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
         return super(OfflineValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
-        repMap = super(OfflineValidation, self).getRepMap(alignment)
+        repMap = super(OfflineValidation, self).getRepMap()
         repMap.update({
             "nEvents": self.general["maxevents"],
-            "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
-            "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate,
             "offlineValidationMode": "Standalone",
             "TrackCollection": self.general["trackcollection"],
             "filetoplot": "root://eoscms//eos/cms.oO[finalResultFile]Oo.",
