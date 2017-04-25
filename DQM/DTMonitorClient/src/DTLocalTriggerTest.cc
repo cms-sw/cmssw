@@ -208,22 +208,27 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      if (BXvsQual && Flag1stvsQual && BestQual) {
 		int corrSummary   = 1;
 		int secondSummary = 1;
-		
+		//default values for histograms
+	        double BX_OK  = 51.;	
+		double BXMean = 51. ;
+		double corrFrac = 0.;
+		double secondFrac = 0.;
+		double besttrigs = 0.;
 		if (BestQual->GetEntries()>1) {
 		  TH1D* BXHH    = BXvsQual->ProjectionY("",6,7,"");
 		  TH1D* Flag1st = Flag1stvsQual->ProjectionY();
 		  int BXOK_bin  = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
-		  double BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
-		  double BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
+		  BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
+		  BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
 		  double trigsFlag2nd = Flag1st->GetBinContent(2);
 		  double trigs = Flag1st->GetEntries();
-		  double besttrigs = BestQual->GetEntries();
+		  besttrigs = BestQual->GetEntries();
 		  double besttrigsCorr = BestQual->Integral(5,7,"");
 		  delete BXHH;
 		  delete Flag1st;
 		  
-		  double corrFrac   = besttrigsCorr/besttrigs;
-		  double secondFrac = trigsFlag2nd/trigs;
+		  corrFrac   = besttrigsCorr/besttrigs;
+		  secondFrac = trigsFlag2nd/trigs;
 		  if (corrFrac < parameters.getUntrackedParameter<double>("corrFracError",.5)){
 		    corrSummary = 2;
 		  }
@@ -266,27 +271,30 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 
 		  delete BXDistr;
 		  delete QualDistr;
-
-		  if( whME[wh].find(fullName("CorrectBXPhiIn")) == whME[wh].end() ){
-		    bookWheelHistos(ibooker,wh,"ResidualBXPhiIn");
-		    bookWheelHistos(ibooker,wh,"CorrectBXPhiIn");
-		    bookWheelHistos(ibooker,wh,"CorrFractionPhiIn");
-		    bookWheelHistos(ibooker,wh,"2ndFractionPhiIn");
-		    bookWheelHistos(ibooker,wh,"TriggerInclusivePhiIn");
-		  }
-		  
-		  innerME = &(whME[wh]);
-		  innerME->find(fullName("CorrectBXPhiIn"))->second->setBinContent(sect,stat,BX_OK+0.00001);
-		  innerME->find(fullName("ResidualBXPhiIn"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
-		  innerME->find(fullName("CorrFractionPhiIn"))->second->setBinContent(sect,stat,corrFrac);
-		  innerME->find(fullName("TriggerInclusivePhiIn"))->second->setBinContent(sect,stat,besttrigs);
-		  innerME->find(fullName("2ndFractionPhiIn"))->second->setBinContent(sect,stat,secondFrac);
 		}
 
-		whME[wh].find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect,stat,corrSummary);
-		whME[wh].find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect,stat,secondSummary);
+		std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 
-	      }
+		if( whME[wh].find(fullName("CorrectBXPhiIn")) == whME[wh].end() ){
+		   bookWheelHistos(ibooker,wh,"ResidualBXPhiIn");
+		   bookWheelHistos(ibooker,wh,"CorrectBXPhiIn");
+		   bookWheelHistos(ibooker,wh,"CorrFractionPhiIn");
+		   bookWheelHistos(ibooker,wh,"2ndFractionPhiIn");
+		   bookWheelHistos(ibooker,wh,"TriggerInclusivePhiIn");
+		 }
+		 
+		 innerME = &(whME[wh]);
+		 innerME->find(fullName("CorrectBXPhiIn"))->second->setBinContent(sect,stat,BX_OK+0.00001);
+		 innerME->find(fullName("ResidualBXPhiIn"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
+		 innerME->find(fullName("CorrFractionPhiIn"))->second->setBinContent(sect,stat,corrFrac);
+		 innerME->find(fullName("TriggerInclusivePhiIn"))->second->setBinContent(sect,stat,besttrigs);
+		 innerME->find(fullName("2ndFractionPhiIn"))->second->setBinContent(sect,stat,secondFrac);
+		
+
+		 whME[wh].find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect,stat,corrSummary);
+		 whME[wh].find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect,stat,secondSummary);
+
+	      } // closes BXvsQual && Flag1stvsQual && BestQual
 
 	      if (hwSource=="TM"){
 		//Out part
@@ -297,22 +305,28 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
               if (BXvsQual && Flag1stvsQual && BestQual) {
                 int corrSummary   = 1;
                 int secondSummary = 1;
-
+                //default values for histograms
+                double BX_OK  = 51.;
+                double BXMean = 51. ;
+                double corrFrac = 0.;
+                double secondFrac = 0.;
+                double besttrigs = 0.;
+                
                 if (BestQual->GetEntries()>1) {
                   TH1D* BXHH    = BXvsQual->ProjectionY("",6,7,"");
                   TH1D* Flag1st = Flag1stvsQual->ProjectionY();
                   int BXOK_bin  = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
-                  double BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
-                  double BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
+                  BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
+                  BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
                   double trigsFlag2nd = Flag1st->GetBinContent(2);
                   double trigs = Flag1st->GetEntries();
-                  double besttrigs = BestQual->GetEntries();
+                  besttrigs = BestQual->GetEntries();
                   double besttrigsCorr = BestQual->Integral(5,7,"");
                   delete BXHH;
                   delete Flag1st;
 
-                  double corrFrac   = besttrigsCorr/besttrigs;
-                  double secondFrac = trigsFlag2nd/trigs;
+                  corrFrac   = besttrigsCorr/besttrigs;
+                  secondFrac = trigsFlag2nd/trigs;
                   if (corrFrac < parameters.getUntrackedParameter<double>("corrFracError",.5)){
                     corrSummary = 2;
                   }
@@ -355,27 +369,30 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 
                   delete BXDistr;
                   delete QualDistr;
+		}
 
-                  if( whME[wh].find(fullName("CorrectBXPhiOut")) == whME[wh].end() ){
-                    bookWheelHistos(ibooker,wh,"ResidualBXPhiOut");
-                    bookWheelHistos(ibooker,wh,"CorrectBXPhiOut");
-                    bookWheelHistos(ibooker,wh,"CorrFractionPhiOut");
-                    bookWheelHistos(ibooker,wh,"2ndFractionPhiOut");
-                    bookWheelHistos(ibooker,wh,"TriggerInclusivePhiOut");
-                  }
+		std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 
-                  innerME = &(whME[wh]);
-                  innerME->find(fullName("CorrectBXPhiOut"))->second->setBinContent(sect,stat,BX_OK+0.00001);
-                  innerME->find(fullName("ResidualBXPhiOut"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
-                  innerME->find(fullName("CorrFractionPhiOut"))->second->setBinContent(sect,stat,corrFrac);
-                  innerME->find(fullName("TriggerInclusivePhiOut"))->second->setBinContent(sect,stat,besttrigs);
-                  innerME->find(fullName("2ndFractionPhiOut"))->second->setBinContent(sect,stat,secondFrac);
+                if( whME[wh].find(fullName("CorrectBXPhiOut")) == whME[wh].end() ){
+                  bookWheelHistos(ibooker,wh,"ResidualBXPhiOut");
+                  bookWheelHistos(ibooker,wh,"CorrectBXPhiOut");
+                  bookWheelHistos(ibooker,wh,"CorrFractionPhiOut");
+                  bookWheelHistos(ibooker,wh,"2ndFractionPhiOut");
+                  bookWheelHistos(ibooker,wh,"TriggerInclusivePhiOut");
                 }
+
+                innerME = &(whME[wh]);
+                innerME->find(fullName("CorrectBXPhiOut"))->second->setBinContent(sect,stat,BX_OK+0.00001);
+                innerME->find(fullName("ResidualBXPhiOut"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
+                innerME->find(fullName("CorrFractionPhiOut"))->second->setBinContent(sect,stat,corrFrac);
+                innerME->find(fullName("TriggerInclusivePhiOut"))->second->setBinContent(sect,stat,besttrigs);
+                innerME->find(fullName("2ndFractionPhiOut"))->second->setBinContent(sect,stat,secondFrac);
+                
 
                 whME[wh].find(fullName("CorrFractionSummaryOut"))->second->setBinContent(sect,stat,corrSummary);
                 whME[wh].find(fullName("2ndFractionSummaryOut"))->second->setBinContent(sect,stat,secondSummary);
 
-              }
+              } // closes BXvsQual && Flag1stvsQual && BestQual
 
 	      }	// Check on TM source
 		//Theta part
@@ -405,12 +422,12 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      else if (hwSource=="TM") {
 		// Perform TM plot analysis (Theta ones)	    
 		TH2F * ThetaPosvsBX = getHisto<TH2F>(igetter.get(getMEName("PositionvsBX","LocalTriggerTheta", chId)));
-	      
+	        double BX_OK = 48; 
 		// no theta triggers in stat 4!
 		if (ThetaPosvsBX && stat<4 && ThetaPosvsBX->GetEntries()>1) {
 		  TH1D* BX        = ThetaPosvsBX->ProjectionX();
 		  int    BXOK_bin = BX->GetEffectiveEntries()>=1 ? BX->GetMaximumBin(): 10;
-		  double BX_OK    = ThetaPosvsBX->GetXaxis()->GetBinCenter(BXOK_bin);
+		  BX_OK    = ThetaPosvsBX->GetXaxis()->GetBinCenter(BXOK_bin);
 		  delete BX; 
 		
 		  if( whME[wh].find(fullName("CorrectBXTheta")) == whME[wh].end() ){
