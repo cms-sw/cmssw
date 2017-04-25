@@ -162,7 +162,7 @@ public:
 	    double phi_track=phi0-0.5*rinv*(z-z0)/t;
 
 	    int iphi=D->stubs_[jSector][j].iphi();
-	    double width=4.608;
+	    double width=4.572; //4.608;
 	    double nstrip=508.0;
 	    if (r<60.0) {
 	      width=4.8;

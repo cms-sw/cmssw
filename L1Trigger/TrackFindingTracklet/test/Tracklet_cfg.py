@@ -43,15 +43,24 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files)
 # Path definitions & schedule
 ############################################################
 
+# beamspot 
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.BS = cms.Path(process.offlineBeamSpot)
+
+# run cluster+stubs associators
+process.TTClusterStubAssociator = cms.Path(process.TrackTriggerAssociatorClustersStubs)
+
 #run the tracking
 process.TTTracks = cms.EDProducer("L1TrackProducer",
 				 SimTrackSource = cms.InputTag("g4SimHits"),
 				 SimVertexSource = cms.InputTag("g4SimHits"),
 				 TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
 				 TTStubMCTruthSource = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
+                 BeamSpotSource = cms.InputTag("offlineBeamSpot")
     )
 process.TrackTriggerTTTracks = cms.Sequence(process.TTTracks)
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
+process.TTAssociator = cms.Path(process.TrackTriggerAssociatorTracks)
 
 
 #output module
@@ -62,5 +71,5 @@ process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 #)
 #process.FEVToutput_step = cms.EndPath(process.out)
 
-process.schedule = cms.Schedule(process.TT_step)
+process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator)
 

@@ -144,7 +144,7 @@ public:
 	int iphi=stubs_[i].iphi();
 	double phii=stubs_[i].phi();
 
-	double width=4.608;
+	double width=4.572; //4.608;
 	double nstrip=508.0;
 	if (ri<60.0) {
 	  width=4.8;
@@ -260,7 +260,7 @@ public:
 
 	int iphi=stubs_[i].iphi();
 
-	double width=4.608;
+	double width=4.572; //4.608;
 	double nstrip=508.0;
 	if (ri<60.0) {
 	  width=4.8;
@@ -382,7 +382,7 @@ public:
 
 	int iphi=stubs_[i].strip();
 
-	double width=4.608;
+	double width=4.572; //4.608;
 	double nstrip=508.0;
 	if (ri<60.0) {
 	  width=4.8;
@@ -418,7 +418,7 @@ public:
 	  
 	  iphi=stubs_[i].iphi();
 
-	  double width=4.608;
+	  double width=4.572; //4.608;
 	  double nstrip=508.0;
 	  if (ri<60.0) {
 	    width=4.8;
