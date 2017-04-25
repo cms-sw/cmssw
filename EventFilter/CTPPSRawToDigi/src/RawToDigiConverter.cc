@@ -108,6 +108,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
       problemsPresent = true;
 
       if (verbosity > 0)
+        fes << "    CRC failure" << endl;
 
       if (testCRC == tfErr)
       {
