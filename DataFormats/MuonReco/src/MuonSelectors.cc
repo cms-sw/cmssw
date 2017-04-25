@@ -34,6 +34,10 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose },
       { "TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight },
       { "RPCMuLoose", RPCMuLoose },
+      { "AllME0Muons", AllME0Muons },
+      { "ME0MuonArbitrated", ME0MuonArbitrated },
+      { "AllGEMMuons", AllGEMMuons },
+      { "GEMMuonArbitrated", GEMMuonArbitrated },
       { 0, (SelectionType)-1 }
    };
 
@@ -560,6 +564,82 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     if ( nMatch >= minNumberOfMatches ) return true;
     else return false;
   } // RPCMu
+    
+  if ( type == ME0Mu )
+  {
+    if ( minNumberOfMatches == 0 ) return true;
+    
+    int nMatch = 0;
+    for ( const auto& chamberMatch : muon.matches() )
+    {
+      if ( chamberMatch.detector() != MuonSubdetId::ME0 ) continue;
+
+      const double trkX = chamberMatch.x;
+      const double errX = chamberMatch.xErr;
+      const double trkY = chamberMatch.y;
+      const double errY = chamberMatch.yErr;
+
+      for ( const auto& segment : chamberMatch.me0Matches )
+      {
+          
+        const double me0X = segment.x;
+        const double me0ErrX = segment.xErr;
+        const double me0Y = segment.y;
+        const double me0ErrY = segment.yErr;
+
+        const double dX   = fabs(me0X - trkX);
+        const double dY   = fabs(me0Y - trkY);
+        const double pullX   = dX/std::sqrt(errX + me0ErrX);
+        const double pullY   = dY/std::sqrt(errY + me0ErrY);
+          
+        if ( (dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY) )
+        {
+          ++nMatch;
+          break;
+        }
+      }
+    }
+
+  return ( nMatch >= minNumberOfMatches );
+  } // ME0Mu
+    
+  if ( type == GEMMu )
+  {
+    if ( minNumberOfMatches == 0 ) return true;
+    
+    int nMatch = 0;
+    for ( const auto& chamberMatch : muon.matches() )
+    {
+      if ( chamberMatch.detector() != MuonSubdetId::GEM ) continue;
+
+      const double trkX = chamberMatch.x;
+      const double errX = chamberMatch.xErr;
+      const double trkY = chamberMatch.y;
+      const double errY = chamberMatch.yErr;
+
+      for ( const auto& segment : chamberMatch.gemMatches )
+      {
+          
+        const double gemX = segment.x;
+        const double gemErrX = segment.xErr;
+        const double gemY = segment.y;
+        const double gemErrY = segment.yErr;
+
+        const double dX   = fabs(gemX - trkX);
+        const double dY   = fabs(gemY - trkY);
+        const double pullX   = dX/std::sqrt(errX + gemErrX);
+        const double pullY   = dY/std::sqrt(errY + gemErrY);
+          
+        if ( (dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY) )
+        {
+          ++nMatch;
+          break;
+        }
+      }
+    }
+
+   return ( nMatch >= minNumberOfMatches );
+   } // GEMMu
 
    return goodMuon;
 }
@@ -667,6 +747,18 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
       break;
     case muon::RPCMuLoose:
 	return muon.isRPCMuon() && isGoodMuon(muon, RPCMu, 2, 20, 4, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
+      break;
+    case muon::AllME0Muons:
+	  return muon.isME0Muon();
+      break;
+    case muon::ME0MuonArbitrated:
+	  return muon.isME0Muon() && isGoodMuon(muon, ME0Mu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
+      break;
+    case muon::AllGEMMuons:
+	  return muon.isGEMMuon();
+      break;
+    case muon::GEMMuonArbitrated:
+	  return muon.isGEMMuon() && isGoodMuon(muon, GEMMu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
       break;
     default:
       return false;
