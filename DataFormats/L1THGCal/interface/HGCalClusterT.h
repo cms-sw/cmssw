@@ -100,7 +100,7 @@ namespace l1t
       const GlobalPoint& centre() const { return centre_; }
       const GlobalPoint& centreProj() const { return centreProj_; }
 
-      // FIXME: will need to fix places were the shapes are directly accessed
+      // FIXME: will need to fix places where the shapes are directly accessed
       // Right now keep shapes() getter as non-const 
       ClusterShapes& shapes() {return shapes_;}
       double hOverE() const
