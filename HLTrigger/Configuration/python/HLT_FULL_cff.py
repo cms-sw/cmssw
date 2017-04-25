@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/HLT/V28 (CMSSW_9_0_0_HLT1)
+# /dev/CMSSW_9_0_1/HLT/V29 (CMSSW_9_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V28')
+  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V29')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -69335,7 +69335,7 @@ fragment.MC_CaloMET_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMC
 fragment.MC_CaloMET_JetIdCleaned_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloMETJetIdCleaned + fragment.HLTDoCaloSequence + fragment.hltMet + fragment.HLTAK4CaloJetsSequence + fragment.hltMetCleanUsingJetID + fragment.hltMETCleanUsingJetIDOpenFilter + fragment.HLTEndSequence )
 fragment.MC_AK4CaloJets_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK4CaloJets + fragment.HLTAK4CaloJetsSequence + fragment.hltCaloJetCollection20Filter + fragment.HLTEndSequence )
 fragment.MC_AK4CaloJetsFromPV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK4CaloJetsFromPV + fragment.HLTAK4CaloJetsSequence + fragment.HLTNoPUSequence + fragment.hltCaloJetFromPVCollection20Filter + fragment.hltHtMhtFromPVForMC + fragment.hltCaloHtMhtFromPVOpenFilter + fragment.HLTEndSequence )
-fragment.MC_CaloBTagCSV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloBTagCSV + fragment.HLTAK4CaloJetsSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltCaloJetCollection20Filter + fragment.hltBTagPFCSVp056Single + fragment.HLTEndSequence )
+fragment.MC_CaloBTagCSV_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloBTagCSV + fragment.HLTAK4CaloJetsSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltCaloJetCollection20Filter + fragment.hltBTagCaloCSVp067Single + fragment.HLTEndSequence )
 fragment.MC_CaloHT_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloHT + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltCaloHTOpenFilter + fragment.HLTEndSequence )
 fragment.MC_CaloMHT_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCCaloMHT + fragment.HLTAK4CaloJetsSequence + fragment.hltHtMhtForMC + fragment.hltMhtFilter + fragment.HLTEndSequence )
 fragment.MC_AK8PFJets_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreMCAK8PFJets + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFJetCollection20Filter + fragment.HLTEndSequence )

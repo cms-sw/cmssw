@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/GRun/V12 (CMSSW_9_0_0_HLT1)
+# /dev/CMSSW_9_0_1/GRun/V13 (CMSSW_9_0_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V13')
 )
 
 process.transferSystem = cms.PSet( 
@@ -9460,6 +9460,15 @@ process.hltInclusiveSecondaryVertexFinderTagInfos = cms.EDProducer( "SecondaryVe
 process.hltCombinedSecondaryVertexBJetTagsCalo = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltCombinedSecondaryVertexV2" ),
     tagInfos = cms.VInputTag( 'hltImpactParameterTagInfos','hltInclusiveSecondaryVertexFinderTagInfos' )
+)
+process.hltBTagCaloCSVp067Single = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltSelector8CentralJetsL1FastJet" ),
+    MinTag = cms.double( 0.62 ),
+    MaxTag = cms.double( 99999.0 )
 )
 process.hltPreMCCaloHT = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -23422,7 +23431,7 @@ process.MC_CaloMET_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCal
 process.MC_CaloMET_JetIdCleaned_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloMETJetIdCleaned + process.HLTDoCaloSequence + process.hltMet + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetIDOpenFilter + process.HLTEndSequence )
 process.MC_AK4CaloJets_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK4CaloJets + process.HLTAK4CaloJetsSequence + process.hltCaloJetCollection20Filter + process.HLTEndSequence )
 process.MC_AK4CaloJetsFromPV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK4CaloJetsFromPV + process.HLTAK4CaloJetsSequence + process.HLTNoPUSequence + process.hltCaloJetFromPVCollection20Filter + process.hltHtMhtFromPVForMC + process.hltCaloHtMhtFromPVOpenFilter + process.HLTEndSequence )
-process.MC_CaloBTagCSV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloBTagCSV + process.HLTAK4CaloJetsSequence + process.HLTBtagCSVSequenceL3 + process.hltCaloJetCollection20Filter + process.hltBTagPFCSVp056Single + process.HLTEndSequence )
+process.MC_CaloBTagCSV_v1 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloBTagCSV + process.HLTAK4CaloJetsSequence + process.HLTBtagCSVSequenceL3 + process.hltCaloJetCollection20Filter + process.hltBTagCaloCSVp067Single + process.HLTEndSequence )
 process.MC_CaloHT_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloHT + process.HLTAK4CaloJetsSequence + process.hltHtMhtForMC + process.hltCaloHTOpenFilter + process.HLTEndSequence )
 process.MC_CaloMHT_v3 = cms.Path( process.HLTBeginSequence + process.hltPreMCCaloMHT + process.HLTAK4CaloJetsSequence + process.hltHtMhtForMC + process.hltMhtFilter + process.HLTEndSequence )
 process.MC_AK8PFJets_v6 = cms.Path( process.HLTBeginSequence + process.hltPreMCAK8PFJets + process.HLTAK8PFJetsSequence + process.hltAK8PFJetCollection20Filter + process.HLTEndSequence )
