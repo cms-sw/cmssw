@@ -12,7 +12,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 DDHGCalTBModule::DDHGCalTBModule() {
 #ifdef EDM_ML_DEBUG
