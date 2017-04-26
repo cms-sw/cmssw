@@ -57,7 +57,6 @@ class QIE11Task : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_slot[2];
 
 		//	Electronics Maps/Hashes
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		
 		//	hcaldqm::Containers

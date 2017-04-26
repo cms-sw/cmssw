@@ -49,7 +49,6 @@ class QIE10Task : public hcaldqm::DQTask
 
 
 		//	Electronics Maps/Hashes
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		
 		//	hcaldqm::Containers

@@ -60,7 +60,6 @@ class LaserTask : public hcaldqm::DQTask
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;

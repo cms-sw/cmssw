@@ -64,7 +64,6 @@ class RecHitTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	Filters
