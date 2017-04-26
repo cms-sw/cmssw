@@ -20,7 +20,6 @@
 
 //CTPPSHector headers
 #include "H_BeamLine.h"
-#include "H_RecRPObject.h"
 #include "H_BeamParticle.h"
 
 #include <string>
@@ -102,10 +101,9 @@ class CTPPSHector {
         edm::ESHandle < ParticleDataTable > pdt;
 
         // CTPPSHector
-        H_BeamLine * m_beamlineCTPPS1;
-        H_BeamLine * m_beamlineCTPPS2;	
-        H_RecRPObject * m_ctpps_f;
-        H_RecRPObject * m_ctpps_b; 
+        std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
+        std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
+
         std::map<unsigned int, H_BeamParticle*> m_beamPart;
         std::map<unsigned int, int> m_direct;
         std::map<unsigned int, bool> m_isStoppedctpps;
