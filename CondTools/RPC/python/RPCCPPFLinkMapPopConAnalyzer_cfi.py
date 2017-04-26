@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-RPCCPPFLinkMapPopConAnalyzer = cms.EDAnalyzer('RPCCPPFLinkMapPopConAnalyzer'
+RPCCPPFLinkMapPopConAnalyzer = cms.EDAnalyzer('RPCAMCLinkMapPopConAnalyzer'
                                               , record = cms.string('RPCCPPFLinkMapRcd')
                                               , Source = cms.PSet(
                                                   identifier = cms.string('RPCCPPFLinkMapHandler')
@@ -8,9 +8,10 @@ RPCCPPFLinkMapPopConAnalyzer = cms.EDAnalyzer('RPCCPPFLinkMapPopConAnalyzer'
                                                   , sinceRun = cms.uint64(1)
                                                   # File provided by K. Bunkowski
                                                   , inputFile = cms.FileInPath('CondTools/RPC/data/RPCCPPFLinkMapInput.txt')
-                                                  , sideFED = cms.vint32(1386, 1386)
+                                                  , wheelNotSide = cms.bool(False)
+                                                  , wheelOrSideFED = cms.vint32(1386, 1386)
                                                   , nSectors = cms.uint32(4)
-                                                  , sideSectorAMC = cms.vint64(0x5678, 0x1234)
+                                                  , wheelOrSideSectorAMC = cms.vint64(0x5678, 0x1234)
                                                   , txtFile = cms.untracked.string('')
                                               )
 )
