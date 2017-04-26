@@ -1,7 +1,7 @@
 #########################
 #
-# Configuration file for PileUp events
-# production in tracker only
+# Configuration file for simple PGUN events
+# production in Tracker-Only geometry
 #
 # Author: S.Viret (viret@in2p3.fr)
 # Date        : 16/02/2017
@@ -30,7 +30,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
-process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
@@ -46,37 +46,43 @@ else:
 	print 'You choose the tilted geometry'
 	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("EmptySource")
 
-process.mix.minBunch = cms.int32(-12)
-process.mix.bunchspace=cms.int32(25)
-process.mix.input.nbPileupEvents.averageNumber = cms.double(20.0)  # The average number of pileup events you want  
-process.mix.input.fileNames     = cms.untracked.vstring('file:MBias_100_TkOnly.root') # The file where to pick them up
+
+# Output definition
+
+process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    outputCommands = process.RAWSIMEventContent.outputCommands,
+    fileName = cms.untracked.string('PGun_example_TkOnly.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-FEVT')
+    ),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    )
+)
 
 # Additional output definition
-
 # Other statements
-# Global tag for PromptReco
-#
-# To find where upgradePLS3 is pointing, look here:
-#
-# https://github.com/cms-sw/cmssw/blob/CMSSW_6_2_X_SLHC_2014-06-16-0200/Configuration/AlCa/python/autoCond.py
-
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
-
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.RandomNumberGeneratorService.generator.initialSeed      = 20
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
-process.RandomNumberGeneratorService.g4SimHits.initialSeed      = 178
-process.RandomNumberGeneratorService.mix.initialSeed            = 210
 
+# Random seeds
+process.RandomNumberGeneratorService.generator.initialSeed      = 1
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
+process.RandomNumberGeneratorService.g4SimHits.initialSeed      = 3
+process.RandomNumberGeneratorService.mix.initialSeed            = 4
 
 # Generate particle gun events
 process.generator = cms.EDFilter("Pythia8PtGun",
@@ -99,30 +105,15 @@ process.generator = cms.EDFilter("Pythia8PtGun",
 )
 
 
-# Output definition
-
-process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('PU_20_sample_TkOnly_FLAT.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
-)
+# This line is necessary to keep track of the Tracking Particles
 
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_*')
 process.RAWSIMoutput.outputCommands.append('drop  *_mix_*_STUBS')
 process.RAWSIMoutput.outputCommands.append('drop  PCaloHits_*_*_*')
 process.RAWSIMoutput.outputCommands.append('drop  *_ak*_*_*')
-process.RAWSIMoutput.outputCommands.append('drop  *_simSi*_*_*')
+process.RAWSIMoutput.outputCommands.append('drop  *_simSiPixelDigis_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_mix_Tracker_*')
-
 
 # Path and EndPath definitions
 process.generation_step         = cms.Path(process.pgen)
@@ -140,12 +131,12 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+	
+# Automatic addition of the customisation function 
 
-
-# Automatic addition of the customisation function
 from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
-process = TkOnlyDigi(process)
-# End of customisation functions
 
+process = TkOnlyDigi(process) # TkOnly digitization
 
+# End of customisation functions	
 
