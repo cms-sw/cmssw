@@ -1,300 +1,300 @@
-TM YB+1_S1 0 LB_RB+1_S1_BP1A 1580	CH0: W+1/RB1out/1 Backward 	CH1: W+1/RB2out/1 Backward 	CH2: W+1/RB1in/1 Backward 
-TM YB+1_S1 1 LB_RB+1_S1_BP1B 1577	CH0: W+1/RB1out/1 Forward 	CH1: W+1/RB2out/1 Forward 	CH2: W+1/RB1in/1 Forward 
-TM YB+1_S1 2 LB_RB+1_S1_BP1C 1574	CH0: W+1/RB2in/1 Central 	CH1: W+1/RB2in/1 Forward 	CH2: W+1/RB2in/1 Backward 
-TM YB+1_S1 3 LB_RB+1_S1_BP1D 1571	CH0: W+1/RB4/1+ Backward W+1/RB4/1- Backward 	CH2: W+1/RB3/1+ Backward W+1/RB3/1- Backward 
-TM YB+1_S1 4 LB_RB+1_S1_BP1E 1569	CH0: W+1/RB4/1+ Forward W+1/RB4/1- Forward 	CH2: W+1/RB3/1+ Forward W+1/RB3/1- Forward 
-TM YB+2_S1 0 LB_RB+2_S1_BP2A 1740	CH0: W+2/RB1out/1 Backward 	CH1: W+2/RB2in/1 Backward 	CH2: W+2/RB1in/1 Backward 
-TM YB+2_S1 1 LB_RB+2_S1_BP2B 1737	CH0: W+2/RB1out/1 Forward 	CH1: W+2/RB2in/1 Forward 	CH2: W+2/RB1in/1 Forward 
-TM YB+2_S1 2 LB_RB+2_S1_BP2C 1734	CH0: W+2/RB2out/1 Central 	CH1: W+2/RB2out/1 Forward 	CH2: W+2/RB2out/1 Backward 
-TM YB+2_S1 3 LB_RB+2_S1_BP2D 1731	CH0: W+2/RB4/1+ Backward W+2/RB4/1- Backward 	CH2: W+2/RB3/1+ Backward W+2/RB3/1- Backward 
-TM YB+2_S1 4 LB_RB+2_S1_BP2E 1729	CH0: W+2/RB4/1+ Forward W+2/RB4/1- Forward 	CH2: W+2/RB3/1+ Forward W+2/RB3/1- Forward 
-TM YB-1_S1 0 LB_RB-1_S1_BN1A 1260	CH0: W-1/RB1out/1 Backward 	CH1: W-1/RB2out/1 Backward 	CH2: W-1/RB1in/1 Backward 
-TM YB-1_S1 1 LB_RB-1_S1_BN1B 1257	CH0: W-1/RB1out/1 Forward 	CH1: W-1/RB2out/1 Forward 	CH2: W-1/RB1in/1 Forward 
-TM YB-1_S1 2 LB_RB-1_S1_BN1C 1254	CH0: W-1/RB2in/1 Central 	CH1: W-1/RB2in/1 Forward 	CH2: W-1/RB2in/1 Backward 
-TM YB-1_S1 3 LB_RB-1_S1_BN1D 1251	CH0: W-1/RB4/1+ Backward W-1/RB4/1- Backward 	CH2: W-1/RB3/1+ Backward W-1/RB3/1- Backward 
-TM YB-1_S1 4 LB_RB-1_S1_BN1E 1249	CH0: W-1/RB4/1+ Forward W-1/RB4/1- Forward 	CH2: W-1/RB3/1+ Forward W-1/RB3/1- Forward 
-TM YB-2_S1 0 LB_RB-2_S1_BN2A 1100	CH0: W-2/RB1out/1 Backward 	CH1: W-2/RB2in/1 Backward 	CH2: W-2/RB1in/1 Backward 
-TM YB-2_S1 1 LB_RB-2_S1_BN2B 1097	CH0: W-2/RB1out/1 Forward 	CH1: W-2/RB2in/1 Forward 	CH2: W-2/RB1in/1 Forward 
-TM YB-2_S1 2 LB_RB-2_S1_BN2C 1094	CH0: W-2/RB2out/1 Central 	CH1: W-2/RB2out/1 Forward 	CH2: W-2/RB2out/1 Backward 
-TM YB-2_S1 3 LB_RB-2_S1_BN2D 1091	CH0: W-2/RB4/1+ Backward W-2/RB4/1- Backward 	CH2: W-2/RB3/1+ Backward W-2/RB3/1- Backward 
-TM YB-2_S1 4 LB_RB-2_S1_BN2E 1089	CH0: W-2/RB4/1+ Forward W-2/RB4/1- Forward 	CH2: W-2/RB3/1+ Forward W-2/RB3/1- Forward 
-TM YB0_S1 0 LB_RB0_S1_BN0B 1417	CH0: W0/RB1out/1 Forward 	CH1: W0/RB2out/1 Forward 	CH2: W0/RB1in/1 Forward 
-TM YB0_S1 1 LB_RB0_S1_BP0B 1420	CH0: W0/RB1out/1 Backward 	CH1: W0/RB2out/1 Backward 	CH2: W0/RB1in/1 Backward 
-TM YB0_S1 2 LB_RB0_S1_BM0C 1414	CH0: W0/RB2in/1 Central 	CH1: W0/RB2in/1 Forward 	CH2: W0/RB2in/1 Backward 
-TM YB0_S1 3 LB_RB0_S1_BN0E 1409	CH0: W0/RB4/1+ Forward W0/RB4/1- Forward 	CH2: W0/RB3/1+ Forward W0/RB3/1- Forward 
-TM YB0_S1 4 LB_RB0_S1_BP0E 1411	CH0: W0/RB4/1+ Backward W0/RB4/1- Backward 	CH2: W0/RB3/1+ Backward W0/RB3/1- Backward 
-TM YB+1_S2 0 LB_RB+1_S2_BP1A 1593	CH0: W+1/RB1out/2 Backward 	CH1: W+1/RB2out/2 Backward 	CH2: W+1/RB1in/2 Backward 
-TM YB+1_S2 1 LB_RB+1_S2_BP1B 1590	CH0: W+1/RB1out/2 Forward 	CH1: W+1/RB2out/2 Forward 	CH2: W+1/RB1in/2 Forward 
-TM YB+1_S2 2 LB_RB+1_S2_BP1C 1587	CH0: W+1/RB2in/2 Central 	CH1: W+1/RB2in/2 Forward 	CH2: W+1/RB2in/2 Backward 
-TM YB+1_S2 3 LB_RB+1_S2_BP1D 1584	CH0: W+1/RB4/2+ Backward W+1/RB4/2- Backward 	CH2: W+1/RB3/2+ Backward W+1/RB3/2- Backward 
-TM YB+1_S2 4 LB_RB+1_S2_BP1E 1582	CH0: W+1/RB4/2+ Forward W+1/RB4/2- Forward 	CH2: W+1/RB3/2+ Forward W+1/RB3/2- Forward 
-TM YB+2_S2 0 LB_RB+2_S2_BP2A 1753	CH0: W+2/RB1out/2 Backward 	CH1: W+2/RB2in/2 Backward 	CH2: W+2/RB1in/2 Backward 
-TM YB+2_S2 1 LB_RB+2_S2_BP2B 1750	CH0: W+2/RB1out/2 Forward 	CH1: W+2/RB2in/2 Forward 	CH2: W+2/RB1in/2 Forward 
-TM YB+2_S2 2 LB_RB+2_S2_BP2C 1747	CH0: W+2/RB2out/2 Central 	CH1: W+2/RB2out/2 Forward 	CH2: W+2/RB2out/2 Backward 
-TM YB+2_S2 3 LB_RB+2_S2_BP2D 1744	CH0: W+2/RB4/2+ Backward W+2/RB4/2- Backward 	CH2: W+2/RB3/2+ Backward W+2/RB3/2- Backward 
-TM YB+2_S2 4 LB_RB+2_S2_BP2E 1742	CH0: W+2/RB4/2+ Forward W+2/RB4/2- Forward 	CH2: W+2/RB3/2+ Forward W+2/RB3/2- Forward 
-TM YB-1_S2 0 LB_RB-1_S2_BN1A 1273	CH0: W-1/RB1out/2 Backward 	CH1: W-1/RB2out/2 Backward 	CH2: W-1/RB1in/2 Backward 
-TM YB-1_S2 1 LB_RB-1_S2_BN1B 1270	CH0: W-1/RB1out/2 Forward 	CH1: W-1/RB2out/2 Forward 	CH2: W-1/RB1in/2 Forward 
-TM YB-1_S2 2 LB_RB-1_S2_BN1C 1267	CH0: W-1/RB2in/2 Central 	CH1: W-1/RB2in/2 Forward 	CH2: W-1/RB2in/2 Backward 
-TM YB-1_S2 3 LB_RB-1_S2_BN1D 1264	CH0: W-1/RB4/2+ Backward W-1/RB4/2- Backward 	CH2: W-1/RB3/2+ Backward W-1/RB3/2- Backward 
-TM YB-1_S2 4 LB_RB-1_S2_BN1E 1262	CH0: W-1/RB4/2+ Forward W-1/RB4/2- Forward 	CH2: W-1/RB3/2+ Forward W-1/RB3/2- Forward 
-TM YB-2_S2 0 LB_RB-2_S2_BN2A 1113	CH0: W-2/RB1out/2 Backward 	CH1: W-2/RB2in/2 Backward 	CH2: W-2/RB1in/2 Backward 
-TM YB-2_S2 1 LB_RB-2_S2_BN2B 1110	CH0: W-2/RB1out/2 Forward 	CH1: W-2/RB2in/2 Forward 	CH2: W-2/RB1in/2 Forward 
-TM YB-2_S2 2 LB_RB-2_S2_BN2C 1107	CH0: W-2/RB2out/2 Central 	CH1: W-2/RB2out/2 Forward 	CH2: W-2/RB2out/2 Backward 
-TM YB-2_S2 3 LB_RB-2_S2_BN2D 1104	CH0: W-2/RB4/2+ Backward W-2/RB4/2- Backward 	CH2: W-2/RB3/2+ Backward W-2/RB3/2- Backward 
-TM YB-2_S2 4 LB_RB-2_S2_BN2E 1102	CH0: W-2/RB4/2+ Forward W-2/RB4/2- Forward 	CH2: W-2/RB3/2+ Forward W-2/RB3/2- Forward 
-TM YB0_S2 0 LB_RB0_S2_BN0B 1430	CH0: W0/RB1out/2 Forward 	CH1: W0/RB2out/2 Forward 	CH2: W0/RB1in/2 Forward 
-TM YB0_S2 1 LB_RB0_S2_BP0B 1433	CH0: W0/RB1out/2 Backward 	CH1: W0/RB2out/2 Backward 	CH2: W0/RB1in/2 Backward 
-TM YB0_S2 2 LB_RB0_S2_BM0C 1427	CH0: W0/RB2in/2 Central 	CH1: W0/RB2in/2 Forward 	CH2: W0/RB2in/2 Backward 
-TM YB0_S2 3 LB_RB0_S2_BN0E 1422	CH0: W0/RB4/2+ Forward W0/RB4/2- Forward 	CH2: W0/RB3/2+ Forward W0/RB3/2- Forward 
-TM YB0_S2 4 LB_RB0_S2_BP0E 1424	CH0: W0/RB4/2+ Backward W0/RB4/2- Backward 	CH2: W0/RB3/2+ Backward W0/RB3/2- Backward 
-TM YB+1_S11 0 LB_RB+1_S11_BP1A 1714	CH0: W+1/RB1out/11 Backward 	CH1: W+1/RB2out/11 Backward 	CH2: W+1/RB1in/11 Backward 
-TM YB+1_S11 1 LB_RB+1_S11_BP1B 1711	CH0: W+1/RB1out/11 Forward 	CH1: W+1/RB2out/11 Forward 	CH2: W+1/RB1in/11 Forward 
-TM YB+1_S11 2 LB_RB+1_S11_BP1C 1708	CH0: W+1/RB2in/11 Central 	CH1: W+1/RB2in/11 Forward 	CH2: W+1/RB2in/11 Backward 
-TM YB+1_S11 3 LB_RB+1_S11_BP1D 1705	CH0: W+1/RB4/11 Backward 	CH2: W+1/RB3/11+ Backward W+1/RB3/11- Backward 
-TM YB+1_S11 4 LB_RB+1_S11_BP1E 1703	CH0: W+1/RB4/11 Forward 	CH2: W+1/RB3/11+ Forward W+1/RB3/11- Forward 
-TM YB+2_S11 0 LB_RB+2_S11_BP2A 1874	CH0: W+2/RB1out/11 Backward 	CH1: W+2/RB2in/11 Backward 	CH2: W+2/RB1in/11 Backward 
-TM YB+2_S11 1 LB_RB+2_S11_BP2B 1871	CH0: W+2/RB1out/11 Forward 	CH1: W+2/RB2in/11 Forward 	CH2: W+2/RB1in/11 Forward 
-TM YB+2_S11 2 LB_RB+2_S11_BP2C 1868	CH0: W+2/RB2out/11 Central 	CH1: W+2/RB2out/11 Forward 	CH2: W+2/RB2out/11 Backward 
-TM YB+2_S11 3 LB_RB+2_S11_BP2D 1865	CH0: W+2/RB4/11 Backward 	CH2: W+2/RB3/11+ Backward W+2/RB3/11- Backward 
-TM YB+2_S11 4 LB_RB+2_S11_BP2E 1863	CH0: W+2/RB4/11 Forward 	CH2: W+2/RB3/11+ Forward W+2/RB3/11- Forward 
-TM YB-1_S11 0 LB_RB-1_S11_BN1A 1394	CH0: W-1/RB1out/11 Backward 	CH1: W-1/RB2out/11 Backward 	CH2: W-1/RB1in/11 Backward 
-TM YB-1_S11 1 LB_RB-1_S11_BN1B 1391	CH0: W-1/RB1out/11 Forward 	CH1: W-1/RB2out/11 Forward 	CH2: W-1/RB1in/11 Forward 
-TM YB-1_S11 2 LB_RB-1_S11_BN1C 1388	CH0: W-1/RB2in/11 Central 	CH1: W-1/RB2in/11 Forward 	CH2: W-1/RB2in/11 Backward 
-TM YB-1_S11 3 LB_RB-1_S11_BN1D 1385	CH0: W-1/RB4/11 Backward 	CH2: W-1/RB3/11+ Backward W-1/RB3/11- Backward 
-TM YB-1_S11 4 LB_RB-1_S11_BN1E 1383	CH0: W-1/RB4/11 Forward 	CH2: W-1/RB3/11+ Forward W-1/RB3/11- Forward 
-TM YB-2_S11 0 LB_RB-2_S11_BN2A 1234	CH0: W-2/RB1out/11 Backward 	CH1: W-2/RB2in/11 Backward 	CH2: W-2/RB1in/11 Backward 
-TM YB-2_S11 1 LB_RB-2_S11_BN2B 1231	CH0: W-2/RB1out/11 Forward 	CH1: W-2/RB2in/11 Forward 	CH2: W-2/RB1in/11 Forward 
-TM YB-2_S11 2 LB_RB-2_S11_BN2C 1228	CH0: W-2/RB2out/11 Central 	CH1: W-2/RB2out/11 Forward 	CH2: W-2/RB2out/11 Backward 
-TM YB-2_S11 3 LB_RB-2_S11_BN2D 1225	CH0: W-2/RB4/11 Backward 	CH2: W-2/RB3/11+ Backward W-2/RB3/11- Backward 
-TM YB-2_S11 4 LB_RB-2_S11_BN2E 1223	CH0: W-2/RB4/11 Forward 	CH2: W-2/RB3/11+ Forward W-2/RB3/11- Forward 
-TM YB0_S11 0 LB_RB0_S11_BN0B 1551	CH0: W0/RB1out/11 Forward 	CH1: W0/RB2out/11 Forward 	CH2: W0/RB1in/11 Forward 
-TM YB0_S11 1 LB_RB0_S11_BP0B 1554	CH0: W0/RB1out/11 Backward 	CH1: W0/RB2out/11 Backward 	CH2: W0/RB1in/11 Backward 
-TM YB0_S11 2 LB_RB0_S11_BM0C 1548	CH0: W0/RB2in/11 Central 	CH1: W0/RB2in/11 Forward 	CH2: W0/RB2in/11 Backward 
-TM YB0_S11 3 LB_RB0_S11_BN0E 1543	CH0: W0/RB4/11 Forward 	CH2: W0/RB3/11+ Forward W0/RB3/11- Forward 
-TM YB0_S11 4 LB_RB0_S11_BP0E 1545	CH0: W0/RB4/11 Backward 	CH2: W0/RB3/11+ Backward W0/RB3/11- Backward 
-TM YB+1_S12 0 LB_RB+1_S12_BP1A 1727	CH0: W+1/RB1out/12 Backward 	CH1: W+1/RB2out/12 Backward 	CH2: W+1/RB1in/12 Backward 
-TM YB+1_S12 1 LB_RB+1_S12_BP1B 1724	CH0: W+1/RB1out/12 Forward 	CH1: W+1/RB2out/12 Forward 	CH2: W+1/RB1in/12 Forward 
-TM YB+1_S12 2 LB_RB+1_S12_BP1C 1721	CH0: W+1/RB2in/12 Central 	CH1: W+1/RB2in/12 Forward 	CH2: W+1/RB2in/12 Backward 
-TM YB+1_S12 3 LB_RB+1_S12_BP1D 1718	CH0: W+1/RB4/12+ Backward W+1/RB4/12- Backward 	CH2: W+1/RB3/12+ Backward W+1/RB3/12- Backward 
-TM YB+1_S12 4 LB_RB+1_S12_BP1E 1716	CH0: W+1/RB4/12+ Forward W+1/RB4/12- Forward 	CH2: W+1/RB3/12+ Forward W+1/RB3/12- Forward 
-TM YB+2_S12 0 LB_RB+2_S12_BP2A 1887	CH0: W+2/RB1out/12 Backward 	CH1: W+2/RB2in/12 Backward 	CH2: W+2/RB1in/12 Backward 
-TM YB+2_S12 1 LB_RB+2_S12_BP2B 1884	CH0: W+2/RB1out/12 Forward 	CH1: W+2/RB2in/12 Forward 	CH2: W+2/RB1in/12 Forward 
-TM YB+2_S12 2 LB_RB+2_S12_BP2C 1881	CH0: W+2/RB2out/12 Central 	CH1: W+2/RB2out/12 Forward 	CH2: W+2/RB2out/12 Backward 
-TM YB+2_S12 3 LB_RB+2_S12_BP2D 1878	CH0: W+2/RB4/12+ Backward W+2/RB4/12- Backward 	CH2: W+2/RB3/12+ Backward W+2/RB3/12- Backward 
-TM YB+2_S12 4 LB_RB+2_S12_BP2E 1876	CH0: W+2/RB4/12+ Forward W+2/RB4/12- Forward 	CH2: W+2/RB3/12+ Forward W+2/RB3/12- Forward 
-TM YB-1_S12 0 LB_RB-1_S12_BN1A 1407	CH0: W-1/RB1out/12 Backward 	CH1: W-1/RB2out/12 Backward 	CH2: W-1/RB1in/12 Backward 
-TM YB-1_S12 1 LB_RB-1_S12_BN1B 1404	CH0: W-1/RB1out/12 Forward 	CH1: W-1/RB2out/12 Forward 	CH2: W-1/RB1in/12 Forward 
-TM YB-1_S12 2 LB_RB-1_S12_BN1C 1401	CH0: W-1/RB2in/12 Central 	CH1: W-1/RB2in/12 Forward 	CH2: W-1/RB2in/12 Backward 
-TM YB-1_S12 3 LB_RB-1_S12_BN1D 1398	CH0: W-1/RB4/12+ Backward W-1/RB4/12- Backward 	CH2: W-1/RB3/12+ Backward W-1/RB3/12- Backward 
-TM YB-1_S12 4 LB_RB-1_S12_BN1E 1396	CH0: W-1/RB4/12+ Forward W-1/RB4/12- Forward 	CH2: W-1/RB3/12+ Forward W-1/RB3/12- Forward 
-TM YB-2_S12 0 LB_RB-2_S12_BN2A 1247	CH0: W-2/RB1out/12 Backward 	CH1: W-2/RB2in/12 Backward 	CH2: W-2/RB1in/12 Backward 
-TM YB-2_S12 1 LB_RB-2_S12_BN2B 1244	CH0: W-2/RB1out/12 Forward 	CH1: W-2/RB2in/12 Forward 	CH2: W-2/RB1in/12 Forward 
-TM YB-2_S12 2 LB_RB-2_S12_BN2C 1241	CH0: W-2/RB2out/12 Central 	CH1: W-2/RB2out/12 Forward 	CH2: W-2/RB2out/12 Backward 
-TM YB-2_S12 3 LB_RB-2_S12_BN2D 1238	CH0: W-2/RB4/12+ Backward W-2/RB4/12- Backward 	CH2: W-2/RB3/12+ Backward W-2/RB3/12- Backward 
-TM YB-2_S12 4 LB_RB-2_S12_BN2E 1236	CH0: W-2/RB4/12+ Forward W-2/RB4/12- Forward 	CH2: W-2/RB3/12+ Forward W-2/RB3/12- Forward 
-TM YB0_S12 0 LB_RB0_S12_BN0B 1564	CH0: W0/RB1out/12 Forward 	CH1: W0/RB2out/12 Forward 	CH2: W0/RB1in/12 Forward 
-TM YB0_S12 1 LB_RB0_S12_BP0B 1567	CH0: W0/RB1out/12 Backward 	CH1: W0/RB2out/12 Backward 	CH2: W0/RB1in/12 Backward 
-TM YB0_S12 2 LB_RB0_S12_BM0C 1561	CH0: W0/RB2in/12 Central 	CH1: W0/RB2in/12 Forward 	CH2: W0/RB2in/12 Backward 
-TM YB0_S12 3 LB_RB0_S12_BN0E 1556	CH0: W0/RB4/12+ Forward W0/RB4/12- Forward 	CH2: W0/RB3/12+ Forward W0/RB3/12- Forward 
-TM YB0_S12 4 LB_RB0_S12_BP0E 1558	CH0: W0/RB4/12+ Backward W0/RB4/12- Backward 	CH2: W0/RB3/12+ Backward W0/RB3/12- Backward 
-TM YB+1_S3 0 LB_RB+1_S3_BP1A 1606	CH0: W+1/RB1out/3 Backward 	CH1: W+1/RB2out/3 Backward 	CH2: W+1/RB1in/3 Backward 
-TM YB+1_S3 1 LB_RB+1_S3_BP1B 1603	CH0: W+1/RB1out/3 Forward 	CH1: W+1/RB2out/3 Forward 	CH2: W+1/RB1in/3 Forward 
-TM YB+1_S3 2 LB_RB+1_S3_BP1C 1600	CH0: W+1/RB2in/3 Central 	CH1: W+1/RB2in/3 Forward 	CH2: W+1/RB2in/3 Backward 
-TM YB+1_S3 3 LB_RB+1_S3_BP1D 1597	CH0: W+1/RB4/3+ Backward W+1/RB4/3- Backward 	CH2: W+1/RB3/3+ Backward W+1/RB3/3- Backward 
-TM YB+1_S3 4 LB_RB+1_S3_BP1E 1595	CH0: W+1/RB4/3+ Forward W+1/RB4/3- Forward 	CH2: W+1/RB3/3+ Forward W+1/RB3/3- Forward 
-TM YB+2_S3 0 LB_RB+2_S3_BP2A 1766	CH0: W+2/RB1out/3 Backward 	CH1: W+2/RB2in/3 Backward 	CH2: W+2/RB1in/3 Backward 
-TM YB+2_S3 1 LB_RB+2_S3_BP2B 1763	CH0: W+2/RB1out/3 Forward 	CH1: W+2/RB2in/3 Forward 	CH2: W+2/RB1in/3 Forward 
-TM YB+2_S3 2 LB_RB+2_S3_BP2C 1760	CH0: W+2/RB2out/3 Central 	CH1: W+2/RB2out/3 Forward 	CH2: W+2/RB2out/3 Backward 
-TM YB+2_S3 3 LB_RB+2_S3_BP2D 1757	CH0: W+2/RB4/3+ Backward W+2/RB4/3- Backward 	CH2: W+2/RB3/3+ Backward W+2/RB3/3- Backward 
-TM YB+2_S3 4 LB_RB+2_S3_BP2E 1755	CH0: W+2/RB4/3+ Forward W+2/RB4/3- Forward 	CH2: W+2/RB3/3+ Forward W+2/RB3/3- Forward 
-TM YB-1_S3 0 LB_RB-1_S3_BN1A 1286	CH0: W-1/RB1out/3 Backward 	CH1: W-1/RB2out/3 Backward 	CH2: W-1/RB1in/3 Backward 
-TM YB-1_S3 1 LB_RB-1_S3_BN1B 1283	CH0: W-1/RB1out/3 Forward 	CH1: W-1/RB2out/3 Forward 	CH2: W-1/RB1in/3 Forward 
-TM YB-1_S3 2 LB_RB-1_S3_BN1C 1280	CH0: W-1/RB2in/3 Central 	CH1: W-1/RB2in/3 Forward 	CH2: W-1/RB2in/3 Backward 
-TM YB-1_S3 3 LB_RB-1_S3_BN1D 1277	CH0: W-1/RB4/3+ Backward W-1/RB4/3- Backward 	CH2: W-1/RB3/3+ Backward W-1/RB3/3- Backward 
-TM YB-1_S3 4 LB_RB-1_S3_BN1E 1275	CH0: W-1/RB4/3+ Forward W-1/RB4/3- Forward 	CH2: W-1/RB3/3+ Forward W-1/RB3/3- Forward 
-TM YB-2_S3 0 LB_RB-2_S3_BN2A 1126	CH0: W-2/RB1out/3 Backward 	CH1: W-2/RB2in/3 Backward 	CH2: W-2/RB1in/3 Backward 
-TM YB-2_S3 1 LB_RB-2_S3_BN2B 1123	CH0: W-2/RB1out/3 Forward 	CH1: W-2/RB2in/3 Forward 	CH2: W-2/RB1in/3 Forward 
-TM YB-2_S3 2 LB_RB-2_S3_BN2C 1120	CH0: W-2/RB2out/3 Central 	CH1: W-2/RB2out/3 Forward 	CH2: W-2/RB2out/3 Backward 
-TM YB-2_S3 3 LB_RB-2_S3_BN2D 1117	CH0: W-2/RB4/3+ Backward W-2/RB4/3- Backward 	CH2: W-2/RB3/3+ Backward W-2/RB3/3- Backward 
-TM YB-2_S3 4 LB_RB-2_S3_BN2E 1115	CH0: W-2/RB4/3+ Forward W-2/RB4/3- Forward 	CH2: W-2/RB3/3+ Forward W-2/RB3/3- Forward 
-TM YB0_S3 0 LB_RB0_S3_BN0B 1443	CH0: W0/RB1out/3 Forward 	CH1: W0/RB2out/3 Forward 	CH2: W0/RB1in/3 Forward 
-TM YB0_S3 1 LB_RB0_S3_BP0B 1446	CH0: W0/RB1out/3 Backward 	CH1: W0/RB2out/3 Backward 	CH2: W0/RB1in/3 Backward 
-TM YB0_S3 2 LB_RB0_S3_BM0C 1440	CH0: W0/RB2in/3 Central 	CH1: W0/RB2in/3 Forward 	CH2: W0/RB2in/3 Backward 
-TM YB0_S3 3 LB_RB0_S3_BN0E 1435	CH0: W0/RB4/3+ Forward W0/RB4/3- Forward 	CH2: W0/RB3/3+ Forward W0/RB3/3- Forward 
-TM YB0_S3 4 LB_RB0_S3_BP0E 1437	CH0: W0/RB4/3+ Backward W0/RB4/3- Backward 	CH2: W0/RB3/3+ Backward W0/RB3/3- Backward 
-TM YB+1_S4 0 LB_RB+1_S4_BP1A 1621	CH0: W+1/RB1out/4 Backward 	CH1: W+1/RB2out/4 Backward 	CH2: W+1/RB1in/4 Backward 
-TM YB+1_S4 1 LB_RB+1_S4_BP1B 1618	CH0: W+1/RB1out/4 Forward 	CH1: W+1/RB2out/4 Forward 	CH2: W+1/RB1in/4 Forward 
-TM YB+1_S4 2 LB_RB+1_S4_BP1C 1615	CH0: W+1/RB2in/4 Central 	CH1: W+1/RB2in/4 Forward 	CH2: W+1/RB2in/4 Backward 
-TM YB+1_S4 3 LB_RB+1_S4_BP1D 1612	CH0: W+1/RB4/4+ Backward W+1/RB4/4++ Backward 	CH1: W+1/RB4/4- Backward W+1/RB4/4-- Backward 	CH2: W+1/RB3/4+ Backward W+1/RB3/4- Backward 
-TM YB+1_S4 4 LB_RB+1_S4_BP1E 1609	CH0: W+1/RB4/4+ Forward W+1/RB4/4++ Forward 	CH1: W+1/RB4/4- Forward W+1/RB4/4-- Forward 	CH2: W+1/RB3/4+ Forward W+1/RB3/4- Forward 
-TM YB+2_S4 0 LB_RB+2_S4_BP2A 1781	CH0: W+2/RB1out/4 Backward 	CH1: W+2/RB2in/4 Backward 	CH2: W+2/RB1in/4 Backward 
-TM YB+2_S4 1 LB_RB+2_S4_BP2B 1778	CH0: W+2/RB1out/4 Forward 	CH1: W+2/RB2in/4 Forward 	CH2: W+2/RB1in/4 Forward 
-TM YB+2_S4 2 LB_RB+2_S4_BP2C 1775	CH0: W+2/RB2out/4 Central 	CH1: W+2/RB2out/4 Forward 	CH2: W+2/RB2out/4 Backward 
-TM YB+2_S4 3 LB_RB+2_S4_BP2D 1772	CH0: W+2/RB4/4+ Backward W+2/RB4/4++ Backward 	CH1: W+2/RB4/4- Backward W+2/RB4/4-- Backward 	CH2: W+2/RB3/4+ Backward W+2/RB3/4- Backward 
-TM YB+2_S4 4 LB_RB+2_S4_BP2E 1769	CH0: W+2/RB4/4+ Forward W+2/RB4/4++ Forward 	CH1: W+2/RB4/4- Forward W+2/RB4/4-- Forward 	CH2: W+2/RB3/4+ Forward W+2/RB3/4- Forward 
-TM YB-1_S4 0 LB_RB-1_S4_BN1A 1301	CH0: W-1/RB1out/4 Backward 	CH1: W-1/RB2out/4 Backward 	CH2: W-1/RB1in/4 Backward 
-TM YB-1_S4 1 LB_RB-1_S4_BN1B 1298	CH0: W-1/RB1out/4 Forward 	CH1: W-1/RB2out/4 Forward 	CH2: W-1/RB1in/4 Forward 
-TM YB-1_S4 2 LB_RB-1_S4_BN1C 1295	CH0: W-1/RB2in/4 Central 	CH1: W-1/RB2in/4 Forward 	CH2: W-1/RB2in/4 Backward 
-TM YB-1_S4 3 LB_RB-1_S4_BN1D 1292	CH0: W-1/RB4/4- Backward W-1/RB4/4-- Backward 	CH1: W-1/RB4/4+ Backward W-1/RB4/4++ Backward 	CH2: W-1/RB3/4+ Backward W-1/RB3/4- Backward 
-TM YB-1_S4 4 LB_RB-1_S4_BN1E 1289	CH0: W-1/RB4/4- Forward W-1/RB4/4-- Forward 	CH1: W-1/RB4/4+ Forward W-1/RB4/4++ Forward 	CH2: W-1/RB3/4+ Forward W-1/RB3/4- Forward 
-TM YB-2_S4 0 LB_RB-2_S4_BN2A 1141	CH0: W-2/RB1out/4 Backward 	CH1: W-2/RB2in/4 Backward 	CH2: W-2/RB1in/4 Backward 
-TM YB-2_S4 1 LB_RB-2_S4_BN2B 1138	CH0: W-2/RB1out/4 Forward 	CH1: W-2/RB2in/4 Forward 	CH2: W-2/RB1in/4 Forward 
-TM YB-2_S4 2 LB_RB-2_S4_BN2C 1135	CH0: W-2/RB2out/4 Central 	CH1: W-2/RB2out/4 Forward 	CH2: W-2/RB2out/4 Backward 
-TM YB-2_S4 3 LB_RB-2_S4_BN2D 1132	CH0: W-2/RB4/4- Backward W-2/RB4/4-- Backward 	CH1: W-2/RB4/4+ Backward W-2/RB4/4++ Backward 	CH2: W-2/RB3/4+ Backward W-2/RB3/4- Backward 
-TM YB-2_S4 4 LB_RB-2_S4_BN2E 1129	CH0: W-2/RB4/4- Forward W-2/RB4/4-- Forward 	CH1: W-2/RB4/4+ Forward W-2/RB4/4++ Forward 	CH2: W-2/RB3/4+ Forward W-2/RB3/4- Forward 
-TM YB0_S4 0 LB_RB0_S4_BN0B 1458	CH0: W0/RB1out/4 Forward 	CH1: W0/RB2out/4 Forward 	CH2: W0/RB1in/4 Forward 
-TM YB0_S4 1 LB_RB0_S4_BP0B 1461	CH0: W0/RB1out/4 Backward 	CH1: W0/RB2out/4 Backward 	CH2: W0/RB1in/4 Backward 
-TM YB0_S4 2 LB_RB0_S4_BM0C 1455	CH0: W0/RB2in/4 Central 	CH1: W0/RB2in/4 Forward 	CH2: W0/RB2in/4 Backward 
-TM YB0_S4 3 LB_RB0_S4_BN0E 1449	CH0: W0/RB4/4- Forward W0/RB4/4-- Forward 	CH1: W0/RB4/4+ Forward W0/RB4/4++ Forward 	CH2: W0/RB3/4+ Forward W0/RB3/4- Forward 
-TM YB0_S4 4 LB_RB0_S4_BP0E 1452	CH0: W0/RB4/4- Backward W0/RB4/4-- Backward 	CH1: W0/RB4/4+ Backward W0/RB4/4++ Backward 	CH2: W0/RB3/4+ Backward W0/RB3/4- Backward 
-TM YB+1_S5 0 LB_RB+1_S5_BP1A 1634	CH0: W+1/RB1out/5 Backward 	CH1: W+1/RB2out/5 Backward 	CH2: W+1/RB1in/5 Backward 
-TM YB+1_S5 1 LB_RB+1_S5_BP1B 1631	CH0: W+1/RB1out/5 Forward 	CH1: W+1/RB2out/5 Forward 	CH2: W+1/RB1in/5 Forward 
-TM YB+1_S5 2 LB_RB+1_S5_BP1C 1628	CH0: W+1/RB2in/5 Central 	CH1: W+1/RB2in/5 Forward 	CH2: W+1/RB2in/5 Backward 
-TM YB+1_S5 3 LB_RB+1_S5_BP1D 1625	CH0: W+1/RB4/5+ Backward W+1/RB4/5- Backward 	CH2: W+1/RB3/5+ Backward W+1/RB3/5- Backward 
-TM YB+1_S5 4 LB_RB+1_S5_BP1E 1623	CH0: W+1/RB4/5+ Forward W+1/RB4/5- Forward 	CH2: W+1/RB3/5+ Forward W+1/RB3/5- Forward 
-TM YB+2_S5 0 LB_RB+2_S5_BP2A 1794	CH0: W+2/RB1out/5 Backward 	CH1: W+2/RB2in/5 Backward 	CH2: W+2/RB1in/5 Backward 
-TM YB+2_S5 1 LB_RB+2_S5_BP2B 1791	CH0: W+2/RB1out/5 Forward 	CH1: W+2/RB2in/5 Forward 	CH2: W+2/RB1in/5 Forward 
-TM YB+2_S5 2 LB_RB+2_S5_BP2C 1788	CH0: W+2/RB2out/5 Central 	CH1: W+2/RB2out/5 Forward 	CH2: W+2/RB2out/5 Backward 
-TM YB+2_S5 3 LB_RB+2_S5_BP2D 1785	CH0: W+2/RB4/5+ Backward W+2/RB4/5- Backward 	CH2: W+2/RB3/5+ Backward W+2/RB3/5- Backward 
-TM YB+2_S5 4 LB_RB+2_S5_BP2E 1783	CH0: W+2/RB4/5+ Forward W+2/RB4/5- Forward 	CH2: W+2/RB3/5+ Forward W+2/RB3/5- Forward 
-TM YB-1_S5 0 LB_RB-1_S5_BN1A 1314	CH0: W-1/RB1out/5 Backward 	CH1: W-1/RB2out/5 Backward 	CH2: W-1/RB1in/5 Backward 
-TM YB-1_S5 1 LB_RB-1_S5_BN1B 1311	CH0: W-1/RB1out/5 Forward 	CH1: W-1/RB2out/5 Forward 	CH2: W-1/RB1in/5 Forward 
-TM YB-1_S5 2 LB_RB-1_S5_BN1C 1308	CH0: W-1/RB2in/5 Central 	CH1: W-1/RB2in/5 Forward 	CH2: W-1/RB2in/5 Backward 
-TM YB-1_S5 3 LB_RB-1_S5_BN1D 1305	CH0: W-1/RB4/5+ Backward W-1/RB4/5- Backward 	CH2: W-1/RB3/5+ Backward W-1/RB3/5- Backward 
-TM YB-1_S5 4 LB_RB-1_S5_BN1E 1303	CH0: W-1/RB4/5+ Forward W-1/RB4/5- Forward 	CH2: W-1/RB3/5+ Forward W-1/RB3/5- Forward 
-TM YB-2_S5 0 LB_RB-2_S5_BN2A 1154	CH0: W-2/RB1out/5 Backward 	CH1: W-2/RB2in/5 Backward 	CH2: W-2/RB1in/5 Backward 
-TM YB-2_S5 1 LB_RB-2_S5_BN2B 1151	CH0: W-2/RB1out/5 Forward 	CH1: W-2/RB2in/5 Forward 	CH2: W-2/RB1in/5 Forward 
-TM YB-2_S5 2 LB_RB-2_S5_BN2C 1148	CH0: W-2/RB2out/5 Central 	CH1: W-2/RB2out/5 Forward 	CH2: W-2/RB2out/5 Backward 
-TM YB-2_S5 3 LB_RB-2_S5_BN2D 1145	CH0: W-2/RB4/5+ Backward W-2/RB4/5- Backward 	CH2: W-2/RB3/5+ Backward W-2/RB3/5- Backward 
-TM YB-2_S5 4 LB_RB-2_S5_BN2E 1143	CH0: W-2/RB4/5+ Forward W-2/RB4/5- Forward 	CH2: W-2/RB3/5+ Forward W-2/RB3/5- Forward 
-TM YB0_S5 0 LB_RB0_S5_BN0B 1471	CH0: W0/RB1out/5 Forward 	CH1: W0/RB2out/5 Forward 	CH2: W0/RB1in/5 Forward 
-TM YB0_S5 1 LB_RB0_S5_BP0B 1474	CH0: W0/RB1out/5 Backward 	CH1: W0/RB2out/5 Backward 	CH2: W0/RB1in/5 Backward 
-TM YB0_S5 2 LB_RB0_S5_BM0C 1468	CH0: W0/RB2in/5 Central 	CH1: W0/RB2in/5 Forward 	CH2: W0/RB2in/5 Backward 
-TM YB0_S5 3 LB_RB0_S5_BN0E 1463	CH0: W0/RB4/5+ Forward W0/RB4/5- Forward 	CH2: W0/RB3/5+ Forward W0/RB3/5- Forward 
-TM YB0_S5 4 LB_RB0_S5_BP0E 1465	CH0: W0/RB4/5+ Backward W0/RB4/5- Backward 	CH2: W0/RB3/5+ Backward W0/RB3/5- Backward 
-TM YB+1_S6 0 LB_RB+1_S6_BP1A 1647	CH0: W+1/RB1out/6 Backward 	CH1: W+1/RB2out/6 Backward 	CH2: W+1/RB1in/6 Backward 
-TM YB+1_S6 1 LB_RB+1_S6_BP1B 1644	CH0: W+1/RB1out/6 Forward 	CH1: W+1/RB2out/6 Forward 	CH2: W+1/RB1in/6 Forward 
-TM YB+1_S6 2 LB_RB+1_S6_BP1C 1641	CH0: W+1/RB2in/6 Central 	CH1: W+1/RB2in/6 Forward 	CH2: W+1/RB2in/6 Backward 
-TM YB+1_S6 3 LB_RB+1_S6_BP1D 1638	CH0: W+1/RB4/6+ Backward W+1/RB4/6- Backward 	CH2: W+1/RB3/6+ Backward W+1/RB3/6- Backward 
-TM YB+1_S6 4 LB_RB+1_S6_BP1E 1636	CH0: W+1/RB4/6+ Forward W+1/RB4/6- Forward 	CH2: W+1/RB3/6+ Forward W+1/RB3/6- Forward 
-TM YB+2_S6 0 LB_RB+2_S6_BP2A 1807	CH0: W+2/RB1out/6 Backward 	CH1: W+2/RB2in/6 Backward 	CH2: W+2/RB1in/6 Backward 
-TM YB+2_S6 1 LB_RB+2_S6_BP2B 1804	CH0: W+2/RB1out/6 Forward 	CH1: W+2/RB2in/6 Forward 	CH2: W+2/RB1in/6 Forward 
-TM YB+2_S6 2 LB_RB+2_S6_BP2C 1801	CH0: W+2/RB2out/6 Central 	CH1: W+2/RB2out/6 Forward 	CH2: W+2/RB2out/6 Backward 
-TM YB+2_S6 3 LB_RB+2_S6_BP2D 1798	CH0: W+2/RB4/6+ Backward W+2/RB4/6- Backward 	CH2: W+2/RB3/6+ Backward W+2/RB3/6- Backward 
-TM YB+2_S6 4 LB_RB+2_S6_BP2E 1796	CH0: W+2/RB4/6+ Forward W+2/RB4/6- Forward 	CH2: W+2/RB3/6+ Forward W+2/RB3/6- Forward 
-TM YB-1_S6 0 LB_RB-1_S6_BN1A 1327	CH0: W-1/RB1out/6 Backward 	CH1: W-1/RB2out/6 Backward 	CH2: W-1/RB1in/6 Backward 
-TM YB-1_S6 1 LB_RB-1_S6_BN1B 1324	CH0: W-1/RB1out/6 Forward 	CH1: W-1/RB2out/6 Forward 	CH2: W-1/RB1in/6 Forward 
-TM YB-1_S6 2 LB_RB-1_S6_BN1C 1321	CH0: W-1/RB2in/6 Central 	CH1: W-1/RB2in/6 Forward 	CH2: W-1/RB2in/6 Backward 
-TM YB-1_S6 3 LB_RB-1_S6_BN1D 1318	CH0: W-1/RB4/6+ Backward W-1/RB4/6- Backward 	CH2: W-1/RB3/6+ Backward W-1/RB3/6- Backward 
-TM YB-1_S6 4 LB_RB-1_S6_BN1E 1316	CH0: W-1/RB4/6+ Forward W-1/RB4/6- Forward 	CH2: W-1/RB3/6+ Forward W-1/RB3/6- Forward 
-TM YB-2_S6 0 LB_RB-2_S6_BN2A 1167	CH0: W-2/RB1out/6 Backward 	CH1: W-2/RB2in/6 Backward 	CH2: W-2/RB1in/6 Backward 
-TM YB-2_S6 1 LB_RB-2_S6_BN2B 1164	CH0: W-2/RB1out/6 Forward 	CH1: W-2/RB2in/6 Forward 	CH2: W-2/RB1in/6 Forward 
-TM YB-2_S6 2 LB_RB-2_S6_BN2C 1161	CH0: W-2/RB2out/6 Central 	CH1: W-2/RB2out/6 Forward 	CH2: W-2/RB2out/6 Backward 
-TM YB-2_S6 3 LB_RB-2_S6_BN2D 1158	CH0: W-2/RB4/6+ Backward W-2/RB4/6- Backward 	CH2: W-2/RB3/6+ Backward W-2/RB3/6- Backward 
-TM YB-2_S6 4 LB_RB-2_S6_BN2E 1156	CH0: W-2/RB4/6+ Forward W-2/RB4/6- Forward 	CH2: W-2/RB3/6+ Forward W-2/RB3/6- Forward 
-TM YB0_S6 0 LB_RB0_S6_BN0B 1484	CH0: W0/RB1out/6 Forward 	CH1: W0/RB2out/6 Forward 	CH2: W0/RB1in/6 Forward 
-TM YB0_S6 1 LB_RB0_S6_BP0B 1487	CH0: W0/RB1out/6 Backward 	CH1: W0/RB2out/6 Backward 	CH2: W0/RB1in/6 Backward 
-TM YB0_S6 2 LB_RB0_S6_BM0C 1481	CH0: W0/RB2in/6 Central 	CH1: W0/RB2in/6 Forward 	CH2: W0/RB2in/6 Backward 
-TM YB0_S6 3 LB_RB0_S6_BN0E 1476	CH0: W0/RB4/6+ Forward W0/RB4/6- Forward 	CH2: W0/RB3/6+ Forward W0/RB3/6- Forward 
-TM YB0_S6 4 LB_RB0_S6_BP0E 1478	CH0: W0/RB4/6+ Backward W0/RB4/6- Backward 	CH2: W0/RB3/6+ Backward W0/RB3/6- Backward 
-TM YB+1_S7 0 LB_RB+1_S7_BP1A 1660	CH0: W+1/RB1out/7 Backward 	CH1: W+1/RB2out/7 Backward 	CH2: W+1/RB1in/7 Backward 
-TM YB+1_S7 1 LB_RB+1_S7_BP1B 1657	CH0: W+1/RB1out/7 Forward 	CH1: W+1/RB2out/7 Forward 	CH2: W+1/RB1in/7 Forward 
-TM YB+1_S7 2 LB_RB+1_S7_BP1C 1654	CH0: W+1/RB2in/7 Central 	CH1: W+1/RB2in/7 Forward 	CH2: W+1/RB2in/7 Backward 
-TM YB+1_S7 3 LB_RB+1_S7_BP1D 1651	CH0: W+1/RB4/7+ Backward W+1/RB4/7- Backward 	CH2: W+1/RB3/7+ Backward W+1/RB3/7- Backward 
-TM YB+1_S7 4 LB_RB+1_S7_BP1E 1649	CH0: W+1/RB4/7+ Forward W+1/RB4/7- Forward 	CH2: W+1/RB3/7+ Forward W+1/RB3/7- Forward 
-TM YB+2_S7 0 LB_RB+2_S7_BP2A 1820	CH0: W+2/RB1out/7 Backward 	CH1: W+2/RB2in/7 Backward 	CH2: W+2/RB1in/7 Backward 
-TM YB+2_S7 1 LB_RB+2_S7_BP2B 1817	CH0: W+2/RB1out/7 Forward 	CH1: W+2/RB2in/7 Forward 	CH2: W+2/RB1in/7 Forward 
-TM YB+2_S7 2 LB_RB+2_S7_BP2C 1814	CH0: W+2/RB2out/7 Central 	CH1: W+2/RB2out/7 Forward 	CH2: W+2/RB2out/7 Backward 
-TM YB+2_S7 3 LB_RB+2_S7_BP2D 1811	CH0: W+2/RB4/7+ Backward W+2/RB4/7- Backward 	CH2: W+2/RB3/7+ Backward W+2/RB3/7- Backward 
-TM YB+2_S7 4 LB_RB+2_S7_BP2E 1809	CH0: W+2/RB4/7+ Forward W+2/RB4/7- Forward 	CH2: W+2/RB3/7+ Forward W+2/RB3/7- Forward 
-TM YB-1_S7 0 LB_RB-1_S7_BN1A 1340	CH0: W-1/RB1out/7 Backward 	CH1: W-1/RB2out/7 Backward 	CH2: W-1/RB1in/7 Backward 
-TM YB-1_S7 1 LB_RB-1_S7_BN1B 1337	CH0: W-1/RB1out/7 Forward 	CH1: W-1/RB2out/7 Forward 	CH2: W-1/RB1in/7 Forward 
-TM YB-1_S7 2 LB_RB-1_S7_BN1C 1334	CH0: W-1/RB2in/7 Central 	CH1: W-1/RB2in/7 Forward 	CH2: W-1/RB2in/7 Backward 
-TM YB-1_S7 3 LB_RB-1_S7_BN1D 1331	CH0: W-1/RB4/7+ Backward W-1/RB4/7- Backward 	CH2: W-1/RB3/7+ Backward W-1/RB3/7- Backward 
-TM YB-1_S7 4 LB_RB-1_S7_BN1E 1329	CH0: W-1/RB4/7+ Forward W-1/RB4/7- Forward 	CH2: W-1/RB3/7+ Forward W-1/RB3/7- Forward 
-TM YB-2_S7 0 LB_RB-2_S7_BN2A 1180	CH0: W-2/RB1out/7 Backward 	CH1: W-2/RB2in/7 Backward 	CH2: W-2/RB1in/7 Backward 
-TM YB-2_S7 1 LB_RB-2_S7_BN2B 1177	CH0: W-2/RB1out/7 Forward 	CH1: W-2/RB2in/7 Forward 	CH2: W-2/RB1in/7 Forward 
-TM YB-2_S7 2 LB_RB-2_S7_BN2C 1174	CH0: W-2/RB2out/7 Central 	CH1: W-2/RB2out/7 Forward 	CH2: W-2/RB2out/7 Backward 
-TM YB-2_S7 3 LB_RB-2_S7_BN2D 1171	CH0: W-2/RB4/7+ Backward W-2/RB4/7- Backward 	CH2: W-2/RB3/7+ Backward W-2/RB3/7- Backward 
-TM YB-2_S7 4 LB_RB-2_S7_BN2E 1169	CH0: W-2/RB4/7+ Forward W-2/RB4/7- Forward 	CH2: W-2/RB3/7+ Forward W-2/RB3/7- Forward 
-TM YB0_S7 0 LB_RB0_S7_BN0B 1497	CH0: W0/RB1out/7 Forward 	CH1: W0/RB2out/7 Forward 	CH2: W0/RB1in/7 Forward 
-TM YB0_S7 1 LB_RB0_S7_BP0B 1500	CH0: W0/RB1out/7 Backward 	CH1: W0/RB2out/7 Backward 	CH2: W0/RB1in/7 Backward 
-TM YB0_S7 2 LB_RB0_S7_BM0C 1494	CH0: W0/RB2in/7 Central 	CH1: W0/RB2in/7 Forward 	CH2: W0/RB2in/7 Backward 
-TM YB0_S7 3 LB_RB0_S7_BN0E 1489	CH0: W0/RB4/7+ Forward W0/RB4/7- Forward 	CH2: W0/RB3/7+ Forward W0/RB3/7- Forward 
-TM YB0_S7 4 LB_RB0_S7_BP0E 1491	CH0: W0/RB4/7+ Backward W0/RB4/7- Backward 	CH2: W0/RB3/7+ Backward W0/RB3/7- Backward 
-TM YB+1_S8 0 LB_RB+1_S8_BP1A 1673	CH0: W+1/RB1out/8 Backward 	CH1: W+1/RB2out/8 Backward 	CH2: W+1/RB1in/8 Backward 
-TM YB+1_S8 1 LB_RB+1_S8_BP1B 1670	CH0: W+1/RB1out/8 Forward 	CH1: W+1/RB2out/8 Forward 	CH2: W+1/RB1in/8 Forward 
-TM YB+1_S8 2 LB_RB+1_S8_BP1C 1667	CH0: W+1/RB2in/8 Central 	CH1: W+1/RB2in/8 Forward 	CH2: W+1/RB2in/8 Backward 
-TM YB+1_S8 3 LB_RB+1_S8_BP1D 1664	CH0: W+1/RB4/8+ Backward W+1/RB4/8- Backward 	CH2: W+1/RB3/8+ Backward W+1/RB3/8- Backward 
-TM YB+1_S8 4 LB_RB+1_S8_BP1E 1662	CH0: W+1/RB4/8+ Forward W+1/RB4/8- Forward 	CH2: W+1/RB3/8+ Forward W+1/RB3/8- Forward 
-TM YB+2_S8 0 LB_RB+2_S8_BP2A 1833	CH0: W+2/RB1out/8 Backward 	CH1: W+2/RB2in/8 Backward 	CH2: W+2/RB1in/8 Backward 
-TM YB+2_S8 1 LB_RB+2_S8_BP2B 1830	CH0: W+2/RB1out/8 Forward 	CH1: W+2/RB2in/8 Forward 	CH2: W+2/RB1in/8 Forward 
-TM YB+2_S8 2 LB_RB+2_S8_BP2C 1827	CH0: W+2/RB2out/8 Central 	CH1: W+2/RB2out/8 Forward 	CH2: W+2/RB2out/8 Backward 
-TM YB+2_S8 3 LB_RB+2_S8_BP2D 1824	CH0: W+2/RB4/8+ Backward W+2/RB4/8- Backward 	CH2: W+2/RB3/8+ Backward W+2/RB3/8- Backward 
-TM YB+2_S8 4 LB_RB+2_S8_BP2E 1822	CH0: W+2/RB4/8+ Forward W+2/RB4/8- Forward 	CH2: W+2/RB3/8+ Forward W+2/RB3/8- Forward 
-TM YB-1_S8 0 LB_RB-1_S8_BN1A 1353	CH0: W-1/RB1out/8 Backward 	CH1: W-1/RB2out/8 Backward 	CH2: W-1/RB1in/8 Backward 
-TM YB-1_S8 1 LB_RB-1_S8_BN1B 1350	CH0: W-1/RB1out/8 Forward 	CH1: W-1/RB2out/8 Forward 	CH2: W-1/RB1in/8 Forward 
-TM YB-1_S8 2 LB_RB-1_S8_BN1C 1347	CH0: W-1/RB2in/8 Central 	CH1: W-1/RB2in/8 Forward 	CH2: W-1/RB2in/8 Backward 
-TM YB-1_S8 3 LB_RB-1_S8_BN1D 1344	CH0: W-1/RB4/8+ Backward W-1/RB4/8- Backward 	CH2: W-1/RB3/8+ Backward W-1/RB3/8- Backward 
-TM YB-1_S8 4 LB_RB-1_S8_BN1E 1342	CH0: W-1/RB4/8+ Forward W-1/RB4/8- Forward 	CH2: W-1/RB3/8+ Forward W-1/RB3/8- Forward 
-TM YB-2_S8 0 LB_RB-2_S8_BN2A 1193	CH0: W-2/RB1out/8 Backward 	CH1: W-2/RB2in/8 Backward 	CH2: W-2/RB1in/8 Backward 
-TM YB-2_S8 1 LB_RB-2_S8_BN2B 1190	CH0: W-2/RB1out/8 Forward 	CH1: W-2/RB2in/8 Forward 	CH2: W-2/RB1in/8 Forward 
-TM YB-2_S8 2 LB_RB-2_S8_BN2C 1187	CH0: W-2/RB2out/8 Central 	CH1: W-2/RB2out/8 Forward 	CH2: W-2/RB2out/8 Backward 
-TM YB-2_S8 3 LB_RB-2_S8_BN2D 1184	CH0: W-2/RB4/8+ Backward W-2/RB4/8- Backward 	CH2: W-2/RB3/8+ Backward W-2/RB3/8- Backward 
-TM YB-2_S8 4 LB_RB-2_S8_BN2E 1182	CH0: W-2/RB4/8+ Forward W-2/RB4/8- Forward 	CH2: W-2/RB3/8+ Forward W-2/RB3/8- Forward 
-TM YB0_S8 0 LB_RB0_S8_BN0B 1510	CH0: W0/RB1out/8 Forward 	CH1: W0/RB2out/8 Forward 	CH2: W0/RB1in/8 Forward 
-TM YB0_S8 1 LB_RB0_S8_BP0B 1513	CH0: W0/RB1out/8 Backward 	CH1: W0/RB2out/8 Backward 	CH2: W0/RB1in/8 Backward 
-TM YB0_S8 2 LB_RB0_S8_BM0C 1507	CH0: W0/RB2in/8 Central 	CH1: W0/RB2in/8 Forward 	CH2: W0/RB2in/8 Backward 
-TM YB0_S8 3 LB_RB0_S8_BN0E 1502	CH0: W0/RB4/8+ Forward W0/RB4/8- Forward 	CH2: W0/RB3/8+ Forward W0/RB3/8- Forward 
-TM YB0_S8 4 LB_RB0_S8_BP0E 1504	CH0: W0/RB4/8+ Backward W0/RB4/8- Backward 	CH2: W0/RB3/8+ Backward W0/RB3/8- Backward 
-TM YB+1_S9 0 LB_RB+1_S9_BP1A 1686	CH0: W+1/RB1out/9 Backward 	CH1: W+1/RB2out/9 Backward 	CH2: W+1/RB1in/9 Backward 
-TM YB+1_S9 1 LB_RB+1_S9_BP1B 1683	CH0: W+1/RB1out/9 Forward 	CH1: W+1/RB2out/9 Forward 	CH2: W+1/RB1in/9 Forward 
-TM YB+1_S9 2 LB_RB+1_S9_BP1C 1680	CH0: W+1/RB2in/9 Central 	CH1: W+1/RB2in/9 Forward 	CH2: W+1/RB2in/9 Backward 
-TM YB+1_S9 3 LB_RB+1_S9_BP1D 1677	CH0: W+1/RB4/9 Backward 	CH2: W+1/RB3/9+ Backward W+1/RB3/9- Backward 
-TM YB+1_S9 4 LB_RB+1_S9_BP1E 1675	CH0: W+1/RB4/9 Forward 	CH2: W+1/RB3/9+ Forward W+1/RB3/9- Forward 
-TM YB+2_S9 0 LB_RB+2_S9_BP2A 1846	CH0: W+2/RB1out/9 Backward 	CH1: W+2/RB2in/9 Backward 	CH2: W+2/RB1in/9 Backward 
-TM YB+2_S9 1 LB_RB+2_S9_BP2B 1843	CH0: W+2/RB1out/9 Forward 	CH1: W+2/RB2in/9 Forward 	CH2: W+2/RB1in/9 Forward 
-TM YB+2_S9 2 LB_RB+2_S9_BP2C 1840	CH0: W+2/RB2out/9 Central 	CH1: W+2/RB2out/9 Forward 	CH2: W+2/RB2out/9 Backward 
-TM YB+2_S9 3 LB_RB+2_S9_BP2D 1837	CH0: W+2/RB4/9 Backward 	CH2: W+2/RB3/9+ Backward W+2/RB3/9- Backward 
-TM YB+2_S9 4 LB_RB+2_S9_BP2E 1835	CH0: W+2/RB4/9 Forward 	CH2: W+2/RB3/9+ Forward W+2/RB3/9- Forward 
-TM YB-1_S9 0 LB_RB-1_S9_BN1A 1366	CH0: W-1/RB1out/9 Backward 	CH1: W-1/RB2out/9 Backward 	CH2: W-1/RB1in/9 Backward 
-TM YB-1_S9 1 LB_RB-1_S9_BN1B 1363	CH0: W-1/RB1out/9 Forward 	CH1: W-1/RB2out/9 Forward 	CH2: W-1/RB1in/9 Forward 
-TM YB-1_S9 2 LB_RB-1_S9_BN1C 1360	CH0: W-1/RB2in/9 Central 	CH1: W-1/RB2in/9 Forward 	CH2: W-1/RB2in/9 Backward 
-TM YB-1_S9 3 LB_RB-1_S9_BN1D 1357	CH0: W-1/RB4/9 Backward 	CH2: W-1/RB3/9+ Backward W-1/RB3/9- Backward 
-TM YB-1_S9 4 LB_RB-1_S9_BN1E 1355	CH0: W-1/RB4/9 Forward 	CH2: W-1/RB3/9+ Forward W-1/RB3/9- Forward 
-TM YB-2_S9 0 LB_RB-2_S9_BN2A 1206	CH0: W-2/RB1out/9 Backward 	CH1: W-2/RB2in/9 Backward 	CH2: W-2/RB1in/9 Backward 
-TM YB-2_S9 1 LB_RB-2_S9_BN2B 1203	CH0: W-2/RB1out/9 Forward 	CH1: W-2/RB2in/9 Forward 	CH2: W-2/RB1in/9 Forward 
-TM YB-2_S9 2 LB_RB-2_S9_BN2C 1200	CH0: W-2/RB2out/9 Central 	CH1: W-2/RB2out/9 Forward 	CH2: W-2/RB2out/9 Backward 
-TM YB-2_S9 3 LB_RB-2_S9_BN2D 1197	CH0: W-2/RB4/9 Backward 	CH2: W-2/RB3/9+ Backward W-2/RB3/9- Backward 
-TM YB-2_S9 4 LB_RB-2_S9_BN2E 1195	CH0: W-2/RB4/9 Forward 	CH2: W-2/RB3/9+ Forward W-2/RB3/9- Forward 
-TM YB0_S9 0 LB_RB0_S9_BN0B 1523	CH0: W0/RB1out/9 Forward 	CH1: W0/RB2out/9 Forward 	CH2: W0/RB1in/9 Forward 
-TM YB0_S9 1 LB_RB0_S9_BP0B 1526	CH0: W0/RB1out/9 Backward 	CH1: W0/RB2out/9 Backward 	CH2: W0/RB1in/9 Backward 
-TM YB0_S9 2 LB_RB0_S9_BM0C 1520	CH0: W0/RB2in/9 Central 	CH1: W0/RB2in/9 Forward 	CH2: W0/RB2in/9 Backward 
-TM YB0_S9 3 LB_RB0_S9_BN0E 1515	CH0: W0/RB4/9 Forward 	CH2: W0/RB3/9+ Forward W0/RB3/9- Forward 
-TM YB0_S9 4 LB_RB0_S9_BP0E 1517	CH0: W0/RB4/9 Backward 	CH2: W0/RB3/9+ Backward W0/RB3/9- Backward 
-TM YB+1_S10 0 LB_RB+1_S10_BP1A 1701	CH0: W+1/RB1out/10 Backward 	CH1: W+1/RB2out/10 Backward 	CH2: W+1/RB1in/10 Backward 
-TM YB+1_S10 1 LB_RB+1_S10_BP1B 1698	CH0: W+1/RB1out/10 Forward 	CH1: W+1/RB2out/10 Forward 	CH2: W+1/RB1in/10 Forward 
-TM YB+1_S10 2 LB_RB+1_S10_BP1C 1695	CH0: W+1/RB2in/10 Central 	CH1: W+1/RB2in/10 Forward 	CH2: W+1/RB2in/10 Backward 
-TM YB+1_S10 3 LB_RB+1_S10_BP1D 1692	CH0: W+1/RB4/10+ Backward 	CH1: W+1/RB4/10- Backward 	CH2: W+1/RB3/10+ Backward W+1/RB3/10- Backward 
-TM YB+1_S10 4 LB_RB+1_S10_BP1E 1689	CH0: W+1/RB4/10+ Forward 	CH1: W+1/RB4/10- Forward 	CH2: W+1/RB3/10+ Forward W+1/RB3/10- Forward 
-TM YB+2_S10 0 LB_RB+2_S10_BP2A 1861	CH0: W+2/RB1out/10 Backward 	CH1: W+2/RB2in/10 Backward 	CH2: W+2/RB1in/10 Backward 
-TM YB+2_S10 1 LB_RB+2_S10_BP2B 1858	CH0: W+2/RB1out/10 Forward 	CH1: W+2/RB2in/10 Forward 	CH2: W+2/RB1in/10 Forward 
-TM YB+2_S10 2 LB_RB+2_S10_BP2C 1855	CH0: W+2/RB2out/10 Central 	CH1: W+2/RB2out/10 Forward 	CH2: W+2/RB2out/10 Backward 
-TM YB+2_S10 3 LB_RB+2_S10_BP2D 1852	CH0: W+2/RB4/10+ Backward 	CH1: W+2/RB4/10- Backward 	CH2: W+2/RB3/10+ Backward W+2/RB3/10- Backward 
-TM YB+2_S10 4 LB_RB+2_S10_BP2E 1849	CH0: W+2/RB4/10+ Forward 	CH1: W+2/RB4/10- Forward 	CH2: W+2/RB3/10+ Forward W+2/RB3/10- Forward 
-TM YB-1_S10 0 LB_RB-1_S10_BN1A 1381	CH0: W-1/RB1out/10 Backward 	CH1: W-1/RB2out/10 Backward 	CH2: W-1/RB1in/10 Backward 
-TM YB-1_S10 1 LB_RB-1_S10_BN1B 1378	CH0: W-1/RB1out/10 Forward 	CH1: W-1/RB2out/10 Forward 	CH2: W-1/RB1in/10 Forward 
-TM YB-1_S10 2 LB_RB-1_S10_BN1C 1375	CH0: W-1/RB2in/10 Central 	CH1: W-1/RB2in/10 Forward 	CH2: W-1/RB2in/10 Backward 
-TM YB-1_S10 3 LB_RB-1_S10_BN1D 1372	CH0: W-1/RB4/10- Backward 	CH1: W-1/RB4/10+ Backward 	CH2: W-1/RB3/10+ Backward W-1/RB3/10- Backward 
-TM YB-1_S10 4 LB_RB-1_S10_BN1E 1369	CH0: W-1/RB4/10- Forward 	CH1: W-1/RB4/10+ Forward 	CH2: W-1/RB3/10+ Forward W-1/RB3/10- Forward 
-TM YB-2_S10 0 LB_RB-2_S10_BN2A 1221	CH0: W-2/RB1out/10 Backward 	CH1: W-2/RB2in/10 Backward 	CH2: W-2/RB1in/10 Backward 
-TM YB-2_S10 1 LB_RB-2_S10_BN2B 1218	CH0: W-2/RB1out/10 Forward 	CH1: W-2/RB2in/10 Forward 	CH2: W-2/RB1in/10 Forward 
-TM YB-2_S10 2 LB_RB-2_S10_BN2C 1215	CH0: W-2/RB2out/10 Central 	CH1: W-2/RB2out/10 Forward 	CH2: W-2/RB2out/10 Backward 
-TM YB-2_S10 3 LB_RB-2_S10_BN2D 1212	CH0: W-2/RB4/10- Backward 	CH1: W-2/RB4/10+ Backward 	CH2: W-2/RB3/10+ Backward W-2/RB3/10- Backward 
-TM YB-2_S10 4 LB_RB-2_S10_BN2E 1209	CH0: W-2/RB4/10- Forward 	CH1: W-2/RB4/10+ Forward 	CH2: W-2/RB3/10+ Forward W-2/RB3/10- Forward 
-TM YB0_S10 0 LB_RB0_S10_BN0B 1538	CH0: W0/RB1out/10 Forward 	CH1: W0/RB2out/10 Forward 	CH2: W0/RB1in/10 Forward 
-TM YB0_S10 1 LB_RB0_S10_BP0B 1541	CH0: W0/RB1out/10 Backward 	CH1: W0/RB2out/10 Backward 	CH2: W0/RB1in/10 Backward 
-TM YB0_S10 2 LB_RB0_S10_BM0C 1535	CH0: W0/RB2in/10 Central 	CH1: W0/RB2in/10 Forward 	CH2: W0/RB2in/10 Backward 
-TM YB0_S10 3 LB_RB0_S10_BN0E 1529	CH0: W0/RB4/10+ Forward 	CH1: W0/RB4/10- Forward 	CH2: W0/RB3/10+ Forward W0/RB3/10- Forward 
-TM YB0_S10 4 LB_RB0_S10_BP0E 1532	CH0: W0/RB4/10+ Backward 	CH1: W0/RB4/10- Backward 	CH2: W0/RB3/10+ Backward W0/RB3/10- Backward 
+YB+1_S1 0 LB_RB+1_S1_BP1A 1580
+YB+1_S1 1 LB_RB+1_S1_BP1B 1577
+YB+1_S1 2 LB_RB+1_S1_BP1C 1574
+YB+1_S1 3 LB_RB+1_S1_BP1D 1571
+YB+1_S1 4 LB_RB+1_S1_BP1E 1569
+YB+2_S1 0 LB_RB+2_S1_BP2A 1740
+YB+2_S1 1 LB_RB+2_S1_BP2B 1737
+YB+2_S1 2 LB_RB+2_S1_BP2C 1734
+YB+2_S1 3 LB_RB+2_S1_BP2D 1731
+YB+2_S1 4 LB_RB+2_S1_BP2E 1729
+YB-1_S1 0 LB_RB-1_S1_BN1A 1260
+YB-1_S1 1 LB_RB-1_S1_BN1B 1257
+YB-1_S1 2 LB_RB-1_S1_BN1C 1254
+YB-1_S1 3 LB_RB-1_S1_BN1D 1251
+YB-1_S1 4 LB_RB-1_S1_BN1E 1249
+YB-2_S1 0 LB_RB-2_S1_BN2A 1100
+YB-2_S1 1 LB_RB-2_S1_BN2B 1097
+YB-2_S1 2 LB_RB-2_S1_BN2C 1094
+YB-2_S1 3 LB_RB-2_S1_BN2D 1091
+YB-2_S1 4 LB_RB-2_S1_BN2E 1089
+YB0_S1 0 LB_RB0_S1_BN0B 1417
+YB0_S1 1 LB_RB0_S1_BP0B 1420
+YB0_S1 2 LB_RB0_S1_BM0C 1414
+YB0_S1 3 LB_RB0_S1_BN0E 1409
+YB0_S1 4 LB_RB0_S1_BP0E 1411
+YB+1_S2 0 LB_RB+1_S2_BP1A 1593
+YB+1_S2 1 LB_RB+1_S2_BP1B 1590
+YB+1_S2 2 LB_RB+1_S2_BP1C 1587
+YB+1_S2 3 LB_RB+1_S2_BP1D 1584
+YB+1_S2 4 LB_RB+1_S2_BP1E 1582
+YB+2_S2 0 LB_RB+2_S2_BP2A 1753
+YB+2_S2 1 LB_RB+2_S2_BP2B 1750
+YB+2_S2 2 LB_RB+2_S2_BP2C 1747
+YB+2_S2 3 LB_RB+2_S2_BP2D 1744
+YB+2_S2 4 LB_RB+2_S2_BP2E 1742
+YB-1_S2 0 LB_RB-1_S2_BN1A 1273
+YB-1_S2 1 LB_RB-1_S2_BN1B 1270
+YB-1_S2 2 LB_RB-1_S2_BN1C 1267
+YB-1_S2 3 LB_RB-1_S2_BN1D 1264
+YB-1_S2 4 LB_RB-1_S2_BN1E 1262
+YB-2_S2 0 LB_RB-2_S2_BN2A 1113
+YB-2_S2 1 LB_RB-2_S2_BN2B 1110
+YB-2_S2 2 LB_RB-2_S2_BN2C 1107
+YB-2_S2 3 LB_RB-2_S2_BN2D 1104
+YB-2_S2 4 LB_RB-2_S2_BN2E 1102
+YB0_S2 0 LB_RB0_S2_BN0B 1430
+YB0_S2 1 LB_RB0_S2_BP0B 1433
+YB0_S2 2 LB_RB0_S2_BM0C 1427
+YB0_S2 3 LB_RB0_S2_BN0E 1422
+YB0_S2 4 LB_RB0_S2_BP0E 1424
+YB+1_S11 0 LB_RB+1_S11_BP1A 1714
+YB+1_S11 1 LB_RB+1_S11_BP1B 1711
+YB+1_S11 2 LB_RB+1_S11_BP1C 1708
+YB+1_S11 3 LB_RB+1_S11_BP1D 1705
+YB+1_S11 4 LB_RB+1_S11_BP1E 1703
+YB+2_S11 0 LB_RB+2_S11_BP2A 1874
+YB+2_S11 1 LB_RB+2_S11_BP2B 1871
+YB+2_S11 2 LB_RB+2_S11_BP2C 1868
+YB+2_S11 3 LB_RB+2_S11_BP2D 1865
+YB+2_S11 4 LB_RB+2_S11_BP2E 1863
+YB-1_S11 0 LB_RB-1_S11_BN1A 1394
+YB-1_S11 1 LB_RB-1_S11_BN1B 1391
+YB-1_S11 2 LB_RB-1_S11_BN1C 1388
+YB-1_S11 3 LB_RB-1_S11_BN1D 1385
+YB-1_S11 4 LB_RB-1_S11_BN1E 1383
+YB-2_S11 0 LB_RB-2_S11_BN2A 1234
+YB-2_S11 1 LB_RB-2_S11_BN2B 1231
+YB-2_S11 2 LB_RB-2_S11_BN2C 1228
+YB-2_S11 3 LB_RB-2_S11_BN2D 1225
+YB-2_S11 4 LB_RB-2_S11_BN2E 1223
+YB0_S11 0 LB_RB0_S11_BN0B 1551
+YB0_S11 1 LB_RB0_S11_BP0B 1554
+YB0_S11 2 LB_RB0_S11_BM0C 1548
+YB0_S11 3 LB_RB0_S11_BN0E 1543
+YB0_S11 4 LB_RB0_S11_BP0E 1545
+YB+1_S12 0 LB_RB+1_S12_BP1A 1727
+YB+1_S12 1 LB_RB+1_S12_BP1B 1724
+YB+1_S12 2 LB_RB+1_S12_BP1C 1721
+YB+1_S12 3 LB_RB+1_S12_BP1D 1718
+YB+1_S12 4 LB_RB+1_S12_BP1E 1716
+YB+2_S12 0 LB_RB+2_S12_BP2A 1887
+YB+2_S12 1 LB_RB+2_S12_BP2B 1884
+YB+2_S12 2 LB_RB+2_S12_BP2C 1881
+YB+2_S12 3 LB_RB+2_S12_BP2D 1878
+YB+2_S12 4 LB_RB+2_S12_BP2E 1876
+YB-1_S12 0 LB_RB-1_S12_BN1A 1407
+YB-1_S12 1 LB_RB-1_S12_BN1B 1404
+YB-1_S12 2 LB_RB-1_S12_BN1C 1401
+YB-1_S12 3 LB_RB-1_S12_BN1D 1398
+YB-1_S12 4 LB_RB-1_S12_BN1E 1396
+YB-2_S12 0 LB_RB-2_S12_BN2A 1247
+YB-2_S12 1 LB_RB-2_S12_BN2B 1244
+YB-2_S12 2 LB_RB-2_S12_BN2C 1241
+YB-2_S12 3 LB_RB-2_S12_BN2D 1238
+YB-2_S12 4 LB_RB-2_S12_BN2E 1236
+YB0_S12 0 LB_RB0_S12_BN0B 1564
+YB0_S12 1 LB_RB0_S12_BP0B 1567
+YB0_S12 2 LB_RB0_S12_BM0C 1561
+YB0_S12 3 LB_RB0_S12_BN0E 1556
+YB0_S12 4 LB_RB0_S12_BP0E 1558
+YB+1_S3 0 LB_RB+1_S3_BP1A 1606
+YB+1_S3 1 LB_RB+1_S3_BP1B 1603
+YB+1_S3 2 LB_RB+1_S3_BP1C 1600
+YB+1_S3 3 LB_RB+1_S3_BP1D 1597
+YB+1_S3 4 LB_RB+1_S3_BP1E 1595
+YB+2_S3 0 LB_RB+2_S3_BP2A 1766
+YB+2_S3 1 LB_RB+2_S3_BP2B 1763
+YB+2_S3 2 LB_RB+2_S3_BP2C 1760
+YB+2_S3 3 LB_RB+2_S3_BP2D 1757
+YB+2_S3 4 LB_RB+2_S3_BP2E 1755
+YB-1_S3 0 LB_RB-1_S3_BN1A 1286
+YB-1_S3 1 LB_RB-1_S3_BN1B 1283
+YB-1_S3 2 LB_RB-1_S3_BN1C 1280
+YB-1_S3 3 LB_RB-1_S3_BN1D 1277
+YB-1_S3 4 LB_RB-1_S3_BN1E 1275
+YB-2_S3 0 LB_RB-2_S3_BN2A 1126
+YB-2_S3 1 LB_RB-2_S3_BN2B 1123
+YB-2_S3 2 LB_RB-2_S3_BN2C 1120
+YB-2_S3 3 LB_RB-2_S3_BN2D 1117
+YB-2_S3 4 LB_RB-2_S3_BN2E 1115
+YB0_S3 0 LB_RB0_S3_BN0B 1443
+YB0_S3 1 LB_RB0_S3_BP0B 1446
+YB0_S3 2 LB_RB0_S3_BM0C 1440
+YB0_S3 3 LB_RB0_S3_BN0E 1435
+YB0_S3 4 LB_RB0_S3_BP0E 1437
+YB+1_S4 0 LB_RB+1_S4_BP1A 1621
+YB+1_S4 1 LB_RB+1_S4_BP1B 1618
+YB+1_S4 2 LB_RB+1_S4_BP1C 1615
+YB+1_S4 3 LB_RB+1_S4_BP1D 1612
+YB+1_S4 4 LB_RB+1_S4_BP1E 1609
+YB+2_S4 0 LB_RB+2_S4_BP2A 1781
+YB+2_S4 1 LB_RB+2_S4_BP2B 1778
+YB+2_S4 2 LB_RB+2_S4_BP2C 1775
+YB+2_S4 3 LB_RB+2_S4_BP2D 1772
+YB+2_S4 4 LB_RB+2_S4_BP2E 1769
+YB-1_S4 0 LB_RB-1_S4_BN1A 1301
+YB-1_S4 1 LB_RB-1_S4_BN1B 1298
+YB-1_S4 2 LB_RB-1_S4_BN1C 1295
+YB-1_S4 3 LB_RB-1_S4_BN1D 1292
+YB-1_S4 4 LB_RB-1_S4_BN1E 1289
+YB-2_S4 0 LB_RB-2_S4_BN2A 1141
+YB-2_S4 1 LB_RB-2_S4_BN2B 1138
+YB-2_S4 2 LB_RB-2_S4_BN2C 1135
+YB-2_S4 3 LB_RB-2_S4_BN2D 1132
+YB-2_S4 4 LB_RB-2_S4_BN2E 1129
+YB0_S4 0 LB_RB0_S4_BN0B 1458
+YB0_S4 1 LB_RB0_S4_BP0B 1461
+YB0_S4 2 LB_RB0_S4_BM0C 1455
+YB0_S4 3 LB_RB0_S4_BN0E 1449
+YB0_S4 4 LB_RB0_S4_BP0E 1452
+YB+1_S5 0 LB_RB+1_S5_BP1A 1634
+YB+1_S5 1 LB_RB+1_S5_BP1B 1631
+YB+1_S5 2 LB_RB+1_S5_BP1C 1628
+YB+1_S5 3 LB_RB+1_S5_BP1D 1625
+YB+1_S5 4 LB_RB+1_S5_BP1E 1623
+YB+2_S5 0 LB_RB+2_S5_BP2A 1794
+YB+2_S5 1 LB_RB+2_S5_BP2B 1791
+YB+2_S5 2 LB_RB+2_S5_BP2C 1788
+YB+2_S5 3 LB_RB+2_S5_BP2D 1785
+YB+2_S5 4 LB_RB+2_S5_BP2E 1783
+YB-1_S5 0 LB_RB-1_S5_BN1A 1314
+YB-1_S5 1 LB_RB-1_S5_BN1B 1311
+YB-1_S5 2 LB_RB-1_S5_BN1C 1308
+YB-1_S5 3 LB_RB-1_S5_BN1D 1305
+YB-1_S5 4 LB_RB-1_S5_BN1E 1303
+YB-2_S5 0 LB_RB-2_S5_BN2A 1154
+YB-2_S5 1 LB_RB-2_S5_BN2B 1151
+YB-2_S5 2 LB_RB-2_S5_BN2C 1148
+YB-2_S5 3 LB_RB-2_S5_BN2D 1145
+YB-2_S5 4 LB_RB-2_S5_BN2E 1143
+YB0_S5 0 LB_RB0_S5_BN0B 1471
+YB0_S5 1 LB_RB0_S5_BP0B 1474
+YB0_S5 2 LB_RB0_S5_BM0C 1468
+YB0_S5 3 LB_RB0_S5_BN0E 1463
+YB0_S5 4 LB_RB0_S5_BP0E 1465
+YB+1_S6 0 LB_RB+1_S6_BP1A 1647
+YB+1_S6 1 LB_RB+1_S6_BP1B 1644
+YB+1_S6 2 LB_RB+1_S6_BP1C 1641
+YB+1_S6 3 LB_RB+1_S6_BP1D 1638
+YB+1_S6 4 LB_RB+1_S6_BP1E 1636
+YB+2_S6 0 LB_RB+2_S6_BP2A 1807
+YB+2_S6 1 LB_RB+2_S6_BP2B 1804
+YB+2_S6 2 LB_RB+2_S6_BP2C 1801
+YB+2_S6 3 LB_RB+2_S6_BP2D 1798
+YB+2_S6 4 LB_RB+2_S6_BP2E 1796
+YB-1_S6 0 LB_RB-1_S6_BN1A 1327
+YB-1_S6 1 LB_RB-1_S6_BN1B 1324
+YB-1_S6 2 LB_RB-1_S6_BN1C 1321
+YB-1_S6 3 LB_RB-1_S6_BN1D 1318
+YB-1_S6 4 LB_RB-1_S6_BN1E 1316
+YB-2_S6 0 LB_RB-2_S6_BN2A 1167
+YB-2_S6 1 LB_RB-2_S6_BN2B 1164
+YB-2_S6 2 LB_RB-2_S6_BN2C 1161
+YB-2_S6 3 LB_RB-2_S6_BN2D 1158
+YB-2_S6 4 LB_RB-2_S6_BN2E 1156
+YB0_S6 0 LB_RB0_S6_BN0B 1484
+YB0_S6 1 LB_RB0_S6_BP0B 1487
+YB0_S6 2 LB_RB0_S6_BM0C 1481
+YB0_S6 3 LB_RB0_S6_BN0E 1476
+YB0_S6 4 LB_RB0_S6_BP0E 1478
+YB+1_S7 0 LB_RB+1_S7_BP1A 1660
+YB+1_S7 1 LB_RB+1_S7_BP1B 1657
+YB+1_S7 2 LB_RB+1_S7_BP1C 1654
+YB+1_S7 3 LB_RB+1_S7_BP1D 1651
+YB+1_S7 4 LB_RB+1_S7_BP1E 1649
+YB+2_S7 0 LB_RB+2_S7_BP2A 1820
+YB+2_S7 1 LB_RB+2_S7_BP2B 1817
+YB+2_S7 2 LB_RB+2_S7_BP2C 1814
+YB+2_S7 3 LB_RB+2_S7_BP2D 1811
+YB+2_S7 4 LB_RB+2_S7_BP2E 1809
+YB-1_S7 0 LB_RB-1_S7_BN1A 1340
+YB-1_S7 1 LB_RB-1_S7_BN1B 1337
+YB-1_S7 2 LB_RB-1_S7_BN1C 1334
+YB-1_S7 3 LB_RB-1_S7_BN1D 1331
+YB-1_S7 4 LB_RB-1_S7_BN1E 1329
+YB-2_S7 0 LB_RB-2_S7_BN2A 1180
+YB-2_S7 1 LB_RB-2_S7_BN2B 1177
+YB-2_S7 2 LB_RB-2_S7_BN2C 1174
+YB-2_S7 3 LB_RB-2_S7_BN2D 1171
+YB-2_S7 4 LB_RB-2_S7_BN2E 1169
+YB0_S7 0 LB_RB0_S7_BN0B 1497
+YB0_S7 1 LB_RB0_S7_BP0B 1500
+YB0_S7 2 LB_RB0_S7_BM0C 1494
+YB0_S7 3 LB_RB0_S7_BN0E 1489
+YB0_S7 4 LB_RB0_S7_BP0E 1491
+YB+1_S8 0 LB_RB+1_S8_BP1A 1673
+YB+1_S8 1 LB_RB+1_S8_BP1B 1670
+YB+1_S8 2 LB_RB+1_S8_BP1C 1667
+YB+1_S8 3 LB_RB+1_S8_BP1D 1664
+YB+1_S8 4 LB_RB+1_S8_BP1E 1662
+YB+2_S8 0 LB_RB+2_S8_BP2A 1833
+YB+2_S8 1 LB_RB+2_S8_BP2B 1830
+YB+2_S8 2 LB_RB+2_S8_BP2C 1827
+YB+2_S8 3 LB_RB+2_S8_BP2D 1824
+YB+2_S8 4 LB_RB+2_S8_BP2E 1822
+YB-1_S8 0 LB_RB-1_S8_BN1A 1353
+YB-1_S8 1 LB_RB-1_S8_BN1B 1350
+YB-1_S8 2 LB_RB-1_S8_BN1C 1347
+YB-1_S8 3 LB_RB-1_S8_BN1D 1344
+YB-1_S8 4 LB_RB-1_S8_BN1E 1342
+YB-2_S8 0 LB_RB-2_S8_BN2A 1193
+YB-2_S8 1 LB_RB-2_S8_BN2B 1190
+YB-2_S8 2 LB_RB-2_S8_BN2C 1187
+YB-2_S8 3 LB_RB-2_S8_BN2D 1184
+YB-2_S8 4 LB_RB-2_S8_BN2E 1182
+YB0_S8 0 LB_RB0_S8_BN0B 1510
+YB0_S8 1 LB_RB0_S8_BP0B 1513
+YB0_S8 2 LB_RB0_S8_BM0C 1507
+YB0_S8 3 LB_RB0_S8_BN0E 1502
+YB0_S8 4 LB_RB0_S8_BP0E 1504
+YB+1_S9 0 LB_RB+1_S9_BP1A 1686
+YB+1_S9 1 LB_RB+1_S9_BP1B 1683
+YB+1_S9 2 LB_RB+1_S9_BP1C 1680
+YB+1_S9 3 LB_RB+1_S9_BP1D 1677
+YB+1_S9 4 LB_RB+1_S9_BP1E 1675
+YB+2_S9 0 LB_RB+2_S9_BP2A 1846
+YB+2_S9 1 LB_RB+2_S9_BP2B 1843
+YB+2_S9 2 LB_RB+2_S9_BP2C 1840
+YB+2_S9 3 LB_RB+2_S9_BP2D 1837
+YB+2_S9 4 LB_RB+2_S9_BP2E 1835
+YB-1_S9 0 LB_RB-1_S9_BN1A 1366
+YB-1_S9 1 LB_RB-1_S9_BN1B 1363
+YB-1_S9 2 LB_RB-1_S9_BN1C 1360
+YB-1_S9 3 LB_RB-1_S9_BN1D 1357
+YB-1_S9 4 LB_RB-1_S9_BN1E 1355
+YB-2_S9 0 LB_RB-2_S9_BN2A 1206
+YB-2_S9 1 LB_RB-2_S9_BN2B 1203
+YB-2_S9 2 LB_RB-2_S9_BN2C 1200
+YB-2_S9 3 LB_RB-2_S9_BN2D 1197
+YB-2_S9 4 LB_RB-2_S9_BN2E 1195
+YB0_S9 0 LB_RB0_S9_BN0B 1523
+YB0_S9 1 LB_RB0_S9_BP0B 1526
+YB0_S9 2 LB_RB0_S9_BM0C 1520
+YB0_S9 3 LB_RB0_S9_BN0E 1515
+YB0_S9 4 LB_RB0_S9_BP0E 1517
+YB+1_S10 0 LB_RB+1_S10_BP1A 1701
+YB+1_S10 1 LB_RB+1_S10_BP1B 1698
+YB+1_S10 2 LB_RB+1_S10_BP1C 1695
+YB+1_S10 3 LB_RB+1_S10_BP1D 1692
+YB+1_S10 4 LB_RB+1_S10_BP1E 1689
+YB+2_S10 0 LB_RB+2_S10_BP2A 1861
+YB+2_S10 1 LB_RB+2_S10_BP2B 1858
+YB+2_S10 2 LB_RB+2_S10_BP2C 1855
+YB+2_S10 3 LB_RB+2_S10_BP2D 1852
+YB+2_S10 4 LB_RB+2_S10_BP2E 1849
+YB-1_S10 0 LB_RB-1_S10_BN1A 1381
+YB-1_S10 1 LB_RB-1_S10_BN1B 1378
+YB-1_S10 2 LB_RB-1_S10_BN1C 1375
+YB-1_S10 3 LB_RB-1_S10_BN1D 1372
+YB-1_S10 4 LB_RB-1_S10_BN1E 1369
+YB-2_S10 0 LB_RB-2_S10_BN2A 1221
+YB-2_S10 1 LB_RB-2_S10_BN2B 1218
+YB-2_S10 2 LB_RB-2_S10_BN2C 1215
+YB-2_S10 3 LB_RB-2_S10_BN2D 1212
+YB-2_S10 4 LB_RB-2_S10_BN2E 1209
+YB0_S10 0 LB_RB0_S10_BN0B 1538
+YB0_S10 1 LB_RB0_S10_BP0B 1541
+YB0_S10 2 LB_RB0_S10_BM0C 1535
+YB0_S10 3 LB_RB0_S10_BN0E 1529
+YB0_S10 4 LB_RB0_S10_BP0E 1532
