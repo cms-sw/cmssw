@@ -166,7 +166,7 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw cmsexpress "," ".get_class("mille")." ")>-1) {
   print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
@@ -191,13 +191,6 @@ if ($mssDir ne "") {
     $mssDirPool =~ s/:.+?$//; # Remove all that follows ":"
 
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
-  }
-
-  $testMssDir = `$Mpslib::eos ls -d $mssDir`;
-  chomp $testMssDir;
-  if ($testMssDir eq "") {
-    print "Bad MSS directory name $mssDir\n";
-    exit 1;
   }
 
 }
