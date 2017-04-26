@@ -179,7 +179,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (tk.eta() > minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
+            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->posForwardLayers();
             for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
@@ -192,7 +192,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (tk.eta() < -minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
+            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->negForwardLayers();
             for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
