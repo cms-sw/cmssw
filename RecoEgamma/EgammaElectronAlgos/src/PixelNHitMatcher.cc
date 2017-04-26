@@ -64,8 +64,9 @@ PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
   cacheIDMagField_(0)
 {
   useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
-  navSchoolLabel_ = "SimpleNavigationSchool";
-  detLayerGeomLabel_ = "hltESPGlobalDetLayerGeometry";
+  navSchoolLabel_ = pset.getParameter<std::string>("navSchool");//"SimpleNavigationSchool";
+  detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");//"hltESPGlobalDetLayerGeometry";
+  
   const auto cutsPSets=pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
   for(const auto & cutPSet : cutsPSets){
     matchingCuts_.push_back(MatchingCuts(cutPSet));
@@ -154,7 +155,8 @@ PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& can
   // if(seed.nHits()!=nrHitsRequired_){
   //   throw cms::Exception("Configuration") <<"PixelNHitMatcher is being fed seeds with "<<seed.nHits()<<" but requires "<<nrHitsRequired_<<" for a match, it is inconsistantly configured";
   // }
-
+  const float candEta = candPos.eta();
+  const float candEt = energy*std::sin(candPos.theta());
   
   FreeTrajectoryState trajStateFromVtx = FTSFromVertexToPointFactory::get(*magField_, candPos, vprim, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
@@ -163,21 +165,20 @@ PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& can
  
   std::vector<HitInfo> matchedHits;
   HitInfo firstHit = matchFirstHit(seed,initialTrajState,vprim,*backwardPropagator_);
-  if(passesMatchSel(firstHit,0)){
+  if(passesMatchSel(firstHit,0,candEt,candEta)){
     matchedHits.push_back(firstHit);
 
     //now we can figure out the z vertex
     double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,firstHit.pos(),candPos);
     GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
     
-    //FIXME: rename this variable
-    FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*magField_, firstHit.pos(), 
-								vertex, energy, charge) ;
+    FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_, firstHit.pos(), 
+									    vertex, energy, charge) ;
  
     GlobalPoint prevHitPos = firstHit.pos();
     for(size_t hitNr=1;hitNr<nrHitsRequired_ && hitNr<seed.nHits();hitNr++){
-      HitInfo hit = match2ndToNthHit(seed,fts2,hitNr,prevHitPos,vertex,*forwardPropagator_);
-      if(passesMatchSel(hit,hitNr)){
+      HitInfo hit = match2ndToNthHit(seed,firstHitFreeTraj,hitNr,prevHitPos,vertex,*forwardPropagator_);
+      if(passesMatchSel(hit,hitNr,candEt,candEta)){
 	matchedHits.push_back(hit);
 	prevHitPos = hit.pos();
       }else break;
@@ -278,10 +279,10 @@ void PixelNHitMatcher::clearCache()
   trajStateFromPointNegChargeCache_.clear();
 }
 
-bool PixelNHitMatcher::passesMatchSel(const PixelNHitMatcher::HitInfo& hit,const size_t hitNr)const
+bool PixelNHitMatcher::passesMatchSel(const PixelNHitMatcher::HitInfo& hit,const size_t hitNr,float scEt,float scEta)const
 {
   if(hitNr<matchingCuts_.size()){
-    return matchingCuts_[hitNr](hit);
+    return matchingCuts_[hitNr](hit,scEt,scEta);
   }else{
     throw cms::Exception("LogicError") <<" Error, attempting to apply selection to hit "<<hitNr<<" but only cuts for "<<matchingCuts_.size()<<" defined";
   }
@@ -297,10 +298,10 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInf
   GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
   
   //FIXME: rename this variable
-  FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*magField_,hit1.pos(), 
-							      vertex, energy, charge) ;
-  const TrajectoryStateOnSurface& trajState = getTrajStateFromPoint(*hit2.hit(),fts2,hit1.pos(),*forwardPropagator_);
-  return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(),trajState); 
+  FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_,hit1.pos(), 
+									  vertex, energy, charge);
+  const TrajectoryStateOnSurface& secondHitTraj = getTrajStateFromPoint(*hit2.hit(),firstHitFreeTraj,hit1.pos(),*forwardPropagator_);
+  return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(),secondHitTraj); 
 }
 
 int PixelNHitMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const TrajectoryStateOnSurface& hitTrajState)const
@@ -313,7 +314,7 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const Traject
   const std::vector<const DetLayer*> inLayers  = navSchool_->compatibleLayers(*detLayer,hitFreeState,oppositeToMomentum); 
   const std::vector<const DetLayer*> outLayers = navSchool_->compatibleLayers(*detLayer,hitFreeState,alongMomentum); 
   
-  int nrValidLayers=1; //because our current hit is valid
+  int nrValidLayers=1; //because our current hit is also valid and wont be included in the count otherwise
   int nrPixInLayers=0;
   int nrPixOutLayers=0;
   for(auto layer : inLayers){
@@ -394,18 +395,34 @@ SeedWithInfo(const TrajectorySeed& seed,
 
 PixelNHitMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
   dPhiMax_(pset.getParameter<double>("dPhiMax")),
-  dZMax_(pset.getParameter<double>("dZMax")),
-  dRIMax_(pset.getParameter<double>("dRIMax")),
-  dRFMax_(pset.getParameter<double>("dRFMax"))
+  dRZMax_(pset.getParameter<double>("dZMax")),
+  dRZMaxLowEtThres_(pset.getParameter<double>("dRZMaxLowEtThres")),
+  dRZMaxLowEtEtaBins_(pset.getParameter<std::vector<double> >("dRZMaxLowEtEtaBins")),
+  dRZMaxLowEt_(pset.getParameter<std::vector<double> >("dRZMaxLowEt"))
 {
-  
+  if(dRZMaxLowEtEtaBins_.size()+1!=dRZMaxLowEt_.size()){
+    throw cms::Exception("InvalidConfig")<<" dRZMaxLowEtEtaBins should be 1 less than dRZMaxLowEt when its "<<dRZMaxLowEtEtaBins_.size()<<" vs "<<dRZMaxLowEt_.size();
+  }
 }
 
-bool PixelNHitMatcher::MatchingCuts::operator()(const PixelNHitMatcher::HitInfo& hit)const
+bool PixelNHitMatcher::MatchingCuts::operator()(const PixelNHitMatcher::HitInfo& hit,const float scEt,const float scEta)const
 {
-  if(std::abs(hit.dPhi()) > dPhiMax_) return false;
-  float dZOrRMax = hit.subdetId()==PixelSubdetector::PixelBarrel ? dZMax_ : dRFMax_;
-  if(std::abs(hit.dRZ()) > dZOrRMax) return false;
+  if(dPhiMax_>=0 && std::abs(hit.dPhi()) > dPhiMax_) return false;
   
+  const float dRZMax = getDRZCutValue(scEt,scEta);
+  if(dRZMax_>=0 && std::abs(hit.dRZ()) > dRZMax) return false;
+	       
   return true;
+}
+
+float PixelNHitMatcher::MatchingCuts::getDRZCutValue(const float scEt,const float scEta)const
+{
+  if(scEt>=dRZMaxLowEtThres_) return dRZMax_;
+  else{
+    const float absEta = std::abs(scEta);
+    for(size_t etaNr=0;etaNr<dRZMaxLowEtEtaBins_.size();etaNr++){
+      if(absEta<dRZMaxLowEtEtaBins_[etaNr]) return dRZMaxLowEt_[etaNr];
+    }
+    return dRZMaxLowEt_.back();
+  }
 }
