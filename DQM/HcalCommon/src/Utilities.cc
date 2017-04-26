@@ -6,6 +6,9 @@ namespace hcaldqm
 	using namespace constants;
 	namespace utilities
 	{
+		double adc2fCDB(const CaloSamples& calo_samples, unsigned int n) {
+			return calo_samples[n];
+		}
 
 		/*
 		 *	Useful Detector Functions. For Fast Detector Validity Check
