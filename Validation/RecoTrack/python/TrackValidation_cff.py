@@ -382,7 +382,6 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     label_tp_fake = trackValidator.label_tp_fake.value(),
     label_tp_effic_refvector = False,
     label_tp_fake_refvector = False,
-    associators = trackValidator.associators.value(),
     doSimPlots = False,
     doSimTrackPlots = False,
 )
@@ -440,8 +439,6 @@ trackValidatorBHadron = trackValidator.clone(
     dirName = "Tracking/TrackBHadron/",
     label_tp_effic = "trackingParticlesBHadron",
     label_tp_effic_refvector = True,
-    associators = ["quickTrackAssociatorByHits"],
-    UseAssociators = True,
     doSimPlots = True,
     doRecoTrackPlots = False, # Fake rate is defined wrt. all TPs, and that is already included in trackValidator
     dodEdxPlots = False,
