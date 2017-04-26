@@ -13,7 +13,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCNumberingScheme::HGCNumberingScheme(const HGCalDDDConstants& hgc, 
 				       std::string & name ) :
@@ -73,7 +73,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
 			      << " Cell= " << icell;
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	      << module << ":" << iz << ":";
   if (hgcons_.geomMode() == HGCalGeometryMode::Square) 
