@@ -117,14 +117,77 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # # Define the high-level structure alignables
 # process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
 #     alignParams = cms.vstring(
-#         "TrackerTPBHalfBarrel,111111",
-#         "TrackerTPEHalfCylinder,111111",
+#         "TrackerP1PXBHalfBarrel,111111",
+#         "TrackerP1PXECHalfCylinder,111111",
 #         "TrackerTIBHalfBarrel,111111",
 #         "TrackerTOBHalfBarrel,rrrrrr",
 #         "TrackerTIDEndcap,111111",
-#         "TrackerTECEndcap,111111"
+#         "TrackerTECEndcap,111111",
+#     )
+# )
+
+
+# # to run a module-level alignment on real data (including TOB centering; use
+# # pixel-barrel centering for MC) of the whole tracker (including surface
+# # deformations) you can use the following configuration (read comments on
+# # multi-IOV alignment below):
+#
+# process.AlignmentProducer.ParameterBuilder.parameterTypes = [
+#     "SelectorRigid,RigidBody",
+#     "SelectorBowed,BowedSurface",
+#     "SelectorTwoBowed,TwoBowedSurfaces",
+# ]
+# # Define the high-level structure alignables
+# process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerP1PXBHalfBarrel,111111",
+#         "TrackerP1PXECHalfCylinder,111111",
+#         "TrackerTIBHalfBarrel,111111",
+#         "TrackerTOBHalfBarrel,rrrrrr",
+#         "TrackerTIDEndcap,111111",
+#         "TrackerTECEndcap,111111",
+#     )
+# )
+#
+# # Define the module-level alignables (for single modules)
+# process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerP1PXBModule,111111 111",
+#         "TrackerP1PXECModule,111111 111",
+#         "TrackerTIBModuleUnit,101111 111",
+#         "TrackerTIDModuleUnit,111111 111",
+#         "TrackerTECModuleUnit,111111 111,tecSingleSens",
+#     ),
+#     tecSingleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(1,4))),
+# )
+#
+# process.AlignmentProducer.ParameterBuilder.SelectorTwoBowed = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerTOBModuleUnit,101111 111 101111 111",
+#         "TrackerTECModuleUnit,111111 111 111111 111,tecDoubleSens",
+#     ),
+#     tecDoubleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(5,7))),
+# )
+#
+# # IOV definition
+# #  - defaults to single-IOV starting at "1", if omitted
+# #  - alignables have to match high-level structures above
+# #    -> except for 'rrrrrr' alignables
+# process.AlignmentProducer.RunRangeSelection = [
+#     cms.PSet(
+#         RunRanges = cms.vstring(
+#             "290550",
+#             "300000",
+#         ),
+#         selector = cms.vstring(
+#             "TrackerP1PXBHalfBarrel,111111",
+#             "TrackerP1PXECHalfCylinder,111111",
+#             "TrackerTIBHalfBarrel,111111",
+#             "TrackerTIDEndcap,111111",
+#             "TrackerTECEndcap,111111",
 #         )
 #     )
+# ] # end of process.AlignmentProducer.RunRangeSelection
 
 
 #########################
@@ -142,6 +205,19 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
 # helper.set_pede_option(process, "entries 50 10 2")
+
+
+#################
+## add filters ##
+#################
+
+# # please add any EDFilter here that should run before processing the event,
+# # e.g. add the following lines to ensure that only 3.8T events are selected
+#
+# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
+# process.load("Alignment.CommonAlignment.magneticFieldFilter_cfi")
+# process.magneticFieldFilter.magneticField = 38 # in units of kGauss (=0.1T)
+# helper.add_filter(process, process.magneticFieldFilter)
 
 
 ################################################################################
