@@ -23,7 +23,7 @@ namespace Rivet {
   class RivetAnalysis : public Analysis {
 
     public:
-      vector<DressedLepton> leptons() const {return _leptons;}
+      std::vector<DressedLepton> leptons() const {return _leptons;}
       ParticleVector photons() const {return _photons;}
       ParticleVector neutrinos() const {return _neutrinos;}
       Jets jets() const {return _jets;}
@@ -40,7 +40,7 @@ namespace Rivet {
       double _jetConeSize, _jetMinPt, _jetMaxEta;
       double _fatJetConeSize, _fatJetMinPt, _fatJetMaxEta;
       
-      vector<DressedLepton> _leptons;
+      std::vector<DressedLepton> _leptons;
       ParticleVector _photons, _neutrinos;
       Jets _jets, _fatjets;
       Vector3 _met;

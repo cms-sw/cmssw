@@ -41,5 +41,4 @@ private:
 
 };
 
-DEFINE_FWK_MODULE(ParticleLevelProducer);
 #endif
