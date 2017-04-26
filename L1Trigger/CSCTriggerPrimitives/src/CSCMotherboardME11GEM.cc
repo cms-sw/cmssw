@@ -381,7 +381,14 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const CSCDetId me1bId(cscChamberME1b->id());
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
+    
+  const bool isEven(me1bId.chamber()%2==0);
+  const int region((theEndcap == 1) ? 1: -1);
+  const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
+  const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+  // check if the GEM chamber is really there
 
+  if (!gemChamber) runME11ILT_ = false;
   if (runME11ILT_){
       
     // check for GEM geometry
@@ -396,11 +403,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     const CSCLayerGeometry* keyLayerGeometryME1b(keyLayerME1b->geometry());
     const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
     const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
-
-    const bool isEven(me1bId.chamber()%2==0);
-    const int region((theEndcap == 1) ? 1: -1);
-    const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
-    const GEMChamber* gemChamber(gem_g->chamber(gem_id));
 
     // initialize depending on whether even or odd     
     maxDeltaBXPad_ = isEven ? maxDeltaBXPadEven_ : maxDeltaBXPadOdd_;
