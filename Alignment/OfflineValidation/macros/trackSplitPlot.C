@@ -567,7 +567,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             }
             else
             {
-                p[i]->Draw("same");
+                p[i]->Draw("same hist");
                 legend->AddEntry(p[i],names[i],"l");
             }
             legend->AddEntry((TObject*)0,meansrmss[i],"");

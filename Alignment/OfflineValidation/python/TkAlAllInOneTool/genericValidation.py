@@ -25,6 +25,14 @@ class ValidationMetaClass(ABCMeta):
                     if newdict[key] != dct[dictname][key]:
                         raise ValueError("Inconsistent values of defaults[{}]: {}, {}".format(key, newdict[key], dct[dictname][key]))
                 dct[dictname].update(newdict)
+
+        for setname in cls.sets:      #e.g. removemandatories, used in preexistingvalidation
+                                      #use with caution
+            if "remove"+setname not in dct: dct["remove"+setname] = set()
+            dct["remove"+setname] = set.union(dct["remove"+setname], *(getattr(base, "remove"+setname) for base in bases if hasattr(base, "remove"+setname)))
+
+            dct[setname] -= dct["remove"+setname]
+
         return super(ValidationMetaClass, cls).__new__(cls, clsname, bases, dct)
 
 class GenericValidation(object):
