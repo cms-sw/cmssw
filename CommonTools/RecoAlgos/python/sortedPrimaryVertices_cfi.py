@@ -3,8 +3,8 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     sorting = cms.PSet(),
     assignment = cms.PSet(
     #cuts to assign primary tracks not used in PV fit based on dZ compatibility
-    maxDzSigForPrimaryAssignment = cms.double(5.0), # in OR with next
-    maxDzForPrimaryAssignment = cms.double(0.03), # in OR with prev
+    maxDzSigForPrimaryAssignment = cms.double(5.0), # in AND with next
+    maxDzForPrimaryAssignment = cms.double(0.1), # in AND with prev
 
     # cuts used to recover b-tracks if they are closed to jet axis
     maxJetDeltaR = cms.double(0.5),
