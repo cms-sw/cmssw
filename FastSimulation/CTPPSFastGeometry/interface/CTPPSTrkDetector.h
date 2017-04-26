@@ -8,15 +8,15 @@ class CTPPSTrkDetector {
             virtual ~CTPPSTrkDetector() {};
 
       public:
-            const double        DetectorWidth;
-            const double        DetectorHeight;
-            const double        DetectorPosition;
-            std::vector<unsigned int>            DetId;
-            int                 NHits;
-            std::vector<double> X;
-            std::vector<double> Y;
-            std::vector<double> Z;
-            void clear() {DetId.clear();NHits=0;X.clear();Y.clear();Z.clear();};
+            const double        ppsDetectorWidth_;
+            const double        ppsDetectorHeight_;
+            const double        ppsDetectorPosition_;
+            std::vector<unsigned int>            ppsDetId_;
+            int                 ppsNHits_;
+            std::vector<double> ppsX_;
+            std::vector<double> ppsY_;
+            std::vector<double> ppsZ_;
+            void clear() {ppsDetId_.clear();ppsNHits_=0;ppsX_.clear();ppsY_.clear();ppsZ_.clear();};
             void AddHit(unsigned int detID,double x, double y, double z);
 };
 
