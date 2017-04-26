@@ -48,10 +48,10 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJ
   if ( jet.bTagged() ) genJet.setPdgId(5);
   genJet.setJetArea(pjet.has_area() ? pjet.area() : 0);
   
-  for ( auto p : jet.particles()) {
+  for ( auto const & p : jet.particles()) {
     auto pp4 = p4(p);
     bool match = false; int iMatch = -1;
-    for ( auto q : *consts ) {
+    for ( auto const & q : *consts ) {
       ++iMatch;
       if (q.p4() == pp4) { match = true; break; }
     }
@@ -63,12 +63,12 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJ
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     }
   }
-  for ( auto p : jet.tags()) {
+  for ( auto const & p : jet.tags()) {
     // The tag particles are accessible as jet daughters, so scale down p4 for safety.
     // p4 needs to be multiplied by 1e20 for fragmentation analysis.
     auto pp4 = p4(p)*1e-20;
     bool match = false; int iMatch = -1;
-    for ( auto q : *tags ) {
+    for ( auto const & q : *tags ) {
       ++iMatch;
       if (q.p4() == pp4) { match = true; break; }
     }
@@ -108,20 +108,20 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
 
   // Convert into edm objects
   // Prompt neutrinos
-  for ( auto p : rivetAnalysis_->neutrinos() ) {
+  for ( auto const & p : rivetAnalysis_->neutrinos() ) {
     neutrinos->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
   }
   std::sort(neutrinos->begin(), neutrinos->end(), GreaterByPt<reco::Candidate>());
   
   // Photons
-  for ( auto p : rivetAnalysis_->photons() ) {
+  for ( auto const & p : rivetAnalysis_->photons() ) {
     photons->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
   }
   std::sort(photons->begin(), photons->end(), GreaterByPt<reco::Candidate>());
 
   // Prompt leptons
   int iConstituent = -1;
-  for ( auto lepton : rivetAnalysis_->leptons() ) {
+  for ( auto const & lepton : rivetAnalysis_->leptons() ) {
     reco::GenJet lepJet;
     lepJet.setP4(p4(lepton));
     lepJet.setVertex(genVertex_);
@@ -132,7 +132,7 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
     consts->push_back(reco::GenParticle(cl.charge(), p4(cl), genVertex_, cl.pdgId(), 1, true));
     lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     
-    for ( auto p : lepton.constituentPhotons()) {
+    for ( auto const & p : lepton.constituentPhotons()) {
       consts->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
       lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     }
@@ -163,3 +163,5 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   event.put(std::move(tags), "tags");
   event.put(std::move(mets), "mets");
 }
+
+DEFINE_FWK_MODULE(ParticleLevelProducer);
