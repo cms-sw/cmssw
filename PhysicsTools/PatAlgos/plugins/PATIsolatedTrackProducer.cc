@@ -1,5 +1,4 @@
 #include <string>
-
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -69,9 +68,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         if(pf_it->charge() == 0)
             continue;
 
-        // reco::CandidatePtr pcref = refToPtr(pat::PackedCandidateRef(pc, (unsigned int)(pf_it - pc->begin())));
-
-        int idx = (int)(pf_it-pc->begin());
+        pat::PackedCandidatePtr pcref = refToPtr(pat::PackedCandidateRef(pc_h, (unsigned int)(pf_it - pc->begin())));
 
         // compute track isolation
         float trackIso = 0.0;
@@ -95,7 +92,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         }
 
         if(trackIso < absIso_cut || trackIso/pf_it->p4().pt() < relIso_cut || miniIso/pf_it->p4().pt() < miniRelIso_cut){
-            outPtrP->push_back(pat::IsolatedTrack(trackIso, miniIso, pf_it->p4(), pf_it->pdgId(), idx));
+            outPtrP->push_back(pat::IsolatedTrack(trackIso, miniIso, pf_it->p4(), pf_it->pdgId(), pcref));
         }
 
     }

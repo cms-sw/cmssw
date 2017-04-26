@@ -104,7 +104,7 @@
   </class>
 
   <class name="pat::IsolatedTrack" ClassVersion="0">
-   <version ClassVersion="0" checksum="2735364388"/>
+   <version ClassVersion="0" checksum="3577923865"/>
   </class>
 
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
@@ -393,6 +393,7 @@
   <class name="edm::Ptr<pat::Jet>" />
   <class name="edm::Ptr<pat::MET>" />
   <class name="edm::Ptr<pat::Conversion>" />
+  <class name="edm::Ptr<pat::PackedCandidate>" />
 
   <class name="edm::FwdPtr<pat::PackedCandidate>" />
   <class name="std::vector<edm::FwdPtr<pat::PackedCandidate> >" />
