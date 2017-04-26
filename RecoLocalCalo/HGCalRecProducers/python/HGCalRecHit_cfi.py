@@ -79,8 +79,8 @@ HGCalRecHit = cms.EDProducer(
 
     # EM Scale calibrations
     layerWeights = dEdX_weights,
-    thicknessCorrection = cms.vdouble(0.964,0.920,0.909), # 100, 200, 300 um
-    
+    thicknessCorrection = cms.vdouble(1.132,1.092,1.084), # 100, 200, 300 um 
+
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")
     
