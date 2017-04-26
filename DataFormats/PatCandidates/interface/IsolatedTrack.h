@@ -9,8 +9,8 @@
   \author   Bennett Marsh
 */
 
-
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 namespace pat {
     class IsolatedTrack;
@@ -28,14 +28,14 @@ namespace pat {
 
         IsolatedTrack() :
           trackIsoDR03_(0.),
-          miniTrackIso_(0.),
+          miniIso_(pat::MiniIsolation({0,0,0,0})),
           p4_( LorentzVector(0.,0.,0.,0.)),
           pdgId_(0),
           refToCand_(PackedCandidatePtr()) {}
 
-        explicit IsolatedTrack(float tkiso, float miniiso, LorentzVector p4, int id, PackedCandidatePtr ref) :
+        explicit IsolatedTrack(float tkiso, MiniIsolation miniiso, LorentzVector p4, int id, PackedCandidatePtr ref) :
           trackIsoDR03_(tkiso),
-          miniTrackIso_(miniiso),
+          miniIso_(miniiso),
           p4_(p4),
           pdgId_(id),
           refToCand_(ref) {}
@@ -45,8 +45,8 @@ namespace pat {
         float trackIsoDR03(){ return trackIsoDR03_; }
         void setTrackIsoDR03(float iso){ trackIsoDR03_ = iso; }
 
-        float miniTrackIso(){ return miniTrackIso_; }
-        void setMiniTrackIso(float iso){ miniTrackIso_ = iso; }
+        MiniIsolation miniPFIsolation(){ return miniIso_; }
+        void setMiniPFIsolation(MiniIsolation iso){ miniIso_ = iso; }
 
         LorentzVector p4(){ return p4_; }
         void setP4(LorentzVector p4){ p4_ = p4; }
@@ -59,7 +59,7 @@ namespace pat {
 
       protected:
         float trackIsoDR03_;
-        float miniTrackIso_;
+        MiniIsolation miniIso_;
         LorentzVector p4_;
         int pdgId_;
 
