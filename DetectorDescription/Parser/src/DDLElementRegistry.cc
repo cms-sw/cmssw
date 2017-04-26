@@ -128,7 +128,7 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = new DDLEllipsoid(this);
     }
-    else if (name == "Sphere")
+    else if (name == "Parallelepiped")
     {
       myret = new DDLParallelepiped(this);
     }
