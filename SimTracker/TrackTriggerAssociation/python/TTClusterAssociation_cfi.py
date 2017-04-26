@@ -5,7 +5,8 @@ TTClusterAssociatorFromPixelDigis = cms.EDProducer("TTClusterAssociator_Phase2Tr
                                 cms.InputTag("TTStubsFromPhase2TrackerDigis", "ClusterAccepted"),
     ),
     simTrackHits = cms.InputTag( "g4SimHits" ),
-    digiSimLinks = cms.InputTag( "mix","Tracker" ), 
+#    digiSimLinks = cms.InputTag( "mix","Tracker" ), 
+    digiSimLinks = cms.InputTag( "simSiPixelDigis","Tracker" ), 
     trackingParts= cms.InputTag( "mix","MergedTrackTruth" )
 )
 

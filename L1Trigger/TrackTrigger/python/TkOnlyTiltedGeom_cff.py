@@ -28,16 +28,17 @@ trackerGeometry.applyAlignment = cms.bool(False)
 # Need to remove the rest in order to avoid SD-related crashes in Geant4
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/PhaseII/materials.xml',
+    geomXMLFiles = cms.vstring(
+        'Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
-        'Geometry/CMSCommonData/data/PhaseI/cms.xml',
-        'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
+        'Geometry/CMSCommonData/data/PostLS2/cms.xml',             
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
+        'Geometry/CMSCommonData/data/eta3/etaMax.xml',   
         'Geometry/CMSCommonData/data/mgnt.xml',
-        'Geometry/CMSCommonData/data/PhaseII/beampipe.xml',
-        'Geometry/CMSCommonData/data/cmsBeam.xml',
+        'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
+        'Geometry/CMSCommonData/data/PostLS2/cmsBeam.xml',
         'Geometry/CMSCommonData/data/cavern.xml',
         'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',

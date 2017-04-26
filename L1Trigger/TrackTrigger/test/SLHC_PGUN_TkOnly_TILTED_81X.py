@@ -64,7 +64,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 # Random seeds
@@ -125,12 +125,8 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 	
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-
+# Automatic addition of the customisation function
 from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-process = cust_2023tilted(process)
 process = TkOnlyDigi(process)
 # End of customisation functions	
 
