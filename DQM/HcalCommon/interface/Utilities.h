@@ -24,7 +24,6 @@ namespace hcaldqm
 		template<class Digi>
 		CaloSamples loadADC2fCDB(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId did, const Digi& digi) {
 			CaloSamples calo_samples;
-			HcalCalibrations calibrations = conditions->getHcalCoder(did);
 			const HcalQIECoder* channelCoder = conditions->getHcalCoder(did);
 			const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
 			HcalCoderDb coder(*channelCoder, *shape);
@@ -38,7 +37,7 @@ namespace hcaldqm
 		// Get pedestal-subtracted charge
 		template<class Digi> 
 		double adc2fCDBMinusPedestal(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int n) {
-			HcalCalibrations calibrations = conditions->getHcalCoder(did);
+			HcalCalibrations calibrations = conditions->getHcalCalibrations(did);
 			int capid = digi[n].capid();
 			return calo_samples[n] - calibrations.pedestal(capid);
 		}
