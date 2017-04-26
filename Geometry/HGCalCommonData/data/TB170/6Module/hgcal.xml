@@ -70,11 +70,11 @@
     <ZSection z="-[thKapton]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thKapton]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
-  <Polyhedra name="HGCalAbsEE" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalEEAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
-  <Polyhedra name="HGCalAbsHE" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalHEAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[thAbsHE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thAbsHE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
