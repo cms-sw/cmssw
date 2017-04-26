@@ -1128,7 +1128,7 @@ class TrackingParticlePrinter(_IndentPrinter):
             self._trackPrinter.indent(2)
             for track in tracks:
                 lst.extend(self._trackPrinter.printTrack(track))
-                self._trackPrinter.restoreIndent()
+            self._trackPrinter.restoreIndent()
         return lst
 
     def printMatchedTracks(self, tp, useTrackPrinter=True):
