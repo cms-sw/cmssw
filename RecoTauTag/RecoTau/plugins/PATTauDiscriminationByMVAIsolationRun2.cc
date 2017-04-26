@@ -187,8 +187,12 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
 	
   int tauDecayMode = tau->decayMode();
 	
-  if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT || mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kDBoldDMwLTwGJ) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
-       ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWnewDMwLT || mvaOpt_ == kDBnewDMwLTwGJ) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10 || tauDecayMode == 11)) ) {
+  if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT || mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kDBoldDMwLTwGJ)
+        && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10))
+       ||
+       ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWnewDMwLT || mvaOpt_ == kDBnewDMwLTwGJ)
+        && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10 || tauDecayMode == 11))
+  ) {
 	
     float chargedIsoPtSum = tau->tauID(chargedIsoPtSums_);
     float neutralIsoPtSum = tau->tauID(neutralIsoPtSums_);
