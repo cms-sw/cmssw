@@ -95,7 +95,6 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         // Hector objects
 
         std::map<unsigned int, H_BeamParticle*> m_beamPart;
-	
 	std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
         std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
 
