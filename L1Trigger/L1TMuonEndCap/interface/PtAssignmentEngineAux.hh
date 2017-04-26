@@ -1,6 +1,7 @@
 #ifndef L1TMuonEndCap_PtAssignmentEngineAux_hh
 #define L1TMuonEndCap_PtAssignmentEngineAux_hh
 
+#include <cassert>
 #include <cstdint>
 #include <cstdlib>
 #include <cmath>
