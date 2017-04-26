@@ -12,7 +12,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 namespace pat{
 
@@ -22,6 +21,8 @@ namespace pat{
         float phiso; //photons
         float puiso; //pileup
     };
+
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
     MiniIsolation GetMiniPFIsolation(const pat::PackedCandidateCollection *pfcands, LorentzVector p4,
                                      float mindr=0.05, float maxdr=0.2, float kt_scale=10.0,

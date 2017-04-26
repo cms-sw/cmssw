@@ -167,6 +167,7 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+  edm::Ptr<pat::PackedCandidate> ptr_PackedCandidate;
 
   edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
   edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;

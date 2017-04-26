@@ -15,6 +15,7 @@
 namespace pat {
     class IsolatedTrack;
     typedef std::vector<IsolatedTrack>  IsolatedTrackCollection; 
+    typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
 }
 
 
@@ -30,16 +31,14 @@ namespace pat {
           miniTrackIso_(0.),
           p4_( LorentzVector(0.,0.,0.,0.)),
           pdgId_(0),
-          /* refToCand_(reco::CandidatePtr()) {} */
-          candIndex_(-1) {}
+          refToCand_(PackedCandidatePtr()) {}
 
-        /* explicit IsolatedTrack(float tkiso, float miniiso, LorentzVector p4, int id, reco::CandidatePtr ref) : */
-        explicit IsolatedTrack(float tkiso, float miniiso, LorentzVector p4, int id, int idx) :
+        explicit IsolatedTrack(float tkiso, float miniiso, LorentzVector p4, int id, PackedCandidatePtr ref) :
           trackIsoDR03_(tkiso),
           miniTrackIso_(miniiso),
           p4_(p4),
           pdgId_(id),
-          candIndex_(idx) {}
+          refToCand_(ref) {}
 
         ~IsolatedTrack() {}
 
@@ -55,11 +54,8 @@ namespace pat {
         int pdgId(){ return pdgId_; }
         void setPdgId(int id){ pdgId_ = id; }
 
-        /* reco::CandidatePtr refToCand(){ return refToCand_; } */
-        /* void setPackedCandRef(reco::CandidatePtr ref){ refToCand_ = ref; } */
-
-        int candIndex(){ return candIndex_; }
-        void setCandIndex(int idx){ candIndex_ = idx; }
+        PackedCandidatePtr refToCand(){ return refToCand_; }
+        void setPackedCandRef(PackedCandidatePtr ref){ refToCand_ = ref; }
 
       protected:
         float trackIsoDR03_;
@@ -67,8 +63,7 @@ namespace pat {
         LorentzVector p4_;
         int pdgId_;
 
-        /* reco::CandidatePtr refToCand_; */
-        int candIndex_; //index of corresponding index in PackedPFCandidates
+        PackedCandidatePtr refToCand_;
     };
 
 }
