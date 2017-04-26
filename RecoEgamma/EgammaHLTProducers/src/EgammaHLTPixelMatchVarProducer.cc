@@ -151,6 +151,8 @@ EgammaHLTPixelMatchVarProducer::EgammaHLTPixelMatchVarProducer(const edm::Parame
     } 
     produces < reco::RecoEcalCandidateIsolationMap >("nrClus");
     produces < reco::RecoEcalCandidateIsolationMap >("seedClusEFrac");
+    produces < reco::RecoEcalCandidateIsolationMap >("phiWidth");
+    produces < reco::RecoEcalCandidateIsolationMap >("etaWidth");
   }
 
 }
@@ -232,6 +234,8 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
   
   auto nrClusMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   auto seedClusEFracMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle); 
+  auto phiWidthMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle); 
+  auto etaWidthMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle); 
   
   std::vector<PixelData> pixelData;
   for(size_t hitNr=0;hitNr<nrHits_;hitNr++){
@@ -273,7 +277,13 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
     if(productsToWrite_>=2){
        nrClusMap->insert(candRef,candSCRef->clustersSize());
        float seedClusEFrac = candSCRef->rawEnergy()>0 ? candSCRef->seed()->energy() / candSCRef->rawEnergy() : 0.;
+       //       std::cout <<"cand "<<candSCRef->energy()<<" E Corr "<<candSCRef->correctedEnergyUncertainty()<<" "<<candSCRef->correctedEnergy()<<" width "<<candSCRef->phiWidth()<<std::endl;
+       //  float seedClusEFrac = candSCRef->phiWidth();
        seedClusEFracMap->insert(candRef,seedClusEFrac);
+       float phiWidth = candSCRef->phiWidth();
+       float etaWidth = candSCRef->etaWidth();
+       phiWidthMap->insert(candRef,phiWidth);
+       etaWidthMap->insert(candRef,etaWidth);
        
        for(auto& pixelDatum : pixelData){
 	 pixelDatum.fill(candRef);
@@ -293,6 +303,8 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
     }   
     iEvent.put(std::move(nrClusMap),"nrClus");
     iEvent.put(std::move(seedClusEFracMap),"seedClusEFrac");
+    iEvent.put(std::move(phiWidthMap),"phiWidth");
+    iEvent.put(std::move(etaWidthMap),"etaWidth");
   }
 }
 
