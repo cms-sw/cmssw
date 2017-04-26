@@ -103,8 +103,8 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="0">
-   <version ClassVersion="0" checksum="3577923865"/>
+  <class name="pat::IsolatedTrack" ClassVersion="-1">
+   <version ClassVersion="-1" checksum="959944906"/>
   </class>
 
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
