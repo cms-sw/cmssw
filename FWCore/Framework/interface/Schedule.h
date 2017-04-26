@@ -144,6 +144,12 @@ namespace edm {
                           bool cleaningUpAfterException = false);
 
     template <typename T>
+    void processOneGlobalAsync(WaitingTaskHolder iTask,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
+
+    template <typename T>
     void processOneStream(unsigned int iStreamID,
                           typename T::MyPrincipal& principal,
                           EventSetup const& eventSetup,
@@ -325,5 +331,15 @@ namespace edm {
                                  bool cleaningUpAfterException) {
     globalSchedule_->processOneGlobal<T>(ep,es,cleaningUpAfterException);
   }
+  
+  template <typename T>
+  void
+  Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
+                                  typename T::MyPrincipal& ep,
+                                  EventSetup const& es,
+                                  bool cleaningUpAfterException) {
+    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder,ep,es,cleaningUpAfterException);
+  }
+
 }
 #endif
