@@ -78,9 +78,8 @@ class CTPPSRecHitProducer : public edm::stream::EDProducer<> {
         // ----------member data ---------------------------
         typedef std::vector<PSimHit> PSimHitContainer;
 
-	//Name of Collection use for create the XF 
-	std::string mix_;
-   	std::string collection_for_XF;
+//	std::string mix_;
+//   	std::string collection_for_XF;
  
    	edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
 
@@ -98,9 +97,9 @@ CTPPSRecHitProducer::CTPPSRecHitProducer(const edm::ParameterSet& iConfig)
 {
     produces<edm::CTPPSFastRecHitContainer>("CTPPSFastRecHits");
 
-
-      mix_ = iConfig.getParameter<std::string>("mixLabel");
-      collection_for_XF = iConfig.getParameter<std::string>("InputCollection");
+      //Name of Collection use for create the XF 
+      std::string mix_ = iConfig.getParameter<std::string>("mixLabel");
+      std::string collection_for_XF = iConfig.getParameter<std::string>("InputCollection");
       cf_token = consumes<CrossingFrame<PSimHit> >( edm::InputTag(mix_, collection_for_XF) );	
 
       // Read the detector parameters
