@@ -220,7 +220,7 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
         double pAOneMag = tau->p();
         double argumentThetaGJmax = (std::pow(mTau,2) - std::pow(mAOne,2) ) / ( 2 * mTau * pAOneMag );
         double argumentThetaGJmeasured = ( tau->p4().px() * decayDistX + tau->p4().py() * decayDistY + tau->p4().pz() * decayDistZ ) / ( pAOneMag * decayDistMag );
-        if ( std::fabs(argumentThetaGJmax) <= 1. && std::fabs(argumentThetaGJmeasured) <= 1. ) {
+        if ( std::abs(argumentThetaGJmax) <= 1. && std::abs(argumentThetaGJmeasured) <= 1. ) {
             double thetaGJmax = std::asin( argumentThetaGJmax );
             double thetaGJmeasured = std::acos( argumentThetaGJmeasured );
             gjAngleDiff = thetaGJmeasured - thetaGJmax;
@@ -229,27 +229,27 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
 		
     if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
       mvaInput_[0]  = std::log(std::max(1.f, (float)tau->pt()));
-      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[1]  = std::abs((float)tau->eta());
       mvaInput_[2]  = std::log(std::max(1.e-2f, chargedIsoPtSum));
       mvaInput_[3]  = std::log(std::max(1.e-2f, neutralIsoPtSum - 0.125f*puCorrPtSum));
       mvaInput_[4]  = std::log(std::max(1.e-2f, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
     } else if ( mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT  ) {
       mvaInput_[0]  = std::log(std::max(1.f, (float)tau->pt()));
-      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[1]  = std::abs((float)tau->eta());
       mvaInput_[2]  = std::log(std::max(1.e-2f, chargedIsoPtSum));
       mvaInput_[3]  = std::log(std::max(1.e-2f, neutralIsoPtSum - 0.125f*puCorrPtSum));
       mvaInput_[4]  = std::log(std::max(1.e-2f, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
       mvaInput_[6]  = std::copysign(+1.f, tau->dxy());
-      mvaInput_[7]  = std::sqrt(std::min(1.f, std::fabs(tau->dxy())));
-      mvaInput_[8]  = std::min(10.f, std::fabs(tau->dxy_Sig()));
+      mvaInput_[7]  = std::sqrt(std::min(1.f, std::abs(tau->dxy())));
+      mvaInput_[8]  = std::min(10.f, std::abs(tau->dxy_Sig()));
       mvaInput_[9]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[10] = std::sqrt(decayDistMag);
       mvaInput_[11] = std::min(10.f, tau->flightLengthSig());
     } else if ( mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kDBnewDMwLT ) {
       mvaInput_[0]  = std::log(std::max(1.f, (float)tau->pt()));
-      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[1]  = std::abs((float)tau->eta());
       mvaInput_[2]  = std::log(std::max(1.e-2f, chargedIsoPtSum));
       mvaInput_[3]  = std::log(std::max(1.e-2f, neutralIsoPtSum));
       mvaInput_[4]  = std::log(std::max(1.e-2f, puCorrPtSum));
@@ -263,17 +263,17 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[12] = std::min(100.f, leadingTrackChi2);
       mvaInput_[13] = std::min(1.f, eRatio);
       mvaInput_[14]  = std::copysign(+1.f, tau->dxy());
-      mvaInput_[15]  = std::sqrt(std::min(1.f, std::fabs(tau->dxy())));
-      mvaInput_[16]  = std::min(10.f, std::fabs(tau->dxy_Sig()));
+      mvaInput_[15]  = std::sqrt(std::min(1.f, std::abs(tau->dxy())));
+      mvaInput_[16]  = std::min(10.f, std::abs(tau->dxy_Sig()));
       mvaInput_[17]  = std::copysign(+1.f, tau->ip3d());
-      mvaInput_[18]  = std::sqrt(std::min(1.f, std::fabs(tau->ip3d())));
-      mvaInput_[19]  = std::min(10.f, std::fabs(tau->ip3d_Sig()));
+      mvaInput_[18]  = std::sqrt(std::min(1.f, std::abs(tau->ip3d())));
+      mvaInput_[19]  = std::min(10.f, std::abs(tau->ip3d_Sig()));
       mvaInput_[20]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
       mvaInput_[22] = std::min(10.f, tau->flightLengthSig());
     } else if ( mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kPWnewDMwLT ) {
       mvaInput_[0]  = std::log(std::max(1.f, (float)tau->pt()));
-      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[1]  = std::abs((float)tau->eta());
       mvaInput_[2]  = std::log(std::max(1.e-2f, chargedIsoPtSum));
       mvaInput_[3]  = std::log(std::max(1.e-2f, neutralIsoPtSum));
       mvaInput_[4]  = std::log(std::max(1.e-2f, footprintCorrection));
@@ -287,17 +287,17 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[12] = std::min(100.f, leadingTrackChi2);
       mvaInput_[13] = std::min(1.f, eRatio);
       mvaInput_[14]  = std::copysign(+1.f, tau->dxy());
-      mvaInput_[15]  = std::sqrt(std::min(1.f, std::fabs(tau->dxy())));
-      mvaInput_[16]  = std::min(10.f, std::fabs(tau->dxy_Sig()));
+      mvaInput_[15]  = std::sqrt(std::min(1.f, std::abs(tau->dxy())));
+      mvaInput_[16]  = std::min(10.f, std::abs(tau->dxy_Sig()));
       mvaInput_[17]  = std::copysign(+1.f, tau->ip3d());
-      mvaInput_[18]  = std::sqrt(std::min(1.f, std::fabs(tau->ip3d())));
-      mvaInput_[19]  = std::min(10.f, std::fabs(tau->ip3d_Sig()));
+      mvaInput_[18]  = std::sqrt(std::min(1.f, std::abs(tau->ip3d())));
+      mvaInput_[19]  = std::min(10.f, std::abs(tau->ip3d_Sig()));
       mvaInput_[20]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
       mvaInput_[22] = std::min(10.f, tau->flightLengthSig());
     } else if ( mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ ) {
       mvaInput_[0]  = std::log(std::max(1.f, (float)tau->pt()));
-      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[1]  = std::abs((float)tau->eta());
       mvaInput_[2]  = std::log(std::max(1.e-2f, chargedIsoPtSum));
       mvaInput_[3]  = std::log(std::max(1.e-2f, neutralIsoPtSum));
       mvaInput_[4]  = std::log(std::max(1.e-2f, puCorrPtSum));
@@ -310,11 +310,11 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[11] = std::min(0.5f, ptWeightedDrIsolation);
       mvaInput_[12] = std::min(1.f, eRatio);
       mvaInput_[13]  = std::copysign(+1.f, tau->dxy());
-      mvaInput_[14]  = std::sqrt(std::min(1.f, std::fabs(tau->dxy())));
-      mvaInput_[15]  = std::min(10.f, std::fabs(tau->dxy_Sig()));
+      mvaInput_[14]  = std::sqrt(std::min(1.f, std::abs(tau->dxy())));
+      mvaInput_[15]  = std::min(10.f, std::abs(tau->dxy_Sig()));
       mvaInput_[16]  = std::copysign(+1.f, tau->ip3d());
-      mvaInput_[17]  = std::sqrt(std::min(1.f, std::fabs(tau->ip3d())));
-      mvaInput_[18]  = std::min(10.f, std::fabs(tau->ip3d_Sig()));
+      mvaInput_[17]  = std::sqrt(std::min(1.f, std::abs(tau->ip3d())));
+      mvaInput_[18]  = std::min(10.f, std::abs(tau->ip3d_Sig()));
       mvaInput_[19]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[20] = std::sqrt(decayDistMag);
       mvaInput_[21] = std::min(10.f, tau->flightLengthSig());
