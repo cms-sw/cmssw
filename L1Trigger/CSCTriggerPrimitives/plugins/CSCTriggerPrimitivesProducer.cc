@@ -91,29 +91,28 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
   // Find the geometry (& conditions?) for this event & cache it in 
   // CSCTriggerGeometry.
-  {
-    edm::ESHandle<CSCGeometry> h;
-    setup.get<MuonGeometryRecord>().get(h);
-    CSCTriggerGeometry::setGeometry(h);
-    lctBuilder_->setCSCGeometry(&*h);
 
-    edm::ESHandle<GEMGeometry> h_gem;
-    try {
-      setup.get<MuonGeometryRecord>().get(h_gem);
-      lctBuilder_->setGEMGeometry(&*h_gem);
-    } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry") 
-	<< "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
-    }
+  edm::ESHandle<CSCGeometry> h;
+  setup.get<MuonGeometryRecord>().get(h);
+  CSCTriggerGeometry::setGeometry(h);
+  lctBuilder_->setCSCGeometry(&*h);
 
-    edm::ESHandle<RPCGeometry> h_rpc;
-    try {
-      setup.get<MuonGeometryRecord>().get(h_rpc);
-      lctBuilder_->setRPCGeometry(&*h_rpc);
-    } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
-      edm::LogInfo("L1CSCTPEmulatorNoRPCGeometry") 
-	<< "+++ Info: RPC geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
-    }
+  edm::ESHandle<GEMGeometry> h_gem;
+  setup.get<MuonGeometryRecord>().get(h_gem);
+  if (h_gem.isValid()) {
+    lctBuilder_->setGEMGeometry(&*h_gem);
+  } else {
+    edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry")
+      << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+  }
+
+  edm::ESHandle<RPCGeometry> h_rpc;
+  setup.get<MuonGeometryRecord>().get(h_rpc);
+  if (h_rpc.isValid()) {
+    lctBuilder_->setRPCGeometry(&*h_rpc);
+  } else {
+    edm::LogInfo("L1CSCTPEmulatorNoRPCGeometry")
+      << "+++ Info: RPC geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
   }
 
   // Find conditions data for bad chambers.
