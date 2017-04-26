@@ -56,7 +56,7 @@ process.mix.input.fileNames     = cms.untracked.vstring('file:MBias_100_TkOnly_F
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.RandomNumberGeneratorService.generator.initialSeed      = 20
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
@@ -128,11 +128,8 @@ for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+# Automatic addition of the customisation function
 from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023flat
-
-process = cust_2023flat(process)
 process = TkOnlyDigi(process)
 # End of customisation functions
 
