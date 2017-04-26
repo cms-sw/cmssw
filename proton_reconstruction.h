@@ -3,8 +3,7 @@
 
 #include "TFile.h"
 #include "TSpline.h"
-#include "Minuit2/FCNBase.h"
-#include "TFitterMinuit.h"
+#include "Fit/Fitter.h"
 
 #include "LHCOpticsApproximator.h"
 
@@ -44,7 +43,7 @@ class ProtonReconstruction
 
 		ProtonReconstruction() {}
 
-		int Init(const std::string &optics_file);
+		int Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2);
 
 		ProtonData Reconstruct(LHCSector sector, const TrackDataCollection &tracks) const;
 
@@ -62,9 +61,8 @@ class ProtonReconstruction
 			if (chiSquareCalculator)
 				delete chiSquareCalculator;
 
-			// this leads to segmentation violation
-			//if (minuit)
-			//	delete minuit;
+			if (fitter)
+				delete fitter;
 		}
 
 	private:
@@ -79,7 +77,7 @@ class ProtonReconstruction
 		std::map<unsigned int, RPOpticsData> m_rp_optics;
 
 		/// class for calculation of chi^2
-		class ChiSquareCalculator : public ROOT::Minuit2::FCNBase
+		class ChiSquareCalculator
 		{
 			public:
 				const TrackDataCollection *tracks;
@@ -87,28 +85,30 @@ class ProtonReconstruction
 
 				ChiSquareCalculator() {}
 
-  				double operator() (const std::vector<double> &) const;
-
-  				double Up() const
-				{
-					return 1.;
-				}
+				double operator() (const double *parameters) const;
 		};
 
 		ChiSquareCalculator *chiSquareCalculator = NULL;
 
 		// fitter object
-		TFitterMinuit *minuit = NULL;
+		ROOT::Fit::Fitter *fitter = NULL;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-int ProtonReconstruction::Init(const std::string &optics_file)
+int ProtonReconstruction::Init(const std::string &optics_file_beam1, const std::string &optics_file_beam2)
 {
-	TFile *f_in_optics = TFile::Open(optics_file.c_str());
-	if (f_in_optics == NULL)
+	TFile *f_in_optics_beam1 = TFile::Open(optics_file_beam1.c_str());
+	if (f_in_optics_beam1 == NULL)
 	{
-		printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file.c_str());
+		printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file_beam1.c_str());
+		return 1;
+	}
+
+	TFile *f_in_optics_beam2 = TFile::Open(optics_file_beam2.c_str());
+	if (f_in_optics_beam2 == NULL)
+	{
+		printf("ERROR in ProtonReconstruction::Init > Can't open file '%s'.\n", optics_file_beam2.c_str());
 		return 1;
 	}
 
@@ -134,6 +134,12 @@ int ProtonReconstruction::Init(const std::string &optics_file)
 			sector = sector56;
 
 		// load optics approximation
+		TFile *f_in_optics = NULL;
+		if (sector == sector45)
+			f_in_optics = f_in_optics_beam2;
+		if (sector == sector56)
+			f_in_optics = f_in_optics_beam1;
+
 		LHCOpticsApproximator *of_orig = (LHCOpticsApproximator *) f_in_optics->Get(ofName.c_str());
 
 		if (of_orig == NULL)
@@ -206,20 +212,20 @@ int ProtonReconstruction::Init(const std::string &optics_file)
 	// initialise fitter
 	chiSquareCalculator = new ChiSquareCalculator();
 
-	minuit = new TFitterMinuit();
-	minuit->SetMinuitFCN(chiSquareCalculator);
-	minuit->SetPrintLevel(0);
-	minuit->CreateMinimizer();
+	fitter = new ROOT::Fit::Fitter();
+	double pStart[] = {0, 0, 0, 0};
+	fitter->SetFCN(4, *chiSquareCalculator, pStart, 0, true);
 
 	// clean up
-	delete f_in_optics;
+	delete f_in_optics_beam1;
+	delete f_in_optics_beam2;
 
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-double ProtonReconstruction::ChiSquareCalculator::operator() (const std::vector<double> &parameters) const
+double ProtonReconstruction::ChiSquareCalculator::operator() (const double *parameters) const
 {
 	// extract proton parameters
 	const double &xi = parameters[0];
@@ -343,23 +349,27 @@ ProtonData ProtonReconstruction::Reconstruct(LHCSector /* sector */, const Track
 	//printf("    th_y_0 = %.1f urad\n", th_y_0 * 1E6);
 
 	// minimisation
-	minuit->SetParameter(0, "xi", xi_0, 0.005, 0., 0.);
-	minuit->SetParameter(1, "th_x", 0., 20E-6, 0., 0.);
-	minuit->SetParameter(2, "th_y", th_y_0, 1E-6, 0., 0.);
-	minuit->SetParameter(3, "vtx_y", vtx_y_0, 1E-6, 0., 0.);
+	fitter->Config().ParSettings(0).Set("xi", xi_0, 0.005);
+	fitter->Config().ParSettings(1).Set("th_x", 0., 20E-6);
+	fitter->Config().ParSettings(2).Set("th_y", th_y_0, 1E-6);
+	fitter->Config().ParSettings(3).Set("vtx_y", vtx_y_0, 1E-6);
 
+	// TODO: this breaks the const-ness ??
 	chiSquareCalculator->tracks = &tracks;
 	chiSquareCalculator->m_rp_optics = &m_rp_optics;
 
-	minuit->Minimize();
+	fitter->FitFCN();
 
 	// extract proton parameters
+	const ROOT::Fit::FitResult &result = fitter->Result();
+	const double *fitParameters = result.GetParams();
+
 	pd.valid = true;
 	pd.vtx_x = 0.;
-	pd.vtx_y = minuit->GetParameter(3);
-	pd.th_x = minuit->GetParameter(1);
-	pd.th_y = minuit->GetParameter(2);
-	pd.xi = minuit->GetParameter(0);
+	pd.vtx_y = fitParameters[3];
+	pd.th_x = fitParameters[1];
+	pd.th_y = fitParameters[2];
+	pd.xi = fitParameters[0];
 
 	return pd;
 }
