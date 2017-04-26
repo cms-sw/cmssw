@@ -2,6 +2,23 @@
 #define RecoEgamma_EgammaElectronAlgos_PixelNHitMatch_h
 
 
+//******************************************************************************
+//
+// Part of the refactorisation of of the E/gamma pixel matching for 2017 pixels
+// This refactorisation converts the monolithic  approach to a series of 
+// independent producer modules, with each modules performing  a specific 
+// job as recommended by the 2017 tracker framework
+//
+//
+// The module is based of PixelHitMatcher (the seed based functions) but
+// extended to match on an arbitary number of hits rather than just doublets.
+// Other than that, its a direct port and follows what PixelHitMatcher did
+// 
+//
+// Author : Sam Harper (RAL), 2017
+//
+//*******************************************************************************
+
 
 
 
@@ -126,12 +143,15 @@ public:
   class MatchingCuts {
   public:
     explicit MatchingCuts(const edm::ParameterSet& pset);
-    bool operator()(const HitInfo& hit)const;
+    bool operator()(const HitInfo& hit,const float scEt,const float scEta)const;
   private:
-    float dPhiMax_;
-    float dZMax_;
-    float dRIMax_;
-    float dRFMax_; 
+    float getDRZCutValue(const float scEt,const float scEta)const;
+  private:
+    const double dPhiMax_;
+    const double dRZMax_;
+    const double dRZMaxLowEtThres_;
+    const std::vector<double> dRZMaxLowEtEtaBins_; 
+    const std::vector<double> dRZMaxLowEt_; 
   };
 
 public:  
@@ -176,7 +196,7 @@ private:
 
   void clearCache();
 
-  bool passesMatchSel(const HitInfo& hit,const size_t hitNr)const;
+  bool passesMatchSel(const HitInfo& hit,const size_t hitNr,const float scEt,const float scEta)const;
   int getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInfo& hit2,
 				const GlobalPoint& candPos,
 				const GlobalPoint & vprim, 
