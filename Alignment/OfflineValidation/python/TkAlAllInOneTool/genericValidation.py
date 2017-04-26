@@ -470,7 +470,7 @@ class ParallelValidation(GenericValidation):
     @classmethod
     def doInitMerge(cls):
         from plottingOptions import PlottingOptions
-        result = self.initmerge()
+        result = cls.initmerge()
         result = replaceByMap(result, PlottingOptions(None, cls))
         if result and result[-1] != "\n": result += "\n"
         return result
