@@ -395,7 +395,7 @@ SeedWithInfo(const TrajectorySeed& seed,
 
 PixelNHitMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
   dPhiMax_(pset.getParameter<double>("dPhiMax")),
-  dRZMax_(pset.getParameter<double>("dZMax")),
+  dRZMax_(pset.getParameter<double>("dRZMax")),
   dRZMaxLowEtThres_(pset.getParameter<double>("dRZMaxLowEtThres")),
   dRZMaxLowEtEtaBins_(pset.getParameter<std::vector<double> >("dRZMaxLowEtEtaBins")),
   dRZMaxLowEt_(pset.getParameter<std::vector<double> >("dRZMaxLowEt"))

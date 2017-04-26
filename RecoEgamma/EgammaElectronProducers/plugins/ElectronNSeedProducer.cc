@@ -1,3 +1,6 @@
+
+
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -109,15 +112,20 @@ void ElectronNSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::vector<edm::InputTag> >("superClusters");
   edm::ParameterSetDescription cutsDesc;
   cutsDesc.add<double>("dPhiMax",0.04);
-  cutsDesc.add<double>("dZMax",0.04);
-  cutsDesc.add<double>("dRIMax",0.04);
-  cutsDesc.add<double>("dRFMax",0.04);
+  cutsDesc.add<double>("dRZMax",0.09);
+  cutsDesc.add<double>("dRZMaxLowEtThres",20.);
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5});
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.15,0.09});
+  
   desc.add<bool>("useRecoVertex",false);
+  desc.add<std::string>("navSchool","SimpleNavigationSchool");
+  desc.add<std::string>("detLayerGeom","hltESPGlobalDetLayerGeometry");
+  
   desc.addVPSet("matchingCuts",cutsDesc);
 
 
   descriptions.add("electronNSeedProducer",desc);
-  PixelNHitMatcher::fillDescriptions(descriptions);
+  //PixelNHitMatcher::fillDescriptions(descriptions);
 }
 
 void ElectronNSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
