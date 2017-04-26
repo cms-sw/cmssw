@@ -206,6 +206,14 @@ upgradeProperties[2023]['2023D10Timing']['Era'] = 'Phase2C1_timing'
 upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
 upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
+# then add Timing to the end of each ScenToRun
+
+vs=['2023D7Timing','2023D10Timing','2023D4Timing']
+for v in vs:
+    for i in range(len(upgradeProperties[2023][v]['ScenToRun'])):
+        upgradeProperties[2023][v]['ScenToRun'][i]=upgradeProperties[2023][v]['ScenToRun'][i]+'Timing'
+
+
 #standard PU sequences
 upgradeProperties[2023]['2023D7PU'] = deepcopy(upgradeProperties[2023]['2023D7'])
 upgradeProperties[2023]['2023D7PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
