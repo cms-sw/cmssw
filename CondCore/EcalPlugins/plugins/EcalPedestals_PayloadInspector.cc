@@ -22,10 +22,10 @@ namespace {
 
 
   // inherit from one of the predefined plot class: Histogram1D
-  class EcalPedestalEBM12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEBM12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel pedestal average gain12",
+    EcalPedestalsEBM12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel pedestal average gain12",
 									      "ECAL Barrel pedestal average gain12", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -58,10 +58,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEBM6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEBM6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel pedestal average gain6",
+    EcalPedestalsEBM6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel pedestal average gain6",
 									     "ECAL Barrel pedestal average gain6", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -96,10 +96,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEBM1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEBM1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Barrel pedestal average gain1",
+    EcalPedestalsEBM1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Barrel pedestal average gain1",
 									    "ECAL Barrel pedestal average gain1", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -129,10 +129,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEEM12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEEM12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap pedestal average gain12", 
+    EcalPedestalsEEM12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap pedestal average gain12", 
 									      "ECAL Endcap pedestal average gain12", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -164,10 +164,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEEM6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEEM6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap pedestal average gain6",
+    EcalPedestalsEEM6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap pedestal average gain6",
 									     "ECAL Endcap pedestal average gain6", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -201,10 +201,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEEM1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEEM1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Endcap pedestal average gain1", 
+    EcalPedestalsEEM1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Endcap pedestal average gain1", 
 									    "ECAL Endcap pedestal average gain1", 200, 150, 250){
       Base::setSingleIov( true );
     }
@@ -234,10 +234,10 @@ namespace {
     }// fill
   };
 
- class EcalPedestalEBR12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+ class EcalPedestalsEBR12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel noise average gain12",
+    EcalPedestalsEBR12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel noise average gain12",
 									      "ECAL Barrel noise average gain12", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -270,10 +270,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEBR6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEBR6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel noise average gain6",
+    EcalPedestalsEBR6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Barrel noise average gain6",
 									     "ECAL Barrel noise average gain6", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -308,10 +308,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEBR1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEBR1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Barrel noise average gain1",
+    EcalPedestalsEBR1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Barrel noise average gain1",
 									    "ECAL Barrel noise average gain1", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -341,10 +341,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEER12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEER12 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEER12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap noise average gain12", 
+    EcalPedestalsEER12() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap noise average gain12", 
 									      "ECAL Endcap noise average gain12", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -376,10 +376,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEER6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEER6 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEER6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap noise average gain6",
+    EcalPedestalsEER6() : cond::payloadInspector::Histogram1D<EcalPedestals>( "ECAL Endcap noise average gain6",
 									     "ECAL Endcap noise average gain6", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -413,10 +413,10 @@ namespace {
     }// fill
   };
 
-  class EcalPedestalEER1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
+  class EcalPedestalsEER1 : public cond::payloadInspector::Histogram1D<EcalPedestals> {
 
   public:
-    EcalPedestalEER1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Endcap noise average gain1", 
+    EcalPedestalsEER1() : cond::payloadInspector::Histogram1D<EcalPedestals>("ECAL Endcap noise average gain1", 
 									    "ECAL Endcap noise average gain1", 100, 0, 10){
       Base::setSingleIov( true );
     }
@@ -454,11 +454,11 @@ namespace {
 
 
   // inherit from one of the predefined plot class: Histogram2D
-  class EcalPedestalEBM12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBM12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain12 - map",
-										 "iphi", 360, 1, 361, "ieta", 170, -85, 86) {
+    EcalPedestalsEBM12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain12 - map",
+										 "iphi", 360, 1, 361, "ieta", 171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -491,11 +491,11 @@ namespace {
     }// fill method
   };
 
-  class EcalPedestalEBM6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBM6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain6 - map",
-										"iphi", 360, 1, 361, "ieta", 170, -85, 86) {
+    EcalPedestalsEBM6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain6 - map",
+										"iphi", 360, 1, 361, "ieta", 171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -522,11 +522,11 @@ namespace {
     }    // fill method
   };
 
-  class EcalPedestalEBM1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBM1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBM1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain1 - map",
-										"iphi", 360, 1, 361, "ieta", 170, -85, 86) {
+    EcalPedestalsEBM1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel pedestal gain1 - map",
+										"iphi", 360, 1, 361, "ieta", 171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -552,10 +552,10 @@ namespace {
       return true;
     }    // fill method
   };
-  class EcalPedestalEEM12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEEM12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain12 - map", 
+    EcalPedestalsEEM12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain12 - map", 
 										 "ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -590,10 +590,10 @@ namespace {
     }// fill method
   };
 
-  class EcalPedestalEEM6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEEM6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain6 - map",
+    EcalPedestalsEEM6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain6 - map",
 										"ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -626,10 +626,10 @@ namespace {
     }    // fill method
   };
 
-  class EcalPedestalEEM1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEEM1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEEM1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain1 - map",
+    EcalPedestalsEEM1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap pedestal gain1 - map",
 										"ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -663,11 +663,11 @@ namespace {
   };
 
   // inherit from one of the predefined plot class: Histogram2D
-  class EcalPedestalEBR12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBR12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain12 - map",
-										 "iphi",360,1,361, "ieta",170,-85,86) {
+    EcalPedestalsEBR12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain12 - map",
+										 "iphi",360,1,361, "ieta",171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -700,11 +700,11 @@ namespace {
     }// fill method
   };
 
-  class EcalPedestalEBR6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBR6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain6 - map",
-										"iphi",360,1,361, "ieta",170,-85,86) {
+    EcalPedestalsEBR6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain6 - map",
+										"iphi",360,1,361, "ieta",171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -731,11 +731,11 @@ namespace {
     }    // fill method
   };
 
-  class EcalPedestalEBR1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEBR1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEBR1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain1 - map",
-										"iphi",360,1,361, "ieta",170,-85,86) {
+    EcalPedestalsEBR1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Barrel noise gain1 - map",
+										"iphi",360,1,361, "ieta",171, -85, 86) {
       Base::setSingleIov( true );
     }
 
@@ -761,10 +761,10 @@ namespace {
       return true;
     }    // fill method
   };
-  class EcalPedestalEER12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEER12Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEER12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain12 - map", 
+    EcalPedestalsEER12Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain12 - map", 
 										 "ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -799,10 +799,10 @@ namespace {
     }// fill method
   };
 
-  class EcalPedestalEER6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEER6Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEER6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain6 - map",
+    EcalPedestalsEER6Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain6 - map",
 										"ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -835,10 +835,10 @@ namespace {
     }    // fill method
   };
 
-  class EcalPedestalEER1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
+  class EcalPedestalsEER1Map : public cond::payloadInspector::Histogram2D<EcalPedestals> {
 
   public:
-    EcalPedestalEER1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain1 - map",
+    EcalPedestalsEER1Map() : cond::payloadInspector::Histogram2D<EcalPedestals>( "ECAL Endcap noise gain1 - map",
 										"ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -874,29 +874,29 @@ namespace {
 } // close namespace
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE( EcalPed ){
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM12);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM6 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM1 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM12);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM6 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM1 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR12);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR6 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR1 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER12);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER6 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER1 );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM12Map);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM6Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBM1Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM12Map);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM6Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEEM1Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR12Map);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR6Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEBR1Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER12Map);
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER6Map );
-  PAYLOAD_INSPECTOR_CLASS( EcalPedestalEER1Map );
+PAYLOAD_INSPECTOR_MODULE( EcalPedestals){
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM12);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM6 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM1 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM12);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM6 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM1 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR12);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR6 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR1 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER12);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER6 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER1 );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM12Map);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM6Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBM1Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM12Map);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM6Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEEM1Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR12Map);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR6Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEBR1Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER12Map);
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER6Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEER1Map );
 }

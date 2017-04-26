@@ -24,7 +24,7 @@ namespace {
 
   public:
     EcalChannelStatusEBMap() : cond::payloadInspector::Histogram2D<EcalChannelStatus>( "ECAL Barrel channel status - map ",
-										       "iphi", 360, 1, 361, "ieta", 170, -85, 86) {
+										       "iphi", 360, 1., 361., "ieta", 171, -85., 86.) {
      Base::setSingleIov( true );
     }
 
