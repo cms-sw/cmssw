@@ -12,7 +12,7 @@ minTowerEntriesFwd = 160
 toleranceMeanFwd = 6.
 toleranceRMSFwd = 12.
 tailPopulThreshold = 0.4
-timeWindow = 25. 
+timeWindow = 30.
 
 ecalTimingClient = cms.untracked.PSet(
     params = cms.untracked.PSet(

@@ -77,7 +77,7 @@ namespace ecaldqm
                     float energy(hit.energy());
 
                     // Apply cut on chi2 of pulse shape fit
-                    float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+                    // float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
                     if ( id.subdetId() == EcalBarrel )
                       signedSubdet = EcalBarrel;
                     else {
@@ -89,7 +89,7 @@ namespace ecaldqm
                     }
                     if ( energy > threshold )
                       meChi2.fill(signedSubdet, hit.chi2());
-                    if ( hit.chi2() > chi2Threshold ) return;
+                    // if ( hit.chi2() > chi2Threshold ) return;
 
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
