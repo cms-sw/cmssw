@@ -96,7 +96,7 @@ L1GenTreeProducer::L1GenTreeProducer(const edm::ParameterSet& iConfig)
 
   // set up output
   tree_=fs_->make<TTree>("L1GenTree", "L1GenTree");
-  tree_->Branch("Generator", "L1Analysis::L1AnalysisGeneratorDataFormat", &l1GenData_, 32000, 3);
+  tree_->Branch("Generator", "L1Analysis::L1AnalysisGeneratorDataFormat", l1GenData_.get(), 32000, 3);
 }
 
 

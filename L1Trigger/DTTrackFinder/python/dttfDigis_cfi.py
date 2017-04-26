@@ -19,6 +19,7 @@ dttfDigis = cms.EDProducer("DTTrackFinder",
     PHI_Assignment_nbits_Phi = cms.untracked.int32(10),
     PHI_Assignment_nbits_PhiB = cms.untracked.int32(10),
     DTDigi_Source = cms.InputTag("dtTriggerPrimitiveDigis"),
+    DTDigi_Source_Th = cms.InputTag("dtTriggerPrimitiveDigis"),
     OutOfTime_Filter_Window = cms.untracked.int32(1)
 )
 
