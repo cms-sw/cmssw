@@ -185,7 +185,7 @@ void SectorProcessor::process_single_bx(
   single_hit.configure(
       verbose_, endcap_, sector_, bx,
       maxTracks_,
-      true 
+      false 
   );
 
   PtAssignment pt_assign;

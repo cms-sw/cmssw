@@ -163,7 +163,7 @@ int PtAssignmentEngineAux::getNLBdPhi(int dPhi, int bits, int max) const {
     }
   }
 
-  if (dPhi>=max) dPhi_ = max;
+  assert(dPhi_ < max);
   return (sign_ * dPhi_);
 }
 
