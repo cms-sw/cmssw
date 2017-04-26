@@ -96,11 +96,11 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
 
         std::map<unsigned int, H_BeamParticle*> m_beamPart;
 
-        H_BeamLine * m_beamlineCTPPS1;
-        H_BeamLine * m_beamlineCTPPS2;	
+	std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
+        std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
 
-        H_RecRPObject* pps_stationF;
-        H_RecRPObject* pps_stationB;
+        std::unique_ptr<H_RecRPObject> pps_stationF;
+        std::unique_ptr<H_RecRPObject> pps_stationB;
 
         string beam1filename;
         string beam2filename;
@@ -113,14 +113,14 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         bool   fCrossAngleCorr;
         double fCrossingAngle;
         ////////////////////////////////////////////////
-        CTPPSTrkStation* TrkStation_F; // auxiliary object with the tracker geometry
-        CTPPSTrkStation* TrkStation_B;
-        CTPPSTrkDetector* det1F;
-        CTPPSTrkDetector* det1B;
-        CTPPSTrkDetector* det2F;
-        CTPPSTrkDetector* det2B;
-        CTPPSToFDetector* detToF_F;
-        CTPPSToFDetector* detToF_B;
+        std::unique_ptr<CTPPSTrkStation> TrkStation_F; // auxiliary object with the tracker geometry
+        std::unique_ptr<CTPPSTrkStation> TrkStation_B;
+        std::unique_ptr<CTPPSTrkDetector> det1F; 
+        std::unique_ptr<CTPPSTrkDetector> det1B;
+        std::unique_ptr<CTPPSTrkDetector> det2F; 
+        std::unique_ptr<CTPPSTrkDetector> det2B;
+        std::unique_ptr<CTPPSToFDetector> detToF_F;
+        std::unique_ptr<CTPPSToFDetector> detToF_B;
 
         std::vector<CTPPSFastTrack> theCTPPSFastTrack;
 

@@ -78,8 +78,8 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
     FileInPath b2(beam2filename.c_str());
     //
     if(lengthctpps>0. ) {
-        m_beamlineCTPPS1 = new H_BeamLine( -1, lengthctpps + 0.1 ); // (direction, length)
-        m_beamlineCTPPS2 = new H_BeamLine( 1, lengthctpps + 0.1 ); //
+        m_beamlineCTPPS1 = std::unique_ptr<H_BeamLine>(new H_BeamLine( -1, lengthctpps + 0.1 )); // (direction, length)
+        m_beamlineCTPPS2 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, lengthctpps + 0.1 )); //
         m_beamlineCTPPS1->fill( b2.fullPath(), 1, "IP5" );
         m_beamlineCTPPS2->fill( b1.fullPath(), 1, "IP5" );
         m_beamlineCTPPS1->offsetElements( 120, 0.097 );
@@ -92,14 +92,14 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
 
     // Create a particle to get the beam energy from the beam file
     // Take care: the z inside the station is in meters
-    pps_stationF = new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS1);
-    pps_stationB = new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS2);
+    pps_stationF = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS1));
+    pps_stationB = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS2));
     //
     //Tracker Detector Description
-    det1F = new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk1+fTrk1XOffset);
-    det2F = new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk2+fTrk2XOffset);		
-    det1B = new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk1+fTrk1XOffset);
-    det2B = new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk2+fTrk2XOffset);	
+    det1F =std::unique_ptr<CTPPSTrkDetector>(new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk1+fTrk1XOffset));
+    det2F =std::unique_ptr<CTPPSTrkDetector>(new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk2+fTrk2XOffset));		
+    det1B =std::unique_ptr<CTPPSTrkDetector>(new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk1+fTrk1XOffset));
+    det2B =std::unique_ptr<CTPPSTrkDetector>(new CTPPSTrkDetector(fTrackerWidth,fTrackerHeight,fTrackerInsertion*fBeamXRMS_Trk2+fTrk2XOffset));	
 
     //Timing Detector Description
     std::vector<double> vToFCellWidth;
@@ -107,8 +107,8 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
         vToFCellWidth.push_back(fToFCellWidth[i]);
     }
     double pos_tof = fToFInsertion*fBeamXRMS_ToF+fToFXOffset;
-    detToF_F = new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma); 
-    detToF_B = new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma); 
+    detToF_F =std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma)); 
+    detToF_B =std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma)); 
 
 }
 CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer()
@@ -116,10 +116,6 @@ CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer()
     for (std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
         delete (*it).second;
     }
-    delete m_beamlineCTPPS1;
-    delete m_beamlineCTPPS2;
-
-
 }
 // ------------ method called to produce the data  ------------
     void
@@ -209,8 +205,8 @@ CTPPSFastTrackingProducer::ReadRecHits(edm::Handle<CTPPSFastRecHitContainer> &re
 
     }//LOOP TRK
     //creating Stations
-    TrkStation_F = new std::pair<CTPPSTrkDetector,CTPPSTrkDetector>(*det1F,*det2F);
-    TrkStation_B = new std::pair<CTPPSTrkDetector,CTPPSTrkDetector>(*det1B,*det2B);
+    TrkStation_F = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector,CTPPSTrkDetector>(*det1F,*det2F));
+    TrkStation_B = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector,CTPPSTrkDetector>(*det1B,*det2B));
 } // end function
 
 void CTPPSFastTrackingProducer::Reconstruction()
@@ -218,9 +214,9 @@ void CTPPSFastTrackingProducer::Reconstruction()
     theCTPPSFastTrack.clear(); 
     int Direction;
     Direction=1; //cms positive Z / forward 
-    FastReco(Direction,pps_stationF);
+    FastReco(Direction,&*pps_stationF);
     Direction=-1; //cms negative Z / backward
-    FastReco(Direction,pps_stationB);
+    FastReco(Direction,&*pps_stationB);
 }//end Reconstruction
 
 bool CTPPSFastTrackingProducer::SearchTrack(int i,int j,int Direction,double& xi,double& t,double& partP,double& pt,double& thx,double& thy,double& x0, double& y0, double& xt, double& yt, double& X1d, double& Y1d, double& X2d, double& Y2d)
@@ -234,14 +230,14 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,int j,int Direction,double& xi
     // Separate in forward and backward stations according to direction
     if (Direction>0) {
         det1=&(TrkStation_F->first);det2=&(TrkStation_F->second);
-        station = pps_stationF;
+        station = &*pps_stationF;
     } else {
         det1=&(TrkStation_B->first);det2=&(TrkStation_B->second);
-        station = pps_stationB;
+        station = &*pps_stationB;
     }
-    if (det1->NHits<=i||det2->NHits<=j) return false;
-    double x1 = det1->X.at(i); double y1 = det1->Y.at(i);
-    double x2 = det2->X.at(j); double y2 = det2->Y.at(j);
+    if (det1->ppsNHits_<=i||det2->ppsNHits_<=j) return false;
+    double x1 = det1->ppsX_.at(i); double y1 = det1->ppsY_.at(i);
+    double x2 = det2->ppsX_.at(j); double y2 = det2->ppsY_.at(j);
     double eloss;
     //thx and thy are returned in microrad
     ReconstructArm(station,x1,y1,x2,y2,thx,thy,eloss);
@@ -369,8 +365,8 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
     }
     // Make a track from EVERY pair of hits combining Tracker1 and Tracker2.
     // The tracks may not be independent as 1 hit may belong to more than 1 track.
-    for(int i=0;i<(int)Trk1->NHits;i++) {
-        for(int j=0;j<(int)Trk2->NHits;j++){
+    for(int i=0;i<(int)Trk1->ppsNHits_;i++) {
+        for(int j=0;j<(int)Trk2->ppsNHits_;j++){
             if (SearchTrack(i,j,Direction,xi,t,partP,pt,thx,thy,x0,y0,xt,yt,X1d,Y1d,X2d,Y2d)) {
                 // Check if the hitted timing cell matches the reconstructed track
                 cellId = ToF->findCellId(xt,yt);
