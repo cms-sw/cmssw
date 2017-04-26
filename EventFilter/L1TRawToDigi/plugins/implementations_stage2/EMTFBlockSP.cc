@@ -1,8 +1,31 @@
+// Code to unpack the "SP Output Data Record"
+
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-#include "EMTFBlockSP.h"
+
+// This is the "header" - no EMTFBlockSP.h file is needed
+namespace l1t {
+  namespace stage2 {
+    namespace emtf {
+      
+      class SPBlockUnpacker : public Unpacker { // "SPBlockUnpacker" inherits from "Unpacker"
+      public:
+	virtual int  checkFormat(const Block& block);
+	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
+      };
+      
+
+      // class SPBlockPacker : public Packer { // "SPBlockPacker" inherits from "Packer"
+      // public:
+      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+      // };
+      
+    }
+  }
+}
 
 namespace l1t {
   namespace stage2 {
