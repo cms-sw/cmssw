@@ -100,6 +100,7 @@ public:
 	    
 	    if (fabs(z0)>15.0) continue;
 
+	    /*
 	    double pt1=stubs_[iSector][i].pt();
 	    double pt2=D->stubs_[jSector][j].pt();
 	    double pttracklet=0.3*3.8/(rinv*100);
@@ -108,6 +109,7 @@ public:
 	    bool pass=pass1&&pass2;
 
 	    //if (!pass) continue; // we currently don't use stub pt in forming tracklets
+	    */
 
 	    L1TTracklet tracklet(rinv,phi0,t,z0);
 	    tracklet.addStub(stubs_[iSector][i]);

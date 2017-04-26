@@ -10,12 +10,14 @@
 #include <math.h>
 #include <assert.h>
 #include "L1TStub.hh"
-#include "FPGAConstants.hh"
+//#include "FPGAConstants.hh"
 
 using namespace std;
 
 
-//static double two_pi=8*atan(1.0);
+static double two_pi=8*atan(1.0);
+static double ptcut=2.0;
+static unsigned int NSector=24;
 
 static double x_offset=0.199196*0.0;
 static double y_offset=0.299922*0.0;

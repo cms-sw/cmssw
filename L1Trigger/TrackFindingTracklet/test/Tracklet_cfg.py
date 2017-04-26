@@ -48,9 +48,10 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.BS = cms.Path(process.offlineBeamSpot)
 
 # run cluster+stubs associators
+process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 process.TTClusterStubAssociator = cms.Path(process.TrackTriggerAssociatorClustersStubs)
-
-#run the tracking
+ 
+# run the tracking
 process.TTTracks = cms.EDProducer("L1TrackProducer",
 				 SimTrackSource = cms.InputTag("g4SimHits"),
 				 SimVertexSource = cms.InputTag("g4SimHits"),
@@ -60,16 +61,18 @@ process.TTTracks = cms.EDProducer("L1TrackProducer",
     )
 process.TrackTriggerTTTracks = cms.Sequence(process.TTTracks)
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
+
+# run track associator
+process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag("TTTracks", "Level1TTTracks") )
 process.TTAssociator = cms.Path(process.TrackTriggerAssociatorTracks)
 
+# output module
+process.out = cms.OutputModule( "PoolOutputModule",
+                                fileName = cms.untracked.string("Tracklets.root"),
+                                fastCloning = cms.untracked.bool( False ),
+                                outputCommands = cms.untracked.vstring('keep *')
+)
+process.FEVToutput_step = cms.EndPath(process.out)
 
-#output module
-#process.out = cms.OutputModule( "PoolOutputModule",
-#                                fileName = cms.untracked.string("Tracklets.root"),
-#                                fastCloning = cms.untracked.bool( False ),
-#                                outputCommands = cms.untracked.vstring('keep *')
-#)
-#process.FEVToutput_step = cms.EndPath(process.out)
-
-process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator)
+process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator,process.FEVToutput_step)
 

@@ -107,6 +107,7 @@ public:
 
 	    if (fabs(z0)>15.0) continue;
 
+	    /*
 	    double pt1=stubs_[iSector][i].pt();
 	    double pt2=L->stubs_[jSector][j].pt();
 	    double pttracklet=0.3*3.8/(rinv*100);
@@ -120,6 +121,7 @@ public:
 	    }
 
 	    //if (!pass) continue; //currently not requiring stub pt consistency in forming tracklets
+	    */
 
 	    L1TTracklet tracklet(rinv,phi0,t,z0);
 	    tracklet.addStub(stubs_[iSector][i]);
@@ -199,7 +201,7 @@ public:
 
 	    if (fabs(z0)>15.0) continue;
 
-
+	    /*
 	    double pt1=stubs_[iSector][i].pt();
 	    double pt2=D->stubs_[jSector][j].pt();
 	    double pttracklet=0.3*3.8/(rinv*100);
@@ -207,6 +209,7 @@ public:
 	    bool pass2=fabs(1.0/pt2-1.0/pttracklet)<0.5;
 	    bool pass=pass1&&pass2;
 	    //if (!pass) continue; // currently not requiring stub pt consistency in forming tracklets 
+	    */
 
 	    L1TTracklet tracklet(rinv,phi0,t,z0);
 	    tracklet.addStub(stubs_[iSector][i]);

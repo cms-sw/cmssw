@@ -252,7 +252,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   /// Geometry handles etc
   edm::ESHandle<TrackerGeometry>                               geometryHandle;
-  const TrackerGeometry*                                       theGeometry;
+  //const TrackerGeometry*                                       theGeometry;
 
 
   /// Set pointers to Stacked Modules
@@ -383,8 +383,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int module=-999999;
 
       int strip=460;
-      int simtrack=-1;
-
+      
       double z=posStub.z();
 
       if ( detid.subdetId()==StripSubdetector::TOB ) {
