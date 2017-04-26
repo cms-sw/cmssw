@@ -36,6 +36,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& config) : 
@@ -51,6 +53,7 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+  eledig = config.getParameter<bool>("digitizeElectrons"); //flag to turn on/off electron digitization
 
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
@@ -58,14 +61,14 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   frate=config.getParameter<double>("Frate");
 
   if (rpcdigiprint) {
-    std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
-    std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
-    std::cout <<"RPC Time Resolution       = "<<resRPC<<" ns"<<std::endl;
-    std::cout <<"RPC Signal formation time = "<<timOff<<" ns"<<std::endl;
-    std::cout <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<std::endl;
-    std::cout <<"Electronic Jitter         = "<<resEle<<" ns"<<std::endl;
-    std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
-    std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
+    edm::LogInfo("RPC digitizer parameters")<<"Average Efficiency        = "<<aveEff;
+    edm::LogInfo("RPC digitizer parameters")<<"Average Cluster Size      = "<<aveCls<<" strips";
+    edm::LogInfo("RPC digitizer parameters")<<"RPC Time Resolution       = "<<resRPC<<" ns";
+    edm::LogInfo("RPC digitizer parameters")<<"RPC Signal formation time = "<<timOff<<" ns";
+    edm::LogInfo("RPC digitizer parameters")<<"RPC adjacent strip delay  = "<<dtimCs<<" ns";
+    edm::LogInfo("RPC digitizer parameters")<<"Electronic Jitter         = "<<resEle<<" ns";
+    edm::LogInfo("RPC digitizer parameters")<<"Signal propagation time   = "<<sspeed<<" x c";
+    edm::LogInfo("RPC digitizer parameters")<<"Link Board Gate Width     = "<<lbGate<<" ns";
   }
 
   _rpcSync = new RPCSynchronizer(config);
@@ -191,7 +194,7 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
 
-    if(_hit-> particleType() == 11) continue;
+    if(!eledig && _hit-> particleType() == 11) continue;
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 
@@ -210,9 +213,6 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
       int lstrip=centralStrip;
 
       // Compute the cluster size
-      // double w = CLHEP::RandFlat::shoot(engine);
-      //if (w < 1.e-10) w=1.e-10;
-//       int clsize = this->getClSize(posX, engine); // This is for one and the same cls for all the chambers
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
       std::vector<int> cls;
       cls.push_back(centralStrip);
@@ -273,7 +273,6 @@ void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll,
   RPCDetId rpcId = roll->id();
 
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
