@@ -203,7 +203,7 @@ DDLElementRegistry::getElement( const std::string& name )
     }
     
     // Actually register the thing
-    registry_[name]= myret;
+    registry_[name] = myret;
   }
   return myret;
 }
