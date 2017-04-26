@@ -32,38 +32,38 @@
           <diamond_channel id="30"        hw_id="0x11F"           FEDId="583"             GOHId="2"               IdxInFiber="15"/>
         </rp_plane_diamond>
         <rp_plane_diamond id="2"> 
-          <diamond_channel id="0"         hw_id="0x206"           FEDId="583"             GOHId="1?"               IdxInFiber="6"/>
-          <diamond_channel id="1"         hw_id="0x205"           FEDId="583"             GOHId="1?"               IdxInFiber="5"/>
-          <diamond_channel id="2"         hw_id="0x204"           FEDId="583"             GOHId="1?"               IdxInFiber="4"/>
-          <diamond_channel id="3"         hw_id="0x203"           FEDId="583"             GOHId="1?"               IdxInFiber="3"/>     
-          <diamond_channel id="4"         hw_id="0x202"           FEDId="583"             GOHId="1?"               IdxInFiber="2"/>
-          <diamond_channel id="5"         hw_id="0x201"           FEDId="583"             GOHId="1?"               IdxInFiber="1"/>
-          <diamond_channel id="6"         hw_id="0x200"           FEDId="583"             GOHId="1?"               IdxInFiber="0"/>
-          <diamond_channel id="7"         hw_id="0x20F"           FEDId="583"             GOHId="1?"               IdxInFiber="14"/>
-          <diamond_channel id="8"         hw_id="0x20E"           FEDId="583"             GOHId="1?"               IdxInFiber="13"/>
-          <diamond_channel id="9"         hw_id="0x20D"           FEDId="583"             GOHId="1?"               IdxInFiber="12"/>
-          <diamond_channel id="10"        hw_id="0x20C"           FEDId="583"             GOHId="1?"               IdxInFiber="11"/>
-          <diamond_channel id="11"        hw_id="0x20B"           FEDId="583"             GOHId="1?"               IdxInFiber="10"/>
+          <diamond_channel id="0"         hw_id="0x206"           FEDId="583"             GOHId="7"               IdxInFiber="6"/>
+          <diamond_channel id="1"         hw_id="0x205"           FEDId="583"             GOHId="7"               IdxInFiber="5"/>
+          <diamond_channel id="2"         hw_id="0x204"           FEDId="583"             GOHId="7"               IdxInFiber="4"/>
+          <diamond_channel id="3"         hw_id="0x203"           FEDId="583"             GOHId="7"               IdxInFiber="3"/>     
+          <diamond_channel id="4"         hw_id="0x202"           FEDId="583"             GOHId="7"               IdxInFiber="2"/>
+          <diamond_channel id="5"         hw_id="0x201"           FEDId="583"             GOHId="7"               IdxInFiber="1"/>
+          <diamond_channel id="6"         hw_id="0x200"           FEDId="583"             GOHId="7"               IdxInFiber="0"/>
+          <diamond_channel id="7"         hw_id="0x20F"           FEDId="583"             GOHId="7"               IdxInFiber="14"/>
+          <diamond_channel id="8"         hw_id="0x20E"           FEDId="583"             GOHId="7"               IdxInFiber="13"/>
+          <diamond_channel id="9"         hw_id="0x20D"           FEDId="583"             GOHId="7"               IdxInFiber="12"/>
+          <diamond_channel id="10"        hw_id="0x20C"           FEDId="583"             GOHId="7"               IdxInFiber="11"/>
+          <diamond_channel id="11"        hw_id="0x20B"           FEDId="583"             GOHId="7"               IdxInFiber="10"/>
         </rp_plane_diamond>
         <rp_plane_diamond id="3">  <!-- UFSD -->
-          <diamond_channel id="0"         hw_id="0x216"           FEDId="583"             GOHId="2?"               IdxInFiber="6"/>
-          <diamond_channel id="1"         hw_id="0x215"           FEDId="583"             GOHId="2?"               IdxInFiber="5"/>
-          <diamond_channel id="2"         hw_id="0x214"           FEDId="583"             GOHId="2?"               IdxInFiber="4"/>
-          <diamond_channel id="3"         hw_id="0x213"           FEDId="583"             GOHId="2?"               IdxInFiber="3"/>     
-          <diamond_channel id="4"         hw_id="0x212"           FEDId="583"             GOHId="2?"               IdxInFiber="2"/>
-          <diamond_channel id="5"         hw_id="0x211"           FEDId="583"             GOHId="2?"               IdxInFiber="1"/>
-          <diamond_channel id="6"         hw_id="0x210"           FEDId="583"             GOHId="2?"               IdxInFiber="0"/>
-          <diamond_channel id="7"         hw_id="0x21F"           FEDId="583"             GOHId="2?"               IdxInFiber="14"/>
-          <diamond_channel id="8"         hw_id="0x21E"           FEDId="583"             GOHId="2?"               IdxInFiber="13"/>
-          <diamond_channel id="9"         hw_id="0x21D"           FEDId="583"             GOHId="2?"               IdxInFiber="12"/>
-          <diamond_channel id="10"        hw_id="0x21C"           FEDId="583"             GOHId="2?"               IdxInFiber="11"/>
-          <diamond_channel id="11"        hw_id="0x21B"           FEDId="583"             GOHId="2?"               IdxInFiber="10"/>
-          <diamond_channel id="30"        hw_id="0x21F"           FEDId="583"             GOHId="2?"               IdxInFiber="15"/>
+          <diamond_channel id="0"         hw_id="0x216"           FEDId="583"             GOHId="8"               IdxInFiber="6"/>
+          <diamond_channel id="1"         hw_id="0x215"           FEDId="583"             GOHId="8"               IdxInFiber="5"/>
+          <diamond_channel id="2"         hw_id="0x214"           FEDId="583"             GOHId="8"               IdxInFiber="4"/>
+          <diamond_channel id="3"         hw_id="0x213"           FEDId="583"             GOHId="8"               IdxInFiber="3"/>     
+          <diamond_channel id="4"         hw_id="0x212"           FEDId="583"             GOHId="8"               IdxInFiber="2"/>
+          <diamond_channel id="5"         hw_id="0x211"           FEDId="583"             GOHId="8"               IdxInFiber="1"/>
+          <diamond_channel id="6"         hw_id="0x210"           FEDId="583"             GOHId="8"               IdxInFiber="0"/>
+          <diamond_channel id="7"         hw_id="0x21F"           FEDId="583"             GOHId="8"               IdxInFiber="14"/>
+          <diamond_channel id="8"         hw_id="0x21E"           FEDId="583"             GOHId="8"               IdxInFiber="13"/>
+          <diamond_channel id="9"         hw_id="0x21D"           FEDId="583"             GOHId="8"               IdxInFiber="12"/>
+          <diamond_channel id="10"        hw_id="0x21C"           FEDId="583"             GOHId="8"               IdxInFiber="11"/>
+          <diamond_channel id="11"        hw_id="0x21B"           FEDId="583"             GOHId="8"               IdxInFiber="10"/>
+          <diamond_channel id="30"        hw_id="0x21F"           FEDId="583"             GOHId="8"               IdxInFiber="15"/>
         </rp_plane_diamond>
       </rp_detector_set>
     </station>
   </arm>
-    <arm id="1">  <!-- 56 -->
+  <arm id="1">  <!-- 56 -->
     <station id="1">        <!-- 215 m -->
       <rp_detector_set id="6">        <!-- Timing -->
         <rp_plane_diamond id="0"> 
@@ -96,33 +96,33 @@
           <diamond_channel id="30"        hw_id="0x31F"           FEDId="582"             GOHId="7"               IdxInFiber="15"/>
         </rp_plane_diamond>
         <rp_plane_diamond id="2"> 
-          <diamond_channel id="0"         hw_id="0x406"           FEDId="582"             GOHId="8?"               IdxInFiber="6"/>
-          <diamond_channel id="1"         hw_id="0x405"           FEDId="582"             GOHId="8?"               IdxInFiber="5"/>
-          <diamond_channel id="2"         hw_id="0x404"           FEDId="582"             GOHId="8?"               IdxInFiber="4"/>
-          <diamond_channel id="3"         hw_id="0x403"           FEDId="582"             GOHId="8?"               IdxInFiber="3"/>     
-          <diamond_channel id="4"         hw_id="0x402"           FEDId="582"             GOHId="8?"               IdxInFiber="2"/>
-          <diamond_channel id="5"         hw_id="0x401"           FEDId="582"             GOHId="8?"               IdxInFiber="1"/>
-          <diamond_channel id="6"         hw_id="0x400"           FEDId="582"             GOHId="8?"               IdxInFiber="0"/>
-          <diamond_channel id="7"         hw_id="0x40F"           FEDId="582"             GOHId="8?"               IdxInFiber="14"/>
-          <diamond_channel id="8"         hw_id="0x40E"           FEDId="582"             GOHId="8?"               IdxInFiber="13"/>
-          <diamond_channel id="9"         hw_id="0x40D"           FEDId="582"             GOHId="8?"               IdxInFiber="12"/>
-          <diamond_channel id="10"        hw_id="0x40C"           FEDId="582"             GOHId="8?"               IdxInFiber="11"/>
-          <diamond_channel id="11"        hw_id="0x40B"           FEDId="582"             GOHId="8?"               IdxInFiber="10"/>
+          <diamond_channel id="0"         hw_id="0x406"           FEDId="582"             GOHId="9"               IdxInFiber="6"/>
+          <diamond_channel id="1"         hw_id="0x405"           FEDId="582"             GOHId="9"               IdxInFiber="5"/>
+          <diamond_channel id="2"         hw_id="0x404"           FEDId="582"             GOHId="9"               IdxInFiber="4"/>
+          <diamond_channel id="3"         hw_id="0x403"           FEDId="582"             GOHId="9"               IdxInFiber="3"/>     
+          <diamond_channel id="4"         hw_id="0x402"           FEDId="582"             GOHId="9"               IdxInFiber="2"/>
+          <diamond_channel id="5"         hw_id="0x401"           FEDId="582"             GOHId="9"               IdxInFiber="1"/>
+          <diamond_channel id="6"         hw_id="0x400"           FEDId="582"             GOHId="9"               IdxInFiber="0"/>
+          <diamond_channel id="7"         hw_id="0x40F"           FEDId="582"             GOHId="9"               IdxInFiber="14"/>
+          <diamond_channel id="8"         hw_id="0x40E"           FEDId="582"             GOHId="9"               IdxInFiber="13"/>
+          <diamond_channel id="9"         hw_id="0x40D"           FEDId="582"             GOHId="9"               IdxInFiber="12"/>
+          <diamond_channel id="10"        hw_id="0x40C"           FEDId="582"             GOHId="9"               IdxInFiber="11"/>
+          <diamond_channel id="11"        hw_id="0x40B"           FEDId="582"             GOHId="9"               IdxInFiber="10"/>
         </rp_plane_diamond>
         <rp_plane_diamond id="3">  <!-- UFSD -->
-          <diamond_channel id="0"         hw_id="0x416"           FEDId="582"             GOHId="7?"               IdxInFiber="6"/>
-          <diamond_channel id="1"         hw_id="0x415"           FEDId="582"             GOHId="7?"               IdxInFiber="5"/>
-          <diamond_channel id="2"         hw_id="0x414"           FEDId="582"             GOHId="7?"               IdxInFiber="4"/>
-          <diamond_channel id="3"         hw_id="0x413"           FEDId="582"             GOHId="7?"               IdxInFiber="3"/>     
-          <diamond_channel id="4"         hw_id="0x412"           FEDId="582"             GOHId="7?"               IdxInFiber="2"/>
-          <diamond_channel id="5"         hw_id="0x411"           FEDId="582"             GOHId="7?"               IdxInFiber="1"/>
-          <diamond_channel id="6"         hw_id="0x410"           FEDId="582"             GOHId="7?"               IdxInFiber="0"/>
-          <diamond_channel id="7"         hw_id="0x41F"           FEDId="582"             GOHId="7?"               IdxInFiber="14"/>
-          <diamond_channel id="8"         hw_id="0x41E"           FEDId="582"             GOHId="7?"               IdxInFiber="13"/>
-          <diamond_channel id="9"         hw_id="0x41D"           FEDId="582"             GOHId="7?"               IdxInFiber="12"/>
-          <diamond_channel id="10"        hw_id="0x41C"           FEDId="582"             GOHId="7?"               IdxInFiber="11"/>
-          <diamond_channel id="11"        hw_id="0x41B"           FEDId="582"             GOHId="7?"               IdxInFiber="10"/>
-          <diamond_channel id="30"        hw_id="0x41F"           FEDId="582"             GOHId="7?"               IdxInFiber="15"/>
+          <diamond_channel id="0"         hw_id="0x416"           FEDId="582"             GOHId="10"               IdxInFiber="6"/>
+          <diamond_channel id="1"         hw_id="0x415"           FEDId="582"             GOHId="10"               IdxInFiber="5"/>
+          <diamond_channel id="2"         hw_id="0x414"           FEDId="582"             GOHId="10"               IdxInFiber="4"/>
+          <diamond_channel id="3"         hw_id="0x413"           FEDId="582"             GOHId="10"               IdxInFiber="3"/>     
+          <diamond_channel id="4"         hw_id="0x412"           FEDId="582"             GOHId="10"               IdxInFiber="2"/>
+          <diamond_channel id="5"         hw_id="0x411"           FEDId="582"             GOHId="10"               IdxInFiber="1"/>
+          <diamond_channel id="6"         hw_id="0x410"           FEDId="582"             GOHId="10"               IdxInFiber="0"/>
+          <diamond_channel id="7"         hw_id="0x41F"           FEDId="582"             GOHId="10"               IdxInFiber="14"/>
+          <diamond_channel id="8"         hw_id="0x41E"           FEDId="582"             GOHId="10"               IdxInFiber="13"/>
+          <diamond_channel id="9"         hw_id="0x41D"           FEDId="582"             GOHId="10"               IdxInFiber="12"/>
+          <diamond_channel id="10"        hw_id="0x41C"           FEDId="582"             GOHId="10"               IdxInFiber="11"/>
+          <diamond_channel id="11"        hw_id="0x41B"           FEDId="582"             GOHId="10"               IdxInFiber="10"/>
+          <diamond_channel id="30"        hw_id="0x41F"           FEDId="582"             GOHId="10"               IdxInFiber="15"/>
         </rp_plane_diamond>
       </rp_detector_set>
     </station>
