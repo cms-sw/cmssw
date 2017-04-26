@@ -70,7 +70,6 @@ class DigiTask : public hcaldqm::DQTask
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
