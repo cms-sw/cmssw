@@ -64,7 +64,6 @@ class PedestalTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const*	_emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
