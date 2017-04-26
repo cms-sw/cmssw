@@ -46,21 +46,21 @@ template <typename ScannerT> struct Mapper::definition
 void
 MapPair::operator() (char const* str, char const* end) const
 { 
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  std::shared_ptr<DDLMap> myDDLMap = std::static_pointer_cast<DDLMap>(DDLGlobalRegistry::instance().getElement("Map"));
   myDDLMap->do_pair(str, end);
 }
 
 void
 MapMakeName::operator() (char const* str, char const* end) const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  std::shared_ptr<DDLMap> myDDLMap = std::static_pointer_cast<DDLMap>(DDLGlobalRegistry::instance().getElement("Map"));
   myDDLMap->do_makeName(str, end);
 }
 
 void
 MapMakeDouble::operator() (char const* str, char const* end)const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  std::shared_ptr<DDLMap> myDDLMap = std::static_pointer_cast<DDLMap>(DDLGlobalRegistry::instance().getElement("Map"));
   myDDLMap->do_makeDouble(str, end);
 }
 
