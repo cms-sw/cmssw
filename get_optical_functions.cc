@@ -1,4 +1,5 @@
 #include "beam_conditions.h"
+#include "command_line_tools.h"
 
 #include "LHCOpticsApproximator.h"
 
@@ -9,145 +10,6 @@
 
 using namespace std;
 
-//----------------------------------------------------------------------------------------------------
-
-void DoTransport(LHCOpticsApproximator *optApp, double *kin_in, double *kin_out, bool check_appertures)
-{
-	const bool invert_beam_coord_systems = true;
-
-/*
-	double kin_in_corr[5];
-	if (optApp->GetBeamType() == LHCOpticsApproximator::lhcb2 && invert_beam_coord_systems)
-	{
-		kin_in_corr[0] = -kin_in[0];
-		kin_in_corr[1] = -kin_in[1];
-		kin_in_corr[2] = kin_in[2];
-		kin_in_corr[3] = kin_in[3];
-		kin_in_corr[4] = kin_in[4];
-	} else {
-		kin_in_corr[0] = kin_in[0];
-		kin_in_corr[1] = kin_in[1];
-		kin_in_corr[2] = kin_in[2];
-		kin_in_corr[3] = kin_in[3];
-		kin_in_corr[4] = kin_in[4];
-	}
-
-	double kin_out_raw[5];
-	optApp->Transport(kin_in_corr, kin_out_raw, check_appertures);
-
-	if (optApp->GetBeamType() == LHCOpticsApproximator::lhcb2 && invert_beam_coord_systems)
-	{
-		kin_out[0] = -kin_out_raw[0];
-		kin_out[1] = -kin_out_raw[1];
-		kin_out[2] = kin_out_raw[2];
-		kin_out[3] = kin_out_raw[3];
-		kin_out[4] = kin_out_raw[4];
-	} else {
-		kin_out[0] = kin_out_raw[0];
-		kin_out[1] = kin_out_raw[1];
-		kin_out[2] = kin_out_raw[2];
-		kin_out[3] = kin_out_raw[3];
-		kin_out[4] = kin_out_raw[4];
-	}
-*/
-	optApp->Transport(kin_in, kin_out, check_appertures, invert_beam_coord_systems);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-int cl_error = 0;
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestBoolParameter(int argc, const char **argv, int &argi, const char *tag, bool &param1, bool &param2)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param1 = param2 = atoi(argv[argi]);
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestBoolParameter(int argc, const char **argv, int &argi, const char *tag, bool &param)
-{
-	bool fake;
-	return TestBoolParameter(argc, argv, argi, tag, param, fake);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestUIntParameter(int argc, const char **argv, int &argi, const char *tag, unsigned int &param)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param = (int) atof(argv[argi]);
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestDoubleParameter(int argc, const char **argv, int &argi, const char *tag, double &param)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param = atof(argv[argi]);
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestStringParameter(int argc, const char **argv, int &argi, const char *tag, string &param)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param = argv[argi];
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -180,7 +42,7 @@ int main(int argc, const char **argv)
 
 		if (TestStringParameter(argc, argv, argi, "-output", file_output)) continue;
 		
-		if (TestDoubleParameter(argc, argv, argi, "-vtx-y-0", beamConditions.vtx0_y)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-vtx-y-0", beamConditions.vtx0_y_45, beamConditions.vtx0_y_56)) continue;
 
 		printf("ERROR: unknown option '%s'.\n", argv[argi]);
 		cl_error = 1;
@@ -226,12 +88,21 @@ int main(int argc, const char **argv)
 		if ((rpId / 100) == 1)
 			sector = sector56;
 
-		// determine crossing angle
+		// determine crossing angle, vertex offset
 		double crossing_angle = 0.;
+		double vtx0_y = 0.;
+
 		if (sector == sector45)
+		{
 			crossing_angle = beamConditions.half_crossing_angle_45;
+			vtx0_y = beamConditions.vtx0_y_45;
+		}
+
 		if (sector == sector56)
+		{
 			crossing_angle = beamConditions.half_crossing_angle_56;
+			vtx0_y = beamConditions.vtx0_y_56;
+		}
 
 		// book graphs
 		char buf[100];	 
@@ -255,44 +126,44 @@ int main(int argc, const char **argv)
 		TGraph *g_xi_vs_xso = new TGraph();
 		 
 		const bool check_appertures = false;
-		//const bool invert_beam_coord_sytems = true;
+		const bool invert_beam_coord_systems = true;
 
 		// input: all zero
-		double kin_in_zero[5] = { 0., crossing_angle, beamConditions.vtx0_y, 0., 0. };
+		double kin_in_zero[5] = { 0., crossing_angle, vtx0_y, 0., 0. };
 		double kin_out_zero[5] = { 0., 0., 0., 0., 0. };
-		DoTransport(optApp, kin_in_zero, kin_out_zero, check_appertures);
+		optApp->Transport(kin_in_zero, kin_out_zero, check_appertures, invert_beam_coord_systems);
 
 		// sample curves
 		for (double xi = 0.; xi <= 0.151; xi += 0.001)
 		{
 			// input: only xi
-			double kin_in_xi[5] = { 0., crossing_angle * (1. - xi), beamConditions.vtx0_y, 0., -xi };
+			double kin_in_xi[5] = { 0., crossing_angle * (1. - xi), vtx0_y, 0., -xi };
 			double kin_out_xi[5] = { 0., 0., 0., 0., 0. };
-			DoTransport(optApp, kin_in_xi, kin_out_xi, check_appertures);
+			optApp->Transport(kin_in_xi, kin_out_xi, check_appertures, invert_beam_coord_systems);
 	
 			// input: xi and vtx_x
 			const double vtx_x = 10E-6;	// m
-			double kin_in_xi_vtx_x[5] = { vtx_x, crossing_angle * (1. - xi), beamConditions.vtx0_y, 0., -xi };
+			double kin_in_xi_vtx_x[5] = { vtx_x, crossing_angle * (1. - xi), vtx0_y, 0., -xi };
 			double kin_out_xi_vtx_x[5] = { 0., 0., 0., 0., 0. };
-			DoTransport(optApp, kin_in_xi_vtx_x, kin_out_xi_vtx_x, check_appertures);
+			optApp->Transport(kin_in_xi_vtx_x, kin_out_xi_vtx_x, check_appertures, invert_beam_coord_systems);
 	
 			// input: xi and th_x
 			const double th_x = 20E-6;	// rad
-			double kin_in_xi_th_x[5] = { 0., (crossing_angle + th_x) * (1. - xi), beamConditions.vtx0_y, 0., -xi };
+			double kin_in_xi_th_x[5] = { 0., (crossing_angle + th_x) * (1. - xi), vtx0_y, 0., -xi };
 			double kin_out_xi_th_x[5] = { 0., 0., 0., 0., 0. };
-			DoTransport(optApp, kin_in_xi_th_x, kin_out_xi_th_x, check_appertures);
+			optApp->Transport(kin_in_xi_th_x, kin_out_xi_th_x, check_appertures, invert_beam_coord_systems);
 	
 			// input: xi and vtx_y
 			const double vtx_y = 10E-6;	// m
-			double kin_in_xi_vtx_y[5] = { 0., crossing_angle * (1. - xi), beamConditions.vtx0_y + vtx_y, 0., -xi };
+			double kin_in_xi_vtx_y[5] = { 0., crossing_angle * (1. - xi), vtx0_y + vtx_y, 0., -xi };
 			double kin_out_xi_vtx_y[5] = { 0., 0., 0., 0., 0. };
-			DoTransport(optApp, kin_in_xi_vtx_y, kin_out_xi_vtx_y, check_appertures);
+			optApp->Transport(kin_in_xi_vtx_y, kin_out_xi_vtx_y, check_appertures, invert_beam_coord_systems);
 	
 			// input: xi and th_y
 			const double th_y = 20E-6;	// rad
-			double kin_in_xi_th_y[5] = { 0., crossing_angle * (1. - xi), beamConditions.vtx0_y, th_y * (1. - xi), -xi };
+			double kin_in_xi_th_y[5] = { 0., crossing_angle * (1. - xi), vtx0_y, th_y * (1. - xi), -xi };
 			double kin_out_xi_th_y[5] = { 0., 0., 0., 0., 0. };
-			DoTransport(optApp, kin_in_xi_th_y, kin_out_xi_th_y, check_appertures);
+			optApp->Transport(kin_in_xi_th_y, kin_out_xi_th_y, check_appertures, invert_beam_coord_systems);
 	
 			// fill graphs
 			int idx = g_xi_vs_x->GetN();

@@ -1,6 +1,7 @@
 #include "track_lite.h"
 #include "beam_conditions.h"
 #include "proton_reconstruction.h"
+#include "command_line_tools.h"
 
 #include "LHCOpticsApproximator.h"
 
@@ -65,11 +66,17 @@ void BuildTrackCollection(LHCSector sector, double vtx_x, double vtx_y, double t
 	tracks.clear();
 
 	// convert physics kinematics to the LHC reference frame
-	vtx_y += beamConditions.vtx0_y;
 	if (sector == sector45)
+	{
 		th_x += beamConditions.half_crossing_angle_45;
+		vtx_y += beamConditions.vtx0_y_45;
+	}
+
 	if (sector == sector56)
+	{
 		th_x += beamConditions.half_crossing_angle_56;
+		vtx_y += beamConditions.vtx0_y_56;
+	}
 
 	// transport proton to each RP
 	for (const auto it : optics)
@@ -102,90 +109,6 @@ void BuildTrackCollection(LHCSector sector, double vtx_x, double vtx_y, double t
 			printf("		RP %u: x = %.3f mm, y = %.3f mm\n", it.first, td.x*1E3, td.y*1E3);
 
 	}
-}
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-int cl_error = 0;
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestBoolParameter(int argc, const char **argv, int &argi, const char *tag, bool &param1, bool &param2)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param1 = param2 = atoi(argv[argi]);
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestBoolParameter(int argc, const char **argv, int &argi, const char *tag, bool &param)
-{
-	bool fake;
-	return TestBoolParameter(argc, argv, argi, tag, param, fake);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestUIntParameter(int argc, const char **argv, int &argi, const char *tag, unsigned int &param)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param = (int) atof(argv[argi]);
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestStringParameter(int argc, const char **argv, int &argi, const char *tag, string &param1, string &param2)
-{
-	if (strcmp(argv[argi], tag) == 0)
-	{
-		if (argi < argc - 1)
-		{
-			argi++;
-			param1 = param2 = argv[argi];
-		} else {
-			printf("ERROR: option '%s' requires an argument.\n", tag);
-			cl_error = 1;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-bool TestStringParameter(int argc, const char **argv, int &argi, const char *tag, string &param)
-{
-	string fake;
-	return TestStringParameter(argc, argv, argi, tag, param, fake);
 }
 
 //----------------------------------------------------------------------------------------------------
