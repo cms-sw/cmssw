@@ -314,15 +314,19 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=chbhe->end(); ++it)
 	{
 		const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
-		double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, 
-			digi.size()-1);
-		if (sumQ<_lowHBHE)
-			continue;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 
-		double aveTS = hcaldqm::utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0,
-			digi.size()-1);
+		// Get total charge and apply charge cut
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, digi);
+		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, digi.size()-1);
+		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		if (sumQ<_lowHBHE)
+			continue;
+
+		//double aveTS = hcaldqm::utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0,digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -331,11 +335,12 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 
 		if (_ptype != fOffline) { // hidefed2crate
 			for (int i=0; i<digi.size(); i++) {
-				_cShapeCut_FEDSlot.fill(eid, i, 
-					digi.sample(i).nominal_fC()-2.5);
+				//_cShapeCut_FEDSlot.fill(eid, i, digi.sample(i).nominal_fC()-2.5);
+				_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<HBHEDataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 		}
 	}
+
 	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
 		++it)
 	{
@@ -350,36 +355,43 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 		if (sumQ<_lowHEP17)
 			continue;
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,
-			digi.samples()-1);
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
 		_xTimingSum2.get(did)+=aveTS*aveTS;
 		_xEntries.get(did)++;
 
-		for (int i=0; i<digi.samples(); i++) {
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				adc2fC[digi[i].adc()]-2.5);
+		if (_ptype != fOffline) { // hidefed2crate
+			for (int i=0; i<digi.samples(); i++) {
+				//_cShapeCut_FEDSlot.fill(eid, i, digi.sample(i).nominal_fC()-2.5);
+				_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
+			}
 		}
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
 		it!=cho->end(); ++it)
 	{
 		const HODataFrame digi = (const HODataFrame)(*it);
-		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, 
-			digi.size()-1);
-		if (sumQ<_lowHO)
-			continue;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
+		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, digi);
+		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		if (sumQ<_lowHO)
+			continue;
 
-		double aveTS = hcaldqm::utilities::aveTS<HODataFrame>(digi, 8.5, 0,
-			digi.size()-1);
+		//double aveTS = hcaldqm::utilities::aveTS<HODataFrame>(digi, 8.5, 0, digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -388,8 +400,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 
 		if (_ptype != fOffline) { // hidefed2crate
 			for (int i=0; i<digi.size(); i++) {
-				_cShapeCut_FEDSlot.fill(eid, i, 
-					digi.sample(i).nominal_fC()-8.5);
+				//_cShapeCut_FEDSlot.fill(eid, i, digi.sample(i).nominal_fC()-8.5);
+				_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<HODataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 		}
 	}
@@ -397,13 +409,17 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=chf->end(); ++it)
 	{
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
-		if (sumQ<_lowHF)
-			continue;
 		HcalDetId did = digi.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		if (sumQ<_lowHF)
+			continue;
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -412,9 +428,10 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 
 		if (_ptype != fOffline) { // hidefed2crate
 			for (int i = 0; i < digi.samples(); ++i) {
-				_cShapeCut_FEDSlot.fill(eid, i, constants::adc2fC[digi[i].adc()]);
 				// Note: this used to be digi.sample(i).nominal_fC() - 2.5, but this branch doesn't exist in QIE10DataFrame.
 				// Instead, use lookup table.
+				//_cShapeCut_FEDSlot.fill(eid, i, constants::adc2fC[digi[i].adc()]);
+				_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 		}
 	}
