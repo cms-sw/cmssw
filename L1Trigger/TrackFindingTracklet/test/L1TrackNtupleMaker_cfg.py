@@ -15,12 +15,9 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
-process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
 
-process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -42,31 +39,16 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('L1Trac
 
 
 ############################################################
-# Path definitions & schedule
+# L1 tracking
 ############################################################
 
-# beamspot 
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-process.BS = cms.Path(process.offlineBeamSpot)
+process.load("L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff")
 
-# run cluster+stubs associators
-process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
-process.TTClusterStubAssociator = cms.Path(process.TrackTriggerAssociatorClustersStubs)
- 
-# run the tracking
-process.TTTracks = cms.EDProducer("L1TrackProducer",
-				 SimTrackSource = cms.InputTag("g4SimHits"),
-				 SimVertexSource = cms.InputTag("g4SimHits"),
-				 TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
-				 TTStubMCTruthSource = cms.InputTag("TTStubAssociatorFromPixelDigis","StubAccepted"),
-                 BeamSpotSource = cms.InputTag("offlineBeamSpot")
-    )
-process.TrackTriggerTTTracks = cms.Sequence(process.TTTracks)
-process.TT_step = cms.Path(process.TrackTriggerTTTracks)
+# run only the tracking (no MC truth associators)
+process.TTTracks = cms.Path(process.L1TrackletTracks)
 
-# run track associator
-process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag("TTTracks", "Level1TTTracks") )
-process.TTAssociator = cms.Path(process.TrackTriggerAssociatorTracks)
+# run the tracking AND MC truth associators)
+process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 
 
 ############################################################
@@ -91,7 +73,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TP_minPt = cms.double(2.0),       # only save TPs with pt > X GeV
                                        TP_maxEta = cms.double(2.4),      # only save TPs with |eta| < X
                                        TP_maxZ0 = cms.double(30.0),      # only save TPs with |z0| < X cm
-                                       L1TrackInputTag = cms.InputTag("TTTracks", "Level1TTTracks"),               ## TTTrack input
+                                       L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),               ## TTTrack input
                                        MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), ## MCTruth input 
                                        # other input collections
                                        MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
@@ -101,13 +83,5 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        )
 process.ana = cms.Path(process.L1TrackNtuple)
 
-## output module
-#process.out = cms.OutputModule( "PoolOutputModule",
-#                                fileName = cms.untracked.string("Tracklets.root"),
-#                                fastCloning = cms.untracked.bool( False ),
-#                                outputCommands = cms.untracked.vstring('keep *')
-#)
-#process.FEVToutput_step = cms.EndPath(process.out)
-
-process.schedule = cms.Schedule(process.TTClusterStubAssociator,process.BS,process.TT_step,process.TTAssociator,process.ana)
+process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)
 

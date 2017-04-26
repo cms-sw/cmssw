@@ -52,8 +52,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 //
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-//
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 //
@@ -160,7 +158,6 @@ private:
   edm::InputTag simTrackSrc_;
   edm::InputTag simVertexSrc_;
   edm::InputTag ttStubSrc_;
-  edm::InputTag ttStubMCTruthSrc_;
 
   edm::InputTag bsSrc_;
   
@@ -168,7 +165,6 @@ private:
   const edm::EDGetTokenT< edm::SimVertexContainer > simVertexToken_;
   
   const edm::EDGetTokenT< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > ttStubToken_;
-  const edm::EDGetTokenT< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > ttStubMCTruthToken_;
 
   const edm::EDGetTokenT< reco::BeamSpot > bsToken_;
   
@@ -188,13 +184,11 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) :
   simTrackSrc_(config.getParameter<edm::InputTag>("SimTrackSource")),
   simVertexSrc_(config.getParameter<edm::InputTag>("SimVertexSource")),
   ttStubSrc_(config.getParameter<edm::InputTag>("TTStubSource")),
-  ttStubMCTruthSrc_(config.getParameter<edm::InputTag>("TTStubMCTruthSource")),
   bsSrc_(config.getParameter<edm::InputTag>("BeamSpotSource")),
 
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
   simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_)),
   ttStubToken_(consumes< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >(ttStubSrc_)),
-  ttStubMCTruthToken_(consumes< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >(ttStubMCTruthSrc_)),
   bsToken_(consumes< reco::BeamSpot >(bsSrc_))
 
 {
@@ -300,9 +294,6 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >    Phase2TrackerDigiTTStubHandle;
   iEvent.getByToken( ttStubToken_,        Phase2TrackerDigiTTStubHandle );
 
-  edm::Handle< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByToken( ttStubMCTruthToken_,        MCTruthTTStubHandle );
-
 
   ////////////////////////
   /// LOOP OVER SimTracks
@@ -343,10 +334,11 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   /// COLLECT STUB INFORMATION ///
   ////////////////////////////////
 
+  /*
   /// Maps to store TrackingParticle information
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerStubLayer;
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerStubDisk;
-
+  */
 
   // loop over stubs
 
