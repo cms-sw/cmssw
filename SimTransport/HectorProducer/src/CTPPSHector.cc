@@ -83,8 +83,8 @@ CTPPSHector::CTPPSHector(const edm::ParameterSet & param, bool verbosity,bool CT
 
     // construct beam line for CTPPS (forward 1 backward 2):                                                                                           
     if(m_CTPPSTransport && lengthctpps>0. ) {
-        m_beamlineCTPPS1 = new H_BeamLine( -1, lengthctpps + 0.1 ); // (direction, length)
-        m_beamlineCTPPS2 = new H_BeamLine( 1, lengthctpps + 0.1 ); //
+        m_beamlineCTPPS1 = std::unique_ptr<H_BeamLine>(new H_BeamLine( -1, lengthctpps + 0.1 )); // (direction, length)
+        m_beamlineCTPPS2 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, lengthctpps + 0.1 )); //
         m_beamlineCTPPS1->fill( b2.fullPath(), 1, "IP5" );
         m_beamlineCTPPS2->fill( b1.fullPath(), 1, "IP5" );
         m_beamlineCTPPS1->offsetElements( 120, 0.097 );
@@ -101,8 +101,7 @@ CTPPSHector::~CTPPSHector(){
     for (std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
         delete (*it).second;
     }
-    delete m_beamlineCTPPS1;
-    delete m_beamlineCTPPS2;
+
 }
 
 void CTPPSHector::clearApertureFlags(){
@@ -123,7 +122,7 @@ void CTPPSHector::clear(){
 
 void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup, CLHEP::HepRandomEngine * engine) {
 
-    H_BeamParticle * h_p  = NULL;
+    H_BeamParticle* h_p  = NULL;
     unsigned int line;
 
     for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin();
@@ -198,8 +197,8 @@ void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSet
 void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
 
     unsigned int line;
-    H_BeamParticle*  part = NULL;
-
+    H_BeamParticle * part = NULL;
+ 
     std::map< unsigned int, H_BeamParticle* >::iterator it;
 
     bool is_stop;
@@ -218,17 +217,17 @@ void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
             if ( (*m_isCharged.find( line )).second ) {
                 direction = (*m_direct.find( line )).second;
                 if ( direction == 1 && m_beamlineCTPPS1 != 0 ) {
+                    
+ 		    part->computePath(&*m_beamlineCTPPS1);
 
-                    part->computePath( m_beamlineCTPPS1 );
-
-                    is_stop = part->stopped( m_beamlineCTPPS1 );
+                    is_stop = part->stopped(&* m_beamlineCTPPS1 );
                     if(m_verbosity) LogDebug("CTPPSHectorEventProcessing") << "CTPPSHector:filterCTPPS: barcode = " << line << " positive is_stop=  "<< is_stop;
                 }
                 else if ( direction == -1 && m_beamlineCTPPS2 != 0 ){
 
-                    part->computePath( m_beamlineCTPPS2 );
+                    part->computePath(&*m_beamlineCTPPS2 );
 
-                    is_stop = part->stopped( m_beamlineCTPPS2 );
+                    is_stop = part->stopped(&*m_beamlineCTPPS2 );
                     if(m_verbosity) LogDebug("CTPPSHectorEventProcessing") << "CTPPSHector:filterCTPPS: barcode = " << line << " negative is_stop=  "<< is_stop;
                 }
                 else {

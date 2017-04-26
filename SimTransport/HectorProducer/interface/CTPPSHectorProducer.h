@@ -35,7 +35,7 @@ class CTPPSHectorProducer : public edm::one::EDProducer<edm::one::SharedResource
         virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
         virtual void produce(edm::Event & e, const edm::EventSetup & c)  override;
     private:
-        HepMC::GenEvent * evt_;
+        //HepMC::GenEvent * evt_;
         CTPPSHector * hector_ctpps;
   
         std::string m_InTag;

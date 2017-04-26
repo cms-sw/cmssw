@@ -56,13 +56,14 @@ CTPPSHectorProducer::~CTPPSHectorProducer(){}
 
 void CTPPSHectorProducer::beginRun(const edm::Run & r,const edm::EventSetup& c) {}
 
+
 void CTPPSHectorProducer::endRun(const edm::Run & r,const edm::EventSetup& c) {}
 
 void CTPPSHectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
 
     using namespace edm;
     using namespace std;
-
+    HepMC::GenEvent * evt_;
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
     if ( engine->name() != "TRandom3" ) {
