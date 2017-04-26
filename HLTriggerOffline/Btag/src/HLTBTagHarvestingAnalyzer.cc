@@ -49,21 +49,21 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 			std::string labelEta = label.Data();
 			std::string labelPhi = label.Data();
 			label+=flavour+TString("_disc_pT");
-			labelEta+=flavour+TString("_disc_eta");
-			labelPhi+=flavour+TString("_disc_phi");
+			labelEta+=flavour+"_disc_eta";
+			labelPhi+=flavour+"_disc_phi";
 			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs pT' plot
 				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_pT").Data());
 			}
-			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+labelEta).Data(),(TString(dqmFolder_hist)+"/"+labelEta).Data(),num,den,2);
+			isOK=GetNumDenumerators (ibooker,igetter,dqmFolder_hist+"/"+labelEta,dqmFolder_hist+"/"+labelEta,num,den,2);
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs Eta' plot
 				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,labelEta+"_efficiency_vs_eta");
 			}
-			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+labelPhi).Data(),(TString(dqmFolder_hist)+"/"+labelPhi).Data(),num,den,2);
+			isOK=GetNumDenumerators (ibooker,igetter,dqmFolder_hist+"/"+labelPhi,dqmFolder_hist+"/"+labelPhi,num,den,2);
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs Phi' plot
