@@ -1,31 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
-# trigger data
+# ---------- trigger data ----------
 from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
-# Si strips
+
+# ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
   configuration = cms.VPSet(
-    # before TS2 (2016)
+    # 2016, before TS2
     cms.PSet(
       validityRange = cms.EventRange("1:min - 280385:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_to_fill_5288.xml"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2016_to_fill_5288.xml"),
       maskFileNames = cms.vstring()
     ),
-    # during TS2 (2016)
+    # 2016, during TS2
     cms.PSet(
       validityRange = cms.EventRange("280386:min - 281600:max"),
       mappingFileNames = cms.vstring(),
       maskFileNames = cms.vstring()
     ),
-    # after TS2 (2016)
+    # 2016, after TS2
     cms.PSet(
-      validityRange = cms.EventRange("281601:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_from_fill_5330.xml"),
+      validityRange = cms.EventRange("281601:min - 290872:max"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2016_from_fill_5330.xml"),
+      maskFileNames = cms.vstring()
+    ),
+    # 2017
+    cms.PSet(
+      validityRange = cms.EventRange("290873:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     )
   )
@@ -34,8 +41,15 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+# various error/warning/info output may be enabled with these flags
+#  totemRPRawToDigi.RawUnpacking.verbosity = 1
+#  totemRPRawToDigi.RawToDigi.verbosity = 1 # or higher number for more output
+#  totemRPRawToDigi.RawToDigi.printErrorSummary = 1
+#  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
-# diamonds
+
+
+# ---------- diamonds ----------
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
@@ -58,8 +72,11 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+ctppsDiamondRawToDigi.RawToDigi.testCRC = 0 # no need to test CRC for diamonds
 
-# pixels
+
+
+# ---------- pixels ----------
 ctppsPixelDAQMappingESSourceXML = cms.ESSource("CTPPSPixelDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem= cms.untracked.string("RPix"),
