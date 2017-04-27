@@ -48,6 +48,10 @@ for year in upgradeKeys:
             if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
                 workflows[numWF+upgradeSteps['Timing']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['Timing']]
 
+            # special workflows for neutron bkg sim
+            if upgradeDatasetFromFragment[frag]=="ZMM_14" and ('2023D12' in key or '2023D14' in key):
+                workflows[numWF+upgradeSteps['Neutron']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['Neutron']]
+
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
