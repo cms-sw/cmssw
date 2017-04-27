@@ -67,7 +67,12 @@ process.l1tMonitorPath = cms.Path(
     process.l1tStage2OnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2uGMTZeroSuppFatEvts
+    process.l1tStage2uGMTZeroSuppFatEvts +
+    process.l1tStage2uGMTMuonVsuGMTMuonCopy1 +
+    process.l1tStage2uGMTMuonVsuGMTMuonCopy2 +
+    process.l1tStage2uGMTMuonVsuGMTMuonCopy3 +
+    process.l1tStage2uGMTMuonVsuGMTMuonCopy4 +
+    process.l1tStage2uGMTMuonVsuGMTMuonCopy5
 )
 
 # Remove DQM Modules

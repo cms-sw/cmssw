@@ -117,3 +117,41 @@ l1tStage2uGMTOutVsuGTIn = cms.EDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# The five modules below compare the primary unpacked uGMT muon collection to goes to uGT board 0
+# to the unpacked uGMT muon collections that are sent to uGT boards 1 to 5.
+# Only muons that do not match are filled in the histograms
+l1tStage2uGMTMuonVsuGMTMuonCopy1 = cms.EDAnalyzer(
+    "L1TStage2MuonComp",
+    muonCollection1 = cms.InputTag("gmtStage2Digis", "Muon"),
+    muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy1"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy1"),
+    muonCollection1Title = cms.untracked.string("uGMT muons"),
+    muonCollection2Title = cms.untracked.string("uGMT muons copy 1"),
+    summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 1"),
+    verbose = cms.untracked.bool(False),
+)
+
+l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
+l1tStage2uGMTMuonVsuGMTMuonCopy2.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy2")
+l1tStage2uGMTMuonVsuGMTMuonCopy2.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy2")
+l1tStage2uGMTMuonVsuGMTMuonCopy2.muonCollection2Title = cms.untracked.string("uGMT muons copy 2")
+l1tStage2uGMTMuonVsuGMTMuonCopy2.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 2")
+
+l1tStage2uGMTMuonVsuGMTMuonCopy3 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
+l1tStage2uGMTMuonVsuGMTMuonCopy3.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy3")
+l1tStage2uGMTMuonVsuGMTMuonCopy3.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy3")
+l1tStage2uGMTMuonVsuGMTMuonCopy3.muonCollection2Title = cms.untracked.string("uGMT muons copy 3")
+l1tStage2uGMTMuonVsuGMTMuonCopy3.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 3")
+
+l1tStage2uGMTMuonVsuGMTMuonCopy4 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
+l1tStage2uGMTMuonVsuGMTMuonCopy4.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy4")
+l1tStage2uGMTMuonVsuGMTMuonCopy4.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy4")
+l1tStage2uGMTMuonVsuGMTMuonCopy4.muonCollection2Title = cms.untracked.string("uGMT muons copy 4")
+l1tStage2uGMTMuonVsuGMTMuonCopy4.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 4")
+
+l1tStage2uGMTMuonVsuGMTMuonCopy5 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone()
+l1tStage2uGMTMuonVsuGMTMuonCopy5.muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy5")
+l1tStage2uGMTMuonVsuGMTMuonCopy5.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy5")
+l1tStage2uGMTMuonVsuGMTMuonCopy5.muonCollection2Title = cms.untracked.string("uGMT muons copy 5")
+l1tStage2uGMTMuonVsuGMTMuonCopy5.summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 5")
+
