@@ -45,7 +45,7 @@ namespace ecaldqm {
 /*     bool HLTCaloBit_; */
 /*     bool HLTMuonBit_; */
 
-    int bxBinEdges_[nBXBins + 1];
+    std::array<int,nBXBins+1> bxBinEdges_;
     double bxBin_;
 
     std::map<uint32_t, unsigned> towerReadouts_;
