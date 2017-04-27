@@ -53,16 +53,20 @@ def create_single_iov_db(inputs, run_number, output_db):
     return result
 
 
-def run_checked(cmd):
+def run_checked(cmd, suppress_stderr = False):
     """Run `cmd` and exit in case of failures.
 
     Arguments:
     - `cmd`: list containing the strings of the command
+    - `suppress_stderr`: suppress output from stderr
     """
 
     try:
         with open(os.devnull, "w") as devnull:
-            subprocess.check_call(cmd, stdout = devnull)
+            if suppress_stderr:
+                subprocess.check_call(cmd, stdout = devnull, stderr = devnull)
+            else:
+                subprocess.check_call(cmd, stdout = devnull)
     except subprocess.CalledProcessError as e:
         print "Problem in running the following command:"
         print " ".join(e.cmd)

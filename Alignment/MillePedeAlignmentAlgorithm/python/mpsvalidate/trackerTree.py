@@ -10,6 +10,7 @@ import os
 
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper \
     import checked_out_MPS
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
 def check(config):
@@ -25,9 +26,9 @@ def check(config):
         configpath = os.path.join(config.mpspath, "test", "trackerTree_cfg.py")
         logger.info("Path to the config file: {0}".format(configpath))
         
-        cmd = "cmsRun {0} outputFile={1}".format(configpath, outputpath)
-        if config.globalTag != None: cmd += " globalTag="+config.globalTag
-        if config.firstRun != None: cmd += " firstRun="+config.firstRun
-        os.system(cmd+" > /dev/null 2>&1")
+        cmd = ["cmsRun", configpath, "outputFile="+outputpath]
+        if config.globalTag != None: cmd.append("globalTag="+config.globalTag)
+        if config.firstRun != None: cmd.append("firstRun="+config.firstRun)
+        mps_tools.run_checked(cmd, suppress_stderr = True)
 
     return os.path.abspath(outputpath)
