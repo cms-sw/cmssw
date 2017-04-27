@@ -17,7 +17,7 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		 const edm::ParameterSet& pSet, const unsigned int& mc , 
-		 const bool& willFinalize, DQMStore::IBooker & ibook, const bool & doCTagPlots = false);
+		 const bool& willFinalize, DQMStore::IBooker & ibook, const bool & doCTagPlots = false, bool doDifferentialPlots=false, double discrCut=-999.);
 
   virtual ~JetTagPlotter () ;
 
@@ -45,17 +45,21 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // binning and bounds
   // 1) for 'efficiency' versus discriminator cut histos
-  int    discrBins  ;
-  double discrStart_ ;
-  double discrEnd_   ;
-  int	nBinEffPur_ ;
-  double startEffPur_ ; 
-  double endEffPur_ ; 
+  int discrBins;
+  double discrStart_;
+  double discrEnd_;
+  int nBinEffPur_;
+  double startEffPur_; 
+  double endEffPur_; 
 
   unsigned int mcPlots_;
   bool willFinalize_;
 
   bool doCTagPlots_;
+  
+  // Differential plots: efficiency vs. variable for cut on discrimator > cutValue_
+  bool doDifferentialPlots_;
+  double cutValue_;
 
   int *nJets;
   // jet multiplicity
@@ -80,6 +84,12 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   // reconstructed jet phi
   FlavourHistograms<double> * dJetRecPhi;
+  
+  // jet Phi larger than requested discrimnator cut
+  FlavourHistograms<double> * dJetPhiDiscrCut;
+  
+  // jet Eta larger than requested discrimnator cut
+  FlavourHistograms<double> * dJetPseudoRapidityDiscrCut;
 };
 
 #endif

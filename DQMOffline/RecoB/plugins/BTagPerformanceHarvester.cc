@@ -61,31 +61,30 @@ EtaPtBin BTagPerformanceHarvester::getEtaPtBin(const int& iEta, const int& iPt)
 {
   // DEFINE BTagBin:
   bool    etaActive_ , ptActive_;
-  double  etaMin_, etaMax_, ptMin_, ptMax_ ;
+  double  etaMin_, etaMax_, ptMin_, ptMax_;
 
   if ( iEta != -1 ) {
-    etaActive_ = true ;
-    etaMin_    = etaRanges[iEta]   ;
-    etaMax_    = etaRanges[iEta+1] ;
+    etaActive_ = true;
+    etaMin_    = etaRanges[iEta];
+    etaMax_    = etaRanges[iEta+1];
   }
   else {
-    etaActive_ = false ;
-    etaMin_    = etaRanges[0]   ;
-    etaMax_    = etaRanges[etaRanges.size() - 1]   ;
+    etaActive_ = false;
+    etaMin_    = etaRanges[0];
+    etaMax_    = etaRanges[etaRanges.size() - 1];
   }
 
   if ( iPt != -1 ) {
     ptActive_ = true ;
-    ptMin_    = ptRanges[iPt]   ;
-    ptMax_    = ptRanges[iPt+1] ;
+    ptMin_    = ptRanges[iPt];
+    ptMax_    = ptRanges[iPt+1];
   }
   else {
-    ptActive_ = false ;
-    ptMin_    = ptRanges[0]	;
-    ptMax_    = ptRanges[ptRanges.size() - 1]	;
+    ptActive_ = false;
+    ptMin_    = ptRanges[0];
+    ptMax_    = ptRanges[ptRanges.size() - 1];
   }
-  return EtaPtBin(etaActive_ , etaMin_ , etaMax_ ,
-			ptActive_  , ptMin_  , ptMax_ );
+  return EtaPtBin(etaActive_, etaMin_, etaMax_, ptActive_, ptMin_, ptMax_);
 }
 
 BTagPerformanceHarvester::~BTagPerformanceHarvester()
@@ -100,7 +99,7 @@ BTagPerformanceHarvester::~BTagPerformanceHarvester()
         iJetLabel != differentialPlots.end(); ++iJetLabel)
       for (vector<BTagDifferentialPlot *>::iterator iPlotter = iJetLabel->begin();
            iPlotter != iJetLabel->end(); ++ iPlotter) 
-	delete *iPlotter;
+    delete *iPlotter;
   }
 
   for (vector<vector<TagCorrelationPlotter*> >::iterator iJetLabel = binTagCorrelationPlotters.begin(); 
@@ -135,10 +134,10 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
     const string& dataFormatType = iModule->exists("type") ?
                                    iModule->getParameter<string>("type") :
                                    "JetTag";
-		const bool& doCTagPlots = iModule->exists("doCTagPlots") ?
+    const bool& doCTagPlots = iModule->exists("doCTagPlots") ?
                                    iModule->getParameter<bool>("doCTagPlots") :
                                    false;
-			 
+             
     if (dataFormatType == "JetTag") {
       iTag++;
       const string& folderName    = iModule->getParameter<string>("folder");
@@ -147,55 +146,56 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
       vector<BTagDifferentialPlot*> * differentialPlotsConstantEta = new vector<BTagDifferentialPlot*> () ;
       vector<BTagDifferentialPlot*> * differentialPlotsConstantPt  = new vector<BTagDifferentialPlot*> () ;
       if (mcPlots_ && makeDiffPlots_){
-	// the constant b-efficiency for the differential plots versus pt and eta
-	const double& effBConst =
-	  			iModule->getParameter<edm::ParameterSet>("parameters").getParameter<double>("effBConst");
+        // the constant b-efficiency for the differential plots versus pt and eta
+        const double& effBConst =
+                      iModule->getParameter<edm::ParameterSet>("parameters").getParameter<double>("effBConst");
 
-	// the objects for the differential plots vs. eta,pt for
-	for ( int iEta = iEtaStart ; iEta < iEtaEnd ; iEta++ ) {
-	  BTagDifferentialPlot * etaConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constETA, folderName, mcPlots_);
-	  differentialPlotsConstantEta->push_back ( etaConstDifferentialPlot );
-	}
+        // the objects for the differential plots vs. eta,pt for
+        for ( int iEta = iEtaStart ; iEta < iEtaEnd ; iEta++ ) {
+          BTagDifferentialPlot * etaConstDifferentialPlot = new BTagDifferentialPlot
+            (effBConst, BTagDifferentialPlot::constETA, folderName, mcPlots_);
+          differentialPlotsConstantEta->push_back ( etaConstDifferentialPlot );
+        }
 
-	for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
-	  // differentialPlots for this pt bin
-	  BTagDifferentialPlot * ptConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constPT, folderName, mcPlots_);
-	  differentialPlotsConstantPt->push_back ( ptConstDifferentialPlot );
-	}
+        for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
+          // differentialPlots for this pt bin
+          BTagDifferentialPlot * ptConstDifferentialPlot = new BTagDifferentialPlot
+            (effBConst, BTagDifferentialPlot::constPT, folderName, mcPlots_);
+          differentialPlotsConstantPt->push_back ( ptConstDifferentialPlot );
+        }
       }
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; iEta++ ) {
-	// pt loop
-	for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
+    // pt loop
+    for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
 
-	  const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
+      const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
 
-	  // Instantiate the genertic b tag plotter
-	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
-							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,true, ibook, doCTagPlots);
-	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
+      // Instantiate the genertic b tag plotter
+      bool doDifferentialPlots = iModule->exists("differentialPlots") && iModule->getParameter<bool>("differentialPlots") == true;
+      JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
+                               iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,true, ibook, doCTagPlots, doDifferentialPlots);
+      binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 
-	  // Add to the corresponding differential plotters
-	  if (mcPlots_ && makeDiffPlots_){
-	    (*differentialPlotsConstantEta)[iEta+1]->addBinPlotter ( jetTagPlotter ) ;
-	    (*differentialPlotsConstantPt )[iPt+1] ->addBinPlotter ( jetTagPlotter ) ;
-	  }
-	}
+      // Add to the corresponding differential plotters
+      if (mcPlots_ && makeDiffPlots_){
+        (*differentialPlotsConstantEta)[iEta+1]->addBinPlotter ( jetTagPlotter ) ;
+        (*differentialPlotsConstantPt )[iPt+1] ->addBinPlotter ( jetTagPlotter ) ;
+      }
+    }
       }
       // the objects for the differential plots vs. eta, pt: collect all from constant eta and constant pt
       if (mcPlots_ && makeDiffPlots_){
-	differentialPlots.at(iTag).reserve(differentialPlotsConstantEta->size()+differentialPlotsConstantPt->size()) ;
-	differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantEta->begin(), differentialPlotsConstantEta->end());
-	differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantPt->begin(), differentialPlotsConstantPt->end());
+        differentialPlots.at(iTag).reserve(differentialPlotsConstantEta->size()+differentialPlotsConstantPt->size()) ;
+        differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantEta->begin(), differentialPlotsConstantEta->end());
+        differentialPlots.at(iTag).insert(differentialPlots.at(iTag).end(), differentialPlotsConstantPt->begin(), differentialPlotsConstantPt->end());
 
-	edm::LogInfo("Info")
-	  << "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
+        edm::LogInfo("Info")
+          << "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
 
-	// the intermediate ones are no longer needed
-	delete differentialPlotsConstantEta ;
-	delete differentialPlotsConstantPt  ;
+        // the intermediate ones are no longer needed
+        delete differentialPlotsConstantEta ;
+        delete differentialPlotsConstantPt  ;
       }
     } else if(dataFormatType == "TagCorrelation") {
         iTagCorr++;
@@ -221,21 +221,21 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
       const string& folderName    = iModule->getParameter<string>("folder");
       // eta loop
       for ( int iEta = iEtaStart ; iEta < iEtaEnd ; iEta++ ) {
-	// pt loop
-	for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
-	  const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
+        // pt loop
+        for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
+          const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
 
-	  // Instantiate the tagInfo plotter
+          // Instantiate the tagInfo plotter
 
-	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(), 
-								      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
-								      mcPlots_, true, ibook);
-	  binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
-          binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
-	}
+          BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(), 
+                                          etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
+                                          mcPlots_, true, ibook);
+          binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
+              binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
+        }
       }
       edm::LogInfo("Info")
-	<< "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
+    << "====>>>> ## sizeof differentialPlots = " << differentialPlots.size();
     }
   }
 
@@ -250,10 +250,10 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMStore::IG
    
       if(makeDiffPlots_) { 
         for (vector<BTagDifferentialPlot *>::iterator iPlotter = differentialPlots[iJetLabel].begin();
-	     iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
-	  (*iPlotter)->process(ibook);
-	  if (producePs)  (*iPlotter)->psPlot(psBaseName);
-	  if (produceEps) (*iPlotter)->epsPlot(epsBaseName);
+         iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
+          (*iPlotter)->process(ibook);
+          if (producePs)  (*iPlotter)->psPlot(psBaseName);
+          if (produceEps) (*iPlotter)->epsPlot(epsBaseName);
         }
       }
   }
