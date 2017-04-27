@@ -7,8 +7,10 @@ process = cms.Process("L1TStage2EmulatorDQM", eras.Run2_2016)
 # Event Source and Condition
 
 # Live Online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+# process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.GlobalTag.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+
 # Due to the GT override in the above include, we have trouble with
 # conflicting CaloParams from stage1 and stage2.  This workaround
 # can go away once either the es_prefer is removed from DQM or the
@@ -18,7 +20,7 @@ if 'es_prefer_GlobalTag' in process.__dict__:
     process._Process__esprefers.pop('es_prefer_GlobalTag')
 
 # Testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
+process.load("DQM.Integration.config.fileinputsource_cfi")
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 # Required to load EcalMappingRecord
@@ -29,13 +31,24 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = "L1T2016EMU"
-process.dqmSaver.tag = "L1T2016EMU"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
+process.dqmEnv.subSystemFolder = "L1TEMU"
+process.dqmSaver.tag = "L1TEMU"
+# process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
+
+process.escontent = cms.EDAnalyzer( "PrintEventSetupContent",
+                                    compact = cms.untracked.bool( True ),
+                                    printProviders = cms.untracked.bool( True )
+                                    )
+
+process.esretrieval = cms.EDAnalyzer( "PrintEventSetupDataRetrieval",
+                                      printProviders = cms.untracked.bool( True )
+                                      )
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
-    process.dqmSaver
+    process.dqmSaver *
+    process.escontent *
+    process.esretrieval
 )
 
 #--------------------------------------------------
@@ -74,6 +87,7 @@ process.l1tEmulatorMonitorPath = cms.Path(
 
 # To get L1 conditions that are not in GlobalTag / O2O yet
 process.load("L1Trigger.L1TCalorimeter.hackConditions_cff")
+process.caloParamsPrefer = cms.ESPrefer("L1TCaloStage2ParamsESProducer","caloStage2Params")
 process.load("L1Trigger.L1TMuon.hackConditions_cff")
 process.gmtParams.caloInputsMasked = cms.bool(True) # Disable uGMT calo inputs like in the online configuration
 process.load("L1Trigger.L1TGlobal.hackConditions_cff")
@@ -102,3 +116,9 @@ process.schedule = cms.Schedule(
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+
+for name, module in process.es_sources_().iteritems():
+    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
+for name, module in process.es_producers_().iteritems():
+    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
+
