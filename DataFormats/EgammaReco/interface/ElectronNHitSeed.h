@@ -36,8 +36,8 @@ namespace reco
       float dRZNeg;
       float dPhiPos;
       float dPhiNeg;
-      int layerOrDisk;
-      int detId; //this is already stored as the hit is stored in traj seed
+      int detId; //this is already stored as the hit is stored in traj seed but a useful sanity check
+      int layerOrDisk;//redundant as stored in detId but its a huge pain to hence why its saved here
 
       void setDPhi(float pos,float neg){dPhiPos=pos;dPhiNeg=neg;}
       void setDRZ(float pos,float neg){dRZPos=pos;dRZNeg=neg;}
