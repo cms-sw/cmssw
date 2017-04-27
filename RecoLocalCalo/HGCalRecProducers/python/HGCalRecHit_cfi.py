@@ -82,7 +82,7 @@ HGCalRecHit = cms.EDProducer(
     thicknessCorrection = cms.vdouble(0.964,0.920,0.909), # 100, 200, 300 um
     # Realistic rechits with suppression of hits with energy lower than nSigmaThreshold times noise
     isRealistic = cms.bool(True),
-    nSigmaThreshold = cms.Double(5.),
+    nSigmaThreshold = cms.double(5.),
     
     HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
     HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
@@ -95,5 +95,5 @@ HGCalRecHit = cms.EDProducer(
     )
 
 HGCalRecHitIdeal=HGCalRecHit.clone(label="HGCalRecHitIdealProducer", 
-                                       isRealistic=cms.Bool(False))
+                                       isRealistic=cms.bool(False))
 
