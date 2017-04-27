@@ -82,7 +82,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cSumQ_depth.initialize(_name, "SumQ", hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_400000, true),0);
 	_cSumQvsLS_SubdetPM.initialize(_name, "SumQvsLS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::LumiSection(_maxLS),
