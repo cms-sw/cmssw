@@ -209,11 +209,15 @@ int main(int argc, char** argv) {
 
     std::cout << "---------------------------" << std::endl;
 
+    // a long loop to record perf
+    AlgebraicMatrix55 jjj = full.jacobian();
+    if (argc>2) {
+      for (int kk=0; kk<100000; ++kk) {
+        full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,totalStep);
+        jjj = full.jacobian();
+      } 
+    }
   }
-
-
-
-
 
 
   //
