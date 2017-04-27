@@ -24,26 +24,28 @@ PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
   useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
   navSchoolLabel_ = pset.getParameter<std::string>("navSchool");
   detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");
-  
   const auto cutsPSets=pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
   for(const auto & cutPSet : cutsPSets){
     matchingCuts_.push_back(MatchingCuts(cutPSet));
   }
-  nrHitsRequired_=matchingCuts_.size();
+  
 }
 
-void PixelNHitMatcher::fillDescriptions(edm::ConfigurationDescriptions& description)
+edm::ParameterSetDescription PixelNHitMatcher::makePSetDescription()
 {
   edm::ParameterSetDescription desc;
   desc.add<bool>("useRecoVertex",false);
+  desc.add<std::string>("navSchool","SimpleNavigationSchool");
+  desc.add<std::string>("detLayerGeom","hltESPGlobalDetLayerGeometry");
 
   edm::ParameterSetDescription cutsDesc;
   cutsDesc.add<double>("dPhiMax",0.04);
-  cutsDesc.add<double>("dZMax",0.04);
-  cutsDesc.add<double>("dRIMax",0.04);
-  cutsDesc.add<double>("dRFMax",0.04);
+  cutsDesc.add<double>("dRZMax",0.09);
+  cutsDesc.add<double>("dRZMaxLowEtThres",20.);
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5});
+  cutsDesc.add<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.15,0.09});
   desc.addVPSet("matchingCuts",cutsDesc);
-  description.add("pixelNHitMatch",desc);
+  return desc;
 }
 
 void PixelNHitMatcher::doEventSetup(const edm::EventSetup& iSetup)
@@ -127,7 +129,7 @@ PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& can
 									    vertex, energy, charge) ;
  
     GlobalPoint prevHitPos = firstHit.pos();
-    for(size_t hitNr=1;hitNr<nrHitsRequired_ && hitNr<seed.nHits();hitNr++){
+    for(size_t hitNr=1;hitNr<matchingCuts_.size() && hitNr<seed.nHits();hitNr++){
       HitInfo hit = match2ndToNthHit(seed,firstHitFreeTraj,hitNr,prevHitPos,vertex,*forwardPropagator_);
       if(passesMatchSel(hit,hitNr,candEt,candEta)){
 	matchedHits.push_back(hit);
