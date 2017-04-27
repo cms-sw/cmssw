@@ -129,7 +129,7 @@ TecMinusRing1Rphi = TecMinusRing1.clone(
 )
 TecMinusRing1Stereo = TecMinusRing1.clone(
     name = 'TecMinusRing1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TecMinusRing2Rphi = TecMinusRing2.clone(
     name = 'TecMinusRing2Rphi',
@@ -137,7 +137,7 @@ TecMinusRing2Rphi = TecMinusRing2.clone(
 )
 TecMinusRing2Stereo = TecMinusRing2.clone(
     name = 'TecMinusRing2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TecMinusRing5Rphi = TecMinusRing5.clone(
     name = 'TecMinusRing5Rphi',
@@ -145,7 +145,7 @@ TecMinusRing5Rphi = TecMinusRing5.clone(
 )
 TecMinusRing5Stereo = TecMinusRing5.clone(
     name = 'TecMinusRing5Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TecPlusRing1Rphi = TecPlusRing1.clone(
     name = 'TecPlusRing1Rphi',
@@ -153,7 +153,7 @@ TecPlusRing1Rphi = TecPlusRing1.clone(
 )
 TecPlusRing1Stereo = TecPlusRing1.clone(
     name = 'TecPlusRing1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TecPlusRing2Rphi = TecPlusRing2.clone(
     name = 'TecPlusRing2Rphi',
@@ -161,7 +161,7 @@ TecPlusRing2Rphi = TecPlusRing2.clone(
 )
 TecPlusRing2Stereo = TecPlusRing2.clone(
     name = 'TecPlusRing2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TecPlusRing5Rphi = TecPlusRing5.clone(
     name = 'TecPlusRing5Rphi',
@@ -169,7 +169,7 @@ TecPlusRing5Rphi = TecPlusRing5.clone(
 )
 TecPlusRing5Stereo = TecPlusRing5.clone(
     name = 'TecPlusRing5Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 
 TECSideAndRingSeparation = cms.VPSet(

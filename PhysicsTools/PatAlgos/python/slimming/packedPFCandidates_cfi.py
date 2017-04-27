@@ -11,6 +11,15 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     secondaryVerticesForWhiteList = cms.VInputTag(
       cms.InputTag("inclusiveCandidateSecondaryVertices"),
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
+      cms.InputTag("generalV0Candidates","Kshort"),
+      cms.InputTag("generalV0Candidates","Lambda"),
       ),      
-    minPtForTrackProperties = cms.double(0.95)
+    minPtForTrackProperties = cms.double(0.95),
+    covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   
+#    covariancePackingSchemas = cms.vint32(1,257,513,769,0)  # a cheaper schema in kb/ev 
+    covariancePackingSchemas = cms.vint32(8,264,520,776,0)   # more accurate schema +0.6kb/ev   
 )
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(packedPFCandidates, covarianceVersion =1 )
+

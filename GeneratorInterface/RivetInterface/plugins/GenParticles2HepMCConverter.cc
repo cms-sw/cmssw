@@ -14,7 +14,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-//#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -31,15 +30,14 @@ public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
   ~GenParticles2HepMCConverter() {};
 
-  //void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
-//  edm::InputTag lheEventToken_;
   edm::EDGetTokenT<reco::CandidateView> genParticlesToken_;
-//  edm::InputTag genRunInfoToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   edm::ESHandle<ParticleDataTable> pTable_;
+
+  std::vector<int> signalParticlePdgIds_;
 
 private:
   inline HepMC::FourVector FourVector(const reco::Candidate::Point& point)
@@ -58,31 +56,15 @@ private:
 
 GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
 {
-//  lheEventToken_ = pset.getParameter<edm::InputTag>("lheEvent");
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
-  //genRunInfoToken_ = pset.getParameter<edm::InputTag>("genRunInfo");
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
+  signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
   produces<edm::HepMCProduct>("unsmeared");
 }
 
-//void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
-//{
-  //edm::Handle<GenRunInfoProduct> genRunInfoHandle;
-  //event.getByToken(genRunInfoToken_, genRunInfoHandle);
-  // const double xsecIn = genRunInfoHandle->internalXSec().value();
-  // const double xsecInErr = genRunInfoHandle->internalXSec().error();
-  // const double xsecLO = genRunInfoHandle->externalXSecLO().value();
-  // const double xsecLOErr = genRunInfoHandle->externalXSecLO().error();
-  // const double xsecNLO = genRunInfoHandle->externalXSecNLO().value();
-  // const double xsecNLOErr = genRunInfoHandle->externalXSecNLO().error();
-//}
-
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-//  edm::Handle<LHEEventProduct> lheEventHandle;
-//  event.getByToken(lheEventToken_, lheEventHandle);
-
   edm::Handle<reco::CandidateView> genParticlesHandle;
   event.getByToken(genParticlesToken_, genParticlesHandle);
 
@@ -109,14 +91,6 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   HepMC::PdfInfo hepmc_pdfInfo(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
   hepmc_event->set_pdf_info(hepmc_pdfInfo);
 
-  // Load LHE
-//  const lhef::HEPEUP& lheEvent = lheEventHandle->hepeup();
-//  std::vector<int> lhe_meIndex; // Particle indices with preserved mass, status=2
-//  for ( int i=0, n=lheEvent.ISTUP.size(); i<n; ++i )
-//  {
-//    if ( lheEvent.ISTUP[i] == 2 ) lhe_meIndex.push_back(i);
-//  }
-
   // Prepare list of HepMC::GenParticles
   std::map<const reco::Candidate*, HepMC::GenParticle*> genCandToHepMCMap;
   std::vector<HepMC::GenParticle*> hepmc_particles;
@@ -130,19 +104,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     double particleMass;
     if ( pTable_->particle(p->pdgId()) ) particleMass = pTable_->particle(p->pdgId())->mass();
     else particleMass = p->mass();
-//    // Re-assign generated mass from LHE, find particle among the LHE
-//    for ( unsigned int j=0, m=lhe_meIndex.size(); j<m; ++j )
-//    {
-//      const unsigned int lheIndex = lhe_meIndex[j];
-//      if ( p->pdgId() != lheEvent.IDUP[lheIndex] ) continue;
-//
-//      const lhef::HEPEUP::FiveVector& vp = lheEvent.PUP[lheIndex];
-//      if ( std::abs(vp[0] - p->px()) > 1e-7 or std::abs(vp[1] - p->py()) > 1e-7 ) continue;
-//      if ( std::abs(vp[2] - p->pz()) > 1e-7 or std::abs(vp[3] - p->energy()) > 1e-7 ) continue;
-//
-//      particleMass = vp[4];
-//      break;
-//    }
+
     hepmc_particle->set_generated_mass(particleMass);
 
     hepmc_particles.push_back(hepmc_particle);
@@ -156,8 +118,6 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   HepMC::GenVertex* vertex2 = new HepMC::GenVertex(FourVector(parton2->vertex()));
   hepmc_event->add_vertex(vertex1);
   hepmc_event->add_vertex(vertex2);
-  //hepmc_particles[0]->set_status(4);
-  //hepmc_particles[1]->set_status(4);
   vertex1->add_particle_in(hepmc_particles[0]);
   vertex2->add_particle_in(hepmc_particles[1]);
   hepmc_event->set_beam_particles(hepmc_particles[0], hepmc_particles[1]);
@@ -196,7 +156,24 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   }
 
   // Finalize HepMC event record
-  hepmc_event->set_signal_process_vertex(*(vertex1->vertices_begin()));
+  bool hasSignalVertex = false;
+  if ( !signalParticlePdgIds_.empty() ) {
+    // Loop over all vertices to assign the signal vertex, decaying to a signal particle
+    for ( auto v = hepmc_event->vertices_begin(); v != hepmc_event->vertices_end(); ++v ) {
+      for ( auto p = (*v)->particles_begin(HepMC::children);
+            p != (*v)->particles_end(HepMC::children); ++p ) {
+        const int pdgId = (*p)->pdg_id();
+        if ( std::find(signalParticlePdgIds_.begin(), signalParticlePdgIds_.end(), pdgId) != signalParticlePdgIds_.end() ) {
+          hepmc_event->set_signal_process_vertex(*v);
+          hasSignalVertex = true;
+          break;
+        }
+      }
+      if ( hasSignalVertex ) break;
+    }
+  }
+  // Set the default signal vertex if still not set
+  if ( !hasSignalVertex ) hepmc_event->set_signal_process_vertex(*(vertex1->vertices_begin()));
 
   std::unique_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
   hepmc_product->addHepMCData(hepmc_event);

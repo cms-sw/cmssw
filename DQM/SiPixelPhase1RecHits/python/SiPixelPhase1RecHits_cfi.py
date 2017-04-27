@@ -90,9 +90,11 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
 )
 
 SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
-        src = cms.InputTag("siPixelRecHits"),
+        src = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1RecHitsConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        onlyValidHits = cms.bool(False)
+
 )
 
 SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

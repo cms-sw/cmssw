@@ -6,6 +6,7 @@
 # which contains all L1 trigger packers needed for the current era.
 #
 import FWCore.ParameterSet.Config as cms
+import sys
 
 # Modify the Raw Data Collection Raw collection List to include upgrade collections where appropriate:
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
@@ -20,7 +21,7 @@ stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list
 # Legacy Trigger:
 #
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-    print "L1TDigiToRaw Sequence configured for Run1 (Legacy) trigger. "
+    sys.stderr.write("L1TDigiToRaw Sequence configured for Run1 (Legacy) trigger. \n")
     # legacy L1 packages:
     from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
     from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *
@@ -41,7 +42,7 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    print "L1TDigiToRaw Sequence configured for Stage-1 (2015) trigger. "    
+    sys.stderr.write("L1TDigiToRaw Sequence configured for Stage-1 (2015) trigger. \n")
     # legacy L1 packers, still in use for 2015:
     from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
     from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *
@@ -66,7 +67,7 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    print "L1TDigiToRaw Sequence configured for Stage-2 (2016) trigger. "
+    sys.stderr.write("L1TDigiToRaw Sequence configured for Stage-2 (2016) trigger. \n")
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *

@@ -8,14 +8,19 @@ set -x
 # DEFAULTS
 
 events=5000
+geometry=Extended2023D11
 
 # ARGUMENT PARSING
 
-while getopts ":n:" opt; do
+while getopts ":n:g:" opt; do
   case $opt in
     n)
       echo "Generating $OPTARG events" >&1
       events=${OPTARG}
+      ;;
+    g)
+      echo "Using $OPTARG geometry" >&1
+      geometry=${OPTARG}
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -34,14 +39,14 @@ done
 if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII.root ; then
   cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
---conditions auto:run2_mc \
+--conditions auto:phase2_realistic \
 -n ${events} \
---era Phase2C1 \
+--era Phase2C2 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
 --beamspot NoSmear \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted \
---geometry Extended2023D1 \
+--customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseII.customiseForMaterialAnalyser_ForPhaseII \
+--geometry ${geometry} \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII.root \
 --python_filename SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII.py > SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII.log 2>&1
 
@@ -54,14 +59,14 @@ fi
 # DIGI comes next
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.root ; then
   cmsDriver.py step2   \
--s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake  \
---conditions auto:run2_mc \
+-s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2  \
+--conditions auto:phase2_realistic \
 -n -1  \
---era Phase2C1  \
+--era Phase2C2  \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted  \
---geometry Extended2023D1  \
+--nThreads=6 \
+--geometry ${geometry}  \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.root \
 --python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.log 2>&1
@@ -75,19 +80,18 @@ fi
 # Reco and special customization
 if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII.root ; then
   cmsDriver.py step3 \
--s RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM  \
---conditions auto:run2_mc \
+-s RAW2DIGI,L1Reco,RECO,VALIDATION:@phase2Validation,DQM:@phase2 \
+--conditions auto:phase2_realistic \
 -n -1  \
 --runUnscheduled \
---era Phase2C1  \
---eventcontent RECOSIM,DQM  \
+--era Phase2C2  \
+--eventcontent FEVTDEBUGHLT,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted  \
---geometry Extended2023D1  \
+--nThreads=6 \
+--geometry ${geometry}  \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseII.root \
---python_filename SingleMuPt10_step2_RECO_DQM_PhaseII.py \
---customise Validation/Geometry/customiseForDumpMaterialAnalyser.customiseForMaterialAnalyser > SingleMuPt10_step3_RECO_DQM_PhaseII.log 2>&1
+--python_filename SingleMuPt10_step2_RECO_DQM_PhaseII.py > SingleMuPt10_step3_RECO_DQM_PhaseII.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the RECO step, aborting."
@@ -101,11 +105,10 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM  \
 --conditions auto:run2_mc \
 -n -1   \
---era Phase2C1  \
+--era Phase2C2  \
 --scenario pp  \
 --filetype DQM  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted  \
---geometry Extended2023D1  \
+--geometry ${geometry}  \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseII_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseII.py > SingleMuPt10_step4_HARVESTING_PhaseII.log 2>&1
@@ -124,16 +127,16 @@ if checkFile single_neutrino_random.root ; then
     echo "Error generating single neutrino gun, aborting."
     exit 1
   fi
-  if [! -e Images ]; then
+  if [ ! -e Images ]; then
     mkdir Images
   fi
 fi
 
 # Make material map for each subdetector from simulation
 
-for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
+for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=2017 label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
@@ -141,13 +144,13 @@ waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
-for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
-  root -b -q "MaterialBudget.C(\"${t}\")"
+for t in BeamPipe Tracker TrackerSumPhaseII Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
+  python MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIIDetector")'
+python MaterialBudget.py -c -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l PhaseIIDetector > MaterialBudget_Simul_vs_Reco_PhaseII.log 2>&1
 
