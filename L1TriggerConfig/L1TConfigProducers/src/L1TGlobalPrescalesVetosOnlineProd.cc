@@ -81,7 +81,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
 
         if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
 
-        edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << uGTtscKey;
+        edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << l1_menu_key;
 
         if( uGTtscKey.empty() ){
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "TSC key is empty, returning";
@@ -96,11 +96,11 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                                      stage2Schema,
                                      "UGT_L1_MENU",
                                      "UGT_L1_MENU.ID",
-                                     m_omdsReader.singleAttribute(uGTtscKey)
+                                     m_omdsReader.singleAttribute(l1_menu_key)
                                    ) ;
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << uGTtscKey;
+            edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << l1_menu_key;
             throw std::runtime_error("Broken key");
         }
 
@@ -365,6 +365,8 @@ if( xmlModel > 2016 ){
             first = strtoul(s2.data(), &dash, 0);
             while( *dash != '\0' && *dash != '-' ) ++dash;
             last  = (*dash != '\0' ? strtoul(++dash, &dash, 0) : first);
+            if( first == 3564 ) first = 0;
+            if( last  == 3564 ) last  = 0;
             // what could possibly go wrong?
             if( *dash != '\0' ){
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
@@ -385,19 +387,43 @@ if( xmlModel > 2016 ){
             }
             if( first > last ){
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
-                       << "\nWarning: inverse range "<< s2 << ", reordering as [" << last << "," << first << "]"
+                       << "\nWarning: inverse/spillover range "<< s2 << ", accounting for circular orbit as [0," << last << "] & [" << first << ",3563]"
                        << std::endl;
-                std::swap(first,last);
             }
         }
         // {algo,ALL}-{range,ALL}-{0,1}:
         std::vector<std::string> algos;
-        if( !broadcastAlgo )
-            algos.push_back( bx_algo_name[row] );
-        else
-            for(const auto &i: non_default_bx_ranges) algos.push_back(i.first);
+        std::vector<std::pair<unsigned long,unsigned long>> orderedRanges;
+        if( first <= last ){
+            if( !broadcastAlgo ){
+                algos.push_back( bx_algo_name[row] );
+                orderedRanges.push_back( std::make_pair(first,last) );
+            } else {
+                for(const auto &i: non_default_bx_ranges){
+                    algos.push_back(i.first);
+                    orderedRanges.push_back( std::make_pair(first,last) );
+                }
+            }
+        } else {
+            if( !broadcastAlgo ){
+                algos.push_back( bx_algo_name[row] );
+                algos.push_back( bx_algo_name[row] );
+                orderedRanges.push_back( std::make_pair(0,last) );
+                orderedRanges.push_back( std::make_pair(first,3563) );
+            } else {
+                for(const auto &i: non_default_bx_ranges){
+                   algos.push_back(i.first);
+                   algos.push_back(i.first);
+                   orderedRanges.push_back( std::make_pair(0,last) );
+                   orderedRanges.push_back( std::make_pair(first,3563) );
+                }
+            }
+        }
 
-        for(const std::string &algoName : algos){
+        for(unsigned int item=0; item < algos.size(); item++){
+           const std::string &algoName = algos[item];
+           unsigned int first = orderedRanges[item].first;
+           unsigned int last  = orderedRanges[item].second;
 
            std::set<Range_t,RangeComp_t> &ranges = non_default_bx_ranges[algoName];
 //           .insert
