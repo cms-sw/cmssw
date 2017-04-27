@@ -11,61 +11,19 @@
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" //might remove
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
 
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
-class DetIdTools
-{
-public:
-  static const int kDetOffset = 28;
-  static const int kSubDetOffset = 25;
-
-  static const int kDetMask = 0xF << kDetOffset;
-  static const int kSubDetMask  = 0x7 << kSubDetOffset;
-  
-  static const int kBPXLayerOffset     = 20;
-  static const int kBPXLadderOffset    = 12;
-  static const int kBPXModuleOffset    = 2;
-  static const int kBPXLayerMask       = 0xF;
-  static const int kBPXLadderMask      = 0xFF;
-  static const int kBPXModuleMask      = 0xFF;
-  
-  static const int kFPXSideOffset      = 23;
-  static const int kFPXDiskOffset      = 18;
-  static const int kFPXBladeOffset     = 12;   
-  static const int kFPXPanelOffset     = 10; 
-  static const int kFPXModuleOffset    = 2;   
-  static const int kFPXSideMask        = 0x3;
-  static const int kFPXDiskMask        = 0xF;
-  static const int kFPXBladeMask       = 0x3F;   
-  static const int kFPXPanelMask       = 0x3; 
-  static const int kFPXModuleMask      = 0xFF; 
-
-   //pixel tools
-  static int getVal(int detId,int offset,int mask){return (detId>>offset)&mask;}
-  static int layerBPX(int detId){return getVal(detId,kBPXLayerOffset,kBPXLayerMask);}
-  static int ladderBPX(int detId){return getVal(detId,kBPXLadderOffset,kBPXLadderMask);}
-  static int moduleBPX(int detId){return getVal(detId,kBPXModuleOffset,kBPXModuleMask);}
-  static int sideFPX(int detId){return getVal(detId,kFPXSideOffset,kFPXSideMask);} 
-  static int diskFPX(int detId){return getVal(detId,kFPXDiskOffset,kFPXDiskMask);} 
- 
-};
-namespace{
-  int getLayerOrDisk(DetId id){
-    return id.subdetId()==1 ? DetIdTools::layerBPX(id.rawId()) : DetIdTools::diskFPX(id.rawId());
-  }
-}
-
 PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
   cacheIDMagField_(0)
 {
   useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
-  navSchoolLabel_ = pset.getParameter<std::string>("navSchool");//"SimpleNavigationSchool";
-  detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");//"hltESPGlobalDetLayerGeometry";
+  navSchoolLabel_ = pset.getParameter<std::string>("navSchool");
+  detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");
   
   const auto cutsPSets=pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
   for(const auto & cutPSet : cutsPSets){
@@ -130,14 +88,11 @@ PixelNHitMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const G
     int nrValidLayers = std::max(nrValidLayersNeg,nrValidLayersPos);
 
     size_t nrHitsRequired = nrValidLayers>=4 ? 3 : 2;
-    //   std::cout <<"nr valid layers "<<nrValidLayers<<" nr hits "<<matchedHitsNeg.size()<<" pos "<<matchedHitsPos.size();//<<std::endl;
-
+    
     if(matchedHitsNeg.size()==nrHitsRequired ||
        matchedHitsPos.size()==nrHitsRequired){
-      //do the result
-      //    std::cout <<"acceped "<<std::endl;
       matchedSeeds.push_back({seed,matchedHitsPos,matchedHitsNeg,nrValidLayers});
-    }//else std::cout <<"rejected "<<std::endl;
+    }
     
 
   }
@@ -151,10 +106,6 @@ std::vector<PixelNHitMatcher::HitInfo>
 PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& candPos,
 			      const GlobalPoint & vprim, const float energy, const int charge )
 {
-  
-  // if(seed.nHits()!=nrHitsRequired_){
-  //   throw cms::Exception("Configuration") <<"PixelNHitMatcher is being fed seeds with "<<seed.nHits()<<" but requires "<<nrHitsRequired_<<" for a match, it is inconsistantly configured";
-  // }
   const float candEta = candPos.eta();
   const float candEt = energy*std::sin(candPos.theta());
   
@@ -297,7 +248,6 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInf
   double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim,hit1.pos(),candPos);
   GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
   
-  //FIXME: rename this variable
   FreeTrajectoryState firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_,hit1.pos(), 
 									  vertex, energy, charge);
   const TrajectoryStateOnSurface& secondHitTraj = getTrajStateFromPoint(*hit2.hit(),firstHitFreeTraj,hit1.pos(),*forwardPropagator_);
@@ -329,17 +279,15 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const Traject
       if(layerHasValidHits(*layer,hitTrajState,*forwardPropagator_)) nrValidLayers++;  
     }
   }
-  //  int layerOrDisk=getLayerOrDisk(hitId);
-  //  std::cout <<"sub "<<hitId.subdetId()<<" for layer "<<layerOrDisk<<" nr valid "<<nrValidLayers<<" nr pix in "<<nrPixInLayers<<" nr pix out "<<nrPixOutLayers<<std::endl;
   return nrValidLayers;
 }
 						 
 bool PixelNHitMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
 					 const Propagator& propToLayerFromState)const
-					 //		    const Estimator& estimator,
-//					 const MeasurementTrackerEvent& measTkEvt)
 {
   //FIXME: do not hardcode with werid magic numbers stolen from ancient tracking code
+  //its taken from https://cmssdt.cern.ch/dxr/CMSSW/source/RecoTracker/TrackProducer/interface/TrackProducerBase.icc#165
+  //which inspires this code
   Chi2MeasurementEstimator estimator(30.,-3.0,0.5,2.0,0.5,1.e12);  // same as defauts....
   
   const std::vector<GeometricSearchDet::DetWithState>& detWithState = layer.compatibleDets(hitSurState,propToLayerFromState,estimator);
