@@ -33,8 +33,29 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     return true;
   }
   
+  // do not use this as it does not account for APE...
+  // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+  auto le = stateOnThisDet.localError().positionError();
+  LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
+  float xl = le.xx();
+  float	yl = le.yy();
+  if (lape.valid()) {
+    xl+=lape.xx();
+    yl+=lape.yy();
+  }
+  // 5 sigma to be on the safe side
+  xl = 5.f*std::sqrt(xl);
+  yl = 5.f*std::sqrt(yl);
+
+  /*
+  if (fastGeomDet().geographicalId().subdetId()<10) {
+    xl = 100.f;
+    yl = 100.f;
+  }
+  */
+
   auto oldSize = result.size();
-  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet, data);
+  MeasurementDet::RecHitContainer && allHits = compHits(stateOnThisDet, data,xl,yl);
   for (auto && hit : allHits) {
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
     if ( diffEst.first)
@@ -55,14 +76,23 @@ TrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
-  const GeomDetUnit& gdu( specificGeomDet());
+  const GeomDetUnit& gdu(specificGeomDet());
 
   auto && params = cpe()->getParameters( * cluster, gdu, ltp );
   return std::make_shared<SiPixelRecHit>( std::get<0>(params), std::get<1>(params), std::get<2>(params), fastGeomDet(), cluster);
 }
 
+
+TkPixelMeasurementDet::RecHitContainer
+TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const {
+  float xl = 100.f; // larger than any detector
+  float yl = 100.f;
+  return compHits(ts,data,xl,yl);
+}
+
+
 TkPixelMeasurementDet::RecHitContainer 
-TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data ) const
+TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, float xl, float yl  ) const
 {
   RecHitContainer result;
   if (isEmpty(data.pixelData())== true ) return result;
@@ -73,8 +103,28 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
   }
   const detset & detSet = data.pixelData().detSet(index());
   result.reserve(detSet.size());
-  for ( const_iterator ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
-    
+
+  // pixel topology is rectangular, all positions are independent
+  LocalVector  maxD(xl,yl,0);
+  auto PMinus = specificGeomDet().specificTopology().measurementPosition(ts.localPosition()-maxD);
+  auto PPlus =  specificGeomDet().specificTopology().measurementPosition(ts.localPosition()+maxD);
+
+  int xminus = PMinus.x();
+  int yminus = PMinus.y();
+  int xplus = PPlus.x()+0.5f;
+  int yplus = PPlus.y()+0.5f;
+
+
+  // rechits are sorted in x...
+  auto rightCluster = 
+    std::find_if( detSet.begin(), detSet.end(), [xplus](const SiPixelCluster& cl) { return cl.minPixelRow() > xplus; });
+
+  // std::cout << "px xlim " << xl << ' ' << xminus << '/' << xplus << ' ' << rightCluster-detSet.begin() << ',' << detSet.end()-rightCluster << std::endl;
+  
+
+  // consider only compatible clusters
+ for (auto ci = detSet.begin(); ci != rightCluster; ++ci ) {    
+
     if (ci < begin){
       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch.";
       return result;
@@ -84,6 +134,12 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
        edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<data.pixelClustersToSkip().size();
        return result;
      }
+
+     if (ci->maxPixelRow()<xminus) continue;
+     // also check compatibility in y... (does not add much)
+     if (ci->minPixelCol()>yplus) continue;
+     if (ci->maxPixelCol()<yminus) continue;
+
      if(data.pixelClustersToSkip().empty() or (not data.pixelClustersToSkip()[index]) ) {
        SiPixelClusterRef cluster = detSet.makeRefTo( data.pixelData().handle(), ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
