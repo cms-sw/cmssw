@@ -113,12 +113,13 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
         2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
 )
 
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                           
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
+                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters,
+                              C2d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters,
+                              C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
@@ -128,7 +129,7 @@ process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.TC_CalibWeight = cms.EDAnalyzer("testCalibration",
-                                        triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgoBestChoice")
+                                        triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells")
                                         )
 
 process.test_step = cms.Path(process.TC_CalibWeight)
