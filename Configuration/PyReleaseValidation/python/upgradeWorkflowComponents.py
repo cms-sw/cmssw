@@ -175,7 +175,7 @@ upgradeProperties[2023] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2C2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal']
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal']
      },
     '2023D12' : {
         'Geom' : 'Extended2023D12',

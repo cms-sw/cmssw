@@ -12,10 +12,10 @@ namespace edmtest {
   noPut_(iConfig.getUntrackedParameter<bool>("noPut")) // used for testing with missing products
   {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InLumi>("beginLumi");
-    produces<ThingCollection, edm::InLumi>("endLumi");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
+    produces<ThingCollection, edm::Transition::EndRun>("endRun");
   }
 
   // Virtual destructor needed.

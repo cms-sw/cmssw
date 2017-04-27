@@ -41,13 +41,13 @@ int ME0Chamber::nLayers() const {
 
 const ME0Layer* ME0Chamber::layer(ME0DetId id) const {
   if (id.chamberId()!=detId_) return 0; // not in this layer!
-  return layer(id.roll());
+  return layer(id.layer());
 }
 
 const ME0Layer* ME0Chamber::layer(int isl) const {
-  for (auto roll : layers_){
-    if (roll->id().roll()==isl) 
-      return roll;
+  for (auto layer : layers_){
+    if (layer->id().layer()==isl)
+      return layer;
   }
   return 0;
 }
@@ -77,4 +77,24 @@ const ME0EtaPartition* ME0Chamber::etaPartition(int isl) const {
       return roll;
   }
   return 0;
+}
+
+float ME0Chamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction ) const {
+	auto extrap = [] (const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+	    double extX = point.x()+extZ*dir.x()/dir.z();
+	    double extY = point.y()+extZ*dir.y()/dir.z();
+	    return LocalPoint(extX,extY,extZ);
+	  };
+	if(nLayers() < 2){return 0;}
+
+	const float beginOfChamber  = layer(1)->position().z();
+	const float centerOfChamber = this->position().z();
+	const float endOfChamber    = layer(nLayers())->position().z();
+
+	LocalPoint projHigh = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) * ( endOfChamber-  centerOfChamber));
+	LocalPoint projLow = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) *( beginOfChamber-  centerOfChamber));
+    auto globLow  = toGlobal(projLow );
+	auto globHigh = toGlobal(projHigh);
+	return  globHigh.phi() - globLow.phi(); //Geom::phi automatically normalizes to [-pi, pi]
+
 }

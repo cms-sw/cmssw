@@ -50,7 +50,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/GeometrySurface/interface/LocalError.h" // which one of LocalError.h to include ?
 #include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
@@ -267,8 +266,8 @@ ApeEstimator::sectorBuilder(){
     return;
   }
   UInt_t rawId(999), subdetId(999), layer(999), side(999), half(999), rod(999), ring(999), petal(999),
-         blade(999), panel(999), outerInner(999), module(999), rodAl(999), bladeAl(999), nStrips(999);
-  Bool_t isDoubleSide(false), isRPhi(false);
+         blade(999), panel(999), outerInner(999), module(999), nStrips(999);
+  Bool_t isDoubleSide(false), isRPhi(false), isStereo(false);
   Int_t uDirection(999), vDirection(999), wDirection(999);
   Float_t posR(999.F), posPhi(999.F), posEta(999.F), posX(999.F), posY(999.F), posZ(999.F); 
   tkTree->SetBranchAddress("RawId", &rawId);
@@ -283,11 +282,10 @@ ApeEstimator::sectorBuilder(){
   tkTree->SetBranchAddress("Panel", &panel);
   tkTree->SetBranchAddress("OuterInner", &outerInner);
   tkTree->SetBranchAddress("Module", &module);
-  tkTree->SetBranchAddress("RodAl", &rodAl);
-  tkTree->SetBranchAddress("BladeAl", &bladeAl);
   tkTree->SetBranchAddress("NStrips", &nStrips);
   tkTree->SetBranchAddress("IsDoubleSide", &isDoubleSide);
   tkTree->SetBranchAddress("IsRPhi", &isRPhi);
+  tkTree->SetBranchAddress("IsStereo", &isStereo);
   tkTree->SetBranchAddress("UDirection", &uDirection);
   tkTree->SetBranchAddress("VDirection", &vDirection);
   tkTree->SetBranchAddress("WDirection", &wDirection);
@@ -321,11 +319,10 @@ ApeEstimator::sectorBuilder(){
 			      v_panel(parSet.getParameter<std::vector<unsigned int> >("panel")),
 			      v_outerInner(parSet.getParameter<std::vector<unsigned int> >("outerInner")),
 			      v_module(parSet.getParameter<std::vector<unsigned int> >("module")),
-			      v_rodAl(parSet.getParameter<std::vector<unsigned int> >("rodAl")),
-			      v_bladeAl(parSet.getParameter<std::vector<unsigned int> >("bladeAl")),
 			      v_nStrips(parSet.getParameter<std::vector<unsigned int> >("nStrips")),
 			      v_isDoubleSide(parSet.getParameter<std::vector<unsigned int> >("isDoubleSide")),
-			      v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi"));
+			      v_isRPhi(parSet.getParameter<std::vector<unsigned int> >("isRPhi")),
+			      v_isStereo(parSet.getParameter<std::vector<unsigned int> >("isStereo"));
     std::vector<int> v_uDirection(parSet.getParameter<std::vector<int> >("uDirection")),
                      v_vDirection(parSet.getParameter<std::vector<int> >("vDirection")),
 		     v_wDirection(parSet.getParameter<std::vector<int> >("wDirection"));
@@ -371,11 +368,10 @@ ApeEstimator::sectorBuilder(){
       if(!this->checkModuleIds(panel,v_panel))continue;
       if(!this->checkModuleIds(outerInner,v_outerInner))continue;
       if(!this->checkModuleIds(module,v_module))continue;
-      if(!this->checkModuleIds(rodAl,v_rodAl))continue;
-      if(!this->checkModuleIds(bladeAl,v_bladeAl))continue;
       if(!this->checkModuleIds(nStrips,v_nStrips))continue;
       if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide))continue;
       if(!this->checkModuleBools(isRPhi,v_isRPhi))continue;
+      if(!this->checkModuleBools(isStereo,v_isStereo))continue;
       if(!this->checkModuleDirections(uDirection,v_uDirection))continue;
       if(!this->checkModuleDirections(vDirection,v_vDirection))continue;
       if(!this->checkModuleDirections(wDirection,v_wDirection))continue;

@@ -713,7 +713,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
-   if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
+   if ( fillMatching_ ) {
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::TrackerMuon );
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::ME0Muon );
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::GEMMuon );
+   }
    edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(std::move(outputMuons));
 
    auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
@@ -968,7 +972,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    // fillTime( iEvent, iSetup, aMuon );
 }
 
-void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
+void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, unsigned int muonType )
 {
    //
    // apply segment flags
@@ -984,11 +988,13 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
      // chamberIter1
      for ( auto& chamber1 : muon1.matches() )
      {
-       if(chamber1.segmentMatches.empty()) continue;
+       // segmentIter1
+       std::vector<reco::MuonSegmentMatch> * segmentMatches1 = getSegmentMatches(chamber1, muonType);
+
+       if(segmentMatches1->empty()) continue;
        chamberPairs.clear();
 
-       // segmentIter1
-       for ( auto& segment1 : chamber1.segmentMatches )
+       for ( auto& segment1 : *segmentMatches1 )
        {
          chamberPairs.push_back(std::make_pair(&chamber1, &segment1));
          if(!segment1.isMask()) // has not yet been arbitrated
@@ -998,18 +1004,19 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
 
            // find identical segments with which to arbitrate
            // tracker muons only
-           if (muon1.isTrackerMuon()) {
+           if (muon1.type() & muonType) {
              // muonIndex2
              for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
              {
                auto& muon2 = pOutputMuons->at(muonIndex2);
                // tracker muons only
-               if ( !muon2.isTrackerMuon() ) continue;
+               if ( !(muon2.type() & muonType) ) continue;
                // chamberIter2
                for ( auto& chamber2 : muon2.matches() )
                {
                  // segmentIter2
-                 for ( auto& segment2 : chamber2.segmentMatches )
+                 std::vector<reco::MuonSegmentMatch> * segmentMatches2 = getSegmentMatches(chamber2, muonType);
+                 for ( auto& segment2 : *segmentMatches2 )
                  {
                    if(segment2.isMask()) continue; // has already been arbitrated
                    if(approxEqual(segment2.x      , segment1.x      ) &&
@@ -1052,7 +1059,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
          }
 
          // setup me1a cleaning for later
-         if( chamber1.id.subdetId() == MuonSubdetId::CSC && arbClean_ &&
+         if( muonType == reco::Muon::TrackerMuon && chamber1.id.subdetId() == MuonSubdetId::CSC && arbClean_ &&
              CSCDetId(chamber1.id).ring() == 4) {
            for ( auto& segment2 : chamber1.segmentMatches ) {
              if( segment1.cscSegmentRef.isNull() || segment2.cscSegmentRef.isNull() ) continue;
@@ -1089,7 +1096,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
      // station segment sort
      for( int stationIndex = 1; stationIndex < 5; ++stationIndex ) 
      {
-       for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+       for( int detectorIndex = 1; detectorIndex <= 5; ++detectorIndex ) // 1-5, as in DataFormats/MuonDetId/interface/MuonSubdetId.h
        {
          stationPairs.clear();
 
@@ -1097,9 +1104,10 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
          for ( auto& chamber : muon1.matches() )
          {
            if(!(chamber.station()==stationIndex && chamber.detector()==detectorIndex)) continue;
-           if(chamber.segmentMatches.empty()) continue;
+           std::vector<reco::MuonSegmentMatch> * segmentMatches = getSegmentMatches(chamber, muonType);
+           if (segmentMatches->empty()) continue;
 
-           for ( auto& segment : chamber.segmentMatches ) {
+           for ( auto& segment : *segmentMatches ) {
              stationPairs.push_back(std::make_pair(&chamber, &segment));
            }
          } // chamberIter

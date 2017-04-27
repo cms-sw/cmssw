@@ -26,6 +26,9 @@ hbheprereco = cms.EDProducer(
     # the reconstruction algorithm?
     recoParamsFromDB = cms.bool(True),
 
+    # include SiPM dark current contribution in pedestal mean
+    saveEffectivePedestal = cms.bool(False),
+
     # Drop zero-suppressed channels?
     dropZSmarkedPassed = cms.bool(True),
 
@@ -90,3 +93,6 @@ hbheprereco = cms.EDProducer(
 
 # Disable the "triangle peak fit" and the corresponding HBHETriangleNoise flag
 hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
+
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify(hbheprereco, saveEffectivePedestal = cms.bool(True))

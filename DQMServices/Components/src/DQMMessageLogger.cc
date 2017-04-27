@@ -33,9 +33,6 @@ using namespace edm;
 
 DQMMessageLogger::DQMMessageLogger(const ParameterSet& parameters) {
 
-  // the services
-  theDbe = NULL;
-  
   categories_errors = NULL;
   categories_warnings = NULL;
   modules_errors = NULL;
@@ -56,7 +53,7 @@ DQMMessageLogger::~DQMMessageLogger() {
 }
 
 
-void DQMMessageLogger::beginJob() {
+void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & iSetup) {
    
   metname = "errorAnalyzer";
 
@@ -85,58 +82,49 @@ void DQMMessageLogger::beginJob() {
 
   // BOOK THE HISTOGRAMS
   LogTrace(metname)<<"[DQMMessageLogger] Parameters initialization";
-  theDbe = Service<DQMStore>().operator->();
-  if(theDbe!=NULL){
     
+  if(moduleMap.size()!=0){
+    ibooker.setCurrentFolder(directoryName + "/Errors"); 
+    modules_errors = ibooker.book1D("modules_errors", "Errors per module", moduleMap.size(), 0, moduleMap.size()); 
+    ibooker.setCurrentFolder(directoryName + "/Warnings"); 
     
+    modules_warnings = ibooker.book1D("modules_warnings","Warnings per module",moduleMap.size(),0,moduleMap.size());
+    
+    for(map<string,int>::const_iterator it = moduleMap.begin(); it!=moduleMap.end();++it){ 
+      modules_errors->setBinLabel((*it).second,(*it).first);
+      modules_warnings->setBinLabel((*it).second,(*it).first);
+    }
+    modules_errors->getTH1()->GetXaxis()->LabelsOption("v");
+    modules_warnings->getTH1()->GetXaxis()->LabelsOption("v");
+      
+  }
+    
+  if(categoryMap.size()!=0){
+    ibooker.setCurrentFolder(directoryName + "/Errors"); 
+    categories_errors = ibooker.book1D("categories_errors", "Errors per category", categoryMap.size(), 0, categoryMap.size());
+    ibooker.setCurrentFolder(directoryName +"/Warnings"); 
+    categories_warnings = ibooker.book1D("categories_warnings", "Warnings per category", categoryMap.size(), 0, categoryMap.size());
+      
+    for(map<string,int>::const_iterator it = categoryMap.begin(); it!=categoryMap.end();++it){
+      categories_errors->setBinLabel((*it).second,(*it).first);
+	  categories_warnings->setBinLabel((*it).second,(*it).first);
+    }
+    categories_warnings->getTH1()->GetXaxis()->LabelsOption("v");
+    categories_errors->getTH1()->GetXaxis()->LabelsOption("v");
+  }
 
-    if(moduleMap.size()!=0){
-      theDbe->setCurrentFolder(directoryName + "/Errors"); 
-      modules_errors = theDbe->book1D("modules_errors", "Errors per module", moduleMap.size(), 0, moduleMap.size()); 
-      theDbe->setCurrentFolder(directoryName + "/Warnings"); 
-      
-      modules_warnings = theDbe->book1D("modules_warnings","Warnings per module",moduleMap.size(),0,moduleMap.size());
-      
-      for(map<string,int>::const_iterator it = moduleMap.begin(); it!=moduleMap.end();++it){ 
-	modules_errors->setBinLabel((*it).second,(*it).first);
-        modules_warnings->setBinLabel((*it).second,(*it).first);
-      }
-      modules_errors->getTH1()->GetXaxis()->LabelsOption("v");
-      modules_warnings->getTH1()->GetXaxis()->LabelsOption("v");
-      
-      
-      
-      
-    }
-    
-    if(categoryMap.size()!=0){
-      theDbe->setCurrentFolder(directoryName + "/Errors"); 
-      categories_errors = theDbe->book1D("categories_errors", "Errors per category", categoryMap.size(), 0, categoryMap.size());
-      theDbe->setCurrentFolder(directoryName +"/Warnings"); 
-      categories_warnings = theDbe->book1D("categories_warnings", "Warnings per category", categoryMap.size(), 0, categoryMap.size());
-      
-      
-      for(map<string,int>::const_iterator it = categoryMap.begin(); it!=categoryMap.end();++it){
-	categories_errors->setBinLabel((*it).second,(*it).first);
-	categories_warnings->setBinLabel((*it).second,(*it).first);
-      }
-      categories_warnings->getTH1()->GetXaxis()->LabelsOption("v");
-      categories_errors->getTH1()->GetXaxis()->LabelsOption("v");
-    }
-
-    // HOW MANY BINS SHOULD THE ERROR HIST HAVE?
-    int nbins = 11;
-    total_warnings = theDbe->book1D("total_warnings","Total warnings per event",nbins,-0.5,nbins+0.5);
-    theDbe->setCurrentFolder(directoryName + "/Errors"); 
-    total_errors = theDbe->book1D("total_errors", "Total errors per event", nbins, -0.5, nbins+0.5);
-    
-    for(int i=0; i<nbins; ++i){
-      stringstream out;
-      out<< i;
-      string s = out.str();
-      total_errors->setBinLabel(i+1,s);
-      total_warnings->setBinLabel(i+1,s);
-    }
+  // HOW MANY BINS SHOULD THE ERROR HIST HAVE?
+  int nbins = 11;
+  total_warnings = ibooker.book1D("total_warnings","Total warnings per event",nbins,-0.5,nbins+0.5);
+  ibooker.setCurrentFolder(directoryName + "/Errors"); 
+  total_errors = ibooker.book1D("total_errors", "Total errors per event", nbins, -0.5, nbins+0.5);
+  
+  for(int i=0; i<nbins; ++i){
+    stringstream out;
+    out<< i;
+    string s = out.str();
+    total_errors->setBinLabel(i+1,s);
+    total_warnings->setBinLabel(i+1,s);
   }
 }
 
@@ -242,46 +230,3 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
     }
   }
 }
-
-void DQMMessageLogger::endRun(const edm::Run & , const edm::EventSetup & ){
-  /*
-  theDbe = Service<DQMStore>().operator->();
-  if(theDbe!=NULL){
-    std::map<std::string,int>::iterator it;
-    uint i=0;
-    theDbe->setCurrentFolder(directoryName + "/Errors");
-    if (categoryECount.empty()){
-      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",1,0,1);
-      catECount->setBinLabel(1,"No Errors");
-    }else{
-      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",categoryECount.size(),0,categoryECount.size());
-      for (i=1,it=categoryECount.begin();it!=categoryECount.end();++it,++i){
-	catECount->setBinLabel(i,it->first);
-	catECount->setBinContent(i,it->second);
-      }
-    }
-    theDbe->setCurrentFolder(directoryName + "/Warnings");
-    if (categoryWCount.empty()){
-      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
-      catWCount->setBinLabel(1,"No Warnings");
-    }else{
-      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
-      for (i=1,it=categoryWCount.begin();it!=categoryWCount.end();++it,++i){
-	catWCount->setBinLabel(i,it->first);
-	catWCount->setBinContent(i,it->second);
-      }
-    }
-  }
-  categoryWCount.clear();
-  categoryECount.clear();
-  */
-}
-
-void DQMMessageLogger::endJob(void) {
-  LogTrace(metname)<<"[DQMMessageLogger] EndJob";
-  
-}
-
-
-
-

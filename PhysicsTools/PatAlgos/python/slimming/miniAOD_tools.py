@@ -17,6 +17,14 @@ def miniAOD_customizeCommon(process):
     process.patMuons.embedPickyMuon = False   # no, use best track
     process.patMuons.embedTpfmsMuon = False   # no, use best track
     process.patMuons.embedDytMuon   = False   # no, use best track
+    process.patMuons.addPuppiIsolation = cms.bool(True)
+    process.patMuons.puppiIsolationChargedHadrons = cms.InputTag("muonPUPPIIsolation","h+-DR040-ThresholdVeto000-ConeVeto000")
+    process.patMuons.puppiIsolationNeutralHadrons = cms.InputTag("muonPUPPIIsolation","h0-DR040-ThresholdVeto000-ConeVeto001")
+    process.patMuons.puppiIsolationPhotons        = cms.InputTag("muonPUPPIIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
+    process.patMuons.puppiNoLeptonsIsolationChargedHadrons = cms.InputTag("muonPUPPINoLeptonsIsolation","h+-DR040-ThresholdVeto000-ConeVeto000")
+    process.patMuons.puppiNoLeptonsIsolationNeutralHadrons = cms.InputTag("muonPUPPINoLeptonsIsolation","h0-DR040-ThresholdVeto000-ConeVeto001")
+    process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
+    
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -177,12 +185,16 @@ def miniAOD_customizeCommon(process):
     #
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
-    task.add(process.pileupJetId)
-    task.add(process.pileupJetIdCalculator)
-    task.add(process.pileupJetIdEvaluator)
+    task.add(process.pileUpJetIDTask)
 
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     process.patJets.userData.userInts.src = [ cms.InputTag("pileupJetId:fullId"), ]
+
+    ## Quark Gluon Likelihood
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
+    task.add(process.QGTaggerTask)
+
+    process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
 
     ## CaloJets
     process.caloJetMap = cms.EDProducer("RecoJetDeltaRValueMapProducer",
@@ -194,6 +206,10 @@ def miniAOD_customizeCommon(process):
 	 lazyParser = cms.bool(True) )
     task.add(process.caloJetMap)
     process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
+
+    #Muon object modifications 
+    from PhysicsTools.PatAlgos.slimming.muonIsolationsPUPPI_cfi import makeInputForPUPPIIsolationMuon
+    makeInputForPUPPIIsolationMuon(process)
 
     #EGM object modifications 
     from PhysicsTools.PatAlgos.slimming.egmIsolationsPUPPI_cfi import makeInputForPUPPIIsolationEgm
@@ -253,9 +269,10 @@ def miniAOD_customizeCommon(process):
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
-    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-    task.add(process.ak4PFJets)
-    task.add(process.ak4PFJetsPuppi)
+    if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
+        process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+        task.add(process.ak4PFJets)
+        task.add(process.ak4PFJetsPuppi)
     process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
@@ -271,8 +288,15 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
+    ## Using Puppi candidates as input for b tagging in Phase 2
+    _pfCandidates = 'particleFlow'
+    from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+    if process.isUsingModifier( phase2_common ):
+        _pfCandidates = 'puppi'
+
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
+                    pfCandidates = cms.InputTag(_pfCandidates),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     

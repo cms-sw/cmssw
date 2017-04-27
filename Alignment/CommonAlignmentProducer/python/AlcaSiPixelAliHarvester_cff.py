@@ -25,7 +25,6 @@ SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 
 SiPixelAliPedeAlignmentProducer.doMisalignmentScenario = False #True
 
-
 SiPixelAliPedeAlignmentProducer.checkDbAlignmentValidity = False
 SiPixelAliPedeAlignmentProducer.applyDbAlignment = True
 SiPixelAliPedeAlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'

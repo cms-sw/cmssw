@@ -97,6 +97,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
      */
     DTBtiTrig* storeTrigger(DTBtiTrigData);
 
+    using  BTICache::reconstruct;
     // run the trigger algorithm
     virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
  
