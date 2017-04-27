@@ -42,19 +42,19 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
  protected:
 
   /**
-   * Method run after processing of a given run has finished.
+   * Method run after processing of a given luminosity block (LS) has finished.
    *
    * The implementation of the method is currently used to calculate the
    * fraction of objects which were in agreement and to update the summary
    * histograms by converting absolute counts shown there into relative values.
    *
-   * @param const edm::Run& iEvent        Reference to the run object
+   * @param const edm::LuminosityBlock &  Reference to the run object
    * @param const edm::EventSetup& iEvent Reference to the event object
    *
    * @return void
    */
-  virtual void endRun (const edm::Run & iEvent, const edm::EventSetup &);
-
+  virtual void endLuminosityBlock (const edm::LuminosityBlock&,
+				   const edm::EventSetup&);
   /**
    * Method to declare or "book" all histograms that will be part of module
    *
@@ -86,7 +86,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * @param edm::Event const &         Reference to event object
    * @param edm::EventSetup const &    Reference to event configuration object
    *
-   * @return
+   * @return void
    */
   virtual void analyze (const edm::Event&, const edm::EventSetup&) override;
 
@@ -112,7 +112,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * @param edm::Handle<l1t::JetBXCollection>& emulCol Reference to jet
    *    collection from emulation
    *
-   * @return bool Whether the object comparion resulted in any discrepancy
+   * @return bool Flag of whether the agreement was perfect
    */
   bool compareJets(const edm::Handle<l1t::JetBxCollection> & dataCol,
                    const edm::Handle<l1t::JetBxCollection> & emulCol);
@@ -139,7 +139,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * @param edm::Handle<l1t::EGammaBXCollection>& emulCol Reference to e/gamma
    *    collection from emulation
    *
-   * @return bool Whether the object comparion resulted in any discrepancy
+   * @return bool Flag of whether the agreement was perfect
    */
   bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & dataCol,
                   const edm::Handle<l1t::EGammaBxCollection> & emulCol);
@@ -166,7 +166,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * @param edm::Handle<l1t::TauBXCollection>& emulCol Reference to tau
    *    collection from emulation
    *
-   * @return bool Whether the object comparion resulted in any discrepancy
+   * @return bool Flag of whether the agreement was perfect
    */
   bool compareTaus(const edm::Handle<l1t::TauBxCollection> & dataCol,
                    const edm::Handle<l1t::TauBxCollection> & emulCol);
@@ -188,7 +188,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    * @param edm::Handle<l1t::TauBXCollection>& emulCol Reference to tau
    *    collection from emulation
    *
-   * @return bool Whether the object comparion resulted in any discrepancy
+   * @return bool Flag of whether the agreement was perfect
    */
   bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & dataCol,
                    const edm::Handle<l1t::EtSumBxCollection> & emulCol);
