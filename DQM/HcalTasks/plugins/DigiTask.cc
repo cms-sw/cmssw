@@ -932,7 +932,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
-		if (_filter_HF.filter(did)) {
+		if (!_filter_HF.filter(did)) {
 			_cSumQ_SubdetPM_HF.fill(did, sumQ);
 		}
 		_cOccupancy_depth.fill(did);
@@ -969,7 +969,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		for (int i=0; i<digi.samples(); i++)
 		{
 			double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
-			if (_filter_HF.filter(did)) {
+			if (!_filter_HF.filter(did)) {
 				_cADC_SubdetPM_HF.fill(did, digi[i].adc());
 				_cfC_SubdetPM_HF.fill(did, q);
 			}
@@ -993,12 +993,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
 			double q2q12 = q2/(q1+q2);
 			_cSumQ_depth.fill(did, sumQ);
-			if (_filter_HF.filter(did)) {
+			if (!_filter_HF.filter(did)) {
 				_cSumQvsLS_SubdetPM_HF.fill(did, _currentLS, sumQ);
 			}
 			if (_ptype==fOnline)
 			{
-				if (_filter_HF.filter(did)) {
+				if (!_filter_HF.filter(did)) {
 					_cSumQvsBX_SubdetPM_HF.fill(did, bx, sumQ);
 				}
 				_cTimingCutvsiphi_SubdetPM.fill(did, timing);
