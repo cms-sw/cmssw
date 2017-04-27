@@ -78,8 +78,6 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-ctppsDiamondRawToDigi.RawToDigi.testCRC = 0 # no need to test CRC for diamonds
-
 
 
 # ---------- pixels ----------
