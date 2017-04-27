@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates a histogram where the the names of the structures are present
 # as humanreadable text. Multiple MillePedeUser TTrees are used to
@@ -8,8 +6,9 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TGraph, TImage, TLegend, TPaveLabel,
-                  TPaveText, TTree, gROOT, gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
@@ -95,7 +94,7 @@ def plot(treeFile, alignables, config):
 
                 # initialize histograms
                 for i in range(3):
-                    plots[-1].histo.append(TH1F("Time Structure {0} {1} {2} {3}".format(mode, str(line.Name),
+                    plots[-1].histo.append(ROOT.TH1F("Time Structure {0} {1} {2} {3}".format(mode, str(line.Name),
                         len(plots), i), "", len(listMillePedeUser), 0, len(listMillePedeUser)))
                     plots[-1].label = line.Id
                     plots[-1].objid = line.ObjId
@@ -159,15 +158,15 @@ def plot(treeFile, alignables, config):
         # loop over all objids
         for index, objid in enumerate(objids):
 
-            canvas = TCanvas("canvasTimeBigStrucutres_{0}_{1}".format(
+            canvas = ROOT.TCanvas("canvasTimeBigStrucutres_{0}_{1}".format(
                 mode, obj_names[index]), "Parameter", 300, 0, 800, 600)
             canvas.Divide(2, 2)
 
             # add text
-            title = TPaveLabel(0.1, 0.8, 0.9, 0.9, "{0} over time {1}".format(
+            title = ROOT.TPaveLabel(0.1, 0.8, 0.9, 0.9, "{0} over time {1}".format(
                 obj_names[index], mode))
 
-            legend = TLegend(0.05, 0.1, 0.95, 0.75)
+            legend = ROOT.TLegend(0.05, 0.1, 0.95, 0.75)
 
             # draw on canvas
             canvas.cd(1)
@@ -232,7 +231,7 @@ def plot(treeFile, alignables, config):
                         plot.histo[i].Draw("PSAME")
 
                         # TGraph object to hide outlier
-                        copy.append(TGraph(plot.histo[i]))
+                        copy.append(ROOT.TGraph(plot.histo[i]))
                         # set the new range
                         copy[-1].SetMaximum(1.2 * abs(plot.usedRange[i]))
                         copy[-1].SetMinimum(-1.2 * abs(plot.usedRange[i]))
@@ -255,7 +254,7 @@ def plot(treeFile, alignables, config):
                 config.outputPath, mode, obj_names[index]))
 
             # export as png
-            image = TImage.Create()
+            image = ROOT.TImage.Create()
             image.FromPad(canvas)
             image.WriteImage("{0}/plots/png/timeStructures_{1}_{2}.png".format(
                 config.outputPath, mode, obj_names[index]))

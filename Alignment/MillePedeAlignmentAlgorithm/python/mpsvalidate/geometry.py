@@ -6,6 +6,8 @@ import itertools
 import os
 
 import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import geometrydata
 
