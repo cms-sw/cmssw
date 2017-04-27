@@ -59,32 +59,53 @@ for year in upgradeKeys:
                 break
         numWFAll[year].append(numWFtmp)
 
-upgradeSteps=[
-    'GenSimFull',
-    'GenSimHLBeamSpotFull',
-    'GenSimHLBeamSpotFull14',
-    'DigiFull',
-    'DigiFullTrigger',
-    'DigiFullTriggerPU',
-    'RecoFullLocal',
-    'RecoFullLocalPU',
-    'RecoFull',
-    'RecoFullGlobal',
-    'RecoFullGlobalPU',
-    'HARVESTFull',
-    'FastSim',
-    'HARVESTFast',
-    'DigiFullPU',
-    'RecoFullPU',
-    'HARVESTFullPU',
-    'RecoFull_trackingOnly',
-    'RecoFull_trackingOnlyPU',
-    'HARVESTFull_trackingOnly',
-    'HARVESTFull_trackingOnlyPU',
-    'HARVESTFullGlobal',
-    'HARVESTFullGlobalPU',
-    'ALCAFull'
-]
+# steps for baseline and for variations
+upgradeSteps={}
+upgradeSteps['baseline'] = {
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'FastSim',
+        'HARVESTFast',
+        'HARVESTFullGlobal',
+        'ALCAFull',
+    ],
+    'PU' : [
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFullGlobal',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+    ],
+    'suffix' : '',
+    'offset' : 0.0,
+}
+upgradeSteps['trackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnly',
+    'offset' : 0.1,
+}
+upgradeSteps['Timing'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Timing',
+    'offset' : 0.2,
+}
 
 upgradeProperties = {}
 
