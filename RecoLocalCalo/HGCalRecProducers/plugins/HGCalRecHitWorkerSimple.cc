@@ -96,13 +96,13 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness]/HGCHEF_fCPerMIP_[thickness];
+    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness]/HGCHEF_fCPerMIP_[thickness];
+    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HcalEndcap:
   case HGCHEB:
@@ -118,7 +118,7 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   // make the rechit and put in the output collection
 
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );
-
+    std::cout << "layer " << layer << " noise " << sigmaNoiseMeV << " thickness " << thickness << std::endl;
     const double new_E = myrechit.energy()*(thickness == -1 ? 1.0 : rcorr_[thickness]);
     if(isRealistic_)
     {
