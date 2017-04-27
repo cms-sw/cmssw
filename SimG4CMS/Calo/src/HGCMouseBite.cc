@@ -10,21 +10,16 @@ HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc,
 			   const std::vector<double>& angle, double maxL, 
 			   bool rot) : hgcons_(hgc), cut_(maxL), rot_(rot) {
 
-  for (unsigned int k=0; k<angle.size(); ++k) {
-    projX_.push_back(cos(angle[k]*CLHEP::deg));
-    projY_.push_back(sin(angle[k]*CLHEP::deg));
+  for (auto ang : angle) {
+    projXY_.push_back(std::pair<double,double>(cos(ang*CLHEP::deg),sin(ang*CLHEP::deg)));
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "Creating HGCMosueBite with cut at " << cut_ << " along " 
 	    << angle.size() << " axes" << std::endl;
   for (unsigned int k=0; k<angle.size(); ++k) 
     std::cout << "Axis[" << k << "] " << angle[k] << " with projections "
-	      << projX_[k] << ":" << projY_[k] << std::endl;
+	      << projXY_[k].first << ":" << projXY_[k].second << std::endl;
 #endif
-}
-
-HGCMouseBite::~HGCMouseBite() {
-  edm::LogInfo("HGCSim") << "Deleting HGCMouseBite";
 }
 
 bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int wafer) {
@@ -39,8 +34,8 @@ bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int wafer) {
     dx = std::abs(point.x() - xx);
     dy = std::abs(point.y() - xy.second);
   }
-  for (unsigned int k=0; k<projX_.size(); ++k) {
-    double dist = dx*projX_[k] + dy*projY_[k];
+  for (auto proj : projXY_) {
+    double dist = dx*proj.first + dy*proj.second;
     if (dist > cut_) {check = true; break;}
   }
 #ifdef EDM_ML_DEBUG
