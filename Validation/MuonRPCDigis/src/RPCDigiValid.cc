@@ -23,9 +23,12 @@ RPCDigiValid::RPCDigiValid(const ParameterSet& ps)
 //  module, instance and process labels may be passed in a single string if separated by colon ':'
 //  (@see the edm::InputTag constructor documentation)
   simHitToken = consumes<PSimHitContainer>(ps.getUntrackedParameter<edm::InputTag >("simHitTag", edm::InputTag("g4SimHits:MuonRPCHits")));
-  rpcDigiToken    = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
+  rpcDigiToken = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
+  rpcDigiForPUToken = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiForPileup", edm::InputTag("hltMuonRPCDigis")));
 
   outputFile_ = ps.getUntrackedParameter<string> ("outputFile", "rpcDigiValidPlots.root");
+
+  isPileup_ = true;
 }
 
 RPCDigiValid::~RPCDigiValid()
@@ -43,7 +46,11 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
   edm::Handle<PSimHitContainer> simHit;
   edm::Handle<RPCDigiCollection> rpcDigis;
   event.getByToken(simHitToken, simHit);
-  event.getByToken(rpcDigiToken, rpcDigis);
+  if ( isPileup_ ) {
+    event.getByToken(rpcDigiForPUToken, rpcDigis);
+    if ( !rpcDigis.isValid() ) isPileup_ = false;
+  }
+  if ( !isPileup_ ) event.getByToken(rpcDigiToken, rpcDigis);
 
   // Loop on simhits
   PSimHitContainer::const_iterator simIt;
