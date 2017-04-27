@@ -235,8 +235,8 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
 
     // event id "1:min" has a special meaning and is translated to a truly minimal event id (1:0:0)
     EventID startEventID = bl.validityRange.startEventID();
-    if (startEventID == EventID(1, 0, 1))
-      startEventID = EventID(1, 0, 0);
+    if (startEventID.event() == 1)
+      startEventID = EventID(startEventID.run(), startEventID.luminosityBlock(), 0);
 
     if (startEventID <= iosv.eventID() && iosv.eventID() <= bl.validityRange.endEventID())
     {
