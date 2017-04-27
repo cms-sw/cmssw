@@ -56,7 +56,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	// Filters for HEP17 and HF, aka QIE10/11
 	std::vector<uint32_t> vhashHF; 
-	vhashHF.push_back(HcalDetId(HcalForward, 31,1,1).rawId());
+	vhashHF.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
 	_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
 		vhashHF);
 	_filter_notHF.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
