@@ -92,7 +92,7 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
   zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
 
-  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSizeNoZS", (sizeTitleText + "size without zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", (sizeTitleText + "size").c_str(), 100, 0, maxFedReadoutSize_);
   readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
   readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", (sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
   readoutSizeZSMap_[id]->setAxisTitle("size (byte)", 1);
