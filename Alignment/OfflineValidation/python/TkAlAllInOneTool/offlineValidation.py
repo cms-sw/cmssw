@@ -94,12 +94,14 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
 
     @classmethod
     def initMerge(cls):
-        outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", self.getRepMap())
+        from plottingOptions import PlottingOptions
+        outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", PlottingOptions(None, cls.valType))
         with open(outFilePath, "w") as theFile:
             theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))
-        result = super(OfflineValidation, cls).initMerge(folder)
+        result = super(OfflineValidation, cls).initMerge()
         result += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
                    "rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
+        return result
 
     def appendToMerge(self):
         repMap = self.getRepMap()

@@ -470,12 +470,13 @@ class ParallelValidation(GenericValidation):
     @classmethod
     def doInitMerge(cls):
         from plottingOptions import PlottingOptions
-        result = cls.initmerge()
+        result = cls.initMerge()
         result = replaceByMap(result, PlottingOptions(None, cls))
         if result and result[-1] != "\n": result += "\n"
         return result
     def doMerge(self):
         result = self.appendToMerge()
+        if result[-1] != "\n": result += "\n"
         result += ("if [[ tmpMergeRetCode -eq 0 ]]; then\n"
                    "  xrdcp -f .oO[finalOutputFile]Oo. root://eoscms//eos/cms.oO[finalResultFile]Oo.\n"
                    "fi\n"
@@ -483,7 +484,6 @@ class ParallelValidation(GenericValidation):
                    "  mergeRetCode=${tmpMergeRetCode}\n"
                    "fi\n")
         result = replaceByMap(result, self.getRepMap())
-        if result[-1] != "\n": result += "\n"
         return result
 
 class ValidationWithPlots(GenericValidation):
