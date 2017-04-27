@@ -18,6 +18,11 @@ options.register('inputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for input DB")
+options.register('tagUpdate',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Comma-separated list of column-separated pairs relating type to a new tagBase")
 options.register('inputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -49,6 +54,13 @@ options.parseArguments()
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
 initL1O2OTagsExt()
+
+# Override the tag bases if instructed to do so
+if options.tagUpdate :
+    for type2tagBase in options.tagUpdate.split(',') :
+        (t,tagBase) = type2tagBase.split(':')
+        index = L1CondEnumExt.__dict__[t]
+        initL1O2OTagsExt.tagBaseVec[index] = tagBase
 
 # Input DB
 from CondTools.L1TriggerExt.L1CondDBSourceExt_cff import initCondDBSourceExt

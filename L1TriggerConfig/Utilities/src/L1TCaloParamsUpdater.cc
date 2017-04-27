@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <fstream>
 #include <iostream>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -9,38 +10,39 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TCaloStage2ParamsWriter : public edm::EDAnalyzer {
-private:
-    bool isO2Opayload;
+class L1TCaloParamsUpdater : public edm::EDAnalyzer {
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    explicit L1TCaloStage2ParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
-       isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
-    }
-    virtual ~L1TCaloStage2ParamsWriter(void){}
+    explicit L1TCaloParamsUpdater(const edm::ParameterSet&) : edm::EDAnalyzer(){}
+    virtual ~L1TCaloParamsUpdater(void){}
 };
 
-void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TCaloParamsUpdater::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+
     edm::ESHandle<l1t::CaloParams> handle1;
+//    evSetup.get<L1TCaloParamsRcd>().get( "l1conddb", handle1 ) ;
+    evSetup.get<L1TCaloStage2ParamsRcd>().get( handle1 ) ;
+    l1t::CaloParamsHelper m_params_helper( *(handle1.product ()));
 
-    if( isO2Opayload )
-        evSetup.get<L1TCaloParamsO2ORcd>().get( handle1 ) ;
-    else
-        evSetup.get<L1TCaloStage2ParamsRcd>().get( handle1 ) ;
+//    std::ifstream is("tauL1CalibLUT_V2.txt");
+//    l1t::LUT lut;
+//    std::cout<<"LUT read success: "<<lut.read(is)<<std::endl;
 
-    boost::shared_ptr<l1t::CaloParams> ptr1(new l1t::CaloParams(*(handle1.product ())));
+    m_params_helper.setIsoTauEtaMax(28);
+
+    std::shared_ptr< l1t::CaloParams > ptr1 = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
 
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if( poolDb.isAvailable() ){
         cond::Time_t firstSinceTime = poolDb->beginOfTime();
-        poolDb->writeOne(ptr1.get(),firstSinceTime,( isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloStage2ParamsRcd"));
+        poolDb->writeOne(ptr1.get(),firstSinceTime,"L1TCaloStage2ParamsTweakedRcd");
     }
 
 }
@@ -49,5 +51,5 @@ void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TCaloStage2ParamsWriter);
+DEFINE_FWK_MODULE(L1TCaloParamsUpdater);
 
