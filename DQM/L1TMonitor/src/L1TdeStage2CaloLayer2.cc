@@ -29,9 +29,8 @@ L1TdeStage2CaloLayer2::L1TdeStage2CaloLayer2 (const edm::ParameterSet& ps)
     verbose(ps.getUntrackedParameter<bool> ("verbose", false))
 {}
 
-void L1TdeStage2CaloLayer2::endRun(
-  const edm::Run & iEvent,
-  const edm::EventSetup &)
+void L1TdeStage2CaloLayer2::endLuminosityBlock (const edm::LuminosityBlock&,
+					       const edm::EventSetup&)
 {
   double totRatio = totalEvents != 0 ? goodEvents / (totalEvents * 1.0) : 0;
   double jetRatio = totalJets != 0 ? goodJets / (totalJets * 1.0) : 0;

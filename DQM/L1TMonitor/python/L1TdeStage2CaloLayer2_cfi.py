@@ -9,5 +9,5 @@ l1tdeStage2CaloLayer2 = cms.EDAnalyzer("L1TdeStage2CaloLayer2",
     calol2TauCollectionEmul = cms.InputTag("valCaloStage2Layer2Digis"),
     calol2EtSumCollectionData = cms.InputTag("caloStage2Digis", "EtSum"),
     calol2EtSumCollectionEmul = cms.InputTag("valCaloStage2Layer2Digis"),
-    monitorDir = cms.untracked.string("L1T2016EMU/L1TdeStage2CaloLayer2")
+    monitorDir = cms.untracked.string("L1TEMU/L1TdeStage2CaloLayer2")
 )
