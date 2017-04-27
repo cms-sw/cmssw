@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Draw the plots saved in the millePedeMonitor_merge.root file
 #
@@ -7,7 +5,9 @@
 import logging
 import os
 
-from ROOT import TH1F, TCanvas, TFile, TImage, gStyle
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, OutputData
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import setstatsize
@@ -18,8 +18,8 @@ def plot(config):
     
     # adjust the plot style
     # show the skewness in the legend
-    gStyle.SetOptStat("emrs")
-    gStyle.SetPadLeftMargin(0.07)
+    ROOT.gStyle.SetOptStat("emrs")
+    ROOT.gStyle.SetPadLeftMargin(0.07)
 
     # loop over all millepedemonitor_X.root files
     for filename in os.listdir("{0}".format(config.jobDataPath)):
@@ -28,7 +28,7 @@ def plot(config):
             inputname = filename[17:-5]
 
             # open file
-            rootfile = TFile("{0}/{1}".format(config.jobDataPath, filename))
+            rootfile = ROOT.TFile("{0}/{1}".format(config.jobDataPath, filename))
 
             plotPaths = ["usedTrackHists/usedptTrack", "usedTrackHists/usedetaTrack",
                          "usedTrackHists/usedphiTrack", "usedTrackHists/usednHitTrack"]
@@ -46,7 +46,7 @@ def plot(config):
                     MonitorData(inputname.replace("_", " "), ntracks)
 
                 # create canvas
-                canvas = TCanvas("canvas{0}_{1}".format(
+                canvas = ROOT.TCanvas("canvas{0}_{1}".format(
                     inputname, plotName), "Monitor", 300, 0, 800, 600)
                 canvas.cd()
 
@@ -61,7 +61,7 @@ def plot(config):
                     "{0}/plots/pdf/monitor_{1}_{2}.pdf".format(config.outputPath, inputname.replace(".","_"), plotName))
 
                 # export as png
-                image = TImage.Create()
+                image = ROOT.TImage.Create()
                 image.FromPad(canvas)
                 image.WriteImage(
                     "{0}/plots/png/monitor_{1}_{2}.png".format(config.outputPath, inputname.replace(".","_"), plotName))
@@ -72,5 +72,5 @@ def plot(config):
                 config.outputList.append(output)
 
     # reset the plot style
-    gStyle.SetOptStat(0)
-    gStyle.SetPadLeftMargin(0.17)
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetPadLeftMargin(0.17)

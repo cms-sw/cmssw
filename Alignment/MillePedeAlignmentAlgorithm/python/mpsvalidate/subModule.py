@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates histograms of the modules of a part of a structure and combines it
 # with a plot of the modules of the hole structure. Returns a nested
@@ -8,8 +6,9 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TImage, TLegend, TPaveLabel, TPaveText, TTree,
-                  gROOT, gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification
@@ -45,19 +44,19 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
 
         for i in range(3):
             if (mode == "xyz"):
-                plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name() + " " + subStruct.get_name(), plot.xyz[
+                plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name() + " " + subStruct.get_name(), plot.xyz[
                                   i], mode), "Parameter {0}".format(plot.xyz[i]), numberOfBins, -1000, 1000))
             else:
-                plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name() + " " + subStruct.get_name(), plot.xyz[
+                plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name() + " " + subStruct.get_name(), plot.xyz[
                                   i], mode), "Parameter {0}".format(plot.xyz[i]), numberOfBins, -0.1, 0.1))
 
             plot.histo[i].SetLineColor(6)
             plot.histo[i].SetStats(0)
 
         # add labels
-        plot.title = TPaveLabel(
+        plot.title = ROOT.TPaveLabel(
             0.1, 0.8, 0.9, 0.9, "Module: {0} {1}".format(struct.get_name(), mode))
-        plot.text = TPaveText(0.05, 0.1, 0.95, 0.75)
+        plot.text = ROOT.TPaveText(0.05, 0.1, 0.95, 0.75)
         plot.text.SetTextAlign(12)
         plot.text.SetTextSizePixels(20)
 
@@ -138,14 +137,14 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
     # make the plots
     #
 
-    canvas = TCanvas("SubStruct_{0}_{1}".format(
+    canvas = ROOT.TCanvas("SubStruct_{0}_{1}".format(
         struct.get_name(), mode), "Parameter", 300, 0, 800, 600)
     canvas.Divide(2, 2)
 
     canvas.cd(1)
     parentPlot.title.Draw()
 
-    legend = TLegend(0.05, 0.1, 0.95, 0.75)
+    legend = ROOT.TLegend(0.05, 0.1, 0.95, 0.75)
 
     for i in range(3):
         canvas.cd(i + 2)
@@ -199,7 +198,7 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
         "{0}/plots/pdf/subModules_{1}_{2}.pdf".format(config.outputPath, mode, struct.get_name()))
 
     # export as png
-    image = TImage.Create()
+    image = ROOT.TImage.Create()
     image.FromPad(canvas)
     image.WriteImage(
         "{0}/plots/png/subModules_{1}_{2}.png".format(config.outputPath, mode, struct.get_name()))

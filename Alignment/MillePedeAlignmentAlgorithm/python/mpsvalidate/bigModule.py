@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates histograms of the modules of one structure. and returns them as
 # a list of PlotData objects.
@@ -7,8 +5,9 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TImage, TPaveLabel, TPaveText, TTree, gROOT,
-                  gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import subModule
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
@@ -45,10 +44,10 @@ def plot(MillePedeUser, alignables, config):
 
             for i in range(3):
                 if (mode == "xyz"):
-                    plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
+                    plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
                                       i], mode), "", numberOfBins, -1000, 1000))
                 else:
-                    plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
+                    plot.histo.append(ROOT.TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
                                       i], mode), "", numberOfBins, -0.1, 0.1))
 
                 if (plot.unit!=""):
@@ -60,9 +59,9 @@ def plot(MillePedeUser, alignables, config):
                 plot.histoAxis.append(plot.histo[i].GetXaxis())
 
             # add labels
-            plot.title = TPaveLabel(
+            plot.title = ROOT.TPaveLabel(
                 0.1, 0.8, 0.9, 0.9, "Module: {0} {1}".format(struct.get_name(), mode))
-            plot.text = TPaveText(0.05, 0.1, 0.95, 0.75)
+            plot.text = ROOT.TPaveText(0.05, 0.1, 0.95, 0.75)
             plot.text.SetTextAlign(12)
             plot.text.SetTextSizePixels(20)
 
@@ -240,14 +239,14 @@ def plot(MillePedeUser, alignables, config):
     #
 
     # show the skewness in the legend
-    gStyle.SetOptStat("emrs")
+    ROOT.gStyle.SetOptStat("emrs")
 
     for modeNumber, mode in enumerate(["xyz", "rot", "dist"]):
         for structNumber, struct in enumerate(alignables.structures):
             # use a copy for shorter name
             plot = plots[modeNumber][structNumber]
 
-            canvas = TCanvas("canvasModules{0}_{1}".format(
+            canvas = ROOT.TCanvas("canvasModules{0}_{1}".format(
                 struct.get_name(), mode), "Parameter", 300, 0, 800, 600)
             canvas.Divide(2, 2)
 
@@ -280,7 +279,7 @@ def plot(MillePedeUser, alignables, config):
                 "{0}/plots/pdf/modules_{1}_{2}.pdf".format(config.outputPath, mode, struct.get_name()))
 
             # export as png
-            image = TImage.Create()
+            image = ROOT.TImage.Create()
             image.FromPad(canvas)
             image.WriteImage(
                 "{0}/plots/png/modules_{1}_{2}.png".format(config.outputPath, mode, struct.get_name()))
