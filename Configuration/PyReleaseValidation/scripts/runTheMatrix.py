@@ -61,9 +61,9 @@ if __name__ == '__main__':
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10824.0, #2018 ttbar
-                     20034.0, #2023D7 ttbar (Run2 calo)
                      23234.0, #2023D8 ttbar (HGCal + timing)
-                     21234.0, #2024D4 ttbar (TDR baseline Tracker)
+                     21234.0, #2023D4 ttbar (TDR baseline Tracker)
+                     24434.0, #2023D12 ttbar (TDR baseline Muon/Barrel)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

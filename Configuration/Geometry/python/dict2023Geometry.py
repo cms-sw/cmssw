@@ -33,7 +33,7 @@ commonDict = {
         1 : [
             'Geometry/CMSCommonData/data/materials.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
-            'Geometry/CMSCommonData/data//extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
             'Geometry/CMSCommonData/data/cms/2023/v1/cms.xml',
             'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
             'Geometry/CMSCommonData/data/cmsMother.xml',
@@ -569,7 +569,8 @@ detectorVersionDict = {
     ("O1","T3","C1","M2","F1","I1") : "D9",
     ("O1","T5","C2","M1","F1","I1") : "D11",
     ("O2","T3","C2","M2","F2","I1") : "D12",
-    ("O1","T3","C3","M2","F1","I1") : "D13"
+    ("O1","T3","C3","M2","F1","I1") : "D13",
+    ("O2","T5","C2","M2","F2","I1") : "D14",
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
