@@ -95,5 +95,5 @@ HGCalRecHit = cms.EDProducer(
     )
 
 HGCalRecHitIdeal=HGCalRecHit.clone(isRealistic=cms.bool(False))
-HGCalRecHitIdeal.setLabel("HGCalRecHitIdealProducer")
+
 
