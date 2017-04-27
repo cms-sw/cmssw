@@ -140,6 +140,7 @@ class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
+class StripTopology;
 
 // Function for testing ClusterShapeHitFilter
 namespace test {
@@ -163,8 +164,15 @@ class ClusterShapeHitFilter
 
   };
 
+  struct StripData {
+    const StripGeomDetUnit * det;
+    StripTopology const * topology;
+    float drift;
+    float thickness;
+    int nstrips;
+  };
+
   typedef TrajectoryFilter::Record Record;
-  //  typedef CkfComponentsRecord Record;
 
   ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
                         const MagneticField          * theMagneticField_,
@@ -221,6 +229,8 @@ class ClusterShapeHitFilter
   bool isCompatible(DetId detId,
                     const SiStripCluster & cluster,
                     const GlobalVector & gdir ) const;
+
+
   bool isCompatible(const SiStripRecHit2D & recHit,
                     const LocalPoint  & lpos,
                     const LocalVector & ldir) const {
@@ -254,12 +264,16 @@ class ClusterShapeHitFilter
     return (*p).second;
   }
 
+  const StripData & getsd(DetId id) const {return stripData.find(id)->second;}
+
   void loadPixelLimits();
   void loadStripLimits();
   void fillPixelData();
+  void fillStripData();
+
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
-                   float getCotangent(const StripGeomDetUnit * stripDet, const LocalPoint &p = LocalPoint(0,0,0)) const;
+                   float getCotangent(const ClusterShapeHitFilter::StripData& sd, const LocalPoint &p) const;
 
   std::pair<float,float> getDrift(const PixelGeomDetUnit * pixelDet) const;
                    float getDrift(const StripGeomDetUnit * stripDet) const;
@@ -275,6 +289,7 @@ class ClusterShapeHitFilter
   const std::string * PixelShapeFile;
 
   std::unordered_map<unsigned int, PixelData> pixelData;
+  std::unordered_map<unsigned int, StripData> stripData;
 
   PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
 
