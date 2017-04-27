@@ -87,7 +87,7 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
   int thickness = -1;
-  float sigmaNoiseMeV;
+  float sigmaNoiseGeV;
   unsigned int layer = tools_->getLayerWithOffset(detid);
   HGCalDetId hid;
 
@@ -96,19 +96,19 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
+    sigmaNoiseGeV = 1e-3* weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
+    sigmaNoiseGeV =  1e-3*weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HcalEndcap:
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
     hid = detid;
-    sigmaNoiseMeV = HGCHEB_noise_MIP_ * weights_[layer];
+    sigmaNoiseGeV = 1e-3*HGCHEB_noise_MIP_ * weights_[layer];
     break;  
   default:
     throw cms::Exception("NonHGCRecHit")
@@ -118,11 +118,11 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   // make the rechit and put in the output collection
 
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );
-    std::cout << "layer " << layer << " noise " << sigmaNoiseMeV << " thickness " << thickness << std::endl;
     const double new_E = myrechit.energy()*(thickness == -1 ? 1.0 : rcorr_[thickness]);
+
     if(isRealistic_)
     {
-        float noiseThreshold = nSigmaThreshold_*sigmaNoiseMeV;
+        float noiseThreshold = nSigmaThreshold_*sigmaNoiseGeV;
 
         if(new_E > noiseThreshold){
             myrechit.setEnergy(new_E);
