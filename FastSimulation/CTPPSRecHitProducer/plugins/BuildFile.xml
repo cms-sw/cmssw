@@ -1,0 +1,12 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/CrossingFrame"/>
+<use name="DataFormats/Common"/>
+<use name="clhep"/>
+<use name="FastSimulation/CTPPSFastGeometry"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="hepmc"/>
+<use name="FWCore/ServiceRegistry"/>
+<flags EDM_PLUGIN="1"/>
