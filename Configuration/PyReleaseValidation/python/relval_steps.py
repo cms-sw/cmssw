@@ -1904,6 +1904,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         if '--era' in upgradeStepDict[stepName][k].keys() and not "_timing" in upgradeStepDict[stepName][k]['--era']:
             upgradeStepDict[stepName][k]['--era'] += "_timing"
 
+    for step in upgradeSteps['Neutron']['steps']:
+        custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
+        stepName = step + upgradeSteps['Neutron']['suffix']
+        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        if '--customise' in upgradeStepDict[stepName][k].keys():
+            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
+        else:
+            upgradeStepDict[stepName][k]['--customise'] = custNew
+
     # setup PU
     if k2 in PUDataSets:
         for stepType in upgradeSteps.keys():

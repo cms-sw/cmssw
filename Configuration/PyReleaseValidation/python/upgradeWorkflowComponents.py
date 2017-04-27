@@ -106,6 +106,12 @@ upgradeSteps['Timing'] = {
     'suffix' : '_Timing',
     'offset' : 0.2,
 }
+upgradeSteps['Neutron'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Neutron',
+    'offset' : 0.3,
+}
 
 upgradeProperties = {}
 
