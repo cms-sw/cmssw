@@ -9,7 +9,9 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
-  HGCalRecHitWorkerBaseClass(ps) {
+  HGCalRecHitWorkerBaseClass(ps),
+  isRealistic_(ps.getParameter<bool>("isRealistic"))
+  {
   rechitMaker_.reset( new HGCalRecHitSimpleAlgo() );
   constexpr float keV2GeV = 1e-6;
   // HGCee constants 
@@ -30,12 +32,13 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   hgchebUncalib2GeV_ = keV2GeV/HGCHEB_keV2DIGI_;
 
   // layer weights (from Valeri/Arabella)
-  std::vector<float> weights;
   const auto& dweights = ps.getParameter<std::vector<double> >("layerWeights");
   for( auto weight : dweights ) {
-    weights.push_back(weight);
+      weights_.push_back(weight);
   }
-  rechitMaker_->setLayerWeights(weights);
+
+  rechitMaker_->setLayerWeights(weights_);
+
 
   // residual correction for cell thickness
   const auto& rcorr = ps.getParameter<std::vector<double> >("thicknessCorrection");
@@ -45,9 +48,20 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     rcorr_.push_back(1.0/corr);
   }
   
+
+  if(isRealistic_)
+  {
+      nSigmaThreshold_ = ps.getParameter<double>("nSigmaThreshold");
+      HGCEE_noise_fC_ = ps.getParameter<std::vector<double> >("HGCEE_noise_fC");
+      HGCHEF_noise_fC_ = ps.getParameter<std::vector<double> >("HGCHEF_noise_fC");
+      HGCHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
+
+  }
+
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
+  tools->getEventSetup(es);
   if (HGCEE_isSiFE_) {
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
     es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle); 
@@ -71,21 +85,29 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               const HGCUncalibratedRecHit& uncalibRH,
                               HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
-  uint32_t recoFlag = 0;
-  //const std::vector<double>* fCPerMIP = nullptr;
-    
+  int thickness = -1;
+  float sigmaNoiseMeV;
+  unsigned int layer = tools->getLayerWithOffset(detid);
+  HGCalDetId hid;
+
   switch( detid.subdetId() ) {
   case HGCEE:
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
-    //fCPerMIP = &HGCEE_fCPerMIP_;
+    hid = detid;
+    thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness]/HGCHEF_fCPerMIP_[thickness];
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
-    //fCPerMIP = &HGCHEF_fCPerMIP_;
+    hid = detid;
+    thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+    sigmaNoiseMeV =  weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness]/HGCHEF_fCPerMIP_[thickness];
     break;
   case HcalEndcap:
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
+    hid = detid;
+    sigmaNoiseMeV = HGCHEB_noise_MIP_ * weights_[layer];
     break;  
   default:
     throw cms::Exception("NonHGCRecHit")
@@ -93,19 +115,15 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   }
   
   // make the rechit and put in the output collection
-  if (recoFlag == 0) {    
-    HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );    
-    int thk = -1;
-    if( detid.subdetId() != HcalEndcap ) {
-      HGCalDetId hid(detid);
-      thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-      // units out of rechit maker are MIP * (GeV/fC)
-      // so multiple
+
+    HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );
+
+    const double new_E = myrechit.energy()*(thickness == -1 ? 1.0 : rcorr_[thickness]);
+    float noiseThreshold = nSigmaThreshold_*sigmaNoiseMeV;
+    if(new_E > noiseThreshold){
+        myrechit.setEnergy(new_E);
+        result.push_back(myrechit);
     }
-    const double new_E = myrechit.energy()*(thk == -1 ? 1.0 : rcorr_[thk]);
-    myrechit.setEnergy(new_E);
-    result.push_back(myrechit);
-  }
 
   return true;
 }
