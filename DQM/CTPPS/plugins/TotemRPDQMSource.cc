@@ -386,6 +386,17 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
       // loop over RPs
       for (unsigned int rp = 0; rp < 6; ++rp)
       {
+        if (st == 2)
+        {
+          // unit 220-nr is not equipped
+          if (rp <= 2)
+            continue;
+
+          // RP 220-fr-hr contains pixels
+          if (rp == 3)
+            continue;
+        }
+
         TotemRPDetId rpId(arm, st, rp);
         potPlots[rpId] = PotPlots(ibooker, rpId);
 

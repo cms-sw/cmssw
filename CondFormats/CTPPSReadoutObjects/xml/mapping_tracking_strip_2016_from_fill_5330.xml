@@ -84,7 +84,7 @@
 					<vfat id="0" hw_id="0xf9dd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="8"/>
 					<vfat id="1" hw_id="0xcfdd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="9"/>
 					<vfat id="2" hw_id="0xf95d" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="10"/>
-					<!--<vfat id="3" hw_id="0xdddd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="11"/>   -->           
+					<vfat id="3" hw_id="0xdddd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="11"/>
 				</rp_plane>
 				<rp_plane id="3">
 					<vfat id="0" hw_id="0xa75c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="12"/>
@@ -321,7 +321,7 @@
 					<vfat id="0" hw_id="0xd368" SubSystemId="4" TOTFEDId="17" OptoRxId="1" GOHId="5" IdxInFiber="4"/>
 					<vfat id="1" hw_id="0x9d68" SubSystemId="4" TOTFEDId="17" OptoRxId="1" GOHId="5" IdxInFiber="5"/>
 					<vfat id="2" hw_id="0x91e8" SubSystemId="4" TOTFEDId="17" OptoRxId="1" GOHId="5" IdxInFiber="6"/>
-					<!--<vfat id="3" hw_id="0x9168" SubSystemId="4" TOTFEDId="17" OptoRxId="1" GOHId="5" IdxInFiber="7"/>--> 
+					<vfat id="3" hw_id="0x9168" SubSystemId="4" TOTFEDId="17" OptoRxId="1" GOHId="5" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set> 
 		<!-- 4b / 45  NEAR BOTTOM-->        
