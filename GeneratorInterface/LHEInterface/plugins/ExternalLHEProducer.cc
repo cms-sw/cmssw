@@ -136,7 +136,8 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   produces<LHEXMLStringProduct, edm::Transition::BeginRun>("LHEScriptOutput"); 
 
   produces<LHEEventProduct>();
-  produces<LHERunInfoProduct, edm::Transition::EndRun>();
+  produces<LHERunInfoProduct, edm::Transition::BeginRun>();
+  //produces<LHERunInfoProduct, edm::Transition::EndRun>();
 }
 
 
