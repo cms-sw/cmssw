@@ -283,9 +283,7 @@ LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*
                                 lowPtTripletStep)
-_LowPtTripletStep_LowPU = LowPtTripletStep.copy()
-_LowPtTripletStep_LowPU.replace(lowPtTripletStep, lowPtTripletStepSelector)
-trackingLowPU.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU)
-_LowPtTripletStep_Phase2PU140 = LowPtTripletStep.copy()
-_LowPtTripletStep_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
-trackingPhase2PU140.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_Phase2PU140)
+_LowPtTripletStep_LowPU_Phase2PU140 = LowPtTripletStep.copy()
+_LowPtTripletStep_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
+trackingLowPU.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)

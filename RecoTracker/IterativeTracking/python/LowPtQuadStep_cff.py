@@ -11,30 +11,21 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 lowPtQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value(),
     BPix = dict(skipClusters = cms.InputTag('lowPtQuadStepClusters')),
     FPix = dict(skipClusters = cms.InputTag('lowPtQuadStepClusters'))
-)
-from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(lowPtQuadStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
-)
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(lowPtQuadStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
-)
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(lowPtQuadStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
 lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
-    ptMin = 0.2,
+    ptMin = 0.15,
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
-trackingPhase1.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.15))
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35))
 
 
@@ -43,19 +34,42 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 lowPtQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "lowPtQuadStepSeedLayers",
     trackingRegions = "lowPtQuadStepTrackingRegions",
+    layerPairs = [0,1,2], # layer pairs (0,1), (1,2), (2,3)
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
+from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
+    doublets = "lowPtQuadStepHitDoublets",
+    extraHitRPhitolerance = _pixelTripletHLTEDProducer.extraHitRPhitolerance,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    maxChi2 = dict(
+        pt1    = 0.7, pt2    = 2,
+        value1 = 1000, value2 = 150,
+    ),
+    useBendingCorrection = True,
+    fitFastCircle = True,
+    fitFastCircleChi2Cut = True,
+    CAThetaCut = 0.0017,
+    CAPhiCut = 0.3,
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+    seedingHitSets = "lowPtQuadStepHitQuadruplets",
+)
+
+trackingPhase1QuadProp.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
+trackingPhase2PU140.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
 lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "lowPtQuadStepHitDoublets",
     produceIntermediateHitTriplets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
+    SeedComparitorPSet = lowPtQuadStepHitQuadruplets.SeedComparitorPSet,
 )
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-lowPtQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
+_lowPtQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
     triplets = "lowPtQuadStepHitTriplets",
     extraHitRZtolerance = lowPtQuadStepHitTriplets.extraHitRZtolerance,
     extraHitRPhitolerance = lowPtQuadStepHitTriplets.extraHitRPhitolerance,
@@ -74,46 +88,9 @@ lowPtQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
 )
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-trackingPhase1.toModify(lowPtQuadStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
-trackingPhase1.toReplaceWith(lowPtQuadStepHitQuadruplets, _caHitQuadrupletEDProducer.clone(
-    doublets = "lowPtQuadStepHitDoublets",
-    extraHitRPhitolerance = lowPtQuadStepHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
-    maxChi2 = dict(
-        pt1    = 0.7, pt2    = 2,
-        value1 = 1000, value2 = 150,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    CAThetaCut = 0.0017,
-    CAPhiCut = 0.3,
-))
+trackingPhase1QuadProp.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
+trackingPhase2PU140.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
 
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_lowPtQuadStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "lowPtQuadStepHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "lowPtQuadStepHitQuadruplets",
-)
-# temporary...
-_lowPtQuadStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
-    ComponentName = cms.string("SeedFromConsecutiveHitsCreator"),
-    MinOneOverPtError = lowPtQuadStepSeeds.MinOneOverPtError,
-    OriginTransverseErrorMultiplier = lowPtQuadStepSeeds.OriginTransverseErrorMultiplier,
-    SeedMomentumForBOFF = lowPtQuadStepSeeds.SeedMomentumForBOFF,
-    TTRHBuilder = lowPtQuadStepSeeds.TTRHBuilder,
-    forceKinematicWithRegionDirection = lowPtQuadStepSeeds.forceKinematicWithRegionDirection,
-    magneticField = lowPtQuadStepSeeds.magneticField,
-    propagator = lowPtQuadStepSeeds.propagator,
-
-)
-_lowPtQuadStepHitQuadrupletsMerging.SeedComparitorPSet = lowPtQuadStepSeeds.SeedComparitorPSet
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -202,18 +179,9 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
     src = 'lowPtQuadStepTracks',
-    GBRForestLabel = 'MVASelectorIter1_13TeV',
-    qualityCuts = [-0.6,-0.3,-0.1]
+    GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
+    qualityCuts = [-0.65,-0.35,-0.15],
 )
-
-trackingPhase1.toReplaceWith(lowPtQuadStep, lowPtQuadStep.clone(
-    GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
-    qualityCuts = [-0.65,-0.35,-0.15],
-))
-trackingPhase1QuadProp.toReplaceWith(lowPtQuadStep, lowPtQuadStep.clone(
-    GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
-    qualityCuts = [-0.65,-0.35,-0.15],
-))
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -273,7 +241,9 @@ LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
                              lowPtQuadStepTrackCandidates*
                              lowPtQuadStepTracks*
                              lowPtQuadStep)
-trackingPhase1.toReplaceWith(LowPtQuadStep, LowPtQuadStep.copyAndExclude([lowPtQuadStepHitTriplets]))
-_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
+_LowPtQuadStep_Phase1Prop = LowPtQuadStep.copy()
+_LowPtQuadStep_Phase1Prop.replace(lowPtQuadStepHitDoublets, lowPtQuadStepHitDoublets+lowPtQuadStepHitTriplets)
+trackingPhase1QuadProp.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1Prop)
+_LowPtQuadStep_Phase2PU140 = _LowPtQuadStep_Phase1Prop.copy()
 _LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
 trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)

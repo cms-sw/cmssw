@@ -14,20 +14,9 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 detachedQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value(),
     BPix = dict(skipClusters = cms.InputTag('detachedQuadStepClusters')),
     FPix = dict(skipClusters = cms.InputTag('detachedQuadStepClusters'))
-)
-from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(detachedQuadStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
-)
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(detachedQuadStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
-)
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(detachedQuadStepSeedLayers, 
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
 
 # TrackingRegion
@@ -38,6 +27,7 @@ detachedQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(
     originRadius = 1.5
 ))
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
     ptMin = 0.45,
     originRadius = 0.7,
@@ -49,17 +39,49 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedQuadStepSeedLayers",
     trackingRegions = "detachedQuadStepTrackingRegions",
+    layerPairs = [0,1,2], # layer pairs (0,1), (1,2), (2,3),
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
+from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
 from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
+    doublets = "detachedQuadStepHitDoublets",
+    extraHitRPhitolerance = _pixelTripletLargeTipEDProducer.extraHitRPhitolerance,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 500, value2 = 100,
+    ),
+    useBendingCorrection = True,
+    fitFastCircle = True,
+    fitFastCircleChi2Cut = True,
+    CAThetaCut = 0.0011,
+    CAPhiCut = 0,
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "detachedQuadStepHitQuadruplets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
+        FilterAtHelixStage = cms.bool(False),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
+    ),
+)
+
+
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
+trackingPhase2PU140.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
 detachedQuadStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
     doublets = "detachedQuadStepHitDoublets",
     produceIntermediateHitTriplets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-detachedQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
+_detachedQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
     triplets = "detachedQuadStepHitTriplets",
     extraHitRZtolerance = detachedQuadStepHitTriplets.extraHitRZtolerance,
     extraHitRPhitolerance = detachedQuadStepHitTriplets.extraHitRPhitolerance,
@@ -77,52 +99,8 @@ detachedQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
     fitFastCircle = True,
     fitFastCircleChi2Cut = True,
 )
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-trackingPhase1.toModify(detachedQuadStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
-trackingPhase1.toReplaceWith(detachedQuadStepHitQuadruplets, _caHitQuadrupletEDProducer.clone(
-    doublets = "detachedQuadStepHitDoublets",
-    extraHitRPhitolerance = detachedQuadStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 500, value2 = 100,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    CAThetaCut = 0.0011,
-    CAPhiCut = 0,
-))
-
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_detachedQuadStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "detachedQuadStepHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
-    seedingHitSets = "detachedQuadStepHitQuadruplets",
-    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
-        ComponentName = 'PixelClusterShapeSeedComparitor',
-        FilterAtHelixStage = cms.bool(False),
-        FilterPixelHits = cms.bool(True),
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
-    ),
-)
-# temporary...
-_detachedQuadStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
-    ComponentName = cms.string("SeedFromConsecutiveHitsTripletOnlyCreator"),
-    MinOneOverPtError = detachedQuadStepSeeds.MinOneOverPtError,
-    OriginTransverseErrorMultiplier = detachedQuadStepSeeds.OriginTransverseErrorMultiplier,
-    SeedMomentumForBOFF = detachedQuadStepSeeds.SeedMomentumForBOFF,
-    TTRHBuilder = detachedQuadStepSeeds.TTRHBuilder,
-    forceKinematicWithRegionDirection = detachedQuadStepSeeds.forceKinematicWithRegionDirection,
-    magneticField = detachedQuadStepSeeds.magneticField,
-    propagator = detachedQuadStepSeeds.propagator,
-)
-_detachedQuadStepHitQuadrupletsMerging.SeedComparitorPSet = detachedQuadStepSeeds.SeedComparitorPSet
+trackingPhase1QuadProp.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadruplets_propagation)
+trackingPhase2PU140.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadruplets_propagation)
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -216,18 +194,13 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-detachedQuadStepClassifier1 = TrackMVAClassifierDetached.clone(
+detachedQuadStep = TrackMVAClassifierDetached.clone(
     src = 'detachedQuadStepTracks',
-    GBRForestLabel = 'MVASelectorIter3_13TeV',
-    qualityCuts = [-0.5,0.0,0.5]
+    GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1',
+    qualityCuts = [-0.5,0.0,0.5],
 )
-detachedQuadStepClassifier2 = TrackMVAClassifierPrompt.clone(
-    src = 'detachedQuadStepTracks',
-    GBRForestLabel = 'MVASelectorIter0_13TeV',
-    qualityCuts = [-0.2,0.0,0.4]
-)
+
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -309,18 +282,6 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
     ] #end of vpset
 ) #end of clone
 
-from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
-detachedQuadStep = ClassifierMerger.clone()
-detachedQuadStep.inputClassifiers=['detachedQuadStepClassifier1','detachedQuadStepClassifier2']
-
-trackingPhase1.toReplaceWith(detachedQuadStep, detachedQuadStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1',
-     qualityCuts = [-0.5,0.0,0.5],
-))
-trackingPhase1QuadProp.toReplaceWith(detachedQuadStep, detachedQuadStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1',
-     qualityCuts = [-0.5,0.0,0.5],
-))
 
 from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
@@ -346,9 +307,10 @@ DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
                                 detachedQuadStepSeeds*
                                 detachedQuadStepTrackCandidates*
                                 detachedQuadStepTracks*
-                                detachedQuadStepClassifier1*detachedQuadStepClassifier2*
                                 detachedQuadStep)
-trackingPhase1.toReplaceWith(DetachedQuadStep, DetachedQuadStep.copyAndExclude([detachedQuadStepHitTriplets]))
-_DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copyAndExclude([detachedQuadStepClassifier1])
-_DetachedQuadStep_Phase2PU140.replace(detachedQuadStepClassifier2, detachedQuadStepSelector)
+_DetachedQuadStep_Phase1Prop = DetachedQuadStep.copy()
+_DetachedQuadStep_Phase1Prop.replace(detachedQuadStepHitDoublets, detachedQuadStepHitDoublets+detachedQuadStepHitTriplets)
+trackingPhase1QuadProp.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1Prop)
+_DetachedQuadStep_Phase2PU140 = _DetachedQuadStep_Phase1Prop.copy()
+_DetachedQuadStep_Phase2PU140.replace(detachedQuadStep, detachedQuadStepSelector+detachedQuadStep)
 trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)
