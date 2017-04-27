@@ -182,6 +182,7 @@ private:
   TrackerMuonHitExtractor hitExtractor_;
 
   std::unique_ptr<RPCHitAssociator> rpctruth_;
+  std::unique_ptr<GEMHitAssociator> gemtruth_;
   std::unique_ptr<DTHitAssociator> dttruth_;
   std::unique_ptr<CSCHitAssociator> csctruth_;
   std::unique_ptr<TrackerHitAssociator> trackertruth_;
@@ -211,6 +212,7 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
 
    //hack for consumes
    RPCHitAssociator rpctruth(iConfig,consumesCollector());
+   GEMHitAssociator gemtruth(iConfig,consumesCollector());
    DTHitAssociator dttruth(iConfig,consumesCollector());
    CSCHitAssociator cscruth(iConfig,consumesCollector());
 
@@ -261,8 +263,10 @@ MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event& iEvent, const ed
    dttruth_.reset(new DTHitAssociator(iEvent,iSetup,config_,printRtS));
    // RPC hit association
    rpctruth_.reset( new RPCHitAssociator(iEvent,iSetup,config_) );
+   // GEM hit association
+   gemtruth_.reset( new GEMHitAssociator(iEvent,iSetup,config_) );
    
-   MuonAssociatorByHitsHelper::Resources resources = {tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get()};
+   MuonAssociatorByHitsHelper::Resources resources = {tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get()};
 
    if(diagnostics_) {
      diagnostics_->read(iEvent);
