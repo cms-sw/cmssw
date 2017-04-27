@@ -18,17 +18,17 @@
 #include <iostream>
 using namespace std;
 
-class L1TOverlapReader: public edm::EDAnalyzer {
+class L1TMuonOverlapReader: public edm::EDAnalyzer {
 private:
     bool printLayerMap;
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     string hash(void *buf, size_t len) const ;
 
-    explicit L1TOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
+    explicit L1TMuonOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TOverlapReader(void){}
+    virtual ~L1TMuonOverlapReader(void){}
 };
 
 
@@ -37,7 +37,7 @@ public:
 #include <iostream>
 using namespace std;
 
-string L1TOverlapReader::hash(void *buf, size_t len) const {
+string L1TMuonOverlapReader::hash(void *buf, size_t len) const {
     char tmp[SHA_DIGEST_LENGTH*2+1];
     bzero(tmp,sizeof(tmp));
     SHA_CTX ctx;
@@ -59,7 +59,7 @@ string L1TOverlapReader::hash(void *buf, size_t len) const {
     return string(tmp);
 }
 
-void L1TOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     // Pull the config from the ES
     edm::ESHandle<L1TMuonOverlapParams> handle1;
@@ -230,5 +230,5 @@ void L1TOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TOverlapReader);
+DEFINE_FWK_MODULE(L1TMuonOverlapReader);
 
