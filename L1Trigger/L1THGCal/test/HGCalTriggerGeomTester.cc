@@ -350,7 +350,7 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
         }
     }
 
-    std::cout<<"Checking cell -> trigger cell -> cell consistency\n";
+    edm::LogPrint("TriggerCellCheck")<<"Checking cell -> trigger cell -> cell consistency";
     // Loop over trigger cells
     for( const auto& triggercell_cells : triggercells_to_cells )
     {
@@ -367,17 +367,18 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             if(cells_geom.find(cell)==cells_geom.end())
             {
                 HGCalDetId cellid(cell);
-                std::cout<<"Error: \n Cell "<<cell<<"("<<cellid<<")\n has not been found in \n trigger cell "<<id<<"\n";
-                std::cout<<" Available cells are:\n";
+                edm::LogProblem("BadTriggerCell")<<"Error: \n Cell "<<cell<<"("<<cellid<<")\n has not been found in \n trigger cell "<<id;
+                std::stringstream output;
+                output<<" Available cells are:\n";
                 for(auto cell_geom : cells_geom)
                 {
-                    std::cout<<cell_geom<<" ";
+                    output<<cell_geom<<" ";
                 }
-                std::cout<<"\n";
+                edm::LogProblem("BadTriggerCell")<<output.str();
             }
         }
     }
-    std::cout<<"Checking trigger cell -> module -> trigger cell consistency\n";
+    edm::LogPrint("ModuleCheck")<<"Checking trigger cell -> module -> trigger cell consistency";
     // Loop over modules
     for( const auto& module_triggercells : modules_to_triggercells )
     {
@@ -390,17 +391,18 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             if(triggercells_geom.find(cell)==triggercells_geom.end())
             {
                 HGCalDetId cellid(cell);
-                std::cout<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id<<"\n";
-                std::cout<<" Available trigger cells are:\n";
+                edm::LogProblem("BadModule")<<"Error: \n Trigger cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id;
+                std::stringstream output;
+                output<<" Available trigger cells are:\n";
                 for(auto cell_geom : triggercells_geom)
                 {
-                    std::cout<<cell_geom<<" ";
+                    output<<cell_geom<<" ";
                 }
-                std::cout<<"\n";
+                edm::LogProblem("BadModule")<<output.str();
             }
         }
     }
-    std::cout<<"Checking cell -> module -> cell consistency\n";
+    edm::LogPrint("ModuleCheck")<<"Checking cell -> module -> cell consistency";
     for( const auto& module_cells : modules_to_cells )
     {
         HGCalDetId id(module_cells.first);
@@ -412,18 +414,19 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             if(cells_geom.find(cell)==cells_geom.end())
             {
                 HGCalDetId cellid(cell);
-                std::cout<<"Error: \n Cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id<<"\n";
-                std::cout<<" Available cells are:\n";
+                edm::LogProblem("BadModule")<<"Error: \n Cell "<<cell<<"("<<cellid<<")\n has not been found in \n module "<<id;
+                std::stringstream output;
+                output<<" Available cells are:\n";
                 for(auto cell_geom : cells_geom)
                 {
-                    std::cout<<cell_geom<<" ";
+                    output<<cell_geom<<" ";
                 }
-                std::cout<<"\n";
+                edm::LogProblem("BadModule")<<output.str();
             }
         }
     }
 
-    std::cout<<"Checking trigger cell neighbor consistency\n";
+    edm::LogPrint("NeighborCheck")<<"Checking trigger cell neighbor consistency";
     // Loop over trigger cells
     for( const auto& triggercell_cells : triggercells_to_cells )
     {
@@ -435,13 +438,15 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
            // check if the original cell is included in the neigbors of neighbor
            if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
            {
-              std::cout<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id) << "\n";
-              std::cout<<" But the opposite is not true\n";
-              std::cout<<" List of neighbors of neighbor = \n";
+              edm::LogProblem("BadNeighbor")<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id);
+              edm::LogProblem("BadNeighbor")<<" But the opposite is not true";
+              std::stringstream output;
+              output<<" List of neighbors of neighbor = \n";
               for(const auto neighbor_of_neighbor : neighbors_of_neighbor)
               {
-                  std::cout<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
+                  output<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
               }
+              edm::LogProblem("BadNeighbor")<<output.str();
            }
         }
     }
@@ -456,7 +461,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
 
     // Loop over cells
-    std::cout<<"Filling cells tree\n";
+    edm::LogPrint("TreeFilling")<<"Filling cells tree";
     // EE
     for(const auto& id : info.geom_ee->getValidGeomDetIds())
     {
@@ -483,8 +488,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             cellY_      = center.y();
             cellZ_      = center.z();
             std::vector<GlobalPoint> corners = info.geom_ee->getCorners(id);
-            if(corners.size()<4) std::cout<<"#corners < 4\n";
-            else
+            if(corners.size()>=4)
             {
                 cellX1_      = corners.at(0).x();
                 cellY1_      = corners.at(0).y();
@@ -531,8 +535,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             cellY_      = center.y();
             cellZ_      = center.z();
             std::vector<GlobalPoint> corners = info.geom_fh->getCorners(id);
-            if(corners.size()<4) std::cout<<"#corners < 4\n";
-            else
+            if(corners.size()>=4)
             {
                 cellX1_      = corners.at(0).x();
                 cellY1_      = corners.at(0).y();
@@ -557,7 +560,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     if(no_trigger_) return;
 
     // Loop over trigger cells
-    std::cout<<"Filling trigger cells tree\n";
+    edm::LogPrint("TreeFilling")<<"Filling trigger cells tree";
     for( const auto& triggercell_cells : trigger_cells )
     {
         HGCalDetId id(triggercell_cells.first);
@@ -614,7 +617,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         itr_insert.first->second.emplace(id);
     }
     // Loop over modules
-    std::cout<<"Filling modules tree\n";
+    edm::LogPrint("TreeFilling")<<"Filling modules tree";
     for( const auto& module_triggercells : modules )
     {
         HGCalDetId id(module_triggercells.first);
