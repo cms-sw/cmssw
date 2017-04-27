@@ -66,7 +66,7 @@ else :
         cms.PSet(
             record = cms.string('L1TGlobalPrescalesVetosO2ORcd'),
             type = cms.string('L1TGlobalPrescalesVetos'),
-            key = cms.string( options.systemKey.split(':')[1] )
+            key = cms.string( options.systemKey )
         )
     )
 
