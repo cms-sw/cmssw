@@ -3,8 +3,9 @@
 xflag=0
 CMS_OPTIONS=""
 KEY_CONTENT=""
+TAG_UPDATE=""
 
-while getopts 'xfk:h' OPTION
+while getopts 'xfk:t:h' OPTION
   do
   case $OPTION in
       x) xflag=1
@@ -13,9 +14,14 @@ while getopts 'xfk:h' OPTION
           ;;
       k) KEY_CONTENT=$KEY_CONTENT" subsystemLabels=$OPTARG"
           ;;
+      t) if [ -z $TAG_UPDATE ] ; then TAG_UPDATE="tagUpdate="; else TAG_UPDATE=$TAG_UPDATE","; fi
+         TAG_UPDATE=$TAG_UPDATE$OPTARG
+          ;;
       h) echo "Usage: [-xf] runnum tsckey"
           echo "  -x: write to ORCON instead of sqlite file"
           echo "  -f: force IOV update"
+          echo "  -k: limit update to the specific systems (default are all, which is equivalent to -k uGT,uGTrs,GMT,EMTF,OMTF,BMTF,CALO)"
+          echo "  -t: override tag name as TYPE:NEW_TAG_BASE (e.g. -t L1TCaloParams:Stage2v1)"
           exit
           ;;
   esac
@@ -26,7 +32,7 @@ runnum=$1
 tsckey=$2
 rskey=$3
 
-echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
+echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS $KEY_CONTENT $TAG_UPDATE
 
 #ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
 #ONLINEDB_OPTIONS="onlineDBConnect=oracle://int2r_lb/CMS_TRG_R onlineDBAuth=./"
@@ -59,7 +65,7 @@ fi
 if cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
     echo "TSC payloads absent; writing $KEY_CONTENT now"
-    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
+    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
     then
@@ -69,14 +75,14 @@ else
     fi
 fi
 
-cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
+cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} ${TAG_UPDATE} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
 o2ocode=${PIPESTATUS[0]}
 
 if [ ${o2ocode} -eq 0 ]
 then
     echo
     echo "`date` : checking O2O"
-    if cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
+    if cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} ${TAG_UPDATE} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
     else
 	echo "L1-O2O-ERROR: IOV NOT OK"
 	echo "L1-O2O-ERROR: IOV NOT OK" 1>&2
@@ -85,8 +91,8 @@ then
 else
     if [ ${o2ocode} -eq 66 ]
     then
-	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
-	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
+	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check authentication token .cms_cond/db.key"
+	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check authentication token .cms_cond/db.key" 1>&2
     else
         if [ ${o2ocode} -eq 65 ]
         then
