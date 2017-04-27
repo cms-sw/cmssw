@@ -1,6 +1,3 @@
-
-
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -88,7 +85,7 @@ namespace {
 }
 
 ElectronNSeedProducer::ElectronNSeedProducer( const edm::ParameterSet& pset):
-  matcher_(pset),
+  matcher_(pset.getParameter<edm::ParameterSet>("matcherConfig")),
   initialSeedsToken_(consumes<TrajectorySeedCollection>(pset.getParameter<edm::InputTag>("initialSeeds"))),
   verticesToken_(consumes<std::vector<reco::Vertex> >(pset.getParameter<edm::InputTag>("vertices"))),
   beamSpotToken_(consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("beamSpot"))),
@@ -103,29 +100,15 @@ ElectronNSeedProducer::ElectronNSeedProducer( const edm::ParameterSet& pset):
 
 void ElectronNSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
-  
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("initialSeeds",edm::InputTag());
   desc.add<edm::InputTag>("vertices",edm::InputTag());
   desc.add<edm::InputTag>("beamSpot",edm::InputTag()); 
   desc.add<edm::InputTag>("measTkEvt",edm::InputTag());
   desc.add<std::vector<edm::InputTag> >("superClusters");
-  edm::ParameterSetDescription cutsDesc;
-  cutsDesc.add<double>("dPhiMax",0.04);
-  cutsDesc.add<double>("dRZMax",0.09);
-  cutsDesc.add<double>("dRZMaxLowEtThres",20.);
-  cutsDesc.add<std::vector<double> >("dRZMaxLowEtEtaBins",std::vector<double>{1.,1.5});
-  cutsDesc.add<std::vector<double> >("dRZMaxLowEt",std::vector<double>{0.09,0.15,0.09});
+  desc.add<edm::ParameterSetDescription>("matcherConfig",PixelNHitMatcher::makePSetDescription());
   
-  desc.add<bool>("useRecoVertex",false);
-  desc.add<std::string>("navSchool","SimpleNavigationSchool");
-  desc.add<std::string>("detLayerGeom","hltESPGlobalDetLayerGeometry");
-  
-  desc.addVPSet("matchingCuts",cutsDesc);
-
-
   descriptions.add("electronNSeedProducer",desc);
-  //PixelNHitMatcher::fillDescriptions(descriptions);
 }
 
 void ElectronNSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
