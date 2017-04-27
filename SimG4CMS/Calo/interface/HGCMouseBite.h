@@ -12,15 +12,14 @@ public:
 
   HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<double>& angle,
 	       double maxLength, bool waferRotate); 
-  virtual ~HGCMouseBite();
-  bool                  exclude(G4ThreeVector& point, int zside, int wafer);
+  bool         exclude(G4ThreeVector& point, int zside, int wafer);
 
 private:    
 
-  const HGCalDDDConstants&      hgcons_;
-  double                        cut_;
-  bool                          rot_;
-  std::vector<double>           projX_, projY_;
+  const HGCalDDDConstants&               hgcons_;
+  double                                 cut_;
+  bool                                   rot_;
+  std::vector<std::pair<double,double> > projXY_;
 };
 
 #endif // HGCMouseBite_h
