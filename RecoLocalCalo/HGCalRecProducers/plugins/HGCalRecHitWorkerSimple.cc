@@ -119,8 +119,17 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );
 
     const double new_E = myrechit.energy()*(thickness == -1 ? 1.0 : rcorr_[thickness]);
-    float noiseThreshold = nSigmaThreshold_*sigmaNoiseMeV;
-    if(new_E > noiseThreshold){
+    if(isRealistic_)
+    {
+        float noiseThreshold = nSigmaThreshold_*sigmaNoiseMeV;
+
+        if(new_E > noiseThreshold){
+            myrechit.setEnergy(new_E);
+            result.push_back(myrechit);
+        }
+    }
+    else
+    {
         myrechit.setEnergy(new_E);
         result.push_back(myrechit);
     }
