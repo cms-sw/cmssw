@@ -38,12 +38,6 @@ detachedQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(
     originRadius = 1.5
 ))
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(detachedQuadStepTrackingRegions, _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
-    ptMin = 0.3,
-    originRadius = 0.5,
-    nSigmaZ = 4.0
-)))
 trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
     ptMin = 0.45,
     originRadius = 0.7,
@@ -130,10 +124,6 @@ _detachedQuadStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
 )
 _detachedQuadStepHitQuadrupletsMerging.SeedComparitorPSet = detachedQuadStepSeeds.SeedComparitorPSet
 
-trackingPhase1PU70.toModify(detachedQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
-trackingPhase1PU70.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadrupletsMerging)
-trackingPhase1PU70.toModify(detachedQuadStepSeeds, SeedComparitorPSet=cms.PSet(ComponentName=cms.string("none")))
-
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
@@ -145,12 +135,6 @@ detachedQuadStepTrajectoryFilterBase = _detachedQuadStepTrajectoryFilterBase.clo
     maxCCCLostHits = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
-trackingPhase1PU70.toReplaceWith(detachedQuadStepTrajectoryFilterBase,
-    _detachedQuadStepTrajectoryFilterBase.clone(
-        maxLostHitsFraction = 1./10.,
-        constantValueForLostHitsFractionFilter = 0.501,
-    )
-)
 trackingPhase2PU140.toReplaceWith(detachedQuadStepTrajectoryFilterBase,
     _detachedQuadStepTrajectoryFilterBase.clone(
         maxLostHitsFraction = 1./10.,
@@ -159,9 +143,6 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrajectoryFilterBase,
 )
 detachedQuadStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('detachedQuadStepTrajectoryFilterBase'))]
-)
-trackingPhase1PU70.toModify(detachedQuadStepTrajectoryFilter,
-    filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 trackingPhase2PU140.toModify(detachedQuadStepTrajectoryFilter,
     filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
@@ -174,9 +155,6 @@ detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     nSigma = 3.0,
     MaxChi2 = 9.0,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight'),
-)
-trackingPhase1PU70.toModify(detachedQuadStepChi2Est,
-    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")
 )
 trackingPhase2PU140.toModify(detachedQuadStepChi2Est,
     MaxChi2 = 16.0,
@@ -195,10 +173,6 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
 )
-trackingPhase1PU70.toModify(detachedQuadStepTrajectoryBuilder,
-    maxCand = 2,
-    alwaysUseInvalidHits = False,
-)
 trackingPhase2PU140.toModify(detachedQuadStepTrajectoryBuilder,
     maxCand = 2,
     alwaysUseInvalidHits = False,
@@ -210,9 +184,6 @@ detachedQuadStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
     ComponentName = cms.string('detachedQuadStepTrajectoryCleanerBySharedHits'),
     fractionShared = cms.double(0.13),
     allowSharedFirstHit = cms.bool(True)
-)
-trackingPhase1PU70.toModify(detachedQuadStepTrajectoryCleanerBySharedHits,
-    fractionShared = 0.095
 )
 trackingPhase2PU140.toModify(detachedQuadStepTrajectoryCleanerBySharedHits,
     fractionShared = 0.09
@@ -258,88 +229,11 @@ detachedQuadStepClassifier2 = TrackMVAClassifierPrompt.clone(
     qualityCuts = [-0.2,0.0,0.4]
 )
 
-# For Phase1PU70
+# For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src = 'detachedQuadStepTracks',
     trackSelectors = [
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'detachedQuadStepVtxLoose',
-            chi2n_par = 0.9,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            d0_par1 = ( 0.9, 3.0 ),
-            dz_par1 = ( 0.9, 3.0 ),
-            d0_par2 = ( 1.0, 3.0 ),
-            dz_par2 = ( 1.0, 3.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.5,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            d0_par1 = ( 1.3, 4.0 ),
-            dz_par1 = ( 1.3, 4.0 ),
-            d0_par2 = ( 1.3, 4.0 ),
-            dz_par2 = ( 1.3, 4.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'detachedQuadStepVtxTight',
-            preFilterName = 'detachedQuadStepVtxLoose',
-            chi2n_par = 0.9,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.9, 3.0 ),
-            dz_par1 = ( 0.9, 3.0 ),
-            d0_par2 = ( 0.9, 3.0 ),
-            dz_par2 = ( 0.9, 3.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'detachedQuadStepTrkTight',
-            preFilterName = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.35,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 4,
-            d0_par1 = ( 1.1, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.1, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'detachedQuadStepVtx',
-            preFilterName = 'detachedQuadStepVtxTight',
-            chi2n_par = 0.9,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.8, 3.0 ),
-            dz_par1 = ( 0.8, 3.0 ),
-            d0_par2 = ( 0.8, 3.0 ),
-            dz_par2 = ( 0.8, 3.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'detachedQuadStepTrk',
-            preFilterName = 'detachedQuadStepTrkTight',
-            chi2n_par = 0.2,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 4,
-            d0_par1 = ( 0.9, 4.0 ),
-            dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.8, 4.0 ),
-            dz_par2 = ( 0.8, 4.0 )
-        )
-    ]
-) #end of clone
-
-trackingPhase2PU140.toModify(detachedQuadStepSelector,
-    trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedQuadStepVtxLoose',
             chi2n_par = 1.0,
@@ -412,9 +306,8 @@ trackingPhase2PU140.toModify(detachedQuadStepSelector,
             d0_par2 = ( 0.8, 4.0 ),
             dz_par2 = ( 0.8, 4.0 )
             )
-        ), #end of vpset
-     vertices = "pixelVertices"
-    ) #end of clone
+    ] #end of vpset
+) #end of clone
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedQuadStep = ClassifierMerger.clone()
@@ -431,22 +324,6 @@ trackingPhase1QuadProp.toReplaceWith(detachedQuadStep, detachedQuadStepClassifie
 
 from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-trackingPhase1PU70.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = [
-        'detachedQuadStepTracks',
-        'detachedQuadStepTracks',
-    ],
-    hasSelector = [1,1],
-    shareFrac = cms.double(0.095),
-    indivShareFrac = [0.095, 0.095],
-    selectedTrackQuals = [
-        cms.InputTag("detachedQuadStepSelector","detachedQuadStepVtx"),
-        cms.InputTag("detachedQuadStepSelector","detachedQuadStepTrk")
-    ],
-    setsToMerge = [cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )],
-    writeOnlyTrkQuals = True
-))
-
 trackingPhase2PU140.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('detachedQuadStepTracks'),
                                    cms.InputTag('detachedQuadStepTracks')),
@@ -472,7 +349,6 @@ DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
                                 detachedQuadStepClassifier1*detachedQuadStepClassifier2*
                                 detachedQuadStep)
 trackingPhase1.toReplaceWith(DetachedQuadStep, DetachedQuadStep.copyAndExclude([detachedQuadStepHitTriplets]))
-_DetachedQuadStep_Phase1PU70 = DetachedQuadStep.copyAndExclude([detachedQuadStepClassifier1])
-_DetachedQuadStep_Phase1PU70.replace(detachedQuadStepClassifier2, detachedQuadStepSelector)
-trackingPhase1PU70.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1PU70)
+_DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copyAndExclude([detachedQuadStepClassifier1])
+_DetachedQuadStep_Phase2PU140.replace(detachedQuadStepClassifier2, detachedQuadStepSelector)
+trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)

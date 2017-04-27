@@ -26,7 +26,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 for _eraName, _postfix, _era in _cfg.allEras():
     _seedProd = ["initialStepSeedsPreSplitting"]
     _trackProd = ["initialStepTracksPreSplitting"]
-    if _eraName in ["trackingLowPU", "trackingPhase1PU70", "trackingPhase2PU140"]: # these don't have preSplitting
+    if _eraName in ["trackingLowPU", "trackingPhase2PU140"]: # these don't have preSplitting
         _seedProd = []
         _trackProd = []
 
