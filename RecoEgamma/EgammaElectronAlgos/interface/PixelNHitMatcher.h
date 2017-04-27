@@ -42,6 +42,7 @@ namespace edm{
   class EventSetup;
   class ConfigurationDescriptions;
   class ParameterSet;
+  class ParameterSetDescription;
 }
 
 class FreeTrajectoryState;
@@ -158,8 +159,7 @@ public:
   explicit PixelNHitMatcher(const edm::ParameterSet& pset);
   ~PixelNHitMatcher()=default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& description);
-  
+  static edm::ParameterSetDescription makePSetDescription();
 
   void doEventSetup(const edm::EventSetup& iSetup);
   
@@ -223,7 +223,6 @@ private:
   std::string navSchoolLabel_;
   std::string detLayerGeomLabel_;
 
-  size_t nrHitsRequired_;
   bool useRecoVertex_;
   std::vector<MatchingCuts> matchingCuts_;
 
