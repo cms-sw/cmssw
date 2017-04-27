@@ -5,6 +5,7 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     #cuts to assign primary tracks not used in PV fit based on dZ compatibility
     maxDzSigForPrimaryAssignment = cms.double(5.0), # in AND with next
     maxDzForPrimaryAssignment = cms.double(0.1), # in AND with prev
+    maxDzErrorForPrimaryAssignment = cms.double(0.05), # in AND with prev, tracks with uncertainty above 500um cannot tell us which pv they come from
 
     # cuts used to recover b-tracks if they are closed to jet axis
     maxJetDeltaR = cms.double(0.5),
