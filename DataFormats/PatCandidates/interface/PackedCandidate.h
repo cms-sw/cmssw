@@ -606,8 +606,8 @@ namespace pat {
     float puppiWeightNoLep() const;                     /// Weight from PUPPI removing leptons
     
     // for the neutral fractions
-    void setRawCaloFraction(float p);                      /// Set the raw ECAL+HCAL energy for isolated charged hadrons
-    float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy for isolated charged hadrons
+    void setRawCaloFraction(float p);                      /// Set the raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
+    float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
     void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
     float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
 
