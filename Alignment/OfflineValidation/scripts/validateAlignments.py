@@ -297,7 +297,7 @@ def createMergeScript( path, validations ):
                 continue
             if validationType not in anythingToMerge:
                 anythingToMerge += [validationType]
-                repMap["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType
+                repMap["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType.valType
                 repMap["beforeMerge"] += validationType.doInitMerge()
             repMap["doMerge"] += validation.doMerge()
             for f in validation.getRepMap()["outputFiles"]:
