@@ -55,7 +55,6 @@ ESDigiToRaw::~ESDigiToRaw() {
   if (ESDataFormatter_) delete ESDataFormatter_;
 }
 
-
 void ESDigiToRaw::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
   auto counter_ = ev.id().event();
   ESDataFormatter::Meta_Data meta_data;
