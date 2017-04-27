@@ -93,14 +93,18 @@ class _DetIdStrAdaptor(object):
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
         self._checkIsValid()
-        subdet = getattr(self._tree, self._prefix+"_subdet")[self._index]
+        get = lambda name: getattr(self._tree, self._prefix+"_"+name)[self._index]
+        subdet = get("subdet")
         side = ""
-        if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC]:
-            sideNum = getattr(self._tree, self._prefix+"_side")[self._index]
+        isPhase2OTBarrel = (subdet == SubDet.TOB and hasattr(self._tree, self._prefix+"_isLower"))
+        if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC] or isPhase2OTBarrel:
+            sideNum = get("side")
             if sideNum == 1:
                 side = "-"
             elif sideNum == 2:
                 side = "+"
+            elif isPhase2OTBarrel and sideNum == 3:
+                side = ""
             else:
                 side = "?"
         return "%s%d%s" % (SubDet.toString(subdet),
@@ -111,23 +115,23 @@ class _DetIdStrAdaptor(object):
         """Returns a string describing the DetId fields."""
         self._checkIsValid
         get = lambda name: getattr(self._tree, self._prefix+"_"+name)[self._index]
+        isPhase2 = hasattr(self._tree, self._prefix+"_isLower")
         def stereo():
-            if hasattr(self._tree, self._prefix+"_isStereo"):
-                if get("isStereo"):
-                    return " isStereo"
-                if get("isRPhi"):
-                    return " isRPhi"
-                if get("isGlued"):
-                    return " isGlued"
-                return ""
-            else:
+            if isPhase2:
                 if get("isLower"):
                     return " isLower"
                 if get("isUpper"):
                     return " isUpper"
                 if get("isStack"):
                     return " isStack"
-                return ""
+            else:
+                if get("isStereo"):
+                    return " isStereo"
+                if get("isRPhi"):
+                    return " isRPhi"
+                if get("isGlued"):
+                    return " isGlued"
+            return ""
 
         subdet = get("subdet")
         if subdet == SubDet.BPix:
@@ -139,7 +143,10 @@ class _DetIdStrAdaptor(object):
         if subdet == SubDet.TID:
             return "ring {} order {} module {}{}".format(get("ring"), get("order"), get("module"), stereo())
         if subdet == SubDet.TOB:
-            return "side {} rod {} module {}{}".format(get("side"), get("rod"), get("module"), stereo())
+            if isPhase2:
+                return "rod {} module {}{}".format(get("rod"), get("module"), stereo())
+            else:
+                return "side {} rod {} module {}{}".format(get("side"), get("rod"), get("module"), stereo())
         if subdet == SubDet.TEC:
             return "order {} petal {} ring {} module {}{}".format(get("order"), get("petalNumber"), get("ring"), get("module"), stereo())
         raise Exception("Unknown subdet %d" % subdet)
