@@ -797,7 +797,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	    
 	    //Special for HF
 	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
-              int soi = (tool.presamples() == 1 ? 1 : 2);
+              int soi = tool.presamples();
               int lastbin = tool.size() - 1;
 
 	      double fBin5 = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
@@ -1148,7 +1148,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 	    //Special for HF
             //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
 	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
-              int soi = (tool.presamples() == 1 ? 1 : 2);
+              int soi = tool.presamples();
               int lastbin = tool.size() - 1;
 
 	      double fBin5 = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
