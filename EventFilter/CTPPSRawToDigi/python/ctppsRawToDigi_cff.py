@@ -54,19 +54,19 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
   configuration = cms.VPSet(
-    # before diamonds inserted in DAQ
+    # 2016, before diamonds inserted in DAQ
     cms.PSet(
       validityRange = cms.EventRange("1:min - 283819:max"),
       mappingFileNames = cms.vstring(),
       maskFileNames = cms.vstring()
     ),
-    # after diamonds inserted in DAQ
+    # 2016, after diamonds inserted in DAQ
     cms.PSet(
       validityRange = cms.EventRange("283820:min - 292520:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"),
       maskFileNames = cms.vstring()
     ),
-    # 2017 configuration
+    # 2017
     cms.PSet(
       validityRange = cms.EventRange("292521:min - 999999999:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond_2017.xml"),
