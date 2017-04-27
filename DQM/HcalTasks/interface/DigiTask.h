@@ -78,6 +78,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDHF;
 		hcaldqm::filter::HashFilter _filter_HF;
+		hcaldqm::filter::HashFilter _filter_notHF;
+		hcaldqm::filter::HashFilter _filter_HEP17;
 
 		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
@@ -88,6 +90,14 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
+		// ADC, fC for HF (QIE10 has different ADC/fC)
+		hcaldqm::Container1D _cADC_SubdetPM_HF;
+		hcaldqm::Container1D _cfC_SubdetPM_HF;
+		hcaldqm::Container1D _cSumQ_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_HF;	// online only!
+
+		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
 

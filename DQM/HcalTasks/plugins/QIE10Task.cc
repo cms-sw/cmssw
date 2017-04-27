@@ -181,8 +181,9 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		int index = fakecrate*12+eid.slot()-1;
 
 		//	compute the signal, ped subracted
-		double q = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame,
-			constants::adc2fC[_ped], 0, frame.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, frame);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, frame, 0, frame.samples()-1);
+		// double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, constants::adc2fC[_ped], 0, frame.samples()-1);
 
 
 		_cOccupancy_Crate.fill(eid);
@@ -193,10 +194,10 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		for (int j=0; j<frame.samples(); j++)
 		{
 			//	shapes are after the cut
-			if (q>_cut)
+			if (sumQ>_cut)
 			{
+				double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, frame, j);
 				_cShapeCut_EChannel[index].fill(eid, j, constants::adc2fC[frame[j].adc()]);
-
 				_cShapeCut.fill(j, constants::adc2fC[frame[j].adc()]);
 			}
 			//	w/o a cut
