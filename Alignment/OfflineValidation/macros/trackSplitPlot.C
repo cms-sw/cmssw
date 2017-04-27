@@ -422,13 +422,13 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             summaryfile << "sigma_Delta" << yvar;
             if (relative) summaryfile << "/" << yvar;
             if (pull)     summaryfile << "_pull";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << plainunits(yvar, 'y') << ")";
             summaryfile << "\t"
-                        << "latexname=$\\sigma_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$\t"
-                        << "format={:.3g}";
-            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " " << plainunits(yvar, 'y');
-            summaryfile << "\t";
-            summaryfile << "latexformat=${:.3g}$";
-            if (!pull && !relative && latexunits(yvar, 'y') != "") summaryfile << " " << latexunits(yvar, 'y');
+                        << "latexname=$\\sigma_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$";
+            if (!pull && !relative && latexunits(yvar, 'y') != "") summaryfile << " (" << latexunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "format={:.3g}\t"
+                        << "latexformat=${:.3g}$";
             for (int i = 0; i < n; i++) {
                 if (used[i]) {
                     summaryfile << "\t" << rmss[i];
