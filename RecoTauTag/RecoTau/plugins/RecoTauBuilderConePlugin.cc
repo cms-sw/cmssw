@@ -61,6 +61,8 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     JetFunc isoConeNeutralHadrons_;
 
     int maxSignalConeChargedHadrons_;
+    double minAbsPhotonSumPt_insideSignalCone_;
+    double minRelPhotonSumPt_insideSignalCone_;
 
     void setTauQuantities(reco::PFTau& aTau,
 			  double minAbsPhotonSumPt_insideSignalCone = 2.5,
@@ -93,7 +95,12 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     isoConeNeutralHadrons_(
         pset.getParameter<std::string>("isoConeNeutralHadrons")), 
     maxSignalConeChargedHadrons_(
-        pset.getParameter<int>("maxSignalConeChargedHadrons")) 				 
+        pset.getParameter<int>("maxSignalConeChargedHadrons")),
+    minAbsPhotonSumPt_insideSignalCone_(
+        pset.getParameter<double>("minAbsPhotonSumPt_insideSignalCone")),
+    minRelPhotonSumPt_insideSignalCone_(
+	pset.getParameter<double>("minRelPhotonSumPt_insideSignalCone"))
+
 {}
 
 namespace xclean 
@@ -192,11 +199,10 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Our tau builder - the true indicates to automatically copy gamma candidates
   // from the pizeros.
-  double minAbsPhotonPt_inSignalCone=2.5, minRelPhotonPt_inSignalCone=0.1;//MB: sensible defults to set a DM hypothesis
   RecoTauConstructor tau(jet, getPFCands(), true, 
 			 &signalConeSizeToStore_, 
-			 minAbsPhotonPt_inSignalCone, 
-			 minRelPhotonPt_inSignalCone);
+			 minAbsPhotonSumPt_insideSignalCone_, 
+			 minRelPhotonSumPt_insideSignalCone_);
   // Setup our quality cuts to use the current vertex (supplied by base class)
   qcuts_.setPV(primaryVertex(jet));
 
@@ -458,8 +464,8 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Set missing tau quantities
   setTauQuantities(*tauPtr,
-  		   minAbsPhotonPt_inSignalCone,
-  		   minRelPhotonPt_inSignalCone
+  		   minAbsPhotonSumPt_insideSignalCone_,
+  		   minRelPhotonSumPt_insideSignalCone_
 		   );
 
   output.push_back(tauPtr);
