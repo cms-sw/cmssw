@@ -80,8 +80,20 @@ HGCalRecHit = cms.EDProducer(
     # EM Scale calibrations
     layerWeights = dEdX_weights,
     thicknessCorrection = cms.vdouble(0.964,0.920,0.909), # 100, 200, 300 um
+    # Realistic rechits with suppression of hits with energy lower than nSigmaThreshold times noise
+    isRealistic = cms.Bool(True),
+    nSigmaThreshold = cms.Double(5.),
+    
+    HGCEE_noise_fC = hgceeDigitizer.digiCfg.noise_fC,
+    HGCHEF_noise_fC = hgchefrontDigitizer.digiCfg.noise_fC,
+    HGCHEB_noise_MIP = hgchebackDigitizer.digiCfg.noise_MIP,
+    
     
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")
     
     )
+
+HGCalRecHitIdeal=HGCalRecHit.clone(label="HGCalRecHitIdealProducer", 
+                                       isRealistic=cms.Bool(False))
+
