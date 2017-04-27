@@ -949,36 +949,36 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     if (vmean.size()) {
       summaryfile << "   mu_" << subdet;
       if (plotinfo.variable == "medianY") summaryfile << "_y";
-      summaryfile << "\t"
+      summaryfile << " (um)\t"
                   << "latexname=$\\mu_\\text{" << subdet << "}";
       if (plotinfo.variable == "medianY") summaryfile << "^{y}";
-      summaryfile << "$\t"
-                  << "format={:.3g} um\t"
-                  << "latexformat=${:.3g}$ $\\mu$m";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
       for (auto mu : vmean) summaryfile << "\t" << mu;
       summaryfile << "\n";
     }
     if (vrms.size()) {
       summaryfile << "sigma_" << subdet;
       if (plotinfo.variable == "medianY") summaryfile << "_y";
-      summaryfile << "\t"
+      summaryfile << " (um)\t"
                   << "latexname=$\\sigma_\\text{" << subdet << "}";
       if (plotinfo.variable == "medianY") summaryfile << "^{y}";
-      summaryfile << "$\t"
-                  << "format={:.3g} um\t"
-                  << "latexformat=${:.3g} \\mu m$";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
       for (auto sigma : vrms) summaryfile << "\t" << sigma;
       summaryfile << "\n";
     }
     if (vdeltamean.size()) {
       summaryfile << "  dmu_" << subdet ;
       if (plotinfo.variable == "medianY") summaryfile << "_y";
-      summaryfile << "\t"
+      summaryfile << " (um)\t"
                   << "latexname=$\\Delta\\mu_\\text{" << subdet << "}";
       if (plotinfo.variable == "medianY") summaryfile << "^{y}";
-      summaryfile << "$\t"
-                  << "format={:.3g} um\t"
-                  << "latexformat=${:.3g} \\mu m$";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
       for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
       summaryfile << "\n";
     }
