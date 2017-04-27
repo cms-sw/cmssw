@@ -11,14 +11,17 @@ using namespace RecoBTag;
 
 JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 			      const edm::ParameterSet& pSet, const unsigned int& mc, 
-			      const bool& wf, DQMStore::IBooker & ibook, const bool & doCTagPlots) :
+			      const bool& wf, DQMStore::IBooker & ibook, const bool & doCTagPlots/*=false*/, 
+                  bool doDifferentialPlots/*=false*/, double discrCut/*=-999.*/) :
 		       BaseBTagPlotter(tagName, etaPtBin), discrBins(400),
                        discrStart_(pSet.getParameter<double>("discriminatorStart")), 
                        discrEnd_(pSet.getParameter<double>("discriminatorEnd")),
                        nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
                        startEffPur_(pSet.getParameter<double>("startEffPur")), 
-                       endEffPur_(pSet.getParameter<double>("endEffPur")), 
-                       mcPlots_(mc), willFinalize_(wf), doCTagPlots_(doCTagPlots) {
+                       endEffPur_(pSet.getParameter<double>("endEffPur")),
+                       mcPlots_(mc), willFinalize_(wf), doCTagPlots_(doCTagPlots), 
+                       doDifferentialPlots_(doDifferentialPlots),
+                       cutValue_(discrCut) {
 
   // to have a shorter name .....
   const std::string & es = theExtensionString;
@@ -65,28 +68,42 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   
   // reconstructed jet eta
   dJetRecPseudoRapidity = new FlavourHistograms<double>
-    ("jetEta" + es, "jet eta", 100, -3.0, 3.0,
+    ("jetEta" + es, "jet eta", 20, -etaPtBin.getEtaMax(), etaPtBin.getEtaMax(),
      false, false, true, "b", jetTagDir, mcPlots_, ibook);
   
   // reconstructed jet phi
   dJetRecPhi = new FlavourHistograms<double>
-    ("jetPhi" + es, "jet phi", 100, -3.15, 3.15,
+    ("jetPhi" + es, "jet phi", 20, -M_PI, M_PI,
      false, false, true, "b", jetTagDir, mcPlots_, ibook); 
+ 
+  if (doDifferentialPlots_) {
+      // jet Phi larger than requested discrimnator cut
+      dJetPhiDiscrCut = new FlavourHistograms<double>("jetPhi_diffEff" + es, "Efficiency vs. jet Phi for discriminator above cut",
+            20, -M_PI, M_PI, false, false, true, "b", jetTagDir, mcPlots_, ibook);
+      
+      // jet Eta larger than requested discrimnator cut
+      dJetPseudoRapidityDiscrCut = new FlavourHistograms<double>("jetEta_diffEff" + es, "Efficiency vs. jet eta for discriminator above cut",
+            20, -etaPtBin.getEtaMax(), etaPtBin.getEtaMax(), false, false, true, "b", jetTagDir, mcPlots_, ibook);
+  }
 }  
   
   
 JetTagPlotter::~JetTagPlotter () {
+  delete dDiscriminator;
+  
+  if (doDifferentialPlots_) {
+    delete dJetPhiDiscrCut;
+    delete dJetPseudoRapidityDiscrCut;
+  }
+  
   if (!willFinalize_) {
     delete dJetFlav;
     delete JetMultiplicity;
-    delete dDiscriminator;
     delete dJetRecMomentum;
     delete dJetRecPt;
     delete dJetRecPseudoRapidity;
     delete dJetRecPhi;
-  }
-  else {
-    delete dDiscriminator;
+  } else {
     delete effPurFromHistos;
   }
 }
@@ -217,6 +234,12 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   dJetRecPt->fill(jetFlavour, jet.pt()*jec );
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() );
   dJetRecPhi->fill(jetFlavour, jet.phi());
+  if (doDifferentialPlots_) {
+    if (edm::isFinite(discriminator) && discriminator > cutValue_) {
+      dJetPhiDiscrCut->fill(jetFlavour, jet.phi());
+      dJetPseudoRapidityDiscrCut->fill(jetFlavour, jet.eta());
+    }
+  }
 }
 
 void JetTagPlotter::analyzeTag(const reco::Jet & jet, 
@@ -241,6 +264,12 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   dJetRecPt->fill(jetFlavour, jet.pt()*jec , w);
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() , w );
   dJetRecPhi->fill(jetFlavour, jet.phi() , w );
+  if (doDifferentialPlots_) {
+    if (edm::isFinite(discriminator) && discriminator > cutValue_) {
+      dJetPhiDiscrCut->fill(jetFlavour, jet.phi());
+      dJetPseudoRapidityDiscrCut->fill(jetFlavour, jet.eta());
+    }
+  }
 }
 
 
@@ -297,12 +326,24 @@ void JetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & ige
   //
   const std::string & es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
-  dDiscriminator = new FlavourHistograms<double>
-    ("discr" + es, "Discriminator", 102, discrStart_, discrEnd_, "b", jetTagDir, mcPlots_, igetter_);
+  dDiscriminator = new FlavourHistograms<double>("discr" + es, "Discriminator", 102, discrStart_, discrEnd_, "b", jetTagDir, mcPlots_, igetter_);
   
   effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1), mcPlots_, ibook_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos->doCTagPlots(doCTagPlots_);
   effPurFromHistos->compute(ibook_);
+
+  // Produce the differentiel efficiency vs. kinematical variables
+  if (doDifferentialPlots_) {
+    dJetRecPhi = new FlavourHistograms<double>("jetPhi" + es, "jet phi", 20, -M_PI, M_PI, "b", jetTagDir, mcPlots_, igetter_); 
+    dJetPhiDiscrCut = new FlavourHistograms<double>("jetPhi_diffEff" + es, "Efficiency vs. jet Phi for discriminator above cut", 20, -M_PI, M_PI, "b", jetTagDir, mcPlots_, igetter_); 
+    dJetPhiDiscrCut->divide(*dJetRecPhi);
+    dJetPhiDiscrCut->setEfficiencyFlag();
+  
+    dJetRecPseudoRapidity = new FlavourHistograms<double>("jetEta" + es, "jet eta", 20, -etaPtBin_.getEtaMax(), etaPtBin_.getEtaMax(), "b", jetTagDir, mcPlots_, igetter_); 
+    dJetPseudoRapidityDiscrCut = new FlavourHistograms<double>("jetEta_diffEff" + es, "Efficiency vs. jet eta for discriminator above cut", 20, -etaPtBin_.getEtaMax(), etaPtBin_.getEtaMax(), "b", jetTagDir, mcPlots_, igetter_); 
+    dJetPseudoRapidityDiscrCut->divide(*dJetRecPseudoRapidity);
+    dJetPseudoRapidityDiscrCut->setEfficiencyFlag();
+  }
 }
 
