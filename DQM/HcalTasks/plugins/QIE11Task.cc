@@ -53,11 +53,11 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			_cShapeCut_EChannel[itr].initialize(_name,
 				"ShapeCut", hcaldqm::hashfunctions::fEChannel,
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11fC_300000));
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
 			_cTDCvsTS_EChannel[itr].initialize(_name, 
 				"TDCvsTS", hcaldqm::hashfunctions::fEChannel, 
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
                 new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true), 0);
 			_cTDCTime_EChannel[itr].initialize(_name,
 				"TDCTime", hcaldqm::hashfunctions::fEChannel,
@@ -66,16 +66,16 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			for (unsigned int j=0; j<10; j++) {
 				_cTDCvsADC_EChannel[j][itr].initialize(_name,
 					"TDCvsADC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11ADC_256),
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 				_cADC_EChannel[j][itr].initialize(_name,
 					"ADC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11ADC_256),
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 				_cTDC_EChannel[j][itr].initialize(_name,
 					"TDC", hcaldqm::hashfunctions::fEChannel,
-					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 			}
 			++itr;
@@ -84,16 +84,16 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cShapeCut.initialize(_name,
 		"ShapeCut", 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
 	_cTDCvsADC.initialize(_name, "TDCvsADC",
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cTDC.initialize(_name, "TDC",
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cADC.initialize(_name, "ADC",
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	itr = 0;
@@ -149,15 +149,17 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		int index = fakecrate * 12 + (eid.slot() - 10) - 1;
 
 		//	compute the signal, ped subracted
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, frame);
 //		double q = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame,
 //			constants::adc2fC[_ped], 0, frame.samples()-1);
 
 		//	iterate thru all TS and fill
 		for (int j=0; j<frame.samples(); j++)
 		{
+			double q_pedsub = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, j);
 			if (index == 0 || index == 1) {
 				//	shapes are after the cut
-				_cShapeCut_EChannel[index].fill(eid, j, adc2fC[frame[j].adc()]);	
+				_cShapeCut_EChannel[index].fill(eid, j, q_pedsub);	
 				_cTDCvsTS_EChannel[index].fill(eid, j, frame[j].tdc());	
 
 				//	w/o a cut
@@ -171,7 +173,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 				}
 				_cADC_EChannel[j][index].fill(eid, frame[j].adc());
 			}
-			_cShapeCut.fill(eid, j, adc2fC[frame[j].adc()]);
+			_cShapeCut.fill(eid, j, q_pedsub);
 
 			_cTDCvsADC.fill(frame[j].adc(), frame[j].tdc());
 
