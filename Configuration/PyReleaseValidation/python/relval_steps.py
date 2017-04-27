@@ -1724,6 +1724,7 @@ defaultDataSets['2023D9']=''
 defaultDataSets['2023D11']=''
 defaultDataSets['2023D12']=''
 defaultDataSets['2023D13']=''
+defaultDataSets['2023D14']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -1941,23 +1942,30 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFast'][k]['--era']=era
 
+# add Timing variations
+for step in upgradeStepDict.keys():
+    if not "_Timing" in step:
+        upgradeStepDict[step+"_Timing"] = deepcopy(upgradeStepDict[step])
+        for key in upgradeStepDict[step+"_Timing"].keys():
+            # avoid some nonsense
+            if not "_timing" in upgradeStepDict[step+"_Timing"][key]['--era']:
+                upgradeStepDict[step+"_Timing"][key]['--era'] += "_timing"
 
-
-
-for step in upgradeSteps:
+for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step:
         for frag in upgradeFragments:
             howMuch=howMuches[frag]
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
-                #get inputs in case of -i...but no need to specify in great detail
-                #however, there can be a conflict of beam spots but this is lost in the dataset name
-                #so please be careful   
-                s=frag[:-4]+'_'+key
-                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                if step in upgradeStepDict and key in upgradeStepDict[step]: 
+                    steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                    #get inputs in case of -i...but no need to specify in great detail
+                    #however, there can be a conflict of beam spots but this is lost in the dataset name
+                    #so please be careful   
+                    s=frag[:-4]+'_'+key
+                    if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
