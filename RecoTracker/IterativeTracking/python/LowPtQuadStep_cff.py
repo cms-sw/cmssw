@@ -115,9 +115,6 @@ _lowPtQuadStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
 )
 _lowPtQuadStepHitQuadrupletsMerging.SeedComparitorPSet = lowPtQuadStepSeeds.SeedComparitorPSet
 
-trackingPhase1PU70.toModify(lowPtQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
-trackingPhase1PU70.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadrupletsMerging)
-
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
@@ -129,16 +126,12 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
-trackingPhase1PU70.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
 lowPtQuadStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('lowPtQuadStepTrajectoryFilterBase'))]
-)
-trackingPhase1PU70.toModify(lowPtQuadStepTrajectoryFilter,
-    filters = lowPtQuadStepTrajectoryFilter.filters.value() + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 trackingPhase2PU140.toModify(lowPtQuadStepTrajectoryFilter,
     filters = lowPtQuadStepTrajectoryFilter.filters.value() + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
@@ -150,10 +143,6 @@ lowPtQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     nSigma = 3.0,
     MaxChi2 = 9.0,
     clusterChargeCut = dict(refToPSet_ = ('SiStripClusterChargeCutTight')),
-)
-trackingPhase1PU70.toModify(lowPtQuadStepChi2Est,
-    MaxChi2 = 25.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
 )
 trackingPhase2PU140.toModify(lowPtQuadStepChi2Est,
     MaxChi2 = 25.0,
@@ -181,7 +170,6 @@ lowPtQuadStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clon
     fractionShared = 0.16,
     allowSharedFirstHit = True
 )
-trackingPhase1PU70.toModify(lowPtQuadStepTrajectoryCleanerBySharedHits, fractionShared = 0.095)
 trackingPhase2PU140.toModify(lowPtQuadStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -227,54 +215,11 @@ trackingPhase1QuadProp.toReplaceWith(lowPtQuadStep, lowPtQuadStep.clone(
     qualityCuts = [-0.65,-0.35,-0.15],
 ))
 
-# For Phase1PU70
+# For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src = 'lowPtQuadStepTracks',
     trackSelectors = [
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'lowPtQuadStepLoose',
-            chi2n_par = 2.0,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.8, 4.0 ),
-            dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.5, 4.0 )
-        ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'lowPtQuadStepTight',
-            preFilterName = 'lowPtQuadStepLoose',
-            chi2n_par = 1.3,
-            res_par = ( 0.003, 0.002 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.7, 4.0 ),
-            dz_par1 = ( 0.6, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
-        ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'lowPtQuadStep',
-            preFilterName = 'lowPtQuadStepTight',
-            chi2n_par = 1.0,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.6, 4.0 ),
-            dz_par1 = ( 0.5, 4.0 ),
-            d0_par2 = ( 0.3, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
-        ),
-    ]
-) #end of clone
-
-trackingPhase2PU140.toModify(lowPtQuadStepSelector,
-    trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtQuadStepLoose',
             chi2n_par = 2.0,
@@ -313,9 +258,9 @@ trackingPhase2PU140.toModify(lowPtQuadStepSelector,
             d0_par2 = ( 0.45, 4.0 ),
             dz_par2 = ( 0.45, 4.0 )
             ),
-        ), #end of vpset
-    vertices = "pixelVertices"
+    ] #end of vpset
 ) #end of clone
+
 
 # Final sequence
 LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
@@ -329,7 +274,6 @@ LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
                              lowPtQuadStepTracks*
                              lowPtQuadStep)
 trackingPhase1.toReplaceWith(LowPtQuadStep, LowPtQuadStep.copyAndExclude([lowPtQuadStepHitTriplets]))
-_LowPtQuadStep_Phase1PU70 = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase1PU70.replace(lowPtQuadStep, lowPtQuadStepSelector)
-trackingPhase1PU70.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1PU70)
+_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
+_LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
+trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)
