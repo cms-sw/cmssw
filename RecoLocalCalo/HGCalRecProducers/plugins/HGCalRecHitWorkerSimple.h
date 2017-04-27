@@ -50,10 +50,11 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   std::vector<double> rcorr_;
   std::vector<float> weights_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
+  std::unique_ptr<hgcal::RecHitTools> tools_;
 
   const bool isRealistic_ = false;
   float nSigmaThreshold_;
-  hgcal::RecHitTools *tools;
+
 
 };
 

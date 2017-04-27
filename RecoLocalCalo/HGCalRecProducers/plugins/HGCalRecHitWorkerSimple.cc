@@ -13,6 +13,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   isRealistic_(ps.getParameter<bool>("isRealistic"))
   {
   rechitMaker_.reset( new HGCalRecHitSimpleAlgo() );
+  tools_.reset(new hgcal::RecHitTools());
   constexpr float keV2GeV = 1e-6;
   // HGCee constants 
   HGCEE_keV2DIGI_   =  ps.getParameter<double>("HGCEE_keV2DIGI");
@@ -61,7 +62,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  tools->getEventSetup(es);
+  tools_->getEventSetup(es);
   if (HGCEE_isSiFE_) {
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle; 
     es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle); 
@@ -87,7 +88,7 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   DetId detid=uncalibRH.id();  
   int thickness = -1;
   float sigmaNoiseMeV;
-  unsigned int layer = tools->getLayerWithOffset(detid);
+  unsigned int layer = tools_->getLayerWithOffset(detid);
   HGCalDetId hid;
 
   switch( detid.subdetId() ) {
