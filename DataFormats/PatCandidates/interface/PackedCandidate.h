@@ -605,6 +605,16 @@ namespace pat {
     float puppiWeight() const;                          /// Weight from full PUPPI
     float puppiWeightNoLep() const;                     /// Weight from PUPPI removing leptons
     
+    // for the neutral fractions
+    void setRawCaloFraction(float p);                      /// Set the raw ECAL+HCAL energy for isolated charged hadrons
+    float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy for isolated charged hadrons
+    void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
+    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
+
+     // isolated charged hadrons
+    void setIsIsolatedChargedHadron(bool p);                      /// Set isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flat for charged hadrons
+    bool isIsolatedChargedHadron() const { return isIsolatedChargedHadron_; }    /// Flag isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flag for charged hadrons
+
     struct PackedCovariance {
         PackedCovariance(): dxydxy(0),dxydz(0),dzdz(0),dlambdadz(0),dphidxy(0),dptdpt(0),detadeta(0),dphidphi(0) {}
         //3D IP covariance
@@ -619,16 +629,6 @@ namespace pat {
         uint16_t detadeta;
         uint16_t dphidphi;
     };
-
-    // for the neutral fractions
-    void setRawCaloFraction(float p);                      /// Set the fraction of Ecal needed for HF and neutral isolated charged hadrons
-    float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
-    void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
-    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
-
-     // isolated charged hadrons
-    void setIsIsolatedChargedHadron(bool p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
-    bool isIsolatedChargedHadron() const { return isIsolatedChargedHadron_; }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
 
   private:
     void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix & m, uint16_t packed, int i,int j) const {
