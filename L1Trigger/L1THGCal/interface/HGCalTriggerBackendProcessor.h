@@ -2,7 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalTriggerBackendProcessor_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
@@ -35,11 +35,11 @@ class HGCalTriggerBackendProcessor {
 
   void setGeometry(const HGCalTriggerGeometryBase* const geom);
 
-  void setProduces(edm::EDProducer& prod) const;
+  void setProduces(edm::stream::EDProducer<>& prod) const;
 
   void run(const l1t::HGCFETriggerDigiCollection& coll,
 	   const edm::EventSetup& es,
-	   const edm::Event&e
+           edm::Event&e
 	   );
 
   void putInEvent(edm::Event& evt);
