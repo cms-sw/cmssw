@@ -191,7 +191,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
-    HistLim nbin(10, 0., 10.);
+    HistLim nbin(11, -0.5, 10.5);
 
     HistLim pedestal(80, -1.0, 15.);
     HistLim pedestalfC(400, -10., 30.);
@@ -797,10 +797,14 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	    
 	    //Special for HF
 	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
-	      double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
-	      double fBin67 = tool[3] + tool[4]
-		- calibrations.pedestal((*digiItr)[3].capid())
-		- calibrations.pedestal((*digiItr)[4].capid());
+              int soi = (tool.presamples() == 1 ? 1 : 2);
+              int lastbin = tool.size() - 1;
+
+	      double fBin5 = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
+	      double fBin67 = 0; 
+
+              for(int j = soi+1; j <= lastbin; j++) fBin67 += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
+
 	      fBin5 /= v_ampl[1];
 	      fBin67 /= v_ampl[1];
 	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
@@ -1142,11 +1146,17 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 	    }
 	    
 	    //Special for HF
+            //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
 	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
-	      double fBin5 = tool[2] - calibrations.pedestal((dataFrame)[2].capid());
-	      double fBin67 = tool[3] + tool[4]
-		- calibrations.pedestal((dataFrame)[3].capid())
-		- calibrations.pedestal((dataFrame)[4].capid());
+              int soi = (tool.presamples() == 1 ? 1 : 2);
+              int lastbin = tool.size() - 1;
+
+	      double fBin5 = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
+	      double fBin67 = 0; 
+
+              for(int j = soi+1; j <= lastbin; j++) fBin67 += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
+
+
 	      fBin5 /= v_ampl[1];
 	      fBin67 /= v_ampl[1];
 	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
