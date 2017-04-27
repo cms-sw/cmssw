@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates a histogram where the the names of the structures are present
 # as humanreadable text.
@@ -7,8 +5,9 @@
 
 import logging
 
-from ROOT import (TH1F, TCanvas, TGraph, TImage, TPaveLabel, TPaveText, TTree,
-                  gROOT, gStyle)
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import OutputData, PlotData
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
@@ -19,8 +18,8 @@ def plot(MillePedeUser, alignables, config):
     logger = logging.getLogger("mpsvalidate")
     
     # more space for labels
-    gStyle.SetPadBottomMargin(0.25)
-    gStyle.SetOptStat("emrs")
+    ROOT.gStyle.SetPadBottomMargin(0.25)
+    ROOT.gStyle.SetOptStat("emrs")
 
     for mode in ["xyz", "rot"]:
         big = PlotData(mode)
@@ -38,7 +37,7 @@ def plot(MillePedeUser, alignables, config):
 
         # initialize histograms
         for i in range(3):
-            big.histo.append(TH1F("Big Structure {0} {1}".format(big.xyz[i], mode), "", big.numberOfBins[i], 0, big.numberOfBins[i]))
+            big.histo.append(ROOT.TH1F("Big Structure {0} {1}".format(big.xyz[i], mode), "", big.numberOfBins[i], 0, big.numberOfBins[i]))
             if (big.unit!=""):
                 big.histo[i].SetYTitle("#Delta"+big.xyz[i]+" ["+big.unit+"]")
             else:
@@ -51,9 +50,9 @@ def plot(MillePedeUser, alignables, config):
             big.histo[i].GetYaxis().SetTitleOffset(1.6)
 
         # add labels
-        big.title = TPaveLabel(
+        big.title = ROOT.TPaveLabel(
             0.1, 0.8, 0.9, 0.9, "High Level Structures {0}".format(mode))
-        big.text = TPaveText(0.05, 0.1, 0.95, 0.75)
+        big.text = ROOT.TPaveText(0.05, 0.1, 0.95, 0.75)
         big.text.SetTextAlign(12)
 
         # error if shift is bigger than limit
@@ -138,7 +137,7 @@ def plot(MillePedeUser, alignables, config):
                         big.xyz[i], int(big.hiddenEntries[i])))
 
         # create canvas
-        cBig = TCanvas("canvasBigStrucutres_{0}".format(
+        cBig = ROOT.TCanvas("canvasBigStrucutres_{0}".format(
             mode), "Parameter", 300, 0, 800, 600)
         cBig.Divide(2, 2)
 
@@ -165,7 +164,7 @@ def plot(MillePedeUser, alignables, config):
                                                  abs(big.usedRange[i]), 1.1 * abs(big.usedRange[i]))
 
             # TGraph object to hide outlier
-            copy[i] = TGraph(big.histo[i])
+            copy[i] = ROOT.TGraph(big.histo[i])
             # set the new range
             copy[i].SetMaximum(1.1 * abs(big.usedRange[i]))
             copy[i].SetMinimum(-1.1 * abs(big.usedRange[i]))
@@ -179,7 +178,7 @@ def plot(MillePedeUser, alignables, config):
             "{0}/plots/pdf/structures_{1}.pdf".format(config.outputPath, mode))
 
         # export as png
-        image = TImage.Create()
+        image = ROOT.TImage.Create()
         image.FromPad(cBig)
         image.WriteImage(
             "{0}/plots/png/structures_{1}.png".format(config.outputPath, mode))
@@ -190,4 +189,4 @@ def plot(MillePedeUser, alignables, config):
         config.outputList.append(output)
 
     # reset BottomMargin
-    gStyle.SetPadBottomMargin(0.1)
+    ROOT.gStyle.SetPadBottomMargin(0.1)
