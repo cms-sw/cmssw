@@ -1,3 +1,4 @@
+
 ///
 /// \class l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1
 ///
@@ -34,22 +35,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   uint32_t ntowers(0);
   math::XYZTLorentzVector p4;
   
-  //number of towers within abs(ieta)<=4, compressed by factor 4
-  //LUT has 128 bins in compNTT4, and when nTT4>512, towEtThresh set to 20 (10GeV)
-  double nTT4(0);
-  uint compNTT4(0);
-  // get compressed PU estimate
-  for (int etaSide=1; etaSide>=-1; etaSide-=2) {
-    for (unsigned absieta=1; absieta<=4; absieta++) {
-      int ieta = etaSide * absieta;
-      for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
-	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
-	if(tower.hwPt()>=1)
-	  nTT4++;
-      }
-    }
-  }
-  compNTT4=round(nTT4/4);
+  int nTT4 = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
+					params_->egPUSParam(1),
+					1,72,towers,1,999,CaloTools::CALO);
+  uint compNTT4 = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+(0x1<<5)+nTT4);
+
 
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
@@ -64,15 +54,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       int ieta = etaSide * absieta;
 
       towEtThresh_ = 0;
-      if(!params_->etSumBypassPUS()){
-	if(params_->etSumPUSType() == "LUT"){
-	  uint towEtLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
-	  if(towEtLUTAddr > 8191) towEtThresh_ = 20;
-	  else towEtThresh_ = params_->etSumPUSLUT()->data(towEtLUTAddr);
-	} else {
-	  if(params_->etSumPUSType() != "None" && params_->etSumPUSType() != "none") 
-	    edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 ETT & MET" << std::endl;
-	  return;
+      if(abs(ieta)>10){
+	if(!params_->etSumBypassPUS()){
+	  if(params_->etSumPUSType() == "LUT"){
+	    uint towEtLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
+	    if(towEtLUTAddr > 2047) towEtThresh_ = 16;
+	    else towEtThresh_ = params_->etSumPUSLUT()->data(towEtLUTAddr);
+	    std::cout << "addr = " << towEtLUTAddr  << ", ntow = " << nTT4 << ", comp ntt4 = " << compNTT4 << ", ieta = " << ieta << ", towEtThresh = " << towEtThresh_ << std::endl;
+	  } else {
+	    if(params_->etSumPUSType() != "None" && params_->etSumPUSType() != "none") 
+	      edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 ETT & MET" << std::endl;
+	    return;
+	  }
 	}
       }
 
