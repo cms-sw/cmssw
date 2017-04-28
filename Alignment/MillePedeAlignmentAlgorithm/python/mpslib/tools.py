@@ -36,8 +36,11 @@ def create_single_iov_db(inputs, run_number, output_db):
     for record,tag in inputs.iteritems():
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
+        source_connect = ("frontier://PromptProd/cms_conditions"
+                          if tag["connect"] == "pro"
+                          else tag["connect"])
         cmd = ("conddb_import",
-               "-f", "frontier://PromptProd/cms_conditions",
+               "-f", source_connect,
                "-c", result[record]["connect"],
                "-i", tag["tag"],
                "-t", result[record]["tag"],
@@ -117,6 +120,15 @@ def get_tags(global_tag, records):
 
     if len(records) == 0: return {} # avoid useless DB query
 
+    # check for auto GT
+    if global_tag.startswith("auto:"):
+        import Configuration.AlCa.autoCond as AC
+        try:
+            global_tag = AC.autoCond[global_tag.split("auto:")[-1]]
+        except KeyError:
+            print "Unsupported auto GT:", global_tag
+            sys.exit(1)
+
     # setting up the DB session
     con = conddb.connect(url = conddb.make_url())
     session = con.session()
@@ -142,6 +154,7 @@ def get_iovs(db, tag):
     """
 
     db = db.replace("sqlite_file:", "").replace("sqlite:", "")
+    db = db.replace("frontier://FrontierProd/CMS_CONDITIONS", "pro")
 
     con = conddb.connect(url = conddb.make_url(db))
     session = con.session()

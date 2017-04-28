@@ -24,6 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -57,7 +62,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('EMTF')
     # include the system-specific subkeys ESProducer (generates EMTF labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapObjectKeysOnline_cfi")
-    process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
+    process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TMuonEndcapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -73,6 +79,7 @@ else :
 # This online produced should never be called if the rest of the O2O machinery works as expected
 process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnline_cfi")
 process.L1TMuonEndcapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TMuonEndcapParamsOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
 

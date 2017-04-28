@@ -105,7 +105,7 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
 
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",thisProcess));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator",""));
-  produces<GenFilterInfo, edm::InLumi>(); 
+  produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>(); 
 
   
 }

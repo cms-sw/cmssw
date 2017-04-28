@@ -37,7 +37,7 @@ HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig) : HLT
   candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
 }
 
-HLTElectronEtFilter::~HLTElectronEtFilter(){}
+HLTElectronEtFilter::~HLTElectronEtFilter()= default;
 
 void
 HLTElectronEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -73,9 +73,9 @@ bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   // look at all photons, check cuts and add to filter object
   int n = 0;
 
-  for (unsigned int i=0; i<elecands.size(); i++) {
+  for (auto & elecand : elecands) {
 
-    ref = elecands[i];
+    ref = elecand;
     float Pt = ref->pt();
     float Eta = fabs(ref->eta());
 

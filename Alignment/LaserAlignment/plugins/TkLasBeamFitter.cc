@@ -190,8 +190,8 @@ TkLasBeamFitter::TkLasBeamFitter(const edm::ParameterSet &iConfig) :
   h_resVsHitTecPlus(0), h_resVsHitTecMinus(0), h_resVsHitAt(0)
 {
   // declare the products to produce
-  this->produces<TkFittedLasBeamCollection, edm::InRun>();
-  this->produces<TsosVectorCollection, edm::InRun>();
+  this->produces<TkFittedLasBeamCollection, edm::Transition::EndRun>();
+  this->produces<TsosVectorCollection, edm::Transition::EndRun>();
   
   //now do what ever other initialization is needed
 }

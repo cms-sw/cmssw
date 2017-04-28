@@ -53,9 +53,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig) : HLTFi
 }
 
  
-HLTMuonPFIsoFilter::~HLTMuonPFIsoFilter()
-{
-}
+HLTMuonPFIsoFilter::~HLTMuonPFIsoFilter() = default;
 
 //
 // member functions

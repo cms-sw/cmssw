@@ -24,11 +24,11 @@
 class HLTPhysicsDeclared : public edm::EDFilter {
 public:
   explicit HLTPhysicsDeclared( const edm::ParameterSet & );
-  ~HLTPhysicsDeclared();
+  ~HLTPhysicsDeclared() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter( edm::Event &, const edm::EventSetup & ) override;
+  bool filter( edm::Event &, const edm::EventSetup & ) override;
 
   bool          m_invert;
   edm::InputTag m_gtDigis;
@@ -51,9 +51,7 @@ HLTPhysicsDeclared::HLTPhysicsDeclared(const edm::ParameterSet & config) :
   m_gtDigisToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtDigis);
 }
 
-HLTPhysicsDeclared::~HLTPhysicsDeclared()
-{
-}
+HLTPhysicsDeclared::~HLTPhysicsDeclared() = default;
 
 void
 HLTPhysicsDeclared::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

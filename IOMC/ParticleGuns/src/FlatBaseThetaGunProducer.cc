@@ -40,7 +40,7 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
          "require it.";
   }
 
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
 }
 
 FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {

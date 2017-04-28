@@ -62,6 +62,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    fillGlobalTrackRefits_   = iConfig.getParameter<bool>("fillGlobalTrackRefits");
+   arbitrateTrackerMuons_   = iConfig.getParameter<bool>("arbitrateTrackerMuons");
    //SK: (maybe temporary) run it only if the global is also run
    fillTrackerKink_         = false;
    if (fillGlobalTrackQuality_)  fillTrackerKink_ =  iConfig.getParameter<bool>("fillTrackerKink");
@@ -586,8 +587,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
              const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-             if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-             caloMuons->push_back( caloMuon );
+	     if (isGoodCaloMuon(caloMuon)) caloMuons->push_back( caloMuon );
            }
          }
        }
@@ -635,6 +635,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          outputMuons->back().setType( reco::Muon::StandAloneMuon );
        }
      }
+   }
+
+   if (arbitrateTrackerMuons_){
+     fillArbitrationInfo( outputMuons.get() );
+     arbitrateMuons( outputMuons.get(), caloMuons.get() );
    }
 
    LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
@@ -754,6 +759,12 @@ bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
        muon.pt()<5 && std::abs(muon.eta())<1.5 &&
        muon.numberOfMatches( reco::Muon::NoArbitration ) >= 1 ) return true;
   return ( muon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_ );
+}
+
+bool MuonIdProducer::isGoodCaloMuon( const reco::CaloMuon& caloMuon )
+{
+  if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) return false;
+  return true;
 }
 
 bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
@@ -970,6 +981,32 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      aMuon.numberOfMatches( reco::Muon::NoArbitration );
 
    // fillTime( iEvent, iSetup, aMuon );
+}
+
+void MuonIdProducer::arbitrateMuons( reco::MuonCollection* muons, reco::CaloMuonCollection* caloMuons )
+{
+  reco::Muon::ArbitrationType arbitration = reco::Muon::SegmentAndTrackArbitration;
+  // arbitrate TrackerMuons
+  // if a muon was exclusively TrackerMuon check if it can be a calo muon
+  for (reco::MuonCollection::iterator muon=muons->begin(); muon!=muons->end();){
+    if (muon->isTrackerMuon()){
+      if (muon->numberOfMatches(arbitration)<minNumberOfMatches_){
+	// TrackerMuon failed arbitration
+	// If not any other base type - erase the element
+	// (PFMuon is not a base type)
+	unsigned int mask = reco::Muon::TrackerMuon|reco::Muon::PFMuon;
+	if ((muon->type() & (~mask))==0){
+	  const reco::CaloMuon& caloMuon = makeCaloMuon(*muon);
+	  if (isGoodCaloMuon(caloMuon)) caloMuons->push_back( caloMuon );
+	  muon = muons->erase(muon);
+	  continue;
+	} else {
+	  muon->setType(muon->type()&(~reco::Muon::TrackerMuon));
+	}
+      } 
+    }
+    muon++;
+  }
 }
 
 void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, unsigned int muonType )
@@ -1279,6 +1316,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;  
   desc.setAllowAnything();
   
+  desc.add<bool>("arbitrateTrackerMuons",false);
+
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));

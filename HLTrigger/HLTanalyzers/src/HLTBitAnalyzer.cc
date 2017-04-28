@@ -98,7 +98,7 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
   
   _UseTFileService = conf.getUntrackedParameter<bool>("UseTFileService",false);
 	
-  m_file = 0;   // set to null
+  m_file = nullptr;   // set to null
   errCnt = 0;
 
   // read run parameters with a default value
@@ -258,12 +258,12 @@ void HLTBitAnalyzer::endJob() {
 		
 		HltTree->Write();
 		delete HltTree;
-		HltTree = 0;
+		HltTree = nullptr;
 		
 		if (m_file) {         // if there was a tree file...
 			m_file->Write();    // write out the branches
 			delete m_file;      // close and delete the file
-			m_file = 0;         // set to zero to clean up
+			m_file = nullptr;         // set to zero to clean up
 		}
 	}
 }

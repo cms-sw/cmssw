@@ -115,7 +115,7 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoB
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters                              
                                  )
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
