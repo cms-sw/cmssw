@@ -7,12 +7,8 @@
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace hcal_impl {
-  class LessById {public: bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId < b->mId;}};
-}
-
-HcalFrontEndMap::HcalFrontEndMap(const HcalFrontEndMap::Helper& helper) :
-    mPItems(helper.mPItems)
+HcalFrontEndMap::HcalFrontEndMap(const HcalFrontEndMapAddons::Helper& helper) :
+    mPItems(helper.mPItems.begin(),helper.mPItems.end())
 {
   initialize();
 }
@@ -46,30 +42,29 @@ HcalFrontEndMap::HcalFrontEndMap(HcalFrontEndMap&& other) : HcalFrontEndMap() {
 const HcalFrontEndMap::PrecisionItem* HcalFrontEndMap::findById (uint32_t fId, const std::vector<const PrecisionItem*>& mPItemsById) {
   PrecisionItem target (fId, 0, "");
 
-  auto item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, hcal_impl::LessById());
+  auto item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, HcalFrontEndMapAddons::LessById());
   if (item == mPItemsById.end() || (*item)->mId != fId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
 }
 
-HcalFrontEndMap::Helper::Helper()
+HcalFrontEndMapAddons::Helper::Helper()
 {
 }
 
-bool HcalFrontEndMap::Helper::loadObject(DetId fId, int rm, std::string rbx ) {
-  const PrecisionItem* item = HcalFrontEndMap::findById (fId.rawId (),mPItemsById);
-  if (item) {
+bool HcalFrontEndMapAddons::Helper::loadObject(DetId fId, int rm, std::string rbx ) {
+  HcalFrontEndMap::PrecisionItem target (fId.rawId(), rm, rbx);
+  auto iter = mPItems.find(target);
+  if (iter!=mPItems.end()) {
     edm::LogWarning("HCAL") << "HcalFrontEndMap::loadObject DetId " 
 			    << HcalDetId(fId) << " already exists with RM "
-			    << item->mRM << " RBX " << item->mRBX 
+			    << iter->mRM << " RBX " << iter->mRBX 
 			    << " new values " << rm << " and " << rbx
 			    << " are ignored";
     return false;
   } else {
-    PrecisionItem target (fId.rawId(), rm, rbx);
-    mPItems.push_back(target);
-    HcalFrontEndMap::sortById(mPItems,mPItemsById);
+    mPItems.insert(target);
     return true;
   }
 }
@@ -132,7 +127,7 @@ void HcalFrontEndMap::sortById (const std::vector<PrecisionItem>& items, std::ve
   for(const auto& i : items){
     if(i.mId) itemsById.push_back(&i);
   }
-  std::sort (itemsById.begin(), itemsById.end(), hcal_impl::LessById ());
+  std::sort (itemsById.begin(), itemsById.end(), HcalFrontEndMapAddons::LessById ());
 }
 
 void HcalFrontEndMap::initialize() {

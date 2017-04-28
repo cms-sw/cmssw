@@ -13,6 +13,7 @@ $Revision: 1.1 $
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <set>
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
@@ -24,7 +25,12 @@ $Revision: 1.1 $
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-// 
+
+//forward declaration
+namespace HcalDcsMapAddons {
+  class Helper;
+}
+ 
 class HcalDcsMap {
  public:
 
@@ -39,24 +45,8 @@ class HcalDcsMap {
    COND_SERIALIZABLE;
   };
 
-  class Helper {
-   public:
-    Helper();
-    // map channels
-    // DCS type is a part of DcsDetId but it does not make sense to keep
-    // duplicate records in the map for DCS channels where only type is different.
-    // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
-    // inside this method
-    bool mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId);
-
-    std::vector<Item> mItems;
-    std::vector<const Item*> mItemsByDcsId;
-
-   COND_TRANSIENT;
-  };
-
   HcalDcsMap() {}
-  HcalDcsMap(const Helper& helper);
+  HcalDcsMap(const HcalDcsMapAddons::Helper& helper);
   ~HcalDcsMap();
   
   // swap function
@@ -80,7 +70,7 @@ class HcalDcsMap {
   //
   // For the aforementioned reason, you might use any DCS type
   // when constructing the DetId for this lookup
-  const std::vector<HcalDetId> lookup(HcalDcsDetId fId) const;
+  HcalDetId lookup(HcalDcsDetId fId) const;
   
   // brief lookup the DCS detid associated with the given logical id
   //return Null item if no such mapping
@@ -92,7 +82,7 @@ class HcalDcsMap {
   //
   // For this reason, you need to specify  the DCS type in order
   // to extract proper HcalDcsDetId from the map
-  const std::vector<HcalDcsDetId> lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const;
+  HcalDcsDetId lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const;
 
   class const_iterator{
   public:
@@ -118,26 +108,18 @@ class HcalDcsMap {
   void initialize();
 
   template <class Less>
-  static const std::vector<const Item *> findByIdT (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByIdT){
+  static const Item * findByIdT (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByIdT){
     Item target (fId, 0);
-    std::vector<const HcalDcsMap::Item *> result;
 
-    Less lessByIdT;
-    auto item = std::lower_bound (itemsByIdT.begin(), itemsByIdT.end(), &target, lessByIdT);
+    auto item = std::lower_bound (itemsByIdT.begin(), itemsByIdT.end(), &target, Less());
     if (item == itemsByIdT.end() || (*item)->mId != fId){
       //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fId;
-      return result;
+      return 0;
     }
-    else{
-      if(item != itemsByIdT.end() && !lessByIdT(&target, *item)){
-        result.push_back( *item );
-        ++item;
-      }
-    }
-    return result;
+    return *item;
   }
-  static const std::vector<const Item *> findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById);
-  static const std::vector<const Item *> findByDcsId (unsigned long fDcsId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId);
+  static const Item * findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById);
+  static const Item * findByDcsId (unsigned long fDcsId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId);
 
   //sorting
   template <class Less>
@@ -164,5 +146,38 @@ class HcalDcsMap {
 
  COND_SERIALIZABLE;
 };
+
+namespace HcalDcsMapAddons {
+  class LessById {
+  public:
+    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+      return a->mId < b->mId;
+    }
+    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
+      return a.mId < b.mId;
+    }
+  };
+  class LessByDcsId {
+  public:
+    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+      return a->mDcsId < b->mDcsId;
+    }
+    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
+      return a.mDcsId < b.mDcsId;
+    }
+  };
+  class Helper {
+   public:
+    Helper();
+    // map channels
+    // DCS type is a part of DcsDetId but it does not make sense to keep
+    // duplicate records in the map for DCS channels where only type is different.
+    // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
+    // inside this method
+    bool mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId);
+
+    std::set<HcalDcsMap::Item,LessByDcsId> mItems;
+  };
+}
 
 #endif

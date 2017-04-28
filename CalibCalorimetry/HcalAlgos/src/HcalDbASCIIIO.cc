@@ -1295,7 +1295,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 namespace HcalDbASCIIIO {
 template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput) {
-  HcalElectronicsMap::Helper fObjectHelper;
+  HcalElectronicsMapAddons::Helper fObjectHelper;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -1632,7 +1632,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
 namespace HcalDbASCIIIO {
 template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput) {
   char buffer [1024];
-  HcalDcsMap::Helper fObjectHelper;
+  HcalDcsMapAddons::Helper fObjectHelper;
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
@@ -1794,7 +1794,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 namespace HcalDbASCIIIO {
 template<> std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput) {
   char buffer [1024];
-  HcalFrontEndMap::Helper fObjectHelper;
+  HcalFrontEndMapAddons::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
@@ -1890,7 +1890,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters&
 namespace HcalDbASCIIIO {
 template<> std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput) {
   char buffer [1024];
-  HcalSiPMCharacteristics::Helper fObjectHelper;
+  HcalSiPMCharacteristicsAddons::Helper fObjectHelper;
   unsigned int all(0), good(0);
   while (fInput.getline(buffer, 1024)) {
     ++all;
