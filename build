@@ -1,0 +1,11 @@
+#!/bin/bash
+
+make clean
+
+rootcling -v2 -f ./stub/FitCint.cc -I`root-config --incdir` \
+	interface/LHCOpticsApproximator.h interface/TNtupleDcorr.h \
+	./stub/FitCintLinkDef.h
+
+make -j8
+
+make exe
