@@ -26,11 +26,10 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
   
-  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
-	iParam != parameterNames.end(); iParam++ ){
-    if  ( (*iParam) == "Monte" ) _Monte =  myMCParams.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "GenTracks" ) _Gen =  myMCParams.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "Debug" ) _Debug =  myMCParams.getParameter<bool>( *iParam );
+  for (auto & parameterName : parameterNames){
+    if  ( parameterName == "Monte" ) _Monte =  myMCParams.getParameter<bool>( parameterName );
+    else if ( parameterName == "GenTracks" ) _Gen =  myMCParams.getParameter<bool>( parameterName );
+    else if ( parameterName == "Debug" ) _Debug =  myMCParams.getParameter<bool>( parameterName );
   }
 
   const int kMaxMcTruth = 10000;
@@ -121,15 +120,15 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     }
 
     if((simTracks.isValid())&&(simVertices.isValid())){
-      for (unsigned int j=0; j<simTracks->size(); j++) {
-	int pdgid = simTracks->at(j).type();
+      for (auto const & j : *simTracks) {
+	int pdgid = j.type();
 	if (abs(pdgid)!=13) continue;
-	double pt = simTracks->at(j).momentum().pt();
+	double pt = j.momentum().pt();
 	if (pt<5.0) continue;
-	double eta = simTracks->at(j).momentum().eta();
+	double eta = j.momentum().eta();
 	if (abs(eta)>2.5) continue;
-	if (simTracks->at(j).noVertex()) continue;
-	int vertIndex = simTracks->at(j).vertIndex();
+	if (j.noVertex()) continue;
+	int vertIndex = j.vertIndex();
 	double x = simVertices->at(vertIndex).position().x();
 	double y = simVertices->at(vertIndex).position().y();
 	double r = sqrt(x*x+y*y);

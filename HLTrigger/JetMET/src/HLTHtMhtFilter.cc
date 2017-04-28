@@ -46,7 +46,7 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
 }
 
 // Destructor
-HLTHtMhtFilter::~HLTHtMhtFilter() {}
+HLTHtMhtFilter::~HLTHtMhtFilter() = default;
 
 // Fill descriptions
 void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {

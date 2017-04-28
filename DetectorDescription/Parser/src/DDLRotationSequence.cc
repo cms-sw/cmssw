@@ -29,8 +29,7 @@ DDLRotationSequence::processElement( const std::string& name, const std::string&
   /** Get the name, axis and angle of each Rotate child and make this the rotation. 
    */
 
-  DDLRotationByAxis* myRotations = 
-    dynamic_cast <DDLRotationByAxis * > (myRegistry_->getElement("RotationByAxis"));
+  std::shared_ptr<DDLRotationByAxis> myRotations = std::static_pointer_cast<DDLRotationByAxis>(myRegistry_->getElement("RotationByAxis"));
   DDXMLAttribute atts;
 
   DDRotationMatrix R;
@@ -46,3 +45,4 @@ DDLRotationSequence::processElement( const std::string& name, const std::string&
   myRotations->clear();
   clear();
 }
+

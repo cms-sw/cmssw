@@ -48,7 +48,7 @@ HLTEgammaDoubleLegCombFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("hltEgammaDoubleLegCombFilter",desc);
 }
 
-HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter(){}
+HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter()= default;
 
 
 // ------------ method called to produce the data  ------------
@@ -73,11 +73,11 @@ bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::Even
   int nr2ndLegOnly=0;
   int nrBoth=0;;
 
-  for(size_t candNr=0;candNr<matchedCands.size();candNr++){
-    if(matchedCands[candNr].first>=0){ //we found a first leg cand
-      if(matchedCands[candNr].second>=0) nrBoth++;//we also found a second leg cand
+  for(auto & matchedCand : matchedCands){
+    if(matchedCand.first>=0){ //we found a first leg cand
+      if(matchedCand.second>=0) nrBoth++;//we also found a second leg cand
       else nr1stLegOnly++; //we didnt find a second leg cand
-    }else if(matchedCands[candNr].second>=0) nr2ndLegOnly++; //we found a second leg cand but we didnt find a first leg
+    }else if(matchedCand.second>=0) nr2ndLegOnly++; //we found a second leg cand but we didnt find a first leg
 
   }
 
@@ -133,23 +133,23 @@ void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,con
   filterOutput->getObjects(trigger::TriggerJet,jetCands);
 
   if(!phoCands.empty()){ //its photons
-    for(size_t candNr=0;candNr<phoCands.size();candNr++){
-      p3s.push_back(phoCands[candNr]->superCluster()->position());
+    for(auto & phoCand : phoCands){
+      p3s.push_back(phoCand->superCluster()->position());
     }
   }else if(!clusCands.empty()){ //try trigger cluster (should never be this, at the time of writing (17/1/11) this would indicate an error)
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){
-      p3s.push_back(clusCands[candNr]->superCluster()->position());
+    for(auto & clusCand : clusCands){
+      p3s.push_back(clusCand->superCluster()->position());
     }
   }else if(!eleCands.empty()){
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){
-      p3s.push_back(eleCands[candNr]->superCluster()->position());
+    for(auto & eleCand : eleCands){
+      p3s.push_back(eleCand->superCluster()->position());
     }
   }else if(!jetCands.empty()){
-    for(size_t candNr=0;candNr<jetCands.size();candNr++){
+    for(auto & jetCand : jetCands){
       math::XYZPoint p3;
-      p3.SetX(jetCands[candNr]->p4().x());
-      p3.SetY(jetCands[candNr]->p4().y());
-      p3.SetZ(jetCands[candNr]->p4().z());
+      p3.SetX(jetCand->p4().x());
+      p3.SetY(jetCand->p4().y());
+      p3.SetZ(jetCand->p4().z());
       p3s.push_back(p3);
     }
   }

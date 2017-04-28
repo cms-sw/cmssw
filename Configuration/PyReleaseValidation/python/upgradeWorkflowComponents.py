@@ -22,12 +22,6 @@ upgradeKeys[2023] = [
     '2023D10PU',    
     '2023D4',
     '2023D4PU',
-    '2023D7Timing',
-    '2023D7TimingPU',
-    '2023D10Timing',
-    '2023D10TimingPU',
-    '2023D4Timing',
-    '2023D4TimingPU',
     '2023D8',
     '2023D8PU',
     '2023D9',
@@ -38,6 +32,8 @@ upgradeKeys[2023] = [
     '2023D12PU',
     '2023D13',
     '2023D13PU',
+    '2023D14',
+    '2023D14PU',
 ]
 
 # pre-generation of WF numbers
@@ -48,7 +44,7 @@ numWFStart={
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[22400,22800],[25000,26000],[50000,51000]]
+numWFConflict = [[11000,11200],[11400,11600],[20800,21200],[21600,23200],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [numWFStart[2017]],
     2023: [numWFStart[2023]]
@@ -63,32 +59,59 @@ for year in upgradeKeys:
                 break
         numWFAll[year].append(numWFtmp)
 
-upgradeSteps=[
-    'GenSimFull',
-    'GenSimHLBeamSpotFull',
-    'GenSimHLBeamSpotFull14',
-    'DigiFull',
-    'DigiFullTrigger',
-    'DigiFullTriggerPU',
-    'RecoFullLocal',
-    'RecoFullLocalPU',
-    'RecoFull',
-    'RecoFullGlobal',
-    'RecoFullGlobalPU',
-    'HARVESTFull',
-    'FastSim',
-    'HARVESTFast',
-    'DigiFullPU',
-    'RecoFullPU',
-    'HARVESTFullPU',
-    'RecoFull_trackingOnly',
-    'RecoFull_trackingOnlyPU',
-    'HARVESTFull_trackingOnly',
-    'HARVESTFull_trackingOnlyPU',
-    'HARVESTFullGlobal',
-    'HARVESTFullGlobalPU',
-    'ALCAFull'
-]
+# steps for baseline and for variations
+upgradeSteps={}
+upgradeSteps['baseline'] = {
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'FastSim',
+        'HARVESTFast',
+        'HARVESTFullGlobal',
+        'ALCAFull',
+    ],
+    'PU' : [
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFullGlobal',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+    ],
+    'suffix' : '',
+    'offset' : 0.0,
+}
+upgradeSteps['trackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnly',
+    'offset' : 0.1,
+}
+upgradeSteps['Timing'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Timing',
+    'offset' : 0.2,
+}
+upgradeSteps['Neutron'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Neutron',
+    'offset' : 0.3,
+}
 
 upgradeProperties = {}
 
@@ -191,17 +214,16 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
      },
+    '2023D14' : {
+        'Geom' : 'Extended2023D14',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
 }
 
 
-
-#Timing (later we can alter geometry, etc, if need be)
-upgradeProperties[2023]['2023D7Timing'] = deepcopy(upgradeProperties[2023]['2023D7'])
-upgradeProperties[2023]['2023D7Timing']['Era'] = 'Phase2C1_timing'
-upgradeProperties[2023]['2023D10Timing'] = deepcopy(upgradeProperties[2023]['2023D10'])
-upgradeProperties[2023]['2023D10Timing']['Era'] = 'Phase2C1_timing'
-upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
-upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
 upgradeProperties[2023]['2023D7PU'] = deepcopy(upgradeProperties[2023]['2023D7'])
@@ -220,15 +242,8 @@ upgradeProperties[2023]['2023D12PU'] = deepcopy(upgradeProperties[2023]['2023D12
 upgradeProperties[2023]['2023D12PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D13PU'] = deepcopy(upgradeProperties[2023]['2023D13'])
 upgradeProperties[2023]['2023D13PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-
-
-#Timing PU (for now copy ScenToRun of standard PU)
-upgradeProperties[2023]['2023D7TimingPU'] = deepcopy(upgradeProperties[2023]['2023D7Timing'])
-upgradeProperties[2023]['2023D7TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D7PU']['ScenToRun'])
-upgradeProperties[2023]['2023D10TimingPU'] = deepcopy(upgradeProperties[2023]['2023D10Timing'])
-upgradeProperties[2023]['2023D10TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D10PU']['ScenToRun'])
-upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2023D4Timing'])
-upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D4PU']['ScenToRun'])
+upgradeProperties[2023]['2023D14PU'] = deepcopy(upgradeProperties[2023]['2023D14'])
+upgradeProperties[2023]['2023D14PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 
@@ -320,6 +335,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff',
                   'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',
                   'TenE_E_0_200_pythia8_cfi',
+                  'FlatRandomPtAndDxyGunProducer_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -408,6 +424,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff':Kby(9,50),
            'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
            'TenE_E_0_200_pythia8_cfi':Kby(9,100),
+           'FlatRandomPtAndDxyGunProducer_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -496,4 +513,5 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff': 'WpToENu_M-2000_13',
                             'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff': 'DisplacedSUSY_stopToBottom_M_300_1000mm_13',
                             'TenE_E_0_200_pythia8_cfi': 'TenE_0_200',
+                            'FlatRandomPtAndDxyGunProducer_cfi': 'DisplacedMuonsDxy_0_500',
 }

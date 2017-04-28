@@ -39,9 +39,9 @@
 class HLTLevel1Activity : public edm::stream::EDFilter<> {
 public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
-  ~HLTLevel1Activity();
+  ~HLTLevel1Activity() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event &, edm::EventSetup const &) override final;
+  bool filter(edm::Event &, edm::EventSetup const &) final;
 
 private:
   edm::InputTag                                  m_gtReadoutRecordTag;
@@ -96,9 +96,7 @@ HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
   }
 }
 
-HLTLevel1Activity::~HLTLevel1Activity()
-{
-}
+HLTLevel1Activity::~HLTLevel1Activity() = default;
 
 void
 HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

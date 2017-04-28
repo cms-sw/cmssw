@@ -38,13 +38,13 @@ void
 DDLPosPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   // get all internal elements.
-  DDXMLElement* myParent     = myRegistry_->getElement("rParent");
-  DDXMLElement* myChild      = myRegistry_->getElement("rChild");
-  DDXMLElement* myTranslation= myRegistry_->getElement("Translation");
-  DDXMLElement* myDDLRotation= myRegistry_->getElement("Rotation");
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation");
-  DDXMLElement* myDDLRefl    = myRegistry_->getElement("ReflectionRotation");
-  DDXMLElement* myrRefl      = myRegistry_->getElement("rReflectionRotation");
+  auto myParent     = myRegistry_->getElement("rParent");
+  auto myChild      = myRegistry_->getElement("rChild");
+  auto myTranslation= myRegistry_->getElement("Translation");
+  auto myDDLRotation= myRegistry_->getElement("Rotation");
+  auto myrRotation  = myRegistry_->getElement("rRotation");
+  auto myDDLRefl    = myRegistry_->getElement("ReflectionRotation");
+  auto myrRefl      = myRegistry_->getElement("rReflectionRotation");
   // FIXME!!! add in the new RotationByAxis element...
 
   // At this time, PosPart is becoming the most complex of the elements.

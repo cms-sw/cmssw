@@ -12,7 +12,7 @@ AnyJetToCaloJetProducer::AnyJetToCaloJetProducer(const edm::ParameterSet& iConfi
   produces<reco::CaloJetCollection>();
 }
 
-AnyJetToCaloJetProducer::~AnyJetToCaloJetProducer(){ }
+AnyJetToCaloJetProducer::~AnyJetToCaloJetProducer()= default;
 
 void
 AnyJetToCaloJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -42,7 +42,7 @@ public:
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const edm::Event &iEvent);
 
-  void afterAlignment(const edm::EventSetup &iSetup) override;
+  void afterAlignment() override;
 
 private:
 
@@ -480,7 +480,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 }
 
 
-void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup)
+void AlignmentMonitorMuonSystemMap1D::afterAlignment()
 {
   std::cout << "AlignmentMonitorMuonSystemMap1D counters:"<<std::endl;
   std::cout << " monitor m_counter_event      = " << m_counter_event << std::endl;

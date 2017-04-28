@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
-from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalTasks.OfflineSourceSequence_pp import *
@@ -23,7 +22,7 @@ from DQM.CTPPS.ctppsDQM_cff import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
-                                 #hcalOfflineSourceSequence *
+                                 hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source *
                                  dtSources *
@@ -75,7 +74,7 @@ HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
-                           dqmFastTimerServiceLuminosity *
+                           # dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
@@ -149,8 +148,7 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                muonMonitors
                               )
 
-#DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
-DQMOfflineHcal = cms.Sequence()
+DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline

@@ -34,13 +34,23 @@ ________________________________________________________________**/
 #include "Minuit2/FCNBase.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"
-#include "Minuit2/MnPrint.h"
+#include "Minuit2/MnPrint.h" // Defines operator<< for cout << ierr  (Dario)
 #include "TF1.h"
 #include "TMinuitMinimizer.h"
 
-#include <iostream>  
-using namespace std ;
+#include <iostream>    // Dario
+using namespace std ;  // Dario
+// ----------------------------------------------------------------------
+// Useful function:
+// ----------------------------------------------------------------------
 
+// static char * formatTime(const std::time_t & t)  {
+//   struct std::tm * ptm;
+//   ptm = gmtime(&t);
+//   static char ts[32];
+//   strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
+//   return ts;
+// }
 PVFitter::PVFitter(const edm::ParameterSet& iConfig,
                    edm::ConsumesCollector &&iColl)
   : ftree_(0)
@@ -64,10 +74,12 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig,
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
   vertexToken_       = iColl.consumes<reco::VertexCollection>(
       iConfig.getParameter<edm::ParameterSet>("PVFitter")
-      .getUntrackedParameter<edm::InputTag>("VertexCollection", edm::InputTag("offlinePrimaryVertices")));
+      .getUntrackedParameter<edm::InputTag>("VertexCollection",
+                                            edm::InputTag("offlinePrimaryVertices")));
   do3DFit_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Apply3DFit");
   //writeTxt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("WriteAscii");
   //outputTxt_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("AsciiFileName");
+
   maxNrVertices_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("maxNrStoredVertices");
   minNrVertices_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
   minVtxNdf_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
@@ -79,8 +91,6 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig,
   errorScale_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("errorScale");
   sigmaCut_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("nSigmaCut");
   fFitPerBunchCrossing=iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("FitPerBunchCrossing");
-  useOnlyFirstPV_    = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("useOnlyFirstPV");
-  minSumPt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("minSumPt");
 
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
@@ -96,11 +106,36 @@ PVFitter::~PVFitter() {
 
 void PVFitter::readEvent(const edm::Event& iEvent)
 {
+
+//   frun = iEvent.id().run();
+//   const edm::TimeValue_t ftimestamp = iEvent.time().value();
+//   const std::time_t ftmptime = ftimestamp >> 32;
+
+//   if (fbeginLumiOfFit == -1) freftime[0] = freftime[1] = ftmptime;
+//   if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
+//   const char* fbeginTime = formatTime(freftime[0]);
+//   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
+
+//   if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
+//   const char* fendTime = formatTime(freftime[1]);
+//   sprintf(fendTimeOfFit,"%s",fendTime);
+
+//   flumi = iEvent.luminosityBlock();
+//   frunFit = frun;
+
+//   if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
+//   if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
+//   std::cout << "flumi = " <<flumi<<"; fbeginLumiOfFit = " << fbeginLumiOfFit <<"; fendLumiOfFit = "<<fendLumiOfFit<<std::endl;
+
   //------ Primary Vertices
   edm::Handle< reco::VertexCollection > PVCollection;
   bool hasPVs = false;
+  //edm::View<reco::Vertex> vertices;
+  //const reco::VertexCollection & vertices = 0;
 
   if ( iEvent.getByToken(vertexToken_, PVCollection ) ) {
+      //pv = *PVCollection;
+      //vertices = *PVCollection;
       hasPVs = true;
   }
   //------
@@ -108,26 +143,15 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   if ( hasPVs ) {
 
       for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv ) {
-          if (useOnlyFirstPV_){
-             if (pv != PVCollection->begin()) break;
-          }
+
+
+           //for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
           //--- vertex selection
           if ( pv->isFake() || pv->tracksSize()==0 )  continue;
           if ( pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize()<2*minVtxWgt_ )  continue;
           //---
 
-          if (pv->tracksSize() < minVtxTracks_ ) continue;
-		  
-          double sumPt=0;
-          for(auto iTrack = pv->tracks_begin(); iTrack != pv->tracks_end(); ++iTrack)
-          {
-             const auto pt = (*iTrack)->pt();
-             sumPt += pt;
-          }
-          if (sumPt < minSumPt_) continue;
-		  
-		  
           hPVx->Fill( pv->x(), pv->z() );
           hPVy->Fill( pv->y(), pv->z() );
 
@@ -144,9 +168,9 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           //
           // copy PV to store
           //
-          int bx = iEvent.bunchCrossing();
+	  int bx = iEvent.bunchCrossing();
           BeamSpotFitPVData pvData;
-          pvData.bunchCrossing = bx;
+	  pvData.bunchCrossing = bx;
           pvData.position[0] = pv->x();
           pvData.position[1] = pv->y();
           pvData.position[2] = pv->z();
@@ -158,19 +182,22 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
 
-          if(ftree_ != 0){
-             theBeamSpotTreeData_.run(iEvent.id().run());
-             theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
-             theBeamSpotTreeData_.bunchCrossing(bx);
-             theBeamSpotTreeData_.pvData(pvData);
-             ftree_->Fill();
-          }
+	  if(ftree_ != 0){
+	    theBeamSpotTreeData_.run(iEvent.id().run());
+	    theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
+	    theBeamSpotTreeData_.bunchCrossing(bx);
+	    theBeamSpotTreeData_.pvData(pvData);
+	    ftree_->Fill();
+	  }
 
-          if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
+	  if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
 
       }
 
   }
+
+
+
 
 }
 
@@ -197,10 +224,11 @@ bool PVFitter::runBXFitter() {
 
     if ( (pvStore->second).size() <= minNrVertices_ ) {
         edm::LogWarning("PVFitter") << " not enough PVs, continue" << std::endl;
-        fit_ok = false;
-        continue;
+	fit_ok = false;
+      continue;
     }
 
+    //bool fit_ok = false;
     edm::LogInfo("PVFitter") << "Calculating beam spot with PVs ..." << std::endl;
 
     //
@@ -261,9 +289,14 @@ bool PVFitter::runBXFitter() {
     ierr = migrad(0,1.);
     if ( !ierr.IsValid() ) {
         edm::LogInfo("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
-        fit_ok = false;
-        continue;
+	fit_ok = false;
+      continue;
     }
+    // refit with floating scale factor
+    //   minuitx.ReleaseParameter(9);
+    //   minuitx.Minimize();
+
+    //minuitx.PrintResults(0,0);
 
     fwidthX = upar.Value(3);
     fwidthY = upar.Value(5);
@@ -295,7 +328,7 @@ bool PVFitter::runBXFitter() {
 
     fbspotMap[pvStore->first] = fbeamspot;
     edm::LogInfo("PVFitter") << "3D PV fit done for this bunch crossing."<<std::endl;
-
+    //delete fcn;
     fit_ok = fit_ok & true;
   }
 
@@ -309,6 +342,8 @@ bool PVFitter::runFitter() {
     edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << pvStore_.size() << std::endl;
 
     if ( pvStore_.size() <= minNrVertices_ ) return false;
+
+    //bool fit_ok = false;
 
     TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
     TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
@@ -420,6 +455,11 @@ bool PVFitter::runFitter() {
           edm::LogWarning("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
           return false;
       }
+      // refit with floating scale factor
+      //   minuitx.ReleaseParameter(9);
+      //   minuitx.Minimize();
+
+      //minuitx.PrintResults(0,0);
 
       results = ierr.UserParameters().Params() ;					       \
       errors  = ierr.UserParameters().Errors() ;					       \
@@ -461,7 +501,44 @@ bool PVFitter::runFitter() {
 }
 
 void PVFitter::dumpTxtFile(){
+/*
+  fasciiFile << "Runnumber " << frun << std::endl;
+  fasciiFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
+  fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+  fasciiFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
+  fasciiFile << "Type " << fbeamspot.type() << std::endl;
+  fasciiFile << "X0 " << fbeamspot.x0() << std::endl;
+  fasciiFile << "Y0 " << fbeamspot.y0() << std::endl;
+  fasciiFile << "Z0 " << fbeamspot.z0() << std::endl;
+  fasciiFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
+  fasciiFile << "dxdz " << fbeamspot.dxdz() << std::endl;
+  fasciiFile << "dydz " << fbeamspot.dydz() << std::endl;
+  if (inputBeamWidth_ > 0 ) {
+    fasciiFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+    fasciiFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
+  } else {
+    fasciiFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
+    fasciiFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
+  }
 
+  for (int i = 0; i<6; ++i) {
+    fasciiFile << "Cov("<<i<<",j) ";
+    for (int j=0; j<7; ++j) {
+      fasciiFile << fbeamspot.covariance(i,j) << " ";
+    }
+    fasciiFile << std::endl;
+  }
+  // beam width error
+  if (inputBeamWidth_ > 0 ) {
+    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
+  } else {
+    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
+  }
+  fasciiFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
+  fasciiFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
+  fasciiFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+
+*/
 }
 
 
