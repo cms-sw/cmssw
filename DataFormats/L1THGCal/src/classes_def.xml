@@ -20,17 +20,25 @@
   <class name="l1t::HGCalTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
 
-  <class name="l1t::HGCalCluster" />
+  <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
+  <class name="l1t::HGCalCluster" ClassVersion="10">
+    <version ClassVersion="10" checksum="607544984"/>
+  </class>
   <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
-  <class name="l1t::HGCalMulticluster" />
+  <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
+  <class name="l1t::HGCalMulticluster" ClassVersion="10">
+    <version ClassVersion="10" checksum="1878482802"/>
+  </class>
   <class name="std::vector<l1t::HGCalMulticluster>" />
   <class name="l1t::HGCalMulticlusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
 
-  <class name="l1t::HGCalTriggerCell" />
+  <class name="l1t::HGCalTriggerCell" ClassVersion="10">
+    <version ClassVersion="10" checksum="1275348814"/>
+  </class>
   <class name="std::vector<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
