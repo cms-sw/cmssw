@@ -185,7 +185,6 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, frame, 0, frame.samples()-1);
 		// double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, constants::adc2fC[_ped], 0, frame.samples()-1);
 
-
 		_cOccupancy_Crate.fill(eid);
 		_cOccupancy_CrateSlot.fill(eid);
 		_cOccupancy_depth.fill(did);
@@ -197,8 +196,8 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 			if (sumQ>_cut)
 			{
 				double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, frame, j);
-				_cShapeCut_EChannel[index].fill(eid, j, constants::adc2fC[frame[j].adc()]);
-				_cShapeCut.fill(j, constants::adc2fC[frame[j].adc()]);
+				_cShapeCut_EChannel[index].fill(eid, j, q);
+				_cShapeCut.fill(j, q);
 			}
 			//	w/o a cut
 			_cLETDCvsADC_EChannel[j][index].fill(eid, frame[j].adc(), 
