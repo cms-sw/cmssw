@@ -10,7 +10,7 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run2_2017','cosmic_run':'cosmicsEra_Run2_2017','hi_run':'HeavyIonsEra_Run2_HI'}
+scenarios = {'pp_run': 'ppEra_Run2_2017','cosmic_run':'ppEra_Run2_2017','hi_run':'HeavyIonsEra_Run2_HI'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -39,9 +39,11 @@ process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'
 process.source = source
 process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
 process.source.skipFirstLumis                = cms.untracked.bool(True)
-process.source.minEventsPerLumi              = cms.untracked.int32(0)
-process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
+#process.source.minEventsPerLumi              = cms.untracked.int32(0)
+#process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
 process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
+
+print "Modified input source:", process.source
 
 m = re.search(r"\((\w+)\)", str(source.runNumber))
 runno = str(m.group(1))

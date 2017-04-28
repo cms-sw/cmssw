@@ -72,4 +72,9 @@ source = cms.Source("DQMStreamerReader",
     endOfRunKills  = cms.untracked.bool(endOfRunKills),
 )
 
+splashes = True
+if splashes:
+    source.minEventsPerLumi = cms.untracked.int32(999999)
+    source.nextLumiTimeoutMillis = cms.untracked.int32(15)
+
 print "Source:", source
