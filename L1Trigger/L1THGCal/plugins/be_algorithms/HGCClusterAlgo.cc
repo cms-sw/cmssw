@@ -12,6 +12,7 @@
 
 using namespace HGCalTriggerBackend;
 
+
 template<typename FECODEC, typename DATA>
 class HGCClusterAlgo : public Algorithm<FECODEC> 
 {
@@ -20,6 +21,12 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
     
     protected:
         using Algorithm<FECODEC>::codec_;
+
+    private:
+        enum ClusterType{
+            dRC2d,
+            NNC2d
+        };
     
     public:
 
@@ -32,20 +39,28 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
-        clusteringAlgorithmType_(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType")) 
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) )
         {
+            std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
+            if(type=="dRC2d"){
+                clusteringAlgorithmType_ = dRC2d;
+            }else if(type=="NNC2d"){
+                clusteringAlgorithmType_ = NNC2d;
+            }else {
+                edm::LogWarning("ParameterError") << "Unknown clustering type '" << type
+                    << "'. Using nearest neighbor NNC2d instead.\n";
+                clusteringAlgorithmType_ = NNC2d;
+            }
 
         }
     
-        virtual void setProduces(edm::EDProducer& prod) const override final
+        virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );            
             prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
             prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
         }
-    
-    
+            
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
 
 
@@ -85,7 +100,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         HGCalMulticlusteringImpl multiclustering_;
 
         /* algorithm type */
-        std::string clusteringAlgorithmType_;
+        ClusterType clusteringAlgorithmType_;
 };
 
 
@@ -124,7 +139,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                     cellThickness = hgchefTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
                 }
                 else if( subdet == HGCHEB ){
-                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgigger cells are not yet implemented";
+                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trigger cells are not yet implemented";
                 }
 
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
@@ -153,11 +168,16 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
     
     /* call to C2d clustering */
-    if(clusteringAlgorithmType_=="dRC2d"){
-        clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
-    }
-    else if(clusteringAlgorithmType_=="NNC2d"){
-        clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+    switch(clusteringAlgorithmType_){
+        case dRC2d : 
+            clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
+            break;
+        case NNC2d:
+            clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+            break;
+        default:
+            // Should not happen, clustering type checked in constructor
+            break;
     }
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */
