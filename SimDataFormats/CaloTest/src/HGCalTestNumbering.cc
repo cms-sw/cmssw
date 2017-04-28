@@ -1,7 +1,7 @@
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 uint32_t HGCalTestNumbering::packSquareIndex(int zp, int lay, int sec, 
 					     int subsec, int cell) {
@@ -66,7 +66,7 @@ bool HGCalTestNumbering::isValidSquare(int zp, int lay, int sec, int subsec,
 
   if (cell > kHGCalCellSMask || sec>kHGCalSectorSMask || 
       subsec > kHGCalSubSectorSMask || lay>kHGCalLayerSMask ) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "[HGCalTestNumbering] request for new id for layer=" << lay
               << " zp=" << zp 
               << " sector=" << sec 
@@ -86,7 +86,7 @@ bool HGCalTestNumbering::isValidHexagon(int subdet, int zp, int lay, int wafer,
   if (cell > kHGCalCellHMask || celltyp>kHGCalCellTypHMask || 
       wafer > kHGCalWaferHMask || lay>kHGCalLayerSMask || 
       subdet > kHGCalSubdetHMask) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "[HGCalTestNumbering] request for new id for layer=" << lay
               << " zp=" << zp 
               << " wafer=" << wafer
