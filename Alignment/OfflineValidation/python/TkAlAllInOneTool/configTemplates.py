@@ -132,8 +132,8 @@ process = cms.Process(".oO[ProcessName]Oo.")
 
 .oO[datasetDefinition]Oo.
 .oO[Bookkeeping]Oo.
-.oO[TrackSelectionRefitting]Oo.
 .oO[LoadBasicModules]Oo.
+.oO[TrackSelectionRefitting]Oo.
 .oO[LoadGlobalTagTemplate]Oo.
 .oO[condLoad]Oo.
 .oO[ValidationConfig]Oo.

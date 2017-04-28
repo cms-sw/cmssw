@@ -175,6 +175,7 @@ LoadMuonModules = """
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 """
 
 
