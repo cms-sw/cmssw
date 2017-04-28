@@ -87,7 +87,7 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
   int thickness = -1;
-  float sigmaNoiseGeV;
+  float sigmaNoiseGeV=0.f;
   unsigned int layer = tools_->getLayerWithOffset(detid);
   HGCalDetId hid;
 
@@ -96,19 +96,19 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseGeV = 1e-3* weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
+    if(isRealistic_) sigmaNoiseGeV = 1e-3* weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
     hid = detid;
     thickness = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    sigmaNoiseGeV =  1e-3*weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
+    if(isRealistic_) sigmaNoiseGeV =  1e-3*weights_[layer]*rcorr_[thickness]*HGCHEF_noise_fC_[thickness-1]/HGCHEF_fCPerMIP_[thickness-1];
     break;
   case HcalEndcap:
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
     hid = detid;
-    sigmaNoiseGeV = 1e-3*HGCHEB_noise_MIP_ * weights_[layer];
+    if(isRealistic_) sigmaNoiseGeV = 1e-3*HGCHEB_noise_MIP_ * weights_[layer];
     break;  
   default:
     throw cms::Exception("NonHGCRecHit")
