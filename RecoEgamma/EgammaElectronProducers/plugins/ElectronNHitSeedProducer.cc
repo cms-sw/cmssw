@@ -1,3 +1,21 @@
+//******************************************************************************
+//
+// Part of the refactorisation of of the E/gamma pixel matching for 2017 pixels
+// This refactorisation converts the monolithic  approach to a series of 
+// independent producer modules, with each modules performing  a specific 
+// job as recommended by the 2017 tracker framework
+//
+//
+// The module produces the ElectronSeeds, similarly to ElectronSeedProducer
+// although 
+// 
+//
+// Author : Sam Harper (RAL), 2017
+//
+//*******************************************************************************
+
+
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,8 +31,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -67,14 +85,13 @@ namespace {
     }else return -1;
   }
   
-  
-  reco::ElectronNHitSeed::PMVars 
+  reco::ElectronSeed::PMVars 
   makeSeedPixelVar(const TrajSeedMatcher::MatchInfo& matchInfo,
 		   const TrackerTopology& trackerTopo)
   {
     
     int layerOrDisk = getLayerOrDiskNr(matchInfo.detId,trackerTopo);
-    reco::ElectronNHitSeed::PMVars pmVars;
+    reco::ElectronSeed::PMVars pmVars;
     pmVars.setDet(matchInfo.detId,layerOrDisk);
     pmVars.setDPhi(matchInfo.dPhiPos,matchInfo.dPhiNeg);
     pmVars.setDRZ(matchInfo.dRZPos,matchInfo.dRZNeg);
@@ -95,7 +112,7 @@ ElectronNHitSeedProducer::ElectronNHitSeedProducer( const edm::ParameterSet& pse
   for(const auto& scTag : superClusTags){
     superClustersTokens_.emplace_back(consumes<std::vector<reco::SuperClusterRef>>(scTag));
   }
-  produces<reco::ElectronNHitSeedCollection>() ;
+  produces<reco::ElectronSeedCollection>() ;
 }
 
 void ElectronNHitSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
@@ -119,7 +136,7 @@ void ElectronNHitSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   matcher_.doEventSetup(iSetup);
   matcher_.setMeasTkEvtHandle(getHandle(iEvent,measTkEvtToken_));
 
-  auto eleSeeds = std::make_unique<reco::ElectronNHitSeedCollection>();
+  auto eleSeeds = std::make_unique<reco::ElectronSeedCollection>();
   
   auto initialSeedsHandle = getHandle(iEvent,initialSeedsToken_);
 
@@ -134,8 +151,8 @@ void ElectronNHitSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
 				 primVtxPos,superClusRef->energy());
       
       for(auto& matchedSeed : matchedSeeds){
-	reco::ElectronNHitSeed eleSeed(matchedSeed.seed()); 
-	reco::ElectronNHitSeed::CaloClusterRef caloClusRef(superClusRef);
+	reco::ElectronSeed eleSeed(matchedSeed.seed()); 
+	reco::ElectronSeed::CaloClusterRef caloClusRef(superClusRef);
 	eleSeed.setCaloCluster(caloClusRef);
 	eleSeed.setNrLayersAlongTraj(matchedSeed.nrValidLayers());
 	for(auto& matchInfo : matchedSeed.matches()){

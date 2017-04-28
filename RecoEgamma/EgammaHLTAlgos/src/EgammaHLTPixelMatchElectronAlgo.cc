@@ -27,8 +27,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -123,7 +123,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
       
       const TrackRef trackRef = edm::Ref<TrackCollection>(tracksH, i);
       edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
-      ElectronNHitSeedRef elseed=seed.castTo<ElectronNHitSeedRef>();
+      ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
       
       edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
       SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
@@ -156,7 +156,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 
     for (unsigned int i=0; i<gsfTracksH->size()-1; ++i) {
       const GsfTrackRef trackRef1 = edm::Ref<GsfTrackCollection>(gsfTracksH, i);
-      ElectronNHitSeedRef elseed1 = trackRef1->extra()->seedRef().castTo<ElectronNHitSeedRef>();
+      ElectronSeedRef elseed1 = trackRef1->extra()->seedRef().castTo<ElectronSeedRef>();
       SuperClusterRef scRef1 = elseed1->caloCluster().castTo<SuperClusterRef>();
 
       TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef1));
@@ -170,7 +170,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 
       for (unsigned int j=i+1; j<gsfTracksH->size(); ++j) {
 	const GsfTrackRef trackRef2 = edm::Ref<GsfTrackCollection>(gsfTracksH, j);
-	ElectronNHitSeedRef elseed2 = trackRef2->extra()->seedRef().castTo<ElectronNHitSeedRef>();
+	ElectronSeedRef elseed2 = trackRef2->extra()->seedRef().castTo<ElectronSeedRef>();
 	SuperClusterRef scRef2 = elseed2->caloCluster().castTo<SuperClusterRef>();
 
 	TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef2));
@@ -203,7 +203,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 	continue;
 
       const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(gsfTracksH, i);
-      ElectronNHitSeedRef elseed = trackRef->extra()->seedRef().castTo<ElectronNHitSeedRef>();
+      ElectronSeedRef elseed = trackRef->extra()->seedRef().castTo<ElectronSeedRef>();
       SuperClusterRef scRef = elseed->caloCluster().castTo<SuperClusterRef>();
       
       // Get the momentum at vertex (not at the innermost layer)
