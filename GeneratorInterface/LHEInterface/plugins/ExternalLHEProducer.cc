@@ -133,10 +133,10 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
-  produces<LHEXMLStringProduct, edm::InRun>("LHEScriptOutput"); 
+  produces<LHEXMLStringProduct, edm::Transition::BeginRun>("LHEScriptOutput"); 
 
   produces<LHEEventProduct>();
-  produces<LHERunInfoProduct, edm::InRun>();
+  produces<LHERunInfoProduct, edm::Transition::EndRun>();
 }
 
 

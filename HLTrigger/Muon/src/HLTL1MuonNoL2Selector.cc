@@ -47,8 +47,7 @@ HLTL1MuonNoL2Selector::HLTL1MuonNoL2Selector(const edm::ParameterSet& iConfig) :
 }
 
 // destructor
-HLTL1MuonNoL2Selector::~HLTL1MuonNoL2Selector(){
-}
+HLTL1MuonNoL2Selector::~HLTL1MuonNoL2Selector()= default;
 
 void
 HLTL1MuonNoL2Selector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -103,12 +102,12 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
       
       // Loop over L2's to find whether the L1 fired this L2. 
       bool isTriggeredByL1=false;
-      for (RecoChargedCandidateCollection::const_iterator cand = L2cands->begin(); cand != L2cands->end(); cand++) {
-	TrackRef l2muon = cand->get<TrackRef>();    
+      for (auto const & cand : *L2cands) {
+	TrackRef l2muon = cand.get<TrackRef>();    
 	const edm::RefVector<L2MuonTrajectorySeedCollection>& seeds = (*seedMapHandle)[l2muon->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
-	for(size_t i=0; i<seeds.size(); i++){
+	for(auto const & seed : seeds){
 	  // Check if the L2 was seeded by a triggered L1, in such case skip the loop. 
-	  if(find(firedL1Muons_.begin(), firedL1Muons_.end(), seeds[i]->l1tParticle()) != firedL1Muons_.end()){
+	  if(find(firedL1Muons_.begin(), firedL1Muons_.end(), seed->l1tParticle()) != firedL1Muons_.end()){
 	    isTriggeredByL1 = true;
 	    break;
 	  }

@@ -91,9 +91,7 @@ HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 }
 
 template<typename T>
-HLTSinglet<T>::~HLTSinglet()
-{
-}
+HLTSinglet<T>::~HLTSinglet() = default;
 
 template<typename T>
 void

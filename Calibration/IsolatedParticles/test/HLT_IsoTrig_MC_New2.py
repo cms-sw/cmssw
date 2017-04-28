@@ -247,37 +247,14 @@ if 'FastTimerService' in process.__dict__:
 process.load( "HLTrigger.Timer.FastTimerService_cfi" )
 process.load ("HLTrigger.Timer.fastTimerServiceClient_cfi" )
 
-# this is currently ignored in 7.x, and alway uses the real tim clock
-process.FastTimerService.useRealTimeClock         = False
-
-# enable specific features
-process.FastTimerService.enableTimingPaths        = True
-process.FastTimerService.enableTimingModules      = True
-process.FastTimerService.enableTimingExclusive    = True
-
 # print a text summary at the end of the job
-process.FastTimerService.enableTimingSummary      = True
-
-# skip the first path (useful for HLT timing studies to disregard the time spent loading event and conditions data)
-process.FastTimerService.skipFirstPath            = False
+process.FastTimerService.printJobSummary          = True
 
 # enable per-event DQM plots
 process.FastTimerService.enableDQM                = True
 
-# enable per-path DQM plots
-process.FastTimerService.enableDQMbyPathActive    = True
-process.FastTimerService.enableDQMbyPathTotal     = True
-process.FastTimerService.enableDQMbyPathOverhead  = True
-process.FastTimerService.enableDQMbyPathDetails   = True
-process.FastTimerService.enableDQMbyPathCounters  = True
-process.FastTimerService.enableDQMbyPathExclusive = True
-
 # enable per-module DQM plots
 process.FastTimerService.enableDQMbyModule        = True
-#process.FastTimerService.enableDQMbyModuleType    = True
-
-# enable per-event DQM sumary plots
-process.FastTimerService.enableDQMSummary         = True
 
 # enable per-event DQM plots by lumisection
 process.FastTimerService.enableDQMbyLumiSection   = True

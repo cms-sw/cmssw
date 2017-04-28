@@ -43,7 +43,7 @@ namespace l1t {
   // Using this constructor will require InputTags to be specified in the configuration
   L1TGlobalUtilHelper(edm::ParameterSet const& pset,
 		      edm::ConsumesCollector& iC);
-   
+
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
   //   1. The configuration
@@ -53,7 +53,7 @@ namespace l1t {
   L1TGlobalUtilHelper(edm::ParameterSet const& pset,
 		      edm::ConsumesCollector& iC,
 		      T& module);
-  
+
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
   //   1. The constructor arguments
@@ -66,18 +66,20 @@ namespace l1t {
 		      T& module,
 		      edm::InputTag const& l1tAlgBlkInputTag,
 		      edm::InputTag const& l1tExtBlkInputTag);
-  
+
   // A module defining its fillDescriptions function might want to use this
   static void fillDescription(edm::ParameterSetDescription & desc);
-  
+
   // Callback which will be registered with the Framework if the InputTags
   // are not specified in the configuration or constructor arguments. It
   // will get called for each product in the ProductRegistry.
   void operator()(edm::BranchDescription const& branchDescription);
-  
+
   edm::InputTag const& l1tAlgBlkInputTag() const { return m_l1tAlgBlkInputTag; }
   edm::InputTag const& l1tExtBlkInputTag() const { return m_l1tExtBlkInputTag; }
-  
+
+  bool const& readPrescalesFromFile() const {return m_readPrescalesFromFile; }
+
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> const& l1tAlgBlkToken() const { return m_l1tAlgBlkToken; }
   edm::EDGetTokenT<GlobalExtBlkBxCollection> const& l1tExtBlkToken() const { return m_l1tExtBlkToken; }
 
@@ -93,6 +95,8 @@ namespace l1t {
 
   bool m_findL1TAlgBlk;
   bool m_findL1TExtBlk;
+
+  bool m_readPrescalesFromFile;
 
   bool m_foundPreferredL1TAlgBlk;
   bool m_foundPreferredL1TExtBlk;
@@ -128,12 +132,17 @@ namespace l1t {
    m_findL1TAlgBlk(false),
    m_findL1TExtBlk(false),
 
+   m_readPrescalesFromFile(false),
+
    m_foundPreferredL1TAlgBlk(false),
    m_foundPreferredL1TExtBlk(false),
 
    m_foundMultipleL1TAlgBlk(false),
    m_foundMultipleL1TExtBlk(false)  {
 
+   if (pset.existsAs<bool>("ReadPrescalesFromFile")) {
+     m_readPrescalesFromFile = pset.getParameter<bool>("ReadPrescalesFromFile");
+   }
    // If the InputTags are not set to valid values by the arguments, then
    // try to set them from the configuration.
    if(m_l1tAlgBlkInputTag.label().empty() &&
