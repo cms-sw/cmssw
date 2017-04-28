@@ -208,7 +208,7 @@ private:
   bool layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
 			 const Propagator& propToLayerFromState)const;
   
-
+  size_t getNrHitsRequired(const int nrValidLayers)const;
     
 private:
   static constexpr float kElectronMass_ = 0.000511;
@@ -225,6 +225,14 @@ private:
 
   bool useRecoVertex_;
   std::vector<MatchingCuts> matchingCuts_;
+  
+  //these two varibles determine how hits we require 
+  //based on how many valid layers we had
+  //right now we always need atleast two hits
+  //also highly dependent on the seeds you pass in 
+  //which also require a given number of hits
+  const std::vector<unsigned int> minNrHits_;
+  const std::vector<int> minNrHitsValidLayerBins_;
 
   std::unordered_map<int,TrajectoryStateOnSurface> trajStateFromVtxPosChargeCache_;
   std::unordered_map<int,TrajectoryStateOnSurface> trajStateFromVtxNegChargeCache_;
