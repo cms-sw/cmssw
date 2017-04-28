@@ -9,9 +9,9 @@ process.load("DQM.Integration.config.inputsource_cfi")
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
-)
+#process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(100)
+#)
 
 process.load("DQM.Integration.config.environment_cfi")
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
