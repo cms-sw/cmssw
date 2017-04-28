@@ -53,9 +53,16 @@ private:
     std::vector<MonitorElement *> meEB_;
     std::vector<MonitorElement *> meEE_;
 
-    static const int kPedestalSamples = 3;
-    static const int kThreshold = 10; // threshold (in adc count) above which we'll assume 
-                                      // there's signal and not just pedestal
+    uint32_t pedestalSamples_ ; // number of presamples to be used for pedestal determination    
+    bool     checkSignal_;      // avoid frames containing a signal
+    uint32_t  sThreshold_ ;     // if checkSignal = true threshold (in adc count) above which we'll assume 
+                                // there's signal and not just pedestal
+
+    bool dynamicBooking_;       // use old pedestal to book histograms
+    int fixedBookingCenterBin_; // if dynamicBooking_ = false, use this as bin center
+    int nBins_ ;                // number of bins per histogram
+    std::string dqmDir_;         // DQM directory where histograms are stored
+    
 
     // compare ADC values  
     static bool adc_compare(uint16_t a, uint16_t b) { return ( a&0xFFF )  < (b&0xFFF);}
