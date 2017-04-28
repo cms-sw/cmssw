@@ -83,9 +83,6 @@ namespace edm {
 
     void clearPrincipal();
 
-    void setAtEndTransition(bool iAtEnd);
-    bool atEndTransition() const {return atEndTransition_;}
-    
     void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
@@ -289,7 +286,6 @@ namespace edm {
     
     CacheIdentifier_t cacheIdentifier_;
 
-    bool atEndTransition_;
   };
 
   template <typename PROD>
