@@ -38,7 +38,6 @@ class FKDTree
             theDepth = 0;
         }
 
-
         bool empty()
         {
             return theNumberOfPoints == 0;
@@ -52,9 +51,9 @@ class FKDTree
             indicesToVisit.push_back(0);
             unsigned int index;
             bool intersection;
-            int dimension;
+            unsigned int dimension;
             unsigned int numberOfindicesToVisitThisDepth;
-            int numberOfSonsToVisitNext;
+            unsigned int numberOfSonsToVisitNext;
             unsigned int firstSonToVisitNext;
 
             for (unsigned int depth = 0; depth < theDepth + 1; ++depth)
@@ -74,7 +73,6 @@ class FKDTree
                     {
                         if (is_in_the_box(index, minPoint, maxPoint))
                         {
-
                             foundPoints.emplace_back(theIds[index]);
                         }
                         numberOfSonsToVisitNext = (firstSonToVisitNext < theNumberOfPoints)
@@ -90,7 +88,7 @@ class FKDTree
                                         + ((firstSonToVisitNext + 1) < theNumberOfPoints), 1);
                     }
 
-                    for (int whichSon = 0; whichSon < numberOfSonsToVisitNext; ++whichSon)
+                    for (unsigned int whichSon = 0; whichSon < numberOfSonsToVisitNext; ++whichSon)
                     {
                         indicesToVisit.push_back(firstSonToVisitNext + whichSon);
                     }
@@ -100,10 +98,8 @@ class FKDTree
 
         }
 
-
         void build(std::vector<FKDPoint<TYPE, numberOfDimensions> >& points)
         {
-
             theNumberOfPoints = points.size();
             theDepth = ilog2(theNumberOfPoints);
             theIntervalLength.resize(theNumberOfPoints, 0);
@@ -113,13 +109,12 @@ class FKDTree
             theIds.resize(theNumberOfPoints);
 
             //gather kdtree building
-            int dimension;
+            unsigned int dimension;
             theIntervalMin[0] = 0;
             theIntervalLength[0] = theNumberOfPoints;
 
             for (unsigned int depth = 0; depth < theDepth; ++depth)
             {
-
                 dimension = depth % numberOfDimensions;
                 unsigned int firstIndexInDepth = (1 << depth) - 1;
                 unsigned int maxDepth = (1 << depth);
@@ -168,7 +163,6 @@ class FKDTree
                     ++indexInArray)
             {
                 add_at_position(points[theIntervalMin[indexInArray]], indexInArray);
-
             }
 
         }
@@ -190,7 +184,6 @@ class FKDTree
                 return index - 1;
             else
                 return length - index / 2;
-
         }
 
         unsigned int leftSonIndex(unsigned int index) const
@@ -219,7 +212,6 @@ class FKDTree
                         && theDimensions[i][index] >= minPoint[i]) == false)
                     return false;
             }
-
             return true;
         }
 
@@ -229,7 +221,6 @@ class FKDTree
             for (unsigned int i = 0; i < numberOfDimensions; ++i)
                 theDimensions[i][position] = point[i];
             theIds[position] = point.getId();
-
         }
 
         void add_at_position(FKDPoint<TYPE, numberOfDimensions> && point,
@@ -238,7 +229,6 @@ class FKDTree
             for (unsigned int i = 0; i < numberOfDimensions; ++i)
                 theDimensions[i][position] = point[i];
             theIds[position] = point.getId();
-
         }
 
         unsigned int theNumberOfPoints;
