@@ -9,9 +9,8 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import OutputData, PlotData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def plot(MillePedeUser, alignables, config):
@@ -22,7 +21,7 @@ def plot(MillePedeUser, alignables, config):
     ROOT.gStyle.SetOptStat("emrs")
 
     for mode in ["xyz", "rot"]:
-        big = PlotData(mode)
+        big = mpsv_classes.PlotData(mode)
 
         # count number of needed bins and max shift
         for line in MillePedeUser:
@@ -147,7 +146,7 @@ def plot(MillePedeUser, alignables, config):
         big.text.Draw()
 
         # draw identification
-        ident = identification(config)
+        ident = mpsv_style.identification(config)
         ident.Draw()
 
         # TGraph copy to hide outlier
@@ -184,8 +183,8 @@ def plot(MillePedeUser, alignables, config):
             "{0}/plots/png/structures_{1}.png".format(config.outputPath, mode))
 
         # add to output list
-        output = OutputData(plottype="big", parameter=mode,
-                            filename="structures_{0}".format(mode))
+        output = mpsv_classes.OutputData(plottype="big", parameter=mode,
+                                         filename="structures_{0}".format(mode))
         config.outputList.append(output)
 
     # reset BottomMargin

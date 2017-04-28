@@ -10,8 +10,8 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
@@ -37,7 +37,7 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
 
     # initialize histograms
     for subStructNumber, subStruct in enumerate(struct.get_children()):
-        plots.append(PlotData(mode))
+        plots.append(mpsv_classes.PlotData(mode))
 
         # use a copy for shorter name
         plot = plots[subStructNumber]
@@ -188,7 +188,7 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
 
     legend.Draw()
     # draw identification
-    ident = identification(config)
+    ident = mpsv_style.identification(config)
     ident.Draw()
 
     canvas.Update()
@@ -204,6 +204,6 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
         "{0}/plots/png/subModules_{1}_{2}.png".format(config.outputPath, mode, struct.get_name()))
 
     # add to output list
-    output = OutputData(plottype="subMod", name=struct.get_name(), number=subStructNumber + 1,
-                        parameter=mode, filename="subModules_{0}_{1}".format(mode, struct.get_name()))
+    output = mpsv_classes.OutputData(plottype="subMod", name=struct.get_name(), number=subStructNumber + 1,
+                                     parameter=mode, filename="subModules_{0}_{1}".format(mode, struct.get_name()))
     config.outputList.append(output)

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates html out of the histograms, parsed data and a given template.
 ##
@@ -7,9 +5,7 @@
 import logging
 import os
 import string
-
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, PedeDumpData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 # create class to have delimiter %% which is not used in latex
@@ -74,7 +70,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                <th>Dataset</th>
                <th>Number of used tracks</th>
             <tr>"""
-        for monitor in MonitorData.monitors:
+        for monitor in mpsv_classes.MonitorData.monitors:
             out += """<tr>
                 <th>{0}</th>
                 <th>{1}</th>

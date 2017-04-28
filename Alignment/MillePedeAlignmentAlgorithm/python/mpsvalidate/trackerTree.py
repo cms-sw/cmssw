@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 ##
 # Check if there is the trackerTree.root file.

@@ -10,9 +10,8 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData, OutputData, PlotData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import identification
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def plot(treeFile, alignables, config):
@@ -20,7 +19,7 @@ def plot(treeFile, alignables, config):
 
     for mode in ["xyz", "rot"]:
 
-        time = PlotData(mode)
+        time = mpsv_classes.PlotData(mode)
 
         # list of all avaible TTrees
         listMillePedeUser = []
@@ -85,7 +84,7 @@ def plot(treeFile, alignables, config):
         # loop over first tree to initialize
         for line in MillePedeUser[0]:
             if (line.ObjId != 1 and any(abs(line.Par[time.data[i]]) != 999999 for i in [0, 1, 2])):
-                plots.append(PlotData(mode))
+                plots.append(mpsv_classes.PlotData(mode))
 
                 # new objid?
                 if (line.ObjId not in objids):
@@ -173,7 +172,7 @@ def plot(treeFile, alignables, config):
             title.Draw()
 
             # draw identification
-            ident = identification(config)
+            ident = mpsv_style.identification(config)
             ident.Draw()
 
             # TGraph copies to hide outlier
@@ -260,6 +259,6 @@ def plot(treeFile, alignables, config):
                 config.outputPath, mode, obj_names[index]))
 
             # add to output list
-            output = OutputData(plottype="time", name=obj_names[index],
-                                parameter=mode, filename="timeStructures_{0}_{1}".format(mode, obj_names[index]))
+            output = mpsv_classes.OutputData(plottype="time", name=obj_names[index],
+                                             parameter=mode, filename="timeStructures_{0}_{1}".format(mode, obj_names[index]))
             config.outputList.append(output)

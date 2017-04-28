@@ -9,7 +9,7 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import geometrydata
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometrydata as mpsv_geometrydata
 
 
 class Alignables:
@@ -23,10 +23,10 @@ class Alignables:
         self.config = config
 
     def get_subdetid(self, objid):
-        return geometrydata.data[objid].subdetid
+        return mpsv_geometrydata.data[objid].subdetid
 
     def get_discriminator(self, objid):
-        return geometrydata.data[objid].discriminator
+        return mpsv_geometrydata.data[objid].discriminator
 
     def get_ndiscriminator(self, objid):
         subdetid = self.get_subdetid(objid)
