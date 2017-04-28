@@ -156,7 +156,7 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
 /**************/
 std::unique_ptr<HcalElectronicsMap> HcalLogicalMap::generateHcalElectronicsMap()
 {
-  HcalElectronicsMap::Helper theemapHelper;
+  HcalElectronicsMapAddons::Helper theemapHelper;
   
   for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
     theemapHelper.mapEId2chId( it->getHcalElectronicsId(), it->getDetId() );}

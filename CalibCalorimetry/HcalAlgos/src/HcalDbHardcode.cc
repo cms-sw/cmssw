@@ -425,7 +425,7 @@ HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
 #define EMAP_NHSETSHO 3
 
 std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() {
-  HcalDcsMap::Helper dcs_map_helper;
+  HcalDcsMapAddons::Helper dcs_map_helper;
   dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
   dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
@@ -447,7 +447,7 @@ std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::v
   static const int kTriggerBitMask = 0x02000000; //2^25
   uint32_t counter = 0;
   uint32_t counterTrig = 0;
-  HcalElectronicsMap::Helper emapHelper;
+  HcalElectronicsMapAddons::Helper emapHelper;
   for(const auto& fId : cells){
     if(fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
        fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
@@ -475,7 +475,7 @@ std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::v
 }
 
 std::unique_ptr<HcalFrontEndMap> HcalDbHardcode::makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) {
-  HcalFrontEndMap::Helper emapHelper;
+  HcalFrontEndMapAddons::Helper emapHelper;
   std::stringstream mystream;
   std::string detector[5] = {"XX","HB","HE","HO","HF"};
   for (const auto& fId : cells) {
@@ -619,7 +619,7 @@ std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharact
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
   // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
-  HcalSiPMCharacteristics::Helper sipmHelper;
+  HcalSiPMCharacteristicsAddons::Helper sipmHelper;
   for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
     auto& ps = theSiPMCharacteristics_[ip];
     sipmHelper.loadObject(ip+1,

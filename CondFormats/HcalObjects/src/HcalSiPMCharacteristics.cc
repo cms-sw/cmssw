@@ -5,12 +5,8 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace hcal_impl {
-  class LessByType {public: bool operator () (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ < b->type_;}};
-}
-
-HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristics::Helper& helper) :
-  mPItems(helper.mPItems)
+HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristicsAddons::Helper& helper) :
+  mPItems(helper.mPItems.begin(),helper.mPItems.end())
 {
   initialize();
 }
@@ -43,37 +39,36 @@ HcalSiPMCharacteristics::HcalSiPMCharacteristics(HcalSiPMCharacteristics&& other
 const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType (int type, const std::vector<const PrecisionItem*>& itemsByType) {
   HcalSiPMCharacteristics::PrecisionItem target(type, 0, 0, 0, 0, 0, 0, 0);
 
-  auto item = std::lower_bound (itemsByType.begin(), itemsByType.end(), &target, hcal_impl::LessByType());
+  auto item = std::lower_bound (itemsByType.begin(), itemsByType.end(), &target, HcalSiPMCharacteristicsAddons::LessByType());
   if (item == itemsByType.end() || (*item)->type_ != type)
     //    throw cms::Exception ("Conditions not found") << "Unavailable SiPMCharacteristics for type " << type;
     return 0;
   return *item;
 }
 
-HcalSiPMCharacteristics::Helper::Helper() {}
+HcalSiPMCharacteristicsAddons::Helper::Helper() {}
 
-bool HcalSiPMCharacteristics::Helper::loadObject(int type, int pixels, float parLin1, 
+bool HcalSiPMCharacteristicsAddons::Helper::loadObject(int type, int pixels, float parLin1, 
 					 float parLin2, float parLin3, 
 					 float crossTalk, int auxi1,
 					 float auxi2) {
-  const HcalSiPMCharacteristics::PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
-  if (item) {
+  HcalSiPMCharacteristics::PrecisionItem target(type,pixels,parLin1, 
+						  parLin2,parLin3,crossTalk,
+						  auxi1,auxi2);
+  auto iter = mPItems.find(target);
+  if (iter!=mPItems.end()) {
     edm::LogWarning("HCAL") << "HcalSiPMCharacteristics::loadObject type " 
 			    << type << " already exists with pixels "
-			    << item->pixels_ << " NoLinearity parameters " 
-			    << item->parLin1_ << ":" << item->parLin2_ << ":"
-			    << item->parLin3_ << " CrossTalk parameter "
-			    << item->crossTalk_ << " new values " << pixels
+			    << iter->pixels_ << " NoLinearity parameters " 
+			    << iter->parLin1_ << ":" << iter->parLin2_ << ":"
+			    << iter->parLin3_ << " CrossTalk parameter "
+			    << iter->crossTalk_ << " new values " << pixels
 			    << ", " << parLin1 << ", " << parLin2 << ", "
 			    << parLin3 << ", " << crossTalk << ", " << auxi1
 			    << " and " << auxi2 << " are ignored";
     return false;
   } else {
-    HcalSiPMCharacteristics::PrecisionItem target(type,pixels,parLin1, 
-						  parLin2,parLin3,crossTalk,
-						  auxi1,auxi2);
-    mPItems.push_back(target);
-    HcalSiPMCharacteristics::sortByType(mPItems,mPItemsByType);
+    mPItems.insert(target);
     return true;
   }
 }
@@ -115,7 +110,7 @@ void HcalSiPMCharacteristics::sortByType (const std::vector<PrecisionItem>& item
   for(const auto& i : items){
     if (i.type_) itemsByType.push_back(&i);
   }
-  std::sort (itemsByType.begin(), itemsByType.end(), hcal_impl::LessByType());
+  std::sort (itemsByType.begin(), itemsByType.end(), HcalSiPMCharacteristicsAddons::LessByType());
 }
 
 void HcalSiPMCharacteristics::initialize(){

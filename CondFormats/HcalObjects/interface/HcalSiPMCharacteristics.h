@@ -4,11 +4,17 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
+#include <set>
 #include <algorithm>
 #include <boost/cstdint.hpp>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
+
+//forward declarations
+namespace HcalSiPMCharacteristicsAddons {
+  class Helper;
+}
 
 class HcalSiPMCharacteristics {
 
@@ -36,22 +42,8 @@ public:
     COND_SERIALIZABLE;
   };
 
-  class Helper {
-   public:
-    Helper();
-    // Load a new entry
-    bool loadObject(int type, int pixels, float parLin1, 
-				float parLin2, float parLin3, float crossTalk,
-				int auxi1=0,  float auxi2=0);
-    
-    std::vector<PrecisionItem> mPItems;
-    std::vector<const PrecisionItem*> mPItemsByType;
-
-   COND_TRANSIENT;
-  };
-
   HcalSiPMCharacteristics() {}
-  HcalSiPMCharacteristics(const Helper& helper);
+  HcalSiPMCharacteristics(const HcalSiPMCharacteristicsAddons::Helper& helper);
   ~HcalSiPMCharacteristics();
 
   // swap function
@@ -91,5 +83,23 @@ protected:
 
   COND_SERIALIZABLE;
 };
+
+namespace HcalSiPMCharacteristicsAddons {
+  class LessByType {
+   public: 
+    bool operator () (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ < b->type_;}
+    bool operator () (const HcalSiPMCharacteristics::PrecisionItem& a, const HcalSiPMCharacteristics::PrecisionItem& b) {return a.type_ < b.type_;}
+  };
+  class Helper {
+   public:
+    Helper();
+    // Load a new entry
+    bool loadObject(int type, int pixels, float parLin1, 
+				float parLin2, float parLin3, float crossTalk,
+				int auxi1=0,  float auxi2=0);
+    
+    std::set<HcalSiPMCharacteristics::PrecisionItem,LessByType> mPItems;
+  };
+}
 
 #endif

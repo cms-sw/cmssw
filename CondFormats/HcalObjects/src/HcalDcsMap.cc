@@ -14,8 +14,8 @@ $Revision: 1.1 $
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HcalDcsMap::HcalDcsMap(const HcalDcsMap::Helper& helper) :
-  mItems(helper.mItems)
+HcalDcsMap::HcalDcsMap(const HcalDcsMapAddons::Helper& helper) :
+  mItems(helper.mItems.begin(),helper.mItems.end())
 {
   initialize();
 }
@@ -43,24 +43,6 @@ void HcalDcsMap::swap(HcalDcsMap& other) {
 HcalDcsMap::HcalDcsMap(HcalDcsMap&& other) 
     : HcalDcsMap() {
     other.swap(*this);
-}
-
-namespace hcal_impl {
-  class LessById {
-  public: 
-    bool operator () (const HcalDcsMap::Item* a,
-		      const HcalDcsMap::Item* b) {
-      return a->mId < b->mId;
-    }
-  };
-
-  class LessByDcsId {
-  public: 
-    bool operator () (const HcalDcsMap::Item* a,
-		      const HcalDcsMap::Item* b) {
-      return a->mDcsId < b->mDcsId;
-    }
-  };
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::beginById(void) const{
@@ -116,15 +98,15 @@ HcalDetId HcalDcsMap::const_iterator::getHcalDetId(void){
   return (*fIter)->mId;
 }
 
-const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById) {
-  return HcalDcsMap::findByIdT<hcal_impl::LessById>(fId,itemsById);
+const HcalDcsMap::Item * HcalDcsMap::findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById) {
+  return HcalDcsMap::findByIdT<HcalDcsMapAddons::LessById>(fId,itemsById);
 }
 
-const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findByDcsId (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId) {
-  return HcalDcsMap::findByIdT<hcal_impl::LessByDcsId>(fId,itemsByDcsId);
+const HcalDcsMap::Item * HcalDcsMap::findByDcsId (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId) {
+  return HcalDcsMap::findByIdT<HcalDcsMapAddons::LessByDcsId>(fId,itemsByDcsId);
 }
 
-const std::vector<HcalDetId> HcalDcsMap::lookup(HcalDcsDetId fId ) const{
+HcalDetId HcalDcsMap::lookup(HcalDcsDetId fId ) const{
   // DCS type is a part of DcsDetId but it does not make sense to keep
   // duplicate records in the map for DCS channels where only type is different.
   // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
@@ -133,32 +115,19 @@ const std::vector<HcalDetId> HcalDcsMap::lookup(HcalDcsDetId fId ) const{
 			     fId.slice(),
 			     HcalDcsDetId::DCSUNKNOWN,
 			     fId.subchannel());
-  const std::vector<const Item *> items = HcalDcsMap::findByDcsId (fDcsId_notype.rawId (), mItemsByDcsId);
-  std::vector<HcalDetId> _ids;
-  for (std::vector<const Item *>::const_iterator item = items.begin();
-       item != items.end();
-       ++item){
-    _ids.push_back( DetId(*item ? (*item)->mId : 0) );
-  }
-  return _ids;
+  auto item = HcalDcsMap::findByDcsId (fDcsId_notype.rawId (), mItemsByDcsId);
+  return item ? item->mId : 0;
 }
 
-const std::vector<HcalDcsDetId> HcalDcsMap::lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const {
-  const std::vector<const Item *> items = HcalDcsMap::findById (fId.rawId (), mItemsById);
-  std::vector<HcalDcsDetId> _ids;
-  for (std::vector<const Item *>::const_iterator item = items.begin();
-       item != items.end();
-       ++item){
-    HcalDcsDetId _id(*item ? (*item)->mId : 0);
-    _ids.push_back( HcalDcsDetId(_id.subdet(),
+HcalDcsDetId HcalDcsMap::lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const {
+  auto item = HcalDcsMap::findById (fId.rawId (), mItemsById);
+  HcalDcsDetId _id(item ? item->mId : 0);
+  return HcalDcsDetId(_id.subdet(),
 				 _id.zside()*_id.ring(),
 				 _id.slice(),
 				 type,
 				 _id.subchannel()
-				 )
-		    );
-  }
-  return _ids;
+  );
 }
 
 //FIXME: remove duplicates
@@ -181,12 +150,11 @@ std::vector <HcalGenericDetId> HcalDcsMap::allHcalDetId () const {
   return result;
 }
 
-HcalDcsMap::Helper::Helper()
-  //FIXME : mItems(HcalDcsDetId::maxLinearIndex+1)
+HcalDcsMapAddons::Helper::Helper()
 {
 }
 
-bool HcalDcsMap::Helper::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
+bool HcalDcsMapAddons::Helper::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
   // DCS type is a part of DcsDetId but it does not make sense to keep
   // duplicate records in the map for DCS channels where only type is different.
   // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
@@ -195,29 +163,23 @@ bool HcalDcsMap::Helper::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
 			     fDcsId.slice(),
 			     HcalDcsDetId::DCSUNKNOWN,
 			     fDcsId.subchannel());
-  const std::vector<const Item *> items = HcalDcsMap::findByDcsId(fDcsId_notype,mItemsByDcsId);
-  for (std::vector<const Item *>::const_iterator item = items.begin();
-       item != items.end();
-       ++item){
-    if ((*item)->mId == fId){
-      edm::LogWarning("HCAL") << "HcalDcsMap::mapGeomId2DcsId-> Geom channel " <<  fId 
-			      << " already mapped to DCS channel " << fDcsId_notype;
-      return false; // element already exists
-    }
+  HcalDcsMap::Item target(fId, fDcsId_notype);
+  auto iter = mItems.find(target);
+  if(iter != mItems.end() and iter->mId == fId){
+    edm::LogWarning("HCAL") << "HcalDcsMap::mapGeomId2DcsId-> Geom channel " <<  fId 
+	      << " already mapped to DCS channel " << fDcsId_notype;
+    return false; // element already exists
   }
-  Item _item(fId, fDcsId_notype);
-  mItems.push_back(_item);
-  //re-sort
-  HcalDcsMap::sortByDcsId(mItems,mItemsByDcsId);
+  mItems.insert(target);
 
   return true;
 }
 
 void HcalDcsMap::sortById(const std::vector<Item>& items, std::vector<const Item*>& itemsById){
-  HcalDcsMap::sortByIdT<hcal_impl::LessById>(items,itemsById);
+  HcalDcsMap::sortByIdT<HcalDcsMapAddons::LessById>(items,itemsById);
 }
 void HcalDcsMap::sortByDcsId(const std::vector<Item>& items, std::vector<const Item*>& itemsByDcsId){
-  HcalDcsMap::sortByIdT<hcal_impl::LessByDcsId>(items,itemsByDcsId);
+  HcalDcsMap::sortByIdT<HcalDcsMapAddons::LessByDcsId>(items,itemsByDcsId);
 }
 
 void HcalDcsMap::initialize() {

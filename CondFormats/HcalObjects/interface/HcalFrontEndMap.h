@@ -3,6 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <set>
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
@@ -13,7 +14,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
-// 
+
+//forward declaration
+namespace HcalFrontEndMapAddons {
+  class Helper;
+}
+ 
 class HcalFrontEndMap {
 public:
 
@@ -29,20 +35,8 @@ public:
     COND_SERIALIZABLE;
   };
 
-  class Helper {
-   public:
-    Helper();
-    /// load a new entry
-    bool loadObject(DetId fId, int rm, std::string rbx);
-    
-    std::vector<PrecisionItem> mPItems;
-    std::vector<const PrecisionItem*> mPItemsById;
-    
-   COND_TRANSIENT;
-  };
-
   HcalFrontEndMap() {}
-  HcalFrontEndMap(const Helper& helper);
+  HcalFrontEndMap(const HcalFrontEndMapAddons::Helper& helper);
   ~HcalFrontEndMap();
 
   // swap function
@@ -84,5 +78,21 @@ protected:
 
   COND_SERIALIZABLE;
 };
+
+namespace HcalFrontEndMapAddons {
+  class LessById {
+   public: 
+    bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId < b->mId;}
+    bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) {return a.mId < b.mId;}
+  };
+  class Helper {
+   public:
+    Helper();
+    /// load a new entry
+    bool loadObject(DetId fId, int rm, std::string rbx);
+    
+    std::set<HcalFrontEndMap::PrecisionItem,LessById> mPItems;
+  };
+}
 
 #endif

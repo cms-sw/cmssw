@@ -22,7 +22,12 @@ $Revision: 1.16 $
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-// 
+
+//forward declaration
+namespace HcalElectronicsMapAddons {
+  class Helper;
+}
+ 
 class HcalElectronicsMap {
  public:
 
@@ -48,21 +53,8 @@ class HcalElectronicsMap {
    COND_SERIALIZABLE;
   };
 
-  class Helper {
-   public:
-    Helper();
-    // map channels
-    bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
-    bool mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId);
-
-    std::vector<PrecisionItem> mPItems;
-    std::vector<TriggerItem> mTItems;
-
-   COND_TRANSIENT;
-  };
-
   HcalElectronicsMap() {}
-  HcalElectronicsMap(const Helper& helper);
+  HcalElectronicsMap(const HcalElectronicsMapAddons::Helper& helper);
   ~HcalElectronicsMap();
 
   // swap function
@@ -123,5 +115,21 @@ class HcalElectronicsMap {
 
  COND_SERIALIZABLE;
 };
+
+namespace HcalElectronicsMapAddons {
+  class LessById {public: bool operator () (const HcalElectronicsMap::PrecisionItem* a, const HcalElectronicsMap::PrecisionItem* b) {return a->mId < b->mId;}};
+  class LessByTrigId {public: bool operator () (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}};
+  class Helper {
+   public:
+    Helper();
+    // map channels
+    bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
+    bool mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId);
+
+    std::vector<HcalElectronicsMap::PrecisionItem> mPItems;
+    std::vector<HcalElectronicsMap::TriggerItem> mTItems;
+  };
+}
+
 
 #endif
