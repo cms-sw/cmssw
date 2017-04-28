@@ -58,7 +58,7 @@ def customiseFor18429(process):
                          pset.minAbsPhotonSumPt_insideSignalCone = cms.double(2.5)
                     if not hasattr(pset,'minRelPhotonSumPt_insideSignalCone'):
                          pset.minRelPhotonSumPt_insideSignalCone = cms.double(0.10)
-    return process
+     return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
