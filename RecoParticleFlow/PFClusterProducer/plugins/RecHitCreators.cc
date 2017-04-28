@@ -1,8 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreatorMaxSample.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalBarrelRecHitCreator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalEndcapRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreatorMaxSample.h"
@@ -12,8 +13,8 @@
 
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitFactory, "PFRecHitFactory");
-DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEERecHitCreator, "PFEERecHitCreator");
-DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreator, "PFEBRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalEndcapRecHitCreator, "PFEERecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalBarrelRecHitCreator, "PFEBRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEERecHitCreatorMaxSample, "PFEERecHitCreatorMaxSample");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreatorMaxSample, "PFEBRecHitCreatorMaxSample");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHERecHitCreator, "PFHERecHitCreator");

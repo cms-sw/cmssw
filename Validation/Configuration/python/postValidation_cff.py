@@ -11,6 +11,7 @@ from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoEgamma.electronPostValidationSequence_cff import *
 from Validation.RecoEgamma.electronPostValidationSequenceMiniAOD_cff import *
+from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
@@ -37,6 +38,7 @@ postValidation = cms.Sequence(
     + runTauEff + makeBetterPlots
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
+    + bdHadronTrackPostProcessor
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
