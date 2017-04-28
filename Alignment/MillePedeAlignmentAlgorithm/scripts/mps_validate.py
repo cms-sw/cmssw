@@ -17,7 +17,20 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate as mpsv
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry as mpsv_geometry
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.bigModule as mpsv_bigModule
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.dumpparser as mpsv_dumpparser
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.pdfCreator as mpsv_pdfCreator
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.htmlCreator as mpsv_htmlCreator
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.monitorPlot as mpsv_monitorPlot
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_trackerTree
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.bigStructure as mpsv_bigStructure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.beamerCreator as mpsv_beamerCreator
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.timeStructure as mpsv_timeStructure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.additionalparser as mpsv_additionalparser
+
 
 
 def main():
@@ -45,7 +58,7 @@ def main():
     args = parser.parse_args()
 
     # create config object
-    config = mpsv.iniparser.ConfigData()
+    config = mpsv_iniparser.ConfigData()
     
     # create logging handler
     if args.logging:
@@ -94,13 +107,13 @@ def main():
         return
 
     # set gStyle
-    mpsv.style.setgstyle()
+    mpsv_style.setgstyle()
     
     # create alignables object
-    alignables = mpsv.geometry.Alignables(config)
+    alignables = mpsv_geometry.Alignables(config)
     
     # check if there is the TrackerTree.root file and if not create it
-    mpsv.trackerTree.check(config)
+    mpsv_trackerTree.check(config)
 
     ##########################################################################
     # draw the plots of the millePedeMonitor_merge.root file
@@ -109,7 +122,7 @@ def main():
     if config.showmonitor:
         try:
             logger.info("start to collect the plots of the millePedeMonitor_merge.root file")
-            mpsv.monitorPlot.plot(config)
+            mpsv_monitorPlot.plot(config)
         except Exception as e:
             logging.error("millePedeMonitor_merge.root failure - {0} {1}".format(type(e), e))
             raise
@@ -121,7 +134,7 @@ def main():
     if config.showadditional:
         logger.info("start to parse the alignment_merge.py file")
         try:
-            additionalData = mpsv.additionalparser.AdditionalData()
+            additionalData = mpsv_additionalparser.AdditionalData()
             additionalData.parse(
                 config, os.path.join(config.jobDataPath, "alignment_merge.py"))
         except Exception as e:
@@ -135,7 +148,7 @@ def main():
     if config.showdump:
         try:
             logger.info("start to parse the pede.dump.gz file")
-            pedeDump = mpsv.dumpparser.parse(
+            pedeDump = mpsv_dumpparser.parse(
                 os.path.join(config.jobDataPath, "pede.dump.gz"), config)
         except Exception as e:
             logging.error("pede.dump.gz parser failure - {0} {1}".format(type(e), e))
@@ -148,7 +161,7 @@ def main():
     if config.showtime:
         try:
             logger.info("create the time dependent plots")
-            mpsv.timeStructure.plot(treeFile, alignables, config)
+            mpsv_timeStructure.plot(treeFile, alignables, config)
         except Exception as e:
             logging.error("time dependent plots failure - {0} {1}".format(type(e), e))
             raise
@@ -160,7 +173,7 @@ def main():
     if config.showhighlevel:
         try:
             logger.info("create the high level plots")
-            mpsv.bigStructure.plot(MillePedeUser, alignables, config)
+            mpsv_bigStructure.plot(MillePedeUser, alignables, config)
         except Exception as e:
             logging.error("high level plots failure - {0} {1}".format(type(e), e))
             raise
@@ -173,7 +186,7 @@ def main():
     if config.showmodule:
         try:
             logger.info("create the module plots")
-            mpsv.bigModule.plot(MillePedeUser, alignables, config)
+            mpsv_bigModule.plot(MillePedeUser, alignables, config)
         except Exception as e:
             logging.error("module plots failure - {0} {1}".format(type(e), e))
             raise
@@ -185,7 +198,7 @@ def main():
     if config.showtex:
         try:
             logger.info("create the latex file")
-            mpsv.pdfCreator.create(alignables, pedeDump, additionalData,
+            mpsv_pdfCreator.create(alignables, pedeDump, additionalData,
                                    config.latexfile, config)
         except Exception as e:
             logging.error("latex creation failure - {0} {1}".format(type(e), e))
@@ -194,7 +207,7 @@ def main():
     if config.showbeamer:
         try:
             logger.info("create the latex beamer file")
-            mpsv.beamerCreator.create(alignables, pedeDump, additionalData,
+            mpsv_beamerCreator.create(alignables, pedeDump, additionalData,
                                       "beamer.tex", config)
         except Exception as e:
             logging.error("beamer latex failure - {0} {1}".format(type(e), e))
@@ -210,7 +223,7 @@ def main():
     if config.showhtml:
         try:
             logger.info("create the HTML file")
-            mpsv.htmlCreator.create(alignables, pedeDump, additionalData,
+            mpsv_htmlCreator.create(alignables, pedeDump, additionalData,
                                     "html_file.html", config)
         except Exception as e:
             logging.error("HTML creation failure - {0} {1}".format(type(e), e))

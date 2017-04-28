@@ -20,7 +20,8 @@ import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
-import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate as mpsv
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_trackerTree
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
@@ -283,11 +284,11 @@ def create_tracker_tree(global_tag, first_run):
     - `first_run`: run to specify IOV within `global_tag`
     """
 
-    config = mpsv.iniparser.ConfigData()
+    config = mpsv_iniparser.ConfigData()
     config.jobDataPath = "."    # current directory
     config.globalTag = global_tag
     config.firstRun = first_run
-    return mpsv.trackerTree.check(config)
+    return mpsv_trackerTree.check(config)
 
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
