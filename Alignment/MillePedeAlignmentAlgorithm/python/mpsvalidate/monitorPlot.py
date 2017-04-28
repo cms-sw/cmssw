@@ -9,8 +9,8 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, OutputData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style import setstatsize
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.style as mpsv_style
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def plot(config):
@@ -43,7 +43,7 @@ def plot(config):
                 if (plotNumber == 0):
                     # get number of used tracks
                     ntracks = int(plot.GetEntries())
-                    MonitorData(inputname.replace("_", " "), ntracks)
+                    mpsv_classes.MonitorData(inputname.replace("_", " "), ntracks)
 
                 # create canvas
                 canvas = ROOT.TCanvas("canvas{0}_{1}".format(
@@ -51,7 +51,7 @@ def plot(config):
                 canvas.cd()
 
                 # set statistics size
-                setstatsize(canvas, plot, config)
+                mpsv_style.setstatsize(canvas, plot, config)
 
                 # draw
                 plot.Draw()
@@ -67,7 +67,7 @@ def plot(config):
                     "{0}/plots/png/monitor_{1}_{2}.png".format(config.outputPath, inputname.replace(".","_"), plotName))
 
                 # add to output list
-                output = OutputData(plottype="monitor", name=inputname.replace("_", " "), number=plotName, filename="monitor_{1}_{2}".format(
+                output = mpsv_classes.OutputData(plottype="monitor", name=inputname.replace("_", " "), number=plotName, filename="monitor_{1}_{2}".format(
                     config.outputPath, inputname.replace(".","_"), plotName))
                 config.outputList.append(output)
 

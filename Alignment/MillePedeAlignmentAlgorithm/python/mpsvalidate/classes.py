@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Classes which are needed by the mps_validate.py file.
 ##
