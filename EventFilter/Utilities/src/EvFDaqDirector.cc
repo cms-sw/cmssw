@@ -95,7 +95,6 @@ namespace evf {
     reg.watchPreBeginJob(this, &EvFDaqDirector::preBeginJob);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
-    reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
     reg.watchPreGlobalEndLumi(this,&EvFDaqDirector::preGlobalEndLumi);
 
     //save hostname for later
@@ -276,9 +275,6 @@ namespace evf {
 
     initRun();
 
-    for (unsigned int i=0;i<bounds.maxNumberOfStreams();i++){
-      streamFileTracker_.push_back(-1);
-    }
     nThreads_=bounds.maxNumberOfStreams();
     nStreams_=bounds.maxNumberOfThreads();
   }
@@ -372,15 +368,9 @@ namespace evf {
     }
   }
 
-  inline void EvFDaqDirector::preSourceEvent(edm::StreamID const& streamID) {
-    streamFileTracker_[streamID]=currentFileIndex_;
-  }
-
-
   std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
-
 
   std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/" + fffnaming::inputRawFileName(run_,ls,index);

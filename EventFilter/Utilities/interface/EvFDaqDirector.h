@@ -66,7 +66,6 @@ namespace evf{
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-      void preSourceEvent(edm::StreamID const& streamID);
       //std::string &baseDir(){return base_dir_;}
       void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
@@ -110,8 +109,6 @@ namespace evf{
       void lockInitLock();
       void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
-      void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
-      std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
       bool isSingleStreamThread() {return nStreams_==1 && nThreads_==1;}
       void lockFULocal();
       void unlockFULocal();
@@ -196,8 +193,6 @@ namespace evf{
       //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
-      std::vector<int> streamFileTracker_;
-      int currentFileIndex_ = -1;
 
       std::mutex *fileDeleteLockPtr_ = nullptr;
       std::list<std::pair<int,InputFile*>> *filesToDeletePtr_ = nullptr;
