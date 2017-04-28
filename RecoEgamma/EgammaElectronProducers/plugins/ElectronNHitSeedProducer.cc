@@ -19,14 +19,14 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelNHitMatcher.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/TrajSeedMatcher.h"
 
-class ElectronNSeedProducer : public edm::stream::EDProducer<> {
+class ElectronNHitSeedProducer : public edm::stream::EDProducer<> {
 public:
   
   
-  explicit ElectronNSeedProducer( const edm::ParameterSet & ) ;
-  virtual ~ElectronNSeedProducer()=default;  
+  explicit ElectronNHitSeedProducer( const edm::ParameterSet & ) ;
+  virtual ~ElectronNHitSeedProducer()=default;  
   
   virtual void produce( edm::Event &, const edm::EventSetup & ) override final;
   
@@ -34,7 +34,7 @@ public:
 
 private:
 
-  PixelNHitMatcher matcher_;
+  TrajSeedMatcher matcher_;
   
   std::vector<edm::EDGetTokenT<std::vector<reco::SuperClusterRef>> > superClustersTokens_;
   edm::EDGetTokenT<TrajectorySeedCollection> initialSeedsToken_ ;
@@ -69,7 +69,7 @@ namespace {
   
   
   reco::ElectronNHitSeed::PMVars 
-  makeSeedPixelVar(const PixelNHitMatcher::MatchInfo& matchInfo,
+  makeSeedPixelVar(const TrajSeedMatcher::MatchInfo& matchInfo,
 		   const TrackerTopology& trackerTopo)
   {
     
@@ -84,7 +84,7 @@ namespace {
 
 }
 
-ElectronNSeedProducer::ElectronNSeedProducer( const edm::ParameterSet& pset):
+ElectronNHitSeedProducer::ElectronNHitSeedProducer( const edm::ParameterSet& pset):
   matcher_(pset.getParameter<edm::ParameterSet>("matcherConfig")),
   initialSeedsToken_(consumes<TrajectorySeedCollection>(pset.getParameter<edm::InputTag>("initialSeeds"))),
   verticesToken_(consumes<std::vector<reco::Vertex> >(pset.getParameter<edm::InputTag>("vertices"))),
@@ -98,7 +98,7 @@ ElectronNSeedProducer::ElectronNSeedProducer( const edm::ParameterSet& pset):
   produces<reco::ElectronNHitSeedCollection>() ;
 }
 
-void ElectronNSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+void ElectronNHitSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("initialSeeds",edm::InputTag());
@@ -106,12 +106,12 @@ void ElectronNSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("beamSpot",edm::InputTag()); 
   desc.add<edm::InputTag>("measTkEvt",edm::InputTag());
   desc.add<std::vector<edm::InputTag> >("superClusters");
-  desc.add<edm::ParameterSetDescription>("matcherConfig",PixelNHitMatcher::makePSetDescription());
+  desc.add<edm::ParameterSetDescription>("matcherConfig",TrajSeedMatcher::makePSetDescription());
   
-  descriptions.add("electronNSeedProducer",desc);
+  descriptions.add("electronNHitSeedProducer",desc);
 }
 
-void ElectronNSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void ElectronNHitSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
   edm::ESHandle<TrackerTopology> trackerTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(trackerTopoHandle);
@@ -129,7 +129,7 @@ void ElectronNSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   for(const auto& superClustersToken : superClustersTokens_){
     auto superClustersHandle = getHandle(iEvent,superClustersToken);
     for(auto& superClusRef : *superClustersHandle){
-      const std::vector<PixelNHitMatcher::SeedWithInfo> matchedSeeds = 
+      const std::vector<TrajSeedMatcher::SeedWithInfo> matchedSeeds = 
 	matcher_.compatibleSeeds(*initialSeedsHandle,convertToGP(superClusRef->position()),
 				 primVtxPos,superClusRef->energy());
       
@@ -151,4 +151,4 @@ void ElectronNSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
 
   
-DEFINE_FWK_MODULE(ElectronNSeedProducer);
+DEFINE_FWK_MODULE(ElectronNHitSeedProducer);
