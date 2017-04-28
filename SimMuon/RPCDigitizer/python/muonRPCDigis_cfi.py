@@ -58,7 +58,7 @@ _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
         IRPC_time_resolution = cms.double(1.0),# resolution of 1 ns, after LB upgrade. Here the RPC resolution is set
         IRPC_electronics_jitter = cms.double(0.1)# resolution of 100 ps
     ),
-    doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
+    doBkgNoise = cms.bool(False), #False - no noise and bkg simulation
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
