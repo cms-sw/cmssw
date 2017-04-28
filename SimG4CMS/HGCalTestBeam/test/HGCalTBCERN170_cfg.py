@@ -105,6 +105,7 @@ process.HGCalTBAnalyzer.DoDigis   = False
 process.HGCalTBAnalyzer.DoRecHits = False
 process.HGCalTBAnalyzer.UseFH     = True
 process.HGCalTBAnalyzer.UseBH     = True
+process.HGCalTBAnalyzer.UseBeam   = True
 process.HGCalTBAnalyzer.ZFrontEE  = 1110.0
 process.HGCalTBAnalyzer.ZFrontFH  = 1148.3
 
