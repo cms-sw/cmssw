@@ -19,7 +19,9 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
-  cacheIDMagField_(0)
+  cacheIDMagField_(0),
+  minNrHits_(pset.getParameter<std::vector<unsigned int> >("minNrHits")),
+  minNrHitsValidLayerBins_(pset.getParameter<std::vector<int> >("minNrHitsValidLayerBins"))
 {
   useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
   navSchoolLabel_ = pset.getParameter<std::string>("navSchool");
@@ -28,7 +30,10 @@ PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
   for(const auto & cutPSet : cutsPSets){
     matchingCuts_.push_back(MatchingCuts(cutPSet));
   }
-  
+ 
+  if(minNrHitsValidLayerBins_.size()+1!=minNrHits_.size()){  
+    throw cms::Exception("InvalidConfig")<<" minNrHitsValidLayerBins should be 1 less than minNrHits when its "<<minNrHitsValidLayerBins_.size()<<" vs "<<minNrHits_.size();
+  }
 }
 
 edm::ParameterSetDescription PixelNHitMatcher::makePSetDescription()
@@ -37,6 +42,9 @@ edm::ParameterSetDescription PixelNHitMatcher::makePSetDescription()
   desc.add<bool>("useRecoVertex",false);
   desc.add<std::string>("navSchool","SimpleNavigationSchool");
   desc.add<std::string>("detLayerGeom","hltESPGlobalDetLayerGeometry");
+  desc.add<std::vector<int> >("minNrHitsValidLayerBins",{4});
+  desc.add<std::vector<unsigned int> >("minNrHits",{2,3});
+  
 
   edm::ParameterSetDescription cutsDesc;
   cutsDesc.add<double>("dPhiMax",0.04);
@@ -87,10 +95,18 @@ PixelNHitMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const G
 						   matchedHitsPos[1],
 						   candPos,vprim,energy,+1);
     }
-    int nrValidLayers = std::max(nrValidLayersNeg,nrValidLayersPos);
-
-    size_t nrHitsRequired = nrValidLayers>=4 ? 3 : 2;
     
+    int nrValidLayers = std::max(nrValidLayersNeg,nrValidLayersPos);
+    size_t nrHitsRequired = getNrHitsRequired(nrValidLayers);
+    //so we require the number of hits to exactly match, this is because we currently do not
+    //do any duplicate cleaning for the input seeds
+    //this means is a hit pair with a 3rd hit will appear twice (or however many hits it has)
+    //so if you did >=nrHitsRequired, you would get the same seed multiple times
+    //ideally we should fix this and clean our input seed collection so each seed is only in once
+    //also it should be studied what impact having a 3rd hit has on a GsfTrack
+    //ie will we get a significantly different result seeding with a hit pair 
+    //and the same the hit pair with a 3rd hit added
+    //in that case, perhaps it should be >=
     if(matchedHitsNeg.size()==nrHitsRequired ||
        matchedHitsPos.size()==nrHitsRequired){
       matchedSeeds.push_back({seed,matchedHitsPos,matchedHitsNeg,nrValidLayers});
@@ -303,7 +319,14 @@ bool PixelNHitMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryS
 }
 
 
-
+size_t PixelNHitMatcher::getNrHitsRequired(const int nrValidLayers)const
+{
+  for(size_t binNr=0;binNr<minNrHitsValidLayerBins_.size();binNr++){
+    if(nrValidLayers<minNrHitsValidLayerBins_[binNr]) return minNrHits_[binNr];
+  }
+  return minNrHits_.back();
+  
+}
 
 PixelNHitMatcher::HitInfo::HitInfo(const GlobalPoint& vtxPos,
 				   const TrajectoryStateOnSurface& trajState,
@@ -336,7 +359,7 @@ SeedWithInfo(const TrajectorySeed& seed,
     float dPhiNeg = hitNr<negCharge.size() ? negCharge[hitNr].dPhi() : std::numeric_limits<float>::max();
     
     if(detIdPos!=detIdNeg && (detIdPos.rawId()!=0 && detIdNeg.rawId()!=0)){
-      cms::Exception("LogicError")<<" error in "<<__FILE__<<", "<<__LINE__<<" hits to be combined have different detIDs, this should not be possible and will cause Bad Things (tm) to happen";
+      cms::Exception("LogicError")<<" error in "<<__FILE__<<", "<<__LINE__<<" hits to be combined have different detIDs, this should not be possible and nothing good will come of it";
     }
     DetId detId = detIdPos.rawId()!=0 ? detIdPos : detIdNeg;
     matchInfo_.push_back(MatchInfo(detId,dRZPos,dRZNeg,dPhiPos,dPhiNeg));
