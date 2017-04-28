@@ -28,7 +28,7 @@
 //    so for now this isnt done. Note we might move to the standard CMSSW of dealing 
 //    with this
 
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
 #include "TF1.h"
 #include "TF2.h"
@@ -41,7 +41,7 @@ namespace egPM {
     float x;
     size_t y;
     
-    AbsEtaNrClus(const reco::ElectronNHitSeed& seed){
+    AbsEtaNrClus(const reco::ElectronSeed& seed){
       reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
@@ -55,7 +55,7 @@ namespace egPM {
     size_t y;
     float z;
 
-    AbsEtaNrClusPhi(const reco::ElectronNHitSeed& seed){
+    AbsEtaNrClusPhi(const reco::ElectronSeed& seed){
       reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
@@ -73,7 +73,7 @@ namespace egPM {
     size_t y;
     float z;
 
-    AbsEtaNrClusEt(const reco::ElectronNHitSeed& seed){
+    AbsEtaNrClusEt(const reco::ElectronSeed& seed){
       reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();

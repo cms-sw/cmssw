@@ -14,8 +14,6 @@
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronNHitSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -71,16 +69,6 @@ namespace DataFormats_EgammaReco {
     edm::RefProd<reco::PreshowerClusterShapeCollection> rp6;
     edm::Wrapper<edm::RefVector<reco::PreshowerClusterShapeCollection> > wrv6;
 
-    reco::ElectronNHitSeedCollection v1112;
-    edm::Wrapper<reco::ElectronNHitSeedCollection> w1112;
-    edm::Ref<reco::ElectronNHitSeedCollection> r1112;
-    edm::RefProd<reco::ElectronNHitSeedCollection> rp1112;
-    edm::Wrapper<edm::RefVector<reco::ElectronNHitSeedCollection> > wrv1112;
-    edm::RefToBase<reco::ElectronNHitSeed> rtb112;
-    edm::reftobase::IndirectHolder<reco::ElectronNHitSeed> ih112;
-    edm::reftobase::Holder< reco::ElectronNHitSeed, edm::Ref<reco::ElectronNHitSeedCollection> > rbh112;
-    edm::reftobase::RefHolder< edm::Ref<reco::ElectronNHitSeedCollection> > rbrh112;
-
     reco::ElectronSeedCollection v111;
     edm::Wrapper<reco::ElectronSeedCollection> w111;
     edm::Ref<reco::ElectronSeedCollection> r111;
@@ -90,8 +78,6 @@ namespace DataFormats_EgammaReco {
     edm::reftobase::IndirectHolder<reco::ElectronSeed> ih11;
     edm::reftobase::Holder< reco::ElectronSeed, edm::Ref<reco::ElectronSeedCollection> > rbh11;
     edm::reftobase::RefHolder< edm::Ref<reco::ElectronSeedCollection> > rbrh11;
-
-  
 
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;

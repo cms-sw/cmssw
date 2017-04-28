@@ -88,7 +88,8 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >" splitLevel="0"/>
 
-  <class name="reco::ElectronSeed" ClassVersion="12">
+  <class name="reco::ElectronSeed" ClassVersion="13">
+    <version ClassVersion="13" checksum="3112955595"/> 
    <version ClassVersion="12" checksum="536071409"/>
    <version ClassVersion="11" checksum="3831394066"/>
    <version ClassVersion="10" checksum="534580602"/>
@@ -104,27 +105,6 @@
   <class name="edm::reftobase::IndirectHolder<reco::ElectronSeed>" />
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
   <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
-
-  
-
-  <class name="reco::ElectronNHitSeed" ClassVersion="11">
-    <version ClassVersion="11" checksum="2181698105"/> 
-   <version ClassVersion="10" checksum="898295463"/> 
-  </class>
-  <class name="std::vector<reco::ElectronNHitSeed>"/>
-  <class name="edm::Ref<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed> >"/>
-  <class name="edm::RefProd<std::vector<reco::ElectronNHitSeed> >"/>
-  <class name="edm::Wrapper<std::vector<reco::ElectronNHitSeed> >"/>
-  <class name="edm::RefVector<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed> > >"/>
-  <class name="edm::RefToBase<reco::ElectronNHitSeed>"/>
-  <class name="edm::reftobase::BaseHolder<reco::ElectronNHitSeed>" />
-  <class name="edm::reftobase::IndirectHolder<reco::ElectronNHitSeed>" />
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed> > >"/>
-  <class name="edm::reftobase::Holder<reco::ElectronNHitSeed,edm::Ref<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronNHitSeed>,reco::ElectronNHitSeed> > >"/>
-
-
-  
 
   <class name="reco::PreshowerCluster" ClassVersion="14">
    <version ClassVersion="14" checksum="3782728123"/>
