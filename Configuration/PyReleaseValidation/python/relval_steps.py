@@ -1758,8 +1758,13 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for step in upgradeSteps:
-    upgradeStepDict[step]={}
+for stepType in upgradeSteps.keys():
+    for step in upgradeSteps[stepType]['steps']:
+        stepName = step+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepName]={}
+    for step in upgradeSteps[stepType]['PU']:
+        stepName = step+'PU'+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepName]={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -1773,6 +1778,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
+
+    # setup baseline steps
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1781,8 +1788,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
     if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
 
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
@@ -1793,8 +1798,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
 
     upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
@@ -1805,9 +1808,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
     
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--era']=era
-    
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1816,13 +1816,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
- 
-    if k2 in PUDataSets:
-        upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
-
-#Adding Track trigger step in step2 
+    # Adding Track trigger step in step2 
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1830,13 +1824,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-
-    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiFullTrigger'][k]['--era']=era
- 
- 
-    if k2 in PUDataSets:
-        upgradeStepDict['DigiFullTriggerPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFullTrigger'][k]])
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                       '--conditions':gt,
@@ -1846,19 +1833,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
-
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
-
-
-    upgradeStepDict['RecoFull_trackingOnly'][k] = merge([step3_trackingOnly, upgradeStepDict['RecoFull'][k]]) 
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
-
 
     upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
                                       '--conditions':gt,
@@ -1868,11 +1842,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullGlobal'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFullGlobal'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullGlobalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullGlobal'][k]])
 
     upgradeStepDict['RecoFullLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
                                       '--conditions':gt,
@@ -1881,12 +1850,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullLocalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullLocal'][k]])
-
 
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
@@ -1896,20 +1859,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
 				    '--filein':'file:step3_inDQM.root'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
 
-    if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
-
-    upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
     upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
-
-    if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])
-        upgradeStepDict['HARVESTFullGlobalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFullGlobal'][k]])
-
-
 
     upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu',
                                       '--conditions':gt,
@@ -1918,10 +1869,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['ALCAFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['ALCAFull'][k]['--era']=era
-
-
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1930,8 +1877,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                    '--fast':'',
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
-    if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['FastSim'][k]['--era']=era
 
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
@@ -1939,17 +1884,42 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['HARVESTFast'][k]['--era']=era
 
-# add Timing variations
-for step in upgradeStepDict.keys():
-    if not "_Timing" in step:
-        upgradeStepDict[step+"_Timing"] = deepcopy(upgradeStepDict[step])
-        for key in upgradeStepDict[step+"_Timing"].keys():
-            # avoid some nonsense
-            if not "_timing" in upgradeStepDict[step+"_Timing"][key]['--era']:
-                upgradeStepDict[step+"_Timing"][key]['--era'] += "_timing"
+    # setup baseline customizations and PU
+    for step in upgradeSteps['baseline']['steps']:
+        if cust is not None: upgradeStepDict[step][k]['--customise']=cust
+        if era is not None: upgradeStepDict[step][k]['--era']=era
+
+    # setup variations (manually)
+
+    for step in upgradeSteps['trackingOnly']['steps']:
+        stepName = step + upgradeSteps['trackingOnly']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['Timing']['steps']:
+        stepName = step + upgradeSteps['Timing']['suffix']
+        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        # avoid some nonsense
+        if '--era' in upgradeStepDict[stepName][k].keys() and not "_timing" in upgradeStepDict[stepName][k]['--era']:
+            upgradeStepDict[stepName][k]['--era'] += "_timing"
+
+    for step in upgradeSteps['Neutron']['steps']:
+        custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
+        stepName = step + upgradeSteps['Neutron']['suffix']
+        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        if '--customise' in upgradeStepDict[stepName][k].keys():
+            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
+        else:
+            upgradeStepDict[stepName][k]['--customise'] = custNew
+
+    # setup PU
+    if k2 in PUDataSets:
+        for stepType in upgradeSteps.keys():
+            for step in upgradeSteps[stepType]['PU']:
+                stepName = step + upgradeSteps[stepType]['suffix']
+                stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
+                upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
