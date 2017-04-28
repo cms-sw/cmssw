@@ -187,9 +187,11 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
   }
   m_tokenInfo.shrink_to_fit();
 
-  itemsToGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
-  if(iPrefetchMayGet) {
-    itemsMayGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
+  if(iBranchType == InEvent) {
+    itemsToGet(iBranchType, itemsToGetFromEvent_);
+    if(iPrefetchMayGet) {
+      itemsMayGet(iBranchType, itemsToGetFromEvent_);
+    }
   }
 }
 
