@@ -93,3 +93,60 @@ def customize_digi_addGEM_muon_only(process):
 def customize_digi_noRPCbkg(process):
     process.simMuonRPCDigis.doBkgNoise = False
     return process
+
+
+
+
+# adding re-digi costumisation - to be used for dedicated trigger studies
+def customise_rpcRedigi(process):
+    process.load('Configuration.StandardSequences.Digi_cff')
+    process.simMuonRPCReDigis = process.simMuonRPCDigis.clone()
+    process.simMuonRPCReDigis.digiRPCModelConfig = cms.PSet(
+        Frate = cms.double(1.0),
+        Gate = cms.double(25.0),
+        IRPC_electronics_jitter = cms.double(0.025),
+        IRPC_time_resolution = cms.double(0.1),
+        Nbxing = cms.int32(9),
+        BX_range = cms.int32(400),
+        Rate = cms.double(0.0),
+        averageClusterSize = cms.double(1.5),
+        averageEfficiency = cms.double(0.95),
+        cosmics = cms.bool(False),
+        deltatimeAdjacentStrip = cms.double(3.0),
+        linkGateWidth = cms.double(20.0),
+        printOutDigitizer = cms.bool(False),
+        signalPropagationSpeed = cms.double(0.66),
+        timeJitter = cms.double(1.0),
+        timeResolution = cms.double(2.5),
+        timingRPCOffset = cms.double(50.0)
+        ),
+    process.simMuonRPCReDigis.digiIRPCModelConfig = cms.PSet(
+        Frate = cms.double(1.0),
+        Gate = cms.double(25.0),
+        IRPC_electronics_jitter = cms.double(0.025),
+        IRPC_time_resolution = cms.double(0.1),
+        Nbxing = cms.int32(9),
+        BX_range = cms.int32(400),
+        Rate = cms.double(0.0),
+        averageClusterSize = cms.double(1.5),
+        averageEfficiency = cms.double(0.95),
+        cosmics = cms.bool(False),
+        deltatimeAdjacentStrip = cms.double(3.0),
+        linkGateWidth = cms.double(20.0),
+        printOutDigitizer = cms.bool(False),
+        signalPropagationSpeed = cms.double(0.66),
+        timeJitter = cms.double(1.0),
+        timeResolution = cms.double(2.5),
+        timingRPCOffset = cms.double(50.0)
+        )
+    process.RandomNumberGeneratorService.simMuonRPCReDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(13579),
+        engineName = cms.untracked.string('TRandom3')
+        )
+    process.rpcRecHits.rpcDigiLabel = cms.InputTag("simMuonRPCReDigis")
+    process.validationMuonRPCDigis.rpcDigiTag = cms.untracked.InputTag("simMuonRPCReDigis")
+    process.reconstruction_step.replace(
+        process.rpcRecHits,
+        cms.Sequence(process.simMuonRPCReDigis+process.rpcRecHits)
+        )
+    return process
