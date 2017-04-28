@@ -49,9 +49,9 @@ SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
 # Next we load ES producers for any conditions that are not yet in GT,
 # using the Era configuration.
 #
-from L1Trigger.L1TCalorimeter.hackConditions_cff import *
-from L1Trigger.L1TMuon.hackConditions_cff import *
-from L1Trigger.L1TGlobal.hackConditions_cff import *
+#from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+#from L1Trigger.L1TMuon.hackConditions_cff import *
+#from L1Trigger.L1TGlobal.hackConditions_cff import *
 
 
 # Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
