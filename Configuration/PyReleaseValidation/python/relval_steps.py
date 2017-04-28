@@ -1905,7 +1905,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             upgradeStepDict[stepName][k]['--era'] += "_timing"
 
     for step in upgradeSteps['Neutron']['steps']:
-        custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
+        if 'GenSim' in step:
+            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
+        else:
+            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
         stepName = step + upgradeSteps['Neutron']['suffix']
         upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
         if '--customise' in upgradeStepDict[stepName][k].keys():
