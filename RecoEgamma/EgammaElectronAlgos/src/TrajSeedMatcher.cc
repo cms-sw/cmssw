@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelNHitMatcher.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/TrajSeedMatcher.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,7 +18,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
-PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
+TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset):
   cacheIDMagField_(0),
   minNrHits_(pset.getParameter<std::vector<unsigned int> >("minNrHits")),
   minNrHitsValidLayerBins_(pset.getParameter<std::vector<int> >("minNrHitsValidLayerBins"))
@@ -36,7 +36,7 @@ PixelNHitMatcher::PixelNHitMatcher(const edm::ParameterSet& pset):
   }
 }
 
-edm::ParameterSetDescription PixelNHitMatcher::makePSetDescription()
+edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription()
 {
   edm::ParameterSetDescription desc;
   desc.add<bool>("useRecoVertex",false);
@@ -56,7 +56,7 @@ edm::ParameterSetDescription PixelNHitMatcher::makePSetDescription()
   return desc;
 }
 
-void PixelNHitMatcher::doEventSetup(const edm::EventSetup& iSetup)
+void TrajSeedMatcher::doEventSetup(const edm::EventSetup& iSetup)
 {
   if (cacheIDMagField_!=iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
     iSetup.get<IdealMagneticFieldRecord>().get(magField_);
@@ -69,8 +69,8 @@ void PixelNHitMatcher::doEventSetup(const edm::EventSetup& iSetup)
 }
 
 
-std::vector<PixelNHitMatcher::SeedWithInfo>
-PixelNHitMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const GlobalPoint& candPos,
+std::vector<TrajSeedMatcher::SeedWithInfo>
+TrajSeedMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const GlobalPoint& candPos,
 				  const GlobalPoint & vprim, const float energy)
 {
   if(!forwardPropagator_ || !backwardPropagator_ || !magField_.isValid()){
@@ -120,8 +120,8 @@ PixelNHitMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const G
 //checks if the hits of the seed match within requested selection
 //matched hits are required to be consecutive, as soon as hit isnt matched,
 //the function returns, it doesnt allow skipping hits
-std::vector<PixelNHitMatcher::HitInfo>
-PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& candPos,
+std::vector<TrajSeedMatcher::HitInfo>
+TrajSeedMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& candPos,
 			      const GlobalPoint & vprim, const float energy, const int charge )
 {
   const float candEta = candPos.eta();
@@ -157,7 +157,7 @@ PixelNHitMatcher::processSeed(const TrajectorySeed& seed, const GlobalPoint& can
 }
 
 // compute the z vertex from the candidate position and the found pixel hit
-float PixelNHitMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,const GlobalPoint& hitPos,
+float TrajSeedMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,const GlobalPoint& hitPos,
 						 const GlobalPoint& candPos)
 {
   auto sq = [](float x){return x*x;};
@@ -169,7 +169,7 @@ float PixelNHitMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,
   return hitPos.z() - r1Diff*(candPos.z()-hitPos.z())/r2Diff;
 }
 
-bool PixelNHitMatcher::passTrajPreSel(const GlobalPoint& hitPos,const GlobalPoint& candPos)const
+bool TrajSeedMatcher::passTrajPreSel(const GlobalPoint& hitPos,const GlobalPoint& candPos)const
 {
   float dt = hitPos.x()*candPos.x()+hitPos.y()*candPos.y();
   if (dt<0) return false;
@@ -177,7 +177,7 @@ bool PixelNHitMatcher::passTrajPreSel(const GlobalPoint& hitPos,const GlobalPoin
   return true;
 }
 
-const TrajectoryStateOnSurface& PixelNHitMatcher::getTrajStateFromVtx(const TrackingRecHit& hit,const TrajectoryStateOnSurface& initialState,const PropagatorWithMaterial& propagator)
+const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromVtx(const TrackingRecHit& hit,const TrajectoryStateOnSurface& initialState,const PropagatorWithMaterial& propagator)
 {
   auto& trajStateFromVtxCache = initialState.charge()==1 ? trajStateFromVtxPosChargeCache_ :
                                                            trajStateFromVtxNegChargeCache_;
@@ -192,7 +192,7 @@ const TrajectoryStateOnSurface& PixelNHitMatcher::getTrajStateFromVtx(const Trac
   }
 }
 
-const TrajectoryStateOnSurface& PixelNHitMatcher::getTrajStateFromPoint(const TrackingRecHit& hit,const FreeTrajectoryState& initialState,const GlobalPoint& point,const PropagatorWithMaterial& propagator)
+const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const TrackingRecHit& hit,const FreeTrajectoryState& initialState,const GlobalPoint& point,const PropagatorWithMaterial& propagator)
 {
   
   auto& trajStateFromPointCache = initialState.charge()==1 ? trajStateFromPointPosChargeCache_ :
@@ -208,7 +208,7 @@ const TrajectoryStateOnSurface& PixelNHitMatcher::getTrajStateFromPoint(const Tr
   }
 }
 
-PixelNHitMatcher::HitInfo PixelNHitMatcher::matchFirstHit(const TrajectorySeed& seed,const TrajectoryStateOnSurface& initialState,const GlobalPoint& vtxPos,const PropagatorWithMaterial& propagator)
+TrajSeedMatcher::HitInfo TrajSeedMatcher::matchFirstHit(const TrajectorySeed& seed,const TrajectoryStateOnSurface& initialState,const GlobalPoint& vtxPos,const PropagatorWithMaterial& propagator)
 {
   const TrajectorySeed::range& hits = seed.recHits();
   auto hitIt = hits.first;
@@ -220,7 +220,7 @@ PixelNHitMatcher::HitInfo PixelNHitMatcher::matchFirstHit(const TrajectorySeed& 
   return HitInfo();
 }
 
-PixelNHitMatcher::HitInfo PixelNHitMatcher::match2ndToNthHit(const TrajectorySeed& seed,
+TrajSeedMatcher::HitInfo TrajSeedMatcher::match2ndToNthHit(const TrajectorySeed& seed,
 							     const FreeTrajectoryState& initialState,
 							     const size_t hitNr,
 							     const GlobalPoint& prevHitPos,
@@ -240,7 +240,7 @@ PixelNHitMatcher::HitInfo PixelNHitMatcher::match2ndToNthHit(const TrajectorySee
   
 }
 
-void PixelNHitMatcher::clearCache()
+void TrajSeedMatcher::clearCache()
 {
   trajStateFromVtxPosChargeCache_.clear();
   trajStateFromVtxNegChargeCache_.clear();
@@ -248,7 +248,7 @@ void PixelNHitMatcher::clearCache()
   trajStateFromPointNegChargeCache_.clear();
 }
 
-bool PixelNHitMatcher::passesMatchSel(const PixelNHitMatcher::HitInfo& hit,const size_t hitNr,float scEt,float scEta)const
+bool TrajSeedMatcher::passesMatchSel(const TrajSeedMatcher::HitInfo& hit,const size_t hitNr,float scEt,float scEta)const
 {
   if(hitNr<matchingCuts_.size()){
     return matchingCuts_[hitNr](hit,scEt,scEta);
@@ -258,7 +258,7 @@ bool PixelNHitMatcher::passesMatchSel(const PixelNHitMatcher::HitInfo& hit,const
   
 }
 
-int PixelNHitMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInfo& hit2,
+int TrajSeedMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInfo& hit2,
 						const GlobalPoint& candPos,
 						const GlobalPoint & vprim, 
 						const float energy, const int charge)
@@ -272,7 +272,7 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const HitInfo& hit1,const HitInf
   return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(),secondHitTraj); 
 }
 
-int PixelNHitMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const TrajectoryStateOnSurface& hitTrajState)const
+int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const TrajectoryStateOnSurface& hitTrajState)const
 {
   
   const DetLayer* detLayer = detLayerGeom_->idToLayer(hitId);
@@ -300,7 +300,7 @@ int PixelNHitMatcher::getNrValidLayersAlongTraj(const DetId& hitId,const Traject
   return nrValidLayers;
 }
 						 
-bool PixelNHitMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
+bool TrajSeedMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryStateOnSurface& hitSurState,
 					 const Propagator& propToLayerFromState)const
 {
   //FIXME: do not hardcode with werid magic numbers stolen from ancient tracking code
@@ -319,7 +319,7 @@ bool PixelNHitMatcher::layerHasValidHits(const DetLayer& layer,const TrajectoryS
 }
 
 
-size_t PixelNHitMatcher::getNrHitsRequired(const int nrValidLayers)const
+size_t TrajSeedMatcher::getNrHitsRequired(const int nrValidLayers)const
 {
   for(size_t binNr=0;binNr<minNrHitsValidLayerBins_.size();binNr++){
     if(nrValidLayers<minNrHitsValidLayerBins_[binNr]) return minNrHits_[binNr];
@@ -328,7 +328,7 @@ size_t PixelNHitMatcher::getNrHitsRequired(const int nrValidLayers)const
   
 }
 
-PixelNHitMatcher::HitInfo::HitInfo(const GlobalPoint& vtxPos,
+TrajSeedMatcher::HitInfo::HitInfo(const GlobalPoint& vtxPos,
 				   const TrajectoryStateOnSurface& trajState,
 				   const TrackingRecHit& hit):
   detId_(hit.geographicalId()),
@@ -341,7 +341,7 @@ PixelNHitMatcher::HitInfo::HitInfo(const GlobalPoint& vtxPos,
 }
     
 
-PixelNHitMatcher::SeedWithInfo::
+TrajSeedMatcher::SeedWithInfo::
 SeedWithInfo(const TrajectorySeed& seed,
 	     const std::vector<HitInfo>& posCharge,
 	     const std::vector<HitInfo>& negCharge,
@@ -366,7 +366,7 @@ SeedWithInfo(const TrajectorySeed& seed,
   }
 }
 
-PixelNHitMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
+TrajSeedMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
   dPhiMax_(pset.getParameter<double>("dPhiMax")),
   dRZMax_(pset.getParameter<double>("dRZMax")),
   dRZMaxLowEtThres_(pset.getParameter<double>("dRZMaxLowEtThres")),
@@ -378,7 +378,7 @@ PixelNHitMatcher::MatchingCuts::MatchingCuts(const edm::ParameterSet& pset):
   }
 }
 
-bool PixelNHitMatcher::MatchingCuts::operator()(const PixelNHitMatcher::HitInfo& hit,const float scEt,const float scEta)const
+bool TrajSeedMatcher::MatchingCuts::operator()(const TrajSeedMatcher::HitInfo& hit,const float scEt,const float scEta)const
 {
   if(dPhiMax_>=0 && std::abs(hit.dPhi()) > dPhiMax_) return false;
   
@@ -388,7 +388,7 @@ bool PixelNHitMatcher::MatchingCuts::operator()(const PixelNHitMatcher::HitInfo&
   return true;
 }
 
-float PixelNHitMatcher::MatchingCuts::getDRZCutValue(const float scEt,const float scEta)const
+float TrajSeedMatcher::MatchingCuts::getDRZCutValue(const float scEt,const float scEta)const
 {
   if(scEt>=dRZMaxLowEtThres_) return dRZMax_;
   else{
