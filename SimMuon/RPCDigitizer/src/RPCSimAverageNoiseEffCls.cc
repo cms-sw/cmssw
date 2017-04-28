@@ -61,14 +61,14 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   frate=config.getParameter<double>("Frate");
 
   if (rpcdigiprint) {
-    edm::LogInfo("RPC digitizer parameters")<<"Average Efficiency        = "<<aveEff;
-    edm::LogInfo("RPC digitizer parameters")<<"Average Cluster Size      = "<<aveCls<<" strips";
-    edm::LogInfo("RPC digitizer parameters")<<"RPC Time Resolution       = "<<resRPC<<" ns";
-    edm::LogInfo("RPC digitizer parameters")<<"RPC Signal formation time = "<<timOff<<" ns";
-    edm::LogInfo("RPC digitizer parameters")<<"RPC adjacent strip delay  = "<<dtimCs<<" ns";
-    edm::LogInfo("RPC digitizer parameters")<<"Electronic Jitter         = "<<resEle<<" ns";
-    edm::LogInfo("RPC digitizer parameters")<<"Signal propagation time   = "<<sspeed<<" x c";
-    edm::LogInfo("RPC digitizer parameters")<<"Link Board Gate Width     = "<<lbGate<<" ns";
+    edm::LogInfo("RPC digitizer parameters")<<"Average Efficiency        = "<<aveEff<<'\n'
+					    <<"Average Cluster Size      = "<<aveCls<<" strips"<<'\n'
+					    <<"RPC Time Resolution       = "<<resRPC<<" ns"<<'\n'
+					    <<"RPC Signal formation time = "<<timOff<<" ns"<<'\n'
+					    <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<'\n'
+					    <<"Electronic Jitter         = "<<resEle<<" ns"<<'\n'
+					    <<"Signal propagation time   = "<<sspeed<<" x c"<<'\n'
+					    <<"Link Board Gate Width     = "<<lbGate<<" ns"<<'\n';
   }
 
   _rpcSync = new RPCSynchronizer(config);
