@@ -1,5 +1,5 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboardLUTGenerator_h
-#define L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboardLUTGenerator_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUTGenerator_h
+#define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUTGenerator_h
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
@@ -10,12 +10,12 @@
 #include <vector>
 #include <map>
 
-class CSCIntegratedMotherboardLUTGenerator
+class CSCUpgradeMotherboardLUTGenerator
 {
 public:
 
-  CSCIntegratedMotherboardLUTGenerator() {}
-  ~CSCIntegratedMotherboardLUTGenerator() {}
+  CSCUpgradeMotherboardLUTGenerator() {}
+  ~CSCUpgradeMotherboardLUTGenerator() {}
   
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }

@@ -1,5 +1,5 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboardLUT_h
-#define L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboardLUT_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
+#define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
 
 #include <vector>
 #include <map>
