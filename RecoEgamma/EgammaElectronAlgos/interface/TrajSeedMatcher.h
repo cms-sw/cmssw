@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_EgammaElectronAlgos_PixelNHitMatch_h
-#define RecoEgamma_EgammaElectronAlgos_PixelNHitMatch_h
+#ifndef RecoEgamma_EgammaElectronAlgos_TrajSeedMatcher_h
+#define RecoEgamma_EgammaElectronAlgos_TrajSeedMatcher_h
 
 
 //******************************************************************************
@@ -12,6 +12,8 @@
 //
 // The module is based of PixelHitMatcher (the seed based functions) but
 // extended to match on an arbitary number of hits rather than just doublets.
+// It is also aware of how many layers the supercluster trajectory passed through
+// and uses that information to determine how many hits to require
 // Other than that, its a direct port and follows what PixelHitMatcher did
 // 
 //
@@ -72,7 +74,7 @@ namespace std{
   };
 }
 
-class PixelNHitMatcher {
+class TrajSeedMatcher {
 public:
   class HitInfo {
   public:
@@ -156,14 +158,14 @@ public:
   };
 
 public:  
-  explicit PixelNHitMatcher(const edm::ParameterSet& pset);
-  ~PixelNHitMatcher()=default;
+  explicit TrajSeedMatcher(const edm::ParameterSet& pset);
+  ~TrajSeedMatcher()=default;
 
   static edm::ParameterSetDescription makePSetDescription();
 
   void doEventSetup(const edm::EventSetup& iSetup);
   
-  std::vector<PixelNHitMatcher::SeedWithInfo>
+  std::vector<TrajSeedMatcher::SeedWithInfo>
   compatibleSeeds(const TrajectorySeedCollection& seeds, const GlobalPoint& candPos,
 		  const GlobalPoint & vprim, const float energy);
 
@@ -179,17 +181,17 @@ private:
   
   bool passTrajPreSel(const GlobalPoint& hitPos,const GlobalPoint& candPos)const;
   
-  PixelNHitMatcher::HitInfo matchFirstHit(const TrajectorySeed& seed,
-					  const TrajectoryStateOnSurface& trajState,
-					  const GlobalPoint& vtxPos,
-					  const PropagatorWithMaterial& propagator);
+  TrajSeedMatcher::HitInfo matchFirstHit(const TrajectorySeed& seed,
+					 const TrajectoryStateOnSurface& trajState,
+					 const GlobalPoint& vtxPos,
+					 const PropagatorWithMaterial& propagator);
 
-  PixelNHitMatcher::HitInfo match2ndToNthHit(const TrajectorySeed& seed,
-					     const FreeTrajectoryState& trajState,
-					     const size_t hitNr,	
-					     const GlobalPoint& prevHitPos,
-					     const GlobalPoint& vtxPos,
-					     const PropagatorWithMaterial& propagator);
+  TrajSeedMatcher::HitInfo match2ndToNthHit(const TrajectorySeed& seed,
+					    const FreeTrajectoryState& trajState,
+					    const size_t hitNr,	
+					    const GlobalPoint& prevHitPos,
+					    const GlobalPoint& vtxPos,
+					    const PropagatorWithMaterial& propagator);
   
   const TrajectoryStateOnSurface& getTrajStateFromVtx(const TrackingRecHit& hit,const TrajectoryStateOnSurface& initialState,const PropagatorWithMaterial& propagator);
   const TrajectoryStateOnSurface& getTrajStateFromPoint(const TrackingRecHit& hit,const FreeTrajectoryState& initialState,const GlobalPoint& point,const PropagatorWithMaterial& propagator);
