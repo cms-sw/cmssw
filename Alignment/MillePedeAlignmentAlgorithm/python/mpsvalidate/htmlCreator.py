@@ -69,12 +69,15 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
             <tr>
                <th>Dataset</th>
                <th>Number of used tracks</th>
+               <th>Weight</th>
             <tr>"""
         for monitor in mpsv_classes.MonitorData.monitors:
             out += """<tr>
                 <th>{0}</th>
                 <th>{1}</th>
-                </tr>""".format(monitor.name, monitor.ntracks)
+                <th>{2}</th>
+                </tr>""".format(monitor.name, monitor.ntracks,
+                monitor.weight if monitor.weight != None else "&ndash;")
         try:
             if (pedeDump.nrec):
                 out += """<tr>

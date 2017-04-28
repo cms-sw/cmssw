@@ -260,6 +260,7 @@ done
 # copy aligment_merge.py for mps_validate.py
 ln -s ${CONFIG_FILE} alignment_merge.py
 ln -s ${RUNDIR}/.TrackerTree.root
+ln -s ${RUNDIR}/.weights.pkl
 # run mps_validate.py
 campaign=`basename ${MSSDIR}`
 mps_validate.py -m ${campaign} -p ./

@@ -4,6 +4,7 @@
 
 import logging
 import os
+import cPickle
 
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -21,14 +22,18 @@ def plot(config):
     ROOT.gStyle.SetOptStat("emrs")
     ROOT.gStyle.SetPadLeftMargin(0.07)
 
+    # retrieve the weights of the different datasets
+    with open(os.path.join(config.jobDataPath, ".weights.pkl"), "rb") as f:
+        weight_conf = cPickle.load(f)
+
     # loop over all millepedemonitor_X.root files
     for filename in os.listdir("{0}".format(config.jobDataPath)):
         if (filename.endswith(".root") and filename.startswith("millepedemonitor_")):
             # get X out of millepedemonitor_X.root files
-            inputname = filename[17:-5]
+            inputname = os.path.splitext(filename.split("millepedemonitor_")[-1])[0]
 
             # open file
-            rootfile = ROOT.TFile("{0}/{1}".format(config.jobDataPath, filename))
+            rootfile = ROOT.TFile(os.path.join(config.jobDataPath, filename))
 
             plotPaths = ["usedTrackHists/usedptTrack", "usedTrackHists/usedetaTrack",
                          "usedTrackHists/usedphiTrack", "usedTrackHists/usednHitTrack"]
@@ -43,7 +48,10 @@ def plot(config):
                 if (plotNumber == 0):
                     # get number of used tracks
                     ntracks = int(plot.GetEntries())
-                    mpsv_classes.MonitorData(inputname.replace("_", " "), ntracks)
+                    weight = [item[1]
+                              for item in weight_conf
+                              if item[0] == inputname][0]
+                    mpsv_classes.MonitorData(inputname.replace("_", " "), ntracks, weight)
 
                 # create canvas
                 canvas = ROOT.TCanvas("canvas{0}_{1}".format(

@@ -100,15 +100,16 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         out += """\\begin{table}[h]
             \centering
             \caption{Datasets with tracks}
-            \\begin{tabular}{cc}
+            \\begin{tabular}{ccc}
             \hline
-            Dataset & Number of used tracks \\\\
+            Dataset & Number of used tracks & Weight \\\\
             \hline \n"""
         for monitor in mpsv_classes.MonitorData.monitors:
-            out += "{0} & {1}\\\\\n".format(monitor.name, monitor.ntracks)
+            out += "{0} & {1} & {2}\\\\\n".format(monitor.name, monitor.ntracks,
+                                                  monitor.weight if monitor.weight != None else "--")
         try:
             if (pedeDump.nrec):
-                out += "Number of records & {0}\\\\\n".format(pedeDump.nrec)
+                out += "\hline\nNumber of records & {0}\\\\\n".format(pedeDump.nrec)
         except Exception as e:
             logger.error("data not found - {0} {1}".format(type(e), e))
         out += """\hline
