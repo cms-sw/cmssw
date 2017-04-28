@@ -376,12 +376,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   if (setExceptionState_) threadError();
   if (!currentFile_)
   {
-    if (!streamFileTrackerPtr_) {
-      streamFileTrackerPtr_ = daqDirector_->getStreamFileTracker();
-      nStreams_ = streamFileTrackerPtr_->size();
-      if (nStreams_>10) checkEvery_=nStreams_;
-    }
-
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
     if (fms_) fms_->setInState(evf::FastMonitoringThread::inWaitInput);
     if (!fileQueue_.try_pop(currentFile_))
@@ -423,7 +417,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
     else if (status == evf::EvFDaqDirector::newFile) {
       currentFileIndex_++;
-      daqDirector_->updateFileIndex(currentFileIndex_);
     }
     else
       assert(0);
@@ -717,6 +710,12 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   eventsThisLumi_++;
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inReadCleanup);
 
+  //resize vector if needed
+  while (streamFileTracker_.size() =< eventPrincipal.streamID())
+      streamFileTracker_.push_back(-1);
+
+  streamFileTracker_[eventPrincipal.streamID()]=currentFileIndex_;
+
   //this old file check runs no more often than every 10 events
   if (!((currentFile_->nProcessed_-1)%(checkEvery_))) {
     //delete files that are not in processing
@@ -725,7 +724,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     while (it!=filesToDelete_.end()) {
       bool fileIsBeingProcessed = false;
       for (unsigned int i=0;i<nStreams_;i++) {
-	if (it->first == streamFileTrackerPtr_->at(i)) {
+	if (it->first == streamFileTracker_.at(i)) {
 		fileIsBeingProcessed = true;
 		break;
 	}
