@@ -56,26 +56,15 @@ ESDigiToRaw::~ESDigiToRaw() {
 }
 
 void ESDigiToRaw::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
-  auto counter_ = ev.id().event();
   ESDataFormatter::Meta_Data meta_data;
-  meta_data.run_number = ev.id().run();
-  meta_data.orbit_number = counter_ / LHC_BX_RANGE;
-  meta_data.bx = (counter_ % LHC_BX_RANGE);
-   
   meta_data.lv1 = ev.id().event();
+  meta_data.run_number = ev.id().run();
+  meta_data.orbit_number = meta_data.lv1 / LHC_BX_RANGE;
+  meta_data.bx = (meta_data.lv1 % LHC_BX_RANGE);
+   
   meta_data.kchip_ec = (meta_data.lv1 % KCHIP_EC_RANGE); 
-  meta_data.kchip_bc = (counter_ % KCHIP_BC_RANGE);
+  meta_data.kchip_bc = (meta_data.lv1 % KCHIP_BC_RANGE);
 
-  //auto const meta_data(run_number, orbit_number, bx, lv1, kchip_ec, kchip_bc);
-  //counter_++;
-
-  /*ESDataFormatter_->setRunNumber(run_number_);
-  ESDataFormatter_->setOrbitNumber(orbit_number_);
-  ESDataFormatter_->setBX(bx_);
-  ESDataFormatter_->setLV1(lv1_);
-  ESDataFormatter_->setKchipBC(kchip_bc_);
-  ESDataFormatter_->setKchipEC(kchip_ec_);
-*/
   edm::Handle<ESDigiCollection> digis;
   ev.getByToken(ESDigiToken_, digis);
 
