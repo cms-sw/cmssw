@@ -215,7 +215,8 @@ if isDA:
                                                                          minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         minPt = cms.double(0.0),                                    # better for softish events
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
@@ -251,7 +252,8 @@ else:
                                                                          minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2                   
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         minPt = cms.double(0.0),                                    # better for softish events    
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330 
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         
