@@ -47,12 +47,11 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   xl = 5.f*std::sqrt(xl);
   yl = 5.f*std::sqrt(yl);
 
-  /*
-  if (fastGeomDet().geographicalId().subdetId()<10) {
+  // do not apply for iteration not cutting on propagation
+  if (est.maxSagitta() <0 ) {
     xl = 100.f;
     yl = 100.f;
   }
-  */
 
   auto oldSize = result.size();
   MeasurementDet::RecHitContainer && allHits = compHits(stateOnThisDet, data,xl,yl);
