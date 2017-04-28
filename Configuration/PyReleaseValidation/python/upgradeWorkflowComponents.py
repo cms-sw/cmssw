@@ -59,32 +59,59 @@ for year in upgradeKeys:
                 break
         numWFAll[year].append(numWFtmp)
 
-upgradeSteps=[
-    'GenSimFull',
-    'GenSimHLBeamSpotFull',
-    'GenSimHLBeamSpotFull14',
-    'DigiFull',
-    'DigiFullTrigger',
-    'DigiFullTriggerPU',
-    'RecoFullLocal',
-    'RecoFullLocalPU',
-    'RecoFull',
-    'RecoFullGlobal',
-    'RecoFullGlobalPU',
-    'HARVESTFull',
-    'FastSim',
-    'HARVESTFast',
-    'DigiFullPU',
-    'RecoFullPU',
-    'HARVESTFullPU',
-    'RecoFull_trackingOnly',
-    'RecoFull_trackingOnlyPU',
-    'HARVESTFull_trackingOnly',
-    'HARVESTFull_trackingOnlyPU',
-    'HARVESTFullGlobal',
-    'HARVESTFullGlobalPU',
-    'ALCAFull'
-]
+# steps for baseline and for variations
+upgradeSteps={}
+upgradeSteps['baseline'] = {
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+        'HARVESTFull',
+        'FastSim',
+        'HARVESTFast',
+        'HARVESTFullGlobal',
+        'ALCAFull',
+    ],
+    'PU' : [
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFullGlobal',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'HARVESTFullGlobal',
+    ],
+    'suffix' : '',
+    'offset' : 0.0,
+}
+upgradeSteps['trackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnly',
+    'offset' : 0.1,
+}
+upgradeSteps['Timing'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Timing',
+    'offset' : 0.2,
+}
+upgradeSteps['Neutron'] = {
+    'steps' : upgradeSteps['baseline']['steps'],
+    'PU' : upgradeSteps['baseline']['PU'],
+    'suffix' : '_Neutron',
+    'offset' : 0.3,
+}
 
 upgradeProperties = {}
 
@@ -308,6 +335,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff',
                   'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',
                   'TenE_E_0_200_pythia8_cfi',
+                  'FlatRandomPtAndDxyGunProducer_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -396,6 +424,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff':Kby(9,50),
            'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff':Kby(9,50),
            'TenE_E_0_200_pythia8_cfi':Kby(9,100),
+           'FlatRandomPtAndDxyGunProducer_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -484,4 +513,5 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff': 'WpToENu_M-2000_13',
                             'DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff': 'DisplacedSUSY_stopToBottom_M_300_1000mm_13',
                             'TenE_E_0_200_pythia8_cfi': 'TenE_0_200',
+                            'FlatRandomPtAndDxyGunProducer_cfi': 'DisplacedMuonsDxy_0_500',
 }
