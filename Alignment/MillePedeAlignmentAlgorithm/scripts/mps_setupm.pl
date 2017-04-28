@@ -118,6 +118,9 @@ $theJobData = "$thePwd/jobData";
 print "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir\n";
 system "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir";
 
+# copy weights configuration from last merge job
+system "cp -p jobData/$JOBDIR[$iOldMerge]/.weights.pkl $theJobData/$theJobDir";
+
 my $tmpc = "";
 $tmpc = " -c" if($onlyactivejobs == 1);
 
