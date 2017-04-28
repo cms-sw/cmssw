@@ -1,105 +1,86 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+
 
 using namespace reco ;
 
 
 ElectronSeed::ElectronSeed()
- : TrajectorySeed(), ctfTrack_(), caloCluster_(), hitsMask_(0),
-   subDet2_(0),
-   dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity()),
-   dRz2Pos_(std::numeric_limits<float>::infinity()),
-   dPhi2Pos_(std::numeric_limits<float>::infinity()),
-   subDet1_(0),
-   dRz1_(std::numeric_limits<float>::infinity()),
-   dPhi1_(std::numeric_limits<float>::infinity()),
-   dRz1Pos_(std::numeric_limits<float>::infinity()),
-   dPhi1Pos_(std::numeric_limits<float>::infinity()),
-   hcalDepth1OverEcal_(std::numeric_limits<float>::infinity()),
-   hcalDepth2OverEcal_(std::numeric_limits<float>::infinity()),
-   isEcalDriven_(false), isTrackerDriven_(false)
- {}
+  : TrajectorySeed(), ctfTrack_(), caloCluster_(), hitInfo_(),
+    nrLayersAlongTraj_(0),
+    isEcalDriven_(false), isTrackerDriven_(false)
+   
+{}
 
 ElectronSeed::ElectronSeed
- ( const TrajectorySeed & seed )
- : TrajectorySeed(seed),
-   ctfTrack_(), caloCluster_(), hitsMask_(0),
-   subDet2_(0),
-   dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity()),
-   dRz2Pos_(std::numeric_limits<float>::infinity()),
-   dPhi2Pos_(std::numeric_limits<float>::infinity()),
-   subDet1_(0),
-   dRz1_(std::numeric_limits<float>::infinity()),
-   dPhi1_(std::numeric_limits<float>::infinity()),
-   dRz1Pos_(std::numeric_limits<float>::infinity()),
-   dPhi1Pos_(std::numeric_limits<float>::infinity()),
-   hcalDepth1OverEcal_(std::numeric_limits<float>::infinity()),
-   hcalDepth2OverEcal_(std::numeric_limits<float>::infinity()),
-   isEcalDriven_(false), isTrackerDriven_(false)
- {}
+( const TrajectorySeed & seed )
+  : TrajectorySeed(seed),
+    ctfTrack_(), caloCluster_(), hitInfo_(),
+    nrLayersAlongTraj_(0),
+    isEcalDriven_(false), isTrackerDriven_(false)
+{}
 
 ElectronSeed::ElectronSeed
  ( PTrajectoryStateOnDet & pts, recHitContainer & rh, PropagationDirection & dir )
- : TrajectorySeed(pts,rh,dir),
-   ctfTrack_(), caloCluster_(), hitsMask_(0),
-   subDet2_(0),
-   dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity()),
-   dRz2Pos_(std::numeric_limits<float>::infinity()),
-   dPhi2Pos_(std::numeric_limits<float>::infinity()),
-   subDet1_(0),
-   dRz1_(std::numeric_limits<float>::infinity()),
-   dPhi1_(std::numeric_limits<float>::infinity()),
-   dRz1Pos_(std::numeric_limits<float>::infinity()),
-   dPhi1Pos_(std::numeric_limits<float>::infinity()),
-   hcalDepth1OverEcal_(std::numeric_limits<float>::infinity()),
-   hcalDepth2OverEcal_(std::numeric_limits<float>::infinity()),
-   isEcalDriven_(false), isTrackerDriven_(false)
- {}
+   : TrajectorySeed(pts,rh,dir),
+     ctfTrack_(), caloCluster_(), hitInfo_(),
+     nrLayersAlongTraj_(0),
+     isEcalDriven_(false), isTrackerDriven_(false)
+{}
 
 void ElectronSeed::setCtfTrack
- ( const CtfTrackRef & ctfTrack )
- {
+( const CtfTrackRef & ctfTrack )
+{
   ctfTrack_ = ctfTrack ;
   isTrackerDriven_ = true ;
- }
+}
 
-void ElectronSeed::setCaloCluster
- ( const CaloClusterRef & scl,
-   unsigned char hitsMask,
-   int subDet2, int subDet1,
-   float hoe1, float hoe2 )
- {
-  caloCluster_ = scl ;
-  hitsMask_ = hitsMask ;
-  isEcalDriven_ = true ;
-  subDet2_ = subDet2 ;
-  subDet1_ = subDet1 ;
-  hcalDepth1OverEcal_ = hoe1 ;
-  hcalDepth2OverEcal_ = hoe2 ;
- }
+//the hit mask tells us which hits were used in the seed
+//typically all are used but this could change in the future
+int ElectronSeed::hitsMask()const
+{
+  int mask=0;
+  for(size_t hitNr=0;hitNr<nHits();hitNr++){
+    int bitNr = 0x1 << hitNr;
+    int hitDetId = (recHits().first+hitNr)->geographicalId().rawId();
+    auto detIdMatcher = [hitDetId](const ElectronSeed::PMVars& var){return hitDetId==var.detId;};
+    if(std::find_if(hitInfo_.begin(),hitInfo_.end(),detIdMatcher)!=hitInfo_.end()){
+      mask|=bitNr;
+    }
+  }
+  return mask;
+}
 
-void ElectronSeed::setNegAttributes
- ( float dRz2, float dPhi2, float dRz1, float dPhi1 )
- {
-  dRz2_ = dRz2 ;
-  dPhi2_ = dPhi2 ;
-  dRz1_ = dRz1 ;
-  dPhi1_ = dPhi1 ;
- }
+void ElectronSeed::setNegAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi1)
+{
+  if(hitInfo_.empty()) hitInfo_.resize(2);
+  if(hitInfo_.size()!=2){
+    throw cms::Exception("LogicError") <<"ElectronSeed::setNegAttributes should only operate on seeds with exactly two hits. This is because it is a legacy function to preverse backwards compatiblity and should not be used on new code which matches variable number of hits";
+  }
+  hitInfo_[0].dRZNeg = dRZ1;
+  hitInfo_[1].dRZNeg = dRZ2;
+  hitInfo_[0].dPhiNeg = dPhi1;
+  hitInfo_[1].dPhiNeg = dPhi2;
+  
+}
 
-void ElectronSeed::setPosAttributes
- ( float dRz2, float dPhi2, float dRz1, float dPhi1 )
- {
-  dRz2Pos_ = dRz2 ;
-  dPhi2Pos_ = dPhi2 ;
-  dRz1Pos_ = dRz1 ;
-  dPhi1Pos_ = dPhi1 ;
- }
+void ElectronSeed::setPosAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi1)
+{
+  if(hitInfo_.empty()) hitInfo_.resize(2);
+  if(hitInfo_.size()!=2){
+    throw cms::Exception("LogicError") <<"ElectronSeed::setPosAttributes should only operate on seeds with exactly two hits. This is because it is a legacy function to preverse backwards compatiblity and should not be used on new code which matches variable number of hits";
+  }
+  hitInfo_[0].dRZPos = dRZ1;
+  hitInfo_[1].dRZPos = dRZ2;
+  hitInfo_[0].dPhiPos = dPhi1;
+  hitInfo_[1].dPhiPos = dPhi2;
+}
 
-ElectronSeed::~ElectronSeed()
- {}
-
+ElectronSeed::PMVars::PMVars():
+  dRZPos(std::numeric_limits<float>::infinity()),
+  dRZNeg(std::numeric_limits<float>::infinity()),
+  dPhiPos(std::numeric_limits<float>::infinity()),
+  dPhiNeg(std::numeric_limits<float>::infinity()),
+  detId(0),
+  layerOrDiskNr(-1)
+{}
