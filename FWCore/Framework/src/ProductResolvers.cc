@@ -258,10 +258,6 @@ namespace edm {
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
-      if(branchDescription().availableOnlyAtEndTransition() and
-         not principal.atEndTransition()) {
-        return;
-      }
       m_waitingTasks.add(waitTask);
       
       bool expected = false;
@@ -642,8 +638,7 @@ namespace edm {
   lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
   lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
   prefetchRequested_(false),
-  skippingPrefetchRequested_(false),
-  recheckedAtEnd_(false) {
+  skippingPrefetchRequested_(false) {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
   
@@ -667,27 +662,19 @@ namespace edm {
     // we know it is ambiguous
     const unsigned int choiceSize = ambiguous_.size();
     {
-      if( (not principal.atEndTransition()) or
-         recheckedAtEnd_) {
-        unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
-        if( checkCacheIndex != choiceSize +kUnsetOffset) {
-          if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
-            return ProductResolverBase::Resolution::makeAmbiguous();
-          } else if(checkCacheIndex == choiceSize+kMissingOffset) {
-            return Resolution(nullptr);
-          }
-          return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
-                             sra,mcc);
+      unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
+      if( checkCacheIndex != choiceSize +kUnsetOffset) {
+        if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
+          return ProductResolverBase::Resolution::makeAmbiguous();
+        } else if(checkCacheIndex == choiceSize+kMissingOffset) {
+          return Resolution(nullptr);
         }
+        return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
+                           sra,mcc);
       }
     }
-
+    
     std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
-
-    //make sure recheckedAtEnd_ set to true if needed
-    auto setTrue = [](std::atomic<bool>* iBool) { *iBool = true; };
-    using TrueGuard = std::unique_ptr<std::atomic<bool>, decltype(setTrue)>;
-    TrueGuard guard( principal.atEndTransition()?&recheckedAtEnd_:nullptr,setTrue);
     
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
@@ -718,20 +705,9 @@ namespace edm {
                                            ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
       waitingTasks_.add(waitTask);
-      
-      //It is possible that a new product was added at then end transition
-      // so we need to recheck what to return
-      bool needToRecheckAtEnd = false;
-      if(principal.atEndTransition()) {
-        bool expected = false;
-        needToRecheckAtEnd = recheckedAtEnd_.compare_exchange_strong(expected,true);
-        if(needToRecheckAtEnd) {
-          prefetchRequested_=true;
-        }
-      }
-      
+
       bool expected = false;
-      if( needToRecheckAtEnd or prefetchRequested_.compare_exchange_strong(expected,true)) {
+      if( prefetchRequested_.compare_exchange_strong(expected,true)) {
         //we are the first thread to request
         tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
       }
@@ -906,7 +882,6 @@ namespace edm {
     lastSkipCurrentCheckIndex_ = resetValue;
     prefetchRequested_ = false;
     skippingPrefetchRequested_ = false;
-    recheckedAtEnd_ = false;
     waitingTasks_.reset();
     skippingWaitingTasks_.reset();
   }
