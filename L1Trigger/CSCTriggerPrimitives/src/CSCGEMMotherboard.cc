@@ -1,12 +1,12 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboard.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboard.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
                                      unsigned sector, unsigned subsector,
                                      unsigned chamber,
                                      const edm::ParameterSet& conf) :
-  CSCIntegratedMotherboard(endcap, station, sector, subsector, chamber, conf)
+  CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf)
 {
   gemId = GEMDetId(theRegion, 1, theStation, 1, theChamber, 0).rawId();
   
@@ -33,7 +33,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
 		    tmbParams_.getParameter<int>("maxDeltaPadL2Odd") );
 }
 
-CSCGEMMotherboard::CSCGEMMotherboard() : CSCIntegratedMotherboard()
+CSCGEMMotherboard::CSCGEMMotherboard() : CSCUpgradeMotherboard()
 {
 }
 
@@ -345,6 +345,6 @@ float CSCGEMMotherboard::getAvePad(const CSCCLCTDigi& clct, enum CSCPart part)
 
 void CSCGEMMotherboard::setupGeometry()
 {
-  CSCIntegratedMotherboard::setupGeometry();
+  CSCUpgradeMotherboard::setupGeometry();
   generator_->setGEMGeometry(gem_g);
 }

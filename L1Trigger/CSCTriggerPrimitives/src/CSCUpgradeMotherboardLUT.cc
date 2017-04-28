@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCIntegratedMotherboardLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
 
 CSCGEMMotherboardLUT::CSCGEMMotherboardLUT() 
   : lut_wg_eta_odd(0)

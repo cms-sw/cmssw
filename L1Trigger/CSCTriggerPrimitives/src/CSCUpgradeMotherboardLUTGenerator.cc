@@ -1,8 +1,8 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCIntegratedMotherboardLUTGenerator.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUTGenerator.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include <Geometry/RPCGeometry/interface/RPCRollSpecs.h>
 
-void CSCIntegratedMotherboardLUTGenerator::generateLUTs(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
+void CSCUpgradeMotherboardLUTGenerator::generateLUTs(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
 {
   if (theStation==1) generateLUTsME11(theEndcap, theSector, theSubsector, theTrigChamber);
   if (theStation==2) generateLUTsME21(theEndcap, theSector, theSubsector, theTrigChamber);
@@ -10,7 +10,7 @@ void CSCIntegratedMotherboardLUTGenerator::generateLUTs(unsigned theEndcap, unsi
   if (theStation==4) generateLUTsME3141(theEndcap, 4, theSector, theSubsector, theTrigChamber);
 }
 
-void CSCIntegratedMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
+void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
 {
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
@@ -183,7 +183,7 @@ void CSCIntegratedMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, 
   }
 }
 
-void CSCIntegratedMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
+void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
 {
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
@@ -307,7 +307,7 @@ void CSCIntegratedMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, 
   }
 }
 
-void CSCIntegratedMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubSector, unsigned theTrigChamber) const
+void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubSector, unsigned theTrigChamber) const
 {
   bool rpcGeometryAvailable(false);
   if (rpc_g != nullptr) {
@@ -440,7 +440,7 @@ void CSCIntegratedMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap
   }
 }
 
-int CSCIntegratedMotherboardLUTGenerator::assignRoll(const std::map<int,std::pair<double,double> >& lut_, double eta) const
+int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::map<int,std::pair<double,double> >& lut_, double eta) const
 {
   int result = -99;
   for(auto p : lut_) {

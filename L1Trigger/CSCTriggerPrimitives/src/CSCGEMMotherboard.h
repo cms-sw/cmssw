@@ -1,11 +1,11 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCGEMMotherboard_h
 #define L1Trigger_CSCTriggerPrimitives_CSCGEMMotherboard_h
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCIntegratedMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-class CSCGEMMotherboard : public CSCIntegratedMotherboard
+class CSCGEMMotherboard : public CSCUpgradeMotherboard
 {
 public:
 

@@ -1,10 +1,10 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboard_h
-#define L1Trigger_CSCTriggerPrimitives_CSCIntegratedMotherboard_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
+#define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCIntegratedMotherboardLUT.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCIntegratedMotherboardLUTGenerator.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUTGenerator.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
@@ -37,7 +37,7 @@ typedef matchesBX<RPCDigi> RPCDigiIdsBX;
 class CSCGeometry;
 class CSCChamber;
 
-class CSCIntegratedMotherboard : public CSCMotherboard
+class CSCUpgradeMotherboard : public CSCMotherboard
 {
 public:
 
@@ -53,14 +53,14 @@ public:
     const unsigned int match_trig_window_size;
   };
 
-  CSCIntegratedMotherboard(unsigned endcap, unsigned station, unsigned sector,
+  CSCUpgradeMotherboard(unsigned endcap, unsigned station, unsigned sector,
                     unsigned subsector, unsigned chamber,
                     const edm::ParameterSet& conf);
 
    //Default constructor for testing
-  CSCIntegratedMotherboard();
+  CSCUpgradeMotherboard();
 
-  virtual ~CSCIntegratedMotherboard();
+  virtual ~CSCUpgradeMotherboard();
 
   template <class S>
   bool compare(const S& p, const S& q);
@@ -92,7 +92,7 @@ public:
 
   std::vector<CSCALCTDigi> alctV;
 
-  CSCIntegratedMotherboardLUTGenerator* generator_;
+  CSCUpgradeMotherboardLUTGenerator* generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[MAX_LCT_BINS];
@@ -121,13 +121,13 @@ public:
 };
 
 template <class S>
-bool CSCIntegratedMotherboard::compare(const S& p, const S& q)
+bool CSCUpgradeMotherboard::compare(const S& p, const S& q)
 { 
   return (p.first == q.first) and (p.second == q.second); 
 }
 
 template <class S>
-S CSCIntegratedMotherboard::intersection(const S& d1, const S& d2)
+S CSCUpgradeMotherboard::intersection(const S& d1, const S& d2)
 {
   S result;
   for (auto p: d1){
