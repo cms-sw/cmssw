@@ -47,6 +47,14 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     def ValidationTemplate(self):
         return configTemplates.ZMuMuValidationTemplate
 
+    @property
+    def ProcessName(self):
+        return "ONLYHISTOS"
+
+    @property
+    def FileOutputTemplate(self):
+        return ""
+
     def createScript(self, path):
         return super(ZMuMuValidation, self).createScript(path, template = configTemplates.zMuMuScriptTemplate)
 
