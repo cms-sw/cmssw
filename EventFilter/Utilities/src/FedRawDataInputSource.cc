@@ -700,10 +700,6 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
 
-  //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
-  //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
-  //                   daqProvenanceHelper_.dummyProvenance_);
-
   eventPrincipal.put(daqProvenanceHelper_.branchDescription(), std::move(edp),
                      daqProvenanceHelper_.dummyProvenance());
 
@@ -711,7 +707,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   if (fms_) fms_->setInState(evf::FastMonitoringThread::inReadCleanup);
 
   //resize vector if needed
-  while (streamFileTracker_.size() =< eventPrincipal.streamID())
+  while (streamFileTracker_.size() <= eventPrincipal.streamID())
       streamFileTracker_.push_back(-1);
 
   streamFileTracker_[eventPrincipal.streamID()]=currentFileIndex_;
@@ -1085,12 +1081,6 @@ void FedRawDataInputSource::readSupervisor()
         assert( eventsInNewFile>=0 );
         assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
       }
-      //int eventsInNewFile = fileListMode_ ? -1 : grabNextJsonFile(nextFile);
-      //if (fileListMode_ && fileSize==0) {eventsInNewFile=0;}
-      //if (!fileListMode_) {
-      //  assert( eventsInNewFile>=0 );
-      //  assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
-      //}
 
       if (!singleBufferMode_) {
 	//calculate number of needed chunks
@@ -1160,7 +1150,7 @@ void FedRawDataInputSource::readSupervisor()
           readingFilesCount_++;
 	  fileQueue_.push(newInputFile);
 	  cvWakeup_.notify_one();
-	  return;
+	  break;
 	}
 	//in single-buffer mode put single chunk in the file and let the main thread read the file
 	InputChunk * newChunk;
