@@ -4,6 +4,17 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
+
+typedef match<GEMPadDigi>   GEMPadDigiId;
+typedef matches<GEMPadDigi> GEMPadDigiIds;
+typedef matchesBX<GEMPadDigi> GEMPadDigiIdsBX;
+
+typedef match<GEMCoPadDigi>   GEMCoPadDigiId;
+typedef matches<GEMCoPadDigi> GEMCoPadDigiIds;
+typedef matchesBX<GEMCoPadDigi> GEMCoPadDigiIdsBX;
+
 
 class CSCGEMMotherboard : public CSCUpgradeMotherboard
 {
