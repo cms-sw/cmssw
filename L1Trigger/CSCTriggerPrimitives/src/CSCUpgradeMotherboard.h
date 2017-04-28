@@ -1,16 +1,11 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
 #define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboard_h
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboardLUTGenerator.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <boost/variant.hpp>
-
-// useful forward declarations
 
 // generic container type
 template <class T>
@@ -21,18 +16,6 @@ using matches = std::vector<std::pair<unsigned int, T> >;
 
 template <class T>
 using matchesBX = std::map<int, std::vector<std::pair<unsigned int, T> > >;
-
-typedef match<GEMPadDigi>   GEMPadDigiId;
-typedef matches<GEMPadDigi> GEMPadDigiIds;
-typedef matchesBX<GEMPadDigi> GEMPadDigiIdsBX;
-
-typedef match<GEMCoPadDigi>   GEMCoPadDigiId;
-typedef matches<GEMCoPadDigi> GEMCoPadDigiIds;
-typedef matchesBX<GEMCoPadDigi> GEMCoPadDigiIdsBX;
-
-typedef match<RPCDigi>   RPCDigiId;
-typedef matches<RPCDigi> RPCDigiIds;
-typedef matchesBX<RPCDigi> RPCDigiIdsBX;
 
 class CSCGeometry;
 class CSCChamber;
