@@ -107,8 +107,17 @@ upgradeSteps['Timing'] = {
     'offset' : 0.2,
 }
 upgradeSteps['Neutron'] = {
-    'steps' : upgradeSteps['baseline']['steps'],
-    'PU' : upgradeSteps['baseline']['PU'],
+    'steps' : [
+        'GenSimFull',
+        'GenSimHLBeamSpotFull',
+        'GenSimHLBeamSpotFull14',
+        'DigiFull',
+        'DigiFullTrigger',
+    ],
+    'PU' : [
+        'DigiFull',
+        'DigiFullTrigger',
+    ],
     'suffix' : '_Neutron',
     'offset' : 0.3,
 }
