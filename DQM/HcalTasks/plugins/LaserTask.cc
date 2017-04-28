@@ -408,15 +408,19 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		++it)
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
-		if (sumQ<_lowHEP17)
-			continue;
 		HcalDetId const& did = digi.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
 		HcalElectronicsId const& eid(rawid);
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,
-			digi.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		if (sumQ<_lowHEP17)
+			continue;
+
+
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -425,8 +429,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.samples(); i++)
 		{
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				adc2fC[digi[i].adc()]-2.5);
+			_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
 			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
 
@@ -492,14 +495,18 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		it!=chf->end(); ++it)
 	{
 		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, 
-			digi.samples()-1);
-		if (sumQ<_lowHF)
-			continue;
 		HcalDetId did = digi.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		if (sumQ<_lowHF)
+			continue;
+
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -509,7 +516,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		for (int i=0; i<digi.samples(); i++)
 		{
 			if (_ptype != fOffline) { // hidefed2crate
-				_cShapeCut_FEDSlot.fill(eid, (int)i, constants::adc2fC[digi[i].adc()]-2.5);
+				_cShapeCut_FEDSlot.fill(eid, (int)i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
