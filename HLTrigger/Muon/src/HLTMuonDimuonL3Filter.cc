@@ -92,9 +92,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " " << max_YPair_;
 }
 
-HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter()
-{
-}
+HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter() = default;
 
 void
 HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -197,8 +195,8 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    double e1,e2;
    Particle::LorentzVector p,p1,p2;
 
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it1 = L2toL3s.begin();
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   auto L2toL3s_it1 = L2toL3s.begin();
+   auto L2toL3s_end = L2toL3s.end();
    bool atLeastOnePair=false;
    for (; L2toL3s_it1!=L2toL3s_end; ++L2toL3s_it1){
 
@@ -235,7 +233,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
        // Don't convert to 90% efficiency threshold
        LogDebug("HLTMuonDimuonL3Filter") << " ... 1st muon in loop, pt1= "
 					 << pt1 << ", ptLx1= " << ptLx1;
-       std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
+       auto L2toL3s_it2 = L2toL3s_it1;
        L2toL3s_it2++;
        for (; L2toL3s_it2!=L2toL3s_end; ++L2toL3s_it2){
 	 if (!triggeredByLevel2(L2toL3s_it2->first,vl2cands)) continue;
@@ -355,8 +353,8 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      bool i2done = false;
 	      vector<RecoChargedCandidateRef> vref;
 	      filterproduct.getObjects(TriggerMuon,vref);
-	      for (unsigned int i=0; i<vref.size(); i++) {
-		RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+	      for (auto & i : vref) {
+		RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
 		TrackRef tktmp = candref->get<TrackRef>();
 		if (tktmp==tk1) {
 		  i1done = true;
@@ -404,8 +402,8 @@ bool
 HLTMuonDimuonL3Filter::triggeredByLevel2(TrackRef const & staTrack,vector<RecoChargedCandidateRef> const & vcands)
 {
   bool ok=false;
-  for (unsigned int i=0; i<vcands.size(); i++) {
-    if ( vcands[i]->get<TrackRef>() == staTrack ) {
+  for (auto const & vcand : vcands) {
+    if ( vcand->get<TrackRef>() == staTrack ) {
       ok=true;
       LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;

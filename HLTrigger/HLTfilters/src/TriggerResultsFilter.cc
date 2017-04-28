@@ -29,7 +29,7 @@
 // constructors and destructor
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
-  m_expression(0),
+  m_expression(nullptr),
   m_eventCache(config, consumesCollector())
 {
   const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string>>("triggerConditions");

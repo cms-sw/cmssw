@@ -96,9 +96,9 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     taggedMode_(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
     forcedValue_(iConfig.getUntrackedParameter<bool>("forcedValue", true))
 {
-    produces<ErrorList, edm::InLumi>();
-    produces<int, edm::InLumi>("pass");
-    produces<int, edm::InLumi>("fail");
+    produces<ErrorList, edm::Transition::EndLuminosityBlock>();
+    produces<int, edm::Transition::EndLuminosityBlock>("pass");
+    produces<int, edm::Transition::EndLuminosityBlock>("fail");
     //produces<ErrorList, edm::InRun>();
     produces<bool>();
 

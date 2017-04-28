@@ -93,7 +93,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setAcptAllMu(AllMu);
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
   }
 
 edm::CosMuoGenProducer::~CosMuoGenProducer(){

@@ -24,6 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -57,7 +62,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('OMTF')
     # include the system-specific subkeys ESProducer (generates OMTF labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapObjectKeysOnline_cfi")
-    process.L1TMuonOverlapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
+    process.L1TMuonOverlapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TMuonOverlapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -75,6 +81,7 @@ process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnline_cfi"
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
 process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TMuonOverlapParamsOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
 
 from CondCore.CondDB.CondDB_cfi import CondDB

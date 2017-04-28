@@ -116,7 +116,7 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es)
   if ((float)mostFrequentSize/(float)totalFrames < fraction)
   {
     if (verbosity > 0)
-      es << "  The most frequent " << name << " value is doubtful - variance is too high.";
+      es << "The most frequent " << name << " value is doubtful - variance is too high.";
 
     return;
   }
@@ -136,7 +136,7 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es)
         }
 
         if (verbosity > 0)
-          es << "  Frame at " << *fr << ": " << name << " number " << iter->first
+          es << "Frame at " << *fr << ": " << name << " number " << iter->first
             << " is different from the most frequent one " << mostFrequentCounter << std::endl;
       }
     }

@@ -23,6 +23,25 @@ from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_
 from functools import reduce
 
 
+def handle_process_call(command, verbose = False):
+    """
+    Wrapper around subprocess calls which treats output depending on verbosity
+    level.
+
+    Arguments:
+    - `command`: list of command items
+    - `verbose`: flag to turn on verbosity
+    """
+
+    call_method = subprocess.check_call if verbose else subprocess.check_output
+    try:
+        call_method(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        print "" if verbose else e.output
+        print "Failed to execute command:", " ".join(command)
+        sys.exit(1)
+
+
 def get_weight_configs(config):
     """Extracts different weight configurations from `config`.
 
@@ -124,13 +143,6 @@ def check_iov_definition(cms_process, first_run):
     print "Checking consistency of IOV definition..."
     iovs = mps_tools.make_unique_runranges(cms_process.AlignmentProducer)
 
-    if first_run != iovs[0]:     # simple consistency check
-        print "Value of 'FirstRunForStartGeometry' has to match first defined",
-        print "output IOV:",
-        print first_run, "!=", iovs[0]
-        sys.exit(1)
-
-
     inputs = {
         "TrackerAlignmentRcd": None,
         "TrackerSurfaceDeformationRcd": None,
@@ -150,6 +162,21 @@ def check_iov_definition(cms_process, first_run):
     inputs.update(mps_tools.get_tags(cms_process.GlobalTag.globaltag.value(),
                                      inputs_from_gt))
 
+
+    if first_run != iovs[0]:     # simple consistency check
+        if iovs[0] == 1 and len(iovs) == 1:
+            print "Single IOV output detected in configuration and",
+            print "'FirstRunForStartGeometry' is not 1."
+            print "Creating single IOV output from input conditions in run",
+            print str(first_run)+"."
+            for inp in inputs: inputs[inp]["problematic"] = True
+        else:
+            print "Value of 'FirstRunForStartGeometry' has to match first",
+            print "defined output IOV:",
+            print first_run, "!=", iovs[0]
+            sys.exit(1)
+
+
     for inp in inputs.itervalues():
         inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
 
@@ -159,6 +186,8 @@ def check_iov_definition(cms_process, first_run):
                      for key,value in inputs.iteritems()}
     for iov in reversed(iovs):
         for inp in inputs:
+            if inputs[inp].pop("problematic", False):
+                problematic_gt_inputs[inp] = inputs[inp]
             if inp in problematic_gt_inputs: continue
             if input_indices[inp] < 0:
                 print "First output IOV boundary at run", iov,
@@ -216,6 +245,34 @@ def check_iov_definition(cms_process, first_run):
     return problematic_gt_inputs
 
 
+def create_mass_storage_directory(mps_dir_name, general_options):
+    """Create MPS mass storage directory where, e.g., mille binaries are stored.
+
+    Arguments:
+    - `mps_dir_name`: campaign name
+    - `general_options`: general options dictionary
+    """
+
+    # set directory on eos
+    mss_dir = general_options.get("massStorageDir",
+                                  "/store/caf/user/"+os.environ["USER"])
+    mss_dir = os.path.join(mss_dir, "MPproduction", mps_dir_name)
+
+    cmd = ["/afs/cern.ch/project/eos/installation/cms/bin/eos.select",
+           "mkdir", "-p", mss_dir]
+
+    # create directory
+    if not general_options.get("testMode", False):
+        try:
+            with open(os.devnull, "w") as dump:
+                subprocess.check_call(cmd, stdout = dump, stderr = dump)
+        except subprocess.CalledProcessError:
+            print "Failed to create mass storage directory:", mss_dir
+            sys.exit(1)
+
+    return mss_dir
+
+
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
 
@@ -268,13 +325,6 @@ else:
     print currentDir
     sys.exit(1)
 
-# set directory on eos
-mssDir = '/store/caf/user/'+os.environ['USER']+'/MPproduction/'+mpsdirname
-
-# create directory on eos if it doesn't exist already
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-os.system(eos+' mkdir -p '+mssDir)
-
 
 
 #------------------------------------------------------------------------------
@@ -287,7 +337,7 @@ for var in ["classInf","pedeMem","jobname", "FirstRunForStartGeometry"]:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
         print "No", var, "found in [general] section. Please check ini-file."
-        raise SystemExit
+        sys.exit(1)
 
 # check if datasetdir is given
 generalOptions['datasetdir'] = ''
@@ -300,12 +350,15 @@ else:
     print "Be sure to give a full path in inputFileList."
 
 # check for default options
-for var in ['globaltag','configTemplate','json']:
+for var in ("globaltag", "configTemplate", "json", "massStorageDir", "testMode"):
     try:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
-        print 'No default', var, 'given in [general] section.'
+        if var == "testMode": continue
+        print "No '" + var + "' given in [general] section."
 
+# create mass storage directory
+mssDir = create_mass_storage_directory(mpsdirname, generalOptions)
 
 
 pedesettings = ([x.strip() for x in config.get("general", "pedesettings").split(",")]
@@ -321,10 +374,10 @@ if args.weight:
     # do some basic checks
     if not os.path.isdir("jobData"):
         print "No jobData-folder found. Properly set up the alignment before using the -w option."
-        raise SystemExit
+        sys.exit(1)
     if not os.path.exists("mps.db"):
         print "No mps.db found. Properly set up the alignment before using the -w option."
-        raise SystemExit
+        sys.exit(1)
 
     # check if default configTemplate is given
     try:
@@ -332,7 +385,7 @@ if args.weight:
     except ConfigParser.NoOptionError:
         print 'No default configTemplate given in [general] section.'
         print 'When using -w, a default configTemplate is needed to build a merge-config.'
-        raise SystemExit
+        sys.exit(1)
 
     # check if default globaltag is given
     try:
@@ -340,13 +393,13 @@ if args.weight:
     except ConfigParser.NoOptionError:
         print "No default 'globaltag' given in [general] section."
         print "When using -w, a default configTemplate is needed to build a merge-config."
-        raise SystemExit
+        sys.exit(1)
 
     try:
         first_run = config.get("general", "FirstRunForStartGeometry")
     except ConfigParser.NoOptionError:
         print "Missing mandatory option 'FirstRunForStartGeometry' in [general] section."
-        raise SystemExit
+        sys.exit(1)
 
     for section in config.sections():
         if section.startswith("dataset:"):
@@ -355,14 +408,14 @@ if args.weight:
                 break
             except ConfigParser.NoOptionError:
                 print "Missing mandatory option 'collection' in section ["+section+"]."
-                raise SystemExit
+                sys.exit(1)
 
     try:
         with open(configTemplate,"r") as f:
             tmpFile = f.read()
     except IOError:
         print "The config-template '"+configTemplate+"' cannot be found."
-        raise SystemExit
+        sys.exit(1)
 
     tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupGlobaltag = \"'+globalTag+'\"',
@@ -392,38 +445,38 @@ if args.weight:
         for weight_conf in weight_confs:
             print "-"*60
             # blank weights
-            os.system("mps_weight.pl -c > /dev/null")
+            handle_process_call(["mps_weight.pl", "-c"])
 
             for name,weight in weight_conf:
-                os.system("mps_weight.pl -N "+name+" "+weight)
+                handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
             # create new mergejob
-            os.system("mps_setupm.pl")
+            handle_process_call(["mps_setupm.pl"], True)
 
             # read mps.db to find directory of new mergejob
             lib = mpslib.jobdatabase()
             lib.read_db()
 
             # delete old merge-config
-            command = "rm -f jobData/"+lib.JOBDIR[-1]+"/alignment_merge.py"
-            print command
-            os.system(command)
+            command = [
+                "rm", "-f",
+                os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py")]
+            handle_process_call(command, args.verbose)
 
             # create new merge-config
-            command = ("mps_merge.py -w "+thisCfgTemplate+" jobData/"+
-                       lib.JOBDIR[-1]+"/alignment_merge.py jobData/"+
-                       lib.JOBDIR[-1]+" "+str(lib.nJobs))
-            if setting is not None: command += " -a "+setting
-            print command
-            if args.verbose:
-                subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-            else:
-                with open(os.devnull, 'w') as FNULL:
-                    subprocess.call(command, stdout=FNULL,
-                                    stderr=subprocess.STDOUT, shell=True)
+            command = [
+                "mps_merge.py",
+                "-w", thisCfgTemplate,
+                os.path.join("jobData", lib.JOBDIR[-1],"alignment_merge.py"),
+                os.path.join("jobData", lib.JOBDIR[-1]),
+                str(lib.nJobs),
+            ]
+            if setting is not None: command.extend(["-a", setting])
+            print " ".join(command)
+            handle_process_call(command, args.verbose)
 
     # remove temporary file
-    os.system("rm "+thisCfgTemplate)
+    handle_process_call(["rm", thisCfgTemplate])
 
     if overrideGT.strip() != "":
         print "="*60
@@ -457,7 +510,7 @@ for section in config.sections():
                 datasetOptions[var] = config.get(section,var)
             except ConfigParser.NoOptionError:
                 print 'No', var, 'found in', section+'. Please check ini-file.'
-                raise SystemExit
+                sys.exit(1)
 
         # get globaltag and configTemplate. If none in section, try to get default from [general] section.
         for var in ['configTemplate','globaltag']:
@@ -469,7 +522,7 @@ for section in config.sections():
                 except KeyError:
                     print "No",var,"found in ["+section+"]",
                     print "and no default in [general] section."
-                    raise SystemExit
+                    sys.exit(1)
 
         # extract non-essential options
         datasetOptions['cosmicsZeroTesla'] = False
@@ -514,11 +567,11 @@ for section in config.sections():
                         datasetOptions['njobs'] += 1
         except IOError:
             print 'Inputfilelist', datasetOptions['inputFileList'], 'does not exist.'
-            raise SystemExit
+            sys.exit(1)
         if datasetOptions['njobs'] == 0:
             print 'Number of jobs is 0. There may be a problem with the inputfilelist:'
             print datasetOptions['inputFileList']
-            raise SystemExit
+            sys.exit(1)
 
         # Check if njobs gets overwritten in .ini-file
         if config.has_option(section,'njobs'):
@@ -536,7 +589,7 @@ for section in config.sections():
                 tmpFile = INFILE.read()
         except IOError:
             print 'The config-template called',datasetOptions['configTemplate'],'cannot be found.'
-            raise SystemExit
+            sys.exit(1)
 
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupGlobaltag = \"'+datasetOptions['globaltag']+'\"',
@@ -570,7 +623,7 @@ for section in config.sections():
 
 
         # Set mps_setup append option for datasets following the first one
-        append = ' -a'
+        append = "-a"
         if firstDataset:
             append = ''
             firstDataset = False
@@ -583,18 +636,21 @@ for section in config.sections():
 
 
         # create mps_setup command
-        command = 'mps_setup.pl -m%s -M %s -N %s %s %s %s %d %s %s %s cmscafuser:%s' % (
-              append,
-              generalOptions['pedeMem'],
-              datasetOptions['name'],
-              milleScript,
-              thisCfgTemplate,
-              datasetOptions['inputFileList'],
-              datasetOptions['njobs'],
-              generalOptions['classInf'],
-              generalOptions['jobname'],
-              pedeScript,
-              mssDir)
+        command = ["mps_setup.pl",
+                   "-m",
+                   append,
+                   "-M", generalOptions["pedeMem"],
+                   "-N", datasetOptions["name"],
+                   milleScript,
+                   thisCfgTemplate,
+                   datasetOptions["inputFileList"],
+                   str(datasetOptions["njobs"]),
+                   generalOptions["classInf"],
+                   generalOptions["jobname"],
+                   pedeScript,
+                   "cmscafuser:"+mssDir]
+        command = filter(lambda x: len(x.strip()) > 0, command)
+
         # Some output:
         print 'Submitting dataset:', datasetOptions['name']
         print 'Baseconfig:        ', datasetOptions['configTemplate']
@@ -608,18 +664,13 @@ for section in config.sections():
         print 'Inputfilelist:     ', datasetOptions['inputFileList']
         if datasetOptions['json'] != '':
             print 'Jsonfile:          ', datasetOptions['json']
-        print 'Pass to mps_setup: ', command
+        print 'Pass to mps_setup: ', " ".join(command)
 
         # call the command and toggle verbose output
-        if args.verbose:
-            subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-        else:
-            with open(os.devnull, 'w') as FNULL:
-                subprocess.call(command, stdout=FNULL,
-                                stderr=subprocess.STDOUT, shell=True)
+        handle_process_call(command, args.verbose)
 
         # remove temporary file
-        os.system("rm "+thisCfgTemplate)
+        handle_process_call(["rm", thisCfgTemplate])
 
 if firstDataset:
     print "No dataset section defined in '{0}'".format(aligmentConfig)
@@ -637,45 +688,45 @@ for setting in pedesettings:
     for weight_conf in weight_confs:
         print "-"*60
         # blank weights
-        os.system("mps_weight.pl -c > /dev/null")
+        handle_process_call(["mps_weight.pl", "-c"])
 
         for name,weight in weight_conf:
-            os.system("mps_weight.pl -N "+name+" "+weight)
+            handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
         if firstPedeConfig:
             firstPedeConfig = False
         else:
             # create new mergejob
-            os.system("mps_setupm.pl")
+            handle_process_call(["mps_setupm.pl"], True)
 
         # read mps.db to find directory of new mergejob
         lib = mpslib.jobdatabase()
         lib.read_db()
 
         # delete old merge-config
-        command = "rm -f jobData/"+lib.JOBDIR[-1]+"/alignment_merge.py"
-        print command
-        os.system(command)
+        command = [
+            "rm", "-f",
+            os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py")]
+        handle_process_call(command, args.verbose)
 
         thisCfgTemplate = "tmp.py"
         with open(thisCfgTemplate, "w") as f:
             f.write(configTemplate+overrideGT)
 
         # create new merge-config
-        command = ("mps_merge.py -w "+thisCfgTemplate+" jobData/"+lib.JOBDIR[-1]+
-                   "/alignment_merge.py jobData/"+lib.JOBDIR[-1]+" "+
-                   str(lib.nJobs))
-        if setting is not None: command += " -a "+setting
-        print command
-        if args.verbose:
-            subprocess.call(command, stderr=subprocess.STDOUT, shell=True)
-        else:
-            with open(os.devnull, 'w') as FNULL:
-                subprocess.call(command, stdout=FNULL,
-                                stderr=subprocess.STDOUT, shell=True)
+        command = [
+            "mps_merge.py",
+            "-w", thisCfgTemplate,
+            os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py"),
+            os.path.join("jobData", lib.JOBDIR[-1]),
+            str(lib.nJobs),
+        ]
+        if setting is not None: command.extend(["-a", setting])
+        print " ".join(command)
+        handle_process_call(command, args.verbose)
 
     # remove temporary file
-    os.system("rm "+thisCfgTemplate)
+    handle_process_call(["rm", thisCfgTemplate])
 
 if overrideGT.strip() != "":
     print "="*60

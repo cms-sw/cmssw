@@ -32,7 +32,7 @@ HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterS
 }
 
 
-HLTElectronMuonInvMassFilter::~HLTElectronMuonInvMassFilter(){}
+HLTElectronMuonInvMassFilter::~HLTElectronMuonInvMassFilter()= default;
 
 void
 HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -90,24 +90,24 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   int nEleMuPairs = 0;
   
-  for(unsigned int i=0; i<electrons.size(); i++) {
-    for(unsigned int j=0; j<l3muons.size(); j++) {
-      double mass = (electrons[i]->p4()+l3muons[j]->p4()).mass();
+  for(auto & electron : electrons) {
+    for(auto & l3muon : l3muons) {
+      double mass = (electron->p4()+l3muon->p4()).mass();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
-	filterproduct.addObject(TriggerElectron, electrons[i]);
-	filterproduct.addObject(TriggerMuon, l3muons[j]);
+	filterproduct.addObject(TriggerElectron, electron);
+	filterproduct.addObject(TriggerMuon, l3muon);
       }
     }
   }
   
-  for(unsigned int i=0; i<clusCands.size(); i++) {
-    for(unsigned int j=0; j<l3muons.size(); j++) {
-      double mass = (clusCands[i]->p4()+l3muons[j]->p4()).mass();
+  for(auto & clusCand : clusCands) {
+    for(auto & l3muon : l3muons) {
+      double mass = (clusCand->p4()+l3muon->p4()).mass();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
-	filterproduct.addObject(TriggerElectron, clusCands[i]);
-	filterproduct.addObject(TriggerMuon, l3muons[j]);
+	filterproduct.addObject(TriggerElectron, clusCand);
+	filterproduct.addObject(TriggerMuon, l3muon);
       }
     }
   }
