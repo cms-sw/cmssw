@@ -78,6 +78,7 @@ class QIE10Task : public hcaldqm::DQTask
 
 		//	hcaldqm::Containers overall
 		hcaldqm::ContainerSingleProf1D	_cShapeCut;
+		hcaldqm::ContainerSingle2D		_cLETDCTimevsADC;
 		hcaldqm::ContainerSingle2D		_cLETDCvsADC;
 		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
