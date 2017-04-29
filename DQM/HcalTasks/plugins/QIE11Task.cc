@@ -54,18 +54,18 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 				"ShapeCut", hcaldqm::hashfunctions::fEChannel,
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
-			_cTDCvsTS_EChannel[itr].initialize(_name, 
-				"TDCvsTS", hcaldqm::hashfunctions::fEChannel, 
+			_cLETDCvsTS_EChannel[itr].initialize(_name, 
+				"LETDCvsTS", hcaldqm::hashfunctions::fEChannel, 
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
                 new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true), 0);
-			_cTDCTime_EChannel[itr].initialize(_name,
-				"TDCTime", hcaldqm::hashfunctions::fEChannel,
+			_cLETDCTime_EChannel[itr].initialize(_name,
+				"LETDCTime", hcaldqm::hashfunctions::fEChannel,
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 			for (unsigned int j=0; j<10; j++) {
-				_cTDCvsADC_EChannel[j][itr].initialize(_name,
-					"TDCvsADC", hcaldqm::hashfunctions::fEChannel,
+				_cLETDCvsADC_EChannel[j][itr].initialize(_name,
+					"LETDCvsADC", hcaldqm::hashfunctions::fEChannel,
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
@@ -73,8 +73,8 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 					"ADC", hcaldqm::hashfunctions::fEChannel,
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-				_cTDC_EChannel[j][itr].initialize(_name,
-					"TDC", hcaldqm::hashfunctions::fEChannel,
+				_cLETDC_EChannel[j][itr].initialize(_name,
+					"LETDC", hcaldqm::hashfunctions::fEChannel,
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 					new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 			}
@@ -85,11 +85,15 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		"ShapeCut", 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
-	_cTDCvsADC.initialize(_name, "TDCvsADC",
+	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cTDC.initialize(_name, "TDC",
+	_cLETDCTimevsADC.initialize(_name, "LETDCTimevsADC",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	_cLETDC.initialize(_name, "LETDC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cADC.initialize(_name, "ADC",
@@ -103,13 +107,13 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			char aux[100];
 			sprintf(aux, "/Crate%d_Slot%d", crate, slot);
 			_cShapeCut_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
-			_cTDCvsTS_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
-			_cTDCTime_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
+			_cLETDCvsTS_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
+			_cLETDCTime_EChannel[itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux);
 			for (unsigned int j=0; j<10; j++) {
 				char aux2[100];
 				sprintf(aux2, "/Crate%d_Slot%d/TS%d", crate, slot, j);
-				_cTDCvsADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
-				_cTDC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+				_cLETDCvsADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
+				_cLETDC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
 				_cADC_EChannel[j][itr].book(ib, _emap, _filter_slot[itr], _subsystem, aux2);
 			}
 			itr_map[std::make_pair(crate, slot)] = itr;
@@ -117,8 +121,9 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		}
 	}
 	_cShapeCut.book(ib, _subsystem);
-	_cTDCvsADC.book(ib, _subsystem);
-	_cTDC.book(ib, _subsystem);
+	_cLETDCvsADC.book(ib, _subsystem);
+	_cLETDCTimevsADC.book(ib, _subsystem);
+	_cLETDC.book(ib, _subsystem);
 	_cADC.book(ib, _subsystem);
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap, _filter_C34);
@@ -160,24 +165,26 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			if (index == 0 || index == 1) {
 				//	shapes are after the cut
 				_cShapeCut_EChannel[index].fill(eid, j, q_pedsub);	
-				_cTDCvsTS_EChannel[index].fill(eid, j, frame[j].tdc());	
+				_cLETDCvsTS_EChannel[index].fill(eid, j, frame[j].tdc());	
 
 				//	w/o a cut
-				_cTDCvsADC_EChannel[j][index].fill(eid, frame[j].adc(), 
+				_cLETDCvsADC_EChannel[j][index].fill(eid, frame[j].adc(), 
 					frame[j].tdc());
-				_cTDC_EChannel[j][index].fill(eid, frame[j].tdc());
+				_cLETDC_EChannel[j][index].fill(eid, frame[j].tdc());
 				if (frame[j].tdc() < 50) {
 					// Each TDC count is 0.5 ns. 
 					// tdc == 62 or 63 means value was below or above threshold for whole time slice. 
-					_cTDCTime_EChannel[index].fill(eid, j*25. + (frame[j].tdc() / 2.));
+					_cLETDCTime_EChannel[index].fill(eid, j*25. + (frame[j].tdc() / 2.));
 				}
 				_cADC_EChannel[j][index].fill(eid, frame[j].adc());
 			}
 			_cShapeCut.fill(eid, j, q_pedsub);
 
-			_cTDCvsADC.fill(frame[j].adc(), frame[j].tdc());
-
-			_cTDC.fill(eid, frame[j].tdc());
+			_cLETDCvsADC.fill(frame[j].adc(), frame[j].tdc());
+			if (frame[j].tdc() < 50) {
+				_cLETDCTimevsADC.fill(frame[j].adc(), j*25. + (frame[j].tdc() / 2.));
+			}
+			_cLETDC.fill(eid, frame[j].tdc());
 
 			_cADC.fill(eid, frame[j].adc());
 

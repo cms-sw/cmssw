@@ -61,17 +61,18 @@ class QIE11Task : public hcaldqm::DQTask
 		
 		//	hcaldqm::Containers
 		hcaldqm::ContainerProf1D	_cShapeCut_EChannel[2];
-		hcaldqm::Container2D	_cTDCvsADC_EChannel[10][2];
-		hcaldqm::Container2D    _cTDCvsTS_EChannel[2];
-		hcaldqm::Container1D _cTDC_EChannel[10][2];
-		hcaldqm::Container1D _cTDCTime_EChannel[2];
+		hcaldqm::Container2D	_cLETDCvsADC_EChannel[10][2];
+		hcaldqm::Container2D    _cLETDCvsTS_EChannel[2];
+		hcaldqm::Container1D _cLETDC_EChannel[10][2];
+		hcaldqm::Container1D _cLETDCTime_EChannel[2];
 		hcaldqm::Container1D _cADC_EChannel[10][2];
 		hcaldqm::Container2D _cOccupancy_depth;
 
 		//	hcaldqm::Containers overall
 		hcaldqm::ContainerSingleProf1D	_cShapeCut;
-		hcaldqm::ContainerSingle2D		_cTDCvsADC;
-		hcaldqm::ContainerSingle1D		_cTDC;
+		hcaldqm::ContainerSingle2D		_cLETDCvsADC;
+		hcaldqm::ContainerSingle2D		_cLETDCTimevsADC;
+		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
 };
 

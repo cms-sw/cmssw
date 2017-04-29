@@ -87,6 +87,10 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cLETDCTimevsADC.initialize(_name, "LETDCTimevsADC",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cLETDC.initialize(_name, "LETDC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
@@ -138,6 +142,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 
 	_cShapeCut.book(ib, _subsystem);
 	_cLETDCvsADC.book(ib, _subsystem);
+	_cLETDCTimevsADC.book(ib, _subsystem);
 	_cLETDC.book(ib, _subsystem);
 	_cADC.book(ib, _subsystem);
 
@@ -213,7 +218,9 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 			if (frame[j].le_tdc() < 50) {
 				// Each TDC count is 0.5 ns. 
 				// tdc == 62 or 63 means value was below or above threshold for whole time slice. 
-				_cLETDCTime_EChannel[index].fill(eid, j*25. + (frame[j].le_tdc() / 2.));
+				double time = j*25. + (frame[j].le_tdc() / 2.);
+				_cLETDCTime_EChannel[index].fill(eid, time);
+				_cLETDCTimevsADC.fill(frame[j].adc(), time);
 			}
 		}
 
