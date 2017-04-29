@@ -57,7 +57,8 @@ namespace hcaldqm
 			fADC_256 = 42,
 			ffC_generic_10000 = 43,
 			ffC_generic_400000 = 44,
-			nValueQuantityType = 45
+			fQIE10ADC_16 = 45,
+			nValueQuantityType = 46,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -65,10 +66,11 @@ namespace hcaldqm
 			{fEnergy,"Energy"},
 			{fTiming_ns,"Timing"},
 			{fADC_5,"ADC (QIE8)"},
-			{fADC_15,"ADC QIE8()"},
+			{fADC_15,"ADC (QIE8)"},
 			{fADC_128,"ADC (QIE8)"},
 			{fADC_256,"ADC"},
 			{fQIE10ADC_256,"ADC (QIE10/11)"},
+			{fQIE10ADC_16,"ADC (QIE10/11)"},
 			{ffC_1000,"fC (QIE8)"},
 			{ffC_3000,"fC (QIE8)"},
 			{ffC_10000,"fC (QIE8)"},
@@ -131,6 +133,7 @@ namespace hcaldqm
 			{fSumdEt,0},
 			{fTiming_20TS,-0.5},
 			{fQIE10ADC_256,-0.5},
+			{fQIE10ADC_16,-0.5},
 			{fQIE10TDC_64,-0.5},
 			{fQIE10TDC_16,-0.5},
 			{fDiffAbs,0},
@@ -178,6 +181,7 @@ namespace hcaldqm
 			{fSumdEt,1000},
 			{fTiming_20TS,9.5},
 			{fQIE10ADC_256,255.5},
+			{fQIE10ADC_16,15.5},
 			{fQIE10TDC_64,63.5},
 			{fQIE10TDC_16,15.5},
 			{fDiffAbs,1},
