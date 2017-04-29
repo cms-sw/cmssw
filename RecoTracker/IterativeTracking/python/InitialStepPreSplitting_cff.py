@@ -130,7 +130,6 @@ initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasuremen
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
-#    pTChargeCutThreshold = cms.double(15.)
 )
 _tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
@@ -142,8 +141,6 @@ initialStepTrajectoryBuilderPreSplitting = RecoTracker.CkfPattern.GroupedCkfTraj
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = cms.string('initialStepChi2Est'),
-#    maxDPhiForLooperReconstruction = cms.double(2.0),
-#    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
