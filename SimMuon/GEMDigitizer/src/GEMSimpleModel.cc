@@ -1,7 +1,7 @@
-#include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
+B#include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#1;95;0cinclude "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -38,7 +38,7 @@ GEMDigiModel(config)
 , rateFact_(config.getParameter<double>("rateFact"))
 , referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
 {
-  //initialise parameters from the fit:
+  //Electron Rate: model L=5x10^{34}cm^{-2}s^{-1}
   //params for pol3 model of electron bkg for GE1/1:
   GE11ElecBkgParam0 = 406.249;
   GE11ElecBkgParam1 = -2.90939;
@@ -48,7 +48,7 @@ GEMDigiModel(config)
   GE21ElecBkgParam1 = -0.452612;
   GE21ElecBkgParam2 = 0.000550599;
   
-//  //Neutral Rate: model L=5x10^{34}cm^{-2}s^{-1}
+  //Neutral Rate: model L=5x10^{34}cm^{-2}s^{-1}
   //params for pol3 model of neutral bkg for GE1/1:
   GE11ModNeuBkgParam0 = 5710.23;
   GE11ModNeuBkgParam1 = -43.3928;
@@ -167,7 +167,6 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
 }
 
 void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandomEngine* engine)
-//void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 {
   if (!doBkgNoise_)
     return;
@@ -186,23 +185,23 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   trArea = trStripArea * nstrips;
   const int nBxing(maxBunch_ - minBunch_ + 1);
   const float rollRadius(fixedRollRadius_ ? top_->radius() : 
-       top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
+			 top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
 
-//calculate noise from model
+  //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;
   double averageNoiseElectronRatePerRoll = 0.;
   double averageNoiseRatePerRoll = 0.;
   if (gemId.station() == 1)
   {
-//simulate neutral background for GE1/1
+    //simulate neutral background for GE1/1
     averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0
-					+ GE11ModNeuBkgParam1 * rollRadius
-					+ GE11ModNeuBkgParam2 * rollRadius * rollRadius);    //simulate electron background for GE1/1
+				      + GE11ModNeuBkgParam1 * rollRadius
+				      + GE11ModNeuBkgParam2 * rollRadius * rollRadius);    //simulate electron background for GE1/1
     if (simulateElectronBkg_)
       averageNoiseElectronRatePerRoll = (GE11ElecBkgParam0
 					 + GE11ElecBkgParam1 * rollRadius
 					 + GE11ElecBkgParam2 * rollRadius * rollRadius);
-      
+
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
@@ -211,18 +210,20 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   {
     //simulate neutral background for GE2/1
     averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0
-					+ GE21ModNeuBkgParam1 * rollRadius
-					+ GE21ModNeuBkgParam2 * rollRadius * rollRadius);
+				      + GE21ModNeuBkgParam1 * rollRadius
+				      + GE21ModNeuBkgParam2 * rollRadius * rollRadius);
     //simulate electron background for GE2/1
     if (simulateElectronBkg_)
       averageNoiseElectronRatePerRoll = (GE21ElecBkgParam0
 					 + GE21ElecBkgParam1 * rollRadius
 					 + GE21ElecBkgParam2 * rollRadius * rollRadius);
+
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
   }
-//simulate intrinsic noise
+
+  //simulate intrinsic noise
   if(simulateIntrinsicNoise_)
   {
     const double aveIntrinsicNoisePerStrip(averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9);
@@ -232,14 +233,15 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
       const int n_intrHits(randPoissonQ.fire());
     
       for (int k = 0; k < n_intrHits; k++ )
-      {
+	{
         const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
         std::pair<int, int> digi(k+1,time_hit);
         strips_.insert(digi);
       }
     }
   }//end simulate intrinsic noise
-//simulate bkg contribution
+
+  //simulate bkg contribution
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
   const int n_hits(randPoissonQ.fire());
@@ -281,7 +283,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 }
 
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
-    const PSimHit* simHit, const int bx, CLHEP::HepRandomEngine* engine)
+								     const PSimHit* simHit, const int bx, 
+								     CLHEP::HepRandomEngine* engine)
 {
   const StripTopology& topology = roll->specificTopology(); // const LocalPoint& entry(simHit->entryPoint());
   const LocalPoint& hit_position(simHit->localPosition());
@@ -294,11 +297,13 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
   GlobalPoint pointSimHit = roll->toGlobal(hit_position);
   GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
   double deltaX = pointSimHit.x() - pointDigiHit.x();
-// Add central digi to cluster vector
+
+  // Add central digi to cluster vector
   std::vector < std::pair<int, int> > cluster_;
   cluster_.clear();
   cluster_.push_back(std::pair<int, int>(centralStrip, bx));
-//simulate cross talk
+
+  //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
   if (clusterSize == 2)
   {

@@ -38,14 +38,14 @@ ME0DigiModel(config)
 , rateFact_(config.getParameter<double> ("rateFact"))
 , referenceInstLumi_(config.getParameter<double> ("referenceInstLumi"))
 {
-//initialise parameters from the fit:
-//params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
+  //initialise parameters from the fit:
+  //params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
   ME0ElecBkgParam0 = 0.00171409;
   ME0ElecBkgParam1 = 4900.56;
   ME0ElecBkgParam2 = 710909;
   ME0ElecBkgParam3 = -4327.25;
 
-//params for neutral background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
+  //params for neutral background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
   ME0NeuBkgParam0 = 0.00386257;
   ME0NeuBkgParam1 = 6344.65;
   ME0NeuBkgParam2 = 16627700;
@@ -180,11 +180,11 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
   trArea = trStripArea * nstrips;
   const int nBxing(maxBunch_ - minBunch_ + 1);
   const float rollRadius(fixedRollRadius_ ? top_->radius() : 
-       top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
+			 top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
 
   const float rSqrtR = rollRadius * sqrt(rollRadius);
 
-//calculate noise from model
+  //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;
   double averageNoiseElectronRatePerRoll = 0.;
   double averageNoiseRatePerRoll = 0.;
@@ -196,15 +196,15 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
   {
     averageNeutralNoiseRatePerRoll = ME0NeuBkgParam0 * rollRadius* TMath::Exp(ME0NeuBkgParam1/rSqrtR) + ME0NeuBkgParam2/rSqrtR + ME0NeuBkgParam3/(sqrt(rollRadius));
 
-//simulate electron background for ME0
+    //simulate electron background for ME0
     if (simulateElectronBkg_)
-    averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* TMath::Exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
+      averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* TMath::Exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
 
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;  
   }
-  
-//simulate intrinsic noise
+
+  //simulate intrinsic noise
   if(simulateIntrinsicNoise_)
   {
     const double aveIntrinsicNoisePerStrip(averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9);
@@ -221,7 +221,8 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
       }
     }
   }//end simulate intrinsic noise
-//simulate bkg contribution
+
+  //simulate bkg contribution
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
   const int n_hits(randPoissonQ.fire());
@@ -277,11 +278,13 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
   GlobalPoint pointSimHit = roll->toGlobal(hit_position);
   GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
   double deltaX = pointSimHit.x() - pointDigiHit.x();
-// Add central digi to cluster vector
+
+  // Add central digi to cluster vector
   std::vector < std::pair<int, int> > cluster_;
   cluster_.clear();
   cluster_.push_back(std::pair<int, int>(centralStrip, bx));
-//simulate cross talk
+
+  //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
   if (clusterSize == 2)
   {
