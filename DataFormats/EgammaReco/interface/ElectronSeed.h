@@ -27,10 +27,12 @@
 // together with the matching parameters (this is known as EcalDriven).
 // ElectronSeeds can be TrackerDriven in which case the matching is not done.
 // It used to be fixed to two matched hits, now this is an arbitary number
+// Its designed with pixel matching with mind but tries to be generally 
+// applicable to strips as well.
+// It is worth noting that due to different ways ElectronSeeds can be created
+// they do not always have all parameters filled
 //
-//
-//*********************************************************************
-
+//********************************************************************
 
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
