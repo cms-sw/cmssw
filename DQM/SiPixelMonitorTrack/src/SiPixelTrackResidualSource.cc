@@ -1448,7 +1448,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(fpixtracks>0)(meNofTracks_)->Fill(3,fpixtracks);
 }
 
-void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* tTopo,std::vector<MonitorElement*> meinput) {
+void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* tTopo,std::vector<MonitorElement*> meinput) {
 
   edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
   if( ipxsearch != diginp.end() ) {
