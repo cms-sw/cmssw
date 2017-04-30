@@ -46,7 +46,7 @@ GEMDigiModel(config)
   //params for pol3 model of electron bkg for GE2/1:
   GE21ElecBkgParam0 = 97.0505;
   GE21ElecBkgParam1 = -0.452612;
-  GE21ElecBkgParam2 = 0.010307;
+  GE21ElecBkgParam2 = 0.00548191;
   
   //Neutral Bkg//obsolete, remove it but check for the dependencies in the configuration and customisation files
   //Low Rate model L=10^{34}cm^{-2}s^{-1}
