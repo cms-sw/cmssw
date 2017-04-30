@@ -34,9 +34,9 @@ ME0DigiModel(config)
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
-//, simulateLowNeutralRate_(config.getParameter<bool>("simulateLowNeutralRate"))	//nofurther use of this parameter
 , instLumi_(config.getParameter<double> ("instLumi"))
 , rateFact_(config.getParameter<double> ("rateFact"))
+, referenceInstLumi_(config.getParameter<double> ("referenceInstLumi"))
 {
 //initialise parameters from the fit:
 //params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
@@ -201,7 +201,7 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* TMath::Exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
 
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/5;  
+    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;  
   }
   
 //simulate intrinsic noise

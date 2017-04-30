@@ -22,7 +22,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(	
-    'file:/afs/cern.ch/work/m/mileva/milena/CMSSW_9_0_0_pre4/src/step2.root'
+#    'file:/afs/cern.ch/work/m/mileva/milena/CMSSW_9_0_0_pre4/src/step2.root'
     )
 )
 
@@ -32,10 +32,7 @@ process.dumper = cms.EDAnalyzer("ME0DigiSimLinkReader",
     simhitToken = cms.InputTag("g4SimHits","MuonME0Hits"), 
     me0DigiToken = cms.InputTag("simMuonME0Digis"), 
     me0DigiSimLinkToken = cms.InputTag("simMuonME0Digis","ME0") ,
-    debugFlag = cms.bool(False)#,	#for Milena: add a comma in the end of the line
-#forMilena
-#    rechitToken = cms.InputTag("me0RecHits","")
-#forMilena end
+    debugFlag = cms.bool(False)
 )
 
 process.TFileService = cms.Service("TFileService",

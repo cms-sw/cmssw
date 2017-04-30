@@ -34,9 +34,9 @@ GEMDigiModel(config)
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
-, simulateLowNeutralRate_(config.getParameter<bool>("simulateLowNeutralRate"))
 , instLumi_(config.getParameter<double>("instLumi"))
 , rateFact_(config.getParameter<double>("rateFact"))
+, referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
 {
   //initialise parameters from the fit:
   //params for pol3 model of electron bkg for GE1/1:
@@ -46,22 +46,9 @@ GEMDigiModel(config)
   //params for pol3 model of electron bkg for GE2/1:
   GE21ElecBkgParam0 = 97.0505;
   GE21ElecBkgParam1 = -0.452612;
-  GE21ElecBkgParam2 = 0.00548191;
+  GE21ElecBkgParam2 = 0.000550599;
   
-  //Neutral Bkg//obsolete, remove it but check for the dependencies in the configuration and customisation files
-  //Low Rate model L=10^{34}cm^{-2}s^{-1}
-  //const and slope for the expo model of neutral bkg for GE1/1://obsolete, remove it but check for the dependencies in the configuration and customisation files
-  constNeuGE11 = 807.;
-  slopeNeuGE11 = -0.01443;
-  //params for the simple pol5 model of neutral bkg for GE2/1://obsolete, remove it but check for the dependencies in the configuration and customisation files
-  GE21NeuBkgParam0 = 2954.04;
-  GE21NeuBkgParam1 = -58.7558;
-  GE21NeuBkgParam2 = 0.473481;
-  GE21NeuBkgParam3 = -0.00188292;
-  GE21NeuBkgParam4 = 3.67041e-06;
-  GE21NeuBkgParam5 = -2.80261e-09;
-  
-  //High Rate model L=5x10^{34}cm^{-2}s^{-1}
+//  //Neutral Rate: model L=5x10^{34}cm^{-2}s^{-1}
   //params for pol3 model of neutral bkg for GE1/1:
   GE11ModNeuBkgParam0 = 5710.23;
   GE11ModNeuBkgParam1 = -43.3928;
@@ -208,10 +195,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   if (gemId.station() == 1)
   {
 //simulate neutral background for GE1/1
-    if (simulateLowNeutralRate_)
-      averageNeutralNoiseRatePerRoll = constNeuGE11 * TMath::Exp(slopeNeuGE11 * rollRadius);
-    else
-      averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0
+    averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0
 					+ GE11ModNeuBkgParam1 * rollRadius
 					+ GE11ModNeuBkgParam2 * rollRadius * rollRadius);    //simulate electron background for GE1/1
     if (simulateElectronBkg_)
@@ -221,20 +205,12 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
       
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi;
+    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
   }
   if (gemId.station() == 2)
   {
     //simulate neutral background for GE2/1
-    if (simulateLowNeutralRate_)
-      averageNeutralNoiseRatePerRoll = GE21NeuBkgParam0
-                                     + GE21NeuBkgParam1 * rollRadius
-                                     + GE21NeuBkgParam2 * rollRadius * rollRadius
-                                     + GE21NeuBkgParam3 * rollRadius * rollRadius * rollRadius
-                                     + GE21NeuBkgParam4 * rollRadius * rollRadius * rollRadius * rollRadius
-                                     + GE21NeuBkgParam5 * rollRadius * rollRadius * rollRadius * rollRadius * rollRadius;
-    else
-      averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0
+    averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0
 					+ GE21ModNeuBkgParam1 * rollRadius
 					+ GE21ModNeuBkgParam2 * rollRadius * rollRadius);
     //simulate electron background for GE2/1
@@ -244,7 +220,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 					 + GE21ElecBkgParam2 * rollRadius * rollRadius);
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi;
+    averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
   }
 //simulate intrinsic noise
   if(simulateIntrinsicNoise_)

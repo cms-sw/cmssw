@@ -6,7 +6,6 @@ gemDigiCommonParameters = cms.PSet(
     timeResolution = cms.double(5),
     timeJitter = cms.double(1.0),
     averageShapingTime = cms.double(50.0),
-    #clsParametrization = cms.vdouble(0.455091, 0.865613, 0.945891, 0.973286, 0.986234, 0.991686, 0.996865, 0.998501, 1.),
     averageEfficiency = cms.double(0.98),
     averageNoiseRate = cms.double(0.001), #intrinsic noise
     bxwidth = cms.int32(25),
@@ -21,9 +20,9 @@ gemDigiCommonParameters = cms.PSet(
     fixedRollRadius = cms.bool(True), #Uses fixed radius in the center of the roll
     simulateIntrinsicNoise = cms.bool(False),
     simulateElectronBkg = cms.bool(True),	#False=simulate only neutral Bkg
-    simulateLowNeutralRate = cms.bool(False),	#True=neutral_Bkg at L=1x10^{34}, False at L=5x10^{34}cm^{-2}s^{-1}
     instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
-    rateFact = cms.double(2.0) # We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known)
+    rateFact = cms.double(1.0), # Set this factor to 1 since the new background model includes the new beam pipe and the relevant effects, so no need of higher safety factor. keeping is here is just for backward compatibiliy
+    referenceInstLumi = cms.double(5.) #In units of 10^34 Hz/cm^2. Internally the functions based on the FLUKA+GEANT simulation are normalized to 5x10^34 Hz/cm^2, this is needed to rescale them properly
 )
 
 # Module to create simulated GEM digis.
