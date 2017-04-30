@@ -969,7 +969,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   // get digis
   edm::Handle< edm::DetSetVector<PixelDigi> >  digiinput;
   iEvent.getByToken( digisrcToken_, digiinput );
-  const edm::DetSetVector<PixelDigi> diginp = *(digiinput.product());
+  edm::DetSetVector<PixelDigi> const & diginp = *(digiinput.product());
   
 
   std::set<SiPixelCluster> clusterSet;
