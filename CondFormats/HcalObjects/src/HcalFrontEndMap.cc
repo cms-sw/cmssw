@@ -3,6 +3,7 @@
 #include <set>
 
 #include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
+#include "CondFormats/HcalObjects/interface/HcalObjectAddons.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,14 +40,9 @@ HcalFrontEndMap::HcalFrontEndMap(HcalFrontEndMap&& other) : HcalFrontEndMap() {
   other.swap(*this);
 }
 
-const HcalFrontEndMap::PrecisionItem* HcalFrontEndMap::findById (uint32_t fId, const std::vector<const PrecisionItem*>& mPItemsById) {
+const HcalFrontEndMap::PrecisionItem* HcalFrontEndMap::findById (uint32_t fId) const {
   PrecisionItem target (fId, 0, "");
-
-  auto item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, HcalFrontEndMapAddons::LessById());
-  if (item == mPItemsById.end() || (*item)->mId != fId)
-    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
-  return *item;
+  return HcalObjectAddons::findByT<PrecisionItem,HcalFrontEndMapAddons::LessById>(&target,mPItemsById);
 }
 
 HcalFrontEndMapAddons::Helper::Helper()
@@ -70,24 +66,24 @@ bool HcalFrontEndMapAddons::Helper::loadObject(DetId fId, int rm, std::string rb
 }
 
 const int HcalFrontEndMap::lookupRM(DetId fId) const {
-  const PrecisionItem* item = HcalFrontEndMap::findById (fId.rawId (),mPItemsById);
+  const PrecisionItem* item = findById (fId.rawId ());
   return (item ? item->mRM : 0);
 }
 
 const int HcalFrontEndMap::lookupRMIndex(DetId fId) const {
-  const PrecisionItem* item = HcalFrontEndMap::findById (fId.rawId (),mPItemsById);
+  const PrecisionItem* item = findById (fId.rawId ());
   HcalFrontEndId id;
   if (item) id = HcalFrontEndId(item->mRBX,item->mRM,0,1,0,1,0);
   return id.rmIndex();
 }
 
 const std::string HcalFrontEndMap::lookupRBX(DetId fId) const {
-  const PrecisionItem* item = HcalFrontEndMap::findById (fId.rawId (),mPItemsById);
+  const PrecisionItem* item = findById (fId.rawId ());
   return (item ? item->mRBX : "");
 }
 
 const int HcalFrontEndMap::lookupRBXIndex(DetId fId) const {
-  const PrecisionItem* item = HcalFrontEndMap::findById (fId.rawId (),mPItemsById);
+  const PrecisionItem* item = findById (fId.rawId ());
   HcalFrontEndId id;
   if (item) id = HcalFrontEndId(item->mRBX,item->mRM,0,1,0,1,0);
   return id.rbxIndex();
@@ -121,15 +117,10 @@ std::vector <std::string> HcalFrontEndMap::allRBXs() const {
   return result;
 }
 
-void HcalFrontEndMap::sortById (const std::vector<PrecisionItem>& items, std::vector<const PrecisionItem*>& itemsById) {
-  itemsById.clear();
-  itemsById.reserve(items.size());
-  for(const auto& i : items){
-    if(i.mId) itemsById.push_back(&i);
-  }
-  std::sort (itemsById.begin(), itemsById.end(), HcalFrontEndMapAddons::LessById ());
+void HcalFrontEndMap::sortById () {
+  HcalObjectAddons::sortByT<PrecisionItem,HcalFrontEndMapAddons::LessById>(mPItems,mPItemsById);
 }
 
 void HcalFrontEndMap::initialize() {
-  HcalFrontEndMap::sortById(mPItems,mPItemsById);
+  HcalFrontEndMap::sortById();
  }
