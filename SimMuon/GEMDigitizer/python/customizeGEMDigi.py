@@ -315,9 +315,9 @@ def customize_random_GEMDigi(process):
     return process
 
 
-# Add simMuonME0Digis to the list of modules served by RandomNumberGeneratorService
+# Add simMuonME0PseudoDigis to the list of modules served by RandomNumberGeneratorService
 def customize_random_ME0Digi(process):
-    process.RandomNumberGeneratorService.simMuonME0Digis = cms.PSet(
+    process.RandomNumberGeneratorService.simMuonME0PseudoDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     )
@@ -384,7 +384,7 @@ def customize_digi_addGEM_addME0(process):
         process.simMuonRPCDigis +
         process.simMuonGEMDigis +
         process.simMuonGEMPadDigis +
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process.doAllDigi = cms.Sequence(
         process.calDigi +
@@ -413,7 +413,7 @@ def customize_digi_addGEM_addME0_muon_only(process):
         process.simMuonRPCDigis +
         process.simMuonGEMDigis +
         process.simMuonGEMPadDigis +
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
@@ -436,7 +436,7 @@ def customize_digi_addGEM_addME0_gem_only(process):
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
         process.simMuonGEMPadDigis*
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process = append_GEMDigi_event(process)
     return process
