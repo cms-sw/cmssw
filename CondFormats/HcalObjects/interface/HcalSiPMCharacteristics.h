@@ -70,10 +70,10 @@ public:
   int                getAuxi1(int type)          const;
   float              getAuxi2(int type)          const;
 
-  static const PrecisionItem* findByType (int type, const std::vector<const PrecisionItem*>& itemsByType);
+  const PrecisionItem* findByType (int type) const;
 
   // sorting
-  static void sortByType(const std::vector<PrecisionItem>& items, std::vector<const PrecisionItem*>& itemsByType);
+  void sortByType();
   void initialize();
 
 protected:
@@ -89,6 +89,8 @@ namespace HcalSiPMCharacteristicsAddons {
    public: 
     bool operator () (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ < b->type_;}
     bool operator () (const HcalSiPMCharacteristics::PrecisionItem& a, const HcalSiPMCharacteristics::PrecisionItem& b) {return a.type_ < b.type_;}
+    bool equal (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ == b->type_;}
+    bool good (const HcalSiPMCharacteristics::PrecisionItem& a) {return a.type_;}
   };
   class Helper {
    public:

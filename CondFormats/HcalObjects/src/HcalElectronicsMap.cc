@@ -11,6 +11,7 @@ $Revision: 1.22 $
 #include <set>
 
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalObjectAddons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalElectronicsMap::HcalElectronicsMap(const HcalElectronicsMapAddons::Helper& helper) :
@@ -46,13 +47,7 @@ HcalElectronicsMap::HcalElectronicsMap(HcalElectronicsMap&& other)
 
 const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findById (unsigned long fId) const {
   PrecisionItem target (fId, 0);
-  std::vector<const HcalElectronicsMap::PrecisionItem*>::const_iterator item;
-  
-  item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, HcalElectronicsMapAddons::LessById());
-  if (item == mPItemsById.end() || (*item)->mId != fId)
-    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
-  return *item;
+  return HcalObjectAddons::findByT<PrecisionItem,HcalElectronicsMapAddons::LessById>(&target,mPItemsById);
 }
 
 const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findPByElId (unsigned long fElId) const {
@@ -74,13 +69,7 @@ const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findTByElId (unsigned
 
 const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findByTrigId (unsigned long fTrigId) const {
   TriggerItem target (fTrigId,0);
-  std::vector<const HcalElectronicsMap::TriggerItem*>::const_iterator item;
-  
-  item = std::lower_bound (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), &target, HcalElectronicsMapAddons::LessByTrigId());
-  if (item == mTItemsByTrigId.end() || (*item)->mTrigId != fTrigId)
-    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
-  return *item;
+  return HcalObjectAddons::findByT<TriggerItem,HcalElectronicsMapAddons::LessByTrigId>(&target,mTItemsByTrigId);
 }
 
 const DetId HcalElectronicsMap::lookup(HcalElectronicsId fId ) const {
@@ -205,25 +194,11 @@ bool HcalElectronicsMapAddons::Helper::mapEId2chId (HcalElectronicsId fElectroni
 }
 
 void HcalElectronicsMap::sortById () {
-  mPItemsById.clear();
-  mPItemsById.reserve(mPItems.size());
-
-  for (auto i=mPItems.begin(); i!=mPItems.end(); ++i) {
-    if (i->mElId) mPItemsById.push_back(&(*i));
-  }
-
-  std::sort (mPItemsById.begin(), mPItemsById.end(), HcalElectronicsMapAddons::LessById ());
+  HcalObjectAddons::sortByT<PrecisionItem,HcalElectronicsMapAddons::LessById>(mPItems,mPItemsById);
 }
 
 void HcalElectronicsMap::sortByTriggerId () {
-  mTItemsByTrigId.clear();
-  mTItemsByTrigId.reserve(mTItems.size());
-
-  for (auto i=mTItems.begin(); i!=mTItems.end(); ++i) {
-    if (i->mElId) mTItemsByTrigId.push_back(&(*i));
-  }
-
-  std::sort (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), HcalElectronicsMapAddons::LessByTrigId ());
+  HcalObjectAddons::sortByT<TriggerItem,HcalElectronicsMapAddons::LessByTrigId>(mTItems,mTItemsByTrigId);
 }
 
 void HcalElectronicsMap::initialize() {

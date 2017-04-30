@@ -12,6 +12,7 @@ $Revision: 1.1 $
 #include <set>
 
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalObjectAddons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalDcsMap::HcalDcsMap(const HcalDcsMapAddons::Helper& helper) :
@@ -98,12 +99,14 @@ HcalDetId HcalDcsMap::const_iterator::getHcalDetId(void){
   return (*fIter)->mId;
 }
 
-const HcalDcsMap::Item * HcalDcsMap::findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById) {
-  return HcalDcsMap::findByIdT<HcalDcsMapAddons::LessById>(fId,itemsById);
+const HcalDcsMap::Item * HcalDcsMap::findById (unsigned long fId) const {
+  Item target(fId,0);
+  return HcalObjectAddons::findByT<Item,HcalDcsMapAddons::LessById>(&target,mItemsById);
 }
 
-const HcalDcsMap::Item * HcalDcsMap::findByDcsId (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId) {
-  return HcalDcsMap::findByIdT<HcalDcsMapAddons::LessByDcsId>(fId,itemsByDcsId);
+const HcalDcsMap::Item * HcalDcsMap::findByDcsId (unsigned long fDcsId) const {
+  Item target(0,fDcsId);
+  return HcalObjectAddons::findByT<Item,HcalDcsMapAddons::LessByDcsId>(&target,mItemsByDcsId);
 }
 
 HcalDetId HcalDcsMap::lookup(HcalDcsDetId fId ) const{
@@ -115,12 +118,12 @@ HcalDetId HcalDcsMap::lookup(HcalDcsDetId fId ) const{
 			     fId.slice(),
 			     HcalDcsDetId::DCSUNKNOWN,
 			     fId.subchannel());
-  auto item = HcalDcsMap::findByDcsId (fDcsId_notype.rawId (), mItemsByDcsId);
+  auto item = HcalDcsMap::findByDcsId (fDcsId_notype.rawId ());
   return item ? item->mId : 0;
 }
 
 HcalDcsDetId HcalDcsMap::lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const {
-  auto item = HcalDcsMap::findById (fId.rawId (), mItemsById);
+  auto item = HcalDcsMap::findById (fId.rawId ());
   HcalDcsDetId _id(item ? item->mId : 0);
   return HcalDcsDetId(_id.subdet(),
 				 _id.zside()*_id.ring(),
@@ -175,14 +178,14 @@ bool HcalDcsMapAddons::Helper::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcs
   return true;
 }
 
-void HcalDcsMap::sortById(const std::vector<Item>& items, std::vector<const Item*>& itemsById){
-  HcalDcsMap::sortByIdT<HcalDcsMapAddons::LessById>(items,itemsById);
+void HcalDcsMap::sortById(){
+  HcalObjectAddons::sortByT<Item,HcalDcsMapAddons::LessById>(mItems,mItemsById);
 }
-void HcalDcsMap::sortByDcsId(const std::vector<Item>& items, std::vector<const Item*>& itemsByDcsId){
-  HcalDcsMap::sortByIdT<HcalDcsMapAddons::LessByDcsId>(items,itemsByDcsId);
+void HcalDcsMap::sortByDcsId(){
+  HcalObjectAddons::sortByT<Item,HcalDcsMapAddons::LessByDcsId>(mItems,mItemsByDcsId);
 }
 
 void HcalDcsMap::initialize() {
-  HcalDcsMap::sortById(mItems,mItemsById);
-  HcalDcsMap::sortByDcsId(mItems,mItemsByDcsId);
+  sortById();
+  sortByDcsId();
 }

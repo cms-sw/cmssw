@@ -117,8 +117,18 @@ class HcalElectronicsMap {
 };
 
 namespace HcalElectronicsMapAddons {
-  class LessById {public: bool operator () (const HcalElectronicsMap::PrecisionItem* a, const HcalElectronicsMap::PrecisionItem* b) {return a->mId < b->mId;}};
-  class LessByTrigId {public: bool operator () (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}};
+  class LessById {
+   public:
+    bool operator () (const HcalElectronicsMap::PrecisionItem* a, const HcalElectronicsMap::PrecisionItem* b) {return a->mId < b->mId;}
+    bool equal (const HcalElectronicsMap::PrecisionItem* a, const HcalElectronicsMap::PrecisionItem* b) {return a->mId == b->mId;}
+    bool good (const HcalElectronicsMap::PrecisionItem& a) {return a.mId;}
+  };
+  class LessByTrigId {
+   public:
+    bool operator () (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}
+    bool equal (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId == b->mTrigId;}
+    bool good (const HcalElectronicsMap::TriggerItem& a) {return a.mTrigId;}
+  };
   class Helper {
    public:
     Helper();

@@ -65,10 +65,10 @@ public:
   std::vector <int>         allRMs() const;
   std::vector <std::string> allRBXs() const;
 
-  static const PrecisionItem* findById (uint32_t fId, const std::vector<const PrecisionItem*>& mPItemsById);
+  const PrecisionItem* findById (uint32_t fId) const;
 
   // sorting
-  static void sortById (const std::vector<PrecisionItem>& items, std::vector<const PrecisionItem*>& itemsById);
+  void sortById ();
   void initialize();
   
 protected:
@@ -84,6 +84,8 @@ namespace HcalFrontEndMapAddons {
    public: 
     bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId < b->mId;}
     bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) {return a.mId < b.mId;}
+    bool equal (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId == b->mId;}
+    bool good (const HcalFrontEndMap::PrecisionItem& a) {return a.mId;}
   };
   class Helper {
    public:

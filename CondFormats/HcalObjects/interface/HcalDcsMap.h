@@ -107,32 +107,12 @@ class HcalDcsMap {
 
   void initialize();
 
-  template <class Less>
-  static const Item * findByIdT (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsByIdT){
-    Item target (fId, 0);
-
-    auto item = std::lower_bound (itemsByIdT.begin(), itemsByIdT.end(), &target, Less());
-    if (item == itemsByIdT.end() || (*item)->mId != fId){
-      //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fId;
-      return 0;
-    }
-    return *item;
-  }
-  static const Item * findById (unsigned long fId, const std::vector<const HcalDcsMap::Item*>& itemsById);
-  static const Item * findByDcsId (unsigned long fDcsId, const std::vector<const HcalDcsMap::Item*>& itemsByDcsId);
+  const Item * findById (unsigned long fId) const;
+  const Item * findByDcsId (unsigned long fDcsId) const;
 
   //sorting
-  template <class Less>
-  static void sortByIdT(const std::vector<Item>& items, std::vector<const Item*>& itemsByIdT){
-    itemsByIdT.clear();
-    itemsByIdT.reserve(items.size());
-    for(const auto& i : items){
-      if (i.mDcsId) itemsByIdT.push_back(&i);
-    }
-    std::sort (itemsByIdT.begin(), itemsByIdT.end(), Less());
-  }
-  static void sortById(const std::vector<Item>& items, std::vector<const Item*>& itemsById);
-  static void sortByDcsId(const std::vector<Item>& items, std::vector<const Item*>& itemsByDcsId);
+  void sortById();
+  void sortByDcsId();
 
  protected:
   // these are inspired by the emap. Not clear if they are needed
@@ -149,21 +129,33 @@ class HcalDcsMap {
 
 namespace HcalDcsMapAddons {
   class LessById {
-  public:
+   public:
     bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
       return a->mId < b->mId;
     }
     bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
       return a.mId < b.mId;
     }
+    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+      return a->mId == b->mId;
+    }
+    bool good (const HcalDcsMap::Item& a) {
+      return a.mDcsId;
+    }
   };
   class LessByDcsId {
-  public:
+   public:
     bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
       return a->mDcsId < b->mDcsId;
     }
     bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
       return a.mDcsId < b.mDcsId;
+    }
+    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+      return a->mDcsId == b->mDcsId;
+    }
+    bool good (const HcalDcsMap::Item& a) {
+      return a.mDcsId;
     }
   };
   class Helper {

@@ -3,6 +3,7 @@
 #include <set>
 
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalObjectAddons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristicsAddons::Helper& helper) :
@@ -36,14 +37,9 @@ HcalSiPMCharacteristics::HcalSiPMCharacteristics(HcalSiPMCharacteristics&& other
   other.swap(*this);
 }
 
-const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType (int type, const std::vector<const PrecisionItem*>& itemsByType) {
-  HcalSiPMCharacteristics::PrecisionItem target(type, 0, 0, 0, 0, 0, 0, 0);
-
-  auto item = std::lower_bound (itemsByType.begin(), itemsByType.end(), &target, HcalSiPMCharacteristicsAddons::LessByType());
-  if (item == itemsByType.end() || (*item)->type_ != type)
-    //    throw cms::Exception ("Conditions not found") << "Unavailable SiPMCharacteristics for type " << type;
-    return 0;
-  return *item;
+const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType (int type) const {
+  PrecisionItem target(type, 0, 0, 0, 0, 0, 0, 0);
+  return HcalObjectAddons::findByT<PrecisionItem,HcalSiPMCharacteristicsAddons::LessByType>(&target,mPItemsByType);
 }
 
 HcalSiPMCharacteristicsAddons::Helper::Helper() {}
@@ -74,12 +70,12 @@ bool HcalSiPMCharacteristicsAddons::Helper::loadObject(int type, int pixels, flo
 }
 
 int HcalSiPMCharacteristics::getPixels(int type ) const {
-  const HcalSiPMCharacteristics::PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
+  const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   return (item ? item->pixels_ : 0);
 }
 
 std::vector<float> HcalSiPMCharacteristics::getNonLinearities(int type) const {
-  const HcalSiPMCharacteristics::PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
+  const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   std::vector<float> pars;
   if (item) {
     pars.push_back(item->parLin1_);
@@ -90,29 +86,24 @@ std::vector<float> HcalSiPMCharacteristics::getNonLinearities(int type) const {
 }
 
 float HcalSiPMCharacteristics::getCrossTalk(int type) const {
-  const PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
+  const PrecisionItem* item = findByType(type);
   return (item ? item->crossTalk_ : 0);
 }
 
 int HcalSiPMCharacteristics::getAuxi1(int type) const {
-  const HcalSiPMCharacteristics::PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
+  const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   return (item ? item->auxi1_ : 0);
 }
 
 float HcalSiPMCharacteristics::getAuxi2(int type) const {
-  const HcalSiPMCharacteristics::PrecisionItem* item = HcalSiPMCharacteristics::findByType(type,mPItemsByType);
+  const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   return (item ? item->auxi2_ : 0);
 }
 
-void HcalSiPMCharacteristics::sortByType (const std::vector<PrecisionItem>& items, std::vector<const PrecisionItem*>& itemsByType) {
-  itemsByType.clear();
-  itemsByType.reserve(items.size());
-  for(const auto& i : items){
-    if (i.type_) itemsByType.push_back(&i);
-  }
-  std::sort (itemsByType.begin(), itemsByType.end(), HcalSiPMCharacteristicsAddons::LessByType());
+void HcalSiPMCharacteristics::sortByType () {
+  HcalObjectAddons::sortByT<PrecisionItem,HcalSiPMCharacteristicsAddons::LessByType>(mPItems,mPItemsByType);
 }
 
 void HcalSiPMCharacteristics::initialize(){
-  HcalSiPMCharacteristics::sortByType(mPItems,mPItemsByType);
+  HcalSiPMCharacteristics::sortByType();
 }
