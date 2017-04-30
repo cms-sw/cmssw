@@ -30,8 +30,8 @@ process.source = cms.Source("PoolSource",
 
 process.dumper = cms.EDAnalyzer("ME0DigiSimLinkReader",
     simhitToken = cms.InputTag("g4SimHits","MuonME0Hits"), 
-    me0DigiToken = cms.InputTag("simMuonME0TrivDigis"), 
-    me0DigiSimLinkToken = cms.InputTag("simMuonME0TrivDigis","ME0") ,
+    me0DigiToken = cms.InputTag("simMuonME0Digis"), 
+    me0DigiSimLinkToken = cms.InputTag("simMuonME0Digis","ME0") ,
     debugFlag = cms.bool(False)#,	#for Milena: add a comma in the end of the line
 #forMilena
 #    rechitToken = cms.InputTag("me0RecHits","")

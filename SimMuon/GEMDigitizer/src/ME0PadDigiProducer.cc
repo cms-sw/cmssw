@@ -18,7 +18,6 @@ ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps)
   digi_token_ = consumes<ME0DigiCollection>(digis_);
 
   produces<ME0PadDigiCollection>();
-  consumes<ME0DigiCollection>(digis_);
 }
 
 

@@ -27,7 +27,7 @@ namespace CLHEP {
 }
 
 ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
-  : me0digiModelString_(ps.getParameter<std::string>("me0digiModelString"))
+  : me0digiModelString_(ps.getParameter<std::string>("digiModelString"))
 {
   produces<ME0DigiCollection>();
   produces<StripDigiSimLinks>("ME0");
