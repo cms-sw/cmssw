@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimMuon.GEMDigitizer.muonGEMDigis_cfi import gemDigiCommonParameters
 
-me0PreRecoDigiCommonParameters = cms.PSet(
+me0PseudoDigiCommonParameters = cms.PSet(
     inputCollection = cms.string('g4SimHitsMuonME0Hits'),
     digiPreRecoModelString = cms.string('PreRecoGaussian'),
     timeResolution = cms.double(0.0), # in ns
@@ -29,5 +29,5 @@ me0PreRecoDigiCommonParameters = cms.PSet(
 
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0PseudoDigis = cms.EDProducer("ME0DigiPreRecoProducer",
-    me0PreRecoDigiCommonParameters
+    me0PseudoDigiCommonParameters
 )

@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from SimMuon.GEMDigitizer.muonME0Digis_cfi import *
 from SimMuon.GEMDigitizer.muonME0PadDigis_cfi import *
-from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import *
-from SimMuon.GEMDigitizer.muonME0ReDigis_cfi import *
+from SimMuon.GEMDigitizer.muonME0PseudoDigis_cfi import *
+from SimMuon.GEMDigitizer.muonME0PseudoReDigis_cfi import *
 
 muonME0RealDigi = cms.Sequence(simMuonME0Digis * simMuonME0PadDigis)
 
