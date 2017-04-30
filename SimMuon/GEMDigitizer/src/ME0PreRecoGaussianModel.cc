@@ -180,7 +180,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateElectronBkg_) {
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
-      double averageElectronRatePerRoll =  = eleBkg[0] * rSqrtR*  TMath::Exp(eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
+      double averageElectronRatePerRoll = eleBkg[0] * rSqrtR*  TMath::Exp(eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
       
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
       averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
