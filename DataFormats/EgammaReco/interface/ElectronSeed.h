@@ -6,8 +6,12 @@
 // A verson of reco::ElectronSeed which can have N hits as part of the 
 // 2017 upgrade of E/gamma pixel matching for the phaseI pixels
 //
+// author: S. Harper (RAL), 2017
+//
+//notes:
 // While it is technically named ElectronSeed, it is effectively a new class
 // However to simplify things, the name ElectronSeed was kept
+// (trust me it was simplier...)
 //
 // Noticed that h/e values never seem to used anywhere and they are a 
 // mild pain to propagate in the new framework so they were removed
@@ -15,7 +19,15 @@
 // infinities are used to mark invalid unset values to maintain 
 // compatibilty with the orginal ElectronSeed class
 //
-// author: S. Harper (RAL), 2017
+//description:
+// An ElectronSeed is a TrajectorySeed with E/gamma specific information
+// A TrajectorySeed has a series of hits associated with it 
+// (accessed by TrajectorySeed::nHits(), TrajectorySeed::recHits())
+// and ElectronSeed stores which of those hits match well to a supercluster
+// together with the matching parameters (this is known as EcalDriven).
+// ElectronSeeds can be TrackerDriven in which case the matching is not done.
+// It used to be fixed to two matched hits, now this is an arbitary number
+//
 //
 //*********************************************************************
 
@@ -113,14 +125,15 @@ namespace reco
     int subDet1()const{return subDet(0);}
     int subDet2()const{return subDet(1);}
     int hitsMask()const; 
-    void setNegAttributes(float dRZ2=std::numeric_limits<float>::infinity(),
-			  float dPhi2=std::numeric_limits<float>::infinity(),
-			  float dRZ1=std::numeric_limits<float>::infinity(),
-			  float dPhi1=std::numeric_limits<float>::infinity());
-    void setPosAttributes(float dRZ2=std::numeric_limits<float>::infinity(),
-			  float dPhi2=std::numeric_limits<float>::infinity(),
-			  float dRZ1=std::numeric_limits<float>::infinity(),
-			  float dPhi1=std::numeric_limits<float>::infinity());
+    void initTwoHitSeed(const char hitMask);
+    void setNegAttributes(const float dRZ2=std::numeric_limits<float>::infinity(),
+			  const float dPhi2=std::numeric_limits<float>::infinity(),
+			  const float dRZ1=std::numeric_limits<float>::infinity(),
+			  const float dPhi1=std::numeric_limits<float>::infinity());
+    void setPosAttributes(const float dRZ2=std::numeric_limits<float>::infinity(),
+			  const float dPhi2=std::numeric_limits<float>::infinity(),
+			  const float dRZ1=std::numeric_limits<float>::infinity(),
+			  const float dPhi1=std::numeric_limits<float>::infinity());
     
     
 
@@ -130,6 +143,7 @@ namespace reco
     T getVal(size_t hitNr,T PMVars::*val)const{
       return hitNr<hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::infinity();
     }
+    static std::vector<size_t> hitNrsFromMask(size_t hitMask);
   public:
     //this is a backwards compatible function designed to 
     //convert old format ElectronSeeds to the new format

@@ -476,6 +476,7 @@ void ElectronSeedGenerator::seedsFromTrajectorySeeds
    {
     reco::ElectronSeed seed(s->seed()) ;
     seed.setCaloCluster(cluster);
+    seed.initTwoHitSeed(s->hitsMask());
     addSeed(seed,&*s,positron,out) ;
    }
  }

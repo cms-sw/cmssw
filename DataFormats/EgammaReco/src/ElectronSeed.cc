@@ -51,9 +51,28 @@ int ElectronSeed::hitsMask()const
   return mask;
 }
 
+void ElectronSeed::initTwoHitSeed(const char hitMask)
+{
+  hitInfo_.resize(2);
+
+  std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
+  if(hitNrs.size()!=2){
+    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
+  }
+  if(hitNrs[0]>=nHits() || hitNrs[1]>=nHits()){
+    throw cms::Exception("LogicError") <<" hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<nHits();
+  }
+  for(size_t hitNr=0;hitNr<hitInfo_.size();hitNr++){
+    auto& info = hitInfo_[hitNr];
+    info.setDPhi(std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity());
+    info.setDRZ(std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity());
+    info.setDet((recHits().first+hitNrs[hitNr])->geographicalId(),-1);
+  }
+  
+}
+
 void ElectronSeed::setNegAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi1)
 {
-  if(hitInfo_.empty()) hitInfo_.resize(2);
   if(hitInfo_.size()!=2){
     throw cms::Exception("LogicError") <<"ElectronSeed::setNegAttributes should only operate on seeds with exactly two hits. This is because it is a legacy function to preverse backwards compatiblity and should not be used on new code which matches variable number of hits";
   }
@@ -66,7 +85,6 @@ void ElectronSeed::setNegAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi
 
 void ElectronSeed::setPosAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi1)
 {
-  if(hitInfo_.empty()) hitInfo_.resize(2);
   if(hitInfo_.size()!=2){
     throw cms::Exception("LogicError") <<"ElectronSeed::setPosAttributes should only operate on seeds with exactly two hits. This is because it is a legacy function to preverse backwards compatiblity and should not be used on new code which matches variable number of hits";
   }
@@ -76,6 +94,17 @@ void ElectronSeed::setPosAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi
   hitInfo_[1].dPhiPos = dPhi2;
 }
 
+std::vector<size_t>
+ElectronSeed::hitNrsFromMask(size_t hitMask)
+{
+  std::vector<size_t> hitNrs;
+  for(size_t bitNr=0;bitNr<sizeof(hitMask);bitNr++){
+    char bit = 0x1 << bitNr;
+    if((hitMask&bit)!=0) hitNrs.push_back(bitNr);
+  }
+  return hitNrs;
+}
+
 std::vector<ElectronSeed::PMVars> 
 ElectronSeed::createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
 			    const float dRZ1Pos,const float dRZ1Neg,
@@ -83,26 +112,21 @@ ElectronSeed::createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
 			    const float dRZ2Pos,const float dRZ2Neg,
 			    const char hitMask,const edm::OwnVector<TrackingRecHit>& hits)
 {
-  
-  std::vector<size_t> bitsSet;
-  for(size_t bitNr=0;bitNr<sizeof(hitMask);bitNr++){
-    char bit = 0x1 << bitNr;
-    if((hitMask&bit)!=0) bitsSet.push_back(bitNr);
+  std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
+  if(hitNrs.size()!=2){
+    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
   }
-  if(bitsSet.size()!=2){
-    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<bitsSet.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
-  }
-  if(bitsSet[0]>=hits.size() || bitsSet[1]>=hits.size()){
-    throw cms::Exception("LogicError") <<" hits are "<<bitsSet[0]<<" and  "<<bitsSet[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<hits.size();
+  if(hitNrs[0]>=hits.size() || hitNrs[1]>=hits.size()){
+    throw cms::Exception("LogicError") <<" hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<hits.size();
   }
   
   std::vector<PMVars> hitInfo(2);
   hitInfo[0].setDPhi(dPhi1Pos,dPhi1Neg);
   hitInfo[0].setDRZ(dRZ1Pos,dRZ1Neg);
-  hitInfo[0].setDet(hits[bitsSet[0]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  hitInfo[0].setDet(hits[hitNrs[0]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   hitInfo[1].setDPhi(dPhi2Pos,dPhi2Neg);
   hitInfo[1].setDRZ(dRZ2Pos,dRZ2Neg);
-  hitInfo[1].setDet(hits[bitsSet[1]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  hitInfo[1].setDet(hits[hitNrs[1]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   return hitInfo;
 
 }
