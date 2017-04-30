@@ -1010,6 +1010,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
       <<"\n\t\tRecHit in GP "<<tkgeom_->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition())
       <<"\n\t\tRecHit trackLocal vector "<<LV.x() << " " << LV.y() << " " << LV.z() <<std::endl;
 
+    // FIXME: MOVE ALL THE EV AND ES ACCESS OUTSIDE THE LOOP!!!!
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1029,7 +1030,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
     if (Digi_On_)
       ev.getByToken( digiToken_, digihandle );
     const edm::DetSetVector<SiStripDigi> dummy;
-    auto digilist = ( digihandle.isValid() ? *digihandle : dummy );
+    auto const & digilist = ( digihandle.isValid() ? *digihandle : dummy );
 
     //Get SiStripCluster from SiStripRecHit
     if ( tkrecHit != NULL ){
