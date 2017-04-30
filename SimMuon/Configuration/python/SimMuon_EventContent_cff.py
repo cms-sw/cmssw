@@ -50,3 +50,5 @@ phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.output
                                                                                             'keep *_simMuonME0PseudoReDigis_*_*',
                                                                                             'keep *_simMuonME0Digis_*_*',
                                                                                             'keep *_simMuonME0PadDigis_*_*'] )
+phase2_muon.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
+phase2_muon.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
