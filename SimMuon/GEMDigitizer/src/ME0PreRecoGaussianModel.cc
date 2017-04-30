@@ -41,10 +41,15 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
 {
   // polynomial parametrisation of neutral (n+g) and electron background
   // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
-  neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
-  neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
-  eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
-  eleBkg.push_back(-1.77706e+00); eleBkg.push_back(7.39960e-03);  eleBkg.push_back(-1.61448e-05); eleBkg.push_back(1.44368e-08);
+  neuBkg.push_back(0.00386257);
+  neuBkg.push_back(6344.65);
+  neuBkg.push_back(16627700);
+  neuBkg.push_back(-102098);
+  
+  eleBkg.push_back(0.00171409);
+  eleBkg.push_back(4900.56);
+  eleBkg.push_back(710909);
+  eleBkg.push_back(-4327.25);
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
@@ -154,6 +159,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
     double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
     // max length in x for given y coordinate (cfr trapezoidal eta partition)
+    const float rSqrtR = yy_glob * sqrt(yy_glob);
     double xMax = topLength/2.0 - (height/2.0 - yy_rand) * myTanPhi;
 
     double sigma_u_new = sigma_u;
@@ -174,10 +180,8 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateElectronBkg_) {
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
-      double averageElectronRatePerRoll = 0.0;
-      double yy_helper = 1.0;
-      for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
-
+      double averageElectronRatePerRoll =  = eleBkg[0] * rSqrtR*  TMath::Exp(eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
+      
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
       averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
 
@@ -227,9 +231,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateNeutralBkg_) {
       // Extract / Calculate the Average Neutral Rate 
       // for the given global Y coord from Parametrization
-      double averageNeutralRatePerRoll = 0.0;
-      double yy_helper = 1.0;
-      for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
+      double averageNeutralRatePerRoll = neuBkg[0] * yy_glob* TMath::Exp(neuBkg[1]/rSqrtR) + neuBkg[2]/rSqrtR + neuBkg[3]/(sqrt(yy_glob));
 
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
       averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/5;
