@@ -38,38 +38,38 @@ GEMDigiModel(config)
 , instLumi_(config.getParameter<double>("instLumi"))
 , rateFact_(config.getParameter<double>("rateFact"))
 {
-//initialise parameters from the fit:
-//params for pol3 model of electron bkg for GE1/1:
-  GE11ElecBkgParam0 = 3402.63;
-  GE11ElecBkgParam1 = -42.9979;
-  GE11ElecBkgParam2 = 0.188475;
-  GE11ElecBkgParam3 = -0.0002822;
-//params for expo model of electron bkg for GE2/1:
-  constElecGE21 = 9.74156e+02;
-  slopeElecGE21 = -1.18398e-02;
-//Neutral Bkg
-//Low Rate model L=10^{34}cm^{-2}s^{-1}
-//const and slope for the expo model of neutral bkg for GE1/1:
+  //initialise parameters from the fit:
+  //params for pol3 model of electron bkg for GE1/1:
+  GE11ElecBkgParam0 = 406.249;
+  GE11ElecBkgParam1 = -2.90939;
+  GE11ElecBkgParam2 = 0.00548191;
+  //params for pol3 model of electron bkg for GE2/1:
+  GE21ElecBkgParam0 = 97.0505;
+  GE21ElecBkgParam1 = -0.452612;
+  GE21ElecBkgParam2 = 0.010307;
+  
+  //Neutral Bkg//obsolete, remove it but check for the dependencies in the configuration and customisation files
+  //Low Rate model L=10^{34}cm^{-2}s^{-1}
+  //const and slope for the expo model of neutral bkg for GE1/1://obsolete, remove it but check for the dependencies in the configuration and customisation files
   constNeuGE11 = 807.;
   slopeNeuGE11 = -0.01443;
-//params for the simple pol5 model of neutral bkg for GE2/1:
+  //params for the simple pol5 model of neutral bkg for GE2/1://obsolete, remove it but check for the dependencies in the configuration and customisation files
   GE21NeuBkgParam0 = 2954.04;
   GE21NeuBkgParam1 = -58.7558;
   GE21NeuBkgParam2 = 0.473481;
   GE21NeuBkgParam3 = -0.00188292;
   GE21NeuBkgParam4 = 3.67041e-06;
   GE21NeuBkgParam5 = -2.80261e-09;
-//High Rate model L=5x10^{34}cm^{-2}s^{-1}
-//params for expo model of neutral bkg for GE1/1:
-  constNeuGE11_highRate = 1.02603e+04;
-  slopeNeuGE11_highRate = -1.62806e-02;
-//params for pol5 model of neutral bkg for GE2/1:
-  GE21ModNeuBkgParam0 = 21583.2;
-  GE21ModNeuBkgParam1 = -476.59;
-  GE21ModNeuBkgParam2 = 4.24037;
-  GE21ModNeuBkgParam3 = -0.0185558;
-  GE21ModNeuBkgParam4 = 3.97809e-05;
-  GE21ModNeuBkgParam5 = -3.34575e-08;
+  
+  //High Rate model L=5x10^{34}cm^{-2}s^{-1}
+  //params for pol3 model of neutral bkg for GE1/1:
+  GE11ModNeuBkgParam0 = 5710.23;
+  GE11ModNeuBkgParam1 = -43.3928;
+  GE11ModNeuBkgParam2 = 0.0863681;
+  //params for pol3 model of neutral bkg for GE2/1:
+  GE21ModNeuBkgParam0 = 1440.44;
+  GE21ModNeuBkgParam1 = -7.48607;
+  GE21ModNeuBkgParam2 = 0.0103078;
 }
 
 GEMSimpleModel::~GEMSimpleModel()
@@ -211,13 +211,13 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
     if (simulateLowNeutralRate_)
       averageNeutralNoiseRatePerRoll = constNeuGE11 * TMath::Exp(slopeNeuGE11 * rollRadius);
     else
-      averageNeutralNoiseRatePerRoll = constNeuGE11_highRate * TMath::Exp(slopeNeuGE11_highRate * rollRadius);
-//simulate electron background for GE1/1
+      averageNeutralNoiseRatePerRoll = (GE11ModNeuBkgParam0
+					+ GE11ModNeuBkgParam1 * rollRadius
+					+ GE11ModNeuBkgParam2 * rollRadius * rollRadius);    //simulate electron background for GE1/1
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = GE11ElecBkgParam0
-                                      + GE11ElecBkgParam1 * rollRadius
-                                      + GE11ElecBkgParam2 * rollRadius * rollRadius
-                                      + GE11ElecBkgParam3 * rollRadius * rollRadius * rollRadius;
+      averageNoiseElectronRatePerRoll = (GE11ElecBkgParam0
+					 + GE11ElecBkgParam1 * rollRadius
+					 + GE11ElecBkgParam2 * rollRadius * rollRadius);
       
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
@@ -225,7 +225,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   }
   if (gemId.station() == 2)
   {
-//simulate neutral background for GE2/1
+    //simulate neutral background for GE2/1
     if (simulateLowNeutralRate_)
       averageNeutralNoiseRatePerRoll = GE21NeuBkgParam0
                                      + GE21NeuBkgParam1 * rollRadius
@@ -234,15 +234,14 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
                                      + GE21NeuBkgParam4 * rollRadius * rollRadius * rollRadius * rollRadius
                                      + GE21NeuBkgParam5 * rollRadius * rollRadius * rollRadius * rollRadius * rollRadius;
     else
-      averageNeutralNoiseRatePerRoll = GE21ModNeuBkgParam0
-                                     + GE21ModNeuBkgParam1 * rollRadius
-                                     + GE21ModNeuBkgParam2 * rollRadius * rollRadius
-                                     + GE21ModNeuBkgParam3 * rollRadius * rollRadius * rollRadius
-                                     + GE21ModNeuBkgParam4 * rollRadius * rollRadius * rollRadius * rollRadius
-                                     + GE21ModNeuBkgParam5 * rollRadius * rollRadius * rollRadius * rollRadius * rollRadius;
-//simulate electron background for GE2/1
+      averageNeutralNoiseRatePerRoll = (GE21ModNeuBkgParam0
+					+ GE21ModNeuBkgParam1 * rollRadius
+					+ GE21ModNeuBkgParam2 * rollRadius * rollRadius);
+    //simulate electron background for GE2/1
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = constElecGE21 * TMath::Exp(slopeElecGE21 * rollRadius);
+      averageNoiseElectronRatePerRoll = (GE21ElecBkgParam0
+					 + GE21ElecBkgParam1 * rollRadius
+					 + GE21ElecBkgParam2 * rollRadius * rollRadius);
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi;
