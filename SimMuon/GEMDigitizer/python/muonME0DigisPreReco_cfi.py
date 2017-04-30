@@ -28,6 +28,6 @@ me0PreRecoDigiCommonParameters = cms.PSet(
 )
 
 # Module to create simulated ME0 Pre Reco digis.
-simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
+simMuonME0PseudoDigis = cms.EDProducer("ME0DigiPreRecoProducer",
     me0PreRecoDigiCommonParameters
 )

@@ -79,9 +79,9 @@ def customize_mix_addME0_muon_only(process):
     return process
 
 
-# Add simMuonME0Digis to the list of modules served by RandomNumberGeneratorService
+# Add simMuonME0PseudoDigis to the list of modules served by RandomNumberGeneratorService
 def customize_random_ME0Digi(process):
-    process.RandomNumberGeneratorService.simMuonME0Digis = cms.PSet(
+    process.RandomNumberGeneratorService.simMuonME0PseudoDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     )
@@ -103,7 +103,7 @@ def customize_digi_addME0(process):
         process.simMuonCSCDigis +
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process.doAllDigi = cms.Sequence(
         process.calDigi +
@@ -129,7 +129,7 @@ def customize_digi_addME0_muon_only(process):
         process.simMuonCSCDigis +
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
@@ -148,7 +148,7 @@ def customize_digi_addME0_me0_only(process):
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
-        process.simMuonME0Digis
+        process.simMuonME0PseudoDigis
     )
     process = append_ME0Digi_event(process)
     return process
@@ -160,15 +160,15 @@ def append_ME0Digi_event(process):
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
-            getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simMuonME0PseudoDigis_*_*')
     return process
 
 # Customizations for the background (to be updated once the realistic digi is in place)
 def customize_digi_noME0bkg(process):
-    process.simMuonME0Digis.simulateElectronBkg = False
-    process.simMuonME0Digis.simulateNeutralBkg = False
+    process.simMuonME0PseudoDigis.simulateElectronBkg = False
+    process.simMuonME0PseudoDigis.simulateNeutralBkg = False
     return process
 
 def customize_digi_noME0safety(process):
-    process.simMuonME0Digis.rateFact = 1
+    process.simMuonME0PseudoDigis.rateFact = 1
     return process
