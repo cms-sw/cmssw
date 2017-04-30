@@ -57,9 +57,9 @@ private:
   bool fixedRollRadius_;
   bool simulateIntrinsicNoise_;
   bool simulateElectronBkg_;
-//  bool simulateLowNeutralRate_;	//no further use if this parameter
   double instLumi_;
   double rateFact_;
+  double referenceInstLumi_;
 
 //params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
   double ME0ElecBkgParam0;

@@ -37,7 +37,8 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   minBunch_(config.getParameter<int>("minBunch")), 
   maxBunch_(config.getParameter<int>("maxBunch")),
   instLumi_(config.getParameter<double>("instLumi")),
-  rateFact_(config.getParameter<double>("rateFact"))
+  rateFact_(config.getParameter<double>("rateFact")),
+  referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
   // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
@@ -183,7 +184,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageElectronRatePerRoll = eleBkg[0] * rSqrtR*  TMath::Exp(eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
       
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/5;
+      averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
 
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
       const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
@@ -234,7 +235,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageNeutralRatePerRoll = neuBkg[0] * yy_glob* TMath::Exp(neuBkg[1]/rSqrtR) + neuBkg[2]/rSqrtR + neuBkg[3]/(sqrt(yy_glob));
 
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
-      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/5;
+      averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);

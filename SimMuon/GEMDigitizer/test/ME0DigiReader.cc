@@ -296,49 +296,49 @@ void ME0DigiReader::endJob() {
   std::vector<double> myRadii, myRates;
 
   std::cout << "ndigiVsArea1 = " << ndigiVsArea1;
-  ndigiVsArea1 = ndigiVsArea1/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea1 = ndigiVsArea1/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea1 << std::endl;
 
   myRadii.push_back(rollRadius1); myRates.push_back(ndigiVsArea1);
 
   std::cout << "ndigiVsArea2 = " << ndigiVsArea2;
-  ndigiVsArea2 = ndigiVsArea2/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea2 = ndigiVsArea2/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea2 << std::endl;
 
   myRadii.push_back(rollRadius2); myRates.push_back(ndigiVsArea2);
 
   std::cout << "ndigiVsArea3 = " << ndigiVsArea3;
-  ndigiVsArea3 = ndigiVsArea3/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea3 = ndigiVsArea3/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea3 << std::endl;
 
   myRadii.push_back(rollRadius3); myRates.push_back(ndigiVsArea3);
 
   std::cout << "ndigiVsArea4 = " << ndigiVsArea4;
-  ndigiVsArea4 = ndigiVsArea4/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea4 = ndigiVsArea4/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea4 << std::endl;
 
   myRadii.push_back(rollRadius4); myRates.push_back(ndigiVsArea4);
 
   std::cout << "ndigiVsArea5 = " << ndigiVsArea5;
-  ndigiVsArea5 = ndigiVsArea5/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea5 = ndigiVsArea5/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea5 << std::endl;
 
   myRadii.push_back(rollRadius5); myRates.push_back(ndigiVsArea5);
 
   std::cout << "ndigiVsArea6 = " << ndigiVsArea6;
-  ndigiVsArea6 = ndigiVsArea6/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea6 = ndigiVsArea6/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea6 << std::endl;
 
   myRadii.push_back(rollRadius6); myRates.push_back(ndigiVsArea6);
 
   std::cout << "ndigiVsArea7 = " << ndigiVsArea7;
-  ndigiVsArea7 = ndigiVsArea7/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea7 = ndigiVsArea7/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea7 << std::endl;
 
   myRadii.push_back(rollRadius7); myRates.push_back(ndigiVsArea7);
 
   std::cout << "ndigiVsArea8 = " << ndigiVsArea8;
-  ndigiVsArea8 = ndigiVsArea8/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18. * 1.5);
+  ndigiVsArea8 = ndigiVsArea8/(numbEvents * 9 *25 * 1.0e-9 * 2. * 18.  * 6. * 1.5);
   std::cout << "\tRate [Hz/cm2] = " << ndigiVsArea8 << std::endl;
 
   myRadii.push_back(rollRadius8); myRates.push_back(ndigiVsArea8);

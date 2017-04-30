@@ -23,8 +23,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(	
-    'file:/afs/cern.ch/work/m/mileva/CMSSW_9_1_X_2017-03-29-2300/src/step2_newBkgTest.root'
-#    '/store/user/mileva/forME0/step_gen_simME0_5000evts.root'
+#    'file:/afs/cern.ch/work/m/mileva/CMSSW_9_1_X_2017-03-29-2300/src/step2_newBkgTest.root'
     )
 )
 
