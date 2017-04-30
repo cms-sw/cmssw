@@ -112,7 +112,7 @@ namespace reco
     float dRz2Pos()const{return dRZPos(1);}   
     int subDet1()const{return subDet(0);}
     int subDet2()const{return subDet(1);}
-    int hitsMask()const;
+    int hitsMask()const; 
     void setNegAttributes(float dRZ2=std::numeric_limits<float>::infinity(),
 			  float dPhi2=std::numeric_limits<float>::infinity(),
 			  float dRZ1=std::numeric_limits<float>::infinity(),
@@ -130,16 +130,26 @@ namespace reco
     T getVal(size_t hitNr,T PMVars::*val)const{
       return hitNr<hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::infinity();
     }
+  public:
+    //this is a backwards compatible function designed to 
+    //convert old format ElectronSeeds to the new format
+    //only public due to root io rules, not intended for any other use
+    //also in theory not necessary to part of this class
+    static std::vector<PMVars> createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
+					     const float dRZ1Pos,const float dRZ1Neg,
+					     const float dPhi2Pos,const float dPhi2Neg,
+					     const float dRZ2Pos,const float dRZ2Neg,
+					     const char hitMask,const edm::OwnVector<TrackingRecHit>& hits);
     
   private:
 
-    CtfTrackRef ctfTrack_ ;
-    CaloClusterRef caloCluster_ ;
+    CtfTrackRef ctfTrack_;
+    CaloClusterRef caloCluster_;
     std::vector<PMVars> hitInfo_;
-    int nrLayersAlongTraj_;
+    int nrLayersAlongTraj_; 
     
-    bool isEcalDriven_ ;
-    bool isTrackerDriven_ ;
+    bool isEcalDriven_;
+    bool isTrackerDriven_;
 
   };
 }

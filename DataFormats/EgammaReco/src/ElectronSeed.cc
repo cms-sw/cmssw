@@ -76,6 +76,38 @@ void ElectronSeed::setPosAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi
   hitInfo_[1].dPhiPos = dPhi2;
 }
 
+std::vector<ElectronSeed::PMVars> 
+ElectronSeed::createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
+			    const float dRZ1Pos,const float dRZ1Neg,
+			    const float dPhi2Pos,const float dPhi2Neg,
+			    const float dRZ2Pos,const float dRZ2Neg,
+			    const char hitMask,const edm::OwnVector<TrackingRecHit>& hits)
+{
+  
+  std::vector<size_t> bitsSet;
+  for(size_t bitNr=0;bitNr<sizeof(hitMask);bitNr++){
+    char bit = 0x1 << bitNr;
+    if((hitMask&bit)!=0) bitsSet.push_back(bitNr);
+  }
+  if(bitsSet.size()!=2){
+    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<bitsSet.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
+  }
+  if(bitsSet[0]>=hits.size() || bitsSet[1]>=hits.size()){
+    throw cms::Exception("LogicError") <<" hits are "<<bitsSet[0]<<" and  "<<bitsSet[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<hits.size();
+  }
+  
+  std::vector<PMVars> hitInfo(2);
+  hitInfo[0].setDPhi(dPhi1Pos,dPhi1Neg);
+  hitInfo[0].setDRZ(dRZ1Pos,dRZ1Neg);
+  hitInfo[0].setDet(hits[bitsSet[0]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  hitInfo[1].setDPhi(dPhi2Pos,dPhi2Neg);
+  hitInfo[1].setDRZ(dRZ2Pos,dRZ2Neg);
+  hitInfo[1].setDet(hits[bitsSet[1]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  return hitInfo;
+
+}
+
+
 ElectronSeed::PMVars::PMVars():
   dRZPos(std::numeric_limits<float>::infinity()),
   dRZNeg(std::numeric_limits<float>::infinity()),
@@ -84,3 +116,5 @@ ElectronSeed::PMVars::PMVars():
   detId(0),
   layerOrDiskNr(-1)
 {}
+
+
