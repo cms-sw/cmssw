@@ -9,8 +9,7 @@ using namespace std;
 
 
 MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
-betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
 {
    fVerbose = iConfig.getUntrackedParameter("verbose",0);
    fchekantiparticle = iConfig.getUntrackedParameter("CheckAntiparticle",true);
@@ -99,16 +98,15 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
      for (unsigned int i = 0; i < particleID.size(); i++) {
        if (particleID[i] == (*p)->pdg_id() || (fchekantiparticle && (-particleID[i] == (*p)->pdg_id())) || particleID[i] == 0) {
          // calculate rapidity just for the desired particle and make sure, this particles has enough energy
-         HepMC::FourVector mom = zboost((*p)->momentum());
-         rapidity = (mom.e()-mom.pz()) > 0. ? 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) ) : rapMax[i]+.1;    
-         if (fVerbose > 2) edm::LogInfo("MCSingleParticleYPt") << "Testing particle : " << (*p)->pdg_id() << " pT: " << mom.perp() << " y: " << rapidity << " status : " << (*p)->status() << endl;
-	 if ( mom.perp() > ptMin[i] 
+         rapidity = ((*p)->momentum().e()-(*p)->momentum().pz()) > 0. ? 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) ) : rapMax[i]+.1;    
+         if (fVerbose > 2) edm::LogInfo("MCSingleParticleYPt") << "Testing particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl;
+	 if ( (*p)->momentum().perp() > ptMin[i] 
               && rapidity > rapMin[i] 
               && rapidity < rapMax[i] 
               && ((*p)->status() == status[i] || status[i] == 0) ) { 
            accepted = true;
            if (fVerbose > 1) 
-              edm::LogInfo("MCSingleParticleYPt") << "Accepted particle : " << (*p)->pdg_id() << " pT: " << mom.perp() << " y: " << rapidity << " status : " << (*p)->status() << endl; 
+              edm::LogInfo("MCSingleParticleYPt") << "Accepted particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl; 
            break;
 	 }  
 	 
@@ -119,16 +117,5 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    
    if (accepted) { return true; } 
    else { return false; }
-}
-
-
-HepMC::FourVector MCSingleParticleYPt::zboost(const HepMC::FourVector& mom) {
-   //Boost this Lorentz vector (from TLorentzVector::Boost)
-   double b2 = betaBoost*betaBoost;
-   double gamma = 1.0 / sqrt(1.0 - b2);
-   double bp = betaBoost*mom.pz();
-   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
-
-   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }
 
