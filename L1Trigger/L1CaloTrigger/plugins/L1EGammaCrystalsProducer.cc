@@ -289,29 +289,44 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
            continue;
          }
 
+         // Get the detId associated with the HCAL TP
+         // if no detIds associated, skip
+         std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
+         if (hcId.size() == 0) {
+           std::cout << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+           continue;
+         }
+
          // Skip HCAL TPs which don't have HB detIds
          if (hcId[0].subdetId() > 1) continue;
 
          // Find the average position of all HB detIds
-         GlobalVector hcal_tp_position = GlobalVector(0., 0., 0.);
+         GlobalVector avgVector = GlobalVector(0., 0., 0.);
+         int hc_i = 0;
+         int hb_i = 0;
          for (auto &hcId_i : hcId) {
+           hc_i++;
+           //std::cout << " ---- " << hc_i << " : " << hcId_i << "  subD: " << hcId_i.subdetId() << std::endl;
            if (hcId_i.subdetId() > 1) continue;
+           hb_i++;
            auto cell = hbGeometry->getGeometry(hcId_i);
            if (cell == 0) continue;
            GlobalVector tmpVector = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-           if ( debug ) std::cout << " ---- " << hcId_i << "  subD: " << hcId_i.subdetId() << " : (eta,phi,z), (" << tmpVector.eta() << ", " << tmpVector.phi() << ", " << tmpVector.z() << ")" << std::endl;
-           hcal_tp_position = tmpVector;
-           break;
+           avgVector = avgVector + tmpVector;
+           //std::cout << "tmp Vect: " << tmpVector << std::endl;
+           //std::cout << "avg Vect: " << avgVector << std::endl;
          }
+         avgVector = avgVector/hb_i;
 
          SimpleCaloHit hhit;
          hhit.id = hit.id();
-         hhit.position = hcal_tp_position;
+         hhit.position = avgVector;
          float et = hit.SOI_compressedEt() / 2.;
          hhit.energy = et / sin(hhit.position.theta());
          hcalhits.push_back(hhit);
 
-         if ( debug ) std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+         if ( debug ) std::cout << "FINAL avg Vect: " << avgVector << std::endl;
+         if ( debug ) std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
       }
    }
 
