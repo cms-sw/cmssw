@@ -35,8 +35,6 @@ def run(args):
         o2ocmd += ' --hashmapDb {hashmapDb}'
         if args.skiplistFile:
             o2ocmd += ' --skiplistFile %s' % args.skiplistFile
-        if args.skipDescFile:
-            o2ocmd += ' --skipDescFile %s' % args.skipDescFile
         if args.debug:
             o2ocmd += ' --debug'
 
@@ -97,8 +95,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run all SiStrip DAQ O2Os at the same time.')
     parser.add_argument('since', metavar='SINCE', type=str, help='Run number.')
     parser.add_argument('cfgfile', metavar='CFGLINES', help='File containing configuration lines.')
-    parser.add_argument('--skiplistFile', default='', help='File containing the detids to be skipped in G1 O2O.')
-    parser.add_argument('--skipDescFile', default='', help='File with description of the modules to be skipped in G1 O2O.')
+    parser.add_argument('--skiplistFile', default='', help='File containing the devices to be skipped in G1 O2O.')
 
     parser.add_argument('--analyzers',
                         default='SiStripO2OBadStrip,SiStripO2OFedCabling,SiStripO2OLatency,SiStripO2ONoises,SiStripO2OPedestals,SiStripO2OThreshold',

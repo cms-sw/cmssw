@@ -31,7 +31,7 @@ using namespace sistrip;
 /** */
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet& pset,
 							 const edm::ActivityRegistry&):
-  m_skippedDetIds(pset.getUntrackedParameter<std::vector<uint32_t>>("SkippedDetIds", std::vector<uint32_t>())),
+  m_skippedDevices(pset.getUntrackedParameter<edm::VParameterSet>("SkippedDevices", edm::VParameterSet())),
   m_tickmarkThreshold(static_cast<float>(pset.getUntrackedParameter<double>("TickmarkThreshold",50.))),
   m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",640.))),
   m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))),
@@ -50,6 +50,9 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
   LogTrace(mlESSources_)
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
     << " Constructing object...";
+  for (const auto &pset : m_skippedDevices){
+    skippedDevices.emplace_back(pset);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -420,13 +423,26 @@ bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, 
         << " [ApvGain] Unable to find Timing Analysis Description from DB for DetId: " << ipair.detId() << " ApvPair:" << ipair.apvPairNumber();
     return false;
   }
+
+  for (const auto &desc : skippedDevices){
+    if (desc.isConsistent(ipair)){
+      edm::LogInfo(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+          << " [ApvGain] Skip module with DetId:" << ipair.detId() << " ApvPair:" << ipair.apvPairNumber()
+          << " according to \n" << desc.dump();
+      if (std::find(skippedDetIds.begin(), skippedDetIds.end(), ipair.detId()) == skippedDetIds.end()){
+        skippedDetIds.push_back(ipair.detId());
+      }
+      return false;
+    }
+  }
+
   if ( anal->getHeight() > m_tickmarkThreshold ) {
     float tick_height = (anal->getHeight() / m_gaincalibrationfactor);
     inputApvGain.push_back( tick_height ); // APV0
     inputApvGain.push_back( tick_height ); // APV1
   } else {
     edm::LogWarning(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-        << " [ApvGain] Low tickmark height for DetId: " << ipair.detId() << " ApvPair:" << ipair.apvPairNumber() << ", height=" << anal->getHeight();
+        << " [ApvGain] Low tickmark height for DetId:" << ipair.detId() << " ApvPair:" << ipair.apvPairNumber() << ", height=" << anal->getHeight();
     return false;
   }
 
@@ -695,15 +711,6 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
   //data container
   gain_= new SiStripApvGain();
 
-  //print out skipped modules
-  std::stringstream ss;
-  for (const auto &skip : m_skippedDetIds){
-    ss << "\n" << skip;
-  }
-  edm::LogInfo(mlESSources_)
-    << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-    << " [ApvGain] Skipping " << m_skippedDetIds.size() << " modules: " << ss.str();
-
   //check if Timing analysis description is found, otherwise quit
   if(!retrieveTimingAnalysisDescriptions(&*db_)){
     edm::LogWarning(mlESSources_)
@@ -719,22 +726,15 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
 
   for(auto it = DetInfos.begin(); it != DetInfos.end(); ++it){
     // check if det id is correct and if it is actually cabled in the detector
-    if( it->first==0 || it->first==0xFFFFFFFF ) {
+    if( it->first==0 || it->first==sistrip::invalid32_) {
       edm::LogError("DetIdNotGood") << "@SUB=analyze" << "Invalid detid: " << it->first
           << "  ... neglecting!" << std::endl;
       continue;
     }
 
     uint32_t detid = it->first;
-    i_trackercon det_iter = tc.end();
-
     bool update_ = true;
-
-    if(std::find(m_skippedDetIds.begin(), m_skippedDetIds.end(), detid) != m_skippedDetIds.end()){
-      update_ = false; // do not update if found in the "skipped" list
-    }else{
-      det_iter = std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon &p){ return p.first==detid; });
-    }
+    i_trackercon det_iter = std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon &p){ return p.first==detid; });
     if(det_iter==tc.end()) {
       update_ = false; // do not update if it is not connected in cabling
     }
@@ -768,6 +768,17 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
     storeTiming(detid);
 
   }// end loop detids
+
+  //print out skipped modules
+  std::stringstream ss;
+  for (const auto &skip : skippedDetIds){
+    ss << "\n" << skip;
+  }
+  edm::LogInfo(mlESSources_)
+    << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+    << " [ApvGainSummary] Skipped " << skippedDetIds.size() << " modules: " << ss.str();
+
+
 
 }
 
@@ -879,4 +890,68 @@ void SiStripCondObjBuilderFromDb::buildFEDRelatedObjects( SiStripConfigDb* const
   }//detids
 }
 
+SiStripCondObjBuilderFromDb::SkipDeviceDescription::SkipDeviceDescription():
+    fec_(sistrip::invalid_),
+    fed_(sistrip::invalid_),
+    detid_(sistrip::invalid32_)
+{}
 
+SiStripCondObjBuilderFromDb::SkipDeviceDescription::SkipDeviceDescription(const edm::ParameterSet& pset):
+    fec_(pset.getUntrackedParameter<uint32_t>("fecCrate", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("fecSlot", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("fecRing", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("ccuAddr", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("ccuChan", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("lldChan", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("i2cAddr", sistrip::invalid_)),
+    fed_(pset.getUntrackedParameter<uint32_t>("fedId", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("feUnit", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("feChan", sistrip::invalid_),
+        pset.getUntrackedParameter<uint32_t>("fedApv", sistrip::invalid_)),
+    detid_(pset.getUntrackedParameter<uint32_t>("detid", sistrip::invalid32_))
+{
+  if (!fec_.isValid() && !fed_.isValid() && detid_==sistrip::invalid32_){
+    throw cms::Exception("InvalidPSet") << "None of FEC coordinates/FED coordinates/detids are valid in this PSet!\n" << pset.dump(2);
+  }
+}
+
+bool SiStripCondObjBuilderFromDb::SkipDeviceDescription::isConsistent(const FedChannelConnection &fc) const {
+
+  auto comp = [](uint16_t desc, uint16_t device) { return desc==0 || desc==device; };
+
+  // use FEC coordinates first if provided
+  if (fec_.isValid()){
+    return comp(fec_.fecCrate(), fc.fecCrate())
+        && comp(fec_.fecSlot(), fc.fecSlot())
+        && comp(fec_.fecRing(), fc.fecRing())
+        && comp(fec_.ccuAddr(), fc.ccuAddr())
+        && comp(fec_.ccuChan(), fc.ccuChan())
+        && comp(fec_.lldChan(), fc.lldChannel())
+        && (comp(fec_.i2cAddr(), fc.i2cAddr(0)) || comp(fec_.i2cAddr(), fc.i2cAddr(1))); // do not distinguish between APV1 and APV2
+  }
+
+  // then try FED coordinates
+  if (fed_.isValid()){
+    return comp(fed_.fedId(), fc.fedId())
+        && comp(fed_.feUnit(), SiStripFedKey::feUnit(fc.fedCh()))
+        && comp(fed_.feChan(), SiStripFedKey::feChan(fc.fedCh()));
+    // no fedApv in FedChannelConnection -- and we do not distinguish between APV1 and APV2
+  }
+
+  // last try detids (will skip all APVs on the module)
+  if (detid_!=sistrip::invalid32_){
+    return detid_ == fc.detId();
+  }
+
+  return false;
+}
+
+std::string SiStripCondObjBuilderFromDb::SkipDeviceDescription::dump() const {
+  std::stringstream ss;
+  fec_.terse(ss);
+  ss << "\n";
+  fed_.terse(ss);
+  ss << "\n";
+  ss << "detid=" << detid_;
+  return ss.str();
+}

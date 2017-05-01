@@ -112,8 +112,8 @@ def copy_payload(dbFile, inputTag, destTags, destDb, since, userText):
         copyDestDb = destDb
     success = 0
     def copy(dest):
-        command = 'conddb --force --yes --db {db} copy {inputTag} {destTag} -f {since} --destdb {destDb} --synchronize --note "{note}"'.format(
-            db=dbFile, inputTag=inputTag, destTag=dest, destDb=copyDestDb, since=since, note=userText)
+        command = 'conddb --force --yes --db {db} copy {inputTag} {destTag} --destdb {destDb} --synchronize --note "{note}"'.format(
+            db=dbFile, inputTag=inputTag, destTag=dest, destDb=copyDestDb, note=userText)
         logging.info('Copy tag [%s] from %s to [%s] in %s:' % (inputTag, dbFile, dest, destDb))
         logging.debug(command)
         pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
