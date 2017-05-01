@@ -14,40 +14,36 @@
 #include <iostream>
 #include <vector>
 
+#include "DataFormats/Luminosity/interface/LumiConstants.h"
+
 namespace reco {
 class PixelClusterCounts {
-static constexpr unsigned int nEmBX=3564;//Empty BX to fill with counts
-    public:
-        PixelClusterCounts() : m_events(nEmBX){}
-        ////////////////////////////////////////////
-        void increment(int mD,int BXid,int count){
-            std::vector<int>::iterator it;
-            it = std::find(m_ModID.begin(), m_ModID.end(), mD);
-            size_t modIndex = it - m_ModID.begin();
 
-            if(it == m_ModID.end()){
-                std::vector<int> m_empBX(nEmBX, 0);
+    public:
+        PixelClusterCounts() : m_events(LumiConstants::numBX){}
+
+        void increment(int mD,int bxID,int count){
+            size_t modIndex = std::distance(m_ModID.begin(), std::find(m_ModID.begin(), m_ModID.end(), mD));
+            if (modIndex == m_ModID.size()){
                 m_ModID.push_back(mD);
-                m_counts.insert(m_counts.begin(),m_empBX.begin(),m_empBX.end()); 
+                m_counts.resize(m_counts.size()+LumiConstants::numBX, 0);
             }
-            m_counts[nEmBX*modIndex+BXid] += count; 
+            m_counts[LumiConstants::numBX*modIndex+bxID] += count; 
         }
-        ////////////////////////////////////////////
-        void eventCounter(int BXid){
-            m_events[BXid]++;
+
+        void eventCounter(int bxID){
+            m_events[bxID]++;
         }
-        ////////////////////////////////////////////
+
         std::vector<int> const & readCounts() const {
             return(m_counts);
         }
-        ////////////////////////////////////////////
   
 
       private:
         std::vector<int> m_counts;
         std::vector<int> m_events;
         std::vector<int> m_ModID;
-        std::vector<int> m_empBX;
             
 
 };

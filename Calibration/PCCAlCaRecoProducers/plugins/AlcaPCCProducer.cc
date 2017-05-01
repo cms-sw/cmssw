@@ -45,11 +45,8 @@ class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProdu
     edm::InputTag   fPixelClusterLabel;
 
     std::string trigstring_;      //specifies the trigger Rand or ZeroBias 
-    int ftotalevents;
     int countEvt_;       //counter
     int countLumi_;      //counter
-    int beginLumiOfPCC_;
-    int endLumiOfPCC_;
 
     std::unique_ptr<reco::PixelClusterCounts> thePCCob;
 
@@ -61,9 +58,7 @@ AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
     fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters").getParameter<edm::InputTag>("pixelClusterLabel");
     trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters").getUntrackedParameter<std::string>("trigstring","alcaPCC");
 
-    ftotalevents = 0;
     countLumi_ = 0;
-    beginLumiOfPCC_ = endLumiOfPCC_ = -1;
 
     produces<reco::PixelClusterCounts, edm::InLumi>(trigstring_);
     pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
@@ -75,7 +70,7 @@ AlcaPCCProducer::~AlcaPCCProducer(){
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-    ftotalevents++;
+    countEvt_++;
 
     unsigned int bx=iEvent.bunchCrossing();
     //std::cout<<"The Bunch Crossing"<<bx<<std::endl;
@@ -99,9 +94,6 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             nClusterCount++;
         }
         int nCluster = mod.size();
-        if(nCluster!=nClusterCount) {
-            std::cout<<"counting yields "<<nClusterCount<<" but the size is "<<nCluster<<"; they should match."<<std::endl;
-        }
         thePCCob->increment(detId(), bx, nCluster);
     }
 }
@@ -110,7 +102,6 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void AlcaPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
     //New PCC object at the beginning of each lumi section
     thePCCob = std::make_unique<reco::PixelClusterCounts>(); 
-    beginLumiOfPCC_ = lumiSeg.luminosityBlock();
     countLumi_++;
 
 }
@@ -122,10 +113,8 @@ void AlcaPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
 
-    endLumiOfPCC_ = lumiSeg.luminosityBlock();
 
     //Saving the PCC object 
-    //std::cout<<"Saving Object "<<std::endl;
     lumiSeg.put(std::move(thePCCob), std::string(trigstring_)); 
 
 }
