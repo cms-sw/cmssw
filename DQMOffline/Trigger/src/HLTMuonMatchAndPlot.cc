@@ -150,15 +150,24 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
     book1D(iBooker, "massVsVertexZ_" + suffix, "NVertex", ";NVertex");
     book1D(iBooker, "massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
-    book1D(iBooker, "massVsDZ_numer_" + suffix, "z0", ";z0;");
+    book1D(iBooker, "massVsDZZ_" + suffix,  "z0", ";z0;");
+
+    book1D(iBooker, "MR_massVsPtZ_" + suffix, "pt", ";p_{T}");
+    book1D(iBooker, "MR_massVsPtJpsi_" + suffix, "pt", ";p_{T}");
+    book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "MR_massVsVertexJpsi_" + suffix, "NVertexFine", ";NVertex");
+    book1D(iBooker, "MR_massVsDZZ_" + suffix,  "z0Fine", ";z0;");
+
 
     book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
     book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
-    book1D(iBooker, "Refefficiency_Phi_Mu1_" + suffix, "phi", ";#phi;");
-    book1D(iBooker, "Refefficiency_Phi_Mu2_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
     book1D(iBooker, "Refefficiency_TurnOn_Mu2_" + suffix, "ptCoarse", ";p_{T};");
     book1D(iBooker, "Refefficiency_Vertex_" + suffix, "NVertex", ";NVertex;");
+
+    book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
 
   }
   
@@ -225,7 +234,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   */
 
 
-
   
   // Select objects based on the configuration.
   MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot, hasTargetRecoCuts, targetMuonSelector_, targetD0Cut_, targetZ0Cut_);
@@ -233,7 +241,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
   TriggerObjectCollection hltMuons = 
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, hasTriggerCuts_,triggerSelector_);
-
   // Fill plots for HLT muons.
   if (isLastFilter_){
     for (size_t i = 0; i < hltMuons.size(); i++) {
@@ -249,7 +256,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   // Fill plots for matched muons.
   bool pairalreadyconsidered = false;
   for (size_t i = 0; i < targetMuons.size(); i++) {
-
     Muon & muon = targetMuons[i];
 
     // Fill plots which are not efficiencies.
@@ -303,7 +309,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
 	}
       }
     } // finish loop numerator / denominator...
-    
+
     if (!isLastFilter_) continue;
     // Fill plots for tag and probe
     // Muon cannot be a tag because doesn't match an hlt muon     
@@ -318,13 +324,16 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
           if(muon.pt() < targetptCutZ_) continue;
           hists_["massVsEtaZ_denom"]->Fill(theProbe.eta());
           hists_["massVsPtZ_denom"]->Fill(theProbe.pt());
+	  hists_["MR_massVsPtZ_denom"]->Fill(theProbe.pt());
           hists_["massVsVertexZ_denom"]->Fill(vertices->size());
+	  hists_["MR_massVsVertexZ_denom"]->Fill(vertices->size());
 	  const Track * track = 0;
 	  if (theProbe.isTrackerMuon()) track = & * theProbe.innerTrack();
 	  else if (theProbe.isStandAloneMuon()) track = & * theProbe.outerTrack();
-	  if (track)
-	    hists_["massVsDZ_denom"]->Fill(track->dz(beamSpot->position()));
-
+	  if (track){
+	    hists_["massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
+	    hists_["MR_massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
+	  }
 	  TLorentzVector vMuon, vProbe;
 	  vMuon.SetPtEtaPhiE( muon.p4().Pt(), muon.p4().Eta(), muon.p4().Phi(), muon.p4().E());
 	  vProbe.SetPtEtaPhiE(theProbe.p4().Pt(), theProbe.p4().Eta(),theProbe.p4().Phi(), theProbe.p4().E());
@@ -332,10 +341,14 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
           if(matches[k] < targetMuons.size()) {
             hists_["massVsEtaZ_numer"]->Fill(theProbe.eta());
             hists_["massVsPtZ_numer"]->Fill(theProbe.pt());
+	    hists_["MR_massVsPtZ_numer"]->Fill(theProbe.pt());
             hists_["massVsVertexZ_numer"]->Fill(vertices->size());
+	    hists_["MR_massVsVertexZ_numer"]->Fill(vertices->size());
 	    hists_["efficiencyDeltaR_numer" ]->Fill(vMuon.DeltaR(vProbe));
-	    if (track)
-	      hists_["massVsDZ_numer"]->Fill(track->dz(beamSpot->position()));
+	    if (track){
+	      hists_["massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
+	      hists_["MR_massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
+	    }
           }  
           pairalreadyconsidered = true;
         }
@@ -343,11 +356,15 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
           if(muon.pt() < targetptCutJpsi_) continue;
           hists_["massVsEtaJpsi_denom"]->Fill(theProbe.eta());
           hists_["massVsPtJpsi_denom"]->Fill(theProbe.pt());
+	  hists_["MR_massVsPtJpsi_denom"]->Fill(theProbe.pt());
           hists_["massVsVertexJpsi_denom"]->Fill(vertices->size());
+	  hists_["MR_massVsVertexJpsi_denom"]->Fill(vertices->size());
           if(matches[k] < targetMuons.size()) {
             hists_["massVsEtaJpsi_numer"]->Fill(theProbe.eta());
             hists_["massVsPtJpsi_numer"]->Fill(theProbe.pt());
+	    hists_["MR_massVsPtJpsi_numer"]->Fill(theProbe.pt());
             hists_["massVsVertexJpsi_numer"]->Fill(vertices->size());
+            hists_["MR_massVsVertexJpsi_numer"]->Fill(vertices->size());
           }
           pairalreadyconsidered = true;
         }
@@ -355,17 +372,14 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     } // End loop over denominator and numerator.
   } // End loop over targetMuons.
 
-  
   // fill eff histograms for reference trigger method
   // Denominator: events passing reference trigger and two target muons
   // Numerator:   events in the denominator with two target muons 
   // matched to hlt muons
   if (!isLastFilter_) return;
-
   unsigned int numTriggers = trigNames.size();
   bool passTrigger = false;
   if (requiredTriggers_.size() == 0) passTrigger = true;
-
   for (size_t i = 0; i < requiredTriggers_.size(); i++) {
     for ( unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex){
       passTrigger = passTrigger || (trigNames.triggerName(hltIndex).find(requiredTriggers_[i]) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
@@ -376,30 +390,30 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     if (matches[i] < targetMuons.size()) nMatched++;
   }
   if (requiredTriggers_.size() > 0 && targetMuons.size() > 1 && passTrigger){
-    cout << "filling these" << endl;
     // denominator: 
     hists_["Refefficiency_Eta_Mu1_denom"]->Fill( targetMuons.at(0).eta());					
     hists_["Refefficiency_Eta_Mu2_denom"]->Fill( targetMuons.at(1).eta());
-    hists_["Refefficiency_Phi_Mu1_denom"]->Fill( targetMuons.at(0).phi());
-    hists_["Refefficiency_Phi_Mu2_denom"]->Fill( targetMuons.at(1).phi());
     hists_["Refefficiency_TurnOn_Mu1_denom"]->Fill( targetMuons.at(0).pt() );
+    hists_["MR_Refefficiency_TurnOn_Mu1_denom"]->Fill( targetMuons.at(0).pt() );
     hists_["Refefficiency_TurnOn_Mu2_denom"]->Fill( targetMuons.at(1).pt() );
+    hists_["MR_Refefficiency_TurnOn_Mu2_denom"]->Fill( targetMuons.at(1).pt() );
     hists_["Refefficiency_Vertex_denom"]->Fill( vertices->size()        );
+    hists_["MR_Refefficiency_Vertex_denom"]->Fill( vertices->size()        );
     
     // numerator:
     if (nMatched > 1){
       hists_["Refefficiency_Eta_Mu1_numer"   ]->Fill( targetMuons.at(0).eta());
       hists_["Refefficiency_Eta_Mu2_numer"   ]->Fill( targetMuons.at(1).eta());
-      hists_["Refefficiency_Phi_Mu1_numer"   ]->Fill( targetMuons.at(0).phi());
-      hists_["Refefficiency_Phi_Mu2_numer"   ]->Fill( targetMuons.at(1).phi());
       hists_["Refefficiency_TurnOn_Mu1_numer"]->Fill( targetMuons.at(0).pt() );
+      hists_["MR_Refefficiency_TurnOn_Mu1_numer"]->Fill( targetMuons.at(0).pt() );
       hists_["Refefficiency_TurnOn_Mu2_numer"]->Fill( targetMuons.at(1).pt() );
+      hists_["MR_Refefficiency_TurnOn_Mu2_numer"]->Fill( targetMuons.at(1).pt() );
       hists_["Refefficiency_Vertex_numer"    ]->Fill( vertices->size()        );
+      hists_["MR_Refefficiency_Vertex_numer"    ]->Fill( vertices->size()        );
     }
   }
 
 
-  
   // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
   vector<size_t> hltMatches = matchByDeltaR(hltMuons, targetMuons,
                                             plotCuts_[triggerLevel_ + "DeltaR"]);
@@ -602,7 +616,6 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name,
   size_t nBins; 
   float * edges = 0; 
   fillEdges(nBins, edges, binParams_[binningType]);
-
   hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
     if (hists_[name]->getTH1F()->GetSumw2N())
