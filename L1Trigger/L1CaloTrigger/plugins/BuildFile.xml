@@ -5,6 +5,7 @@
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/EcalAlgo"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CommonDetUnit"/>

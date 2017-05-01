@@ -37,19 +37,20 @@ Implementation:
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <iostream>
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
-//#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1EGCrystalCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -93,6 +94,8 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       //const CaloSubdetectorGeometry * eeGeometry; // unused a.t.m.
       const CaloSubdetectorGeometry * hbGeometry;
       //const CaloSubdetectorGeometry * heGeometry; // unused a.t.m.
+      edm::ESHandle<HcalTopology> hbTopology;
+      const HcalTopology * hcTopology_;
 
       boost::property_tree::ptree towerMap;
       bool useTowerMap;
@@ -167,7 +170,10 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    // Get tower mapping
    if (useTowerMap) {
       std::cout << "Using tower mapping for ECAL regions.  Map name: " << towerMapName << std::endl;
-      read_json(towerMapName, towerMap);
+      std::string base = std::getenv("CMSSW_BASE");
+      std::string fpath = "/src/L1Trigger/L1CaloTrigger/data/";
+      std::string file = base+fpath+towerMapName;
+      read_json(file, towerMap);
    }
 }
 
@@ -178,9 +184,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
    ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
    hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-   //for ( const auto& detId : hbGeometry->getValidDetIds() ) {
-   //  std::cout << "valid hcal: " << detId() << " : subD: " << detId.subdetId() << std::endl;
-   //}
+   iSetup.get<HcalRecNumberingRecord>().get(hbTopology);
+   hcTopology_ = hbTopology.product();
+   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
    
    std::vector<SimpleCaloHit> ecalhits;
    std::vector<SimpleCaloHit> hcalhits;
@@ -210,8 +216,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             // while "DataFormats/Math/interface/Point3D.h" also contains a competing definition of GlobalPoint. Oh well...
             ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
             ehit.energy = et / sin(ehit.position.theta());
+            if ( debug ) std::cout << " -- ECAL TP encoded ET: " << hit.encodedEt() << std::endl;
             //std::cout << " -- ECAL TP Et: " << ehit.energy << std::endl;
-            //std::cout << " -- ECAL TP encoded ET: " << hit.encodedEt() << std::endl;
             //std::cout << totNumHits << " -- ehit iPhi: " << ehit.id.iphi() << " -- tp iPhi: " << hit.id().iphi() << std::endl;
             //std::cout << " -- iEta: " << ehit.id.ieta() << std::endl;
             ecalhits.push_back(ehit);
@@ -274,17 +280,44 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
               std::cout << " -- YES: Hcal hit DetID is present in HCAL Geom: " << hit.id() << std::endl;
             }
 
-            auto cell = hbGeometry->getGeometry(hit.id());
-            //std::cout << "HCAL Geo: " << hbGeometry << std::endl;
-            //std::cout << "Hit x, y, z: " << cell->getPosition().x() << ", " << cell->getPosition().y() << ", " << cell->getPosition().z() << std::endl;
-            SimpleCaloHit hhit;
-            hhit.id = hit.id();
-            hhit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-            float et = hit.SOI_compressedEt() / 2.;
-            hhit.energy = et / sin(hhit.position.theta());
-            //std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
-            hcalhits.push_back(hhit);
+         // Get the detId associated with the HCAL TP
+         // if no detIds associated, skip
+         std::vector<HcalDetId> hcId = theTrigTowerGeometry.detIds(hit.id());
+         if (hcId.size() == 0) {
+           std::cout << "Cannot find any HCalDetId corresponding to " << hit.id() << std::endl;
+           continue;
          }
+
+         // Skip HCAL TPs which don't have HB detIds
+         if (hcId[0].subdetId() > 1) continue;
+
+         // Find the average position of all HB detIds
+         GlobalVector avgVector = GlobalVector(0., 0., 0.);
+         int hc_i = 0;
+         int hb_i = 0;
+         for (auto &hcId_i : hcId) {
+           hc_i++;
+           //std::cout << " ---- " << hc_i << " : " << hcId_i << "  subD: " << hcId_i.subdetId() << std::endl;
+           if (hcId_i.subdetId() > 1) continue;
+           hb_i++;
+           auto cell = hbGeometry->getGeometry(hcId_i);
+           if (cell == 0) continue;
+           GlobalVector tmpVector = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
+           avgVector = avgVector + tmpVector;
+           //std::cout << "tmp Vect: " << tmpVector << std::endl;
+           //std::cout << "avg Vect: " << avgVector << std::endl;
+         }
+         avgVector = avgVector/hb_i;
+
+         SimpleCaloHit hhit;
+         hhit.id = hit.id();
+         hhit.position = avgVector;
+         float et = hit.SOI_compressedEt() / 2.;
+         hhit.energy = et / sin(hhit.position.theta());
+         hcalhits.push_back(hhit);
+
+         if ( debug ) std::cout << "FINAL avg Vect: " << avgVector << std::endl;
+         if ( debug ) std::cout << "  -- HCAL TP ET : " << hhit.energy << std::endl;
       }
    }
 
