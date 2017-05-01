@@ -11,7 +11,6 @@ import argparse
 import subprocess
 from functools import partial
 import CondTools.SiStrip.o2o_helper as helper
-from CondTools.SiStrip.o2o_finalizer import O2OFinalizer
 
 jobDirVar = 'JOBDIR'
 cfg_file = 'CondTools/SiStrip/python/SiStripDCS_popcon.py'
@@ -52,7 +51,11 @@ def runjob(args):
         logging.info('No IOV exists in the SQLite file. Will skip upload!')
         return
 
-    helper.upload_payload(dbFile=output_db, inputTag=args.inputTag, destTags=args.destTags, destDb=args.destDb, since=None,
+    if args.use_uploader:
+        f = helper.upload_payload
+    else:
+        f = helper.copy_payload
+    f(dbFile=output_db, inputTag=args.inputTag, destTags=args.destTags, destDb=args.destDb, since=None,
       userText='SiStripDCS {delay} hour delay'.format(delay=args.delay))
 
     # clean up
@@ -71,6 +74,7 @@ def main():
     parser.add_argument('--condDbRead', default='oracle://cms_orcon_adg/CMS_CONDITIONS', help='Connection string for the DB from which the fast O2O retrives payloads.')
 
     parser.add_argument('--no-upload', action="store_true", default=False, help='Do not upload payload. Default: %(default)s.')
+    parser.add_argument('--use-uploader', action="store_true", default=False, help='Use conditionUploader instead of conddb copy. Default: %(default)s.')
     parser.add_argument('--debug', action="store_true", default=False, help='Switch on debug mode. Default: %(default)s.')
     args = parser.parse_args()
 

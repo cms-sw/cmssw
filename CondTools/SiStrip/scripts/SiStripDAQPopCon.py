@@ -11,7 +11,8 @@ import argparse
 import subprocess
 from functools import partial
 import CondTools.SiStrip.o2o_helper as helper
-from CondTools.SiStrip.o2o_finalizer import O2OFinalizer
+from CondTools.SiStrip.o2o_db_cfgmap import DbManagerDAQ
+from CondTools.SiStrip.o2o_db_gain import DbManagerGain
 
 jobDirVar = 'JOBDIR'
 cfg_template = 'CondTools/SiStrip/python/SiStripO2O_cfg_template.py'
@@ -51,7 +52,7 @@ def runjob(args):
         skipped = ''
         if args.skiplistFile:
             with open(args.skiplistFile) as skipfile:
-                skipped = skipfile.read().strip().replace('\n', ',\n')
+                skipped = skipfile.read()
         else:
             logging.warning('Skipped module list not provided! No module will be skipped...')
         replace_dict['_USEANALYSIS_'] = 'True'
@@ -91,13 +92,14 @@ def runjob(args):
       userText='{type}, run: {run}'.format(type=args.analyzer, run=args.since))
 
     # post O2O tasks: bookkeeping for fast O2O or G1 O2O
-    finalizer = O2OFinalizer(args.bookkeeping_db)
     if args.analyzer == 'SiStripO2OApvGain':
         logging.info('Writting bookkeeping info to database.')
-        finalizer.update_gain_logs(args.since, cfglines, args.skiplistFile, args.skipDescFile)
+        dbmgr = DbManagerGain(args.bookkeeping_db)
+        dbmgr.update_gain_logs(args.since, job_file)
     else:
         logging.info('Updating config-to-payload hash map to database.')
-        finalizer.update_hashmap(hashmap_db)
+        dbmgr = DbManagerDAQ(args.bookkeeping_db)
+        dbmgr.update_hashmap(hashmap_db)
 
     # clean up
     try:
@@ -117,8 +119,7 @@ def main():
     parser.add_argument('--inputTag', required=True, help='Tag name to be used in the sqlite file.')
     parser.add_argument('--condDbRead', default='oracle://cms_orcon_prod/CMS_CONDITIONS', help='Connection string for the DB from which the fast O2O retrives payloads.')
     parser.add_argument('--hashmapDb', default='', help='DB to read and write config-to-payload hash (for fast O2O).')
-    parser.add_argument('--skiplistFile', default='', help='File containing the detids to be skipped in G1 O2O.')
-    parser.add_argument('--skipDescFile', default='', help='File with description of the modules to be skipped in G1 O2O.')
+    parser.add_argument('--skiplistFile', default='', help='File containing the devices to be skipped in G1 O2O.')
 
     parser.add_argument('--no-upload', action="store_true", default=False, help='Do not upload payload. Default: %(default)s.')
     parser.add_argument('--use-uploader', action="store_true", default=False, help='Use conditionUploader instead of conddb copy. Default: %(default)s.')
@@ -150,8 +151,6 @@ def main():
     args.cfgfile = os.path.abspath(args.cfgfile)
     if args.skiplistFile:
         args.skiplistFile = os.path.abspath(args.skiplistFile)
-    if args.skipDescFile:
-        args.skipDescFile = os.path.abspath(args.skipDescFile)
 
     # change to O2O working directory
     jobdir = os.path.join(jobdirbase, args.since, args.analyzer)

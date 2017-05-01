@@ -33,9 +33,9 @@ process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb"
 process.SiStripCondObjBuilderFromDb.UseFED = True
 process.SiStripCondObjBuilderFromDb.UseFEC = True
 process.SiStripCondObjBuilderFromDb.UseAnalysis = _USEANALYSIS_
-process.SiStripCondObjBuilderFromDb.SkippedDetIds = cms.untracked.vuint32([
+process.SiStripCondObjBuilderFromDb.SkippedDevices = cms.untracked.VPSet(
 _SKIPPED_
-])
+)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.siStripO2O = cms.EDAnalyzer( "_ANALYZER_",

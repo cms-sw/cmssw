@@ -56,6 +56,21 @@ class SiStripCondObjBuilderFromDb {
   typedef std::vector<pair_detcon>::iterator i_trackercon;
   typedef std::vector<pair_apvpairconn>::iterator i_apvpairconn;
 
+  class SkipDeviceDescription {
+    /* Class to hold the addresses of the devices to be skipped from gain update.
+     * 0 stands for all devices at this level.
+     * sistrip::invalid means this coordinate is not used. */
+  public:
+    SkipDeviceDescription();
+    SkipDeviceDescription(const edm::ParameterSet& pset);
+    bool isConsistent(const FedChannelConnection &fc) const;
+    std::string dump() const;
+
+  private:
+    SiStripFecKey fec_;
+    SiStripFedKey fed_;
+    uint32_t detid_;
+  };
 
   SiStripCondObjBuilderFromDb();
   SiStripCondObjBuilderFromDb(const edm::ParameterSet&,
@@ -118,6 +133,8 @@ class SiStripCondObjBuilderFromDb {
   SiStripLatency* latency_;
 
   std::shared_ptr<SiStripApvGain> gain_last_; // last gain object in DB
+  std::vector<SkipDeviceDescription> skippedDevices; // devices to be skipped for gain update
+  std::vector<uint32_t> skippedDetIds;
 
   //methods used by BuildStripRelatedObjects
   bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
@@ -142,7 +159,7 @@ class SiStripCondObjBuilderFromDb {
 
 
   // cfi input parameters
-  std::vector<uint32_t> m_skippedDetIds; // list of modules to be skipped in tickmark update
+  edm::VParameterSet m_skippedDevices;   // VPset of devices to be skipped in tickmark update
   float m_tickmarkThreshold;             // threshold to accept the tickmark measurement
   float m_gaincalibrationfactor;
   float m_defaultpedestalvalue;
