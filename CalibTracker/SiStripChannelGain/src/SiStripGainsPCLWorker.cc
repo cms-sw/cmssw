@@ -1,4 +1,5 @@
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLWorker.h"
+#include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -17,21 +18,23 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   bareTkGeomPtr_(nullptr)
 {
   
-  MinTrackMomentum        = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"     ,  3.0);
-  MaxTrackMomentum        = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"     ,  99999.0);
-  MinTrackEta             = iConfig.getUntrackedParameter<double>  ("minTrackEta"          , -5.0);
-  MaxTrackEta             = iConfig.getUntrackedParameter<double>  ("maxTrackEta"          ,  5.0);
-  MaxNrStrips             = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"          ,  2);
-  MinTrackHits            = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"         ,  8);
-  MaxTrackChiOverNdf      = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf"   ,  3);
-  MaxTrackingIteration    = iConfig.getUntrackedParameter<int>     ("MaxTrackingIteration" ,  7);
-  AllowSaturation         = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"      ,  false);
-  FirstSetOfConstants     = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants"  ,  true);
-  Validation              = iConfig.getUntrackedParameter<bool>    ("Validation"           ,  false);
-  OldGainRemoving         = iConfig.getUntrackedParameter<bool>    ("OldGainRemoving"      ,  false);
-  useCalibration          = iConfig.getUntrackedParameter<bool>    ("UseCalibration"       ,  false);
-  m_DQMdir                = iConfig.getUntrackedParameter<std::string>  ("DQMdir"          , "AlCaReco/SiStripGains");
+  MinTrackMomentum        = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"        ,  3.0);
+  MaxTrackMomentum        = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"        ,  99999.0);
+  MinTrackEta             = iConfig.getUntrackedParameter<double>  ("minTrackEta"             , -5.0);
+  MaxTrackEta             = iConfig.getUntrackedParameter<double>  ("maxTrackEta"             ,  5.0);
+  MaxNrStrips             = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"             ,  2);
+  MinTrackHits            = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"            ,  8);
+  MaxTrackChiOverNdf      = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf"      ,  3);
+  MaxTrackingIteration    = iConfig.getUntrackedParameter<int>     ("MaxTrackingIteration"    ,  7);
+  AllowSaturation         = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"         ,  false);
+  FirstSetOfConstants     = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants"     ,  true);
+  Validation              = iConfig.getUntrackedParameter<bool>    ("Validation"              ,  false);
+  OldGainRemoving         = iConfig.getUntrackedParameter<bool>    ("OldGainRemoving"         ,  false);
+  useCalibration          = iConfig.getUntrackedParameter<bool>    ("UseCalibration"          ,  false);
+  doChargeMonitorPerPlane = iConfig.getUntrackedParameter<bool>    ("doChargeMonitorPerPlane" ,  false);
+  m_DQMdir                = iConfig.getUntrackedParameter<std::string>  ("DQMdir"             , "AlCaReco/SiStripGains");
   m_calibrationMode       = iConfig.getUntrackedParameter<std::string>  ("calibrationMode"    , "StdBunch");
+  VChargeHisto            = iConfig.getUntrackedParameter<std::vector<std::string> >  ("ChargeHisto");
 
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);
@@ -45,6 +48,10 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
   
   Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
+  Charge_1.insert( Charge_1.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
+  Charge_2.insert( Charge_2.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
+  Charge_3.insert( Charge_3.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
+  Charge_4.insert( Charge_4.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
   Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), 0);
   Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), 0);
   Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), 0);
@@ -76,6 +83,7 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   chargeoverpath_token_ = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
   amplitude_token_      = consumes<std::vector<unsigned char>  >(edm::InputTag(label, CalibPrefix_ + "amplitude"     + CalibSuffix_)); 
   gainused_token_       = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "gainused"      + CalibSuffix_)); 
+  gainusedTick_token_   = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "gainusedTick"  + CalibSuffix_));
   
   edm::ParameterSet evtinfo_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("evtinfo");
   label        = evtinfo_pset.getUntrackedParameter<std::string>("label");
@@ -171,7 +179,8 @@ SiStripGainsPCLWorker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   auto handle22 = connect(chargeoverpath, chargeoverpath_token_, iEvent);
   auto handle23 = connect(amplitude     , amplitude_token_     , iEvent);
   auto handle24 = connect(gainused      , gainused_token_      , iEvent);
-  auto handle25 = connect(trackalgo     , trackalgo_token_     , iEvent);
+  auto handle25 = connect(gainusedTick  , gainusedTick_token_  , iEvent);
+  auto handle26 = connect(trackalgo     , trackalgo_token_     , iEvent);
  
   processEvent();
 
@@ -273,33 +282,75 @@ void SiStripGainsPCLWorker::processEvent() {
 				      <<" ClusterChargeOverPath "<< ClusterChargeOverPath
 				      <<std::endl;
     
-    // control histograms
+    // Fill monitoring histograms
+    int mCharge1 = 0;
+    int mCharge2 = 0;
+    int mCharge3 = 0;
+    int mCharge4 = 0;
+    if(APV->SubDet>2) {
+      for(unsigned int s=0;s<(*nstrips)[i];s++){
+        int StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
+        if(StripCharge>1024)      StripCharge = 255;
+        else if(StripCharge>254)  StripCharge = 254;
+        mCharge1 += StripCharge;
 
-    if(APV->SubDet==StripSubdetector::TIB){                      
-      (Charge_Vs_PathlengthTIB[elepos])  ->Fill((*path)[i],Charge); 
-    }else if(APV->SubDet==StripSubdetector::TOB){  
-      (Charge_Vs_PathlengthTOB[elepos])  ->Fill((*path)[i],Charge);
-    }else if(APV->SubDet==StripSubdetector::TID){
-      if(APV->Eta<0){			  
-	(Charge_Vs_PathlengthTIDM[elepos]) ->Fill((*path)[i],Charge);
-      }else if(APV->Eta>0){                      
-	(Charge_Vs_PathlengthTIDP[elepos]) ->Fill((*path)[i],Charge);
+        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
+        if(StripCharge>1024)      StripCharge = 255;
+        else if(StripCharge>254)  StripCharge = 254;
+        mCharge2 += StripCharge;
+
+        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
+        if(StripCharge>1024)      StripCharge = 255;
+        else if(StripCharge>254)  StripCharge = 254;
+        mCharge3 += StripCharge;
+
+        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
+        if(StripCharge>1024)      StripCharge = 255;
+        else if(StripCharge>254)  StripCharge = 254;
+        mCharge4 += StripCharge;
       }
+      // Revome gains for monitoring
+      mCharge2 *= (*gainused)[i];                         // remove G2
+      mCharge3 *= (*gainusedTick)[i];                     // remove G1
+      mCharge4 *= ( (*gainused)[i] * (*gainusedTick)[i]); // remove G1 and G2
+    } 
+    std::vector<MonitorElement*>& v1 = Charge_1[elepos];
+    std::vector<MonitorElement*> cmon1 = APVGain::FetchMonitor(v1, (*rawid)[i]);
+    for(unsigned int m=0; m<cmon1.size(); m++) cmon1[m]->Fill(( (double) mCharge1 )/(*path)[i]);
+
+    std::vector<MonitorElement*>& v2 = Charge_2[elepos];
+    std::vector<MonitorElement*> cmon2 = APVGain::FetchMonitor(v2, (*rawid)[i]);
+    for(unsigned int m=0; m<cmon2.size(); m++) cmon2[m]->Fill(( (double) mCharge2 )/(*path)[i]);
+
+    std::vector<MonitorElement*>& v3 = Charge_3[elepos];
+    std::vector<MonitorElement*> cmon3 = APVGain::FetchMonitor(v3, (*rawid)[i]);
+    for(unsigned int m=0; m<cmon3.size(); m++) cmon3[m]->Fill(( (double) mCharge3 )/(*path)[i]);
+
+    std::vector<MonitorElement*>& v4 = Charge_4[elepos];
+    std::vector<MonitorElement*> cmon4 = APVGain::FetchMonitor(v4, (*rawid)[i]);
+    for(unsigned int m=0; m<cmon4.size(); m++) cmon4[m]->Fill(( (double) mCharge4 )/(*path)[i]);
+
+
+    if(APV->SubDet==StripSubdetector::TIB){
+      (Charge_Vs_PathlengthTIB[elepos])->Fill((*path)[i],Charge);  // TIB
+
+    }else if(APV->SubDet==StripSubdetector::TOB){
+      (Charge_Vs_PathlengthTOB[elepos])->Fill((*path)[i],Charge);  // TOB
+
+    }else if(APV->SubDet==StripSubdetector::TID){
+      if(APV->Eta<0)     { (Charge_Vs_PathlengthTIDM[elepos])->Fill((*path)[i],Charge); }  // TID minus
+      else if(APV->Eta>0){ (Charge_Vs_PathlengthTIDP[elepos])->Fill((*path)[i],Charge); }  // TID plus
+
     }else if(APV->SubDet==StripSubdetector::TEC){
       if(APV->Eta<0){
-	if(APV->Thickness<0.04){          
-	  (Charge_Vs_PathlengthTECM1[elepos])->Fill((*path)[i],Charge);
-	}else if(APV->Thickness>0.04){          
-	  (Charge_Vs_PathlengthTECM2[elepos])->Fill((*path)[i],Charge);
-	}
-      }else if(APV->Eta>0){
-	if(APV->Thickness<0.04){          
-	  (Charge_Vs_PathlengthTECP1[elepos])->Fill((*path)[i],Charge);
-	}else if(APV->Thickness>0.04){          
-	  (Charge_Vs_PathlengthTECP2[elepos])->Fill((*path)[i],Charge);
-	}
+        if(APV->Thickness<0.04)     { (Charge_Vs_PathlengthTECM1[elepos])->Fill((*path)[i],Charge); } // TEC minus, type 1
+        else if(APV->Thickness>0.04){ (Charge_Vs_PathlengthTECM2[elepos])->Fill((*path)[i],Charge); } // TEC minus, type 2
+      } else if(APV->Eta>0){
+        if(APV->Thickness<0.04)     { (Charge_Vs_PathlengthTECP1[elepos])->Fill((*path)[i],Charge); } // TEC plus, type 1
+        else if(APV->Thickness>0.04){ (Charge_Vs_PathlengthTECP2[elepos])->Fill((*path)[i],Charge); } // TEC plus, type 2
       }
-    } 
+    }
+
   }// END OF ON-CLUSTER LOOP
 
   LogDebug("SiStripGainsPCLWorker")<<" for mode"<< m_calibrationMode 
@@ -483,5 +534,29 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   Charge_Vs_PathlengthTECP2[elepos] = ibooker.book2S(cvpTECP2.c_str(), cvpTECP2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTECM1[elepos] = ibooker.book2S(cvpTECM1.c_str(), cvpTECM1.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTECM2[elepos] = ibooker.book2S(cvpTECM2.c_str(), cvpTECM2.c_str(), 20   , 0.3 , 1.3  , 250,0,2000);
-  
+
+  std::vector<std::pair<std::string,std::string>> hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"");
+  for (unsigned int i=0;i<hnames.size();i++){
+    std::string htag = (hnames[i]).first + stag;
+    Charge_1[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+  }
+
+  hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
+  for (unsigned int i=0;i<hnames.size();i++){
+    std::string htag = (hnames[i]).first + stag;
+    Charge_2[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+  }
+
+  hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1");
+  for (unsigned int i=0;i<hnames.size();i++){
+    std::string htag = (hnames[i]).first + stag;
+    Charge_3[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+  }
+
+  hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1G2");
+  for (unsigned int i=0;i<hnames.size();i++){
+    std::string htag = (hnames[i]).first + stag;
+    Charge_4[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+  }
+
 }
