@@ -7,7 +7,6 @@ import collections
 
 from operator import itemgetter, methodcaller
 
-from Validation.RecoTrack.plotting.ntupleDetId import *
 from Validation.RecoTrack.plotting.ntupleDataFormat import *
 
 # Common track-track matching by hits (=clusters)
@@ -769,7 +768,7 @@ class _RecHitPrinter(_IndentPrinter):
                         matched += " "+",".join(matches)
 
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
-            detId = parseDetId(hit.detId())
+            detId = hit.detIdParsed()
             lst.append(self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched))
         return lst
 
@@ -1098,7 +1097,7 @@ class TrackingParticlePrinter(_IndentPrinter):
         if self._hits:
             lst.append(self._prefix+" sim hits"+_hitPatternSummary(tp.simHits()))
             for simhit in tp.simHits():
-                detId = parseDetId(simhit.detId())
+                detId = simhit.detIdParsed()
                 tmp = []
                 for h in simhit.hits():
                     tmp.append(",".join([str(trk.index()) for trk in h.tracks()]) + ":%d"%h.index())

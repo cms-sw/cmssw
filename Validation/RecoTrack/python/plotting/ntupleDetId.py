@@ -1,149 +1,61 @@
+import collections
+
+from Validation.RecoTrack.plotting.plotting import _th1ToOrderedDict
 from Validation.RecoTrack.plotting.ntupleEnum import *
 
-class Detector:
-#    class Phase0: pass # not supported yet
-    class Phase1: pass
-    class Phase2: pass
+class DetId:
+    def __init__(self, detid, contentDict):
+        self._contentDict = contentDict
 
-    def __init__(self):
-        self._detector = self.Phase1
+        self.detid = detid
+        for name, value in contentDict.iteritems():
+            setattr(self, name, value)
 
-    def set(self, det):
-        self._detector = det
+        # exclude these from printout
+        del self._contentDict["det"]
+        del self._contentDict["subdet"]
 
-    def get(self):
-        return self._detector
+    def __str__(self):
+        return " ".join(["%s %d" % tpl for tpl in self._contentDict.iteritems()])
 
-detector = Detector()
+class _SubDetIdParser:
+    def __init__(self, th1, entries):
+        d = _th1ToOrderedDict(th1)
+        self._entries = entries
+        for e in entries:
+            setattr(self, "_%sStartBit"%e, int(d[e+"StartBit"][0]))
+            setattr(self, "_%sMask"%e, int(d[e+"Mask"][0]))
 
+    def parse(self, detid, det, subdet):
+        d = collections.OrderedDict()
 
-# From DataFormats/DetId/interface/DetId.h
-class DetId(object):
-    def __init__(self, *args, **kwargs):
-        super(DetId, self).__init__()
-        if len(args) == 1 and len(kwargs) == 0:
-            self.detid = args[0]
-        else:
-            self.detid = kwargs["detid"]
-        self.det = (self.detid >> 28) & 0xF
-        self.subdet = (self.detid >> 25) & 0x7
-# From Geometry/TrackerNumberingBuilder/README.md
-class _Side(DetId):
-    SideMinus = 1
-    SidePlus = 2
-    def __init__(self, *args, **kwargs):
-        super(_Side, self).__init__(*args, **kwargs)
-class _ModuleType(DetId):
-    TypePair = 0
-    TypeStereo = 1
-    TypeRPhi = 2
-    def __init__(self, *args, **kwargs):
-        super(_ModuleType, self).__init__(*args, **kwargs)
-        self.moduleType = self.detid & 0x3
-class BPixDetIdPhase1(DetId):
-    def __init__(self, detid):
-        super(BPixDetIdPhase1, self).__init__(detid=detid)
-        self.layer = (detid >> 20) & 0xF
-        self.ladder = (detid >> 12) & 0xFF
-        self.module = (detid >> 2) & 0x3FF
-    def __str__(self):
-        return "layer %d ladder %d module %d" % (self.layer, self.ladder, self.module)
-class FPixDetIdPhase1(_Side, DetId):
-    PanelForward = 1
-    PanelBackward = 2
-    def __init__(self, detid):
-        super(FPixDetIdPhase1, self).__init__(detid=detid)
-        self.side = (detid >> 23) & 0x3
-        self.disk = (detid >> 18) & 0xF
-        self.blade = (detid >> 12) & 0x3F
-        self.panel = (detid >> 10) & 0x3
-        self.module = (detid >> 2) & 0xFF
-    def __str__(self):
-        return "side %d disk %d blade %d panel %d" % (self.side, self.disk, self.blade, self.panel)
-class TIBDetId(_Side, _ModuleType, DetId):
-    OrderInternal = 1
-    OrderExternal = 2
-    def __init__(self, detid):
-        super(TIBDetId, self).__init__(detid=detid)
-        self.layer = (detid >> 14) & 0x7
-        self.side = (detid >> 12) & 0x3
-        self.order = (detid >> 10) & 0x3
-        self.string = (detid >> 4) & 0x3F
-        self.module = (detid >> 2) & 0x3
-    def __str__(self):
-        return "layer %d order %d string %d module %d" % (self.layer, self.order, self.string, self.module)
-class TIDDetId(_Side, _ModuleType, DetId):
-    OrderBack = 1
-    OrderFront = 1
-    def __init__(self, detid):
-        super(TIDDetId, self).__init__(detid=detid)
-        self.side = (detid >> 13) & 0x3
-        self.disk = (detid >> 11) & 0x3
-        self.ring = (detid >> 9) & 0x3
-        self.order = (detid >> 7) & 0x3
-        self.module = (detid >> 2) & 0x1F
-    def __str__(self):
-        return "side %d disk %d ring %d order %d module %d" % (self.side, self.disk, self.ring, self.order, self.module)
-class TOBDetId(_Side, _ModuleType, DetId):
-    def __init__(self, detid):
-        super(TOBDetId, self).__init__(detid=detid)
-        self.layer = (detid >> 14) & 0x7
-        self.side = (detid >> 12) & 0x3
-        self.rod = (detid >> 5) & 0x7F
-        self.module = (detid >> 2) & 0x7
-    def __str__(self):
-        return "layer %d rod %d module %d" % (self.layer, self.rod, self.module)
-class TECDetId(_Side, _ModuleType, DetId):
-    OrderBack = 1
-    OrderFront = 1
-    def __init__(self, detid):
-        super(TECDetId, self).__init__(detid=detid)
-        self.side = (detid >> 18) & 0x3
-        self.wheel = (detid >> 14) & 0xF
-        self.order = (detid >> 12) & 0x3
-        self.petal = (detid >> 8) & 0xF
-        self.ring = (detid >> 5) & 0x7
-        self.module = (detid >> 2) & 0x7
-    def __str__(self):
-        return "side %d wheel %d order %d petal %d ring %d module %d" % (self.side, self.wheel, self.order, self.petal, self.ring, self.module)
-class TIDDetIdPhase2(_Side, DetId):
-    PanelForward = 1
-    PanelBackward = 1
-    def __init__(self, detid):
-        super(TIDDetIdPhase2, self).__init__(detid=detid)
-        self.side = (detid >> 23) & 0x3
-        self.disk = (detid >> 18) & 0xF
-        self.ring = (detid >> 12) & 0x3F
-        self.panel = (detid >> 10) & 0x3
-        self.module = (detid >> 2) & 0xFF
-    def __str__(self):
-        return "side %d disk %d ring %d panel %d" % (self.side, self.disk, self.ring, self.panel)
-class TOBDetIdPhase2(DetId):
-    def __init__(self, detid):
-        super(TOBDetIdPhase2, self).__init__(detid=detid)
-        self.layer = (detid >> 20) & 0xF
-        self.side = (detid >> 18) & 0x3
-        self.ladder = (detid >> 10) & 0xFF
-        self.module = (detid >> 2) & 0x3FF
-    def __str__(self):
-        return "layer %d side %d ladder %d module %d" % (self.layer, self.side, self.ladder, self.module)
+        d["det"] = det
+        d["subdet"] = subdet
 
-def parseDetId(detid):
-    subdet = DetId(detid).subdet
-    if detector.get() == Detector.Phase1:
-        if subdet == SubDet.BPix: return BPixDetIdPhase1(detid)
-        if subdet == SubDet.FPix: return FPixDetIdPhase1(detid)
-        if subdet == SubDet.TIB: return TIBDetId(detid)
-        if subdet == SubDet.TID: return TIDDetId(detid)
-        if subdet == SubDet.TOB: return TOBDetId(detid)
-        if subdet == SubDet.TEC: return TECDetId(detid)
-        raise Exception("Got unknown subdet %d" % subdet)
-    elif detector.get() == Detector.Phase2:
-        if subdet == SubDet.BPix: return BPixDetIdPhase1(detid)
-        if subdet == SubDet.FPix: return FPixDetIdPhase1(detid)
-        if subdet == SubDet.TIB: raise Exception("TIB not included in subDets for Phase2")
-        if subdet == SubDet.TID: return TIDDetIdPhase2(detid)
-        if subdet == SubDet.TOB: return TOBDetIdPhase2(detid)
-        if subdet == SubDet.TEC: raise Exception("TEC not included in subDets for Phase2")
-        raise Exception("Got unknown subdet %d" % subdet)
-    raise Exception("Supporting only phase1 and phase2 DetIds at the moment")
+        for e in self._entries:
+            startBit = getattr(self, "_%sStartBit" % e)
+            mask = getattr(self, "_%sMask" % e)
+            d[e] = (detid >> startBit) & mask
+
+        return DetId(detid, d)
+
+class DetIdParser:
+    def __init__(self, tdirectory):
+        self._parsers = {
+            SubDet.BPix: _SubDetIdParser(tdirectory.Get("pbVals"), ["layer", "ladder", "module"]),
+            SubDet.FPix: _SubDetIdParser(tdirectory.Get("pfVals"), ["side", "disk", "blade", "panel", "module"]),
+            SubDet.TIB: _SubDetIdParser(tdirectory.Get("tibVals"), ["layer", "str_fw_bw", "str_int_ext", "str", "module", "ster"]),
+            SubDet.TID: _SubDetIdParser(tdirectory.Get("tidVals"), ["side", "wheel", "ring", "module_fw_bw", "module", "ster"]),
+            SubDet.TOB: _SubDetIdParser(tdirectory.Get("tobVals"), ["layer", "rod_fw_bw", "rod", "module", "ster"]),
+            SubDet.TEC: _SubDetIdParser(tdirectory.Get("tecVals"), ["side", "wheel", "petal_fw_bw", "petal", "ring", "module", "ster"]),
+        }
+
+    def parse(self, detid):
+        det = (detid >> 28) & 0xF
+        subdet = (detid >> 25) & 0x7
+
+        try:
+            parser = self._parsers[subdet]
+        except KeyError:
+            raise Exception("Got unknown subdet %d" % subdet)
+        return parser.parse(detid, det, subdet)
