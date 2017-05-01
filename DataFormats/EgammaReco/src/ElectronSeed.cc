@@ -57,10 +57,10 @@ void ElectronSeed::initTwoHitSeed(const char hitMask)
 
   std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
   if(hitNrs.size()!=2){
-    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
+    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2"<<" mask "<<static_cast<int>(hitMask)<<std::endl;
   }
   if(hitNrs[0]>=nHits() || hitNrs[1]>=nHits()){
-    throw cms::Exception("LogicError") <<" hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<nHits();
+    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<nHits();
   }
   for(size_t hitNr=0;hitNr<hitInfo_.size();hitNr++){
     auto& info = hitInfo_[hitNr];
@@ -110,23 +110,27 @@ ElectronSeed::createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
 			    const float dRZ1Pos,const float dRZ1Neg,
 			    const float dPhi2Pos,const float dPhi2Neg,
 			    const float dRZ2Pos,const float dRZ2Neg,
-			    const char hitMask,const edm::OwnVector<TrackingRecHit>& hits)
+			    const char hitMask,const TrajectorySeed::range recHits)
 {
+  if(hitMask==0) return std::vector<ElectronSeed::PMVars>(); //was trackerDriven so no matched hits
+
+  size_t nrRecHits = std::distance(recHits.first,recHits.second);
   std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
+
   if(hitNrs.size()!=2){
-    throw cms::Exception("LogicError") <<" number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ElectronSeeds should have exactly 2"<<std::endl;
+    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": number of hits in hit mask is "<<nrRecHits<<", pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2, mask "<<static_cast<int>(hitMask)<<std::endl;
   }
-  if(hitNrs[0]>=hits.size() || hitNrs[1]>=hits.size()){
-    throw cms::Exception("LogicError") <<" hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<hits.size();
+  if(hitNrs[0]>=nrRecHits || hitNrs[1]>=nrRecHits){
+    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": hits are "<<hitNrs[0]<<" and "<<hitNrs[1]<<" while number of hits are "<<nrRecHits<<" this means there was a bug in storing or creating the electron seeds, hit mask :"<<static_cast<int>(hitMask)<<std::endl;
   }
   
   std::vector<PMVars> hitInfo(2);
   hitInfo[0].setDPhi(dPhi1Pos,dPhi1Neg);
   hitInfo[0].setDRZ(dRZ1Pos,dRZ1Neg);
-  hitInfo[0].setDet(hits[hitNrs[0]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  hitInfo[0].setDet((recHits.first+hitNrs[0])->geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   hitInfo[1].setDPhi(dPhi2Pos,dPhi2Neg);
   hitInfo[1].setDRZ(dRZ2Pos,dRZ2Neg);
-  hitInfo[1].setDet(hits[hitNrs[1]].geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
+  hitInfo[1].setDet((recHits.first+hitNrs[1])->geographicalId(),-1); //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   return hitInfo;
 
 }

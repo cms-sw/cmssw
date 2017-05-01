@@ -154,8 +154,8 @@ namespace reco
     static std::vector<PMVars> createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
 					     const float dRZ1Pos,const float dRZ1Neg,
 					     const float dPhi2Pos,const float dPhi2Neg,
-					     const float dRZ2Pos,const float dRZ2Neg,
-					     const char hitMask,const edm::OwnVector<TrackingRecHit>& hits);
+					     const float dRZ2Pos,const float dRZ2Neg, 
+					     const char hitMask,const TrajectorySeed::range recHits);
     
   private:
 
