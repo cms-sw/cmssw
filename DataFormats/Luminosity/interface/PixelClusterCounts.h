@@ -14,7 +14,10 @@
 #include <iostream>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
+
 
 namespace reco {
 class PixelClusterCounts {
@@ -22,17 +25,17 @@ class PixelClusterCounts {
     public:
         PixelClusterCounts() : m_events(LumiConstants::numBX){}
 
-        void increment(int mD,int bxID,int count){
+        void increment(int mD,unsigned int bxID,int count){
             size_t modIndex = std::distance(m_ModID.begin(), std::find(m_ModID.begin(), m_ModID.end(), mD));
             if (modIndex == m_ModID.size()){
                 m_ModID.push_back(mD);
                 m_counts.resize(m_counts.size()+LumiConstants::numBX, 0);
             }
-            m_counts[LumiConstants::numBX*modIndex+bxID] += count; 
+            m_counts.at(LumiConstants::numBX*modIndex+bxID-1) += count; 
         }
 
-        void eventCounter(int bxID){
-            m_events[bxID]++;
+        void eventCounter(unsigned int  bxID){
+                m_events.at(bxID-1)++;
         }
 
         std::vector<int> const & readCounts() const {
