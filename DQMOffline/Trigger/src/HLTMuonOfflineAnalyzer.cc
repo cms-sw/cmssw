@@ -144,10 +144,8 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   set<string> hltPaths;
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     TPRegexp pattern(hltPathsToCheck_[i]);
-    cout << hltPathsToCheck_[i] << endl;
     for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++){
       if (TString(hltConfig_.triggerNames()[j]).Contains(pattern)){
-	cout << "+ " << hltConfig_.triggerNames()[j] << endl;
         hltPaths.insert(hltConfig_.triggerNames()[j]);
       }
     }
@@ -158,7 +156,6 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   vector<string>::const_iterator ilabel;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
-    cout << "the path " << path << endl;
     vector<string> labels = moduleLabels(path);
     bool isLastLabel = false;
     for (ilabel = labels.begin(); ilabel != labels.end(); ilabel++) {
