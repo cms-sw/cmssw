@@ -19,8 +19,6 @@ Implementation:
 
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -164,8 +162,8 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    towerMapName(iConfig.getUntrackedParameter<std::string>("towerMapName", "defaultMap.json"))
 
 {
-   produces<l1slhc::L1EGCrystalClusterCollection>("EGCrystalCluster");
-   produces<l1extra::L1EmParticleCollection>("EGammaCrystal");
+   produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterNoCuts");
+   produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterWithCuts");
    
    // Get tower mapping
    if (useTowerMap) {
@@ -350,8 +348,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    }
 
    // Cluster containters
-   std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> trigCrystalClusters (new l1slhc::L1EGCrystalClusterCollection );
-   std::unique_ptr<l1extra::L1EmParticleCollection> l1EGammaCrystal( new l1extra::L1EmParticleCollection );
+   std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterNoCuts (new l1slhc::L1EGCrystalClusterCollection );
+   std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterWithCuts( new l1slhc::L1EGCrystalClusterCollection );
    
    // Clustering algorithm
    while(true)
@@ -658,7 +656,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       cluster.SetCrystalPtInfo(crystalPt);
       params["crystalCount"] = crystalPt.size();
       cluster.SetExperimentalParams(params);
-      trigCrystalClusters->push_back(cluster);
+      L1EGXtalClusterNoCuts->push_back(cluster);
 
 
       // Save clusters with some cuts
@@ -666,13 +664,13 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       {
          // Optional min. Et cut
          if ( cluster.pt() >= EtminForStore ) {
-            l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+            L1EGXtalClusterWithCuts->push_back(cluster);
          }
       }
    }
 
-   iEvent.put(std::move(trigCrystalClusters),"EGCrystalCluster");
-   iEvent.put(std::move(l1EGammaCrystal), "EGammaCrystal" );
+   iEvent.put(std::move(L1EGXtalClusterNoCuts),"L1EGXtalClusterNoCuts");
+   iEvent.put(std::move(L1EGXtalClusterWithCuts), "L1EGXtalClusterWithCuts" );
 }
 
 bool
