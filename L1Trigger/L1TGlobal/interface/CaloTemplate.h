@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - exted for indexing
  *
  * $Date$
  * $Revision$
@@ -59,6 +60,8 @@ public:
     {
       unsigned int etLowThreshold;
       unsigned int etHighThreshold;
+      unsigned int indexLow;
+      unsigned int indexHigh;
       unsigned int etaRange;
       unsigned int phiRange;
 

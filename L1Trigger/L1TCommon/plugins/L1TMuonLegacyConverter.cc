@@ -72,6 +72,8 @@ L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
 
    // moving inputTag here
    muonSource_InputTag = iConfig.getParameter<edm::InputTag>("muonSource");
+   produceMuonParticles_ = iConfig.getUntrackedParameter<bool>("produceMuonParticles");  
+   centralBxOnly_ = iConfig.getUntrackedParameter<bool>("centralBxOnly");
 
    produces<MuonBxCollection>("imdMuonsLegacy");
    muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
@@ -106,6 +108,11 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 
    std::unique_ptr< MuonBxCollection > imdMuonsLegacy( new MuonBxCollection() );
 
+   LogDebug("L1TMuonLegacyConverter")
+	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	
    if( produceMuonParticles_ )
    {
       ESHandle< L1MuTriggerScales > muScales ;
@@ -114,13 +121,15 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
       ESHandle< L1MuTriggerPtScale > muPtScale ;
       iSetup.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
 
-      Handle< L1MuGMTReadoutCollection > hwMuCollection ;
-      iEvent.getByToken( muonSource_InputToken, hwMuCollection ) ;
+      Handle< L1MuGMTReadoutCollection > simMuCollection ;
+      iEvent.getByToken( muonSource_InputToken, simMuCollection ) ;
 
-      vector< L1MuGMTExtendedCand > hwMuCands ;
+      vector< L1MuGMTExtendedCand > simMuCands ;
 
-      if( !hwMuCollection.isValid() )
+
+      if( !simMuCollection.isValid() )
 	{
+
 	  LogDebug("L1TMuonLegacyConverter")
 	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
 	    << "\nrequested in configuration, but not found in the event."
@@ -131,12 +140,12 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 	  if( centralBxOnly_ )
 	    {
 	      // Get GMT candidates from central bunch crossing only
-	      hwMuCands = hwMuCollection->getRecord().getGMTCands() ;
+	      simMuCands = simMuCollection->getRecord().getGMTCands() ;
 	    }
 	  else
 	    {
 	      // Get GMT candidates from all bunch crossings
-	      vector< L1MuGMTReadoutRecord > records = hwMuCollection->getRecords();
+	      vector< L1MuGMTReadoutRecord > records = simMuCollection->getRecords();
 	      vector< L1MuGMTReadoutRecord >::const_iterator rItr = records.begin();
 	      vector< L1MuGMTReadoutRecord >::const_iterator rEnd = records.end();
 
@@ -144,44 +153,31 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 		{
 		  vector< L1MuGMTExtendedCand > tmpCands = rItr->getGMTCands() ;
 
-		  hwMuCands.insert( hwMuCands.end(),
+		  simMuCands.insert( simMuCands.end(),
 				    tmpCands.begin(),
 				    tmpCands.end() ) ;
 		}
 	    }
 
-//       cout << "HW muons" << endl ;
-	  vector< L1MuGMTExtendedCand >::const_iterator muItr = hwMuCands.begin() ;
-	  vector< L1MuGMTExtendedCand >::const_iterator muEnd = hwMuCands.end() ;
+	  vector< L1MuGMTExtendedCand >::const_iterator muItr = simMuCands.begin() ;
+	  vector< L1MuGMTExtendedCand >::const_iterator muEnd = simMuCands.end() ;
 	  for( int i = 0 ; muItr != muEnd ; ++muItr, ++i )
 	    {
-// 	 cout << "#" << i
-// 	      << " name " << muItr->name()
-// 	      << " empty " << muItr->empty()
-// 	      << " pt " << muItr->ptIndex()
-// 	      << " eta " << muItr->etaIndex()
-// 	      << " phi " << muItr->phiIndex()
-// 	      << " iso " << muItr->isol()
-// 	      << " mip " << muItr->mip()
-// 	      << " bx " << muItr->bx()
-// 	      << endl ;
-
+  
 	      if( !muItr->empty() ){
-		  // keep x and y components non-zero and protect against roundoff.
-		  double pt = muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
-		  double eta = muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-		  double phi = muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+		  	// keep x and y components non-zero and protect against roundoff.
+		  	double pt = muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
+		  	std::cout << "pt from muPtScale = " << pt << std::endl; 
+		  	double eta = muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
+		  	double phi = muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
-		  math::PtEtaPhiMLorentzVector p4( pt,
+     		math::PtEtaPhiMLorentzVector p4( pt,
 						   eta,
 						   phi,
 						   muonMassGeV_ ) ;
 
-		// from L1TMuonProducer.cc - which is the stage2 muon producer:
-		// Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), iso, mu->tfMuonIndex(), 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
-
-		  Muon outMu{p4, (int)muItr->ptIndex(), (int)muItr->etaIndex(), (int)muItr->phiIndex(), (int)muItr->quality(), muItr->charge(), muItr->isol(), (int)muItr->etaRegionIndex(), 0, true, 0, 0, 0 , (int)muItr->rank() };
-		  imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
+		    Muon outMu{p4, (int)0, (int)0, (int)0, (int)muItr->quality(), (int)muItr->charge(), (int)muItr->charge_valid() , (int)muItr->isol(), (int)0 , (int)0, true, (int)0, (int)0, (int)0 , (int)muItr->rank() };
+		    imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
 		}
 	    }
 	}

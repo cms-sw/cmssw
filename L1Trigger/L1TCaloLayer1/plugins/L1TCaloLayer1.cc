@@ -81,9 +81,13 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   std::string hcalTPSourceLabel;
   
-  std::vector< std::vector< std::vector < uint32_t > > > ecalLUT;
-  std::vector< std::vector< std::vector < uint32_t > > > hcalLUT;
-  std::vector< std::vector< uint32_t > > hfLUT;
+  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > ecalLUT;
+  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > hcalLUT;
+  std::vector< std::vector< std::vector< uint32_t > > > hfLUT;
+
+  std::vector< unsigned int > ePhiMap;
+  std::vector< unsigned int > hPhiMap;
+  std::vector< unsigned int > hfPhiMap;
 
   std::vector< UCTTower* > twrList;
 
@@ -117,9 +121,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   ecalTPSourceLabel(iConfig.getParameter<edm::InputTag>("ecalToken").label()),
   hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
   hcalTPSourceLabel(iConfig.getParameter<edm::InputTag>("hcalToken").label()),
-  ecalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
-  hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
-  hfLUT(12, std::vector < uint32_t >(256)),
+  ePhiMap(72*2, 0),
+  hPhiMap(72*2, 0),
+  hfPhiMap(72*2, 0),
   useLSB(iConfig.getParameter<bool>("useLSB")),
   useCalib(iConfig.getParameter<bool>("useCalib")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
@@ -305,13 +309,25 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
+    ecalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
+    hcalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
+    hfLUT.push_back(std::vector< std::vector< uint32_t > >(12, std::vector< uint32_t >(256)));
   }
   for(uint32_t twr = 0; twr < twrList.size(); twr++) {
-    twrList[twr]->setECALLUT(&ecalLUT);
-    twrList[twr]->setHCALLUT(&hcalLUT);
-    twrList[twr]->setHFLUT(&hfLUT);
+    // Map goes minus 1 .. 72 plus 1 .. 72 -> 0 .. 143
+    int iphi = twrList[twr]->caloPhi();
+    int ieta = twrList[twr]->caloEta();
+    if (ieta<0) {
+      iphi -= 1;
+    }
+    else {
+      iphi += 71;
+    }
+    twrList[twr]->setECALLUT(&ecalLUT[ePhiMap[iphi]]);
+    twrList[twr]->setHCALLUT(&hcalLUT[hPhiMap[iphi]]);
+    twrList[twr]->setHFLUT(&hfLUT[hfPhiMap[iphi]]);
   }
 }
 
