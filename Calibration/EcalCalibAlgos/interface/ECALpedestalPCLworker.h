@@ -55,8 +55,10 @@ private:
 
     uint32_t pedestalSamples_ ; // number of presamples to be used for pedestal determination    
     bool     checkSignal_;      // avoid frames containing a signal
-    uint32_t  sThreshold_ ;     // if checkSignal = true threshold (in adc count) above which we'll assume 
+    uint32_t  sThresholdEB_  ;  // if checkSignal = true threshold (in adc count) above which we'll assume 
                                 // there's signal and not just pedestal
+
+    uint32_t  sThresholdEE_  ;
 
     bool dynamicBooking_;       // use old pedestal to book histograms
     int fixedBookingCenterBin_; // if dynamicBooking_ = false, use this as bin center
