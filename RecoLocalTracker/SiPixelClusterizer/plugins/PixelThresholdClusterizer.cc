@@ -123,6 +123,7 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   //  on the way, and store them in theSeeds.
   copy_to_buffer(begin, end);
   
+  assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   //  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
   for (unsigned int i = 0; i < theSeeds.size(); i++) 
@@ -140,11 +141,15 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
 	  if ( cluster.charge() >= theClusterThreshold) 
 	    {
 	      // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
-	      output.push_back( std::move(cluster) );
+              // sort by row (x)
+	      output.push_back( std::move(cluster) ); 
+              std::push_heap(output.begin(),output.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
 	    }
 	}
     }
-  
+  // sort by row (x)   maybe sorting the seed would suffice....
+  std::sort_heap(output.begin(),output.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
+
   // Erase the seeds.
   theSeeds.clear();
   
@@ -458,6 +463,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
       if ( first_cluster.charge() >= theClusterThreshold && have_second_cluster) 
 	{
 	  output.push_back( first_cluster );
+          std::push_heap(output.begin(),output.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
 	}
     }
   
