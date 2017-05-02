@@ -164,7 +164,7 @@ int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCo
 						reco::SuperClusterRef& candSCRef)const
 {
   int nrMatch=0;
-  for(reco::ElectronSeedCollection::const_iterator seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
+  for(auto seedIt = eleSeeds->begin(); seedIt != eleSeeds->end(); seedIt++){
     edm::RefToBase<reco::CaloCluster> caloCluster = seedIt->caloCluster() ;
     reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
     if(&(*candSCRef) ==  &(*scRef)){
