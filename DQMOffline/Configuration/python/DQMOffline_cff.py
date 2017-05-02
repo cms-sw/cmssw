@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
-from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalTasks.OfflineSourceSequence_pp import *
@@ -75,7 +74,7 @@ HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
-                           dqmFastTimerServiceLuminosity *
+                           # dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
