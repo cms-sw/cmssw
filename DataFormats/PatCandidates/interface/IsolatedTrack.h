@@ -45,19 +45,27 @@ namespace pat {
 
         ~IsolatedTrack() {}
 
-        Isolation isolationDR03(){ return isolationDR03_; }
+        Isolation isolationDR03() const  { return isolationDR03_; }
+        float chargedHadronIso() const   { return isolationDR03_.chiso; }
+        float neutralHadronIso() const   { return isolationDR03_.nhiso; }
+        float photonIso() const          { return isolationDR03_.phiso; }
+        float puChargedHadronIso() const { return isolationDR03_.puiso; }
         void setIsolationDR03(float ch, float nh, float ph, float pu){ isolationDR03_={ch, nh, ph, pu}; }
 
-        MiniIsolation miniPFIsolation(){ return miniIsolation_; }
+        MiniIsolation miniPFIsolation() const { return miniIsolation_; }
+        float chargedHadronMiniIso() const    { return miniIsolation_.chiso; }
+        float neutralHadronMiniIso() const    { return miniIsolation_.nhiso; }
+        float photonMiniIso() const           { return miniIsolation_.phiso; }
+        float puChargedHadronMiniIso() const  { return miniIsolation_.puiso; }
         void setMiniPFIsolation(MiniIsolation iso){ miniIsolation_ = iso; }
 
-        float dz(){ return dz_; }
+        float dz() const { return dz_; }
         void setDz(float dz){ dz_=dz; }
 
-        float dxy(){ return dxy_; }
+        float dxy() const { return dxy_; }
         void setDxy(float dxy){ dxy_=dxy; }
         
-        PackedCandidatePtr refToCand(){ return refToCand_; }
+        PackedCandidatePtr refToCand() const { return refToCand_; }
         void setPackedCandRef(PackedCandidatePtr ref){ refToCand_ = ref; }
 
       protected:

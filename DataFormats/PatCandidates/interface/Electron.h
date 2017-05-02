@@ -1,4 +1,4 @@
-//
+
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -267,8 +267,13 @@ namespace pat {
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
-
+      
+      // mini-isolation quantities
       MiniIsolation miniPFIsolation() const { return miniPFIsolation_; }
+      float chargedHadronMiniIso() const    { return miniPFIsolation_.chiso; }
+      float neutralHadronMiniIso() const    { return miniPFIsolation_.nhiso; }
+      float photonMiniIso() const           { return miniPFIsolation_.phiso; }
+      float puChargedHadronMiniIso() const  { return miniPFIsolation_.puiso; }
       void setMiniPFIsolation(MiniIsolation mpfi) { miniPFIsolation_ = mpfi; }
 
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
