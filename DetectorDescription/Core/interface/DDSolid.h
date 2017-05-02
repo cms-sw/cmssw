@@ -251,6 +251,21 @@ private:
   DDPolyhedra( void );
 };
 
+class DDExtrudedPolygon : public DDPolySolid
+{
+public:
+  DDExtrudedPolygon( const DDSolid & s );
+  std::vector<double> xVec( void ) const;
+  std::vector<double> yVec( void ) const;
+  std::vector<double> zVec( void ) const;
+  std::vector<double> zxVec( void ) const;
+  std::vector<double> zyVec( void ) const;
+  std::vector<double> zscaleVec( void ) const;
+
+private:
+  DDExtrudedPolygon( void );
+};
+
 class DDTubs : public DDSolid
 {
 public:
@@ -560,6 +575,13 @@ struct DDSolidFactory
 				 double xHalf, double yHalf, double zHalf,
 				 double alpha, double theta, double phi );
 
+  static DDSolid extrudedpolygon( const DDName & name,
+				  const std::vector<double> & x,
+				  const std::vector<double> & y,
+				  const std::vector<double> & z,
+				  const std::vector<double> & zx,
+				  const std::vector<double> & zy,
+				  const std::vector<double> & zscale );
 
   static DDSolid shapeless( const DDName & name );
 

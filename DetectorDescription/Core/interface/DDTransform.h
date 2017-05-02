@@ -1,11 +1,9 @@
 #ifndef DDTransform_h
 #define DDTransform_h
 
-/*! \file */
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-//#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDRotation;
 
@@ -32,9 +30,9 @@ DDRotation DDrot(const DDName & name,
     a DDException will be thrown!
 */    
 DDRotation DDrotReflect(const DDName & name,
-                         double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ);
+			double thetaX, double phiX,
+			double thetaY, double phiY,
+			double thetaZ, double phiZ);
 			 
 
 DDRotation DDrotReflect(const DDName & name,
@@ -53,8 +51,8 @@ DDRotation DDanonymousRot(DDRotationMatrix * rot);
     memory of the returned pointer belongs to the caller
 */
 DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ);
+					  double thetaY, double phiY,
+					  double thetaZ, double phiZ);
 
 //! Represents a uniquely identifyable rotation matrix
 /** An object of this class is a reference-object and thus leightweighted.
@@ -92,13 +90,9 @@ public:
   DDRotationMatrix * rotation()   { return &(rep()); }
   
   DDRotationMatrix * matrix() { return rotation(); }
-  //DDRotationMatrix* unit();
-  
-/*   static void clear(); */
+
 private:  
   DDRotation(DDRotationMatrix*); 
 };
-
-
 			 
 #endif
