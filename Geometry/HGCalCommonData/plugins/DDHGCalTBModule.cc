@@ -28,75 +28,77 @@ void DDHGCalTBModule::initialize(const DDNumericArguments & nArgs,
 				 const DDStringArguments & sArgs,
 				 const DDStringVectorArguments &vsArgs){
   
-  wafer         = vsArgs["WaferName"];
-  covers        = vsArgs["CoverName"];
+  wafer_        = vsArgs["WaferName"];
+  covers_       = vsArgs["CoverName"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: " << wafer.size() << " wafers" << std::endl;
-  for (unsigned int i=0; i<wafer.size(); ++i)
-    std::cout << "Wafer[" << i << "] " << wafer[i] << std::endl;
-  std::cout << "DDHGCalTBModule: " << covers.size() << " covers" << std::endl;
-  for (unsigned int i=0; i<covers.size(); ++i)
-    std::cout << "Cover[" << i << "] " << covers[i] << std::endl;
+  std::cout << "DDHGCalTBModule: " << wafer_.size() << " wafers" << std::endl;
+  unsigned int i(0);
+  for (auto wafer : wafer_) {
+    std::cout << "Wafer[" << i << "] " << wafer << std::endl; ++i;}
+  std::cout << "DDHGCalTBModule: " << covers_.size() << " covers" << std::endl;
+  i = 0;
+  for (auto cover : covers_) {
+    std::cout << "Cover[" << i << "] " << cover << std::endl; ++i;}
 #endif
-  materials     = vsArgs["MaterialNames"];
-  names         = vsArgs["VolumeNames"];
-  thick         = vArgs["Thickness"];
-  for (unsigned int i=0; i<materials.size(); ++i) {
-    copyNumber.push_back(1);
+  materials_    = vsArgs["MaterialNames"];
+  names_        = vsArgs["VolumeNames"];
+  thick_        = vArgs["Thickness"];
+  for (unsigned int i=0; i<materials_.size(); ++i) {
+    copyNumber_.push_back(1);
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: " << materials.size()
+  std::cout << "DDHGCalTBModule: " << materials_.size()
 	    << " types of volumes" << std::endl;
-  for (unsigned int i=0; i<names.size(); ++i)
-    std::cout << "Volume [" << i << "] " << names[i] << " of thickness " 
-	      << thick[i] << " filled with " << materials[i]
-	      << " first copy number " << copyNumber[i] << std::endl;
+  for (unsigned int i=0; i<names_.size(); ++i)
+    std::cout << "Volume [" << i << "] " << names_[i] << " of thickness " 
+	      << thick_[i] << " filled with " << materials_[i]
+	      << " first copy number " << copyNumber_[i] << std::endl;
 #endif
-  layers        = dbl_to_int(vArgs["Layers"]);
-  layerThick    = vArgs["LayerThick"];
+  layers_       = dbl_to_int(vArgs["Layers"]);
+  layerThick_   = vArgs["LayerThick"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: " << layers.size() << " blocks" <<std::endl;
-  for (unsigned int i=0; i<layers.size(); ++i)
-    std::cout << "Block [" << i << "] of thickness "  << layerThick[i] 
-	      << " with " << layers[i] << " layers" << std::endl;
+  std::cout << "DDHGCalTBModule: " << layers_.size() << " blocks" <<std::endl;
+  for (unsigned int i=0; i<layers_.size(); ++i)
+    std::cout << "Block [" << i << "] of thickness "  << layerThick_[i] 
+	      << " with " << layers_[i] << " layers" << std::endl;
 #endif
-  layerType     = dbl_to_int(vArgs["LayerType"]);
-  layerSense    = dbl_to_int(vArgs["LayerSense"]);
+  layerType_    = dbl_to_int(vArgs["LayerType"]);
+  layerSense_   = dbl_to_int(vArgs["LayerSense"]);
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: " << layerType.size() << " layers" 
+  std::cout << "DDHGCalTBModule: " << layerType_.size() << " layers" 
 	    << std::endl;
-  for (unsigned int i=0; i<layerType.size(); ++i)
-    std::cout << "Layer [" << i << "] with material type "  << layerType[i]
-	      << " sensitive class " << layerSense[i] << std::endl;
+  for (unsigned int i=0; i<layerType_.size(); ++i)
+    std::cout << "Layer [" << i << "] with material type "  << layerType_[i]
+	      << " sensitive class " << layerSense_[i] << std::endl;
 #endif
-  zMinBlock     = nArgs["zMinBlock"];
-  rMaxFine      = nArgs["rMaxFine"];
-  waferW        = nArgs["waferW"];
-  waferGap      = nArgs["waferGap"];
-  absorbW       = nArgs["absorberW"];
-  absorbH       = nArgs["absorberH"];
-  sectors       = (int)(nArgs["Sectors"]);
+  zMinBlock_    = nArgs["zMinBlock"];
+  rMaxFine_     = nArgs["rMaxFine"];
+  waferW_       = nArgs["waferW"];
+  waferGap_     = nArgs["waferGap"];
+  absorbW_      = nArgs["absorberW"];
+  absorbH_      = nArgs["absorberH"];
+  sectors_      = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: zStart " << zMinBlock << " rFineCoarse " 
-	    << rMaxFine << " wafer width " << waferW << " gap among wafers "
-	    << waferGap << " absorber width " << absorbW << " absorber height "
-	    << absorbH << " sectors " << sectors << std::endl;
+  std::cout << "DDHGCalTBModule: zStart " << zMinBlock_ << " rFineCoarse " 
+	    << rMaxFine_ << " wafer width " << waferW_ << " gap among wafers "
+	    << waferGap_ << " absorber width " << absorbW_ <<" absorber height "
+	    << absorbH_ << " sectors " << sectors_ << std::endl;
 #endif
-  slopeB        = vArgs["SlopeBottom"];
-  slopeT        = vArgs["SlopeTop"];
-  zFront        = vArgs["ZFront"];
-  rMaxFront     = vArgs["RMaxFront"];
+  slopeB_       = vArgs["SlopeBottom"];
+  slopeT_       = vArgs["SlopeTop"];
+  zFront_       = vArgs["ZFront"];
+  rMaxFront_    = vArgs["RMaxFront"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: Bottom slopes " << slopeB[0] << ":" 
-	    << slopeB[1] << " and " << slopeT.size() << " slopes for top" 
+  std::cout << "DDHGCalTBModule: Bottom slopes " << slopeB_[0] << ":" 
+	    << slopeB_[1] << " and " << slopeT_.size() << " slopes for top" 
 	    << std::endl;
-  for (unsigned int i=0; i<slopeT.size(); ++i)
-    std::cout << "Block [" << i << "] Zmin " << zFront[i] << " Rmax "
-	      << rMaxFront[i] << " Slope " << slopeT[i] << std::endl;
+  for (unsigned int i=0; i<slopeT_.size(); ++i)
+    std::cout << "Block [" << i << "] Zmin " << zFront_[i] << " Rmax "
+	      << rMaxFront_[i] << " Slope " << slopeT_[i] << std::endl;
 #endif
-  idNameSpace   = DDCurrentNamespace::ns();
+  idNameSpace_  = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalTBModule: NameSpace " << idNameSpace << std::endl;
+  std::cout << "DDHGCalTBModule: NameSpace " << idNameSpace_ << std::endl;
 #endif
 }
 
@@ -109,12 +111,12 @@ void DDHGCalTBModule::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   std::cout << "==>> Constructing DDHGCalTBModule..." << std::endl;
 #endif
-  copies.clear();
+  copies_.clear();
   constructLayers (parent(), cpv);
 #ifdef EDM_ML_DEBUG
-  std::cout << copies.size() << " different wafer copy numbers" << std::endl;
+  std::cout << copies_.size() << " different wafer copy numbers" << std::endl;
 #endif
-  copies.clear();
+  copies_.clear();
 #ifdef EDM_ML_DEBUG
   std::cout << "<<== End of DDHGCalTBModule construction ..." << std::endl;
 #endif
@@ -126,75 +128,75 @@ void DDHGCalTBModule::constructLayers(DDLogicalPart module,
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalTBModule test: \t\tInside Layers" << std::endl;
 #endif
-  double       zi(zMinBlock);
+  double       zi(zMinBlock_);
   int          laymin(0);
-  for (unsigned int i=0; i<layers.size(); i++) {
-    double  zo     = zi + layerThick[i];
+  for (unsigned int i=0; i<layers_.size(); i++) {
+    double  zo     = zi + layerThick_[i];
     double  routF  = rMax(zi);
-    int     laymax = laymin+layers[i];
+    int     laymax = laymin+layers_[i];
     double  zz     = zi;
     double  thickTot(0);
     for (int ly=laymin; ly<laymax; ++ly) {
-      int     ii     = layerType[ly];
-      int     copy   = copyNumber[ii];
-      double  rinB   = (layerSense[ly] == 0) ? (zo*slopeB[0]) : (zo*slopeB[1]);
-      zz            += (0.5*thick[ii]);
-      thickTot      += thick[ii];
+      int     ii     = layerType_[ly];
+      int     copy   = copyNumber_[ii];
+      double  rinB   = (layerSense_[ly] == 0) ? (zo*slopeB_[0]) : (zo*slopeB_[1]);
+      zz            += (0.5*thick_[ii]);
+      thickTot      += thick_[ii];
 
-      std::string name = "HGCal"+names[ii]+std::to_string(copy);
+      std::string name = "HGCal"+names_[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       std::cout << "DDHGCalTBModule test: Layer " << ly << ":" << ii 
 		<< " Front " << zi << ", " << routF << " Back " << zo << ", " 
-		<< rinB << " superlayer thickness " << layerThick[i] 
+		<< rinB << " superlayer thickness " << layerThick_[i] 
 		<< std::endl;
 #endif
-      DDName matName(DDSplit(materials[ii]).first, 
-		     DDSplit(materials[ii]).second);
+      DDName matName(DDSplit(materials_[ii]).first, 
+		     DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
       DDLogicalPart glog;
-      if (layerSense[ly] == 0) {
-	DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
-					    absorbW, absorbH, 0.5*thick[ii]);
+      if (layerSense_[ly] == 0) {
+	DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace_),
+					    absorbW_, absorbH_, 0.5*thick_[ii]);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	std::cout << "DDHGCalTBModule test: " << solid.name() 
-		  << " box of dimension " << absorbW << ":" << absorbH
-		  << ":" << 0.5*thick[ii] << std::endl;
+		  << " box of dimension " << absorbW_ << ":" << absorbH_
+		  << ":" << 0.5*thick_[ii] << std::endl;
 #endif
       } else {
-	DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 
-					     0.5*thick[ii], rinB, routF, 0.0,
+	DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace_), 
+					     0.5*thick_[ii], rinB, routF, 0.0,
 					     CLHEP::twopi);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	std::cout << "DDHGCalTBModule test: " << solid.name()
 		  << " Tubs made of " << matName << " of dimensions " << rinB 
-		  << ", " << routF << ", " << 0.5*thick[ii] << ", 0.0, "
+		  << ", " << routF << ", " << 0.5*thick_[ii] << ", 0.0, "
 		  << CLHEP::twopi/CLHEP::deg << std::endl;
 #endif
-	positionSensitive(glog,layerSense[ly],rinB,routF,cpv);
+	positionSensitive(glog,layerSense_[ly],rinB,routF,cpv);
       }
       DDTranslation r1(0,0,zz);
       DDRotation rot;
       cpv.position(glog, module, copy, r1, rot);
-      ++copyNumber[ii];
+      ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       std::cout << "DDHGCalTBModule test: " << glog.name() << " number "
 		<< copy << " positioned in " << module.name() << " at " << r1 
 		<< " with " << rot << std::endl;
 #endif
-      zz += (0.5*thick[ii]);
+      zz += (0.5*thick_[ii]);
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
-    if (fabs(thickTot-layerThick[i]) < 0.00001) {
-    } else if (thickTot > layerThick[i]) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i]
+    if (fabs(thickTot-layerThick_[i]) < 0.00001) {
+    } else if (thickTot > layerThick_[i]) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i]
 				 << " is smaller than thickness " << thickTot
 				 << " of all its components **** ERROR ****\n";
-    } else if (thickTot < layerThick[i]) {
+    } else if (thickTot < layerThick_[i]) {
       edm::LogWarning("HGCalGeom") << "Thickness of the partition " 
-				   << layerThick[i] << " does not match with "
+				   << layerThick_[i] << " does not match with "
 				   << thickTot << " of the components\n";
     }
   }   // End of loop over blocks
@@ -205,9 +207,9 @@ double DDHGCalTBModule::rMax(double z) {
 #ifdef EDM_ML_DEBUG
   unsigned int ik(0);
 #endif
-  for (unsigned int k=0; k<slopeT.size(); ++k) {
-    if (z < zFront[k]) break;
-    r  = rMaxFront[k] + (z - zFront[k]) * slopeT[k];
+  for (unsigned int k=0; k<slopeT_.size(); ++k) {
+    if (z < zFront_[k]) break;
+    r  = rMaxFront_[k] + (z - zFront_[k]) * slopeT_[k];
 #ifdef EDM_ML_DEBUG
     ik = k;
 #endif
@@ -221,7 +223,7 @@ double DDHGCalTBModule::rMax(double z) {
 void DDHGCalTBModule::positionSensitive(DDLogicalPart& glog, int type,
 					double rin, double rout, 
 					DDCompactView& cpv) {
-  double ww   = (waferW+waferGap);
+  double ww   = (waferW_+waferGap_);
   double dx   = 0.5*ww;
   double dy   = 3.0*dx*tan(30.0*CLHEP::deg);
   double rr   = 2.0*dx*tan(30.0*CLHEP::deg);
@@ -260,19 +262,19 @@ void DDHGCalTBModule::positionSensitive(DDLogicalPart& glog, int type,
 	  if (nr < 0) copy += 100000;
 	  DDName name;
 	  if (type == 1) {
-	    name = (rpos < rMaxFine) ? 
-	      DDName(DDSplit(wafer[0]).first, DDSplit(wafer[0]).second) : 
-	      DDName(DDSplit(wafer[1]).first, DDSplit(wafer[1]).second);
+	    name = (rpos < rMaxFine_) ? 
+	      DDName(DDSplit(wafer_[0]).first, DDSplit(wafer_[0]).second) : 
+	      DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
 	  } else {
-	    name = DDName(DDSplit(covers[type-2]).first, 
-			  DDSplit(covers[type-2]).second); 
+	    name = DDName(DDSplit(covers_[type-2]).first, 
+			  DDSplit(covers_[type-2]).second); 
 	  }
 	  cpv.position(name, glog.ddname(), copy, tran, rotation);
 	  if (inc > incm) incm = inc;
 	  if (inr > inrm) inrm = inr;
 	  kount++;
-	  if (copies.count(copy) == 0 && type == 1)
-	    copies.insert(copy);
+	  if (copies_.count(copy) == 0 && type == 1)
+	    copies_.insert(copy);
 #ifdef EDM_ML_DEBUG
 	  std::cout << "DDHGCalTBModule: " << name << " number " << copy
 		    << " positioned in " << glog.ddname() << " at " << tran 
