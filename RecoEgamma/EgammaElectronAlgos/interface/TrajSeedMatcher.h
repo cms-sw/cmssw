@@ -214,7 +214,7 @@ private:
     
 private:
   static constexpr float kElectronMass_ = 0.000511;
-  static constexpr float kPhiCut_ = std::cos(2.5);
+  static constexpr float kPhiCut_ = -0.801144;//cos(2.5)
   std::unique_ptr<PropagatorWithMaterial> forwardPropagator_;
   std::unique_ptr<PropagatorWithMaterial> backwardPropagator_;
   unsigned long long cacheIDMagField_;
