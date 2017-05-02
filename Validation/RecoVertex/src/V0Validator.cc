@@ -262,14 +262,14 @@ void V0Validator::doFakeRates(
                     for (TrackingVertex::tp_iterator iTP =
                              parentVertex->sourceTracks_begin();
                          iTP != parentVertex->sourceTracks_end(); iTP++) {
-                      if ((*iTP)->pdgId() == particle_pdgid) {
+                      if (abs((*iTP)->pdgId()) == particle_pdgid) {
                         CandidateStatus = 1;
                         realCandidateFound++;
                         numCandidateFound += 1.;
                         goodCandidateMass[v0_type]->Fill(mass);
                       } else {
                         CandidateStatus = 2;
-                        if ((*iTP)->pdgId() ==
+                        if (abs((*iTP)->pdgId()) ==
                             misreconstructed_particle_pdgid) {
                           CandidateStatus = 7;
                         }
