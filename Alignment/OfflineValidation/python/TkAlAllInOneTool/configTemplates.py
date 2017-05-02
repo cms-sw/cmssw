@@ -211,7 +211,7 @@ process.TFileService = cms.Service("TFileService",
 ######################################################################
 DefinePath_CommonSelectionRefitting = """
 process.p = cms.Path(
-process.offlineBeamSpot*process.seqTrackselRefit*.oO[ValidationSequence]Oo.)
+process.seqTrackselRefit*.oO[ValidationSequence]Oo.)
 """
 
 ######################################################################
