@@ -31,30 +31,30 @@ protected:
 
 private:
 
-  std::vector<std::string> wafer;         //Wafers
-  std::vector<std::string> covers;        //Insensitive layers of hexagonal size
-  std::vector<std::string> materials;     //Materials
-  std::vector<std::string> names;         //Names
-  std::vector<double>      thick;         //Thickness of the material
-  std::vector<int>         copyNumber;    //Initial copy numbers
-  std::vector<int>         layers;        //Number of layers in a section
-  std::vector<double>      layerThick;    //Thickness of each section
-  std::vector<int>         layerType;     //Type of the layer
-  std::vector<int>         layerSense;    //COntent of a layer (sensitive?)
-  double                   zMinBlock;     //Starting z-value of the block
-  double                   rMaxFine;      //Maximum r-value for fine wafer
-  double                   waferW;        //Width of the wafer
-  double                   waferGap;      //Gap between 2 wafers
-  double                   absorbW;       //Width of the absorber
-  double                   absorbH;       //Height of the absorber
-  int                      sectors;       //Sectors   
-  std::vector<double>      slopeB;        //Slope at the lower R
-  std::vector<double>      slopeT;        //Slopes at the larger R
-  std::vector<double>      zFront;        //Starting Z values for the slopes
-  std::vector<double>      rMaxFront;     //Corresponding rMax's
-  std::string              idName;        //Name of the "parent" volume.  
-  std::string              idNameSpace;   //Namespace of this and ALL sub-parts
-  std::unordered_set<int>  copies;        //List of copy #'s
+  std::vector<std::string> wafer_;         //Wafers
+  std::vector<std::string> covers_;        //Insensitive layers of hexagonal size
+  std::vector<std::string> materials_;     //Materials
+  std::vector<std::string> names_;         //Names
+  std::vector<double>      thick_;         //Thickness of the material
+  std::vector<int>         copyNumber_;    //Initial copy numbers
+  std::vector<int>         layers_;        //Number of layers in a section
+  std::vector<double>      layerThick_;    //Thickness of each section
+  std::vector<int>         layerType_;     //Type of the layer
+  std::vector<int>         layerSense_;    //COntent of a layer (sensitive?)
+  double                   zMinBlock_;     //Starting z-value of the block
+  double                   rMaxFine_;      //Maximum r-value for fine wafer
+  double                   waferW_;        //Width of the wafer
+  double                   waferGap_;      //Gap between 2 wafers
+  double                   absorbW_;       //Width of the absorber
+  double                   absorbH_;       //Height of the absorber
+  int                      sectors_;       //Sectors   
+  std::vector<double>      slopeB_;        //Slope at the lower R
+  std::vector<double>      slopeT_;        //Slopes at the larger R
+  std::vector<double>      zFront_;        //Starting Z values for the slopes
+  std::vector<double>      rMaxFront_;     //Corresponding rMax's
+  std::string              idName_;        //Name of the "parent" volume.  
+  std::string              idNameSpace_;   //Namespace of this and ALL sub-parts
+  std::unordered_set<int>  copies_;        //List of copy #'s
 };
 
 #endif
