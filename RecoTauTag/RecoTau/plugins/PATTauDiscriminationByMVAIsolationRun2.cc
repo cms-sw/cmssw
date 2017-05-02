@@ -15,7 +15,6 @@
 //           - TauPFEssential
 //           - PFRecoTauDiscriminationByMVAIsolationRun2
 //           - Training of BDT
-// todo 2: do we need/want to add PATTauIDEmbedder?
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
