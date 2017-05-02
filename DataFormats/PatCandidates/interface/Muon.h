@@ -244,7 +244,12 @@ namespace pat {
       float pfEcalEnergy() const { return pfEcalEnergy_; }
       void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
 
+      // mini-isolation quantities
       MiniIsolation miniPFIsolation() const { return miniPFIsolation_; }
+      float chargedHadronMiniIso() const    { return miniPFIsolation_.chiso; }
+      float neutralHadronMiniIso() const    { return miniPFIsolation_.nhiso; }
+      float photonMiniIso() const           { return miniPFIsolation_.phiso; }
+      float puChargedHadronMiniIso() const  { return miniPFIsolation_.puiso; }
       void setMiniPFIsolation(MiniIsolation mpfi) { miniPFIsolation_ = mpfi; }
 
     protected:
