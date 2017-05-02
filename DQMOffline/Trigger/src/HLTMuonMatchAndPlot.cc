@@ -125,7 +125,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
     book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
-    book1D(iBooker, "efficiencyDeltaR_" + suffix, "deltaR", ";#Delta R;");
+    book1D(iBooker, "efficiencyDeltaR_" + suffix, "deltaR2", ";#Delta R;");
 
 
    
@@ -164,10 +164,14 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
     book1D(iBooker, "Refefficiency_TurnOn_Mu2_" + suffix, "ptCoarse", ";p_{T};");
     book1D(iBooker, "Refefficiency_Vertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "Refefficiency_DZ_Mu1_" + suffix,  "z0", ";z0;");
+    book1D(iBooker, "Refefficiency_DZ_Mu2_" + suffix,  "z0", ";z0;");
 
     book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
     book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
     book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
+    book1D(iBooker, "MR_Refefficiency_DZ_Mu1_" + suffix,  "z0Fine", ";z0;");
+    book1D(iBooker, "MR_Refefficiency_DZ_Mu2_" + suffix,  "z0Fine", ";z0;");
 
   }
   
@@ -399,6 +403,24 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     hists_["MR_Refefficiency_TurnOn_Mu2_denom"]->Fill( targetMuons.at(1).pt() );
     hists_["Refefficiency_Vertex_denom"]->Fill( vertices->size()        );
     hists_["MR_Refefficiency_Vertex_denom"]->Fill( vertices->size()        );
+
+    const Track * track0 = 0;    const Track * track1 = 0;
+    if (targetMuons.at(0).isTrackerMuon())       track0 = & * targetMuons.at(0).innerTrack();
+    else if (targetMuons.at(0).isTrackerMuon())  track0 = & * targetMuons.at(0).outerTrack();
+    if (targetMuons.at(1).isTrackerMuon())       track1 = & * targetMuons.at(1).innerTrack();
+    else if (targetMuons.at(1).isTrackerMuon())  track1 = & * targetMuons.at(1).outerTrack();
+
+
+    if (track0){
+      hists_["Refefficiency_DZ_Mu1_denom"]->Fill(track0->dz(beamSpot->position()));
+      hists_["MR_Refefficiency_DZ_Mu1_denom"]->Fill(track0->dz(beamSpot->position()));
+    }
+
+    if (track1){
+      hists_["Refefficiency_DZ_Mu2_denom"]->Fill(track1->dz(beamSpot->position()));
+      hists_["MR_Refefficiency_DZ_Mu2_denom"]->Fill(track1->dz(beamSpot->position()));
+    }
+
     
     // numerator:
     if (nMatched > 1){
@@ -410,6 +432,15 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
       hists_["MR_Refefficiency_TurnOn_Mu2_numer"]->Fill( targetMuons.at(1).pt() );
       hists_["Refefficiency_Vertex_numer"    ]->Fill( vertices->size()        );
       hists_["MR_Refefficiency_Vertex_numer"    ]->Fill( vertices->size()        );
+      if (track0){
+	hists_["Refefficiency_DZ_Mu1_numer"]->Fill(track0->dz(beamSpot->position()));
+	hists_["MR_Refefficiency_DZ_Mu1_numer"]->Fill(track0->dz(beamSpot->position()));
+      }
+      if (track1){
+	hists_["Refefficiency_DZ_Mu2_numer"]->Fill(track1->dz(beamSpot->position()));
+	hists_["MR_Refefficiency_DZ_Mu2_numer"]->Fill(track1->dz(beamSpot->position()));
+      }
+
     }
   }
 
