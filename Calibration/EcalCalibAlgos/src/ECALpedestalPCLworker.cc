@@ -22,7 +22,8 @@ ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
 
     pedestalSamples_ = iConfig.getParameter<uint32_t>("pedestalSamples");
     checkSignal_     = iConfig.getParameter<bool>("checkSignal");
-    sThreshold_      = iConfig.getParameter<uint32_t>("sThreshold");
+    sThresholdEB_      = iConfig.getParameter<uint32_t>("sThresholdEB");
+    sThresholdEE_      = iConfig.getParameter<uint32_t>("sThresholdEE");
 
     dynamicBooking_ = iConfig.getParameter<bool>("dynamicBooking");
     fixedBookingCenterBin_ = iConfig.getParameter<int>("fixedBookingCenterBin");
@@ -56,7 +57,7 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (checkSignal_){
             uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
                                *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
-            if ( maxdiff> sThreshold_ ) continue; // assume there is signal in this frame
+            if ( maxdiff> sThresholdEB_ ) continue; // assume there is signal in this frame
         }
 
         //for (auto& mgpasample : digi.frame()) meEB_[hashedId]->Fill(mgpasample&0xFFF);
@@ -79,7 +80,7 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (checkSignal_){
             uint16_t maxdiff = *std::max_element(digi.frame().begin(), digi.frame().end(), adc_compare )  -
                                *std::min_element(digi.frame().begin(), digi.frame().end(), adc_compare );
-            if ( maxdiff> sThreshold_ ) continue; // assume there is signal in this frame
+            if ( maxdiff> sThresholdEE_ ) continue; // assume there is signal in this frame
         }
 
         //for (auto& mgpasample : digi.frame()) meEE_[hashedId]->Fill(mgpasample&0xFFF);
