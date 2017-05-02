@@ -88,9 +88,9 @@ private:
   std::vector<std::string>      trigNames_, HLTNames_;
   spr::trackSelectionParameters selectionParameter_;
   std::string                   theTrackQuality_, processName_;
-  double                        maxRestrictionPt_, slopeRestrictionPt_;
+  double                        maxRestrictionP_, slopeRestrictionP_;
   double                        a_mipR_, a_coneR_, a_charIsoR_;
-  double                        pTrackMin_, eEcalMax_, eIsolation_;
+  double                        pTrackMin_, eEcalMax_, eIsolate_;
   unsigned int                  nRun_, nAll_, nGood_;
   edm::InputTag                 triggerEvent_, theTriggerResultsLabel;
   edm::InputTag                 labelGenTrack_, labelRecVtx_;
@@ -124,9 +124,7 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   theTrackQuality_                    = iConfig.getParameter<std::string>("TrackQuality");
   processName_                        = iConfig.getParameter<std::string>("ProcessName");
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality_);
-  maxRestrictionPt_                   = iConfig.getParameter<double>("MinTrackPt");
-  slopeRestrictionPt_                 = iConfig.getParameter<double>("SlopeTrackPt");
-  selectionParameter_.minPt           = maxRestrictionPt_;
+  selectionParameter_.minPt           = iConfig.getParameter<double>("MinTrackPt");;
   selectionParameter_.minQuality      = trackQuality_;
   selectionParameter_.maxDxyPV        = iConfig.getParameter<double>("MaxDxyPV");
   selectionParameter_.maxDzPV         = iConfig.getParameter<double>("MaxDzPV");
@@ -141,7 +139,14 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
   pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
   eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
-  eIsolation_                         = iConfig.getParameter<double>("IsolationEnergy");
+  // Different isolation cuts are described in DN-2016/029
+  // Tight cut uses 2 GeV; Loose cut uses 10 GeV
+  // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
+  // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
+  // maxRestrictionP_ = 8 GeV as came from a study
+  maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
+  slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
+  eIsolate_                           = iConfig.getParameter<double>("IsolationEnergy");
   triggerEvent_                       = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   theTriggerResultsLabel              = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
   labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
@@ -162,8 +167,7 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
 
   edm::LogInfo("HcalIsoTrack") <<"Parameters read from config file \n" 
-			       <<"\t minPt "          << maxRestrictionPt_
-			       <<":"                   << slopeRestrictionPt_
+			       <<"\t minPt "           << selectionParameter_.minPt
 			       <<"\t theTrackQuality " << theTrackQuality_
 			       <<"\t minQuality "      << selectionParameter_.minQuality
 			       <<"\t maxDxyPV "        << selectionParameter_.maxDxyPV          
@@ -176,7 +180,10 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
 			       <<"\t maxOutMiss "      << selectionParameter_.maxOutMiss
 			       <<"\t a_coneR "         << a_coneR_
 			       <<"\t a_charIsoR "      << a_charIsoR_
-			       <<"\t a_mipR "          << a_mipR_;
+			       <<"\t a_mipR "          << a_mipR_
+			       <<"\t maxRestrictionP_ "<< maxRestrictionP_
+			       <<"\t slopeRestrictionP_ " << slopeRestrictionP_
+			       <<"\t eIsolate_ "       << eIsolate_;
   for (unsigned int k=0; k<trigNames_.size(); ++k)
     edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
 } // AlCaIsoTracksFilter::AlCaIsoTracksFilter  constructor
@@ -316,7 +323,6 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 	  HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
 	  ieta = detId.ietaAbs();
 	}
-	selectionParameter_.minPt = maxRestrictionPt_ - std::abs((double)ieta)*slopeRestrictionPt_;
 	bool qltyFlag  = spr::goodTrack(pTrack,leadPV,selectionParameter_,false);
 	LogDebug("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag
 				 << "|" << trkDetItr->okECAL << "|" 
@@ -335,13 +341,16 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 						      trkCaloDirections,
 						      a_charIsoR_, 
 						      nNearTRKs, false);
+	  double eIsolation = (maxRestrictionP_*exp(slopeRestrictionP_*((double)(ieta))));
+	  if (eIsolation < eIsolate_) eIsolation = eIsolate_;
 	  LogDebug("HcalIsoTrack") << "This track : " << nTracks 
 				   << " (pt|eta|phi|p) :"  << pTrack->pt() 
 				   << "|" << pTrack->eta() << "|" 
 				   << pTrack->phi() << "|" << t_p
 				   << "e_MIP " << eMipDR 
-				   << " Chg Isolation " << hmaxNearP;
-	  if (t_p>pTrackMin_ && eMipDR<eEcalMax_ && hmaxNearP<eIsolation_) {
+				   << " Chg Isolation " << hmaxNearP
+				   << ":" << eIsolation;
+	  if (t_p>pTrackMin_ && eMipDR<eEcalMax_ && hmaxNearP<eIsolation) {
 	    accept = true;
 	    break;
 	  }

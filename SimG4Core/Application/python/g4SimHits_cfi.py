@@ -305,6 +305,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ForTBH2                   = cms.untracked.bool(False),
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
+        TestNS                    = cms.untracked.bool(False),
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(

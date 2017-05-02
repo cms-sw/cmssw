@@ -58,7 +58,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMaxBunch = maxBunch;
 }
 
-void CaloHitResponse::run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
+void CaloHitResponse::run(const MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
 
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr) {

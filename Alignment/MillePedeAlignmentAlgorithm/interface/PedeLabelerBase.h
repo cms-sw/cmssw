@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -34,9 +35,9 @@ class PedeLabelerBase
 {
  public:
 
-  typedef AlignmentAlgorithmBase::RunNumber  RunNumber;
-  typedef AlignmentAlgorithmBase::RunRange   RunRange;
-  typedef std::vector<RunRange>              RunRanges;
+  using RunNumber = align::RunNumber;
+  using RunRange = align::RunRange;
+  using RunRanges = align::RunRanges;
 
   class TopLevelAlignables
   {

@@ -308,6 +308,8 @@ align::StructureType AlignableObjectId::stringToId(const char *name) const
 //______________________________________________________________________________
 AlignableObjectId::Geometry AlignableObjectId
 ::trackerGeometry(const TrackerGeometry* geometry) {
+  if (!geometry) return Geometry::General;
+
   if (geometry->isThere(GeomDetEnumerators::P2PXEC)) {
     // use structure-type <-> name translation for PhaseII geometry
     return Geometry::PhaseII;

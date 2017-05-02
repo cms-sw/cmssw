@@ -18,10 +18,12 @@ QTestfile = 'DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-#process.load("DQM.Integration.config.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.config.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
+
+TAG ="PixelPhase1" 
 
 ##
 #----------------------------
@@ -33,8 +35,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder    = "PixelPhase1"
-process.dqmSaver.tag = "PixelPhase1"
+process.dqmEnv.subSystemFolder    = TAG
+process.dqmSaver.tag = TAG
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -59,11 +61,11 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # GLOBALTAG
 #-------------------------------------------------
 # Condition for P5 cluster
-#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules

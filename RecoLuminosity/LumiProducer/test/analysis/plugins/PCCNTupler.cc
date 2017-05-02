@@ -25,6 +25,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 DEFINE_FWK_MODULE(PCCNTupler);
 
@@ -50,7 +51,8 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation",1)),
     includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1)),
     includeJets(iConfig.getUntrackedParameter<bool>("includeJets",0)),
-    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1))
+    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1)),
+    pixelPhase2Geometry(iConfig.getUntrackedParameter<bool>("pixelPhase2Geometry",0))
 {
     cout << "----------------------------------------------------------------------" << endl;
     cout << "--- PCCNTupler constructor" << endl;
@@ -102,13 +104,6 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
         //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
         //tree->Branch("nClusters","map<int,int>",&nClusters);
         tree->Branch("layers","map<int,int>",&layers);
-        // dead modules from Run 1
-        //deadModules[0] = 302125076; 
-        //deadModules[1] = 302125060;
-        //deadModules[2] = 302197516;
-        //deadModules[3] = 344019460;
-        //deadModules[4] = 344019464;
-        //deadModules[5] = 344019468;  
         pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
     }
 
@@ -315,65 +310,61 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         }
     }
 
-
-    // -- Does this belong into beginJob()?
-    ESHandle<TrackerGeometry> TG;
-    iSetup.get<TrackerDigiGeometryRecord>().get(TG);
-
+    int NumPixelBarrelLayers=3;
+    if(pixelPhase2Geometry){
+      NumPixelBarrelLayers=4;
+    }
     // -- Pixel cluster
     if(includePixels){
-        edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-        iEvent.getByToken(pixelToken,hClusterColl);
+      edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
+      iEvent.getByToken(pixelToken,hClusterColl);
+      if (!hClusterColl.failedToGet()) {        
+	
         
-        const edmNew::DetSetVector<SiPixelCluster>& clustColl = *(hClusterColl.product());
-        
-        
-        // ----------------------------------------------------------------------
-        // -- Clusters without tracks
-
-        for (TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
-            //if (dynamic_cast<PixelGeomDetUnit*>((*it)) != 0){ 
-                DetId detId = (*it)->geographicalId();
-
-                bxModKey.second=detId();
-
-                // -- clusters on this det
-                edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
-                if (isearch != clustColl.end()) {  // Not an empty iterator
-                    edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-                    for (di = isearch->begin(); di != isearch->end(); ++di) {
-                        if(nPixelClusters.count(bxModKey)==0){
-                            nPixelClusters[bxModKey]=0;
-                        }
-                        nPixelClusters[bxModKey] = nPixelClusters[bxModKey]+1;
-                    }
-
-                    int nCluster = isearch->size();
-                    if(nClusters.count(bxModKey)==0){
-                        nClusters[bxModKey]=0;
-                    }
-                    nClusters[bxModKey] += nCluster;
-
-                    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-                        PixelBarrelName detName = PixelBarrelName(detId);
-                        int layer = detName.layerName();
-                        if(layers.count(detId())==0){
-                            layers[detId()]=layer;
-                        }
-                    } else {
-                        assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
-                        PixelEndcapName detName = PixelEndcapName(detId);
-                        int disk = detName.diskName();
-                        if(layers.count(detId())==0){
-                            layers[detId()]=disk+3;
-                        }
-                    }
-                }
-            //}
-        }
+	const edmNew::DetSetVector<SiPixelCluster>& clustColl = *hClusterColl;
+	// ----------------------------------------------------------------------
+	// -- Clusters without tracks
+	
+	for (edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.begin();  isearch != clustColl.end(); ++isearch){
+	  // these are sorted by modules so we pick the current one
+	  edmNew::DetSet<SiPixelCluster>  mod = *isearch;
+	  if(mod.empty()) { continue; }// skip empty modules
+	  DetId detId = mod.id();
+	  
+	  bxModKey.second=detId();
+	  for (edmNew::DetSet<SiPixelCluster>::const_iterator di = mod.begin(); di != mod.end(); ++di){
+	    if(nPixelClusters.count(bxModKey)==0){
+	      nPixelClusters[bxModKey]=0;
+	    }
+	    nPixelClusters[bxModKey] = nPixelClusters[bxModKey]+1;
+	    
+	    
+	    int nCluster = isearch->size();
+	    if(nClusters.count(bxModKey)==0){
+	      nClusters[bxModKey]=0;
+	    }
+	    nClusters[bxModKey] += nCluster;
+	    
+	    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+	      PixelBarrelName detName = PixelBarrelName(detId);
+	      int layer = detName.layerName();
+	      if(layers.count(detId())==0){
+		layers[detId()]=layer;
+	      }
+	    } else {
+	      assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
+	      PixelEndcapName detName = PixelEndcapName(detId);
+	      int disk = detName.diskName();
+	      if(layers.count(detId())==0){
+		layers[detId()]=disk+NumPixelBarrelLayers; 
+	      }
+	    }	    
+	    //}
+	  }
+	}
+      }
     }
-} 
-
+}
 
 void PCCNTupler::Reset() {
     nVtx = 0;

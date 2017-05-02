@@ -67,9 +67,10 @@ namespace popcon {
     virtual void getObjectsForBTransition( bool isBOn ) {
       //reading payloads for 0T and 3.8T from Conditions
       edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
-                                                       << "Initialising CondDB read-only session to " << m_connectionString << std::endl;
-      cond::persistency::Session session = m_connection.createReadOnlySession( m_connectionString, "" );
-      session.transaction().start();
+                                                       << "Initialising CondDB session to " << m_connectionString << std::endl;
+      cond::persistency::Session session = m_connection.createSession( m_connectionString, true );
+      cond::persistency::TransactionScope trans( session.transaction() );
+      trans.start( false );
       edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                        << "Loading tag for B " << ( isBOn ? "ON" : "OFF" ) << ": "
                                                        << ( isBOn ? m_tagForBOn : m_tagForBOff )
@@ -81,16 +82,17 @@ namespace popcon {
                                                    << ", IOV valid for run number " << m_run << " starting from: " << currentIov.since
                                                    << ", with corresponding payload hash: " << currentIov.payloadId
                                                    << std::endl;
+      std::string destTag = this->tagInfo().name;
       if( currentIov.payloadId != this->tagInfo().lastPayloadToken ) {
         std::ostringstream ss;
-        ss << "Exporting payload with hash " << currentIov.payloadId
+        ss << "Adding iov with since "<<m_run<<" pointing to hash " << currentIov.payloadId
            << " corresponding to the calibrations for magnetic field "
-           << ( isBOn ? "ON" : "OFF" )
-           << " starting from run number: " << m_run;
+           << ( isBOn ? "ON" : "OFF" );
         edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                          << ss.str() << std::endl;
-        T* pp = new T( *(session.fetchPayload<T>( currentIov.payloadId )) );
-        this->m_to_transfer.push_back( std::make_pair( pp, m_run ) );
+	cond::persistency::IOVEditor editor = session.editIov( destTag );
+        editor.insert( m_run, currentIov.payloadId );
+        editor.flush();
         this->m_userTextLog = ss.str();
       } else {
         edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
@@ -98,10 +100,10 @@ namespace popcon {
                                                          << " corresponding to the calibrations for magnetic field "
                                                          << ( isBOn ? "ON" : "OFF" )
                                                          << " is still valid for run " << m_run
-                                                         << " in the destination tag " << this->tagInfo().name
+                                                         << " in the destination tag " << destTag
                                                          << ".\nNo transfer needed." <<std::endl;
       }
-      session.transaction().commit();
+      trans.commit();
     }
 
     virtual void getNewObjects() override final {

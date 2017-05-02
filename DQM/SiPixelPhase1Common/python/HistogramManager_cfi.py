@@ -17,7 +17,7 @@ SiPixelPhase1Geometry = cms.PSet(
   n_rocs = cms.int32(16), # two-row geometry is assumed
 
   # "time geometry" parameters
-  max_lumisection = cms.int32(1000),
+  max_lumisection = cms.int32(5000),
   max_bunchcrossing = cms.int32(3600),
 
   # to select a different cabling map (for pilotBlade)
@@ -224,12 +224,12 @@ StandardSpecificationOccupancy = [ #this produces pixel maps with counting
        .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
        .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
        .groupBy("PXForward/PXRing", "EXTEND_Y")
-       .save(),
-    Specification(PerLayer2D) # FPIX as one plot
-       .groupBy("PXForward/SignedShiftedBladePanelCoord/SignedDiskRingCoord")
-       .groupBy("PXForward/SignedShiftedBladePanelCoord", "EXTEND_X")
-       .groupBy("PXForward", "EXTEND_Y")
-       .save(),
+       .save()
+    #Specification(PerLayer2D) # FPIX as one plot
+    #   .groupBy("PXForward/SignedShiftedBladePanelCoord/SignedDiskRingCoord")
+    #   .groupBy("PXForward/SignedShiftedBladePanelCoord", "EXTEND_X")
+    #   .groupBy("PXForward", "EXTEND_Y")
+    #   .save(),
 ]
 
 # the same for NDigis and friends. Needed due to technical limitations...

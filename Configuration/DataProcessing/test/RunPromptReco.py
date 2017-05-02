@@ -10,6 +10,7 @@ testing with a few input files etc from the command line
 import sys
 import getopt
 import traceback
+import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -115,9 +116,24 @@ class RunPromptReco:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+        pklFile = open("RunPromptRecoCfg.pkl", "w")
         psetFile = open("RunPromptRecoCfg.py", "w")
-        psetFile.write(process.dumpPython())
-        psetFile.close()
+        try:
+            pickle.dump(process, pklFile)
+            psetFile.write("import FWCore.ParameterSet.Config as cms\n")
+            psetFile.write("import pickle\n")
+            psetFile.write("handle = open('RunPromptRecoCfg.pkl')\n")
+            psetFile.write("process = pickle.load(handle)\n")
+            psetFile.write("handle.close()\n")
+            psetFile.close()
+        except Exception as ex:
+            print("Error writing out PSet:")
+            print(traceback.format_exc())
+            raise ex
+        finally:
+            psetFile.close()
+            pklFile.close()
+
         cmsRun = "cmsRun -e RunPromptRecoCfg.py"
         print "Now do:\n%s" % cmsRun
 

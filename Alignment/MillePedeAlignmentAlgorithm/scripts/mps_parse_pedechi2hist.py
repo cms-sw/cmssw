@@ -20,6 +20,7 @@ import sys
 import re
 import argparse
 
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 
 
@@ -96,14 +97,9 @@ def get_used_binaries(cfg, no_binary_check):
     - `no_binary_check`: if 'True' a check for file existence is skipped
     """
 
-    sys.path.append(os.path.dirname(cfg))
+    cms_process = mps_tools.get_process_object(cfg)
 
-    cache_stdout = sys.stdout
-    sys.stdout = open(os.devnull, "w") # suppress unwanted output
-    __cfg = importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
-    sys.stdout = cache_stdout
-
-    binaries = __cfg.process.AlignmentProducer.algoConfig.mergeBinaryFiles
+    binaries = cms_process.AlignmentProducer.algoConfig.mergeBinaryFiles
     if no_binary_check:
         used_binaries = binaries
     else:
@@ -113,7 +109,6 @@ def get_used_binaries(cfg, no_binary_check):
 
     used_binaries = [int(re.sub(r"milleBinary(\d+)\.dat", r"\1", b))
                      for b in used_binaries]
-    del sys.path[-1]            # remove the temporary search path extension
 
     return used_binaries
 

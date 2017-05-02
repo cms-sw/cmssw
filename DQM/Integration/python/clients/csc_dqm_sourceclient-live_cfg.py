@@ -91,7 +91,7 @@ process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
 process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
 process.csc2DRecHits.readBadChannels = cms.bool(False)
-process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
 
 """ Pick up upgrade condions data directly from DB tags using ESPrefer's.

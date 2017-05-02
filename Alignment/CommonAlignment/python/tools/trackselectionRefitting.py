@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 def getSequence(process, collection,
                 saveCPU = False,
                 TTRHBuilder = "WithAngleAndTemplate",
-                usePixelQualityFlag = True,
+                usePixelQualityFlag = None,
                 openMassWindow = False,
                 cosmicsDecoMode = False,
                 cosmicsZeroTesla = True,
@@ -18,7 +18,7 @@ def getSequence(process, collection,
     subsequent processing steps.
     The modules in the sequence are already attached to the given `process`
     object using the given track collection `collection` and the given
-    optionial arguments.
+    optional arguments.
 
     Arguments:
     - `process`: 'cms.Process' object to which the modules of the sequence will
@@ -29,6 +29,11 @@ def getSequence(process, collection,
                  This option is currently not recommended.
     - `TTRHBuilder`: Option used for the Track(Re)Fitter modules.
     - `usePixelQualityFlag`: Option used for the TrackHitFilter module.
+                             Defaults to 'True' but is automatically set to
+                             'False' if a `TTRHBuilder` without templates is
+                             used.
+                             If this is still wanted for some reason, one can
+                             explicitely specify it as 'True'.
     - `openMassWindow`: Used to configure the TwoBodyDecaySelector for ZMuMu.
     - `cosmicsDecoMode`: If set to 'True' a lower Signal/Noise cut is used.
     - `cosmicsZeroTesla`: If set to 'True' a 0T-specific selection is used.
@@ -38,6 +43,18 @@ def getSequence(process, collection,
     - `cosmicTrackSplitting`: If set to 'True' cosmic tracks are split before the
                               second track refitter.
     """
+
+    ###################################################
+    # resolve default values incl. consistency checks #
+    ###################################################
+
+    if usePixelQualityFlag is None:
+        if "Template" not in TTRHBuilder:
+            usePixelQualityFlag = False # not defined without templates
+            print "Using 'TTRHBuilder' without templates:", TTRHBuilder
+            print " --> Turning off pixel quality flag in hit filter."
+        else:
+            usePixelQualityFlag = True # default for usage with templates
 
 
     #############################
@@ -59,7 +76,7 @@ def getSequence(process, collection,
     options["TrackSelector"]["Alignment"] = {
         "filter": True,
         "pMin": 3.0,
-        "nHitMin2D": 2,        
+        "nHitMin2D": 2,
         "d0Min": -50.0,
         "d0Max": 50.0,
         "etaMin": -3.0,
@@ -98,7 +115,8 @@ def getSequence(process, collection,
     #########################################
     isCosmics = False
 
-    if collection == "ALCARECOTkAlMinBias" or collection == "generalTracks" or collection == "ALCARECOTkAlMinBiasHI" or collection == "hiGeneralTracks":
+    if collection in ("ALCARECOTkAlMinBias", "generalTracks",
+                      "ALCARECOTkAlMinBiasHI", "hiGeneralTracks"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
@@ -140,7 +158,9 @@ def getSequence(process, collection,
                     "d0Min": -99999.0,
                     "d0Max": 99999.0,
                     })
-    elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
+    elif collection in ("ALCARECOTkAlMuonIsolated",
+                        "ALCARECOTkAlMuonIsolatedHI",
+                        "ALCARECOTkAlMuonIsolatedPA"):
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
                 "ptMin": 5.0,
@@ -148,7 +168,9 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1,
                 })
-    elif collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
+    elif collection in ("ALCARECOTkAlZMuMu",
+                        "ALCARECOTkAlZMuMuHI",
+                        "ALCARECOTkAlZMuMuPA"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 15.0,
                 "etaMin": -3.0,
@@ -230,7 +252,7 @@ def getSequence(process, collection,
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackRefitter", "Second", {"method": "load",
                                              "clone": True})]
-        if isCosmics: mods = mods[1:]
+        if isCosmics: mods = mods[1:] # skip high purity selector for cosmics
 
 
     ################################
@@ -243,6 +265,13 @@ def getSequence(process, collection,
                 "constraint": "momentum",
                 "srcConstr": momentumConstraint
                 })
+
+
+
+    #######################################################
+    # load offline beam spot module required by the refit #
+    #######################################################
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 
 
@@ -268,9 +297,9 @@ def getSequence(process, collection,
                          isCosmics = isCosmics, **(mods[-1][2]))
         modules.append(getattr(process, src))
 
-    moduleSum = modules[0]
-    for mod in modules[1:]:
-        moduleSum += mod
+    moduleSum = process.offlineBeamSpot        # first element of the sequence
+    for module in modules: moduleSum += module # append the other modules
+
     return cms.Sequence(moduleSum)
 
 

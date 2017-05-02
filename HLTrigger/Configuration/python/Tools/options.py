@@ -2,12 +2,15 @@
 globalTag = {
   'Fake' : 'auto:run1_mc_Fake',
   'Fake1': 'auto:run2_mc_Fake1',
+  'Fake2': 'auto:run2_mc_Fake2',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
+  'GRun2016' : 'auto:run2_mc_GRun2016',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
   'data' : 'auto:run2_hlt_relval',
+  'GRun2016' : 'auto:run2_mc_GRun2016',
 }
 
 
@@ -127,6 +130,7 @@ class HLTProcessOptions(object):
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
+    self.setup      = None        #     if set, downlad the setup_cff from the specified configuration and load it.
 
 
   # convert HLT and L1 menus to a dedicated object representation on the fly

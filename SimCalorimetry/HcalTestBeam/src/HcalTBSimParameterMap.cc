@@ -5,11 +5,11 @@
   
 
 HcalTBSimParameterMap::HcalTBSimParameterMap() :
-  theHBParameters(2000., std::vector<double>(16, 0.3305), 117, 5, 10, 5, 
+  theHBParameters(2000., 117, 5, 10, 5, 
 		  true, false, 1, std::vector<double>(16, 117.), 10.),
-  theHEParameters(2000., std::vector<double>(16, 0.3305), 178, 5, 10, 5, 
+  theHEParameters(2000., 178, 5, 10, 5, 
 		  true, false, 16, std::vector<double>(16, 178.), 10.),
-  theHOParameters(4000., std::vector<double>(16, 0.3065), 217, 5, 10, 5, 
+  theHOParameters(4000., 217, 5, 10, 5, 
 		  true, false, 1, std::vector<double>(16, 217.), 5.) {}
 
 /*
@@ -21,7 +21,6 @@ HcalTBSimParameterMap::HcalTBSimParameterMap() :
 
 HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
   theHBParameters(p.getUntrackedParameter<double>("photomultiplierGainTBHB",2000.),
-		  p.getUntrackedParameter<std::vector<double> >("photoelectronsToAnalogTBHB",std::vector<double>(16, 0.3305)),
 		  p.getUntrackedParameter<double>("samplingFactorTBHB",117),
 		  p.getUntrackedParameter<double>("timePhaseTBHB",5),
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),
@@ -32,7 +31,6 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
           p.getUntrackedParameter<std::vector<double> >("samplingFactorsTBHB", std::vector<double>(16, 117.)),
           p.getUntrackedParameter<double>("sipmTauTBHB",10.) ),
   theHEParameters(p.getUntrackedParameter<double>("photomultiplierGainTBHE",2000.),
-		  p.getUntrackedParameter<std::vector<double> >("photoelectronsToAnalogTBHE",std::vector<double>(16, 0.3305)),
 		  p.getUntrackedParameter<double>("samplingFactorTBHE",178),
 		  p.getUntrackedParameter<double>("timePhaseTBHE",5),
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),
@@ -43,7 +41,6 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
           p.getUntrackedParameter<std::vector<double> >("samplingFactorsTBHE", std::vector<double>(16, 178.)),
           p.getUntrackedParameter<double>("sipmTauTBHE",10.) ),
   theHOParameters(p.getUntrackedParameter<double>("photomultiplierGainTBHE",4000.),
-		  p.getUntrackedParameter<std::vector<double> >("photoelectronsToAnalogTBHO",std::vector<double>(16, 3065)),
 		  p.getUntrackedParameter<double>("samplingFactorTBHO",217),
 		  p.getUntrackedParameter<double>("timePhaseTBHO",5),
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),

@@ -4,6 +4,10 @@
 ///////which are PhiMemoryImages containing all of the hits
 ///////
 
+#ifndef ADD_ZoneCreation
+#define ADD_ZoneCreation
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 
@@ -41,3 +45,5 @@ std::vector<ZonesOutput> Zones(std::vector<std::vector<ConvertedHit>> Hits){
   return output;
   
 }
+
+#endif

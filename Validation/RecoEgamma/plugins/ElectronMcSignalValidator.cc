@@ -1209,24 +1209,57 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   for
    ( mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ )
    {
+/*                // DEBUG LINES - KEEP IT !
+    std::cout << "\nevt ID = " << iEvent.id() ; 
+    std::cout << ",  mcIter position : " << mcIter - genParticles->begin() << std::endl ; 
+    std::cout << "pdgID : " << mcIter->pdgId() << ", Pt : " << mcIter->pt() << ", eta : " << mcIter->eta() << ", phi : " << mcIter->phi() << std::endl; 
+                // DEBUG LINES - KEEP IT !  */ 
+
     // select requested matching gen particle
     matchingID=false;
-    for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ )
-     {
-      if ( mcIter->pdgId() == matchingIDs_[i] )
-       { matchingID=true ; }
+    for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ ) {
+
+        if ( mcIter->pdgId() == matchingIDs_[i] )
+           { matchingID=true ; 
+/*                // DEBUG LINES - KEEP IT !
+			std::cout << "\nMatching mis-reco : matchingIDs_.size() = " << matchingIDs_.size() << ", evt ID = " << iEvent.id() ; 
+            std::cout << ", mcIter pdgID : " << mcIter->pdgId() << ", matchingID : " << matchingID << std::endl ; 
+                // DEBUG LINES - KEEP IT !  */ 
+       }
      }
-    if (matchingID)
-     {
+    if (matchingID) {
       // select requested mother matching gen particle
       // always include single particle with no mother
       const Candidate * mother = mcIter->mother() ;
       matchingMotherID = false ;
       for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
        {
-        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
-         { matchingMotherID = true ; }
-       }
+/*                // DEBUG LINES - KEEP IT !
+                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
+                if (mother != 0) { 
+			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+                }
+                else { 
+                    std::cout << std::endl; 
+                } 
+                // DEBUG LINES - KEEP IT !  */ 
+                
+        if ( mother == 0 ) {
+            matchingMotherID = true ; 
+        }
+        else if ( mother->pdgId() == matchingMotherIDs_[i] ) { 
+            if ( mother->numberOfDaughters() <= 2 ) {
+                matchingMotherID = true ;
+/*                // DEBUG LINES - KEEP IT !
+			    std::cout << "Matching mis-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; // debug lines
+                std::cout << "evt ID = " << iEvent.id() ;                                                                                                                 // debug lines
+                std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl;                                   // debug lines
+                // DEBUG LINES - KEEP IT !  */ 
+            }
+        } // end of mother if test
+
+         }
       if (matchingMotherID)
        {
         if ( mcIter->pt()>maxPt_ || std::abs(mcIter->eta())>maxAbsEta_ )
@@ -1249,7 +1282,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           double dphi = gsfIter->phi()-mcIter->phi() ;
           if (std::abs(dphi)>CLHEP::pi)
            { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-//          double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2)) ;
           double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi ;
           if ( deltaR2 < deltaR2_ )
            {
@@ -1272,15 +1304,14 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
          } // loop over rec ele to look for the best one
 
         // analysis when the mc track is found
-        if (okGsfFound)
-         {
+        if (okGsfFound) {
           // generated distributions for matched electrons
           h1_mc_Pt_matched_qmisid->Fill( mcIter->pt() ) ;
           h1_mc_Phi_matched_qmisid->Fill( mcIter->phi() ) ;
           h1_mc_AbsEta_matched_qmisid->Fill( std::abs(mcIter->eta()) ) ;
           h1_mc_Eta_matched_qmisid->Fill( mcIter->eta() ) ;
           h1_mc_Z_matched_qmisid->Fill( mcIter->vz() ) ;
-         }
+        }
        }
      }
    }
@@ -1314,7 +1345,17 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
      {
       if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
-       { matchingMotherID = true ; }
+       { matchingMotherID = true ; 
+/*                // DEBUG LINES - KEEP IT !
+			std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; 
+            if (mother != 0) {
+                std::cout << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+            }
+            else {
+                std::cout << std::endl ; 
+            }
+                // DEBUG LINES - KEEP IT !  */ 
+        }
      }
     if (!matchingMotherID) continue ;
 
@@ -1350,7 +1391,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       double dphi = gsfIter->phi()-mcIter->phi() ;
       if (std::abs(dphi)>CLHEP::pi)
        { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-//      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
       double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi;
       if ( deltaR2 < deltaR2_ )
        {
@@ -1364,6 +1404,8 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
             bestGsfElectron=*gsfIter;
             bestGsfElectronRef=reco::GsfElectronRef(gsfElectrons,iElectron);
             okGsfFound = true;
+            
+            //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl; // debug lines
            }
          }
        }

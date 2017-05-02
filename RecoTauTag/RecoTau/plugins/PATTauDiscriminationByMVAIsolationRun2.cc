@@ -270,10 +270,10 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[12] = std::min((float)100., leadingTrackChi2);
       mvaInput_[13] = std::min((float)1., eRatio);
       mvaInput_[14]  = TMath::Sign((float)+1., tau->dxy());
-      mvaInput_[15]  = std::sqrt(std::fabs(std::min((float)1., std::fabs(tau->dxy()))));
+      mvaInput_[15]  = std::sqrt(std::min((float)1., std::fabs(tau->dxy())));
       mvaInput_[16]  = std::min((float)10., std::fabs(tau->dxy_Sig()));
       mvaInput_[17]  = TMath::Sign((float)+1., tau->ip3d());
-      mvaInput_[18]  = std::sqrt(std::fabs(std::min((float)1., std::fabs(tau->ip3d()))));
+      mvaInput_[18]  = std::sqrt(std::min((float)1., std::fabs(tau->ip3d())));
       mvaInput_[19]  = std::min((float)10., std::fabs(tau->ip3d_Sig()));
       mvaInput_[20]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);

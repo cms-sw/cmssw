@@ -428,7 +428,15 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     {
         const DFrame& frame(*it);
         const HcalDetId cell(frame.id());
-        const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
+
+        // Protection against calibration channels which are not
+        // in the database but can still come in the QIE11DataFrame
+        // in the laser calibs, etc.
+        const HcalSubdetector subdet = cell.subdet();
+        if (!(subdet == HcalSubdetector::HcalBarrel ||
+              subdet == HcalSubdetector::HcalEndcap ||
+              subdet == HcalSubdetector::HcalOuter))
+            continue;
 
         // Check if the database tells us to drop this channel
         const HcalChannelStatus* mydigistatus = qual.getValues(cell.rawId());
@@ -445,6 +453,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             continue;
 
         // Basic ADC decoding tools
+        const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
         const HcalCalibrations& calib = cond.getHcalCalibrations(cell);
         const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);

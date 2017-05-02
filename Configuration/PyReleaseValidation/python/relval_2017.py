@@ -13,10 +13,10 @@ workflows = Matrix()
 
 #just define all of them
 
-#2017 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
+#2017 WFs to run in IB (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #same for 2018
-numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
-           10821.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0]
+numWFIB = [10042.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
+           10842.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0]
 for i,key in enumerate(upgradeKeys[2017]):
     numWF=numWFAll[2017][i]
     for frag in upgradeFragments:
@@ -68,6 +68,19 @@ def _trackingPhase1CA(stepList):
             continue
         res.append(s)
     return res
+def _trackingLowPU(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFull' in step:
+            if 'trackingOnly' in step:
+                s = s.replace('Only', 'OnlyLowPU')
+            else:
+                s = s.replace('Full', 'Full_trackingLowPU')
+        if 'ALCA' in s:
+            continue
+        res.append(s)
+    return res
 
 # compose and adding tracking specific workflows in the IB test. 
 # NB. those workflows are expected to be only used forIB test.
@@ -77,3 +90,4 @@ workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1
 workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
 workflows[10024.4] = [ workflows[10024.0][0], _trackingPhase1CA(workflows[10024.0][1]) ]
 workflows[10024.5] = [ workflows[10024.1][0], _trackingPhase1CA(workflows[10024.1][1]) ]
+workflows[10024.6] = [ workflows[10024.0][0], _trackingLowPU(workflows[10024.0][1]) ]

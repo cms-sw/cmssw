@@ -10,6 +10,10 @@
 // Mode 15 has LCTs in all four stations.  
 // These are our "SingleMu" quality modes (Quality >= 12) 
 
+#ifndef ADD_ChargeAssignment
+#define ADD_ChargeAssignment
+
+
 int getCharge(int phi1, int phi2, int phi3, int phi4, int mode){
   
   // -1 = postive physical charge to match pdgId code (i.e. -13 is positive, anti-muon). +1 = negative physical charge.
@@ -113,3 +117,5 @@ int getCharge(int phi1, int phi2, int phi3, int phi4, int mode){
   return charge;
   
 }
+
+#endif

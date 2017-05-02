@@ -16,8 +16,8 @@ namespace evf{
                              lumiSection,
 			     record->getHeader().getData().header.eventNumber);
 
-	uint64_t gpsh = record->getBST().getBST().gpstimehigh;
-	uint32_t gpsl = record->getBST().getBST().gpstimelow;
+	uint64_t gpsh = record->getBST().getBST().bst.gpstimehigh;
+	uint32_t gpsl = record->getBST().getBST().bst.gpstimelow;
         edm::TimeValue_t time = static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl);
         if (time == 0) {
           timeval stv;
