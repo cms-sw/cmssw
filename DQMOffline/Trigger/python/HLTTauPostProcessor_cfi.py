@@ -46,10 +46,10 @@ def makePFTauAnalyzer(monitorModule):
 
     _addEfficiencies("L2", [("Et", "E_{T}"),
                             ("Phi", "#phi")], "%sTrigMET%sEff", "MET")
-    _addEfficiencies("tau", [("Et", "E_{T}")], "%s%sEff", titleObject="")
-    _addEfficiencies("muon", [("Et", "E_{T}")], "%s%sEff", titleObject="")
-    _addEfficiencies("electron", [("Et", "E_{T}")], "%s%sEff", titleObject="")
-    _addEfficiencies("met", [("Et", "E_{T}")], "%s%sEff", titleObject="")
+    _addEfficiencies("tau", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("muon", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("electron", [("Et", "E_{T}"),("Eta", "#eta"),("Phi", "#phi")], "%s%sEff", titleObject="")
+    _addEfficiencies("met", [("Et", "E_{T}"),("Phi", "#phi")], "%s%sEff", titleObject="")
 
     for level in ["L2", "L3"]:
         _addEfficiencies(level, [("Et", "p_{T}"),
