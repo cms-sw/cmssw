@@ -1,5 +1,5 @@
-#ifndef CondTools_RPC_RPCTwinMuxLinkMapHandler_h
-#define CondTools_RPC_RPCTwinMuxLinkMapHandler_h
+#ifndef CondTools_RPC_RPCAMCLinkMapHandler_h
+#define CondTools_RPC_RPCAMCLinkMapHandler_h
 
 #include <string>
 #include <vector>
@@ -14,12 +14,12 @@ class ParameterSet;
 class ConfigurationDescriptions;
 } // namespace edm
 
-class RPCTwinMuxLinkMapHandler
+class RPCAMCLinkMapHandler
     : public popcon::PopConSourceHandler<RPCAMCLinkMap>
 {
 public:
-    RPCTwinMuxLinkMapHandler(edm::ParameterSet const & _config);
-    ~RPCTwinMuxLinkMapHandler();
+    RPCAMCLinkMapHandler(edm::ParameterSet const & config);
+    ~RPCAMCLinkMapHandler();
 
     void getNewObjects();
     std::string id() const;
@@ -30,10 +30,12 @@ protected:
     cond::Time_t since_run_;
 
     std::string input_file_;
-    std::vector<int> wheel_fed_;
-    std::vector<std::vector<int> > wheel_sector_amc_;
+    bool wheel_not_side_;
+    std::vector<int> wos_fed_;
+    unsigned int n_sectors_;
+    std::vector<std::vector<int> > wos_sector_amc_;
 
     std::string txt_file_;
 };
 
-#endif // CondTools_RPC_RPCTwinMuxLinkMapHandler_h
+#endif // CondTools_RPC_RPCAMCLinkMapHandler_h
