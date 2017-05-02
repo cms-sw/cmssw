@@ -453,7 +453,7 @@ if( xmlModel > 2016 ){
            } else {
                // pred/succ iterators are read-only, create intermediate adjusted copies
                Range_t newPred, newSucc;
-               bool modifiedPred = false, holeInPred = false, modifiedSucc = false, dropSucc = false;
+               bool modifiedPred = false, gapInPred = false, modifiedSucc = false, dropSucc = false;
                // overlap found with predecessor range
                if( pred != ranges.end() && pred->second >= first && pred->second <= last ){
                    if( m_bx_mask_default != bx_mask[row] ){
@@ -480,10 +480,10 @@ if( xmlModel > 2016 ){
                        // no change to the predecessor range
                        modifiedPred = false;
                    } else {
-                       // make a "hole" in predecessor range
+                       // make a "gap" in predecessor range
                        newPred.first  = first;
                        newPred.second = last;
-                       holeInPred = true;
+                       gapInPred = true;
                        modifiedPred = true;
                    }
                }
@@ -512,17 +512,17 @@ if( xmlModel > 2016 ){
                } else {
                    // merging is not the case, but I still need to propagate the new ranges back to the source
                    if( modifiedPred ){
-                       if( !holeInPred ){
+                       if( !gapInPred ){
                            ranges.erase(pred);
                            curr = ranges.insert(newPred).first;
                        } else {
-                           // make a hole by splitting predecessor into two ranges
+                           // make a gap by splitting predecessor into two ranges
                            Range_t r1(pred->first, newPred.first-1); // non-negative for the predecessor by design
                            Range_t r2(newPred.second+1, pred->second);
                            ranges.erase(pred);
-                           ranges.insert(r1).first;
-                           ranges.insert(r2).first;
-                           curr = ranges.end(); // hole cannot cover any additional ranges
+                           ranges.insert(r1);
+                           ranges.insert(r2);
+                           curr = ranges.end(); // gap cannot cover any additional ranges
                        }
                    }
                    if( modifiedSucc ){
