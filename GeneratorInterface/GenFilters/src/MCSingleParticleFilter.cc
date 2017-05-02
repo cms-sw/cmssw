@@ -64,7 +64,10 @@ betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
        status = defstat2;   
     } 
 
-
+    // check if beta is smaller than 1
+    if (abs(betaBoost) >= 1 ){
+      edm::LogError("MCSingleParticleFilter") << "Input beta boost is >= 1 !";
+    }
 
 }
 
