@@ -31,28 +31,27 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   if (!isActive(data)) {
     result.add(theInactiveHit, 0.F);
     return true;
+   }
+  
+  auto xl = 100.f;
+  auto yl = 100.f;
+   // do not apply for iteration not cutting on propagation
+  if (est.maxSagitta() >=0 ) {
+    // do not use this as it does not account for APE...
+    // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+    auto le = stateOnThisDet.localError().positionError();
+    LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
+    xl = le.xx();
+    yl = le.yy();
+    if (lape.valid()) {
+      xl+=lape.xx();
+      yl+=lape.yy();
+    }
+    // 5 sigma to be on the safe side
+    xl = 5.f*std::sqrt(xl);
+    yl = 5.f*std::sqrt(yl);
   }
   
-  // do not use this as it does not account for APE...
-  // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
-  auto le = stateOnThisDet.localError().positionError();
-  LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
-  float xl = le.xx();
-  float	yl = le.yy();
-  if (lape.valid()) {
-    xl+=lape.xx();
-    yl+=lape.yy();
-  }
-  // 5 sigma to be on the safe side
-  xl = 5.f*std::sqrt(xl);
-  yl = 5.f*std::sqrt(yl);
-
-  // do not apply for iteration not cutting on propagation
-  if (est.maxSagitta() <0 ) {
-    xl = 100.f;
-    yl = 100.f;
-  }
-
   auto oldSize = result.size();
   MeasurementDet::RecHitContainer && allHits = compHits(stateOnThisDet, data,xl,yl);
   for (auto && hit : allHits) {
