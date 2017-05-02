@@ -4,4 +4,4 @@ import  Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi as MillePe
 
 SiPixelAliDQMModule = cms.EDAnalyzer("MillePedeDQMModule",
                                      MillePedeFileReader = cms.PSet(MillePedeFileReader_cfi.MillePedeFileReader.clone())
-    )
+                                     )

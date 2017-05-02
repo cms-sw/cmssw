@@ -2,6 +2,10 @@
 //
 // Takes in raw information from the TriggerPrimitive class(part of L1TMuon software package);
 // and outputs vector of 'ConvertedHits'
+
+#ifndef ADD_PrimitiveConverterRPC
+#define ADD_PrimitiveConverterRPC
+
 //
 
 #include <iostream>
@@ -23,3 +27,5 @@ class PrimitiveConverterRPC {
  private:
 
 };
+
+#endif

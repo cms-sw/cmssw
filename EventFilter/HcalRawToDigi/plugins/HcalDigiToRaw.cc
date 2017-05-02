@@ -18,16 +18,15 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf) :
   hfTag_(conf.getUntrackedParameter("HF",edm::InputTag())),
   zdcTag_(conf.getUntrackedParameter("ZDC",edm::InputTag())),
   calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
-  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag()))
-{
+  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag())),
   // register for data access
-  tok_hbhe_ = consumes<HBHEDigiCollection>(hbheTag_);
-  tok_ho_ = consumes<HODigiCollection>(hoTag_);
-  tok_hf_ = consumes<HFDigiCollection>(hfTag_);
-  tok_calib_ = consumes<HcalCalibDigiCollection>(calibTag_);
-  tok_zdc_ = consumes<ZDCDigiCollection>(zdcTag_);
-  tok_htp_ = consumes<HcalTrigPrimDigiCollection>(trigTag_);
-
+  tok_hbhe_(consumes<HBHEDigiCollection>(hbheTag_)),
+  tok_ho_(consumes<HODigiCollection>(hoTag_)),
+  tok_hf_(consumes<HFDigiCollection>(hfTag_)),
+  tok_calib_(consumes<HcalCalibDigiCollection>(calibTag_)),
+  tok_zdc_(consumes<ZDCDigiCollection>(zdcTag_)),
+  tok_htp_(consumes<HcalTrigPrimDigiCollection>(trigTag_))
+{
   produces<FEDRawDataCollection>();
 }
 
@@ -35,7 +34,7 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf) :
 HcalDigiToRaw::~HcalDigiToRaw() { }  
 
 // Functions that gets called by framework every event
-void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
+void HcalDigiToRaw::produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& es) const
 {
   HcalPacker::Collections colls;
 
@@ -69,7 +68,7 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<HcalTrigPrimDigiCollection> htp;
   if (!trigTag_.label().empty()) {
     e.getByToken(tok_htp_,htp);
-    colls.tpCont=htp.product();
+    if(htp.isValid()) colls.tpCont=htp.product();
   }
   // get the mapping
   edm::ESHandle<HcalDbService> pSetup;

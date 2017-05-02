@@ -93,6 +93,43 @@ MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Ph
   return MeasurementPoint( averageRow, averageCol );
 }
 
+/// Unweighted average local cluster coordinates, using center of the strips
+template< >
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findAverageLocalCoordinatesCentered() const
+{
+  double averageCol = 0.0;
+  double averageRow = 0.0;
+
+  /// Loop over the hits and calculate the average coordinates
+  if ( theHits.size() != 0 )
+  {
+    if ( this->getRows().size() == 0 || this->getCols().size() == 0 )
+    {
+      typename std::vector< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::const_iterator hitIter;
+      for ( hitIter = theHits.begin();
+            hitIter != theHits.end();
+            hitIter++ )
+      {
+        averageCol += (*hitIter)->column()+0.5;
+        averageRow += (*hitIter)->row()+0.5;
+      }
+      averageCol /= theHits.size();
+      averageRow /= theHits.size();
+    }
+    else
+    {
+      for ( unsigned int j = 0; j < theHits.size(); j++ )
+      {
+        averageCol += theCols[j]+0.5;
+        averageRow += theRows[j]+0.5;
+      }
+      averageCol /= theHits.size();
+      averageRow /= theHits.size();
+    }
+  }
+  return MeasurementPoint( averageRow, averageCol );
+}
+
 /// Coordinates stored locally
 template< >
 std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findRows() const

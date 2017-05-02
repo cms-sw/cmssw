@@ -143,7 +143,17 @@ namespace pat {
     bool useUserData_;
     /// add ecal PF energy
     bool embedPfEcalEnergy_;
-
+    /// add puppi isolation
+    bool addPuppiIsolation_;
+    //PUPPI isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
+    //PUPPINoLeptons isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
+    
     /// --- tools ---
     /// comparator for pt ordering
     GreaterByPt<Muon> pTComparator_;

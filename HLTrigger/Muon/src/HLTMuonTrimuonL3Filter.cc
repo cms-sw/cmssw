@@ -86,9 +86,7 @@ HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
       << " " << max_YTriplet_;
 }
 
-HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter()
-{
-}
+HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter() = default;
 
 void
 HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -167,8 +165,8 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    double e1,e2,e3;
    Particle::LorentzVector p,p1,p2,p3;
 
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it1 = L2toL3s.begin();
-   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   auto L2toL3s_it1 = L2toL3s.begin();
+   auto L2toL3s_end = L2toL3s.end();
    bool atLeastOneTriplet=false;
    for (; L2toL3s_it1!=L2toL3s_end; ++L2toL3s_it1){
 
@@ -205,7 +203,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
        // Don't convert to 90% efficiency threshold
        LogDebug("HLTMuonTrimuonL3Filter") << " ... 1st muon in loop, pt1= "
 					 << pt1 << ", ptLx1= " << ptLx1;
-       std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
+       auto L2toL3s_it2 = L2toL3s_it1;
        L2toL3s_it2++;
        for (; L2toL3s_it2!=L2toL3s_end; ++L2toL3s_it2){
 	 if (!triggeredByLevel2(L2toL3s_it2->first,vl2cands)) continue;
@@ -240,7 +238,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 	      LogDebug("HLTMuonTrimuonL3Filter") << " ... 2nd muon in loop, pt2= "
 						 << pt2 << ", ptLx2= " << ptLx2;
 	
-	      std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it3 = L2toL3s_it2;
+	      auto L2toL3s_it3 = L2toL3s_it2;
 	      L2toL3s_it3++;
 	      for (; L2toL3s_it3!=L2toL3s_end; ++L2toL3s_it3){
 		
@@ -381,8 +379,8 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  bool i3done = false;
 		  vector<RecoChargedCandidateRef> vref;
 		  filterproduct.getObjects(TriggerMuon,vref);
-		  for (unsigned int i=0; i<vref.size(); i++) {
-		    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+		  for (auto & i : vref) {
+		    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
 		    TrackRef tktmp = candref->get<TrackRef>();
 		    if (tktmp==tk1) {
 		      i1done = true;
@@ -439,8 +437,8 @@ bool
 HLTMuonTrimuonL3Filter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  for (unsigned int i=0; i<vcands.size(); i++) {
-    if ( vcands[i]->get<TrackRef>() == staTrack ) {
+  for (auto & vcand : vcands) {
+    if ( vcand->get<TrackRef>() == staTrack ) {
       ok=true;
       LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;

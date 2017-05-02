@@ -32,7 +32,7 @@ class PFClusterBuilderBase {
       _positionCalc.reset(calcp);
     }
   }
-  ~PFClusterBuilderBase() { }
+  virtual ~PFClusterBuilderBase() = default;
   // get rid of things we should never use...
   PFClusterBuilderBase(const PFCBB&) = delete;
   PFCBB& operator=(const PFCBB&) = delete;

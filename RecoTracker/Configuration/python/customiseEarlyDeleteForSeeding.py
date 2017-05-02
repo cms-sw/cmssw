@@ -21,13 +21,15 @@ def customiseEarlyDeleteForSeeding(process, products):
                 products[name].append(_branchName("RegionsSeedingHitSets", name))
             if module.produceIntermediateHitTriplets:
                 products[name].append(_branchName("IntermediateHitTriplets", name))
+            # LayerHitMapCache of the doublets is forwarded to both
+            # products, hence the dependency
             depends[name].append(module.doublets.getModuleLabel())
         elif cppType in ["MultiHitFromChi2EDProducer"]:
             products[name].extend([
                 _branchName("RegionsSeedingHitSets", name),
                 _branchName("BaseTrackerRecHitsOwned", name)
             ])
-        elif cppType == "PixelQuadrupletEDProducer":
+        elif cppType in ["PixelQuadrupletEDProducer", "CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
             products[name].append(_branchName("RegionsSeedingHitSets", name))
         elif cppType == "PixelQuadrupletMergerEDProducer":
             products[name].extend([

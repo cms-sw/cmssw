@@ -26,7 +26,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "trackAlgoPriorityOrder.h"
+#include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 // this class is obsolete use TrackListMerger
 class SimpleTrackListMerger : public edm::stream::EDProducer<> {
@@ -64,6 +65,8 @@ class SimpleTrackListMerger : public edm::stream::EDProducer<> {
     edm::EDGetTokenT< TrajTrackAssociationCollection > trackProducer1AssToken;
     edm::EDGetTokenT< std::vector<Trajectory> > trackProducer2TrajToken;
     edm::EDGetTokenT< TrajTrackAssociationCollection > trackProducer2AssToken;
+
+    std::string priorityName_;
   };
 
 
@@ -157,6 +160,7 @@ namespace {
     trackProducer1AssToken = consumes< TrajTrackAssociationCollection >(trackProducer1);
     trackProducer2AssToken = consumes< TrajTrackAssociationCollection >(trackProducer2);
 
+    priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
   }
 
 
@@ -195,6 +199,10 @@ namespace {
     //
     edm::ESHandle<TrackerGeometry> theG;
     es.get<TrackerDigiGeometryRecord>().get(theG);
+
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
+    es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    auto const & trackAlgoPriorityOrder = *priorityH;
 
 //    using namespace reco;
 
@@ -398,7 +406,7 @@ namespace {
               selected1[i]=0;
 	      selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	  }else{
-	    if (trackAlgoPriorityOrder[track->algo()] <= trackAlgoPriorityOrder[track2->algo()]) {
+	    if (trackAlgoPriorityOrder.priority(track->algo()) <= trackAlgoPriorityOrder.priority(track2->algo())) {
 	      selected2[j]=0;
 	      selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	    }else{

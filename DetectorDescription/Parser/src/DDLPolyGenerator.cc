@@ -30,8 +30,8 @@ DDLPolyGenerator::preProcessElement( const std::string& name, const std::string&
 void
 DDLPolyGenerator::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
-  DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
+  auto myRZPoints = myRegistry_->getElement("RZPoint");
+  auto myZSection = myRegistry_->getElement("ZSection");
 
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts;

@@ -198,8 +198,6 @@ namespace edm {
     set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
                    usedWorkerLabels.begin(), usedWorkerLabels.end(),
                    back_inserter(unusedLabels));
-    //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
     std::vector<std::string>  shouldBeUsedLabels;
     if (!unusedLabels.empty()) {
@@ -208,16 +206,11 @@ namespace edm {
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
       for (auto const& label : unusedLabels) {
-        if (allowUnscheduled) {
-          bool isTracked;
-          ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
-          assert(isTracked);
-          assert(modulePSet != nullptr);
-          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
-        } else {
-          //everthing is marked are unused so no 'on demand' allowed
-          shouldBeUsedLabels.push_back(label);
-        }
+        bool isTracked;
+        ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
+        assert(isTracked);
+        assert(modulePSet != nullptr);
+        workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
       }
       if (!shouldBeUsedLabels.empty()) {
         std::ostringstream unusedStream;
@@ -623,10 +616,11 @@ namespace edm {
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        ex.addContext("Calling produce method for module TriggerResultInserter");
-        std::ostringstream ost;
-        ost << "Processing " << ep.id();
-        ex.addContext(ost.str());
+        if(ex.context().empty()) {
+          std::ostringstream ost;
+          ost << "Processing Event " << ep.id();
+          ex.addContext(ost.str());
+        }
         iExcept = std::current_exception();
       }
       catch(...) {
@@ -863,7 +857,6 @@ namespace edm {
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
     fill_summary(allWorkers(), rep.workerSummaries,   &fillWorkerSummary);
-    sort_all(rep.workerSummaries);
   }
 
   void

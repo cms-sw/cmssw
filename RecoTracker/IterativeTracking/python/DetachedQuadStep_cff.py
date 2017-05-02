@@ -429,6 +429,7 @@ trackingPhase1QuadProp.toReplaceWith(detachedQuadStep, detachedQuadStepClassifie
      qualityCuts = [-0.5,0.0,0.5],
 ))
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 trackingPhase1PU70.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [

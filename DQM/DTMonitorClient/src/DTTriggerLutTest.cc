@@ -304,9 +304,9 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	  else 
 	    phibStatus=5;
 	  
-	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+3,glbStatus);
-	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+3,phiStatus);
-	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+3,phibStatus);
+	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+wheelArrayShift,glbStatus);
+	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phiStatus);
+	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phibStatus);
 	}
       }
     }

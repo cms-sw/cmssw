@@ -1,7 +1,7 @@
 #ifndef ECAL_FENIX_TCP_FORMAT_H
 #define ECAL_FENIX_TCP_FORMAT_H
 
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
+#include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveSample.h"
 #include <vector>
 
 class EcalTPGLutGroup ;
@@ -26,7 +26,7 @@ class EcalFenixTcpFormat  {
   virtual ~EcalFenixTcpFormat();
 
   void process(std::vector<int>&,std::vector<int>&);
-  void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<int> &sfgvb, int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
+  void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<int> &sfgvb, int eTTotShift, std::vector<EcalEBTriggerPrimitiveSample> & out, std::vector<EcalEBTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
   void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT, const EcalTPGSpike * ecaltpgSpike);
 
  private:

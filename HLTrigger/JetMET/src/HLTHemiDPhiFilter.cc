@@ -34,9 +34,7 @@ HLTHemiDPhiFilter::HLTHemiDPhiFilter(const edm::ParameterSet& iConfig) : HLTFilt
 		<< accept_NJ_ << ".";
 }
 
-HLTHemiDPhiFilter::~HLTHemiDPhiFilter()
-{
-}
+HLTHemiDPhiFilter::~HLTHemiDPhiFilter() = default;
 
 void
 HLTHemiDPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

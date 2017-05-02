@@ -48,6 +48,7 @@ class DB:
         cursor = db.cursor()
         db.begin()
         cursor.execute('DELETE FROM IOV WHERE TAG_NAME =:TAG_NAME',(tag,))
+        cursor.execute('DELETE FROM TAG_LOG WHERE TAG_NAME=:TAG_NAME',(tag,))
         cursor.execute('DELETE FROM TAG WHERE NAME=:NAME',(tag,))
         db.commit()
 
@@ -90,13 +91,11 @@ def uploadFile( fileName, logFileName ):
     lines = out.split('\n')
     ret = False
     for line in lines:
-        if line.startswith('\t '):
-            if line.startswith('\t status : -2'):
-                print 'ERROR: upload of file %s failed.' %fileName
-            if line.startswith('\t %s' %fileName):
-                returnCode = line.split('\t %s :' %fileName)[1].strip()
-                if returnCode == 'True':
-                    ret = True
+        if line.startswith('upload ended with code:'):
+            returnCode = line.split('upload ended with code:')[1].strip()
+            if returnCode == '0':
+                ret = True
+            break
     with open(logFileName,'a') as logFile:
         logFile.write(out)
     return ret
@@ -105,7 +104,7 @@ class UploadTest:
     def __init__(self, db):
         self.db = db
         self.errors = 0
-        self.logFileName = 'conditionUloadTest.log'
+        self.logFileName = 'conditionUploadTest.log'
 
     def log( self, msg ):
         print msg
@@ -174,7 +173,7 @@ def main():
     test = UploadTest( db )
     # test with synch=any
     tag = 'test_CondUpload_any'
-    test.upload( inputTag, bfile0, tag, 'any', 1, True, 'CREATE' )  
+    test.upload( inputTag, bfile0, tag, 'any', 1, True, 'CREATE' )
     test.upload( inputTag, bfile1, tag, 'any', 1, False, 'FAIL' )  
     test.upload( inputTag, bfile0, tag, 'any', 200, True, 'APPEND' )  
     test.upload( inputTag, bfile0, tag, 'any', 100, True, 'INSERT')  
@@ -259,7 +258,7 @@ def main():
     test.upload( inputTag, bfile0, tag, 'runmc', 1000, True, 'APPEND')
     test.upload( inputTag, bfile0, tag, 'runmc', 500, False, 'FAIL' ) 
     test.upload( inputTag, bfile0, tag, 'runmc', 1000, False, 'FAIL' ) 
-    test.upload( inputTag, bfile0, tag, 'runmc', 2000, True, 'APPEND' ) 
+    test.upload( inputTag, bfile0, tag, 'runmc', 2000, True, 'APPEND' )
     db.removeTag( tag )
     os.remove( bfile0 )
     os.remove( bfile1 )

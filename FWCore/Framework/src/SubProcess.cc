@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -23,6 +24,7 @@
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -43,6 +45,7 @@ namespace edm {
                          std::shared_ptr<ProductRegistry const> parentProductRegistry,
                          std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+                         SubProcessParentageHelper const& parentSubProcessParentageHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
@@ -155,6 +158,10 @@ namespace edm {
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_ = items.preg();
+
+    subProcessParentageHelper_ = items.subProcessParentageHelper();
+    subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
+
     //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.
@@ -184,6 +191,7 @@ namespace edm {
                                  preg_,
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 *subProcessParentageHelper_,
                                  esController,
                                  *items.actReg_,
                                  newToken,
@@ -352,12 +360,14 @@ namespace edm {
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     BranchListIndexes bli(principal.branchListIndexes());
     branchIDListHelper_->fixBranchListIndexes(bli);
+    bool deepCopyRetriever = false;
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry,
                           std::move(esids),
                           std::move(bli),
                           *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
-                          principal.reader());
+                          principal.reader(),
+                          deepCopyRetriever);
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     
@@ -540,7 +550,26 @@ namespace edm {
       for_all(subProcesses_, [id, &rp, &ts](auto& subProcess){ subProcess.doStreamBeginRun(id,rp, ts); });
     }
   }
+  void
+  SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,
+                                    unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    
+    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
 
+    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+
+    beginStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       rp,
+                                       ts,
+                                       esp_->eventSetupForInstance(ts),
+                                       subProcesses_);
+    
+  }
+
+  
   void
   SubProcess::doStreamEndRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -553,6 +582,23 @@ namespace edm {
   }
 
   void
+  SubProcess::doStreamEndRunAsync(WaitingTaskHolder iHolder,
+                                  unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+    
+    endStreamTransitionAsync<Traits>(std::move(iHolder),
+                                      *schedule_,
+                                       id,
+                                       rp,
+                                       ts,
+                                       esp_->eventSetupForInstance(ts),
+                                       subProcesses_,
+                                     cleaningUpAfterException);
+  }
+
+  void
   SubProcess::doStreamBeginLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     {
@@ -562,7 +608,26 @@ namespace edm {
       for_all(subProcesses_, [id, &lbp, &ts](auto& subProcess){ subProcess.doStreamBeginLuminosityBlock(id,lbp, ts); });
     }
   }
+  void
+  SubProcess::doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                                unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+    
+    LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+    
+    beginStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       lbp,
+                                       ts,
+                                       esp_->eventSetupForInstance(ts),
+                                       subProcesses_);
+  }
 
+  
+  
   void
   SubProcess::doStreamEndLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -572,6 +637,23 @@ namespace edm {
       schedule_->processOneStream<Traits>(id,lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
       for_all(subProcesses_, [id, &lbp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndLuminosityBlock(id,lbp, ts,cleaningUpAfterException); });
     }
+  }
+
+  void
+  SubProcess::doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                              unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    
+    LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+    endStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       lbp,
+                                       ts,
+                                       esp_->eventSetupForInstance(ts),
+                                       subProcesses_,
+                                       cleaningUpAfterException);
   }
 
 

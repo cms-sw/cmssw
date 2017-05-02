@@ -74,6 +74,8 @@ public:
   // input jet collection
   edm::InputTag srcJets_;
   edm::EDGetTokenT<reco::CandidateView> Jets_token;
+  double minJetPt_;
+  double maxJetAbsEta_;
 
   // plugins for building and ranking ChargedHadron candidates
   builderList builders_;
@@ -93,6 +95,8 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
   Jets_token = consumes<reco::CandidateView>(srcJets_);
+  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
   
@@ -164,6 +168,9 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   // loop over our jets
   BOOST_FOREACH( const reco::PFJetRef& pfJet, pfJets ) {
     
+    if(pfJet->pt() - minJetPt_ < 1e-5) continue;
+    if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;
+
     // build global list of ChargedHadron candidates for each jet
     ChargedHadronList uncleanedChargedHadrons;
 

@@ -36,17 +36,10 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   std::string attribute = "MuStructure"; // "ReadOutName"; // could come from .orcarc
   std::string value     = "MuonEndCapGEM"; // "MuonGEMHits"; // could come from .orcarc
 
-  DDValue val(attribute, value, 0.0);
+  
   // Asking only for the MuonGEM's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable 
-  		     DDCompOp::matches,
-  		     DDLogOp::AND, 
-  		     true, // compare strings otherwise doubles
-  		     true // use merged-specifics or simple-specifics
-  		     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   return this->buildGeometry(fview, muonConstants);
 }

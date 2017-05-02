@@ -31,6 +31,7 @@ testTrackClassifier3.GBRForestLabel = 'MVASelectorIter3_13TeV'
 testTrackClassifier3.qualityCuts = [-0.5,0.0,0.5]
 
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
 testTrackMerger2 = TrackCollectionMerger.clone()
 testTrackMerger2.trackProducers = ['initialStepTracks','detachedTripletStepTracks']

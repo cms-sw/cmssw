@@ -23,7 +23,7 @@ const T * get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
   if (not handle.isValid()) {
     auto const & error = handle.whyFailed();
     edm::LogWarning(error->category()) << error->what();
-    return 0;
+    return nullptr;
   } else {
     return handle.product();
   }

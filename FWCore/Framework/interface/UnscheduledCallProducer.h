@@ -67,39 +67,36 @@ namespace edm {
             worker->doWork<T>(p, es, streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
-            std::ostringstream ost;
-            if (T::isEvent_) {
-              ost << "Calling event method";
+            if(ex.context().empty()) {
+              addContextToException<T>(ex,worker,p.id());
             }
-            else if (T::begin_ && T::branchType_ == InRun) {
-              ost << "Calling beginRun";
-            }
-            else if (T::begin_ && T::branchType_ == InLumi) {
-              ost << "Calling beginLuminosityBlock";
-            }
-            else if (!T::begin_ && T::branchType_ == InLumi) {
-              ost << "Calling endLuminosityBlock";
-            }
-            else if (!T::begin_ && T::branchType_ == InRun) {
-              ost << "Calling endRun";
-            }
-            else {
-              // It should be impossible to get here ...
-              ost << "Calling unknown function";
-            }
-            ost << " for unscheduled module " << worker->description().moduleName()
-                << "/'" << worker->description().moduleLabel() << "'";
-            ex.addContext(ost.str());
-            ost.str("");
-            ost << "Processing " << p.id();
-            ex.addContext(ost.str());
             throw;
           }
         }
       }
     }
 
+    template <typename T, typename U>
+    void runNowAsync(WaitingTask* task,
+                     typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
+                     typename T::Context const* topContext, U const* context) const {
+      //do nothing for event since we will run when requested
+      if(!T::isEvent_) {
+        for(auto worker: unscheduledWorkers_) {
+          ParentContext parentContext(context);
+          worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID, parentContext, topContext);
+        }
+      }
+    }
+
+    
   private:
+    template <typename T, typename ID>
+    void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
+      std::ostringstream ost;
+      ost << "Processing " << T::transitionName()<<" "<< id;
+      ex.addContext(ost.str());
+    }
     worker_container unscheduledWorkers_;
     UnscheduledAuxiliary aux_;
   };

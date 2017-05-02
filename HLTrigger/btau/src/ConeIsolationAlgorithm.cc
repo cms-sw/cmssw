@@ -3,8 +3,7 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-ConeIsolationAlgorithm::ConeIsolationAlgorithm(void)
-{ }
+ConeIsolationAlgorithm::ConeIsolationAlgorithm() = default;
 
 ConeIsolationAlgorithm::ConeIsolationAlgorithm(const ParameterSet & parameters)
 {
@@ -57,19 +56,19 @@ pair<float,IsolatedTauTagInfo> ConeIsolationAlgorithm::tag(const JetTracksAssoci
 
   // Selection of the Tracks
   float z_pv = pv.z();
-  for(edm::RefVector<reco::TrackCollection>::const_iterator it = tracks.begin(); it!= tracks.end(); ++it)
+  for(auto && track : tracks)
   {
-    if ( (*it)->pt()                                  >  m_cutMinPt                     &&
-         (*it)->normalizedChi2()                      <  m_cutMaxChiSquared             &&
-         fabs((*it)->dxy(pv.position()))                            <  m_cutMaxTIP                    &&
-         (*it)->recHitsSize()                         >= (unsigned int) m_cutTotalHits  &&
-         (*it)->hitPattern().numberOfValidPixelHits() >= m_cutPixelHits ) 
+    if ( (track)->pt()                                  >  m_cutMinPt                     &&
+         (track)->normalizedChi2()                      <  m_cutMaxChiSquared             &&
+         fabs((track)->dxy(pv.position()))                            <  m_cutMaxTIP                    &&
+         (track)->recHitsSize()                         >= (unsigned int) m_cutTotalHits  &&
+         (track)->hitPattern().numberOfValidPixelHits() >= m_cutPixelHits ) 
     {
       if (useVertexConstrain_ && z_pv > -500.) {
-        if (fabs((*it)->dz(pv.position())) < dZ_vertex)
-          myTracks.push_back(*it);
+        if (fabs((track)->dz(pv.position())) < dZ_vertex)
+          myTracks.push_back(track);
       } else
-        myTracks.push_back(*it);
+        myTracks.push_back(track);
     }
   }
   IsolatedTauTagInfo resultExtended(myTracks,jetTracks);

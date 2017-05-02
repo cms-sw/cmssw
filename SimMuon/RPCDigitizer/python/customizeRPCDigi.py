@@ -88,3 +88,8 @@ def customize_digi_addGEM_muon_only(process):
     )
     process = append_GEMDigi_event(process)
     return process
+
+# Customizations for the background
+def customize_digi_noRPCbkg(process):
+    process.simMuonRPCDigis.doBkgNoise = False
+    return process

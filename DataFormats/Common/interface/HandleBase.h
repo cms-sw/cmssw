@@ -29,8 +29,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
+#include <algorithm>
 
 #include <memory>
 
@@ -87,8 +86,6 @@ namespace edm {
     
     ProductID id() const;
     
-
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     HandleBase(HandleBase const&) = default;
     
 
@@ -105,7 +102,6 @@ namespace edm {
       whyFailedFactory_ = std::move(rhs.whyFailedFactory_);
       return *this;
     }
-#endif
 
     std::shared_ptr<cms::Exception> whyFailed() const {
       if(whyFailedFactory_.get()) {

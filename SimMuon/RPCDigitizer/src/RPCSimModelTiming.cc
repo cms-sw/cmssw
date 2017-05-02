@@ -150,44 +150,28 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 	  }
 	}
       }
-      
+ 
+      //digitize all the strips in the cluster
+      //in the previuos version some strips were dropped 
+      //leading to un-physical "shift" of the cluster
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
-	// Check the timing of the adjacent strip
-	if(*i != centralStrip){
-	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
-	    std::pair<int, int> digi(*i,time_hit);
-            RPCDigi adigi(*i,time_hit);
-            adigi.hasTime(true);
-            adigi.setTime(precise_time);
- 	    if(do_Y)
-	      {
-	  	adigi.hasY(true);
-	  	adigi.setY(smearedPositionY);
-		adigi.setDeltaY(sigmaY);
-	      }
-            irpc_digis.insert(adigi);
-	    
-	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
+	std::pair<int, int> digi(*i,time_hit);
+	RPCDigi adigi(*i,time_hit);
+	adigi.hasTime(true);
+	adigi.setTime(precise_time);
+	if(do_Y)
+	  {
+	    adigi.hasY(true);
+	    adigi.setY(smearedPositionY);
+	    adigi.setDeltaY(sigmaY);
 	  }
-	} 
-	else {
-	  std::pair<int, int> digi(*i,time_hit);
-	  RPCDigi adigi(*i,time_hit);
-          adigi.hasTime(true);
-          adigi.setTime(precise_time);
-          if(do_Y)
-	    {
-	      adigi.hasY(true);
-	      adigi.setY(smearedPositionY);
-	      adigi.setDeltaY(sigmaY);
-	    }
-          irpc_digis.insert(adigi);
-          theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
-	}
+	irpc_digis.insert(adigi);
+	theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
       }
     }
   }
 }
+
 
 void RPCSimModelTiming::simulateNoise(const RPCRoll* roll,
 				      CLHEP::HepRandomEngine* engine) 

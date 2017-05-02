@@ -5,6 +5,10 @@
 //////
 //////
 
+#ifndef ADD_DELTAS
+#define ADD_DELTAS
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 
 DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
@@ -235,3 +239,5 @@ DeltaOutArr3 CalcDeltas_Hold(const std::vector<MatchingOutput> & Mout){
   return Output;
   
 }
+
+#endif

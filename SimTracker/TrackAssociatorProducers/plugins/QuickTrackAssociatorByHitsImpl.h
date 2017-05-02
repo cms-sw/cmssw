@@ -7,7 +7,7 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
-#include <unordered_set>
+#include "FWCore/Utilities/interface/IndexSet.h"
 
 // Forward declarations
 class TrackerHitAssociator;
@@ -106,7 +106,7 @@ public:
  private:
   typedef std::pair<uint32_t,EncodedEventId> SimTrackIdentifiers; ///< @brief This is enough information to uniquely identify a sim track
   
-  typedef std::unordered_set<reco::RecoToSimCollection::index_type> TrackingParticleRefKeySet; ///< @brief Set for TrackingParticleRef keys
+  typedef edm::IndexSet TrackingParticleRefKeySet; ///< @brief Set for TrackingParticleRef keys
 
   // - added by S. Sarkar
   static bool tpIntPairGreater(std::pair<edm::Ref<TrackingParticleCollection>,size_t> i, std::pair<edm::Ref<TrackingParticleCollection>,size_t> j) { return (i.first.key()>j.first.key()); }

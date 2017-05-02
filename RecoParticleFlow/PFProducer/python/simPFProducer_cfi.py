@@ -8,6 +8,7 @@ simPFProducer = cms.EDProducer(
     pfRecTrackSrc = cms.InputTag("hgcalTrackCollection:TracksInHGCal"),
     trackSrc = cms.InputTag('generalTracks'),
     gsfTrackSrc = cms.InputTag('electronGsfTracks'),
+    muonSrc = cms.InputTag("muons1stStep"),
     trackingParticleSrc = cms.InputTag('mix:MergedTrackTruth'),
     simClusterTruthSrc = cms.InputTag('mix:MergedCaloTruth'),
     caloParticlesSrc = cms.InputTag('mix:MergedCaloTruth'),

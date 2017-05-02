@@ -34,9 +34,9 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     /// return a new event vertex
-    virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
+    virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-    virtual TMatrixD* GetInvLorentzBoost() {return 0;};
+    virtual TMatrixD const* GetInvLorentzBoost() const override {return 0;};
    
 private:
     /** Copy constructor */

@@ -5,6 +5,10 @@
 //////
 //////
 
+#ifndef ADD_SortSector
+#define ADD_SortSector
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 
@@ -148,3 +152,5 @@ std::vector<SortingOutput> SortSect_Hold(std::vector<PatternOutput> Pout){
   return output;
 }
 
+
+#endif

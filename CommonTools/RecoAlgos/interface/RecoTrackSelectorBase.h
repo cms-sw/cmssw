@@ -1,6 +1,7 @@
 #ifndef CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 #define CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 

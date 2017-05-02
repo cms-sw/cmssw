@@ -39,12 +39,12 @@ Description: Producer for ScoutingCaloJets from reco::CaloJet objects
 class HLTScoutingCaloProducer : public edm::global::EDProducer<> {
     public:
         explicit HLTScoutingCaloProducer(const edm::ParameterSet&);
-        ~HLTScoutingCaloProducer();
+        ~HLTScoutingCaloProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const final;
 
         const edm::EDGetTokenT<reco::CaloJetCollection> caloJetCollection_;
         const edm::EDGetTokenT<reco::JetTagCollection> caloJetBTagCollection_;
@@ -79,14 +79,12 @@ HLTScoutingCaloProducer::HLTScoutingCaloProducer(const edm::ParameterSet& iConfi
 {
     //register products
     produces<ScoutingCaloJetCollection>();
-    produces<ScoutingVertexCollection>();
     produces<double>("rho");
     produces<double>("caloMetPt");
     produces<double>("caloMetPhi");
 }
 
-HLTScoutingCaloProducer::~HLTScoutingCaloProducer()
-{ }
+HLTScoutingCaloProducer::~HLTScoutingCaloProducer() = default;
 
 // ------------ method called to produce the data  ------------
     void
@@ -146,18 +144,6 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
         }
     }
 
-    //get vertices
-    Handle<reco::VertexCollection> vertexCollection;
-    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-    if(iEvent.getByToken(vertexCollection_, vertexCollection)){
-        //produce vertices (only if present; otherwise return an empty collection)
-        for(auto &vtx : *vertexCollection){
-            outVertices->emplace_back(
-                        vtx.x(), vtx.y(), vtx.z(), vtx.zError()
-                        );
-        }
-    }
-
     //get rho
     Handle<double>rho;
     std::unique_ptr<double> outRho(new double(-999));
@@ -176,7 +162,7 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //put output
     iEvent.put(std::move(outCaloJets));
-    iEvent.put(std::move(outVertices));
+    //    iEvent.put(std::move(outVertices));
     iEvent.put(std::move(outRho), "rho");
     iEvent.put(std::move(outMetPt), "caloMetPt");
     iEvent.put(std::move(outMetPhi), "caloMetPhi");

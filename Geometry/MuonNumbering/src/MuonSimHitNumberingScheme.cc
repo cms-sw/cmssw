@@ -6,23 +6,28 @@
 #include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 //#define LOCAL_DEBUG
 
-MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const DDCompactView& cpv) {
+MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const DDCompactView& cpv) :
+  MuonSimHitNumberingScheme(d,MuonDDDConstants(cpv)){ }
+
+MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const MuonDDDConstants& muonConstants) {
   theDetector=d;
   if (theDetector->isBarrel()) {
-    theNumbering=new DTNumberingScheme(cpv);
+    theNumbering=new DTNumberingScheme(muonConstants);
   } else if (theDetector->isEndcap()) {
-    theNumbering=new CSCNumberingScheme(cpv);
+    theNumbering=new CSCNumberingScheme(muonConstants);
   } else if (theDetector->isRPC()) {
-    theNumbering=new RPCNumberingScheme(cpv);
+    theNumbering=new RPCNumberingScheme(muonConstants);
   } else if (theDetector->isGEM()) {
-    theNumbering=new GEMNumberingScheme(cpv);
+    theNumbering=new GEMNumberingScheme(muonConstants);
   } else if (theDetector->isME0()) {
-    theNumbering=new ME0NumberingScheme(cpv);
+    theNumbering=new ME0NumberingScheme(muonConstants);
   } 
 }
+
 
 MuonSimHitNumberingScheme::~MuonSimHitNumberingScheme() {
   delete theNumbering;

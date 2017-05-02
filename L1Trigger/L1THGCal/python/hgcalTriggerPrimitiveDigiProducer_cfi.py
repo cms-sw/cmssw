@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
@@ -17,7 +16,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
-                     TCThreshold = cms.int32(10)
+                     TCThreshold_fC = cms.double(1.)
                      )
 
 calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 ** fe_codec.triggerCellTruncationBits.value() ) ),
@@ -26,12 +25,21 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 
                              dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
                              thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
                              )
+C2d_parValues = cms.PSet( seeding_threshold = cms.double(5), # MipT
+                          clustering_threshold = cms.double(2), # MipT
+                          dR_cluster = cms.double(3.), # in cm
+                          clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
+                         )
 
-cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgoBestChoice'),
+C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01) )
+
+cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                           FECodec = fe_codec,
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                           HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                          calib_parameters = calib_parValues.clone()
+                          calib_parameters = calib_parValues.clone(),
+                          C2d_parameters = C2d_parValues.clone(),
+                          C3d_parameters = C3d_parValues.clone()
                           )
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(

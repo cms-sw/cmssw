@@ -1820,7 +1820,7 @@
 
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
-    <String name="ChildName" value="GEMBox21F"/>
+    <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
     <Numeric name="startCopyNo" value="2"/>
@@ -1859,7 +1859,7 @@
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
-    <String name="ChildName" value="GEMBox21B"/>
+    <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
     <Numeric name="startCopyNo" value="52"/>
@@ -1873,7 +1873,7 @@
 
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
-    <String name="ChildName" value="GEMBox21F"/>
+    <String name="ChildName" value="GEMBox21B"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
     <Numeric name="startCopyNo" value="2"/>
@@ -1912,7 +1912,7 @@
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
-    <String name="ChildName" value="GEMBox21B"/>
+    <String name="ChildName" value="GEMBox21F"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
     <Numeric name="startCopyNo" value="52"/>

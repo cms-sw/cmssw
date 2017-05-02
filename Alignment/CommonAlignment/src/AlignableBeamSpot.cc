@@ -152,6 +152,7 @@ AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
   return m_alignmentErrors;
 }
 
+//______________________________________________________________________________
 void AlignableBeamSpot::initialize(double x, double y, double z,
 				   double dxdz, double dydz)
 {
@@ -176,4 +177,13 @@ void AlignableBeamSpot::initialize(double x, double y, double z,
   this->dump();
   
   theInitializedFlag = true;
+}
+
+//______________________________________________________________________________
+void AlignableBeamSpot::reset()
+{
+  Alignable::update(this->id(), AlignableSurface());
+  delete theAlignmentPositionError;
+  theAlignmentPositionError = nullptr;
+  theInitializedFlag = false;
 }

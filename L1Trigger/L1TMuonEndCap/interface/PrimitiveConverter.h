@@ -4,6 +4,10 @@
 // and outputs vector of 'ConvertedHits'
 //
 
+#ifndef ADD_PrimitiveConverter
+#define ADD_PrimitiveConverter
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 
 class PrimitiveConverter {
@@ -20,3 +24,5 @@ class PrimitiveConverter {
   int Th_LUT_St1_Neighbor_[2][12][16][64];
   int Th_LUT_St234_Neighbor_[3][12][11][112];
 };
+
+#endif

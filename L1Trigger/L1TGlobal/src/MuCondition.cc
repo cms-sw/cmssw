@@ -306,13 +306,13 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             }
 
 	    // check delta eta
-	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 8) ){
+	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEtaAtVtx(), (candVec->at(useBx,1))->hwEtaAtVtx(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 8) ){
 	      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
 	      continue;
 	    }
 
 	    // check delta phi
-	    if( !checkRangeDeltaPhi( (candVec->at(useBx,0))->hwPhi(), (candVec->at(useBx,1))->hwPhi(), 
+	    if( !checkRangeDeltaPhi( (candVec->at(useBx,0))->hwPhiAtVtx(), (candVec->at(useBx,1))->hwPhiAtVtx(), 
 				     corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
 	      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
 	      continue;
@@ -416,12 +416,12 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
     LogDebug("L1TGlobal")
       << "\n l1t::Muon : "
-      << "\n\t hwPt     = 0x " <<  cand.hwPt()
-      << "\n\t hwEta    = 0x " << cand.hwEta()
-      << "\n\t hwPhi    = 0x " << cand.hwPhi()
-      << "\n\t hwCharge = 0x " << cand.hwCharge()
-      << "\n\t hwQual   = 0x " << cand.hwQual()
-      << "\n\t hwIso    = 0x " << cand.hwIso() << std::dec
+      << "\n\t hwPt       = 0x " <<  cand.hwPt()
+      << "\n\t hwEtaAtVtx = 0x " << cand.hwEtaAtVtx()
+      << "\n\t hwPhiAtVtx = 0x " << cand.hwPhiAtVtx()
+      << "\n\t hwCharge   = 0x " << cand.hwCharge()
+      << "\n\t hwQual     = 0x " << cand.hwQual()
+      << "\n\t hwIso      = 0x " << cand.hwIso() << std::dec
       << std::endl;
 
 
@@ -432,13 +432,13 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 8) ){
+    if( !checkRangeEta(cand.hwEtaAtVtx(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 8) ){
       LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
 
     // check phi
-    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
+    if( !checkRangePhi(cand.hwPhiAtVtx(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
       LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }

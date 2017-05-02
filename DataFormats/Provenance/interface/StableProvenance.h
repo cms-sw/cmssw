@@ -37,6 +37,7 @@ namespace edm {
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
     BranchID const& branchID() const {return branchDescription().branchID();}
+    BranchID const& originalBranchID() const {return branchDescription().originalBranchID();}
     std::string const& branchName() const {return branchDescription().branchName();}
     std::string const& className() const {return branchDescription().className();}
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}

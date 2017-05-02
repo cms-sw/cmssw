@@ -299,12 +299,14 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BetaThreshold             = cms.double(0.7),
         TimeSliceUnit             = cms.double(1),
         IgnoreTrackID             = cms.bool(False),
+        HBDarkening               = cms.bool(False),
         HEDarkening               = cms.bool(False),
         HFDarkening               = cms.bool(False),
         UseHF                     = cms.untracked.bool(True),
         ForTBH2                   = cms.untracked.bool(False),
         UseLayerWt                = cms.untracked.bool(False),
         WtFile                    = cms.untracked.string('None'),
+        TestNS                    = cms.untracked.bool(False),
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(
@@ -406,6 +408,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
+        RejectMouseBite  = cms.bool(False),
+        RotatedWafer     = cms.bool(False),
+        WaferAngles      = cms.untracked.vdouble(90.0,30.0),
+        WaferSize        = cms.untracked.double(123.7),
+        MouseBite        = cms.untracked.double(2.5),
         CheckID          = cms.untracked.bool(True),
     ),
     TotemSD = cms.PSet(
@@ -459,7 +466,16 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BirkC1 = cms.double(0.013),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
-    )
+    ),
+    AHCalSD = cms.PSet(
+        UseBirkLaw      = cms.bool(True),
+        BirkC3          = cms.double(1.75),
+        BirkC2          = cms.double(0.142),
+        BirkC1          = cms.double(0.0052),
+        EminHit         = cms.double(0.0),
+        TimeSliceUnit   = cms.double(1),
+        IgnoreTrackID   = cms.bool(False),
+    ),
 )
 
 
@@ -474,5 +490,3 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(g4SimHits.HCalSD, doNeutralDensityFilter = cms.bool(True))

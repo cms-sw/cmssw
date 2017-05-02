@@ -407,11 +407,12 @@ namespace cond {
     ~Query(){
     }
 
-    template<typename Col> void addTable(){
+    template<typename Col> Query& addTable(){
       if( m_tables.find( Col::tableName() )==m_tables.end() ){
 	m_coralQuery->addToTableList( Col::tableName() );
 	m_tables.insert( Col::tableName() );
       }
+      return *this;
     }
 
     template<int n>
@@ -424,29 +425,34 @@ namespace cond {
       _Query<n+1, Args...>();
     }
 
-    template<typename C, typename T> void addCondition( const T& value, const std::string condition = "="){
+    template<typename C, typename T> Query& addCondition( const T& value, const std::string condition = "="){
       addTable<C>();
       f_add_condition_data<C>( m_whereData, m_whereClause, value, condition );       
+      return *this;
     }
   
-    template<typename C1, typename C2> void addCondition( const std::string condition = "="){
+    template<typename C1, typename C2> Query& addCondition( const std::string condition = "="){
       addTable<C1>();
       addTable<C2>();
-      f_add_condition<C1,C2>( m_whereClause, condition );      
+      f_add_condition<C1,C2>( m_whereClause, condition ); 
+      return *this;     
     }
 
-    template<typename C> void addOrderClause( bool ascending=true ){
+    template<typename C> Query& addOrderClause( bool ascending=true ){
       std::string orderClause( C::fullyQualifiedName() );
       if(!ascending) orderClause += " DESC";
       m_coralQuery->addToOrderList( orderClause );
+      return *this;
     }
 
-    void groupBy( const std::string& expression ){
+    Query& groupBy( const std::string& expression ){
       m_coralQuery->groupBy( expression );
+      return *this;
     }
 
-    void setForUpdate(){
+    Query& setForUpdate(){
       m_coralQuery->setForUpdate();
+      return *this;
     }
 
     bool next(){
@@ -591,7 +597,7 @@ namespace cond {
     }
 
     void flush(){
-      m_coralInserter->flush();
+      if( m_coralInserter.get() ) m_coralInserter->flush();
     }
   private:
     // fixme

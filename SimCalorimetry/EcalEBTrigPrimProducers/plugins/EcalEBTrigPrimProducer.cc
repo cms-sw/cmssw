@@ -203,9 +203,9 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
       std::cout << "EcalTPG Printing only non zero TP " <<" For tower  "<<(((*pOut)[i])).id()<<", TP is "<<(*pOut)[i];
       for (int isam=0;isam<(*pOut)[i].size();++isam) {
 	
-        if (  (*pOut)[i][isam].compressedEt() > 0)  {
+        if (  (*pOut)[i][isam].encodedEt() > 0)  {
 	  nonZeroTP++;
-	  std::cout << " (*pOut)[i][isam].raw() "  <<  (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].compressedEt() " <<  (*pOut)[i][isam].compressedEt() <<  std::endl;
+	  std::cout << " (*pOut)[i][isam].raw() "  <<  (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() " <<  (*pOut)[i][isam].encodedEt() <<  std::endl;
 	}
       }
     }

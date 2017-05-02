@@ -63,8 +63,23 @@ AlignableMuon::~AlignableMuon()
 }
 
 
-//--------------------------------------------------------------------------------------------------
-void AlignableMuon::buildDTBarrel( const DTGeometry* pDT  )
+//------------------------------------------------------------------------------
+void AlignableMuon::update(const DTGeometry* dtGeometry ,
+                           const CSCGeometry* cscGeometry)
+{
+  // update the muon barrel
+  buildDTBarrel(dtGeometry, /* update = */ true);
+
+  // update the muon end caps
+  buildCSCEndcap(cscGeometry, /* update = */ true);
+
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignableMuon::update" << "Updating alignable muon objects DONE";
+}
+
+
+//------------------------------------------------------------------------------
+void AlignableMuon::buildDTBarrel(const DTGeometry* pDT, bool update)
 {
   
  LogDebug("Position") << "Constructing AlignableDTBarrel"; 
@@ -81,12 +96,12 @@ void AlignableMuon::buildDTBarrel( const DTGeometry* pDT  )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom DT Chambers
-      std::vector<const GeomDet*> theSLs;
-      for(auto  det = pDT->chambers().begin(); 
-		   det != pDT->chambers().end(); ++det ){
+      int iChamber{0};
+      std::vector<const GeomDet*> theSLs; // FIXME: What is this vector meant to be for? Probably redundant since super layers are handled inside of the AlignableDTChamber.
+      for(const auto& det: pDT->chambers()){
         // Get the chamber ID
-        DTChamberId chamberId = (*det)->id(); 
-		
+        DTChamberId chamberId = det->id();
+
         // Get wheel,station and sector of the chamber
         int wh = chamberId.wheel();
         int st = chamberId.station();
@@ -95,70 +110,76 @@ void AlignableMuon::buildDTBarrel( const DTGeometry* pDT  )
         // Select the chambers in a given wheel in a given station
         if ( iwh == wh && ist == st ){
 
-          // Create the alignable DT chamber
-          AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber( *det );
- 
-          // Store the DT chambers in a given DT Station and Wheel
-		  tmpDTChambersInStation.push_back( tmpDTChamber );
+          if (update) {
+            // Update the alignable DT chamber
+            theDTBarrel.back()->wheel(iwh+2).station(ist-1).chamber(iChamber).update(det);
+          } else {
+            // Create the alignable DT chamber
+            AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber(det);
 
-		  // End chamber selection
-		}
+            // Store the DT chambers in a given DT Station and Wheel
+            tmpDTChambersInStation.push_back( tmpDTChamber );
+          }
 
-		// End loop over chambers
+          ++iChamber;
+          // End chamber selection
+        }
+
+        // End loop over chambers
       }  
-	  
-      // Store the DT chambers 
-      theDTChambers.insert( theDTChambers.end(), tmpDTChambersInStation.begin(),
-                            tmpDTChambersInStation.end() );
 
-      // Create the alignable DT station with chambers in a given station and wheel 
-      AlignableDTStation* tmpDTStation  = new AlignableDTStation( tmpDTChambersInStation );
-     
-      // Store the DT stations in a given wheel  
-      tmpDTStationsInWheel.push_back( tmpDTStation );
+      if (!update) {
+        // Store the DT chambers
+        theDTChambers.insert(theDTChambers.end(), tmpDTChambersInStation.begin(),
+                             tmpDTChambersInStation.end());
 
-      // Clear the temporary vector of chambers in a station
-      tmpDTChambersInStation.clear();
+        // Create the alignable DT station with chambers in a given station and wheel
+        AlignableDTStation* tmpDTStation  = new AlignableDTStation(tmpDTChambersInStation);
 
+        // Store the DT stations in a given wheel
+        tmpDTStationsInWheel.push_back(tmpDTStation);
+
+        // Clear the temporary vector of chambers in a station
+        tmpDTChambersInStation.clear();
+      }
     // End loop over stations
     }
 
-    // Store The DT stations
-	theDTStations.insert( theDTStations.end(), tmpDTStationsInWheel.begin(),
-						  tmpDTStationsInWheel.end() );
+    if (!update) {
+      // Store The DT stations
+      theDTStations.insert(theDTStations.end(),tmpDTStationsInWheel.begin(),
+                           tmpDTStationsInWheel.end());
 
-    // Create the alignable DT wheel
-    AlignableDTWheel* tmpWheel  = new AlignableDTWheel( tmpDTStationsInWheel );
+      // Create the alignable DT wheel
+      AlignableDTWheel* tmpWheel  = new AlignableDTWheel(tmpDTStationsInWheel);
      
 
-    // Store the DT wheels  
-    theDTWheels.push_back( tmpWheel );
+      // Store the DT wheels
+      theDTWheels.push_back(tmpWheel);
 
-    // Clear temporary vector of stations in a wheel
-    tmpDTStationsInWheel.clear();
-
+      // Clear temporary vector of stations in a wheel
+      tmpDTStationsInWheel.clear();
+    }
 
   // End loop over wheels   
   }    
           
-  // Create the alignable Muon Barrel
-  AlignableDTBarrel* tmpDTBarrel  = new AlignableDTBarrel( theDTWheels );  
-  
-  // Store the barrel
-  theDTBarrel.push_back( tmpDTBarrel );
+  if (!update) {
+    // Create the alignable Muon Barrel
+    AlignableDTBarrel* tmpDTBarrel  = new AlignableDTBarrel(theDTWheels);
 
-  // Store the barrel in the muon 
-  theMuonComponents.push_back( tmpDTBarrel );
+    // Store the barrel
+    theDTBarrel.push_back(tmpDTBarrel);
 
-
+    // Store the barrel in the muon
+    theMuonComponents.push_back(tmpDTBarrel);
+  }
 }
 
 
 
-//--------------------------------------------------------------------------------------------------
-
-
-void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
+//------------------------------------------------------------------------------
+void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update)
 {
   
  LogDebug("Position") << "Constructing AlignableCSCBarrel"; 
@@ -180,91 +201,109 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
 
       // Loop over rings ( 1..4 )
       for ( int iri = 1; iri < 5; iri++ ){
-	 
-	 // Loop over geom CSC Chambers
- 	 const CSCGeometry::ChamberContainer& vc = pCSC->chambers();
-	 for( auto det = vc.begin();  det != vc.end(); ++det ){
 
-	    // Get the CSCDet ID
-	    CSCDetId cscId = (*det)->id();
+        // Loop over geom CSC Chambers
+        int iChamber{0};
+        const CSCGeometry::ChamberContainer& vc = pCSC->chambers();
+        for(const auto& det: vc){
 
-	    // Get chamber, station, ring, layer and endcap labels of the CSC chamber
-	    int ec = cscId.endcap();
-	    int st = cscId.station();
-	    int ri = cscId.ring();
-	    //int ch = cscId.chamber();
+          // Get the CSCDet ID
+          CSCDetId cscId = det->id();
 
-	    // Select the chambers in a given endcap, station, and ring
-	    if ( iec == ec && ist == st && iri == ri ) {
+          // Get chamber, station, ring, layer and endcap labels of the CSC chamber
+          int ec = cscId.endcap();
+          int st = cscId.station();
+          int ri = cscId.ring();
+          //int ch = cscId.chamber();
 
-	       // Create the alignable CSC chamber 
-	       AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber( *det );
-  
-	       // Store the alignable CSC chambers
-	       tmpCSCChambersInRing.push_back( tmpCSCChamber );    
+          // Select the chambers in a given endcap, station, and ring
+          if ( iec == ec && ist == st && iri == ri ) {
 
-	       // End If chamber selection
-	    }
+            if (update) {
+              // Update the alignable CSC chamber
+              theCSCEndcaps[iec-1]->station(ist-1).ring(iri-1).chamber(iChamber).update(det);
+            } else {
+              AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber(det);
 
-	    // End loop over geom CSC chambers
-	 }
+              // Store the alignable CSC chambers
+              tmpCSCChambersInRing.push_back(tmpCSCChamber);
+            }
 
-	 // Not all stations have 4 rings: only add the rings that exist (have chambers associated with them)
-	 if (tmpCSCChambersInRing.size() > 0) {
+            ++iChamber;
+            // End If chamber selection
+          }
 
-	    // Store the alignable CSC chambers
-	    theCSCChambers.insert(  theCSCChambers.end(), tmpCSCChambersInRing.begin(), tmpCSCChambersInRing.end() );    
+          // End loop over geom CSC chambers
+        }
 
-	    // Create the alignable CSC ring with chambers in a given ring
-	    AlignableCSCRing* tmpCSCRing  = new AlignableCSCRing( tmpCSCChambersInRing );
+        if (!update) {
+          // Not all stations have 4 rings: only add the rings that exist (have chambers associated with them)
+          if (tmpCSCChambersInRing.size() > 0) {
 
-	    // Store the CSC rings in a given station
-	    tmpCSCRingsInStation.push_back( tmpCSCRing );
+            // Store the alignable CSC chambers
+            theCSCChambers.insert(theCSCChambers.end(),
+                                  tmpCSCChambersInRing.begin(),
+                                  tmpCSCChambersInRing.end());
 
-	    // Clear the temporary vector of chambers in ring
-	    tmpCSCChambersInRing.clear();
+            // Create the alignable CSC ring with chambers in a given ring
+            AlignableCSCRing* tmpCSCRing  = new AlignableCSCRing(tmpCSCChambersInRing);
 
-	    // End if this ring exists
-	 }
+            // Store the CSC rings in a given station
+            tmpCSCRingsInStation.push_back(tmpCSCRing);
 
-	 // End loop over rings
+            // Clear the temporary vector of chambers in ring
+            tmpCSCChambersInRing.clear();
+
+            // End if this ring exists
+          }
+        }
+
+        // End loop over rings
       }
 
-      // Create the alignable CSC station with rings in a given station 
-      AlignableCSCStation* tmpCSCStation  = new AlignableCSCStation( tmpCSCRingsInStation );
-     
-      // Store the alignable CSC rings
-      theCSCRings.insert(  theCSCRings.end(), tmpCSCRingsInStation.begin(), tmpCSCRingsInStation.end() );
+      if (!update) {
+        // Create the alignable CSC station with rings in a given station
+        AlignableCSCStation* tmpCSCStation  = new AlignableCSCStation(tmpCSCRingsInStation);
 
-      // Store the CSC stations in a given endcap  
-      tmpCSCStationsInEndcap.push_back( tmpCSCStation );
+        // Store the alignable CSC rings
+        theCSCRings.insert(theCSCRings.end(), tmpCSCRingsInStation.begin(),
+                           tmpCSCRingsInStation.end());
 
-      // Clear the temporary vector of rings in station
-      tmpCSCRingsInStation.clear();
+        // Store the CSC stations in a given endcap
+        tmpCSCStationsInEndcap.push_back(tmpCSCStation);
 
-    // End loop over stations
+        // Clear the temporary vector of rings in station
+        tmpCSCRingsInStation.clear();
+      }
+
+      // End loop over stations
     }
 
-    // Create the alignable CSC endcap 
-    AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap( tmpCSCStationsInEndcap );
-     
-    // Store the alignable CSC stations 
-    theCSCStations.insert(  theCSCStations.end(), tmpCSCStationsInEndcap.begin(), tmpCSCStationsInEndcap.end() );
+    if (!update) {
+      // Create the alignable CSC endcap
+      AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap(tmpCSCStationsInEndcap);
 
-    // Store the alignable CSC endcaps
-    theCSCEndcaps.push_back( tmpEndcap );
+      // Store the alignable CSC stations
+      theCSCStations.insert(theCSCStations.end(), tmpCSCStationsInEndcap.begin(),
+                            tmpCSCStationsInEndcap.end());
 
-    // Clear the temporary vector of stations in endcap
-    tmpCSCStationsInEndcap.clear();
+      // Store the alignable CSC endcaps
+      theCSCEndcaps.push_back(tmpEndcap);
 
-  // End loop over endcaps  
+      // Clear the temporary vector of stations in endcap
+      tmpCSCStationsInEndcap.clear();
+    }
+
+    // End loop over endcaps
   }
 
-  // Store the encaps in the muon components  
-  theMuonComponents.insert(  theMuonComponents.end(), theCSCEndcaps.begin(), theCSCEndcaps.end() );    
-
-    
+  if (!update) {
+    // Store the encaps in the muon components
+    theMuonComponents.insert(theMuonComponents.end(), theCSCEndcaps.begin(),
+                             theCSCEndcaps.end());
+  }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 align::Alignables AlignableMuon::DTLayers()

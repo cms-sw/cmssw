@@ -39,8 +39,8 @@ DDLCompositeMaterial::processElement( const std::string& name, const std::string
   mat = DDMaterial( ddn, ev.eval( nmspace, atts.find( "density" )->second ));
   
   // Get references to relevant DDL elements that are needed.
-  DDXMLElement* myMF = myRegistry_->getElement( "MaterialFraction" );
-  DDXMLElement* myrMaterial = myRegistry_->getElement( "rMaterial" );
+  auto myMF = myRegistry_->getElement( "MaterialFraction" );
+  auto myrMaterial = myRegistry_->getElement( "rMaterial" );
 
   // Get the names from those elements and also the namespace for the reference element.
   // The parent element CompositeMaterial MUST be in the same namespace as this fraction.

@@ -7,7 +7,7 @@
 #
 
 import FWCore.ParameterSet.Config as cms
-
+import sys
 
 def unpack_legacy():
     global L1TRawToDigi_Legacy
@@ -70,7 +70,7 @@ def unpack_stage2():
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-    print "L1TRawToDigi Sequence configured for Run1 (Legacy) trigger. "
+    sys.stderr.write("L1TRawToDigi Sequence configured for Run1 (Legacy) trigger. \n")
     unpack_legacy()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Legacy);
 
@@ -78,7 +78,7 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    print "L1TRawToDigi Sequence configured for Stage-1 (2015) trigger. "    
+    sys.stderr.write("L1TRawToDigi Sequence configured for Stage-1 (2015) trigger. \n")
     unpack_stage1()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1)
 
@@ -86,7 +86,7 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 # Stage-2 Trigger:  fow now, unpack Stage 1 and Stage 2 (in case both available)
 #
 if stage2L1Trigger.isChosen():
-    print "L1TRawToDigi Sequence configured for Stage-2 (2016) trigger. "    
+    sys.stderr.write("L1TRawToDigi Sequence configured for Stage-2 (2016) trigger. \n")
     unpack_stage1()
     unpack_stage2()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1+L1TRawToDigi_Stage2)

@@ -8,9 +8,8 @@
 
 //#define LOCAL_DEBUG
 
-MuonME0FrameRotation::MuonME0FrameRotation(const DDCompactView& cpv) : MuonFrameRotation::MuonFrameRotation(cpv) {
-  g4numbering     = new MuonG4Numbering(cpv);
-  MuonDDDConstants muonConstants(cpv);
+MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants& muonConstants) : MuonFrameRotation::MuonFrameRotation() {
+  g4numbering     = new MuonG4Numbering(muonConstants);
   int theLevelPart= muonConstants.getValue("level");
   theSectorLevel  = muonConstants.getValue("mg_sector")/theLevelPart;
 #ifdef LOCAL_DEBUG

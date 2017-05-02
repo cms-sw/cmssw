@@ -12,18 +12,14 @@
 #include "G4PairProductionRelModel.hh"
 #include "G4Electron.hh"
 
-
 using namespace std;
-
-static G4double darkFactor;
 
 CMSDarkPairProductionProcess::CMSDarkPairProductionProcess(
   G4double df,
   const G4String& processName,  
   G4ProcessType type):G4VEmProcess (processName, type),
-    isInitialised(false)
+		      isInitialised(false), darkFactor(df)
 { 
-  darkFactor = df;
   SetMinKinEnergy(2.0*electron_mass_c2);
   SetProcessSubType(fGammaConversion);
   SetStartFromNullFlag(true);

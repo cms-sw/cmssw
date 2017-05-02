@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/Fake/V2 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_1/Fake/V1 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/Fake/V2')
+  tableName = cms.string('/dev/CMSSW_9_0_1/Fake/V1')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -41,6 +41,7 @@ process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
   appendToDataLabel = cms.string( "" )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
+  MergePosition = cms.untracked.bool( True ),
   Exclude = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )

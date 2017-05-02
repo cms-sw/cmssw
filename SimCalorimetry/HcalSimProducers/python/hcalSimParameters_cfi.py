@@ -39,9 +39,6 @@ hcalSimParameters = cms.PSet(
         firstRing = cms.int32(1),
         binOfMaximum = cms.int32(5),
         doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.vdouble(0.24, 0.24, 0.24, 0.24,
-            0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 
-            0.17, 0.17, 0.17, 0.17, 0.17), 
         simHitToPhotoelectrons = cms.double(4000.0), # is not actually used
         samplingFactors = cms.vdouble(231.0, 231.0, 231.0, 231.0,
             360.0, 360.0, 360.0, 360.0, 360.0, 360.0,
@@ -59,7 +56,6 @@ hcalSimParameters = cms.PSet(
         firstRing = cms.int32(1),
         binOfMaximum = cms.int32(5),
         doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.vdouble([0.3305]*16),
         simHitToPhotoelectrons = cms.double(2000.0),
         samplingFactors = cms.vdouble(
             125.44, 125.54, 125.32, 125.13, 124.46,
@@ -77,7 +73,6 @@ hcalSimParameters = cms.PSet(
         firstRing = cms.int32(16),
         binOfMaximum = cms.int32(5),
         doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.vdouble([0.3305]*14),
         simHitToPhotoelectrons = cms.double(2000.0),
         samplingFactors = cms.vdouble(
             210.55, 197.93, 186.12, 189.64, 189.63,
@@ -104,16 +99,13 @@ hcalSimParameters = cms.PSet(
 )
 
 hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
-hcalSimParameters.hoZecotek.photoelectronsToAnalog = [3.0]*16
 
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
-hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
 
 # Customises the HCal digitiser for post LS1 running
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( hcalSimParameters, 
     ho = dict(
-        photoelectronsToAnalog = cms.vdouble([4.0]*16),
         siPMCode = cms.int32(1)
     ),
     hf1 = dict( samplingFactor = cms.double(0.67) ),
@@ -126,6 +118,18 @@ run2_HE_2017.toModify( hcalSimParameters,
         doSiPMSmearing = cms.bool(True),
         sipmTau = cms.double(10.),
     )
+)
+
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify( hcalSimParameters,
+    hf1 = dict(
+               readoutFrameSize = cms.int32(3), 
+               binOfMaximum     = cms.int32(2)
+              ),
+    hf2 = dict(
+               readoutFrameSize = cms.int32(3), 
+               binOfMaximum     = cms.int32(2)
+              )
 )
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB

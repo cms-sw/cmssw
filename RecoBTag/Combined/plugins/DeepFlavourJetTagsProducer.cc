@@ -42,6 +42,7 @@
 
 #include <fstream>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -76,10 +77,13 @@ private:
 	// ----------member data ---------------------------
 	const edm::EDGetTokenT< INFOS > src_;
 	edm::FileInPath nnconfig_;
+	bool check_sv_for_defaults_;
+	bool mean_padding_;
 	lwt::LightweightNeuralNetwork *neural_network_;
 	lwt::ValueMap inputs_; //typedef of unordered_map<string, float>
 	vector<string> outputs_;
 	vector<MVAVar> variables_;
+	map<string, string> toadd_;
 };
 
 //
@@ -97,6 +101,8 @@ private:
 DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& iConfig) :
   src_( consumes< INFOS >(iConfig.getParameter<edm::InputTag>("src")) ),
 	nnconfig_(iConfig.getParameter<edm::FileInPath>("NNConfig")),
+	check_sv_for_defaults_(iConfig.getParameter<bool>("checkSVForDefaults")),
+	mean_padding_(iConfig.getParameter<bool>("meanPadding")),
 	neural_network_(NULL),
 	inputs_(),
 	outputs_(),
@@ -109,11 +115,26 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 	//create NN and store the output names for the future
 	neural_network_ = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
 	outputs_ = config.outputs;
+	set<string> outset(outputs_.begin(), outputs_.end());
 
-	//produce one output kind per node 
-	for(auto outnode : config.outputs)	{
-		produces<JetTagCollection>(outnode);
+	//in case we want to merge some different outputs together
+	edm::ParameterSet toadd = iConfig.getParameter<edm::ParameterSet>("toAdd");
+	for(auto output : toadd.getParameterNamesForType<string>()) {		
+		string target = toadd.getParameter<string>(output);
+		if(outset.find(output) == outset.end())
+			throw cms::Exception("RuntimeError") << "The required output: " << output << " to be added to " << target << " could not be found among the NN outputs" << endl;
+		if(outset.find(target) == outset.end())
+			throw cms::Exception("RuntimeError") << "The required output: " << target << ", target of addition of " << output << " could not be found among the NN outputs" << endl;
+		toadd_[output] = target;
 	}
+
+	//produce one output kind per node 	
+	for(auto outnode : config.outputs)	{
+		if(toadd_.find(outnode) == toadd_.end()){ //produce output only if does not get added
+			produces<JetTagCollection>(outnode);
+		}
+	}
+
 
 	//get the set-up for the inputs
 	for(auto& input : config.inputs) {
@@ -134,7 +155,8 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 																				 << ". Please check the spelling" <<  std::endl;
 		}
 		var.index = (tokens.size() == 2) ? stoi(tokens.at(1)) : -1;
-		var.default_value = -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
+		var.default_value = (mean_padding_) ? 0. : -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
+		//for mean padding it is set to zero so that undefined values are assigned -mean/scale
 		
 		variables_.push_back(var);
 	}
@@ -184,9 +206,11 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		TaggingVariableList vars = info.taggingVariables();
     //if there are no tracks there's no point in doing it
 		bool notracks = (vars.get(reco::btau::jetNSelectedTracks) == 0); 
+		bool novtx = (vars.get(reco::btau::jetNSecondaryVertices) == 0); 
+		bool defaulted = (check_sv_for_defaults_) ? (notracks && novtx) : notracks;
 		lwt::ValueMap nnout; //returned value
 
-		if(!notracks) {
+		if(!defaulted) {
 			for(auto& var : variables_) {
 				if(var.index >= 0){
 					std::vector<float> vals = vars.getList(var.id, false);
@@ -200,6 +224,11 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 			//compute NN output(s)
 			nnout = neural_network_->compute(inputs_);
+			
+			//merge outputs
+			for(auto entry : toadd_) {
+				nnout[entry.second] += nnout[entry.first];
+			}
 		}
 
 		//ket the maps key
@@ -207,14 +236,15 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		
 		//dump the NN output(s)
 		for(size_t i=0; i<outputs_.size(); ++i) {
-			(*output_tags[i])[key] = (notracks) ? -1 : nnout[outputs_[i]];
-			//std::cout << i << ": " << nnout[outputs_[i]] << std::endl;
+			(*output_tags[i])[key] = (defaulted) ? -1 : nnout[outputs_[i]];
 		}
 	}
 
 	// put the output in the event
 	for(size_t i=0; i<outputs_.size(); ++i) {
-		iEvent.put(std::move(output_tags[i]), outputs_[i]);
+		if(toadd_.find(outputs_[i]) == toadd_.end()) {
+			iEvent.put(std::move(output_tags[i]), outputs_[i]);
+		}
 	}
 }
 

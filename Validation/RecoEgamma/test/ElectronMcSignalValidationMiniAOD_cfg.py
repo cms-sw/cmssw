@@ -19,10 +19,27 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 # OLD WAY
 
 print "reading files ..."
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
+max_number = -1 # number of events
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
+process.source = cms.Source ("PoolSource",
+#eventsToProcess = cms.untracked.VEventRange('1:2682-1:2682'), 
+#eventsToProcess = cms.untracked.VEventRange('1:8259-1:8259'), 
+fileNames = cms.untracked.vstring([
+#        'file:PAT_249120E2-D1EC-E611-83C2-0CC47A7C347A.root',
+#        'file:PAT_76F9AD07-D3EC-E611-AA87-0CC47A745250.root',
+#        'file:PAT_FA0E1D02-D5EC-E611-B8CA-0025905A6080.root',
+#        'file:PAT_EE728E01-D5EC-E611-9DC5-0025905A6126.root',
+    ]),
+secondaryFileNames = cms.untracked.vstring() )
 process.source.fileNames.extend(dd.search())
 print "done"
+
+#process.printTree = cms.EDAnalyzer("ParticleListDrawer",
+#  maxEventsToPrint = cms.untracked.int32(1),
+#  printVertex = cms.untracked.bool(False),
+#  printOnlyHardInteraction = cms.untracked.bool(False), # Print only status=3 particles. This will not work for Pythia8, which does not have any such particles.
+#  src = cms.InputTag("prunedGenParticles")
+#)
 
 # NEW WAY
 #print "reading files ..."
@@ -61,6 +78,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidatorMiniAOD_cfi")
 process.load("Validation.RecoEgamma.ElectronIsolation_cfi")
+#process.load("PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi")
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")
@@ -74,9 +92,10 @@ fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'].replace(".root", 
 process.electronMcSignalValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 process.electronMcSignalValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
-process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.prunedGenParticles * process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.printTree)
+process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter ) # * process.printTree
 #process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
-#process.p = cms.Path(process.ElectronIsolation)
 
 process.outpath = cms.EndPath(
 process.EDM,

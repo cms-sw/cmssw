@@ -13,6 +13,21 @@
 #include <stdexcept>
 #include <chrono>
 
+#ifdef HAVE_BOOST_CHRONO
+// boost headers
+#include <boost/chrono.hpp>
+#endif // HAVE_BOOST_CHRONO
+
+#if defined HAVE_BOOST_CHRONO || defined HAVE_BOOST_TIMER
+// boost version
+#include <boost/version.hpp>
+#endif // defined HAVE_BOOST_CHRONO || defined HAVE_BOOST_TIMER
+
+#ifdef HAVE_TBB
+// TBB version
+#include <tbb/tbb_stddef.h>
+#endif // HAVE_TBB
+
 // for uname
 #include <sys/utsname.h>
 
@@ -22,6 +37,7 @@
 #endif // __linux__
 
 // other clocks
+#include "interface/syscall_clock_gettime.h"
 #include "interface/posix_clock.h"
 #include "interface/posix_clock_gettime.h"
 #include "interface/posix_gettimeofday.h"
@@ -60,6 +76,40 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   timers.push_back(new Benchmark<std::chrono::system_clock>("std::chrono::system_clock"));
   timers.push_back(new Benchmark<std::chrono::high_resolution_clock>("std::chrono::high_resolution_clock"));
 
+  // syscall clock_gettime
+#ifdef HAVE_SYSCALL_CLOCK_REALTIME
+  if (clock_syscall_realtime::is_available)
+    timers.push_back(new Benchmark<clock_syscall_realtime>("syscall(SYS_clock_gettime, CLOCK_REALTIME)"));
+#endif // HAVE_SYSCALL_CLOCK_REALTIME
+#ifdef HAVE_SYSCALL_CLOCK_REALTIME_COARSE
+  if (clock_syscall_realtime_coarse::is_available)
+    timers.push_back(new Benchmark<clock_syscall_realtime_coarse>("syscall(SYS_clock_gettime, CLOCK_REALTIME_COARSE)"));
+#endif // HAVE_SYSCALL_CLOCK_REALTIME_COARSE
+#ifdef HAVE_SYSCALL_CLOCK_MONOTONIC
+  if (clock_syscall_monotonic::is_available)
+    timers.push_back(new Benchmark<clock_syscall_monotonic>("syscall(SYS_clock_gettime, CLOCK_MONOTONIC)"));
+#endif // HAVE_SYSCALL_CLOCK_MONOTONIC
+#ifdef HAVE_SYSCALL_CLOCK_MONOTONIC_COARSE
+  if (clock_syscall_monotonic_coarse::is_available)
+    timers.push_back(new Benchmark<clock_syscall_monotonic_coarse>("syscall(SYS_clock_gettime, CLOCK_MONOTONIC_COARSE)"));
+#endif // HAVE_SYSCALL_CLOCK_MONOTONIC_COARSE
+#ifdef HAVE_SYSCALL_CLOCK_MONOTONIC_RAW
+  if (clock_syscall_monotonic_raw::is_available)
+    timers.push_back(new Benchmark<clock_syscall_monotonic_raw>("syscall(SYS_clock_gettime, CLOCK_MONOTONIC_RAW)"));
+#endif // HAVE_SYSCALL_CLOCK_MONOTONIC_RAW
+#ifdef HAVE_SYSCALL_CLOCK_BOOTTIME
+  if (clock_syscall_boottime::is_available)
+    timers.push_back(new Benchmark<clock_syscall_boottime>("syscall(SYS_clock_gettime, CLOCK_BOOTTIME)"));
+#endif // HAVE_SYSCALL_CLOCK_BOOTTIME
+#ifdef HAVE_SYSCALL_CLOCK_PROCESS_CPUTIME_ID
+  if (clock_syscall_process_cputime::is_available)
+    timers.push_back(new Benchmark<clock_syscall_process_cputime>("syscall(SYS_clock_gettime, CLOCK_PROCESS_CPUTIME_ID)"));
+#endif // HAVE_SYSCALL_CLOCK_PROCESS_CPUTIME_ID
+#ifdef HAVE_SYSCALL_CLOCK_THREAD_CPUTIME_ID
+  if (clock_syscall_thread_cputime::is_available)
+    timers.push_back(new Benchmark<clock_syscall_thread_cputime>("syscall(SYS_clock_gettime, CLOCK_THREAD_CPUTIME_ID)"));
+#endif // HAVE_SYSCALL_CLOCK_THREAD_CPUTIME_ID
+
   // POSIX clock_gettime
 #ifdef HAVE_POSIX_CLOCK_REALTIME
   if (clock_gettime_realtime::is_available)
@@ -81,6 +131,10 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   if (clock_gettime_monotonic_raw::is_available)
     timers.push_back(new Benchmark<clock_gettime_monotonic_raw>("clock_gettime(CLOCK_MONOTONIC_RAW)"));
 #endif // HAVE_POSIX_CLOCK_MONOTONIC_RAW
+#ifdef HAVE_POSIX_CLOCK_BOOTTIME
+  if (clock_gettime_boottime::is_available)
+    timers.push_back(new Benchmark<clock_gettime_boottime>("clock_gettime(CLOCK_BOOTTIME)"));
+#endif // HAVE_POSIX_CLOCK_BOOTTIME
 #ifdef HAVE_POSIX_CLOCK_PROCESS_CPUTIME_ID
   if (clock_gettime_process_cputime::is_available)
     timers.push_back(new Benchmark<clock_gettime_process_cputime>("clock_gettime(CLOCK_PROCESS_CPUTIME_ID)"));
@@ -171,10 +225,26 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
 #endif // defined __x86_64__ or defined __i386__
 
 #ifdef HAVE_BOOST_TIMER
-  // boost timer clock
+  // boost timer clocks
   timers.push_back(new Benchmark<clock_boost_timer_realtime>("boost::timer (wall-clock time)"));
   timers.push_back(new Benchmark<clock_boost_timer_cputime>("boost::timer (cpu time)"));
 #endif // HAVE_BOOST_TIMER
+
+#ifdef HAVE_BOOST_CHRONO
+  // boost chrono clocks
+  timers.push_back(new Benchmark<boost::chrono::steady_clock>("boost::chrono::steady_clock"));
+  timers.push_back(new Benchmark<boost::chrono::system_clock>("boost::chrono::system_clock"));
+  timers.push_back(new Benchmark<boost::chrono::high_resolution_clock>("boost::chrono::high_resolution_clock"));
+  #ifdef BOOST_CHRONO_HAS_PROCESS_CLOCKS
+  timers.push_back(new Benchmark<boost::chrono::process_real_cpu_clock>("boost::chrono::process_real_cpu_clock"));
+  timers.push_back(new Benchmark<boost::chrono::process_user_cpu_clock>("boost::chrono::process_user_cpu_clock"));
+  timers.push_back(new Benchmark<boost::chrono::process_system_cpu_clock>("boost::chrono::process_system_cpu_clock"));
+  //timers.push_back(new Benchmark<boost::chrono::process_cpu_clock>("boost::chrono::process_cpu_clock"));
+  #endif // BOOST_CHRONO_HAS_PROCESS_CLOCKS
+  #ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
+  timers.push_back(new Benchmark<boost::chrono::thread_clock>("boost::chrono::thread_clock"));
+  #endif // BOOST_CHRONO_HAS_THREAD_CLOCK
+#endif // HAVE_BOOST_CHRONO
 
 #ifdef HAVE_TBB
   // TBB tick_count (this interface does not expose the underlying type, so it cannot easily be used to build a "native" clock interface)
@@ -227,8 +297,15 @@ int main(void) {
   std::cout << read_kernel_version() << std::endl;
 #ifdef __linux__
   std::cout << "glibc version: " << read_glibc_version() << std::endl;
-  std::cout << "clock source: " << read_clock_source() << std::endl;
+  std::cout << "clock source:  " << read_clock_source() << std::endl;
 #endif // __linux__
+#if defined HAVE_BOOST_CHRONO || defined HAVE_BOOST_TIMER
+  std::cout << "boost version: " << (BOOST_VERSION / 100000) << '.' << (BOOST_VERSION / 100 % 1000) << '.' << (BOOST_VERSION % 100) << std::endl;
+#endif // defined HAVE_BOOST_CHRONO || defined HAVE_BOOST_TIMER
+#ifdef HAVE_TBB
+  std::cout << "tbb version:   " << (TBB_INTERFACE_VERSION / 1000) << '.' << (TBB_INTERFACE_VERSION % 1000) << " (interface) " 
+            << (tbb::TBB_runtime_interface_version() / 1000) << '.' << (tbb::TBB_runtime_interface_version() % 1000) << " (runtime)" << std::endl;
+#endif // HAVE_TBB
 
   std::cout << "For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test." << std::endl << std::endl; 
 

@@ -47,7 +47,7 @@ void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine)
   }
   pe2fC(frame);
   // don't bother for blank signals
-  if(theTimeSlewSim && frame[4] > 1.e-6)
+  if(theTimeSlewSim && frame.size()>4 && frame[4] > 1.e-6)
   {
     theTimeSlewSim->delay(frame, engine);
   }

@@ -43,6 +43,7 @@ private:
   double                   zMinBlock;     //Starting z-value of the block
   double                   rMaxFine;      //Maximum r-value for fine wafer
   double                   waferW;        //Width of the wafer
+  double                   waferGap;      //Gap between 2 wafers
   int                      sectors;       //Sectors   
   std::vector<double>      slopeB;        //Slope at the lower R
   std::vector<double>      slopeT;        //Slopes at the larger R
