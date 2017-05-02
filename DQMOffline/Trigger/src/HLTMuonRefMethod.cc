@@ -1,0 +1,209 @@
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <set>
+#include <string>
+#include <vector>
+#include <TPRegexp.h>
+#include <cmath>
+#include <climits>
+#include <boost/tokenizer.hpp>
+
+
+#include <TH1.h>
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
+#include <TEfficiency.h>
+#else
+#include <TGraphAsymmErrors.h>
+#endif
+
+
+TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
+TPRegexp nonPerlWildcard("\\w\\*|^\\*");
+
+using namespace edm;
+using namespace std;
+
+
+
+class HLTMuonRefMethod : public DQMEDHarvester {
+
+public:
+  explicit HLTMuonRefMethod(const edm::ParameterSet& set);
+  ~HLTMuonRefMethod() {};
+
+  virtual void beginJob() override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+  
+
+private:
+  DQMStore* theDQM;
+
+  std::vector<std::string> subDirs_;
+  std::vector<std::string> hltTriggers_;
+  std::vector<std::string> efficiency_;
+  std::vector<std::string> refEff_;
+  std::string              refTriggers_;
+
+  std::string outputFileName_;
+
+  void findAllSubdirectories (DQMStore::IBooker& ibooker,
+			      DQMStore::IGetter& igetter,
+			      std::string dir,
+			      std::set<std::string> * myList,
+			      const TString& pattern);
+  
+
+};
+
+
+HLTMuonRefMethod::HLTMuonRefMethod(const edm::ParameterSet& pset)
+{
+  typedef std::vector<edm::ParameterSet> VPSet;
+  typedef std::vector<std::string> vstring;
+  typedef boost::escaped_list_separator<char> elsc;
+
+  subDirs_     = pset.getUntrackedParameter<vstring>("subDirs");
+  hltTriggers_ = pset.getUntrackedParameter<vstring>("hltTriggers");
+  refTriggers_ = pset.getUntrackedParameter<string> ("refTriggers");
+  efficiency_  = pset.getUntrackedParameter<vstring>("efficiency" );
+  refEff_      = pset.getUntrackedParameter<vstring>("refEff");
+}
+
+void 
+HLTMuonRefMethod::beginJob()
+{
+
+}
+
+
+void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
+{
+  typedef std::vector<std::string> vstring;
+
+  theDQM = 0;
+  theDQM = Service<DQMStore>().operator->();
+  
+  ibooker.cd();
+  set<string> subDirSet;
+
+  for(vstring::const_iterator iSubDir = subDirs_.begin();
+      iSubDir != subDirs_.end(); ++iSubDir) {
+    string subDir = *iSubDir;
+
+    if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
+
+    if ( TString(subDir).Contains(metacharacters) ) {
+      const string::size_type shiftPos = subDir.rfind('/');
+      const string searchPath = subDir.substr(0, shiftPos);
+      const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
+      //std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
+   
+      findAllSubdirectories (ibooker, igetter, searchPath, &subDirSet, pattern);
+
+    }
+    else {
+      subDirSet.insert(subDir);
+    }
+  }
+  
+  for(set<string>::const_iterator iSubDir = subDirSet.begin();
+      iSubDir != subDirSet.end(); ++iSubDir) {
+    const string& subDir = *iSubDir;
+    
+    for (unsigned int iEff = 0; iEff != efficiency_.size(); ++iEff){
+      string eff = efficiency_[iEff];
+      
+      // Getting reference trigger efficiency
+      MonitorElement* refEff = igetter.get(subDir + "/" + refTriggers_ + "/" + refEff_[iEff]);
+
+      if (!refEff) continue;
+
+
+      // looping over all reference triggers 
+      for (vstring::const_iterator iTrigger = hltTriggers_.begin();
+    	   iTrigger != hltTriggers_.end(); ++iTrigger){
+    	string trig = *iTrigger;
+
+	MonitorElement* trigEff = igetter.get(subDir + "/" + trig + "/" + eff );
+	if (!trigEff) continue;
+
+	TH1D* hRef  = refEff  -> getTProfile() -> ProjectionX();
+	TH1D* hTrig = trigEff -> getTProfile() -> ProjectionX();
+
+	TH1D* hEff = (TH1D*) hTrig->Clone( ("eff_" + eff + "_ref").c_str() );
+	hEff->SetTitle("Efficiency obtained with reference method");
+	hEff->Multiply(hRef);
+	ibooker.cd(subDir + "/" + trig);
+	ibooker.book1DD( hEff->GetName(), hEff);
+
+	delete hEff;
+	
+      }
+    }
+  }
+}
+
+
+void 
+HLTMuonRefMethod::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+
+
+}
+
+
+
+void
+HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
+					 const TString& _pattern = TString("")) {
+  TString pattern = _pattern;
+  if (!igetter.dirExists(dir)) {
+    LogError("DQMGenericClient") << " DQMGenericClient::findAllSubdirectories ==> Missing folder " << dir << " !!!"; 
+    return;
+  }
+  if (pattern != "") {
+    if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
+    TPRegexp regexp(pattern);
+    ibooker.cd(dir);
+    vector <string> foundDirs = igetter.getSubdirs();
+    for(vector<string>::const_iterator iDir = foundDirs.begin();
+	iDir != foundDirs.end(); ++iDir) {
+      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
+      if (dirName.Contains(regexp))
+	findAllSubdirectories (ibooker, igetter, *iDir, myList);
+    }
+  }
+  //std::cout << "Looking for directory " << dir ;
+  else if (igetter.dirExists(dir)){
+    //std::cout << "... it exists! Inserting it into the list ";
+    myList->insert(dir);
+    //std::cout << "... now list has size " << myList->size() << std::endl;
+    ibooker.cd(dir);
+    findAllSubdirectories (ibooker, igetter, dir, myList, "*");
+  } else {
+    //std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
+ 
+    LogInfo ("DQMGenericClient") << "Trying to find sub-directories of " << dir
+				 << " failed because " << dir  << " does not exist";
+                               
+  }
+  return;
+}
+
+
+DEFINE_FWK_MODULE(HLTMuonRefMethod);
