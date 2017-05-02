@@ -16,6 +16,13 @@ writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc530', 'ref901-s6530.db') ],
             'CMSSW_8_0_26'       : [ ('slc6_amd64_gcc530', 'ref8026-s6530.db')],
             'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref766-s6493.db')],
           }
+def get_cmssw_file(file_name):
+    
+    for i in ['CMSSW_BASE','CMSSW_RELEASE_BASE','CMSSW_FULL_RELEASE_BASE']:
+        print "Looking for :%s = %s " % (i,os.getenv(i))
+        if os.getenv(i) and os.path.exists(str(os.environ[i])+'/%s' % file_name):
+            return os.environ[i]+'/%s' % file_name
+    return '$LOCALRT/%s' % file_name
 
 def check_output(*popenargs, **kwargs):
     '''Mimics subprocess.check_output() in Python 2.6
@@ -39,6 +46,7 @@ def check_output(*popenargs, **kwargs):
 
 # nice one from:
 # https://www.daniweb.com/software-development/python/code/216610/timing-a-function-python
+
 def print_timing(func):
     def wrapper(*arg):
         t1 = time.time()
@@ -137,10 +145,12 @@ class CondRegressionTester(object):
           cmsPath = out[:ind-1]
           # using wildcard to support the path for normal ( BASE/ARCH/cms/cmssw/RELEASE ) and patch releases ( BASE-PATCH/ARCH/cms/cmssw-patch/RELEASE )
           releaseDir = '%s/%s/cms/*/%s' %(cmsPath,arch,rel)
-
+          
+          payloadScript = 'test/%s/testReadWritePayloads' % arch
+              
           cmd =  'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src ; eval `scram runtime -sh`; cd - ; ' %(cmsPath,arch,releaseDir)
           cmd += "echo 'CMSSW_BASE='$CMSSW_BASE; echo 'RELEASE_BASE='$RELEASE_BASE; echo 'PATH='$PATH; echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH;"
-          cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (arch, readOrWrite, self.dbDir, dbName)
+          cmd += '%s %s sqlite_file:///%s/%s ' % (get_cmssw_file(payloadScript), readOrWrite, self.dbDir, dbName)
           
 	  try:
               #opening a process with a clean environment ( to avoid to inherit scram variables )
@@ -150,7 +160,7 @@ class CondRegressionTester(object):
               raise e
 
           self.log( rel, arch, readOrWrite, ''.join(res) )
-
+          
       @print_timing
       def runSelf(self, readOrWrite, dbNameIn=None):
 
@@ -159,11 +169,12 @@ class CondRegressionTester(object):
           
           if readOrWrite == 'write':
               self.dbList['SELF'] = dbName
-
+              
           # we run in the local environment, but need to make sure that we start "top-level" of the devel area
           # and we assume that the test was already built 
+          payloadScript = 'test/%s/testReadWritePayloads' % self.arch
           cmd = 'export SCRAM_ARCH=%s; cd %s/src; eval `scram runtime -sh 2>/dev/null` ; ' % (os.environ['SCRAM_ARCH'],os.environ['CMSSW_BASE'], )
-          cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
+          cmd += '%s %s sqlite_file:///%s/%s ' % (get_cmssw_file(payloadScript), readOrWrite, self.dbDir, dbName)
           
           try:
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
