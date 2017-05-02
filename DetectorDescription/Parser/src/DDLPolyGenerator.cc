@@ -37,7 +37,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   DDXMLAttribute atts;
 
   // get z and r
-  std::vector<double> z, r;
+  std::vector<double> z, r, x, y;
   for (size_t i = 0; i < myRZPoints->size(); ++i)
   {
     atts = myRZPoints->getAttributeSet(i);
@@ -105,8 +105,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
 				, ev.eval(nmspace, atts.find("deltaPhi")->second)
 				, z
 				, r);
-  }
-  else
+  } else
   {
     std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
     throwError(msg);
