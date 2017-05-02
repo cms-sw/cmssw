@@ -28,13 +28,18 @@ namespace pat {
 
         IsolatedTrack() :
           trackIsoDR03_(0.),
+          trackIsoDR03_nh_(0.),
+          trackIsoDR03_ph_(0.),
           miniIso_(pat::MiniIsolation({0,0,0,0})),
           p4_( LorentzVector(0.,0.,0.,0.)),
           pdgId_(0),
           refToCand_(PackedCandidatePtr()) {}
 
-        explicit IsolatedTrack(float tkiso, MiniIsolation miniiso, LorentzVector p4, int id, PackedCandidatePtr ref) :
+          explicit IsolatedTrack(float tkiso, float nhiso, float phiso, MiniIsolation miniiso, 
+                                 LorentzVector p4, int id, PackedCandidatePtr ref) :
           trackIsoDR03_(tkiso),
+          trackIsoDR03_nh_(nhiso),
+          trackIsoDR03_ph_(phiso),
           miniIso_(miniiso),
           p4_(p4),
           pdgId_(id),
@@ -44,6 +49,12 @@ namespace pat {
 
         float trackIsoDR03(){ return trackIsoDR03_; }
         void setTrackIsoDR03(float iso){ trackIsoDR03_ = iso; }
+
+        float trackIsoDR03_nh(){ return trackIsoDR03_nh_; }
+        void setTrackIsoDR03_nh(float iso){ trackIsoDR03_nh_ = iso; }
+
+        float trackIsoDR03_ph(){ return trackIsoDR03_ph_; }
+        void setTrackIsoDR03_ph(float iso){ trackIsoDR03_ph_ = iso; }
 
         MiniIsolation miniPFIsolation(){ return miniIso_; }
         void setMiniPFIsolation(MiniIsolation iso){ miniIso_ = iso; }
@@ -58,7 +69,7 @@ namespace pat {
         void setPackedCandRef(PackedCandidatePtr ref){ refToCand_ = ref; }
 
       protected:
-        float trackIsoDR03_;
+        float trackIsoDR03_, trackIsoDR03_nh_, trackIsoDR03_ph_;
         MiniIsolation miniIso_;
         LorentzVector p4_;
         int pdgId_;

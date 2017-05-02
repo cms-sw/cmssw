@@ -72,7 +72,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         pat::PackedCandidatePtr pcref = refToPtr(pat::PackedCandidateRef(pc_h, (unsigned int)(pf_it - pc->begin())));
 
         // compute track isolation
-        float trackIso = 0.0;
+        float trackIso = 0.0, nhIso = 0.0, phIso = 0.0;
         MiniIsolation miniIso = {0,0,0,0};
         float miniDR = std::min(0.2, std::max(0.05, 10./pf_it->p4().pt()));
         for(pat::PackedCandidateCollection::const_iterator pf_it2 = pc->begin(); pf_it2 != pc->end(); pf_it2++){
@@ -80,29 +80,38 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                 continue;
             int id = abs(pf_it2->pdgId());
             bool fromPV = (pf_it2->fromPV()>1 || fabs(pf_it2->dz()) < dZ_cut);
+            float pt = pf_it2->p4().pt();
             float dr = deltaR(pf_it->p4(), pf_it2->p4());
 
             // charged cands from PV get added to trackIso
             if(dr < dR_cut && id==211 && fromPV){
-                trackIso += pf_it2->p4().pt();
+                trackIso += pt;
             }
+            // neutral hadron iso
+            if(dr < dR_cut && id==130){
+                nhIso += pt;
+            }
+            // photon iso
+            if(dr < dR_cut && id==130){
+                phIso += pt;
+            }            
             // do the mini isolation
             if(dr < miniDR){
                 if(id == 211 && fromPV)
-                    miniIso.chiso += pf_it2->p4().pt();
+                    miniIso.chiso += pt;
                 else if(id == 211)
-                    miniIso.puiso += pf_it2->p4().pt();
+                    miniIso.puiso += pt;
                 if(id == 130)
-                    miniIso.nhiso += pf_it2->p4().pt();
+                    miniIso.nhiso += pt;
                 if(id == 22)
-                    miniIso.phiso += pf_it2->p4().pt();
+                    miniIso.phiso += pt;
             }
         }
 
         if(trackIso < absIso_cut ||
            trackIso/pf_it->p4().pt() < relIso_cut ||
-           (miniIso.chiso + miniIso.nhiso + miniIso.phiso)/pf_it->p4().pt() < miniRelIso_cut){
-            outPtrP->push_back(pat::IsolatedTrack(trackIso, miniIso, pf_it->p4(), pf_it->pdgId(), pcref));
+           (miniIso.chiso)/pf_it->p4().pt() < miniRelIso_cut){
+            outPtrP->push_back(pat::IsolatedTrack(trackIso, nhIso, phIso, miniIso, pf_it->p4(), pf_it->pdgId(), pcref));
         }
 
     }
