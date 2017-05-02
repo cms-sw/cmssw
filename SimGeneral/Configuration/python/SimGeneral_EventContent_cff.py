@@ -11,7 +11,6 @@ SimGeneralFEVTDEBUG = cms.PSet(
 SimGeneralRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep CrossingFramePlaybackInfoNew_*_*_*',
                                            'keep PileupSummaryInfos_*_*_*',
-                                           'keep int6stdbitsetstdpairs_*_AffectedAPVList_*',
                                            'keep int_*_bunchSpacing_*')
 )
 #RECO content
