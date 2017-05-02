@@ -76,9 +76,6 @@ namespace edm {
 
       bool m_debug = false;
 
-      // Set of promises used to halt TBB sleeper tasks.
-      std::vector<std::promise<int>> m_sleeper_promises;
-
       // Indicates management thread should halt all futures and shutdown.
       std::promise<int> m_stop_signal;
 
