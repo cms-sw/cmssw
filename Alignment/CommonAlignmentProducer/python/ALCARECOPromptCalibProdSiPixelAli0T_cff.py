@@ -76,7 +76,7 @@ SiPixelAliTrackRefitter1 = SiPixelAliTrackRefitter0.clone(
 
 #-- Alignment producer
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer 
+from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
 SiPixelAliMilleAlignmentProducer = copy.deepcopy(AlignmentProducer)
 SiPixelAliMilleAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(

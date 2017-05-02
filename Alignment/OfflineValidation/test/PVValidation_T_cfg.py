@@ -278,7 +278,8 @@ else:
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
+                     # in case the common refitting sequence is removed
+                     #process.offlineBeamSpot*
                      process.seqTrackselRefit*
                      # in case the navigation shool is removed
                      #process.MeasurementTrackerEvent*
