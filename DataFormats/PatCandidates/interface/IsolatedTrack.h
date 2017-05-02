@@ -9,6 +9,7 @@
   \author   Bennett Marsh
 */
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
@@ -21,58 +22,48 @@ namespace pat {
 
 namespace pat {
 
-    class IsolatedTrack {
+    class IsolatedTrack : public reco::LeafCandidate {
 
       public:
-        typedef math::XYZTLorentzVector LorentzVector;
+        typedef MiniIsolation Isolation;
 
         IsolatedTrack() :
-          trackIsoDR03_(0.),
-          trackIsoDR03_nh_(0.),
-          trackIsoDR03_ph_(0.),
-          miniIso_(pat::MiniIsolation({0,0,0,0})),
-          p4_( LorentzVector(0.,0.,0.,0.)),
-          pdgId_(0),
+          LeafCandidate(0, LorentzVector(0,0,0,0)),
+          isolationDR03_({0.,0.,0.,0.}),
+          miniIsolation_(pat::MiniIsolation({0,0,0,0})),
+          dz_(0.), dxy_(0.),
           refToCand_(PackedCandidatePtr()) {}
 
-          explicit IsolatedTrack(float tkiso, float nhiso, float phiso, MiniIsolation miniiso, 
-                                 LorentzVector p4, int id, PackedCandidatePtr ref) :
-          trackIsoDR03_(tkiso),
-          trackIsoDR03_nh_(nhiso),
-          trackIsoDR03_ph_(phiso),
-          miniIso_(miniiso),
-          p4_(p4),
-          pdgId_(id),
+        explicit IsolatedTrack(Isolation iso, MiniIsolation miniiso, 
+                               LorentzVector p4, int charge, int id, 
+                               float dz, float dxy, PackedCandidatePtr ref) :
+          LeafCandidate(charge, p4, Point(0.,0.,0.), id),
+          isolationDR03_(iso),
+          miniIsolation_(miniiso),
+          dz_(dz), dxy_(dxy),
           refToCand_(ref) {}
 
         ~IsolatedTrack() {}
 
-        float trackIsoDR03(){ return trackIsoDR03_; }
-        void setTrackIsoDR03(float iso){ trackIsoDR03_ = iso; }
+        Isolation isolationDR03(){ return isolationDR03_; }
+        void setIsolationDR03(float ch, float nh, float ph, float pu){ isolationDR03_={ch, nh, ph, pu}; }
 
-        float trackIsoDR03_nh(){ return trackIsoDR03_nh_; }
-        void setTrackIsoDR03_nh(float iso){ trackIsoDR03_nh_ = iso; }
+        MiniIsolation miniPFIsolation(){ return miniIsolation_; }
+        void setMiniPFIsolation(MiniIsolation iso){ miniIsolation_ = iso; }
 
-        float trackIsoDR03_ph(){ return trackIsoDR03_ph_; }
-        void setTrackIsoDR03_ph(float iso){ trackIsoDR03_ph_ = iso; }
+        float dz(){ return dz_; }
+        void setDz(float dz){ dz_=dz; }
 
-        MiniIsolation miniPFIsolation(){ return miniIso_; }
-        void setMiniPFIsolation(MiniIsolation iso){ miniIso_ = iso; }
-
-        LorentzVector p4(){ return p4_; }
-        void setP4(LorentzVector p4){ p4_ = p4; }
-
-        int pdgId(){ return pdgId_; }
-        void setPdgId(int id){ pdgId_ = id; }
-
+        float dxy(){ return dxy_; }
+        void setDxy(float dxy){ dxy_=dxy; }
+        
         PackedCandidatePtr refToCand(){ return refToCand_; }
         void setPackedCandRef(PackedCandidatePtr ref){ refToCand_ = ref; }
 
       protected:
-        float trackIsoDR03_, trackIsoDR03_nh_, trackIsoDR03_ph_;
-        MiniIsolation miniIso_;
-        LorentzVector p4_;
-        int pdgId_;
+        Isolation isolationDR03_;
+        MiniIsolation miniIsolation_;
+        float dz_, dxy_;
 
         PackedCandidatePtr refToCand_;
     };
