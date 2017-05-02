@@ -85,9 +85,22 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
             "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
-            "TrackCollection": "ALCARECOTkAlZMuMu",
+            "TrackCollection": self.trackcollection,
         })
         return repMap
+
+    @property
+    def trackcollection(self):
+        from plottingOptions import PlottingOptions
+        resonance = PlottingOptions(self.config, self.valType)["resonance"]
+        if resonance == "Z":
+            return 'ALCARECOTkAlZMuMu'
+        elif resonance == "JPsi":
+            return 'ALCARECOTkAlJpsiMuMu'
+        elif resonance in ("Y1S", "Y2S", "Y3S"):
+            return 'ALCARECOTkAlUpsilonMuMu'
+        else:
+            raise AllInOneError("Unknown resonance {}!".format(resonance))
 
     def appendToPlots(self):
         """
@@ -107,4 +120,4 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
 
     @classmethod
     def plotsdirname(cls):
-        return "ZMuMuPlots"
+        return ".oO[resonance]Oo.MuMuPlots"

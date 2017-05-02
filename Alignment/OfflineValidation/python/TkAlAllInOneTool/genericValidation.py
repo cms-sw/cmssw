@@ -659,7 +659,7 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
 
     @classmethod
     def summaryitemsstring(cls, folder=None, latex=False, transpose=True):
-        if folder is None: folder = cls.plotsdirname
+        if folder is None: folder = cls.plotsdirname()
         if folder.startswith( "/castor/" ):
             folder = "rfio:%(file)s"%repMap
         elif folder.startswith( "/store/" ):

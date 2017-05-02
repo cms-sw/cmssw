@@ -161,13 +161,15 @@ sub replace {
 	$torepl = @_[1];
 	$repl = @_[2];
 	
-	
+	$tmpindc = "tmp";
+	$tmpfile = "$infile$tmpindc";
+
 	open(INFILE,"$infile") or die "cannot open $infile";;
 	@log=<INFILE>;
 	close(INFILE);
 	
-	system("rm -f tmp");
-	open(OUTFILE,">tmp");
+	system("rm -f $tmpfile");
+	open(OUTFILE,">$tmpfile");
 	
 	foreach $line (@log) {
 		$linecopy = $line =~ s/$torepl/$repl/;
@@ -176,20 +178,23 @@ sub replace {
 	}
 	
 	close(OUTFILE);
-	system("mv tmp $infile");
+	system("mv $tmpfile $infile");
 	
 }
 
 sub insertBlock {
 	
 	($infile, $torepl, @repl) = @_;
-	
+
 	open(INFILE,"$infile") or die "cannot open $infile";;
 	@log=<INFILE>;
 	close(INFILE);
 	
-	system("rm -f tmp");
-	open(OUTFILE,">tmp");
+	$tmpindc = "tmp";
+	$tmpfile = "$infile$tmpindc";
+
+	system("rm -f $tmpfile");
+	open(OUTFILE,">$tmpfile");
 	
 	foreach $line (@log) {
 		if ($line =~ /$torepl/) { print OUTFILE @repl; }
@@ -197,7 +202,7 @@ sub insertBlock {
 	}
 	
 	close(OUTFILE);
-	system("mv tmp $infile");
+	system("mv $tmpfile $infile");
 	
 }
 

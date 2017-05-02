@@ -11,10 +11,10 @@
 #include "Legend.h"
 
 
-class CompareBiasUpsilonValidation
+class CompareBiasY1SValidation
 {
 public:
-  CompareBiasUpsilonValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
+  CompareBiasY1SValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
   {
     gROOT->SetStyle("Plain");
 
@@ -24,8 +24,12 @@ public:
     TString inputFileName("0_zmumuHisto.root");
     TString outputFileName("BiasCheck.root");
 
+    double Mmin(9.2), Mmax(9.65);
 
-    FitMassSlices fitter;
+    FitMassSlices fitter(
+      9.46, Mmin, Mmax, 0.3, 0.001, 2.,
+      "breitWignerTimesCB", "exponential"
+      );
 
     fitter.rebinX = 2; // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
     fitter.rebinY = 2; // default 2
@@ -34,9 +38,28 @@ public:
     fitter.useChi2 = false;
     fitter.sigma2 = 1.;
 
-    double Mmin(9.1), Mmax(9.7);
+    fitter.fitXslices.fitter()->initMean(9.46, Mmin, Mmax);
+    fitter.fitXslices.fitter()->initGamma(5.4e-5, 0., 10.);
+    fitter.fitXslices.fitter()->gamma()->setConstant(kTRUE);
+    fitter.fitXslices.fitter()->initMean2(0., 0., 20.);
+    fitter.fitXslices.fitter()->mean2()->setConstant(kTRUE);
+    fitter.fitXslices.fitter()->initSigma(0.08, 0., 0.5);
+    fitter.fitXslices.fitter()->initAlpha(1, 0.05, 3.);
+    fitter.fitXslices.fitter()->initN(3, 0.1, 100.);
+    fitter.fitXslices.fitter()->initExpCoeffA0(-1., -10., 10.);
+    fitter.fitXslices.fitter()->initExpCoeffA1(0., -10., 10.);
+    fitter.fitXslices.fitter()->initExpCoeffA2(0., -2., 2.);
+    fitter.fitXslices.fitter()->initFsig(0.9, 0., 1.);
+    fitter.fitXslices.fitter()->initA0(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA1(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA2(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA3(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA4(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA5(0., -10., 10.);
+    fitter.fitXslices.fitter()->initA6(0., -10., 10.);
+
     fitter.fit(
-      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 9.46, Mmin, Mmax, 0.3, 0.001, 2.,
+      inputFileName, outputFileName,
       rebinXphi, rebinXetadiff, rebinXeta, rebinXpt
       );
 
@@ -44,11 +67,11 @@ public:
     fitMass1D.fitter()->initMean(9.46, Mmin, Mmax);
     fitMass1D.fitter()->initGamma(5.4e-5, 0., 10.);
     fitMass1D.fitter()->gamma()->setConstant(kTRUE);
-    fitMass1D.fitter()->initMean2(0., -20., 20.);
+    fitMass1D.fitter()->initMean2(0., 0., 20.);
     fitMass1D.fitter()->mean2()->setConstant(kTRUE);
-    fitMass1D.fitter()->initSigma(0.07, 0., 5.);
-    fitMass1D.fitter()->initAlpha(1.5, 0.05, 10.);
-    fitMass1D.fitter()->initN(1, 0.01, 100.);
+    fitMass1D.fitter()->initSigma(0.08, 0., 0.5);
+    fitMass1D.fitter()->initAlpha(1, 0.05, 3.);
+    fitMass1D.fitter()->initN(3, 0.1, 100.);
     fitMass1D.fitter()->initExpCoeffA0(-1., -10., 10.);
     fitMass1D.fitter()->initExpCoeffA1(0., -10., 10.);
     fitMass1D.fitter()->initExpCoeffA2(0., -2., 2.);
@@ -62,7 +85,8 @@ public:
     fitMass1D.fitter()->initA6(0., -10., 10.);
 
     /// Let's fit
-    fitMass1D.fit(inputFileName, outputFileName, "UPDATE", Mmin, Mmax, "breitWignerTimesCB", "exponentialpol");
+    fitMass1D.fit(inputFileName, outputFileName, "UPDATE", Mmin, Mmax, "breitWignerTimesCB", "exponential");
+    //fitMass1D.fit(inputFileName, outputFileName, "UPDATE", Mmin, Mmax, "crystalBall", "chebychev0");
 
   }
 protected:
