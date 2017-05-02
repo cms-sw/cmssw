@@ -144,6 +144,9 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
   float charge = 99.;
   float InvMass = -99.;
 
+  //Eta regions
+  double EtaCutMin[] = {0, etaBMin, etaECMin};
+  double EtaCutMax[] = {2.4, etaBMax, etaECMax};
 
   for (edm::View<reco::Muon>::const_iterator muon1 = muons->begin(); muon1 != muons->end(); ++muon1){
     LogTrace(metname)<<"[DiMuonHistograms] loop over 1st muon"<<endl;
@@ -165,12 +168,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	if (charge < 0) {
 	  InvMass = (Mu1+Mu2).M();
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	    if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	    if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	    
-	    if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax && 
-	       fabs(recoCombinedGlbTrack2->eta())>EtaCutMin && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax){
+	    if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
+	       fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
 	      if (InvMass < LowMassMax)  GlbGlbMuon_LM[iEtaRegion]->Fill(InvMass);
 	      if (InvMass > HighMassMin) GlbGlbMuon_HM[iEtaRegion]->Fill(InvMass);
 	    }
@@ -183,12 +182,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  LogTrace(metname)<<"[DiMuonHistograms] Tight-Tight pair"<<endl;
 	  if (charge < 0){
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	      if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	      if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	      if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	      
-	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax && 
-		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax){
+	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
+		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
 		if (InvMass > 55. && InvMass < 125.) TightTightMuon[iEtaRegion]->Fill(InvMass);
 	      }
 	    }
@@ -201,12 +196,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  LogTrace(metname)<<"[DiMuonHistograms] Medium-Medium pair"<<endl;
 	  if (charge < 0){
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	      if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	      if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	      if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	      
-	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax && 
-		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax){
+	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
+		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
 		if (InvMass > 55. && InvMass < 125.) MediumMediumMuon[iEtaRegion]->Fill(InvMass);
 	      }
 	    }
@@ -219,12 +210,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  LogTrace(metname)<<"[DiMuonHistograms] Loose-Loose pair"<<endl;
 	  if (charge < 0){
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	      if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	      if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	      if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	      
-	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax && 
-		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax){
+	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
+		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
 		if (InvMass > 55. && InvMass < 125.) LooseLooseMuon[iEtaRegion]->Fill(InvMass);
 	      }
 	    }
@@ -244,12 +231,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
         if (charge < 0) {
           InvMass = (Mu1+Mu2).M();
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	    if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	    if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	    
-	    if(fabs(recoStaTrack->eta())>EtaCutMin && fabs(recoStaTrack->eta())<EtaCutMax &&
-	       fabs(recoTrack->eta())>EtaCutMin && fabs(recoTrack->eta())<EtaCutMax){
+	    if(fabs(recoStaTrack->eta())>EtaCutMin[iEtaRegion] && fabs(recoStaTrack->eta())<EtaCutMax[iEtaRegion] &&
+	       fabs(recoTrack->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack->eta())<EtaCutMax[iEtaRegion]){
 	      if (InvMass < LowMassMax)  StaTrkMuon_LM[iEtaRegion]->Fill(InvMass);
 	      if (InvMass > HighMassMin) StaTrkMuon_HM[iEtaRegion]->Fill(InvMass);
 	    }
@@ -267,12 +250,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
         if (charge < 0) {
           InvMass = (Mu1+Mu2).M();
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	    if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	    if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	    
-	    if(fabs(recoStaTrack->eta())>EtaCutMin && fabs(recoStaTrack->eta())<EtaCutMax &&
-	       fabs(recoTrack->eta())>EtaCutMin && fabs(recoTrack->eta())<EtaCutMax){
+	    if(fabs(recoStaTrack->eta())>EtaCutMin[iEtaRegion] && fabs(recoStaTrack->eta())<EtaCutMax[iEtaRegion] &&
+	       fabs(recoTrack->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack->eta())<EtaCutMax[iEtaRegion]){
 	      if (InvMass < LowMassMax)  StaTrkMuon_LM[iEtaRegion]->Fill(InvMass);
 	      if (InvMass > HighMassMin) StaTrkMuon_HM[iEtaRegion]->Fill(InvMass);
 	    }
@@ -292,12 +271,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
         if (charge < 0) {
           InvMass = (Mu1+Mu2).M();
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
-	    if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax;   } 
-	    if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax;  }
-	    
-	    if(fabs(recoTrack1->eta())>EtaCutMin && fabs(recoTrack1->eta())<EtaCutMax &&
-	       fabs(recoTrack2->eta())>EtaCutMin && fabs(recoTrack2->eta())<EtaCutMax){
+	    if(fabs(recoTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack1->eta())<EtaCutMax[iEtaRegion] &&
+	       fabs(recoTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack2->eta())<EtaCutMax[iEtaRegion]){
 	      if (InvMass < LowMassMax)  TrkTrkMuon_LM[iEtaRegion]->Fill(InvMass);
 	      if (InvMass > HighMassMin) TrkTrkMuon_HM[iEtaRegion]->Fill(InvMass);
 	    }
@@ -313,12 +288,9 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  if (charge < 0) {
 	    InvMass = (Mu1+Mu2).M();
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
-	      if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4; }
-	      if (iEtaRegion==1) {EtaCutMin= etaBMin;    EtaCutMax=etaBMax; }
-	      if (iEtaRegion==2) {EtaCutMin= etaECMin;   EtaCutMax=etaECMax; }
 	      
-	      if(fabs(recoTrack1->eta())>EtaCutMin && fabs(recoTrack1->eta())<EtaCutMax &&
-		 fabs(recoTrack2->eta())>EtaCutMin && fabs(recoTrack2->eta())<EtaCutMax){
+	      if(fabs(recoTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack1->eta())<EtaCutMax[iEtaRegion] &&
+		 fabs(recoTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack2->eta())<EtaCutMax[iEtaRegion]){
 		SoftSoftMuon[iEtaRegion]->Fill(InvMass); 
 	      }
 	    }
