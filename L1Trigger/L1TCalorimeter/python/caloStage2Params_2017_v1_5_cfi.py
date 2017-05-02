@@ -127,7 +127,7 @@ caloStage2Params.etSumYCalibrationType    = cms.string("None")
 caloStage2Params.etSumEttCalibrationType  = cms.string("None")
 caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
-caloStage2Params.etSumPUSLUTFile                  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v2.txt")
+caloStage2Params.etSumPUSLUTFile                  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v3.txt")
 caloStage2Params.etSumXCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
 caloStage2Params.etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
 caloStage2Params.etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
