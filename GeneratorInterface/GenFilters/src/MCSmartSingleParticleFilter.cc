@@ -120,6 +120,10 @@ betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
        decayZMax = decayZmax2;   
     }     
 
+    // check if beta is smaller than 1
+    if (abs(betaBoost) >= 1 ){
+      edm::LogError("MCSmartSingleParticleFilter") << "Input beta boost is >= 1 !";
+    }
 
 }
 
