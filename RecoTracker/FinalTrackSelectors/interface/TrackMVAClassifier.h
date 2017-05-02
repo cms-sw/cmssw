@@ -50,6 +50,7 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   edm::EDGetTokenT<reco::VertexCollection> vertices_;
 
+  bool ignoreVertices_;
 
   // MVA
   std::unique_ptr<GBRForest> forest_;

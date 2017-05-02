@@ -228,7 +228,11 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 } // HcalSeverityLevelComputer::HcalSeverityLevelComputer
 
 
-HcalSeverityLevelComputer::~HcalSeverityLevelComputer() {}
+HcalSeverityLevelComputer::~HcalSeverityLevelComputer()
+{
+    delete DropChannel_;
+    delete RecoveredRecHit_;
+}
 
   
 int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_t& myflag, 

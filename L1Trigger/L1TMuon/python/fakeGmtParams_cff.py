@@ -22,7 +22,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     configFromXml = cms.bool(False),
 
     #fwVersion = cms.uint32(1),
-    fwVersion = cms.uint32(0x2020000),
+    fwVersion = cms.uint32(0x5000000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
@@ -50,12 +50,12 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     BONegMatchQualLUTPath        = cms.string(''),
     FOPosMatchQualLUTPath        = cms.string(''),
     FONegMatchQualLUTPath        = cms.string(''),
-    BPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BPhiExtrapolation.txt')),
-    OPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OPhiExtrapolation.txt')),
-    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EPhiExtrapolation.txt')),
-    BEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BEtaExtrapolation.txt')),
-    OEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OEtaExtrapolation.txt')),
-    FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
+    BPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BPhiExtrapolation_5eta_7pt_4out_2outshift_20170118.txt')),
+    OPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OPhiExtrapolation_5eta_7pt_4out_2outshift_20170118.txt')),
+    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EPhiExtrapolation_5eta_7pt_4out_2outshift_20170118.txt')),
+    BEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BEtaExtrapolation_5eta_7pt_4out_0outshift_20170118.txt')),
+    OEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OEtaExtrapolation_5eta_7pt_4out_0outshift_20170118.txt')),
+    FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation_5eta_7pt_4out_0outshift_20170118.txt')),
     SortRankLUTPath              = cms.string(os.path.join(lut_dir, 'SortRank.txt')),
 
     FwdPosSingleMatchQualLUTMaxDR = cms.double(0.1),

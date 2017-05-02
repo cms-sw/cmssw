@@ -13,7 +13,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCNumberingScheme::HGCNumberingScheme(const HGCalDDDConstants& hgc, 
 				       std::string & name ) :
@@ -69,11 +69,11 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
                               << " Subdet= " << subdet << " Zside= " << iz
                               << " Layer= " << layer << " Wafer= " << wafer
-                              << " CellType= " << celltyp << " Cell= "
-                              << icell;
+                              << ":" << module << " CellType= " << celltyp 
+			      << " Cell= " << icell;
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	      << module << ":" << iz << ":";
   if (hgcons_.geomMode() == HGCalGeometryMode::Square) 

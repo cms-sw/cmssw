@@ -24,7 +24,7 @@ public:
   
   virtual const std::vector<DDExpandedNode> & exec();
   
-  virtual void addFilter(const DDFilter &, DDLogOp op = DDLogOp::AND);
+  virtual void addFilter(const DDFilter &);
   
   virtual void setScope(const DDScope &);
   
@@ -33,7 +33,6 @@ protected:
   const DDScope * scope_;
   
   std::vector<std::pair<bool, DDFilter *> > criteria_; // one filter and the result on the current node
-  std::vector<DDLogOp> logOps_; // logical operation for merging the result of 2 filters
   std::vector<DDExpandedNode> result_; // query result
 };
 

@@ -20,7 +20,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
-	_tokHF = consumes<HFDigiCollection>(_tagHF);
+	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
 	//	constants
@@ -81,51 +81,53 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
-	_cSignalMean_FEDVME.initialize(_name, "SignalMean",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
-	_cSignalMean_FEDuTCA.initialize(_name, "SignalMean",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
-	_cSignalRMS_FEDVME.initialize(_name, "SignalRMS",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
-	_cSignalRMS_FEDuTCA.initialize(_name, "SignalRMS",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
-	_cTimingMean_FEDVME.initialize(_name, "TimingMean",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
-	_cTimingMean_FEDuTCA.initialize(_name, "TimingMean",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
-	_cTimingRMS_FEDVME.initialize(_name, "TimingRMS",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
-	_cTimingRMS_FEDuTCA.initialize(_name, "TimingRMS",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cSignalMean_FEDVME.initialize(_name, "SignalMean",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		_cSignalMean_FEDuTCA.initialize(_name, "SignalMean",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		_cSignalRMS_FEDVME.initialize(_name, "SignalRMS",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		_cSignalRMS_FEDuTCA.initialize(_name, "SignalRMS",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		_cTimingMean_FEDVME.initialize(_name, "TimingMean",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+		_cTimingMean_FEDuTCA.initialize(_name, "TimingMean",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+		_cTimingRMS_FEDVME.initialize(_name, "TimingRMS",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+		_cTimingRMS_FEDuTCA.initialize(_name, "TimingRMS",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 
-	_cShapeCut_FEDSlot.initialize(_name, "Shape", 
-		hcaldqm::hashfunctions::fFEDSlot,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		_cShapeCut_FEDSlot.initialize(_name, "Shape", 
+			hcaldqm::hashfunctions::fFEDSlot,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+	}
 	_cTimingvsEvent_SubdetPM.initialize(_name, "TimingvsEvent",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::EventNumber(_nevents),
@@ -177,16 +179,18 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMissing_FEDVME.initialize(_name, "Missing",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cMissing_FEDuTCA.initialize(_name, "Missing",
-		hcaldqm::hashfunctions::fFED,
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMissing_FEDVME.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMissing_FEDuTCA.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	}
 
 	
 	//	initialize compact containers
@@ -220,20 +224,24 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cSignalvsBX_SubdetPM.book(ib, _emap, _subsystem);
 	}
 
-	_cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cSignalMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cSignalRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cSignalRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cTimingMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cTimingMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cTimingRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cTimingRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cSignalMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cSignalRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cSignalRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cTimingMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cTimingMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cTimingRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cTimingRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 	_cADC_SubdetPM.book(ib, _emap, _subsystem);
 
-	_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
 	_cMissing_depth.book(ib, _emap,_subsystem);
-	_cMissing_FEDVME.book(ib, _emap, _filter_uTCA,_subsystem);
-	_cMissing_FEDuTCA.book(ib, _emap, _filter_VME,_subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
+		_cMissing_FEDVME.book(ib, _emap, _filter_uTCA,_subsystem);
+		_cMissing_FEDuTCA.book(ib, _emap, _filter_VME,_subsystem);
+	}
 
 	_xSignalSum.book(_emap);
 	_xSignalSum2.book(_emap);
@@ -260,14 +268,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cTimingMean_depth.reset();
 	_cTimingRMS_depth.reset();
 
-	_cSignalMean_FEDVME.reset();
-	_cSignalMean_FEDuTCA.reset();
-	_cSignalRMS_FEDVME.reset();
-	_cSignalRMS_FEDuTCA.reset();
-	_cTimingMean_FEDVME.reset();
-	_cTimingMean_FEDuTCA.reset();
-	_cTimingRMS_FEDVME.reset();
-	_cTimingRMS_FEDuTCA.reset();
+	if (_ptype != fOffline) { // hidefed2crate
+		_cSignalMean_FEDVME.reset();
+		_cSignalMean_FEDuTCA.reset();
+		_cSignalRMS_FEDVME.reset();
+		_cSignalRMS_FEDuTCA.reset();
+		_cTimingMean_FEDVME.reset();
+		_cTimingMean_FEDuTCA.reset();
+		_cTimingRMS_FEDVME.reset();
+		_cTimingRMS_FEDuTCA.reset();
+	}
 
 	std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
 	for (std::vector<HcalGenericDetId>::const_iterator it=dids.begin();
@@ -287,10 +297,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		if (n==0)
 		{
 			_cMissing_depth.fill(did);
-			if (eid.isVMEid())
-				_cMissing_FEDVME.fill(eid);
-			else
-				_cMissing_FEDuTCA.fill(eid);
+			if (_ptype != fOffline) { // hidefed2crate
+				if (eid.isVMEid())
+					_cMissing_FEDVME.fill(eid);
+				else
+					_cMissing_FEDuTCA.fill(eid);
+			}
 			continue;
 		}
 		_cSignalMean_Subdet.fill(did, msig);
@@ -301,19 +313,21 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTimingMean_depth.fill(did, mtim);
 		_cTimingRMS_Subdet.fill(did, rtim);
 		_cTimingRMS_depth.fill(did, rtim);
-		if (eid.isVMEid())
-		{
-			_cSignalMean_FEDVME.fill(eid, msig);
-			_cSignalRMS_FEDVME.fill(eid, rsig);
-			_cTimingMean_FEDVME.fill(eid, mtim);
-			_cTimingRMS_FEDVME.fill(eid, rtim);
-		}
-		else
-		{
-			_cSignalMean_FEDuTCA.fill(eid, msig);
-			_cSignalRMS_FEDuTCA.fill(eid, rsig);
-			_cTimingMean_FEDuTCA.fill(eid, mtim);
-			_cTimingRMS_FEDuTCA.fill(eid, rtim);
+		if (_ptype != fOffline) { // hidefed2crate
+			if (eid.isVMEid())
+			{
+				_cSignalMean_FEDVME.fill(eid, msig);
+				_cSignalRMS_FEDVME.fill(eid, rsig);
+				_cTimingMean_FEDVME.fill(eid, mtim);
+				_cTimingRMS_FEDVME.fill(eid, rtim);
+			}
+			else
+			{
+				_cSignalMean_FEDuTCA.fill(eid, msig);
+				_cSignalRMS_FEDuTCA.fill(eid, rsig);
+				_cTimingMean_FEDuTCA.fill(eid, mtim);
+				_cTimingRMS_FEDuTCA.fill(eid, rtim);
+			}
 		}
 	}
 }
@@ -323,7 +337,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 {
 	edm::Handle<HBHEDigiCollection>		chbhe;
 	edm::Handle<HODigiCollection>		cho;
-	edm::Handle<HFDigiCollection>		chf;
+	edm::Handle<QIE10DigiCollection>		chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available "
@@ -332,7 +346,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HODigiCollection isn't available "
 			+ _tagHO.label() + " " + _tagHO.instance());
 	if (!e.getByToken(_tokHF, chf))
-		_logger.dqmthrow("Collection HFDigiCollection isn't available "
+		_logger.dqmthrow("Collection QIE10DigiCollection isn't available "
 			+ _tagHF.label() + " " + _tagHF.instance());
 
 //	int currentEvent = e.eventAuxiliary().id().event();
@@ -359,8 +373,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.size(); i++)
 		{
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				digi.sample(i).nominal_fC()-2.5);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cShapeCut_FEDSlot.fill(eid, i, 
+					digi.sample(i).nominal_fC()-2.5);
+			}
 			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
 		}
 
@@ -400,8 +416,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.size(); i++)
 		{
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				digi.sample(i).nominal_fC()-8.5);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cShapeCut_FEDSlot.fill(eid, i, 
+					digi.sample(i).nominal_fC()-8.5);
+			}
 			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
 		}
 
@@ -420,30 +438,30 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
-	for (HFDigiCollection::const_iterator it=chf->begin();
+	for (QIE10DigiCollection::const_iterator it=chf->begin();
 		it!=chf->end(); ++it)
 	{
-		const HFDataFrame digi = (const HFDataFrame)(*it);
-		double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(digi, 2.5, 0, 
-			digi.size()-1);
+		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, 
+			digi.samples()-1);
 		if (sumQ<_lowHF)
 			continue;
-		HcalDetId did = digi.id();
-		HcalElectronicsId eid = digi.elecId();
+		HcalDetId did = digi.detid();
+		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
-		double aveTS = hcaldqm::utilities::aveTS<HFDataFrame>(digi, 2.5, 0,
-			digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
 		_xTimingSum2.get(did)+=aveTS*aveTS;
 		_xEntries.get(did)++;
 
-		for (int i=0; i<digi.size(); i++)
+		for (int i=0; i<digi.samples(); i++)
 		{
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				digi.sample(i).nominal_fC()-2.5);
-			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
+			if (_ptype != fOffline) { // hidefed2crate
+				_cShapeCut_FEDSlot.fill(eid, (int)i, constants::adc2fC[digi[i].adc()]-2.5);
+			}
+			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
 
 		//	select based on local global

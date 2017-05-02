@@ -36,7 +36,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	if(residualsFromTxt_) residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
 	std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
 	
-	jecCor_ = 0;
 
 	if( ! runMvas_ ) assert( algos.size() == 1 );
 	
@@ -45,7 +44,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	}
 	for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
 		std::string label = it->getParameter<std::string>("label");
-		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it, runMvas_)) );
+		algos_.emplace_back( label, std::make_unique<PileupJetIdAlgo>(*it, runMvas_));
 		if( runMvas_ ) {
 			produces<edm::ValueMap<float> > (label+"Discriminant");
 			produces<edm::ValueMap<int> > (label+"Id");
@@ -64,10 +63,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 // ------------------------------------------------------------------------------------------
 PileupJetIdProducer::~PileupJetIdProducer()
 {
-  for(std::vector<std::pair<std::string,PileupJetIdAlgo *> >::iterator 
-	ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
-    delete ialgo->second;
-  }
 }
 
 
@@ -117,8 +112,8 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	bool ispat = true;
 	for ( unsigned int i=0; i<jets.size(); ++i ) {
 		// Pick the first algo to compute the input variables
-		vector<pair<string,PileupJetIdAlgo *> >::iterator algoi = algos_.begin();
-		PileupJetIdAlgo * ialgo = algoi->second;
+		auto algoi = algos_.begin();
+		PileupJetIdAlgo * ialgo = algoi->second.get();
 		
 		const Jet & jet = jets.at(i);
 		const pat::Jet * patjet = 0;
@@ -136,7 +131,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				rho = *rhoH;
 			}
 			// jet corrector
-			if( jecCor_ == 0 ) {
+			if( not jecCor_ ) {
 				initJetEnergyCorrector( iSetup, iEvent.isRealData() );
 			}
 			if( ispat ) {
@@ -184,7 +179,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			mvas[algoi->first].push_back( puIdentifier.mva() );
 			idflags[algoi->first].push_back( puIdentifier.idFlag() );
 			for( ++algoi; algoi!=algos_.end(); ++algoi) {
-				ialgo = algoi->second;
+                                ialgo = algoi->second.get();
 				ialgo->set(puIdentifier);
 				PileupJetIdentifier id = ialgo->computeMva();
 				mvas[algoi->first].push_back( id.mva() );
@@ -198,22 +193,22 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	// Produce the output value maps
 	if( runMvas_ ) {
-		for(vector<pair<string,PileupJetIdAlgo *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
+                for( const auto& ialgo : algos_) {
 			// MVA
-			vector<float> & mva = mvas[ialgo->first];
+			vector<float> & mva = mvas[ialgo.first];
 			auto mvaout = std::make_unique<ValueMap<float>>();
 			ValueMap<float>::Filler mvafiller(*mvaout);
 			mvafiller.insert(jetHandle,mva.begin(),mva.end());
 			mvafiller.fill();
-			iEvent.put(std::move(mvaout),ialgo->first+"Discriminant");
+			iEvent.put(std::move(mvaout),ialgo.first+"Discriminant");
 			
 			// WP
-			vector<int> & idflag = idflags[ialgo->first];
+			vector<int> & idflag = idflags[ialgo.first];
 			auto idflagout = std::make_unique<ValueMap<int>>();
 			ValueMap<int>::Filler idflagfiller(*idflagout);
 			idflagfiller.insert(jetHandle,idflag.begin(),idflag.end());
 			idflagfiller.fill();
-			iEvent.put(std::move(idflagout),ialgo->first+"Id");
+			iEvent.put(std::move(idflagout),ialgo.first+"Id");
 		}
 	}
 	// input variables
@@ -264,7 +259,7 @@ PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup &iSetup, bool 
 	}
 	
 	//instantiate the jet corrector
-	jecCor_ = new FactorizedJetCorrector(jetCorPars_);
+	jecCor_ = std::make_unique<FactorizedJetCorrector>(jetCorPars_);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PileupJetIdProducer);

@@ -6,11 +6,13 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
-
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByPositionAndTracks.h"
+
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 
 class VertexAssociatorByPositionAndTracksProducer: public edm::global::EDProducer<> {
@@ -78,6 +80,16 @@ void VertexAssociatorByPositionAndTracksProducer::produce(edm::StreamID, edm::Ev
   iEvent.getByToken(trackSimToRecoAssociationToken_, simtorecoCollectionH);
 
   std::unique_ptr<VertexAssociatorByPositionAndTracks> impl;
+
+  if (!recotosimCollectionH.isValid() || !simtorecoCollectionH.isValid()) {
+    if (!recotosimCollectionH.isValid())
+      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+	<< "trackRecoToSimAssociation is not available in the event";
+    if (!simtorecoCollectionH.isValid())
+      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+	<< "trackSimToRecoAssociation is not available in the event";
+    return;
+  } 
   if( sigmaT_ < 0.0 ) {
     impl = std::make_unique<VertexAssociatorByPositionAndTracks>(&(iEvent.productGetter()),
 								 absZ_,

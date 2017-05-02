@@ -30,6 +30,9 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/CaloSpare.h"
 #include "DataFormats/L1Trigger/interface/L1DataEmulResult.h"
+#include "DataFormats/L1Trigger/interface/HOTwinMuxDigiCollection.h"
+#include "DataFormats/L1Trigger/interface/HOTPDigiTwinMux.h"
+
 
 namespace DataFormats_L1Trigger {
   struct dictionary {
@@ -60,6 +63,10 @@ namespace DataFormats_L1Trigger {
     std::vector<l1t::Tau> v_tauBx;
     std::vector<l1t::CaloSpare> v_caloSparseBx;
     std::vector<l1t::L1DataEmulResult> v_deResult;
+
+    HOTwinMuxDigiCollection theHOTP;
+    edm::Wrapper<edm::SortedCollection<HOTPDigiTwinMux> > anotherHOTP_;
+    edm::Wrapper<HOTwinMuxDigiCollection> theHOTPw_;
 
     l1t::L1CandidateRef   refL1Candidate_;
     l1t::L1CandidateRefVector   refVecL1Candidate_;

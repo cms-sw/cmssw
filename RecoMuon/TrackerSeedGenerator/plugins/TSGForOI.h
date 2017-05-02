@@ -68,7 +68,7 @@ private:
 
 	/// Switch ON  (True) : use additional hits for seeds depending on the L2 properties (ignores numOfMaxSeeds_) 
 	/// Switch OFF (False): the numOfMaxSeeds_ defines if we will use hitless (numOfMaxSeeds_==1) or hitless+hits (numOfMaxSeeds_>1) 
-	const bool useHitSeeds_;
+	const bool useHitLessSeeds_;
 
 	/// Switch ON to use Stereo layers instead of using every layer in TEC.
 	const bool useStereoLayersInTEC_;

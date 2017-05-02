@@ -97,7 +97,7 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     // check for dR match to L1 muons
     if (check_l1match) {
       bool matchl1 = false;
-      for (std::vector<l1extra::L1MuonParticleRef>::iterator l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
+      for (auto l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
         if (deltaR(muon,**l1cand) < 0.3) {
           matchl1 = true;
           break;

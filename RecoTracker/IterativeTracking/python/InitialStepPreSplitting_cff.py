@@ -168,18 +168,10 @@ initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducer_cfi.Trac
 initialStepTracksPreSplitting.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
 
 #vertices
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVerticesPreSplitting = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
+firstStepPrimaryVerticesPreSplitting = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesPreSplitting.TrackLabel = cms.InputTag("initialStepTracksPreSplitting")
-firstStepPrimaryVerticesPreSplitting.vertexCollections = cms.VPSet(
-     [cms.PSet(label=cms.string(""),
-               algorithm=cms.string("AdaptiveVertexFitter"),
-               minNdof=cms.double(0.0),
-               useBeamConstraint = cms.bool(False),
-               maxDistanceToBeam = cms.double(1.0)
-               )
-      ]
-    )
+firstStepPrimaryVerticesPreSplitting.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
 
 #Jet Core emulation to identify jet-tracks
 from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk, jetsForCoreTracking

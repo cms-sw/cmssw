@@ -44,6 +44,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -100,6 +101,10 @@ constexpr APVModeFilter::BitMask APVModeFilter::multi_;
 //
 APVModeFilter::APVModeFilter(const edm::ParameterSet& iConfig) :
   mode_(convertMode(iConfig.getUntrackedParameter<std::string>("apvMode"))) {
+  edm::LogInfo("Alignment")
+    << "@SUB=APVModeFilter::APVModeFilter"
+    << "Selecting events with APV mode '"
+    << iConfig.getUntrackedParameter<std::string>("apvMode") << "'.";
 }
 
 

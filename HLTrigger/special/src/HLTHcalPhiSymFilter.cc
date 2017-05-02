@@ -27,8 +27,7 @@ HLTHcalPhiSymFilter::HLTHcalPhiSymFilter(const edm::ParameterSet& iConfig) : HLT
 }
 
 
-HLTHcalPhiSymFilter::~HLTHcalPhiSymFilter()
-{}
+HLTHcalPhiSymFilter::~HLTHcalPhiSymFilter() = default;
 
 void
 HLTHcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -65,27 +64,27 @@ HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::unique_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
 
   //Select interesting HBHERecHits
-  for (HBHERecHitCollection::const_iterator it=HBHERecHitsH->begin(); it!=HBHERecHitsH->end(); it++) {
-    if (it->energy()>eCut_HB_&&it->id().subdet()==1) {
-        phiSymHBHERecHitCollection->push_back(*it);
+  for (auto const & it : *HBHERecHitsH) {
+    if (it.energy()>eCut_HB_&&it.id().subdet()==1) {
+        phiSymHBHERecHitCollection->push_back(it);
     }
-    if (it->energy()>eCut_HE_&&it->id().subdet()==2) {
-        phiSymHBHERecHitCollection->push_back(*it);
+    if (it.energy()>eCut_HE_&&it.id().subdet()==2) {
+        phiSymHBHERecHitCollection->push_back(it);
     }
 
   }
 
   //Select interesting HORecHits
-  for (HORecHitCollection::const_iterator it=HORecHitsH->begin(); it!=HORecHitsH->end(); it++) {
-    if (it->energy()>eCut_HO_&&it->id().subdet()==3) {
-      phiSymHORecHitCollection->push_back(*it);
+  for (auto const & it : *HORecHitsH) {
+    if (it.energy()>eCut_HO_&&it.id().subdet()==3) {
+      phiSymHORecHitCollection->push_back(it);
     }
   }
 
   //Select interesting HFRecHits
-  for (HFRecHitCollection::const_iterator it=HFRecHitsH->begin(); it!=HFRecHitsH->end(); it++) {
-    if (it->energy()>eCut_HF_&&it->id().subdet()==4) {
-      phiSymHFRecHitCollection->push_back(*it);
+  for (auto const & it : *HFRecHitsH) {
+    if (it.energy()>eCut_HF_&&it.id().subdet()==4) {
+      phiSymHFRecHitCollection->push_back(it);
     }
   }
 

@@ -50,9 +50,6 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
-
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 #include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"

@@ -19,7 +19,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCalTB16SD01::HGCalTB16SD01(G4String name, const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & clg,
@@ -49,15 +49,16 @@ double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
   G4StepPoint* point = aStep->GetPreStepPoint();
   if (initialize_) initialize(point);
   double destep = aStep->GetTotalEnergyDeposit();
-  double weight = 1;
+  double wt2    = aStep->GetTrack()->GetWeight();
+  double weight = (wt2 > 0.0) ? wt2 : 1.0;
   if (useBirk_ && matScin_ == point->GetMaterial()) {
     weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalTB16SD01: Detector " 
 	    << point->GetTouchable()->GetVolume()->GetName() << " with "
 	    << point->GetMaterial()->GetName() << " weight " << weight 
-	    << std::endl;
+	    << ":" << wt2 << std::endl;
 #endif
   return weight*destep;
 }
@@ -87,7 +88,7 @@ uint32_t HGCalTB16SD01::packIndex(int det, int lay, int x, int y) {
   idx         += (ix&1)<<9;         //bit   9
   idx         += (ixx&511);         //bits  0-8
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalTB16SD01: Detector " << det << " Layer "  << lay << " x "
 	    << x << " " << ix << " " << ixx << " y " << y << " " << iy << " " 
 	    << iyy << " ID " << std::hex << idx << std::dec << std::endl;
@@ -110,7 +111,7 @@ void HGCalTB16SD01::initialize(G4StepPoint* point) {
     matScin_    =  point->GetMaterial();
     initialize_ = false;
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalTB16SD01: Material pointer for " << matName_
 	    << " is initialized to : " << matScin_ << std::endl;
 #endif

@@ -46,6 +46,9 @@ class RawDataUnpacker
 
     /// Process data from one VFAT in parallel (new) format
     int ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
+
+  private:
+    unsigned char verbosity;
 };
 
 #endif

@@ -6,7 +6,7 @@ dtTriggerBaseMonitor = cms.EDAnalyzer("DTLocalTriggerBaseTask",
     targetBXTM = cms.untracked.int32(0), 
     targetBXDDU = cms.untracked.int32(9),
     bestTrigAccRange = cms.untracked.int32(3),
-    processDDU = cms.untracked.bool(True),
+    processDDU = cms.untracked.bool(True), #Not needed any longer, switches below for 2016 Eras and onwards
     processTM = cms.untracked.bool(True),
     nTimeBins = cms.untracked.int32(100),
     nLSTimeBin = cms.untracked.int32(15),    
@@ -22,6 +22,6 @@ dtTriggerBaseMonitor = cms.EDAnalyzer("DTLocalTriggerBaseTask",
     maxBXTM = cms.untracked.int32(2)
 )
 
-from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
-run2_25ns_specific.toModify( dtTriggerBaseMonitor, processDDU = cms.untracked.bool(False))
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( dtTriggerBaseMonitor, processDDU = cms.untracked.bool(False))
 

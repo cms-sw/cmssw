@@ -267,8 +267,8 @@ struct Rot2 {
   Vec2<T>  axis[2];
   
   constexpr Rot2() :
-    axis{ (Vec){T(1),0},
-      (Vec){0,T(1)}
+    axis{{(Vec){T(1),0}},
+         {(Vec){0,T(1)}}
   }{}
     
   constexpr Rot2( Vec2<T> ix,  Vec2<T> iy) :

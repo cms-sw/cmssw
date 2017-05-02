@@ -24,6 +24,20 @@ dbwriter_user_name = 'cms_cond_general_w'
 devdbwriter_user_name = 'cms_test_conditions'
 logger = logging.getLogger(__name__)
 
+# frontier services
+PRO ='PromptProd'
+ARC ='FrontierArc'
+INT ='FrontierInt'
+DEV ='FrontierPrep'
+# oracle read only services
+ORAPRO = 'cms_orcon_adg'
+ORAARC = 'cmsarc_lb'
+# oracle masters
+ORAINT = 'cms_orcoff_int'
+ORADEV = 'cms_orcoff_prep'
+ONLINEORAPRO = 'cms_orcon_prod'
+ONLINEORAINT = 'cmsintr_lb'
+
 # Set initial level to WARN.  This so that log statements don't occur in
 # the absense of explicit logging being enabled.
 if logger.level == logging.NOTSET:
@@ -296,20 +310,22 @@ class TagLog:
                             'command':(sqlalchemy.String(500),_Col.notNull),
                             'user_text':(sqlalchemy.String(4000),_Col.notNull) }
 
+class RunInfo:
+    __tablename__       = 'RUN_INFO'
+    columns             = { 'run_number':(sqlalchemy.BIGINT,_Col.pk),
+                            'start_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'end_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+
 
 # CondDB object
 class Connection(object):
 
-    def __init__(self, url, init=False):
+    def __init__(self, url):
         # Workaround to avoid creating files if not present.
         # Python's sqlite3 module does not use sqlite3_open_v2(),
         # and therefore we cannot disable SQLITE_OPEN_CREATE.
         # Only in the case of creating a new database we skip the check.
         if url.drivername == 'sqlite':
-
-            #if not init and url.database is not None and not os.path.isfile(url.database):
-            #    # url.database is None if opening a in-memory DB, e.g. 'sqlite://'
-            #    raise Exception('SQLite database %s not found.' % url.database)
 
             self.engine = sqlalchemy.create_engine(url)
 
@@ -353,6 +369,7 @@ class Connection(object):
         self.get_dbtype(TagLog)
         self.get_dbtype(GlobalTag)
         self.get_dbtype(GlobalTagMap)
+        self.get_dbtype(RunInfo)
         self._is_valid = self.is_valid()
 
     def get_dbtype(self,theType):
@@ -366,6 +383,7 @@ class Connection(object):
         s = self._session()
         s.get_dbtype = self.get_dbtype
         s._is_sqlite = self._is_sqlite
+        s._url = self._url
         return s
 
     @property
@@ -411,18 +429,38 @@ class Connection(object):
         if drop:
             logging.debug('Dropping tables...')
             self.metadata.drop_all(self.engine)
+            self._is_valid = False
         else:
-            if self._is_valid:
-                raise Exception('Looks like the database is already a valid CMS Conditions one.')
+            if not self._is_valid:
+                logging.debug('Creating tables...')
+                self.get_dbtype(Tag).__table__.create(bind = self.engine)
+                self.get_dbtype(Payload).__table__.create(bind = self.engine)
+                self.get_dbtype(IOV).__table__.create(bind = self.engine)
+                self.get_dbtype(TagLog).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
+                self._is_valid = True
 
-        logging.debug('Creating tables...')
-        self.get_dbtype(Tag).__table__.create(bind = self.engine)
-        self.get_dbtype(Payload).__table__.create(bind = self.engine)
-        self.get_dbtype(IOV).__table__.create(bind = self.engine)
-        self.get_dbtype(TagLog).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
-        self._is_valid = self.is_valid()
+def getSessionOnMasterDB( session1, session2 ):
+    key = '%s/%s' 
+    sessiondict = { }
+    sessiondict[key %(session1._url.drivername,session1._url.host)] = session1
+    sessiondict[key %(session2._url.drivername,session2._url.host)] = session2
+    masterkey = key %('oracle',ONLINEORAPRO)
+    if masterkey in sessiondict.keys():
+        return sessiondict[masterkey]
+    adgkey = key %('oracle',ORAPRO)
+    if adgkey in sessiondict.keys():
+        return sessiondict[adgkey]
+    frontierkey = key %('frontier',PRO)
+    if frontierkey in sessiondict.keys():
+        return sessiondict[frontierkey]
+    # default case: frontier on pro
+    conn = Connection(make_url())
+    session = conn.session()
+    # is it required?
+    session._conn = conn
+    return session
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):
@@ -438,6 +476,8 @@ def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
 
 # Entry point
 def make_url(database='pro',read_only = True):
+    if database.startswith('sqlite:') or database.startswith('sqlite_file:'):
+        ignore, database = database.split(':',1)
 
     if ':' in database and '://' not in database: # check if we really got a shortcut like "pro:<schema>" (and not a url like proto://...), if so, disentangle
         database, schema = database.split(':')
@@ -481,7 +521,7 @@ def make_url(database='pro',read_only = True):
         url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
     return url
 
-def connect(url, init=False, authPath=None, verbose=0):
+def connect(url, authPath=None, verbose=0):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -505,7 +545,6 @@ def connect(url, init=False, authPath=None, verbose=0):
             if authPath is not None:
                 authFile = os.path.join(authPath,'.netrc')
             if authFile is not None:
-                print 'url=%s host=%s username=%s' %(url,url.host,url.username)
                 entryKey = url.host.lower()+"/"+url.username.lower()
                 logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
                 import netrc
@@ -531,7 +570,7 @@ def connect(url, init=False, authPath=None, verbose=0):
     if verbose >= 2:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-    return Connection(url, init=init)
+    return Connection(url)
 
 
 def _exists(session, primary_key, value):

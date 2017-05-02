@@ -42,8 +42,7 @@ HLTL1TMuonSelector::HLTL1TMuonSelector(const edm::ParameterSet& iConfig) :
 }
 
 // destructor
-HLTL1TMuonSelector::~HLTL1TMuonSelector(){
-}
+HLTL1TMuonSelector::~HLTL1TMuonSelector()= default;
 
 void
 HLTL1TMuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

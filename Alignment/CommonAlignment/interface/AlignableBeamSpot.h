@@ -87,6 +87,9 @@ public:
   void initialize(double x, double y, double z,
 		  double dxdz, double dydz);
 
+  /// reset beam spot to the uninitialized state
+  void reset();
+
   /// returns the DetId corresponding to the alignable beam spot. Also used
   /// by BeamSpotGeomDet and BeamSpotTransientTrackingRecHit
   static const DetId detId() { return DetId((DetId::Tracker<<DetId::kDetOffset)+0x1ffffff); }

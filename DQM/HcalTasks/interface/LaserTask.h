@@ -54,7 +54,7 @@ class LaserTask : public hcaldqm::DQTask
 		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
-		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap

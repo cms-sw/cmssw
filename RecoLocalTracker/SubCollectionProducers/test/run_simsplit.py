@@ -57,6 +57,7 @@ process.load("TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi
 process.trajectoryCleanerBySharedHits.fractionShared = 0.0
 process.trajectoryCleanerBySharedHits.allowSharedFirstHit = False
 process.load("RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi")
+process.load("RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi")
 process.simpleTrackListMerger.ShareFrac = 0.0
 process.simpleTrackListMerger.allowFirstHitShare = False
 

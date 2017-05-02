@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "TClass.h"
 #include <cassert>
 #include <ostream>

@@ -27,6 +27,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     //
     // ***********************
     RecoBTag::setTDRStyle();
+    ibook.setCurrentFolder("BDHadronTracks/JetContent");
 
     // b jets
     // absolute average number of tracks
@@ -108,27 +109,27 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     // get all the old histograms
     //
     // ***********************
-
+    
     // b jets
     MonitorElement *nTrk_bjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_bjet[i] = iget.get("nTrk_bjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_bjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_bjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_bjet = iget.get("nTrkAll_bjet");
-
+    MonitorElement *nTrkAll_bjet = iget.get("BDHadronTracks/JetContent/nTrkAll_bjet");
+    
     // c jets
     MonitorElement *nTrk_cjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_cjet[i] = iget.get("nTrk_cjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_cjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_cjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_cjet = iget.get("nTrkAll_cjet");
+    MonitorElement *nTrkAll_cjet = iget.get("BDHadronTracks/JetContent/nTrkAll_cjet");
 
     // dusg jets
     MonitorElement *nTrk_dusgjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_dusgjet[i] = iget.get("nTrk_dusgjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_dusgjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_dusgjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_dusgjet = iget.get("nTrkAll_dusgjet");
+    MonitorElement *nTrkAll_dusgjet = iget.get("BDHadronTracks/JetContent/nTrkAll_dusgjet");
 
 
 

@@ -23,6 +23,7 @@ namespace edm {
   class SignallingProductRegistry;
   class StreamID;
   class PreallocationConfiguration;
+  class SubProcessParentageHelper;
 
   struct ScheduleItems {
     ScheduleItems();
@@ -60,6 +61,7 @@ namespace edm {
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
     std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<SubProcessParentageHelper>& subProcessParentageHelper() {return get_underlying_safe(subProcessParentageHelper_);}
     std::shared_ptr<ProcessConfiguration const> processConfiguration() const {return get_underlying_safe(processConfiguration_);}
     std::shared_ptr<ProcessConfiguration>& processConfiguration() {return get_underlying_safe(processConfiguration_);}
 
@@ -67,6 +69,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     edm::propagate_const<std::shared_ptr<ProcessConfiguration>> processConfiguration_;
   };

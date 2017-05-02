@@ -30,7 +30,7 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
   beamSpotToken_ = consumes<reco::BeamSpot> (beamSpot_);
 }
 
-HLTPMMassFilter::~HLTPMMassFilter(){}
+HLTPMMassFilter::~HLTPMMassFilter()= default;
 
 void
 HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -95,9 +95,9 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     vector< Ref< ElectronCollection > > electrons;
     PrevFilterOutput->getObjects(TriggerElectron, electrons);
 
-    for (unsigned int i=0; i<electrons.size(); i++) {
+    for (auto & electron : electrons) {
 
-      refele = electrons[i];
+      refele = electron;
 
       TLorentzVector pThisEle(refele->px(), refele->py(),
 			      refele->pz(), refele->energy() );
@@ -136,9 +136,9 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     PrevFilterOutput->getObjects(TriggerCluster, scs);
     if(scs.empty()) PrevFilterOutput->getObjects(TriggerPhoton, scs);  //we dont know if its type trigger cluster or trigger photon
 
-    for (unsigned int i=0; i<scs.size(); i++) {
+    for (auto & i : scs) {
 
-      refsc = scs[i];
+      refsc = i;
       const reco::SuperClusterRef sc = refsc->superCluster();
       TLorentzVector pscPos = approxMomAtVtx(theMagField.product(), vertexPos, sc, 1);
       pEleCh1.push_back( pscPos );

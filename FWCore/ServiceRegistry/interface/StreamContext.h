@@ -78,6 +78,7 @@ namespace edm {
     ProcessContext const* processContext_;
   };
 
+  void exceptionContext(std::ostream&, StreamContext const&);
   std::ostream& operator<<(std::ostream&, StreamContext const&);
 }
 #endif

@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <numeric>
-#include <cstdlib>
 #include <cstring>
 
 namespace edm {

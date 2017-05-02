@@ -38,11 +38,11 @@
 class HLTVertexFilter : public HLTFilter {
 public:
   explicit HLTVertexFilter(const edm::ParameterSet & config);
-  ~HLTVertexFilter();
+  ~HLTVertexFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual
+  
   bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<reco::VertexCollection> m_inputToken;
@@ -70,9 +70,7 @@ HLTVertexFilter::HLTVertexFilter(const edm::ParameterSet& config) : HLTFilter(co
 }
 
 
-HLTVertexFilter::~HLTVertexFilter()
-{
-}
+HLTVertexFilter::~HLTVertexFilter() = default;
 
 void
 HLTVertexFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

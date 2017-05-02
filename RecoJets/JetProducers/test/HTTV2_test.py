@@ -15,12 +15,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.OUT = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('test.root'),
                                outputCommands = cms.untracked.vstring(['drop *']))
-process.endpath= cms.EndPath(process.OUT)
+
+process.task = cms.Task()
+process.endpath= cms.EndPath(process.OUT, process.task)
 
 # Let CMSSW take care of scheduling 
 process.options = cms.untracked.PSet(     
-    wantSummary = cms.untracked.bool(True),
-    allowUnscheduled = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(True)
 )
 
 
@@ -32,6 +33,8 @@ from RecoJets.JetProducers.hepTopTaggerV2_cff import chsForHTT, hepTopTaggerV2
 
 process.chsForHTT = chsForHTT
 process.hepTopTaggerV2 = hepTopTaggerV2
+
+process.task.add(process.chsForHTT, process.hepTopTaggerV2)
 
 process.OUT.outputCommands.append("keep *_hepTopTaggerV2_*_Demo")
         

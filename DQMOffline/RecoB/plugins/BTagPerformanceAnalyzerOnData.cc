@@ -1,5 +1,6 @@
 #include "DQMOffline/RecoB/plugins/BTagPerformanceAnalyzerOnData.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
 
 using namespace reco;

@@ -34,6 +34,7 @@ namespace edm {
   class ProductRegistry;
   class PreallocationConfiguration;
   class ThinnedAssociationsHelper;
+  class SubProcessParentageHelper;
   class WaitingTaskHolder;
 
   namespace eventsetup {
@@ -46,6 +47,7 @@ namespace edm {
                std::shared_ptr<ProductRegistry const> parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+               SubProcessParentageHelper const& parentSubProcessParentageHelper,
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
@@ -85,12 +87,29 @@ namespace edm {
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
     void doStreamBeginRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts);
+    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
+                               unsigned int iID,
+                               RunPrincipal const& principal,
+                               IOVSyncValue const& ts);
 
     void doStreamEndRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doStreamEndRunAsync(WaitingTaskHolder iHolder,
+                             unsigned int iID, RunPrincipal const& principal,
+                             IOVSyncValue const& ts,
+                             bool cleaningUpAfterException);
 
     void doStreamBeginLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                           unsigned int iID,
+                                           LuminosityBlockPrincipal const& principal,
+                                           IOVSyncValue const& ts);
 
     void doStreamEndLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                         unsigned int iID,
+                                         LuminosityBlockPrincipal const& principal,
+                                         IOVSyncValue const& ts,
+                                         bool cleaningUpAfterException);
 
 
     // Write the luminosity block
@@ -262,6 +281,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry const>        preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
+    edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
     ProcessContext                                processContext_;

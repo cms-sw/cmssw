@@ -23,8 +23,13 @@ Description: Provide access to the collected elements contained by any WrapperBa
 
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <cassert>
 
 namespace edm {
+  class EDProductGetter;
 
   //------------------------------------------------------------------
   // Class ViewBase

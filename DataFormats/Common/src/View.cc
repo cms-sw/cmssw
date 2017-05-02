@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/View.h"
+#include <typeinfo>
 
 namespace edm
 {
@@ -13,7 +14,7 @@ namespace edm
   ViewBase::clone() const
   {
     auto p = doClone();
-    assert(typeid(*p)==typeid(*this) && "doClone() incorrectly overriden");
+    assert(typeid(*(p.get()))==typeid(*this) && "doClone() incorrectly overriden");
     return p;
   }
 

@@ -2,11 +2,10 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "TBuffer.h"
 #include "TClass.h"
-#include <ostream>
-#include <cassert>
-#include <iostream>
 
 namespace edm {
 

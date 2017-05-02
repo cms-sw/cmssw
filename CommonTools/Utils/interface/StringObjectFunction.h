@@ -35,4 +35,16 @@ private:
   edm::TypeWithDict type_;
 };
 
+template <typename Object> class sortByStringFunction  {
+ public:
+  sortByStringFunction(StringObjectFunction<Object> * f) : f_(f){}
+  ~sortByStringFunction(){}
+
+  bool operator() (const Object * o1, const Object * o2) {
+    return (*f_)(*o1) > (*f_)(*o2);
+  }
+ private:
+  StringObjectFunction<Object> * f_;
+};
+
 #endif

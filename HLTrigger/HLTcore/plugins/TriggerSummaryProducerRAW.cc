@@ -49,9 +49,7 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
   callWhenNewProductsRegistered(getterOfProducts_);
 }
 
-TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW()
-{
-}
+TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW() = default;
 
 //
 // member functions

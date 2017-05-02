@@ -1,3 +1,5 @@
+import itertools
+
 import FWCore.ParameterSet.Config as cms
 
 def producers_by_type(process, *types):
@@ -15,6 +17,22 @@ def analyzers_by_type(process, *types):
 def esproducers_by_type(process, *types):
     "Find all ESProducers in the Process that are instances of the given C++ type."
     return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
+
+
+def insert_modules_before(process, target, *modules):
+    "Add the `modules` before the `target` in any Sequence, Paths or EndPath that contains the latter."
+    for sequence in itertools.chain(
+        process._Process__sequences.itervalues(),
+        process._Process__paths.itervalues(),
+        process._Process__endpaths.itervalues()
+    ):
+        try:
+            position = sequence.index(target)
+        except ValueError:
+            continue
+        else:
+            for module in reversed(modules):
+                sequence.insert(position, module)
 
 
 # logic from Modifier.toModify from FWCore/ParameterSet/python/Config.py

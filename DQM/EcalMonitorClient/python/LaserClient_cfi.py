@@ -13,8 +13,8 @@ toleranceAmpRMSRatio = 0.3
 expectedPNAmplitude = [800.0, 800.0, 800.0, 800.0]
 tolerancePNAmp = 0.1
 tolerancePNRMSRatio = 1.
-expectedTiming = [4.2, 4.2, 4.2, 4.2]
-toleranceTiming = 0.5
+expectedTiming = [4.2, 3.7, 4.2, 4.2]
+toleranceTiming = 1.0
 toleranceTimRMS = 0.4
 
 ecalLaserClient = cms.untracked.PSet(
@@ -63,9 +63,9 @@ ecalLaserClient = cms.untracked.PSet(
             ),
             otype = cms.untracked.string('SM'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(5.5),
+                high = cms.untracked.double(5.0),
                 nbins = cms.untracked.int32(100),
-                low = cms.untracked.double(3.5),
+                low = cms.untracked.double(3.0),
                 title = cms.untracked.string('time (clock)')
             ),
             btype = cms.untracked.string('User'),

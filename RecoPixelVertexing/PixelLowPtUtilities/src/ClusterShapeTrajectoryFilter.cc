@@ -78,6 +78,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
@@ -148,6 +149,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =

@@ -12,6 +12,7 @@
 #include <vector>
 
 class HcalTopology;
+class HcalGeometry;
 
 class HcalHardcodeGeometryLoader {
 
@@ -76,9 +77,9 @@ private:
   std::vector <HECellParameters> makeHECells_H2 ();
   std::vector <HFCellParameters> makeHFCells ();
 
-  void fillHBHO (CaloSubdetectorGeometry* fGeometry, const std::vector <HBHOCellParameters>& fCells, bool fHB);
-  void fillHE (CaloSubdetectorGeometry* fGeometry, const std::vector <HECellParameters>& fCells);
-  void fillHF (CaloSubdetectorGeometry* fGeometry, const std::vector <HFCellParameters>& fCells);
+  void fillHBHO (HcalGeometry* fGeometry, const std::vector <HBHOCellParameters>& fCells, bool fHB);
+  void fillHE (HcalGeometry* fGeometry, const std::vector <HECellParameters>& fCells);
+  void fillHF (HcalGeometry* fGeometry, const std::vector <HFCellParameters>& fCells);
 
   int    MAX_HCAL_PHI;
   double DEGREE2RAD;

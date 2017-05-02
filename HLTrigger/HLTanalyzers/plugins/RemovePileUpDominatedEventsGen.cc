@@ -34,11 +34,11 @@ For more information on the theory of this method see Appendix B of https://www.
 class RemovePileUpDominatedEventsGen : public edm::stream::EDFilter <>{
    public:
       explicit RemovePileUpDominatedEventsGen(const edm::ParameterSet&);
-      ~RemovePileUpDominatedEventsGen();
+      ~RemovePileUpDominatedEventsGen() override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfos_;
       const edm::EDGetTokenT<GenEventInfoProduct > generatorInfo_;
@@ -53,7 +53,7 @@ bunchCrossing=0;
 produces<float>();
 }
 
-RemovePileUpDominatedEventsGen::~RemovePileUpDominatedEventsGen() {}
+RemovePileUpDominatedEventsGen::~RemovePileUpDominatedEventsGen() = default;
 
 bool RemovePileUpDominatedEventsGen::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;

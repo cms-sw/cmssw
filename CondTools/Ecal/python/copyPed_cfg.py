@@ -4,7 +4,7 @@ import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
-rocess.MessageLogger = cms.Service("MessageLogger",
+process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG')

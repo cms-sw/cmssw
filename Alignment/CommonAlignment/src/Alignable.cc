@@ -47,6 +47,25 @@ Alignable::~Alignable()
 }
 
 //__________________________________________________________________________________________________
+void Alignable::update(align::ID id, const AlignableSurface& surf)
+{
+  if (theId != id) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::update\n"
+      << "Current alignable ID does not match ID of the update.";
+  }
+  const auto shift = surf.position() - theSurface.position();
+  theSurface = surf;
+
+  // reset displacement and rotations after update
+  theDisplacement = GlobalVector();
+  theRotation = RotationType();
+
+  // recalculate containing composite's position
+  updateMother(shift);
+}
+
+//__________________________________________________________________________________________________
 bool Alignable::firstCompsWithParams(Alignables &paramComps) const
 {
   bool isConsistent = true;
@@ -269,7 +288,7 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
   return allSurfaceDeformations;
 
 }
- 
+
 void Alignable::cacheTransformation()
 {
   // first treat itself
@@ -286,6 +305,18 @@ void Alignable::cacheTransformation()
 
 }
 
+void Alignable::cacheTransformation(const align::RunNumber& run)
+{
+  // first treat itself
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  const Alignables comps(this->components());
+  for (auto& it: comps) it->cacheTransformation(run);
+}
+
 void Alignable::restoreCachedTransformation()
 {
   // first treat itself
@@ -294,12 +325,31 @@ void Alignable::restoreCachedTransformation()
   theRotation = theCachedRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  const Alignables comps(this->components());
+  const auto comps = this->components();
 
   for (auto it = comps.begin(); it != comps.end(); ++it) {
     (*it)->restoreCachedTransformation();
   }
  
+}
+
+void Alignable::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    // first treat itself
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    // now treat components (a clean design would move that to AlignableComposite...)
+    const auto comps = this->components();
+    for (auto it: comps) it->restoreCachedTransformation();
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -309,4 +359,27 @@ void Alignable::setSurvey( const SurveyDet* survey )
   delete theSurvey;
   theSurvey = survey;
 
+}
+
+//______________________________________________________________________________
+void Alignable::updateMother(const GlobalVector& shift) {
+
+  if (!theMother) return;
+
+  const auto thisComps = this->deepComponents().size();
+  const auto motherComps = theMother->deepComponents().size();
+  const auto motherShift = shift * static_cast<Scalar>(thisComps) / motherComps;
+
+  switch(theMother->compConstraintType()) {
+  case CompConstraintType::NONE:
+    break;
+  case CompConstraintType::POSITION_Z:
+    theMother->theSurface.move(GlobalVector(0,0, motherShift.z()));
+    theMother->updateMother(GlobalVector(0,0, motherShift.z()));
+    break;
+  case CompConstraintType::POSITION:
+    theMother->theSurface.move(motherShift);
+    theMother->updateMother(motherShift);
+    break;
+  }
 }

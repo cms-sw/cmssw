@@ -23,7 +23,7 @@ set k = 0
 
 foreach line ( "`cat $odir/$iovfile`" )
 	@ k++
-  echo $line
+	echo $line
 	cmsRun $odir/main/initial_cfg_$k.py >& $odir/main/initial_$line.out
 	set lastrun = $line
 end

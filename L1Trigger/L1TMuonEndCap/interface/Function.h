@@ -24,7 +24,7 @@ class PreliminaryFit
   // Before building the regression, fit the events with a preliminary fit.
  public:
   // return true if the fit fails.
-  virtual bool fit(Event* e) = 0;
+  virtual bool fit(emtf::Event* e) = 0;
   virtual const char* name() = 0;
   virtual int id() = 0;
 };
@@ -39,8 +39,8 @@ class TransformFunction
   // of the trueValue itself.
  public:
   // return true if the transform fails.
-  virtual bool transform(Event* e) = 0;
-  virtual bool invertTransformation(Event* e) = 0;
+  virtual bool transform(emtf::Event* e) = 0;
+  virtual bool invertTransformation(emtf::Event* e) = 0;
   virtual const char* name() = 0;
   virtual int id() = 0;
 };
@@ -53,7 +53,7 @@ class MetricOfSuccess
 {
   // Judge how well the regression worked.
  public:
-  virtual Double_t calculate(std::vector<Event*>& v) = 0;
+  virtual Double_t calculate(std::vector<emtf::Event*>& v) = 0;
 };
 
 #endif

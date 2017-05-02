@@ -26,10 +26,8 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
   std::string attribute = "Volume"; 
   std::string value     = name;
   DDValue val(attribute, value, 0.0);
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDCompOp::equals);
-  DDFilteredView fv(*cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{val};
+  DDFilteredView fv(*cpv,filter);
   bool ok = fv.firstChild();
 
   if (ok) {

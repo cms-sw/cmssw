@@ -53,7 +53,8 @@ TLegend*  HIPplots::MakeLegend(double x1,
   legend->SetFillColor(0);
   legend->SetBorderSize(0);
   int COLOR_CODE[6]={ 28, 2, 3, 4, 6, 7 };
-
+  
+  // TO BE UPDATED FOR PHASE-1
   TString detNames[6];
   detNames[0] = TString("PXB");
   detNames[1] = TString("PXF");
@@ -1014,6 +1015,7 @@ int HIPplots::GetNIterations(TDirectory* f, char* tag, int startingcounter){
 
 int HIPplots::GetSubDet(unsigned int id){
 
+  // TO BE UPDATED FOR PHASE-1
   const int reserved_subdetectorstartbit=25;
   const int reserved_subdetectorfinalbit=27;
 

@@ -53,6 +53,22 @@ namespace
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >                   V_R_S_PD;
     edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > > W_V_R_S_PD;
   };
+
+
+  struct dictionarytrack {
+    /// TTTrack and containers
+    TTTrack< Ref_Phase2TrackerDigi_ >                                               T_PD;
+    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >                              V_T_PD;
+    edm::Wrapper< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >            W_V_T_PD;
+    edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >                   SDV_T_PD;
+    edm::Wrapper< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > > > W_SDV_T_PD;
+
+    /// edm::Ref to TTTrack in edmNew::DetSetVector and containers
+    edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > >                                    R_T_PD;
+    edm::Wrapper< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > >                  W_R_T_PD;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > >                   V_R_T_PD;
+    edm::Wrapper< std::vector< edm::Ref< edmNew::DetSetVector< TTTrack< Ref_Phase2TrackerDigi_ > >, TTTrack< Ref_Phase2TrackerDigi_ > > > > W_V_R_T_PD;
+  };
 }
 
 #endif

@@ -1,99 +1,74 @@
-////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-
 #include <memory>
 #include <vector>
-#include <sstream>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class IsoTracks : public edm::EDProducer
-{
+class IsoTracks : public edm::global::EDProducer<> {
 public:
-  // construction/destruction
-  IsoTracks(const edm::ParameterSet& iConfig);
-  virtual ~IsoTracks();
-  
-  // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
 
-private:  
-  // member data
-  double                                         coneRadius_      ;
-  double                                         threshold_       ;
-  edm::EDGetTokenT< std::vector<reco::Track> >   v_recoTrackToken_;
+  explicit IsoTracks(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
+private:
+
+  double coneRadius_;
+  double threshold_;
+  edm::EDGetTokenT<std::vector<reco::Track>> v_recoTrackToken_;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// construction/destruction
+// construction
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-IsoTracks::IsoTracks(const edm::ParameterSet& iConfig)
-  : coneRadius_      ( iConfig.getParameter<double>( "radius" ) )
-  , threshold_       ( iConfig.getParameter<double>( "SumPtFraction" ) )
-  , v_recoTrackToken_( consumes< std::vector<reco::Track> >( iConfig.getParameter<edm::InputTag>( "src" ) ) )
+IsoTracks::IsoTracks(edm::ParameterSet const& iConfig)
+  : coneRadius_{iConfig.getParameter<double>("radius")}
+  , threshold_{iConfig.getParameter<double>("SumPtFraction")}
+  , v_recoTrackToken_{consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("src"))}
 {
-  produces<std::vector<reco::Track> >();
+  produces<std::vector<reco::Track>>();
 }
-
-//______________________________________________________________________________
-IsoTracks::~IsoTracks(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
+void IsoTracks::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
+  auto isoTracks = std::make_unique<std::vector<reco::Track>>();
 
-  std::unique_ptr<std::vector<reco::Track> > IsoTracks(new std::vector<reco::Track >);
-  
-  edm::Handle< std::vector<reco::Track> > dirtyTracks;
-  iEvent.getByToken( v_recoTrackToken_, dirtyTracks );
-  
-  if( dirtyTracks->size() == 0 ) 
-  {
-    iEvent.put(std::move(IsoTracks));
-    return ;
+  edm::Handle<std::vector<reco::Track>> dirtyTracks;
+  iEvent.getByToken(v_recoTrackToken_, dirtyTracks);
+
+  if (dirtyTracks->empty()) {
+    iEvent.put(std::move(isoTracks));
+    return;
   }
-  
-  std::vector<reco::Track>::const_iterator dirtyTrackIt    ;
-  std::vector<reco::Track>::const_iterator dirtyTrackIt2   ;
-//  typename std::vector<reco::Track>::const_iterator dirtyTrackIt    ;
-//  typename std::vector<reco::Track>::const_iterator dirtyTrackIt2   ;
-  double   sumPtInCone = 0 ;
 
-  for ( dirtyTrackIt = dirtyTracks->begin(); dirtyTrackIt != dirtyTracks->end(); ++dirtyTrackIt ) {
-    for ( dirtyTrackIt2 = dirtyTracks->begin(); dirtyTrackIt2 != dirtyTracks->end(); ++dirtyTrackIt2 ) {
-      if ( dirtyTrackIt == dirtyTrackIt2) continue ;
-      if ( deltaR(dirtyTrackIt  -> eta() , 
-                  dirtyTrackIt  -> phi() , 
-                  dirtyTrackIt2 -> eta() , 
-                  dirtyTrackIt2 -> phi() ) < coneRadius_ ){
-        sumPtInCone = sumPtInCone + dirtyTrackIt2 -> pt() ;
+  double sumPtInCone {};
+  for (auto it1 = dirtyTracks->begin(); it1 != dirtyTracks->end(); ++it1) {
+    for (auto it2 = dirtyTracks->begin(); it2 != dirtyTracks->end(); ++it2) {
+      if (it1 == it2) continue;
+      if (deltaR(it1->eta(), it1->phi(), it2->eta(), it2->phi()) < coneRadius_) {
+        sumPtInCone += it2->pt();
       }
-	}
-	if ( sumPtInCone <= threshold_*(dirtyTrackIt->pt()) ){
-	  IsoTracks -> push_back( *dirtyTrackIt ) ; 
-	}
+    }
+    if (sumPtInCone <= threshold_*it1->pt()) {
+      isoTracks->push_back(*it1);
+    }
   }
-  iEvent.put(std::move(IsoTracks));
+
+  iEvent.put(std::move(isoTracks));
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(IsoTracks);

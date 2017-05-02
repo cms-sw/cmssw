@@ -782,5 +782,52 @@ namespace hcaldqm
 
 			return labels;
 		}
+
+
+		void CrateQuantity::setup(HcalElectronicsMap const * emap)
+		{
+			_crates      = utilities::getCrateList(emap);
+			_crateHashes = utilities::getCrateHashMap(emap);
+		}
+
+		void CrateQuantity::setup(std::vector<int> crates, std::map<int, uint32_t> crateHashes) {
+			for (auto& it_crate : crates) {
+				_crates.push_back(it_crate);
+				_crateHashes[it_crate] = crateHashes[it_crate];
+			}
+		}
+
+		int CrateQuantity::getValue(HcalElectronicsId const& eid)
+		{
+			return eid.crateId();
+		}
+
+		uint32_t CrateQuantity::getBin(HcalElectronicsId const& eid)
+		{
+			int crate = eid.crateId();
+			auto it = std::find(_crates.begin(), _crates.end(), crate);
+			if (it == _crates.end()) {
+				return 0;
+			} else {
+				return std::distance(_crates.begin(), it) + 1;
+			}
+		}
+
+		std::vector<std::string> CrateQuantity::getLabels()
+		{
+			std::vector<std::string> labels;
+			char name[5];
+			for (auto& it_crate : _crates) {
+				HcalElectronicsId eid(_crateHashes[it_crate]);
+				if (eid.isVMEid()) {
+					sprintf(name, "%dv", it_crate);
+				} else {
+					sprintf(name, "%du", it_crate);
+				}
+				labels.push_back(name);
+			}
+			return labels;
+		}
+
 	}
 }

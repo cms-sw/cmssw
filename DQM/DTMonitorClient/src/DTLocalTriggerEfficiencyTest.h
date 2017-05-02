@@ -49,6 +49,8 @@ protected:
   void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
+  const int wheelArrayShift = 3;
+
  private:
 
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;

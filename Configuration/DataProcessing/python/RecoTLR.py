@@ -43,6 +43,10 @@ def customisePostEra_Run2_2016(process):
     _hcalCustoms25ns(process)
     return process
 
+def customisePostEra_Run2_2017(process):
+    _hcalCustoms25ns(process)
+    return process
+
 
 ##############################################################################
 def customisePPData(process):
