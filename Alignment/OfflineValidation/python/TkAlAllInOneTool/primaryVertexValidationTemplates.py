@@ -1,6 +1,4 @@
 PrimaryVertexValidationTemplate="""
-import FWCore.ParameterSet.Config as cms
- 
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
 
@@ -133,14 +131,15 @@ else:
                                                                        )
                                            )
 
+"""
+
 ####################################################################
-# Path
 ####################################################################
+PVValidationPath="""
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
                      process.TrackRefitter*
                      process.PVValidation)
-
 """
 
 ####################################################################

@@ -31,6 +31,18 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
     def ValidationTemplate(self):
         return configTemplates.PrimaryVertexValidationTemplate
 
+    @property
+    def TrackSelectionRefitting(self):
+        return configTemplates.SingleTrackRefitter
+
+    @property
+    def ProcessName(self):
+        return "PrimaryVertexValidation"
+
+    @property
+    def DefinePath(self):
+        return configTemplates.PVValidationPath
+
     def createScript(self, path):
         return super(PrimaryVertexValidation, self).createScript(path, template = configTemplates.PVValidationScriptTemplate)
 
