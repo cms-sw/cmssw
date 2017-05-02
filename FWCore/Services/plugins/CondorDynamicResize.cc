@@ -21,6 +21,7 @@
  * This plugin was written by Brian Bockelman; work was started on 2 May 2017.
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -34,7 +35,6 @@
 #include <cassert>
 #include <cctype>
 #include <chrono>
-#include <iostream>
 #include <fstream>
 #include <future>
 #include <sstream>
@@ -113,9 +113,9 @@ namespace {
       m_halt_signal(std::move(halt_signal)) {}
 
     tbb::task* execute() override {
-      if (m_debug) {std::cout << "Launching a TBB-based sleep task.\n";}
+      if (m_debug) {edm::LogInfo("CondorDynamicResize") << "Launching a TBB-based sleep task.";}
       m_halt_signal.wait();
-      if (m_debug) {std::cout << "Exiting from a TBB-based sleep task.\n";}
+      if (m_debug) {edm::LogInfo("CondorDynamicResize") << "Exiting from a TBB-based sleep task.";}
       return nullptr;
     }
 
@@ -132,18 +132,15 @@ using namespace edm::service;
 CondorDynamicResizeService::CondorDynamicResizeService(
                            ParameterSet const& pset,
                            edm::ActivityRegistry& ar) :
-  m_debug(false),
+  m_debug(pset.getUntrackedParameter<bool>("debug")),
   m_max_cores(1)
 {
-  if (pset.existsAs<bool>("debug"))
-  {
-    m_debug = pset.getUntrackedParameter<bool>("debug");
-  }
+  edm::LogWarning("CondorDynamicResize") << "Value of debug: " << m_debug;
 
   ar.preallocateSignal_.connect([this](service::SystemBounds const& bounds) {
     if (m_debug) {
-      std::cout << "Got preallocate signal "
-                << bounds.maxNumberOfThreads() << "\n";
+      edm::LogInfo("CondorDynamicResize") << "Got preallocate signal "
+                << bounds.maxNumberOfThreads();
     }
     m_max_cores = bounds.maxNumberOfThreads();
   });
@@ -166,7 +163,7 @@ CondorDynamicResizeService::manageTasksHelper(CondorDynamicResizeService *svc,
 void
 CondorDynamicResizeService::manageTasks(std::future<int> stop_signal)
 {
-  if (m_debug) {std::cout << "Task management thread has started!\n";}
+  if (m_debug) {edm::LogInfo("CondorDynamicResize") << "Task management thread has started!";}
 
   // By default, no cores are blocked.
   unsigned int cores = m_max_cores;
@@ -189,12 +186,12 @@ CondorDynamicResizeService::manageTasks(std::future<int> stop_signal)
     }
 
     if (m_debug) {
-      std::cout << "Querying number of target cores; current running "
-                << cores << "\n";
+      edm::LogInfo("CondorDynamicResize") << "Querying number of target cores; current running "
+                << cores;
     }
     unsigned int target = getTargetCores();
     target = (max_cores < target) ? max_cores : target;
-    if (m_debug) {std::cout << "Resulting target: " << target << "\n";}
+    if (m_debug) {edm::LogInfo("CondorDynamicResize") << "Resulting target: " << target;}
 
     // Target is less than the current number of cores; submit blocker
     // tasks to TBB.
@@ -227,18 +224,18 @@ CondorDynamicResizeService::manageTasks(std::future<int> stop_signal)
     switch (status) {
     case std::future_status::deferred:
       if (m_debug) {
-        std::cout << "Logic error -- deferred future shouldn't be possible.\n";
+        edm::LogInfo("CondorDynamicResize") << "Logic error -- deferred future shouldn't be possible.";
       }
       return;
     case std::future_status::ready:
       if (m_debug) {
-        std::cout << "Management thread shutdown requested.\n";
+        edm::LogInfo("CondorDynamicResize") << "Management thread shutdown requested.";
       }
       is_done = true;
       break;
     case std::future_status::timeout:
       if (m_debug) {
-        std::cout << "Management thread woke up.\n";
+        edm::LogInfo("CondorDynamicResize") << "Management thread woke up.";
       }
       break;
     }
@@ -262,7 +259,7 @@ CondorDynamicResizeService::getTargetCores() const
   const char *machine_ad = getenv("_CONDOR_MACHINE_AD");
   if (!machine_ad) {return 0;}
 
-  if (m_debug) {std::cout << "Parsing machine ad file: " << machine_ad << "\n";}
+  if (m_debug) {edm::LogInfo("CondorDynamicResize") << "Parsing machine ad file: " << machine_ad;}
   std::ifstream fmachine_ad(machine_ad);
   if (!fmachine_ad.is_open()) {
     return 0;
@@ -324,7 +321,7 @@ CondorDynamicResizeService::fillDescriptions(
   ParameterSetDescription desc;
   desc.setComment("Service to update number of active threads dynamically, "
                   "based on HTCondor environment");
-  desc.addOptionalUntracked<bool>("debug", false)
+  desc.addUntracked<bool>("debug", false)
     ->setComment("Enable debugging of this service.");
   descriptions.add("CondorDynamicResizeService", desc);
 }
