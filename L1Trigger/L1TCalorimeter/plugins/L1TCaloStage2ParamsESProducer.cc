@@ -31,7 +31,7 @@
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ public:
 
   typedef std::shared_ptr<CaloParams> ReturnType;
 
-  ReturnType produce(const L1TCaloStage2ParamsRcd&);
+  ReturnType produce(const L1TCaloParamsRcd&);
 
 private:
   CaloParams  m_params ;
@@ -318,7 +318,7 @@ L1TCaloStage2ParamsESProducer::~L1TCaloStage2ParamsESProducer()
 
 // ------------ method called to produce the data  ------------
 L1TCaloStage2ParamsESProducer::ReturnType
-L1TCaloStage2ParamsESProducer::produce(const L1TCaloStage2ParamsRcd& iRecord)
+L1TCaloStage2ParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
    using namespace edm::es;
    std::shared_ptr<CaloParams> pCaloParams ;
