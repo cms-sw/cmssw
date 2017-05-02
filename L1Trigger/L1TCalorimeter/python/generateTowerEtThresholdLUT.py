@@ -9,7 +9,7 @@ import math
 #  Python script for generating LUT to return tower Et threshold for energy sums              #
 #  Input 1: 5 bits - compressed pileup estimate, as used for EG                               #
 #  Input 2: 6 bits - abs(ieta) = absolute value of ieta of the trigger tower                  #
-#  Tower Et threshold not applied for ieta <= 10                                              # 
+#  Tower Et threshold not applied for ieta <= 15                                              # 
 #  LUT address input = compressedPileupEstimate << 6 | abs(ieta)                              #
 #  Returns 9 bits for tower et threshold                                                      #
 #  Author: Aaron Bundock (aaron.*nospamthankyamaam*bundock@cern.ch)                           #
@@ -26,8 +26,8 @@ if not os.path.isdir(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data
           "Remember to do 'git add " + os.environ['LOCALRT'] + "L1Trigger/L1TCalorimeter/data' when committing the new LUT!")
     os.makedirs(os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data")
 
-print "Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v2.txt'"
-towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v2.txt", "w")
+print "Creating tower Et threshold LUT with filename " + os.environ['LOCALRT'] + "/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v3.txt'"
+towEtThreshLUTFile = open(os.environ['LOCALRT']+"/src/L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v3.txt", "w")
 
 
 # write header info
@@ -58,9 +58,11 @@ printBins = ""
 
 for compNTT4 in compNTT4Range:
     for ieta in etaRange:
-        towEtThresh = int(round((float(towerAreas[ieta-1])/4)*(5.4/(1+math.exp(-0.22*(ieta-16))))*(float(compNTT4)/10)))
-        if ieta < 11:
+        towEtThresh = int(round((float(towerAreas[ieta-1])**1.2)*(1/(1+math.exp(-0.2*(ieta-5))))*(float(compNTT4)/10)))
+        if ieta < 16:
             towEtThresh = 0
+        if ieta > 28 and towEtThresh > 1:
+            towEtThresh -= 2
         if towEtThresh > 16:
             towEtThresh = int(16)
         if (addr % 64) == 0:
