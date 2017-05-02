@@ -20,7 +20,7 @@ HLTElectronPFMTFilter<T>::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig
 }
 
 template <typename T> 
-HLTElectronPFMTFilter<T>::~HLTElectronPFMTFilter(){}
+HLTElectronPFMTFilter<T>::~HLTElectronPFMTFilter()= default;
 
 template <typename T> 
 void HLTElectronPFMTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

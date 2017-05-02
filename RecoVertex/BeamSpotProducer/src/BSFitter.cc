@@ -34,6 +34,7 @@ ________________________________________________________________**/
 #include "TDecompBK.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 using namespace ROOT::Minuit2;
 
@@ -41,10 +42,17 @@ using namespace ROOT::Minuit2;
 //_____________________________________________________________________
 BSFitter::BSFitter() {
 	fbeamtype = reco::BeamSpot::Unknown;
+
+ 	//In order to make fitting ROOT histograms thread safe
+ 	// one must call this undocumented function
+	TMinuitMinimizer::UseStaticMinuit(false);
 }
 
 //_____________________________________________________________________
 BSFitter::BSFitter( const std:: vector< BSTrkParameters > &BSvector ) {
+ 	//In order to make fitting ROOT histograms thread safe
+ 	// one must call this undocumented function
+ 	TMinuitMinimizer::UseStaticMinuit(false);
 
 	ffit_type = "default";
 	ffit_variable = "default";
@@ -362,7 +370,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 
 	//Use our own copy for thread safety
 	TF1 fgaus("fgaus","gaus");
-	h1z->Fit(&fgaus,"QLM0");
+	h1z->Fit(&fgaus,"QLMN0");
 	//std::cout << "fitted "<< std::endl;
 
 	//std::cout << "got function" << std::endl;
@@ -571,7 +579,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	TF1 fgaus("fgaus","gaus");
 	//returns 0 if OK
 	//auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
-	auto status = h1z->Fit(&fgaus,"QL0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+	auto status = h1z->Fit(&fgaus,"QLN0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
 
 	//std::cout << "fitted "<< std::endl;
 

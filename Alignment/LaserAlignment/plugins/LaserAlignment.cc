@@ -91,7 +91,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   std::string alias ( theConf.getParameter<std::string>("@module_label") );  
 
   // declare the product to produce
-  produces<TkLasBeamCollection, edm::InRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
+  produces<TkLasBeamCollection, edm::Transition::EndRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
 
   // switch judge's zero filter depending on cfg
   judge.EnableZeroFilter( enableJudgeZeroFilter );

@@ -37,8 +37,6 @@ kt4PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 kt6PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 ic5PFL1OffsetCorrector   = ak4PFL1OffsetCorrector.clone()
 
-ak7JPTL1OffsetCorrector  = ak4CaloL1OffsetCorrector.clone()
-
 # L1 (fastjet) Correctors
 ak7CaloL1FastjetCorrector = ak4CaloL1FastjetCorrector.clone()
 kt4CaloL1FastjetCorrector = ak4CaloL1FastjetCorrector.clone()
@@ -67,14 +65,19 @@ kt4PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 kt6PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 ic5PFL1FastjetCorrector   = ak4PFL1FastjetCorrector.clone()
 
-ak7JPTL1FastjetCorrector  = ak4JPTL1FastjetCorrector.clone()
-
 # SPECIAL L1JPTOffset
-ak7L1JPTOffsetCorrector = ak4L1JPTOffsetCorrector.clone( offsetService = 'ak7CaloL1OffsetCorrector' )
+ak7L1JPTOffsetCorrector = ak4L1JPTOffsetCorrector.clone( offsetService = 'ak7CaloL1OffsetCorrector', algorithm = 'AK7JPT' )
 ak7L1JPTOffsetCorrectorTask = cms.Task(
     ak7CaloL1OffsetCorrector, ak7L1JPTOffsetCorrector
 )
 ak7L1JPTOffsetCorrectorChain = cms.Sequence(ak7L1JPTOffsetCorrectorTask)
+
+ak7L1JPTFastjetCorrector = ak4L1JPTFastjetCorrector.clone( offsetService = 'ak7CaloL1FastjetCorrector', algorithm = 'AK7JPT' )
+ak7L1JPTFastjetCorrectorTask = cms.Task(
+    ak7CaloL1FastjetCorrector, ak7L1JPTFastjetCorrector
+)
+ak7L1JPTFastjetCorrectorChain = cms.Sequence(ak7L1JPTFastjetCorrectorTask)
+
 
 # L2 (relative eta-conformity) Correctors
 ak7CaloL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK7Calo' )
@@ -434,7 +437,7 @@ ic5PFL2L3CorrectorChain = cms.Sequence(ic5PFL2L3CorrectorTask)
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL2L3Corrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    correctors = cms.VInputTag('ak7CaloL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
     )
 ak7JPTL2L3CorrectorTask = cms.Task(
     ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTL2L3Corrector
@@ -511,10 +514,10 @@ ic5PFL1L2L3CorrectorChain = cms.Sequence(ic5PFL1L2L3CorrectorTask)
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3Corrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    correctors = cms.VInputTag('ak7CaloL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
     )
 ak7JPTL1L2L3CorrectorTask = cms.Task(
-    ak7JPTL1OffsetCorrector, ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTL1L2L3Corrector
+    ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTL1L2L3Corrector
 )
 ak7JPTL1L2L3CorrectorChain = cms.Sequence(ak7JPTL1L2L3CorrectorTask)
 
@@ -933,10 +936,10 @@ ic5PFL1L2L3ResidualCorrectorChain = cms.Sequence(ic5PFL1L2L3ResidualCorrectorTas
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3ResidualCorrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
+    correctors = cms.VInputTag('ak7CaloL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
     )
 ak7JPTL1L2L3ResidualCorrectorTask = cms.Task(
-    ak7JPTL1OffsetCorrector, ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTResidualCorrector, ak7JPTL1L2L3ResidualCorrector
+    ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTResidualCorrector, ak7JPTL1L2L3ResidualCorrector
 )
 ak7JPTL1L2L3ResidualCorrectorChain = cms.Sequence(ak7JPTL1L2L3ResidualCorrectorTask)
 
@@ -1003,6 +1006,15 @@ ak4TrackL1FastL2L3CorrectorTask = cms.Task(
     ak4CaloL1FastjetCorrector, ak4TrackL2RelativeCorrector, ak4TrackL3AbsoluteCorrector, ak4TrackL1FastL2L3Corrector
 )
 ak4TrackL1FastL2L3CorrectorChain = cms.Sequence(ak4TrackL1FastL2L3CorrectorTask)
+
+ak7JPTL1FastL2L3Corrector = cms.EDProducer(
+    'ChainedJetCorrectorProducer',
+    correctors = cms.VInputTag('ak7CaloL1FastjetCorrector','ak7L1JPTFastjetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    )
+ak7JPTL1FastL2L3CorrectorTask = cms.Task(
+    ak7L1JPTFastjetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTL1FastL2L3Corrector
+)
+ak7JPTL1FastL2L3CorrectorChain = cms.Sequence(ak7JPTL1FastL2L3CorrectorTask)
 
 # L1FastL2L3Residual CORRECTORS
 ak7CaloL1FastL2L3ResidualCorrector = cms.EDProducer(
@@ -1213,10 +1225,10 @@ ic5PFL1FastL2L3ResidualCorrectorChain = cms.Sequence(ic5PFL1FastL2L3ResidualCorr
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1FastL2L3ResidualCorrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1FastjetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
+    correctors = cms.VInputTag('ak7CaloL1FastjetCorrector','ak7L1JPTFastjetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector','ak7JPTResidualCorrector')
     )
 ak7JPTL1FastL2L3ResidualCorrectorTask = cms.Task(
-    ak7JPTL1FastjetCorrector, ak7L1JPTOffsetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTResidualCorrector,  ak7JPTL1FastL2L3ResidualCorrector
+    ak7L1JPTFastjetCorrectorTask, ak7JPTL2RelativeCorrector, ak7JPTL3AbsoluteCorrector, ak7JPTResidualCorrector,  ak7JPTL1FastL2L3ResidualCorrector
 )
 ak7JPTL1FastL2L3ResidualCorrectorChain = cms.Sequence(ak7JPTL1FastL2L3ResidualCorrectorTask)
 
@@ -1412,6 +1424,7 @@ jetCorrectorsAllAlgosTask = cms.Task(
     kt6PFL1L2L3ResidualCorrectorTask,
     ic5PFL1L2L3ResidualCorrectorTask,
     ak7JPTL1L2L3ResidualCorrectorTask,
+    ak7L1JPTFastjetCorrectorTask,
     ak7CaloL1FastL2L3CorrectorTask,
     kt4CaloL1FastL2L3CorrectorTask,
     kt6CaloL1FastL2L3CorrectorTask,

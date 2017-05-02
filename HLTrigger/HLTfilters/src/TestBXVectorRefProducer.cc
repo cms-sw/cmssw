@@ -40,14 +40,14 @@
 class TestBXVectorRefProducer : public edm::stream::EDProducer<> {
    public:
       explicit TestBXVectorRefProducer(const edm::ParameterSet&);
-      ~TestBXVectorRefProducer();
+      ~TestBXVectorRefProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

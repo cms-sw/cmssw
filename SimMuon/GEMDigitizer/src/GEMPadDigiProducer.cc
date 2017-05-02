@@ -7,9 +7,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string>
-#include <map>
-#include <vector>
+#include <set>
 
 
 GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
@@ -52,10 +50,10 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 }
 
 
-void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads)
+void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads) const
 {
   auto etaPartitions = geometry_->etaPartitions();
-  for(auto p: etaPartitions)
+  for(const auto& p: etaPartitions)
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;

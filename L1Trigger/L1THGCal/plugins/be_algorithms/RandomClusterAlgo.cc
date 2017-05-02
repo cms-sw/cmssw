@@ -13,13 +13,13 @@ public:
     cluster_product_( new l1t::HGCalClusterBxCollection ){
   }
 
-  virtual void setProduces(edm::EDProducer& prod) const override final {
+  virtual void setProduces(edm::stream::EDProducer<>& prod) const override final {
     prod.produces<l1t::HGCalClusterBxCollection>(name());
   }
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
 		  const edm::EventSetup& es,
-		   const edm::Event&evt
+		  edm::Event&evt
 		   ) override final;
 
   virtual void putInEvent(edm::Event& evt) override final {
@@ -37,7 +37,7 @@ private:
 
 void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
 			    const edm::EventSetup& es,
-			    const edm::Event&evt
+			    edm::Event&evt
 			    ) {
   for( const auto& digi : coll ) {
     HGCal64BitRandomCodec::data_type my_data;

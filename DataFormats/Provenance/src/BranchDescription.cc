@@ -21,14 +21,15 @@ namespace edm {
     moduleName_(),
     branchName_(),
     wrappedName_(),
+    wrappedType_(),
+    unwrappedType_(),
+    splitLevel_(),
+    basketSize_(),
     produced_(false),
     onDemand_(false),
     dropped_(false),
     transient_(false),
-    wrappedType_(),
-    unwrappedType_(),
-    splitLevel_(),
-    basketSize_() {
+    availableOnlyAtEndTransition_(false){
    }
 
   void
@@ -46,7 +47,7 @@ namespace edm {
     productInstanceName_(),
     branchAliases_(),
     aliasForBranchID_(),
-    transient_() {
+    transient_(){
     // do not call init here! It will result in an exception throw.
   }
 
@@ -61,6 +62,7 @@ namespace edm {
                         ParameterSetID const& parameterSetID,
                         TypeWithDict const& theTypeWithDict,
                         bool produced,
+                        bool availableOnlyAtEndTransition,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
       moduleLabel_(moduleLabel),
@@ -76,6 +78,7 @@ namespace edm {
     setOnDemand(false);
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;
+    transient_.availableOnlyAtEndTransition_=availableOnlyAtEndTransition;
     setUnwrappedType(theTypeWithDict);
     init();
   }
@@ -97,6 +100,7 @@ namespace edm {
     setDropped(false);
     setProduced(aliasForBranch.produced());
     setOnDemand(aliasForBranch.onDemand());
+    transient_.availableOnlyAtEndTransition_=aliasForBranch.availableOnlyAtEndTransition();
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
     setUnwrappedType(aliasForBranch.unwrappedType());

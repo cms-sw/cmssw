@@ -35,8 +35,7 @@ HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& config) :
 }
 
 
-HLTEcalPhiSymFilter::~HLTEcalPhiSymFilter()
-{}
+HLTEcalPhiSymFilter::~HLTEcalPhiSymFilter() = default;
 
 void
 HLTEcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

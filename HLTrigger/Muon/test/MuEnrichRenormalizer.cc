@@ -48,7 +48,7 @@ void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
   int npart=0;
   int nb=0;
   int nc=0;
-  if (Gevt != 0 ) {   
+  if (Gevt != nullptr ) {   
     for ( HepMC::GenEvent::particle_const_iterator
 	    particle=Gevt->particles_begin(); particle!=Gevt->particles_end(); ++particle )
       {
@@ -61,7 +61,7 @@ void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
 	    break;
 	  } else {
 	    HepMC::GenVertex* parent=(*particle)->production_vertex();
-	    for (HepMC::GenVertex::particles_in_const_iterator ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
+	    for (auto ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
 	      {
 		int pid=(*ic)->pdg_id(); 
 		if (pid == 21 && id==5 ) nb++;

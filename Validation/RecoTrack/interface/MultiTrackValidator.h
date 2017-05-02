@@ -12,6 +12,8 @@
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
+#include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
+#include "CommonTools/Utils/interface/DynArray.h"
 
 class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
  public:
@@ -45,6 +47,21 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
  private:
+  const TrackingVertex::LorentzVector *getSimPVPosition(const edm::Handle<TrackingVertexCollection>& htv) const;
+  const reco::Vertex::Point *getRecoPVPosition(const edm::Event& event, const edm::Handle<TrackingVertexCollection>& htv) const;
+  void tpParametersAndSelection(const TrackingParticleRefVector& tPCeff,
+                                const ParametersDefinerForTP& parametersDefinerTP,
+                                const edm::Event& event, const edm::EventSetup& setup,
+                                const reco::BeamSpot& bs,
+                                std::vector<std::tuple<TrackingParticle::Vector, TrackingParticle::Point> >& momVert_tPCeff,
+                                std::vector<size_t>& selected_tPCeff) const;
+  size_t tpDR(const TrackingParticleRefVector& tPCeff,
+              const std::vector<size_t>& selected_tPCeff,
+              DynArray<float>& dR_tPCeff) const;
+  void trackDR(const edm::View<reco::Track>& trackCollection,
+               const edm::View<reco::Track>& trackCollectionDr,
+               DynArray<float>& dR_trk) const;
+
   std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
   std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> associatormapStRs;
   std::vector<edm::EDGetTokenT<reco::RecoToSimCollection>> associatormapRtSs;

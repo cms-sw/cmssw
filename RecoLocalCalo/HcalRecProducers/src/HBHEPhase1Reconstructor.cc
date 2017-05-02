@@ -284,6 +284,7 @@ private:
     bool dropZSmarkedPassed_;
     bool tsFromDB_;
     bool recoParamsFromDB_;
+    bool saveEffectivePedestal_;
 
     // Parameters for turning status bit setters on/off
     bool setNegativeFlagsQIE8_;
@@ -345,6 +346,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
+      saveEffectivePedestal_(conf.getParameter<bool>("saveEffectivePedestal")),
       setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
       setNegativeFlagsQIE11_(conf.getParameter<bool>("setNegativeFlagsQIE11")),
       setNoiseFlagsQIE8_(conf.getParameter<bool>("setNoiseFlagsQIE8")),
@@ -483,7 +485,9 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             auto s(frame[ts]);
             const uint8_t adc = s.adc();
             const int capid = s.capid();
-            const double pedestal = calib.pedestal(capid);
+            //optionally store "effective" pedestal = QIE contribution (default, from calib.pedestal()) + SiPM contribution (dark current + crosstalk)
+            //only done for pedestal mean, to be used for pedestal subtraction downstream
+            const double pedestal = calib.pedestal(capid) + (saveEffectivePedestal_ ? darkCurrent * 25. / (1. - lambda) : 0.);
             const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
             const double gainWidth = calibWidth.gain(capid);
@@ -737,6 +741,7 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
+    desc.add<bool>("saveEffectivePedestal",false);
     desc.add<bool>("setNegativeFlagsQIE8");
     desc.add<bool>("setNegativeFlagsQIE11");
     desc.add<bool>("setNoiseFlagsQIE8");

@@ -45,7 +45,7 @@ HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) :
 }
 
 template<typename T>
-HLTExclDiJetFilter<T>::~HLTExclDiJetFilter(){}
+HLTExclDiJetFilter<T>::~HLTExclDiJetFilter()= default;
 
 template<typename T>
 void
@@ -135,10 +135,10 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
      Handle<CaloTowerCollection> o;
      iEvent.getByToken(m_theCaloTowerCollectionToken,o);
 //     if( o.isValid()) {
-      for( CaloTowerCollection::const_iterator cc = o->begin(); cc != o->end(); ++cc ) {
-       if(std::abs(cc->ieta())>28 && cc->energy()<4.0) continue;
-        if(cc->ieta()>28)  ehfp+=cc->energy();  // HF+ energy
-        if(cc->ieta()<-28) ehfm+=cc->energy();  // HF- energy
+      for(auto const & cc : *o) {
+       if(std::abs(cc.ieta())>28 && cc.energy()<4.0) continue;
+        if(cc.ieta()>28)  ehfp+=cc.energy();  // HF+ energy
+        if(cc.ieta()<-28) ehfm+=cc.energy();  // HF- energy
       }
  //    }
 
