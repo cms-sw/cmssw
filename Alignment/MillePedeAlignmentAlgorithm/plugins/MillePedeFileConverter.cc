@@ -27,20 +27,12 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
       << "\".";
   // Preparing the FileBlobCollection:
   auto fileBlobCollection = std::make_unique<FileBlobCollection>();
-  FileBlob fileBlob;
-  try {
-    // Creating the FileBlob:
-    // (The FileBlob will signal problems with the file itself.)
-    fileBlob = FileBlob(inputDir_ + inputFileName_, true);
-  }
-  catch (...) {
-    // When creation of the FileBlob fails:
-    edm::LogError("MillePedeFileActions")
-        << "Error: No FileBlob could be created from the file \""
-        << inputDir_ + inputFileName_ << "\".";
-    throw;
-  }
-  if (fileBlob.size() > 0) {
+
+  // Creating the FileBlob:
+  // (The FileBlob will signal problems with the file itself.)
+  FileBlob fileBlob{inputDir_ + inputFileName_, true};
+
+  if (fileBlob.size() > 0) {	// skip if no data or FileBlob file not found
     // Adding the FileBlob to the lumi:
     fileBlobCollection->addFileBlob(fileBlob);
   }
