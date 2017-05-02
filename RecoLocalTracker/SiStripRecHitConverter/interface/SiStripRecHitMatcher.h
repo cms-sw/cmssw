@@ -65,7 +65,7 @@ public:
   std::unique_ptr<SiStripMatchedRecHit2D> match(const SiStripRecHit2D *monoRH,
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection, bool force=false) const;
+				 LocalVector trackdirection, bool force) const;
 
   
 // this is the one used by the RecHitConverter

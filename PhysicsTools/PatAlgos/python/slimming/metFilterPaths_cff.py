@@ -59,6 +59,11 @@ def miniAOD_customizeMETFiltersFastSim(process):
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
     return process
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith( Flag_trkPOG_manystripclus53X, cms.Path() )
+phase2_common.toReplaceWith( Flag_trkPOG_toomanystripclus53X, cms.Path() )
+phase2_common.toReplaceWith( Flag_trkPOGFilters, cms.Path(~logErrorTooManyClusters) )
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
@@ -92,3 +97,5 @@ metFilterPathsTask = cms.Task(
     BadChargedCandidateSummer16Filter,
     BadPFMuonSummer16Filter
 )
+phase2_common.toReplaceWith( metFilterPathsTask, metFilterPathsTask.copyAndExclude( [ manystripclus53X, toomanystripclus53X ] ) )
+phase2_hgcal.toReplaceWith( metFilterPathsTask, metFilterPathsTask.copyAndExclude( [ HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, eeBadScFilter ] ) )

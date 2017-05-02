@@ -49,6 +49,31 @@ def customiseFor17792(process):
             producer.produceSeedStopReasons = cms.bool(False)
     return process
 
+# DA clusterizer tuning
+def customiseFor18330(process):
+     for producer in producers_by_type(process, "PrimaryVertexProducer"):
+          if producer.TkFilterParameters.algorithm.value() == "filter" and not hasattr(producer.TkFilterParameters, "maxEta"):
+               producer.TkFilterParameters.maxEta = cms.double(100.0)
+
+          if producer.TkClusParameters.algorithm.value() == "DA_vect":
+               if abs(producer.TkClusParameters.TkDAClusParameters.Tmin.value() - 4.0) < 1e-3:
+                    # default value was changed, going from 4.0 -> 2.4 should give no change in results
+                    producer.TkClusParameters.TkDAClusParameters.Tmin = 2.4
+               if not hasattr(producer.TkClusParameters.TkDAClusParameters, "Tpurge"):
+                    producer.TkClusParameters.TkDAClusParameters.Tpurge = cms.double(2.0)
+               if not hasattr(producer.TkClusParameters.TkDAClusParameters, "Tstop"):
+                    producer.TkClusParameters.TkDAClusParameters.Tstop = cms.double(0.5)
+               if not hasattr(producer.TkClusParameters.TkDAClusParameters, "zmerge"):
+                    producer.TkClusParameters.TkDAClusParameters.zmerge = cms.double(1e-2)
+               if not hasattr(producer.TkClusParameters.TkDAClusParameters, "uniquetrkweight"):
+                    producer.TkClusParameters.TkDAClusParameters.uniquetrkweight = cms.double(0.9)
+
+          for pset in producer.vertexCollections:
+               if pset.algorithm.value() == "AdaptiveVertexFitter" and not hasattr(pset, "chi2cutoff"):
+                    pset.chi2cutoff = cms.double(3.0)
+
+     return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
@@ -56,5 +81,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor17771(process)
     process = customiseFor17792(process)
     process = customiseFor17794(process)
+    process = customiseFor18330(process)
 
     return process

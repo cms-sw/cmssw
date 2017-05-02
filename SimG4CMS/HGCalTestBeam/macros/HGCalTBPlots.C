@@ -41,6 +41,30 @@ void PlotHistSimDigRec(std::string fname="TBGenSimDigiReco.root",
 //         float beamE, float cutETotByEBeam, int ntotEvent, int clusterEn, 
 //         int nPrintEvent)
 
+// There are 3 utility classes:
+// HexTopology : Useful for clusterize within a wafer around a local maximum
+//               HexTopology topo(fine);
+//               unsigned int id0 = topo.localMax(ids, energies, layer);
+//               double enCluster = topo.cluster(ids, energies, id, extent);
+//               std::vector<int> idx = topo.neighbours(id, extent);
+//               std::pair<int,int> rowcol = topo.findRowCol(id);
+//               Here "fine" is a boolean set to true if the wafer has 240 cells
+//                    "ids"  is a list of cell indices and "energies" the
+//                     corresponding energy deposits
+//                    "id" is a specific cell index and "extent" is number of
+//                    rows/columns for a nxn matrix around the cell "id"
+// HexCellGeometry: Useful to get position in an unrotated wafer 
+//               HexCellGeometry hg(fine);
+//               std::pair<double,double> xy = hg.position(id);
+//               Here "fine" is a boolean set to true if the wafer has 240 cells
+//                    "id" is the cell index and "xy" position (x,y) in mm in
+//                    local coordinate system
+// HexTBGeometry: Useful to get position in 2017 TB setup
+//               HexTBGeometry hg;
+//               std::pair<double,double> xy = hg.position(iw,ic,ifEE);
+//               Here "iw" is the wafer index, "ic" is the cell index;
+//                    "ifEE" is a boolean saying - true/false for EE/FH
+
 class HexTopology {
 
 public :
@@ -171,11 +195,11 @@ unsigned int HexTopology::localMax(const std::vector<unsigned int>& ids,
   return idmax;
 }
   
-class HexGeometry {
+class HexCellGeometry {
 
 public :
-  HexGeometry(bool fine);
-  virtual ~HexGeometry() {}
+  HexCellGeometry(bool fine);
+  virtual ~HexCellGeometry() {}
 
   std::pair<double,double> position(const int cell);
 
@@ -184,7 +208,7 @@ private :
 
 };
 
-HexGeometry::HexGeometry(bool fine) {
+HexCellGeometry::HexCellGeometry(bool fine) {
   const int nC(15), nF(20);
   int nCoarse(11), nyCoarse(-42), nFine(15), nyFine(-56);
   int cellCoarse[nC] = {2,5,8,11,12,11,12,11,12,11,12,11,8,5,2};
@@ -207,12 +231,12 @@ HexGeometry::HexGeometry(bool fine) {
     }
     ny += 6;
   }
-  std::cout << "Initialize HexGeometry for " << xypos.size() << " cells"
+  std::cout << "Initialize HexCellGeometry for " << xypos.size() << " cells"
 	    << std::endl;
 }
 
-std::pair<double,double> HexGeometry::position(const int cell) {
-  std::pair<double,double> xy;
+std::pair<double,double> HexCellGeometry::position(const int cell) {
+  std::pair<double,double> xy(0,0);
   if (cell >= 0 && cell < (int)(xypos.size())) {
     xy = xypos[cell];
   } else {
@@ -221,35 +245,139 @@ std::pair<double,double> HexGeometry::position(const int cell) {
   return xy;
 }
 
+
+class HexTBGeometry {
+
+public :
+  HexTBGeometry();
+  virtual ~HexTBGeometry() {}
+  
+  std::pair<double,double> position(const int wafer, const int cell, 
+				    const bool ifEE) const;
+  std::pair<double,double> position_cell(const int cell) const;
+  std::pair<double,double> position_wafer(const int wafer) const;
+
+private :
+  std::vector<std::pair<double,double> > xypos_cell;
+  std::vector<std::pair<double,double> > xypos_wafer;
+
+};
+
+HexTBGeometry::HexTBGeometry() {
+
+  // Cell Geometry
+  const int nC(15), nxCoarse(11), nyCoarse(21);
+  int cellCoarse[nC] = {2,5,8,11,12,11,12,11,12,11,12,11,8,5,2};
+  double wafer(123.7);
+
+  double cell = wafer/nxCoarse;
+  double dx   = 0.5*cell;
+  double dy   = 0.5*cell*tan(30.0*M_PI/180.0);
+  int    ny(nyCoarse);
+  for (int ir = 0; ir < nC; ++ir) {
+    int    nx     = 1 - cellCoarse[ir];
+    double ypos   = dy*ny;
+    for (int ic = 0; ic<cellCoarse[ir]; ++ic) {
+      double xpos = dx*nx;
+      nx += 2;
+      // The wafers are rotated by 90 degrees anticlockwise
+      // so x becomes y and y becomes x.
+      xypos_cell.push_back(std::pair<double,double>(ypos,xpos)); 
+    }
+    ny -= 3;
+  }
+  std::cout << "Initialize HexTBGeometry for cells with " << xypos_cell.size() 
+	    << " cells" << std::endl;
+
+  // Wafer geometry
+  const int nW(3), nyWafer(3);
+  int cellWafer[nW] = {2,3,2};
+  dx   = 0.5*wafer;
+  dy   = 0.5*wafer*tan(30.0*M_PI/180.0);
+  ny   = nyWafer;
+  for (int ir = 0; ir < nW; ++ir) {
+    int    nx     = 1 - cellWafer[ir];
+    double ypos   = dy*ny;
+    for (int ic = 0; ic<cellWafer[ir]; ++ic) {
+      double xpos = dx*nx;
+      nx += 2;
+      // The wafers are rotated by 90 degrees anticlckwise
+      // so x becomes y and y becomes x.
+      xypos_wafer.push_back(std::pair<double,double>(ypos,xpos));
+    }
+    ny -= 3;
+  }
+  std::cout << "Initialize HexGeometry for wafers with " << xypos_wafer.size() 
+	    << " wafers" << std::endl;
+}
+
+std::pair<double,double> HexTBGeometry::position_cell(const int cell) const {
+  std::pair<double,double> xy(0,0);
+  if (cell >= 0 && cell < (int)(xypos_cell.size())) {
+    xy = xypos_cell[cell];
+  } else {
+    xy = std::pair<double,double>(0,0);
+  }
+  return xy;
+}
+
+std::pair<double,double> HexTBGeometry::position_wafer(const int wafer) const {
+  std::pair<double,double> xy(0,0);
+  if (wafer >= 0 && wafer < (int)(xypos_wafer.size())) {
+    xy = xypos_wafer[wafer];
+  } else {
+    xy = std::pair<double,double>(0,0);
+  }
+  return xy;
+}
+
+std::pair<double,double> HexTBGeometry::position(const int wafer,const int cell,
+						 const bool ifEE) const {
+  int wf = ifEE ? (wafer+3) : wafer;
+  std::pair<double,double> xyw = position_wafer(wf);
+  std::pair<double,double> xyc = position_cell(cell);
+  double xx = xyw.first + xyc.first;
+  double yy = xyw.second + xyc.second;
+  return std::pair<double,double>(xx,yy);
+}
+
 class HGCTB {
 public :
   TTree                *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t                 fCurrent; //!current Tree number in a TChain
 
   // Declaration of leaf types
-  std::vector<float>        *simHitLayEn1E;
-  std::vector<float>        *simHitLayEn2E;
-  std::vector<float>        *simHitLayEn1H;
-  std::vector<float>        *simHitLayEn2H;
+  std::vector<float>        *simHitLayEn1EE;
+  std::vector<float>        *simHitLayEn2EE;
+  std::vector<float>        *simHitLayEn1FH;
+  std::vector<float>        *simHitLayEn2FH;
+  std::vector<float>        *simHitLayEn1BH;
+  std::vector<float>        *simHitLayEn2BH;
   Double_t                   xBeam, yBeam, zBeam, pBeam;
-  std::vector<unsigned int> *simHitCellIdE;
-  std::vector<float>        *simHitCellEnE;
-  std::vector<unsigned int> *simHitCellIdH;
-  std::vector<float>        *simHitCellEnH;
+  std::vector<unsigned int> *simHitCellIdEE;
+  std::vector<float>        *simHitCellEnEE;
+  std::vector<unsigned int> *simHitCellIdFH;
+  std::vector<float>        *simHitCellEnFH;
+  std::vector<unsigned int> *simHitCellIdBH;
+  std::vector<float>        *simHitCellEnBH;
 
   // List of branches
-  TBranch                   *b_simHitLayEn1E;   //!
-  TBranch                   *b_simHitLayEn2E;   //!
-  TBranch                   *b_simHitLayEn1H;   //!
-  TBranch                   *b_simHitLayEn2H;   //!
-  TBranch                   *b_xBeam;   //!
-  TBranch                   *b_yBeam;   //!
-  TBranch                   *b_zBeam;   //!
-  TBranch                   *b_pBeam;   //!
-  TBranch                   *b_simHitCellIdE;   //!
-  TBranch                   *b_simHitCellEnE;   //!
-  TBranch                   *b_simHitCellIdH;   //!
-  TBranch                   *b_simHitCellEnH;   //!
+  TBranch                   *b_simHitLayEn1EE;   //!
+  TBranch                   *b_simHitLayEn2EE;   //!
+  TBranch                   *b_simHitLayEn1FH;   //!
+  TBranch                   *b_simHitLayEn2FH;   //!
+  TBranch                   *b_simHitLayEn1BH;   //!
+  TBranch                   *b_simHitLayEn2BH;   //!
+  TBranch                   *b_xBeam;            //!
+  TBranch                   *b_yBeam;            //!
+  TBranch                   *b_zBeam;            //!
+  TBranch                   *b_pBeam;            //!
+  TBranch                   *b_simHitCellIdEE;   //!
+  TBranch                   *b_simHitCellEnEE;   //!
+  TBranch                   *b_simHitCellIdFH;   //!
+  TBranch                   *b_simHitCellEnFH;   //!
+  TBranch                   *b_simHitCellIdBH;   //!
+  TBranch                   *b_simHitCellEnBH;   //!
 
   HGCTB(std::string inName, std::string outName);
   virtual ~HGCTB();
@@ -308,32 +436,40 @@ void HGCTB::Init(TTree *tree) {
   // (once per file to be processed).
   
   // Set object pointer
-  simHitLayEn1E = 0;
-  simHitLayEn2E = 0;
-  simHitLayEn1H = 0;
-  simHitLayEn2H = 0;
-  simHitCellIdE = 0;
-  simHitCellEnE = 0;
-  simHitCellIdH = 0;
-  simHitCellEnH = 0;
+  simHitLayEn1EE = 0;
+  simHitLayEn2EE = 0;
+  simHitLayEn1FH = 0;
+  simHitLayEn2FH = 0;
+  simHitLayEn1BH = 0;
+  simHitLayEn2BH = 0;
+  simHitCellIdEE = 0;
+  simHitCellEnEE = 0;
+  simHitCellIdFH = 0;
+  simHitCellEnFH = 0;
+  simHitCellIdBH = 0;
+  simHitCellEnBH = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
   
-  fChain->SetBranchAddress("simHitLayEn1E", &simHitLayEn1E, &b_simHitLayEn1E);
-  fChain->SetBranchAddress("simHitLayEn2E", &simHitLayEn2E, &b_simHitLayEn2E);
-  fChain->SetBranchAddress("simHitLayEn1H", &simHitLayEn1H, &b_simHitLayEn1H);
-  fChain->SetBranchAddress("simHitLayEn2H", &simHitLayEn2H, &b_simHitLayEn2H);
-  fChain->SetBranchAddress("xBeam",         &xBeam,         &b_xBeam);
-  fChain->SetBranchAddress("yBeam",         &yBeam,         &b_yBeam);
-  fChain->SetBranchAddress("zBeam",         &zBeam,         &b_zBeam);
-  fChain->SetBranchAddress("pBeam",         &pBeam,         &b_pBeam);
-  fChain->SetBranchAddress("simHitCellIdE", &simHitCellIdE, &b_simHitCellIdE);
-  fChain->SetBranchAddress("simHitCellEnE", &simHitCellEnE, &b_simHitCellEnE);
-  fChain->SetBranchAddress("simHitCellIdH", &simHitCellIdH, &b_simHitCellIdH);
-  fChain->SetBranchAddress("simHitCellEnH", &simHitCellEnH, &b_simHitCellEnH);
+  fChain->SetBranchAddress("simHitLayEn1EE", &simHitLayEn1EE,&b_simHitLayEn1EE);
+  fChain->SetBranchAddress("simHitLayEn2EE", &simHitLayEn2EE,&b_simHitLayEn2EE);
+  fChain->SetBranchAddress("simHitLayEn1FH", &simHitLayEn1FH,&b_simHitLayEn1FH);
+  fChain->SetBranchAddress("simHitLayEn2FH", &simHitLayEn2FH,&b_simHitLayEn2FH);
+  fChain->SetBranchAddress("simHitLayEn1BH", &simHitLayEn1BH,&b_simHitLayEn1BH);
+  fChain->SetBranchAddress("simHitLayEn2BH", &simHitLayEn2BH,&b_simHitLayEn2BH);
+  fChain->SetBranchAddress("xBeam",          &xBeam,         &b_xBeam);
+  fChain->SetBranchAddress("yBeam",          &yBeam,         &b_yBeam);
+  fChain->SetBranchAddress("zBeam",          &zBeam,         &b_zBeam);
+  fChain->SetBranchAddress("pBeam",          &pBeam,         &b_pBeam);
+  fChain->SetBranchAddress("simHitCellIdEE", &simHitCellIdEE,&b_simHitCellIdEE);
+  fChain->SetBranchAddress("simHitCellEnEE", &simHitCellEnEE,&b_simHitCellEnEE);
+  fChain->SetBranchAddress("simHitCellIdFH", &simHitCellIdFH,&b_simHitCellIdFH);
+  fChain->SetBranchAddress("simHitCellEnFH", &simHitCellEnFH,&b_simHitCellEnFH);
+  fChain->SetBranchAddress("simHitCellIdBH", &simHitCellIdBH,&b_simHitCellIdBH);
+  fChain->SetBranchAddress("simHitCellEnBH", &simHitCellEnBH,&b_simHitCellEnBH);
   Notify();
 }
 
@@ -458,12 +594,12 @@ void HGCTB::Loop(std::string calFile, std::string wtFile, unsigned int nLayers,
 
     float TotEdepGeV(0.), TotEdepMIP(0.), TotEdepGeVWt(0.), TotEdepMIPWt(0.);
     std::vector<double> clusterEn2E;
-    unsigned int nLayMax = (simHitLayEn2E->size() > nLayers) ? nLayers : simHitLayEn2E->size();
+    unsigned int nLayMax = (simHitLayEn2EE->size() > nLayers) ? nLayers : simHitLayEn2EE->size();
     for (unsigned int ilayer=0; ilayer<nLayMax; ilayer++) {
-      unsigned int locMaxId = ht1.localMax((*simHitCellIdE),(*simHitCellEnE),ilayer+1);
-      double clusterE2 = ht1.cluster((*simHitCellIdE),(*simHitCellEnE),locMaxId,2);
+      unsigned int locMaxId = ht1.localMax((*simHitCellIdEE),(*simHitCellEnEE),ilayer+1);
+      double clusterE2 = ht1.cluster((*simHitCellIdEE),(*simHitCellEnEE),locMaxId,2);
       clusterEn2E.push_back(clusterE2);
-      float edep  = (clusterEn == 0) ? simHitLayEn2E->at(ilayer) : clusterE2;
+      float edep  = (clusterEn == 0) ? simHitLayEn2EE->at(ilayer) : clusterE2;
       float CaliE = edep/calFactor[ilayer];
       TotEdepGeV   += edep;
       TotEdepGeVWt += (edep*layerWeight[ilayer]);
@@ -473,7 +609,7 @@ void HGCTB::Loop(std::string calFile, std::string wtFile, unsigned int nLayers,
       if (jentry % nPrintEvent == 0) 
 	std::cout << ilayer+1 << " local Max Id : cluster Energy 2 " 
 		  << locMaxId << " : " << clusterE2 << " : " 
-		  << (*simHitLayEn2E)[ilayer] << std::endl;
+		  << (*simHitLayEn2EE)[ilayer] << std::endl;
     }
     h_SimHitTotEGeV->Fill(TotEdepGeV);
     h_SimHitTotEMIP->Fill(TotEdepMIP);
@@ -484,7 +620,7 @@ void HGCTB::Loop(std::string calFile, std::string wtFile, unsigned int nLayers,
       h_SimHitTotEMIPCutWt->Fill(TotEdepMIPWt);
     }
     for (unsigned int ilayer=0; ilayer<nLayMax; ++ilayer) {
-      float CaliE = (clusterEn == 0) ? (simHitLayEn2E->at(ilayer)/calFactor[ilayer]) : (clusterEn2E[ilayer]/calFactor[ilayer]);
+      float CaliE = (clusterEn == 0) ? (simHitLayEn2EE->at(ilayer)/calFactor[ilayer]) : (clusterEn2E[ilayer]/calFactor[ilayer]);
       if ((TotEdepGeV/beamE) > cutETotByEBeam) {
 	h_SimHitLayerECut[ilayer]->Fill(CaliE);
 	h_SimHitLayerECutWt[ilayer]->Fill(CaliE*layerWeight[ilayer]);
@@ -534,7 +670,7 @@ void PlotHistTBCompare(std::string infile1, std::string infile2,
   std::string titl4[2] = {"SIM","RECO"};
   std::string xttl4[2] = {"x (mm)", "x (cm)"};
   std::string yttl4[2] = {"y (mm)", "y (cm)"};
-  std::string detect[2]= {"HGCalEESensitive","HGCalHEFSensitive"};
+  std::string detect[3]= {"HGCalEESensitive","HGCalHEFSensitive","AHCal"};
   std::string label[2] = {"Without","With"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
@@ -822,7 +958,7 @@ void PlotHistTBHitEn(std::string infile, std::string text, std::string prefix,
   std::string title[2] = {"SIM Layer","Layer"};
   std::string xtitl[2] = {"Energy (GeV)", "Energy (GeV)"};
   std::string ytitl[2] = {"Tracks","Tracks"};
-  std::string detect[2]= {"HGCalEESensitive","HGCalHEFSensitive"};
+  std::string detect[3]= {"HGCalEESensitive","HGCalHESiliconSensitive","AHCal"};
   std::string label[2] = {"Without","With"};
   int         start[2] = {0, 1};
   int         nhmax0[2]= {12,4};
@@ -1127,17 +1263,36 @@ bool inside(double x, double y) {
 
 void testGeometry() {
 
-  HexGeometry geomc(false);
+  HexCellGeometry geomc(false);
   for (int k = 0; k < 133; ++k) {
     std::pair<double,double> xy = geomc.position(k);
     std::cout << "Coarse Cell[" << k << "] " << xy.first << ":" << xy.second
 	      << std::endl;
   }
 
-  HexGeometry geomf(true);
+  HexCellGeometry geomf(true);
   for (int k = 0; k < 240; ++k) {
     std::pair<double,double> xy = geomf.position(k);
     std::cout << "Fine Cell[" << k << "] " << xy.first << ":" << xy.second
 	      << std::endl;
+  }
+
+  HexTBGeometry geomx;
+  for (int i = 0; i < 7; ++i) {
+    std::pair<double,double> xy = geomx.position_wafer(i);
+      std::cout << "Wafer [" << i << "] " << xy.first << ":"  << xy.second 
+		<< std::endl;
+    }
+  for (int k = 0; k < 133; ++k) {
+    std::pair<double,double> xy = geomx.position(0,k,true);
+    std::cout << "EE Wafer [0] Cell[" << k << "] " << xy.first << ":" 
+	      << xy.second << std::endl;
+  }
+  for (int i = 0; i < 7; ++i) {
+    for (int k = 0; k < 133; ++k) {
+      std::pair<double,double> xy = geomx.position(i,k,false);
+      std::cout << "FH Wafer [" << i << "] Cell[" << k << "] " << xy.first 
+		<< ":"  << xy.second << std::endl;
+    }
   }
 }

@@ -11,6 +11,8 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     secondaryVerticesForWhiteList = cms.VInputTag(
       cms.InputTag("inclusiveCandidateSecondaryVertices"),
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
+      cms.InputTag("generalV0Candidates","Kshort"),
+      cms.InputTag("generalV0Candidates","Lambda"),
       ),      
     minPtForTrackProperties = cms.double(0.95),
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   

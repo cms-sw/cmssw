@@ -717,10 +717,10 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned in
       double bin = e[i];
       dist.Fill(bin);
     }  
-    dist.Fit("gaus","","",fmax(0.,ave-(maxc-ave)/5.),maxc);
-    TF1 *fit = dist.GetFunction("gaus");
-    mean = fit->GetParameter("Mean");
-    sigma = fit->GetParameter("Sigma");
+    TF1 fit("plgaus","gaus");
+    dist.Fit(&fit,"","",fmax(0.,ave-(maxc-ave)/5.),maxc);
+    mean = fit.GetParameter("Mean");
+    sigma = fit.GetParameter("Sigma");
   }
   std::cout << "Bunch mask will use mean" << mean << " sigma " << sigma << std::endl;
   // Active BX defined as those which have nclus within fixed standard deviations of peak.

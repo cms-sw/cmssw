@@ -29,9 +29,7 @@ HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(const edm::ParameterSet& ps) :
                                                      
 }
 
-HLTriggerJSONMonitoring::~HLTriggerJSONMonitoring()
-{
-}
+HLTriggerJSONMonitoring::~HLTriggerJSONMonitoring() = default;
 
 void
 HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -158,8 +156,8 @@ HLTriggerJSONMonitoring::resetLumi(){
     hltErrors_[i] = 0;
   }
   //Reset per-dataset counter         
-  for (unsigned int i = 0; i < hltDatasets_.size(); i++) {
-    hltDatasets_[i] = 0;
+  for (unsigned int & hltDataset : hltDatasets_) {
+    hltDataset = 0;
   }
 
 }//End resetLumi function  
@@ -203,13 +201,13 @@ HLTriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     Json::StyledWriter writer;
 
     Json::Value hltNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < hltNames_.size(); ui++){
-      hltNamesVal.append(hltNames_.at(ui));
+    for (auto & hltName : hltNames_){
+      hltNamesVal.append(hltName);
     }
 
     Json::Value datasetNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < datasetNames_.size(); ui++){
-      datasetNamesVal.append(datasetNames_.at(ui));
+    for (auto & datasetName : datasetNames_){
+      datasetNamesVal.append(datasetName);
     }
 
     hltIni["Path-Names"]    = hltNamesVal;
@@ -270,8 +268,8 @@ HLTriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& i
       iSummary->hltReject->update(hltReject_.at(ui));
       iSummary->hltErrors->update(hltErrors_.at(ui));
     }
-    for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
-      iSummary->hltDatasets->update(hltDatasets_.at(ui));
+    for (unsigned int hltDataset : hltDatasets_){
+      iSummary->hltDatasets->update(hltDataset);
     }
 
     iSummary->stHltJsd   = stHltJsd_;

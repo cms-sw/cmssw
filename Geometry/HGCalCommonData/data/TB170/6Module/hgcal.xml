@@ -16,7 +16,7 @@
   <Constant name="rminAH"     value="0.0*fm"/>
   <Constant name="rmaxAH"     value="30.0*cm"/>
   <Constant name="zminAH"     value="0.0*fm"/>
-  <Constant name="zmaxAH"     value="35.0*cm"/>
+  <Constant name="zmaxAH"     value="95.0*cm"/>
   <Constant name="zgapEEFH"   value="5.0*cm"/>
   <Constant name="zgapEEBL"   value="2.0*mm"/>
   <Constant name="zgapFHBH"   value="1.0*cm"/>

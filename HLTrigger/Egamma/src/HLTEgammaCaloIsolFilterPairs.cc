@@ -44,7 +44,7 @@ HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterS
   if(AlsoNonIso_1 || AlsoNonIso_2) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
 }
 
-HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs(){}
+HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs()= default;
 
 void
 HLTEgammaCaloIsolFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

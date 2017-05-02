@@ -59,8 +59,7 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
 }
 
 /// Destructor
-HLTMuonPointingFilter::~HLTMuonPointingFilter() {
-}
+HLTMuonPointingFilter::~HLTMuonPointingFilter() = default;
 
 /* Operations */
 bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {

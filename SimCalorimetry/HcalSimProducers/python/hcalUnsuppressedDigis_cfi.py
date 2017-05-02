@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -22,6 +23,7 @@ hcalSimBlock = cms.PSet(
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
     doNeutralDensityFilter = cms.bool(True),
+    HBDarkening = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
@@ -38,7 +40,8 @@ hcalSimBlock = cms.PSet(
     # multiple quadruplets can be specified
     # if instead only 1 value is given, 
     # it will be interpreted as an entire subdetector
-    injectTestHitsCells = cms.vint32()
+    injectTestHitsCells = cms.vint32(),
+    HFRecalParameterBlock = HFRecalParameterBlock,
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

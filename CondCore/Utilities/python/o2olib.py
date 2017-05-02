@@ -254,7 +254,7 @@ class O2OJobMgr(O2OMgr):
         res = self.session.query(O2ORun.job_name,sqlalchemy.func.max(O2ORun.start_time)).group_by(O2ORun.job_name).order_by(O2ORun.job_name)
         for r in res:
             runs[r[0]] = str(r[1])
-        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled).all()
+        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled).order_by(O2OJob.name).all()
         table = []
         for r in res:
             row = []
@@ -478,15 +478,16 @@ class O2OTool():
 
         args = parser.parse_args()
 
-        self.setup(args)
         if args.verbose >=1:
+            self.setup(args)
             return args.func()
         else:
             try:
-                return args.func()
+                self.setup(args) 
+                sys.exit( args.func())
             except Exception as e:
-                print str(e)
-                return 1
+                logging.error(e)
+                sys.exit(1)
 
     def setup(self, args):
         self.args = args

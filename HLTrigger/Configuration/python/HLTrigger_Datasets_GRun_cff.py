@@ -11,16 +11,25 @@ streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag(
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v5')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHcalNZS_selector
+streamPhysicsCommissioning_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetHcalNZS_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v10', 
+    'HLT_HcalPhiSym_v11')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMonteCarlo_selector
 streamPhysicsCommissioning_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetMonteCarlo_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetMonteCarlo_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetMonteCarlo_selector.triggerConditions = cms.vstring('MC_AK4CaloJets_v3', 
+streamPhysicsCommissioning_datasetMonteCarlo_selector.triggerConditions = cms.vstring('MC_AK4CaloJetsFromPV_v1', 
+    'MC_AK4CaloJets_v3', 
     'MC_AK4PFJets_v6', 
     'MC_AK8CaloHT_v3', 
     'MC_AK8PFHT_v6', 
     'MC_AK8PFJets_v6', 
     'MC_AK8TrimPFJets_v6', 
+    'MC_CaloBTagCSV_v1', 
     'MC_CaloHT_v3', 
     'MC_CaloMET_JetIdCleaned_v3', 
     'MC_CaloMET_v3', 
@@ -37,6 +46,7 @@ streamPhysicsCommissioning_datasetMonteCarlo_selector.triggerConditions = cms.vs
     'MC_IsoTkMu15_v6', 
     'MC_LooseIsoPFTau20_v5', 
     'MC_LooseIsoPFTau50_Trk30_eta2p1_v4', 
+    'MC_PFBTagCSV_v1', 
     'MC_PFHT_v6', 
     'MC_PFMET_v6', 
     'MC_PFMHT_v6', 
@@ -46,5 +56,6 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_ZeroBias_v4')
+streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
+    'HLT_ZeroBias_v4')
 

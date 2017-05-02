@@ -16,6 +16,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   :theConfig(conf)
@@ -75,7 +76,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
       if (fitterAlgorithm=="KalmanVertexFitter") {
 	algorithm.fitter= new KalmanVertexFitter();
       } else if( fitterAlgorithm=="AdaptiveVertexFitter") {
-	algorithm.fitter= new AdaptiveVertexFitter();
+	algorithm.fitter= new AdaptiveVertexFitter( GeometricAnnealing( algoconf->getParameter<double>("chi2cutoff")));
       } else {
 	throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + fitterAlgorithm);  
       }
@@ -244,9 +245,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           if (f4D) std::cout << ",t";
           std::cout << "=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z();
           if (f4D) std::cout << " " << v.time();
-          std::cout << std::endl;
+          std::cout  << " cluster size = " << (*iclus).size() << std::endl;
         }
-	else std::cout <<"Invalid fitted vertex\n";
+	else{
+	  std::cout <<"Invalid fitted vertex,  cluster size=" << (*iclus).size() << std::endl;
+	}
       }
 
       if ( v.isValid() 

@@ -107,6 +107,7 @@ def upload( args ):
 
     # run the upload
     uploadCommand = 'uploadConditions.py %s' %dbName
+    ret = 0
     try:
        pipe = subprocess.Popen( uploadCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
        stdout = pipe.communicate()[0]

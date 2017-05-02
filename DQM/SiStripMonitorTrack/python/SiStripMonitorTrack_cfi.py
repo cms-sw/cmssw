@@ -27,7 +27,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     HistoFlag_On  = cms.bool(False),
     TkHistoMap_On = cms.bool(True),
     clchCMoriginTkHmap_On = cms.bool(False),
-
+    Digi_On       = cms.bool(True),
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
                                   maxStoN  = cms.double(2000.0),

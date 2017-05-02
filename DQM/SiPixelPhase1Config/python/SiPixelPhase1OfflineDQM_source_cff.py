@@ -32,8 +32,7 @@ siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1RawDataAnalyzer
                                             )
 
 siPixelPhase1OfflineDQM_source_cosmics = siPixelPhase1OfflineDQM_source.copyAndExclude([
-    SiPixelPhase1TrackEfficiencyAnalyzer, 
-    SiPixelPhase1TrackClustersAnalyzer
+    SiPixelPhase1TrackEfficiencyAnalyzer 
 ])
 
 SiPixelPhase1TrackResidualsAnalyzer_cosmics = SiPixelPhase1TrackResidualsAnalyzer.clone()
@@ -51,3 +50,9 @@ SiPixelPhase1RecHitsAnalyzer_cosmics.src = "ctfWithMaterialTracksP5"
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1RecHitsAnalyzer,
                                                SiPixelPhase1RecHitsAnalyzer_cosmics)
+
+SiPixelPhase1TrackClustersAnalyzer_cosmics = SiPixelPhase1TrackClustersAnalyzer.clone()
+SiPixelPhase1TrackClustersAnalyzer_cosmics.tracks = "ctfWithMaterialTracksP5"
+
+siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyzer,
+                                               SiPixelPhase1TrackClustersAnalyzer_cosmics)

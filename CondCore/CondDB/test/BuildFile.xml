@@ -34,3 +34,4 @@
 <bin   file="testRunInfo.cpp" name="testRunInfo">
 </bin>
 
+<test name="condTestRegression" command="condTestRegression.py"/>
