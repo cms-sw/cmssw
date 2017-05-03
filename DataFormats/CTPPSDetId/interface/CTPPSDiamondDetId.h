@@ -86,7 +86,7 @@ class CTPPSDiamondDetId : public CTPPSDetId
         case nPath: rpName(name, flag); name += "/plane "; break;
       }
 
-      name += planeNames[plane()];
+      name += std::to_string(plane());
     }
 
     inline void channelName(std::string &name, NameFlag flag = nFull) const
@@ -98,12 +98,8 @@ class CTPPSDiamondDetId : public CTPPSDetId
         case nPath: planeName(name, flag); name += "/channel "; break;
       }
 
-      name += channelNames[channel()];
+      name += std::to_string(channel());
     }
-    
-  private:
-    static const std::string planeNames[];
-    static const std::string channelNames[];
 };
 
 std::ostream& operator<<(std::ostream& os, const CTPPSDiamondDetId& id);

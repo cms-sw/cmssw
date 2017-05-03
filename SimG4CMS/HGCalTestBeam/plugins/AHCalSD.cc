@@ -15,7 +15,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include <iomanip>
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 AHCalSD::AHCalSD(G4String name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,

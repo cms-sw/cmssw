@@ -38,6 +38,9 @@ Several detector combinations have been generated:
 * D12 = T3+C2+M2+I1+O2+F2 
 * D13 = T3+C3+M2+I1+O1+F1
 * D14 = T5+C2+M2+I1+O2+F2 
+* D15 = T3+C3+M2+I1+O2+F2 
+* D16 = T5+C3+M2+I1+O1+F1
+* D17 = T5+C3+M2+I1+O2+F2 
 
 Currently, D4 is considered to be the baseline for the Phase 2 Tracker and L1 Trigger TDRs,
 and D12 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
