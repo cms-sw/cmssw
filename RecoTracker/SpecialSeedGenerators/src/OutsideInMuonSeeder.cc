@@ -134,6 +134,9 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     Handle<MeasurementTrackerEvent> measurementTracker;
     iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
+    ESHandle<TrackerGeometry> tmpTkGeometry;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+
     Handle<View<reco::Muon> > src;
     iEvent.getByToken(src_, src);
 
@@ -166,9 +169,12 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (std::abs(tk.eta()) < maxEtaForTOB_) {
             std::vector< BarrelDetLayer const* > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
-            int iLayer = 6, found = 0;
+            int found = 0;
+            int iLayer = tob.size();
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TOB has no layers." ;
+
             for (auto it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
+                std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -178,10 +184,19 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }
         if (tk.eta() > minEtaForTEC_) {
-            int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->posForwardLayers();
-            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
+            auto forwLayers = measurementTracker->geometricSearchTracker()->posTecLayers();
+            if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+              LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID). ";
+              forwLayers = (measurementTracker->geometricSearchTracker()->posTidLayers());
+            }
+            LogTrace("OutsideInMuonSeeder") << "\n ==== TEC tot layers " << forwLayers.size() << " ====" << std::endl;
+            int found = 0;
+            int iLayer = forwLayers.size(); 
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC+ has no layers." ;
+
+            std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
+                if (debug_) std::cout << "\n ==== Trying Forward Layer +" << +iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -191,10 +206,19 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }
         if (tk.eta() < -minEtaForTEC_) {
-            int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->negForwardLayers();
-            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
+            auto forwLayers = measurementTracker->geometricSearchTracker()->negTecLayers();
+            if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+              LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID). ";
+              forwLayers = (measurementTracker->geometricSearchTracker()->negTidLayers());
+            }
+            LogTrace("OutsideInMuonSeeder") << "\n ==== TEC- tot layers " << forwLayers.size() << " ====" << std::endl;
+            int found = 0;
+            int iLayer = forwLayers.size(); 
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC- has no layers." ;
+
+            std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
+                if (debug_) std::cout << "\n ==== Trying Forward Layer -" << -iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
