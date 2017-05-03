@@ -73,7 +73,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
   MonitorElement *h2ClusMultipl[NArms][NStationMAX];
   MonitorElement *h2CluSize[NArms][NStationMAX];
 
-  #define RPotsTotalNumber NArms*NStationMAX*NRPotsMAX
+  static constexpr int RPotsTotalNumber=NArms*NStationMAX*NRPotsMAX;
 
   int	          RPindexValid[RPotsTotalNumber];
   MonitorElement *hRPotActivPlanes[RPotsTotalNumber];
