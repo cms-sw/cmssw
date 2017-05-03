@@ -146,11 +146,7 @@ namespace l1t {
 
 	// ME_.set_dataword     ( uint64_t dataword);
 
-	// Fill the EMTFHit
-	ImportME( Hit_, ME_, (res->at(iOut)).PtrEventHeader()->Endcap(), 
-		  (res->at(iOut)).PtrEventHeader()->Sector() );
-	// Hit_.set_layer();
-	
+	// Convert specially-encoded ME quantities
 	std::vector<int> conv_vals = convert_ME_location( ME_.Station(), ME_.CSC_ID(), 
 							  (res->at(iOut)).PtrEventHeader()->Sector() );
 	Hit_.set_station   ( conv_vals.at(0) );
@@ -158,18 +154,10 @@ namespace l1t {
 	Hit_.set_sector    ( conv_vals.at(2) );
 	Hit_.set_subsector ( conv_vals.at(3) );
 	Hit_.set_neighbor  ( conv_vals.at(4) );
-	
-	Hit_.set_endcap     ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
-	Hit_.set_sector_idx ( (Hit_.Endcap() == 1) 
-			      ? (res->at(iOut)).PtrEventHeader()->Sector() - 1
-			      : (res->at(iOut)).PtrEventHeader()->Sector() + 5 );
-	
-	Hit_.set_ring    ( L1TMuonEndCap::calc_ring( Hit_.Station(), Hit_.CSC_ID(), Hit_.Strip() ) );
-	Hit_.set_chamber ( L1TMuonEndCap::calc_chamber( Hit_.Station(), Hit_.Sector(), 
-							Hit_.Subsector(), Hit_.Ring(), Hit_.CSC_ID() ) );
-	
-	Hit_.SetCSCDetId   ( Hit_.CreateCSCDetId() );
-	Hit_.SetCSCLCTDigi ( Hit_.CreateCSCCorrelatedLCTDigi() );
+
+	// Fill the EMTFHit
+	ImportME( Hit_, ME_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
+
 
 	// Set the stub number for this hit
 	// Each chamber can send up to 2 stubs per BX

@@ -61,7 +61,46 @@ namespace l1t {
 	return errors;
 	
       }
-      
+
+      // Converts station, ring, sector, subsector, neighbor, and segment from the RPC output
+      void convert_RPC_location(int& station, int& ring, int& sector, int& subsector, int& neighbor, int& segment,
+				const int evt_sector, const int frame, const int word, const int link) {
+	station   = -99;
+	ring      = -99;
+	sector    = -99;
+	subsector = -99;
+	neighbor  = -99;
+	segment   = -99;
+
+	// // Original mapping according to document
+	// // "link" is the "link index" field (0 - 6) in the EMTF DAQ document, not "link number" (1 - 7)
+	// sector    = (link != 6 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1) );
+	// subsector = ((std::min(link + 1, 6) + 1) % 6) + 1;  // Rotate up by 3 to match RPC subsector convention
+	// neighbor  = (link == 6 ? 1 : 0);
+	// segment   = (word % 2);
+
+	// Alternate, empirical mapping - AWB 03.05.17
+	// "link" is the "link index" field (0 - 6) in the EMTF DAQ document, not "link number" (1 - 7)
+	// Neighbor indicated by link == 0, subsector rotated by 2 instead of 3, assign sector based on RPC sector
+	sector    = (link != 0 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1) );
+	subsector = ((link + 1) % 6) + 1;  // Rotate up by 2 to match RPC subsector convention
+	neighbor  = (link == 0 ? 1 : 0);
+	segment   = (word % 2);
+	if (subsector < 3) sector = (sector % 6) + 1;  // Rotate up by 1 to match RPC sector convention
+
+
+	if        (frame == 0) {
+	  station = (word < 2 ? 1 : 2);
+	  ring    = 2;
+	} else if (frame == 1) {
+	  station = 3;
+	  ring    = (word < 2 ? 2 : 3);
+	} else if (frame == 2) {
+	  station = 4;
+	  ring    = (word < 2 ? 2 : 3);
+	}
+      } // End function: void convert_RPC_location()
+
       bool RPCBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// std::cout << "Inside EMTFBlockRPC.cc: unpack" << std::endl;
@@ -105,7 +144,7 @@ namespace l1t {
 	RPC_.set_theta   ( GetHexBits(RPCb,  0,  4) );
 	RPC_.set_word    ( GetHexBits(RPCb,  8,  9) );
 	RPC_.set_frame   ( GetHexBits(RPCb, 10, 11) );
-	RPC_.set_link    ( GetHexBits(RPCb, 12, 14) );
+	RPC_.set_link    ( GetHexBits(RPCb, 12, 14) ); // Link index (0 - 6); link number runs 1 - 7
 	
 	RPC_.set_rpc_bxn ( GetHexBits(RPCc,  0, 11) );
 	RPC_.set_bc0     ( GetHexBits(RPCc, 14, 14) );
@@ -115,16 +154,27 @@ namespace l1t {
 	
 	// RPC_.set_dataword            ( uint64_t dataword);
 
-	ImportRPC( Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), 
-		   (res->at(iOut)).PtrEventHeader()->Sector() );
-	
-	// // Not yet implemented - AWB 15.03.17
-        // Hit_.SetRPCDetId ( Hit_.CreateRPCDetId() );
-	// Hit_.SetRPCDigi  ( Hit_.CreateRPCDigi() );
+
+	// Convert specially-encoded ME quantities
+	int _station, _ring, _sector, _subsector, _neighbor, _segment;
+	convert_RPC_location( _station, _ring, _sector, _subsector, _neighbor, _segment,
+			      (res->at(iOut)).PtrEventHeader()->Sector(), RPC_.Frame(), RPC_.Word(), RPC_.Link() );
+
+	Hit_.set_station    ( _station   );
+	Hit_.set_ring       ( _ring      );
+	Hit_.set_sector     ( _sector    );
+	Hit_.set_subsector  ( _subsector ); 
+	Hit_.set_neighbor   ( _neighbor  );
+	Hit_.set_pc_segment ( _segment   );
+	Hit_.set_fs_segment ( _segment   );
+	Hit_.set_bt_segment ( _segment   );
+
+	// Fill the EMTFHit
+	ImportRPC( Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
+
 
 	// // Don't skip on format errors for now - AWB 15.03.17
 	// write:
-
 	
 	(res->at(iOut)).push_RPC(RPC_);
 	res_hit->push_back(Hit_);
