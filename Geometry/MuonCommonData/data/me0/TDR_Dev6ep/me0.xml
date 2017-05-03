@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="me06ep.xml" eval="true">
+  <ConstantsSection label="me0.xml" eval="true">
     <Constant name="rMin"   value="[mf:rMinME0] + 10.*cm"/>
     <Constant name="rMax"   value="149.5*cm"/>
     <Constant name="dZ"     value="0.5*([rMax]-[rMin])"/> 
@@ -65,7 +65,7 @@
     <Constant name="dx62"   value="([dxTop]-[slope]*([dzInL]-[z60L]-[dzS6]))"/>
   </ConstantsSection>
 
-  <SolidSection label="me06ep.xml">
+  <SolidSection label="me0.xml">
     <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]+2.5*cm" dz="14.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
     <Trd1 name="ME0Box" dz="[dZ]" dy1="14.75*cm" dy2="14.75*cm" dx1="[xBot]" dx2="[xTop]" />
     <Trd1 name="ME0L"    dz="[dZ]" dy1="[tSense]" dy2="[tSense]" dx1="[xBot]" dx2="[xTop]" />
@@ -85,7 +85,7 @@
   <Trd1 name="GHA006" dz="[dzS6]" dy1="[tSense]" dy2="[tSense]" dx1="[dx61]" dx2="[dx62]" />
   </SolidSection>
 
-  <LogicalPartSection label="me06ep.xml">
+  <LogicalPartSection label="me0.xml">
     <LogicalPart name="ME0P" category="unspecified">
       <rSolid name="ME0"/>
       <rMaterial name="materials:ME_free_space"/>
@@ -157,7 +157,7 @@
   </LogicalPart>
 
   </LogicalPartSection>
-  <PosPartSection label="me06ep.xml">
+  <PosPartSection label="me0.xml">
     <PosPart copyNumber="1">
       <rParent name="mf:ME0RingP"/>
       <rChild name="me0:ME0P"/>
