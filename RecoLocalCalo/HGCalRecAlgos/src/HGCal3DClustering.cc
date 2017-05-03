@@ -1,6 +1,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+
 namespace {
   std::vector<size_t> sorted_indices(const reco::HGCalMultiCluster::ClusterCollection& v) {
 
@@ -23,14 +24,15 @@ namespace {
 
 void HGCal3DClustering::organizeByLayer(const reco::HGCalMultiCluster::ClusterCollection &thecls) {
   es = sorted_indices(thecls);
-  for (auto& i: es) {
-    int layer = rhtools_.getLayerWithOffset(thecls[i]->hitsAndFractions()[0].first);
-    layer += int(thecls[i]->z()>0)*(maxlayer+1);
-    float x = thecls[i]->x();
-    float y = thecls[i]->y();
-    float z = thecls[i]->z();
-    points[layer].emplace_back(ClusterRef(&i - &es[0],z),x,y);
-    if(zees[layer]==0) {
+  unsigned int es_size = es.size();
+  for(unsigned int i = 0; i < es_size; ++i) {
+     int layer = rhtools_.getLayerWithOffset(thecls[es[i]]->hitsAndFractions()[0].first);
+    layer += int(thecls[es[i]]->z()>0)*(maxlayer+1);
+    float x = thecls[es[i]]->x();
+    float y = thecls[es[i]]->y();
+    float z = thecls[es[i]]->z();
+    points[layer].emplace_back(ClusterRef(i,z),x,y);
+    if(zees[layer]==0.) {
       // At least one cluster for layer at z
       zees[layer] = z;
     }
@@ -60,15 +62,16 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
   std::vector<int> vused(es.size(),0);
   unsigned int used = 0;
 
-  for (auto& i: es) {
-    if(vused[&i - &es[0]]==0) {
+  unsigned int es_size = es.size();
+  for(unsigned int i = 0; i < es_size; ++i) {
+    if(vused[i]==0) {
       reco::HGCalMultiCluster temp;
-      temp.push_back(thecls[i]);
-      vused[i]=(thecls[i]->z()>0)? 1 : -1;
+      temp.push_back(thecls[es[i]]);
+      vused[i]=(thecls[es[i]]->z()>0)? 1 : -1;
       ++used;
       // Starting from cluster es[i] at from[0] - from[1] - from[2]
-      std::array<double,3> from{ {thecls[i]->x(),thecls[i]->y(),thecls[i]->z()} };
-      unsigned int firstlayer = int(thecls[i]->z()>0)*(maxlayer+1);
+      std::array<double,3> from{ {thecls[es[i]]->x(),thecls[es[i]]->y(),thecls[es[i]]->z()} };
+      unsigned int firstlayer = int(thecls[es[i]]->z()>0)*(maxlayer+1);
       unsigned int lastlayer = firstlayer+maxlayer+1;
       for(unsigned int j = firstlayer; j < lastlayer; ++j) {
 	if(zees[j]==0.){
@@ -93,7 +96,7 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(const reco:
 	for(unsigned int k = 0; k < found.size(); k++){
 	  if(vused[found[k].data.ind]==0 && distReal2(thecls[es[found[k].data.ind]],to)<radius2){
 	    temp.push_back(thecls[es[found[k].data.ind]]);
-	    vused[found[k].data.ind]=vused[&i - &es[0]];
+	    vused[found[k].data.ind]=vused[i];
 	    ++used;
 	  }
 	}

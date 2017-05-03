@@ -55,6 +55,7 @@ private:
         it.clear();
         std::vector<KDNode>().swap(it);
       }
+    std::fill(zees.begin(), zees.end(), 0.);
     for(unsigned int i = 0; i < minpos.size(); i++)
       {
 	minpos[i][0]=0.;minpos[i][1]=0.;
