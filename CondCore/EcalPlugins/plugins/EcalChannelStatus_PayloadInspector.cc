@@ -36,6 +36,8 @@ namespace {
 	if( payload.get() ){
 	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
 	  if (!payload->barrelItems().size()) return false;
+	  // set to -1 for ieta 0 (no crystal)
+	  for(int iphi = 1; iphi < 361; iphi++) fillWithValue(iphi, 0, -1);
 	  for(int cellid = EBDetId::MIN_HASH;
 	      cellid < EBDetId::kSizeForDenseIndexing;
 	      ++cellid) {
@@ -43,10 +45,11 @@ namespace {
 	    
 	    // check the existence of ECAL channel status, for a given ECAL barrel channel
 	    if (payload->find(rawid) == payload->end()) continue;
-	    if (!(*payload)[rawid].getEncodedStatusCode()) continue;
+	    //	    if (!(*payload)[rawid].getEncodedStatusCode()) continue;
+	    float weight = (float)(*payload)[rawid].getEncodedStatusCode();
 
 	    // fill the Histogram2D here
-	    fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta(), (*payload)[rawid].getEncodedStatusCode());
+	    fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta(), weight);
 	  }// loop over cellid
 	}// if payload.get()
       }// loop over IOV's (1 in this case)
@@ -58,7 +61,7 @@ namespace {
   class EcalChannelStatusEEMap : public cond::payloadInspector::Histogram2D<EcalChannelStatus> {
 
   public:
-    EcalChannelStatusEEMap() : cond::payloadInspector::Histogram2D<EcalChannelStatus>( "ECAL Barrel channel status - map ",
+    EcalChannelStatusEEMap() : cond::payloadInspector::Histogram2D<EcalChannelStatus>( "ECAL Endcap channel status - map ",
 										       "ix", 220, 1, 221, "iy", 100, 1, 101) {
       Base::setSingleIov( true );
     }
@@ -70,8 +73,12 @@ namespace {
 	if( payload.get() ){
 	  if (!payload->endcapItems().size()) return false;
 
+	  // set to -1 everywhwere
+	  for(int iy = 1; iy < 221; iy++)
+	    for(int ix = 1; ix < 101; ix++)
+	      fillWithValue( ix, iy, -1);
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -79,11 +86,12 @@ namespace {
 		    uint32_t rawid = myEEId.rawId();
 		    // check the existence of ECAL channel status, for a given ECAL endcap channel
 		    if (payload->find(rawid) == payload->end()) continue;
-		    if (!(*payload)[rawid].getEncodedStatusCode()) continue;
-		    if(iz == 0)
-		      fillWithValue( ix, iy, (*payload)[rawid].getEncodedStatusCode());
+		    //		    if (!(*payload)[rawid].getEncodedStatusCode()) continue;
+		    float weight = (float)(*payload)[rawid].getEncodedStatusCode();
+		    if(iz == -1)
+		      fillWithValue( ix, iy, weight);
 		    else
-		      fillWithValue( ix + 120, iy, (*payload)[rawid].getEncodedStatusCode());
+		      fillWithValue( ix + 120, iy, weight);
 
 		}  // validDetId 
 	} // payload

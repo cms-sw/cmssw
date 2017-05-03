@@ -145,7 +145,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -182,7 +182,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -216,7 +216,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -357,7 +357,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -394,7 +394,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -428,7 +428,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -486,7 +486,7 @@ namespace {
 	    // set min and max on 2d plots
 	    float valped = (*payload)[rawid].mean_x12;
 	    if(valped > 250.) valped = 250.;
-	    if(valped < 150.) valped = 150.;
+	    //	    if(valped < 150.) valped = 150.;
 	    fillWithValue( (EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
 	  }// loop over cellid
 	}// if payload.get()
@@ -521,7 +521,7 @@ namespace {
 	    // set min and max on 2d plots
 	    float valped = (*payload)[rawid].mean_x6;
 	    if(valped > 250.) valped = 250.;
-	    if(valped < 150.) valped = 150.;
+	    //	    if(valped < 150.) valped = 150.;
 	    fillWithValue( (EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
   	  }  // loop over cellid
 	}   // if payload.get()
@@ -556,7 +556,7 @@ namespace {
 	    // set min and max on 2d plots
 	    float valped = (*payload)[rawid].mean_x1;
 	    if(valped > 250.) valped = 250.;
-	    if(valped < 150.) valped = 150.;
+	    //	    if(valped < 150.) valped = 150.;
 	    fillWithValue( (EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), valped);
 	  }  // loop over cellid
 	}   // if payload.get()
@@ -581,7 +581,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -593,8 +593,8 @@ namespace {
 		    // set min and max on 2d plots
 		    float valped = (*payload)[rawid].mean_x12;
 		    if(valped > 250.) valped = 250.;
-		    if(valped < 150.) valped = 150.;
-		    if(iz == 0)
+		    //		    if(valped < 150.) valped = 150.;
+		    if(iz == -1)
 		      fillWithValue(ix, iy, valped);
 		    else
 		      fillWithValue(ix + 120, iy, valped);
@@ -621,7 +621,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -633,8 +633,8 @@ namespace {
 		    // set min and max on 2d plots
 		    float valped = (*payload)[rawid].mean_x6;
 		    if(valped > 250.) valped = 250.;
-		    if(valped < 150.) valped = 150.;
-		    if(iz == 0)
+		    //		    if(valped < 150.) valped = 150.;
+		    if(iz == -1)
 		      fillWithValue(ix, iy, valped);
 		    else
 		      fillWithValue(ix + 120, iy, valped);
@@ -660,7 +660,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -672,8 +672,8 @@ namespace {
 		    // set min and max on 2d plots
 		    float valped = (*payload)[rawid].mean_x1;
 		    if(valped > 250.) valped = 250.;
-		    if(valped < 150.) valped = 150.;
-		    if(iz == 0)
+		    //		    if(valped < 150.) valped = 150.;
+		    if(iz == -1)
 		      fillWithValue(ix, iy, valped);
 		    else
 		      fillWithValue(ix + 120, iy, valped);
@@ -809,7 +809,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -821,7 +821,7 @@ namespace {
 		    // set max on noise 2d plots
 		    float valrms = (*payload)[rawid].rms_x12;
 		    if(valrms > 3.5) valrms = 3.5;
-		    if(iz == 0)
+		    if(iz == -1)
 		      fillWithValue(ix, iy, valrms);
 		    else
 		      fillWithValue(ix + 120, iy, valrms);
@@ -848,7 +848,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -860,7 +860,7 @@ namespace {
 		    // set max on noise 2d plots
 		    float valrms = (*payload)[rawid].rms_x6;
 		    if(valrms > 2.0) valrms = 2.0;
-		    if(iz == 0)
+		    if(iz == -1)
 		      fillWithValue( ix, iy, valrms);
 		    else
 		      fillWithValue( ix + 120, iy, valrms);
@@ -886,7 +886,7 @@ namespace {
 	  if (!payload->endcapItems().size()) return false;
 
 	  // looping over the EE channels
-	  for(int iz = 0; iz < 2; iz++)
+	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
 	    for(int iy = 1; iy < 101; iy++)
 	      for(int ix = 1; ix < 101; ix++)
 		if(EEDetId::validDetId(ix, iy, iz)) {
@@ -898,7 +898,7 @@ namespace {
 		    // set max on noise 2d plots
 		    float valrms = (*payload)[rawid].rms_x1;
 		    if(valrms > 1.5) valrms = 1.5;
-		    if(iz == 0)
+		    if(iz == -1)
 		      fillWithValue( ix, iy, valrms);
 		    else
 		      fillWithValue( ix + 120, iy, valrms);
