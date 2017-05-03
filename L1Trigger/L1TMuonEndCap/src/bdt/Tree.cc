@@ -32,6 +32,8 @@ Tree::Tree()
 
     terminalNodes.push_back(rootNode);
     numTerminalNodes = 1;
+    boostWeight = 0;
+    xmlVersion = 2017;
 }
 
 Tree::Tree(std::vector< std::vector<Event*> >& cEvents)
@@ -41,6 +43,8 @@ Tree::Tree(std::vector< std::vector<Event*> >& cEvents)
 
     terminalNodes.push_back(rootNode);
     numTerminalNodes = 1;
+    boostWeight = 0;
+    xmlVersion = 2017;
 }
 //////////////////////////////////////////////////////////////////////////
 // _______________________Destructor____________________________________//
@@ -60,6 +64,8 @@ Tree::Tree(const Tree &tree)
     rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
     numTerminalNodes = tree.numTerminalNodes;
     rmsError = tree.rmsError;
+    boostWeight = tree.boostWeight;
+    xmlVersion = tree.xmlVersion;
 
     terminalNodes.resize(0);
     // find new leafs
@@ -74,6 +80,8 @@ Tree& Tree::operator=(const Tree &tree){
     rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
     numTerminalNodes = tree.numTerminalNodes;
     rmsError = tree.rmsError;
+    boostWeight = tree.boostWeight;
+    xmlVersion = tree.xmlVersion;
 
     terminalNodes.resize(0);
     // find new leafs
@@ -135,6 +143,8 @@ Tree::Tree(Tree && tree)
   terminalNodes = std::move(tree.terminalNodes);
   numTerminalNodes = tree.numTerminalNodes;
   rmsError = tree.rmsError;
+  boostWeight = tree.boostWeight;
+  xmlVersion = tree.xmlVersion;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -478,7 +488,21 @@ void Tree::loadFromXML(const char* filename)
 
     // Get access to main node of the xml file.
     XMLNodePointer_t mainnode = xml->DocGetRootElement(xmldoc);
-   
+
+    // the original 2016 pT xmls define the source tree node to be the top-level xml node
+    // while in 2017 TMVA's xmls every decision tree is wrapped in an extra block specifying boostWeight parameter
+    // I choose to identify the format by checking the top xml node name that is a "BinaryTree" in 2017
+    if( std::string("BinaryTree") == xml->GetNodeName(mainnode) ){
+        XMLAttrPointer_t attr = xml->GetFirstAttr(mainnode);
+        attr = xml->GetNextAttr(attr);
+        boostWeight = (attr ? strtod(xml->GetAttrValue(attr),NULL) : 0);
+        // step inside the top-level xml node
+        mainnode = xml->GetChild(mainnode);
+        xmlVersion = 2017;
+    } else {
+        boostWeight = 0;
+        xmlVersion = 2016;
+    }
     // Recursively connect nodes together.
     loadFromXMLRecursive(xml, mainnode, rootNode);
    
@@ -495,12 +519,22 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
     // Get the split information from xml.
     XMLAttrPointer_t attr = xml->GetFirstAttr(xnode);
     std::vector<std::string> splitInfo(3);
-    for(unsigned int i=0; i<3; i++)
-    {
-        splitInfo[i] = xml->GetAttrValue(attr); 
-        attr = xml->GetNextAttr(attr);  
+    if( xmlVersion >= 2017 ){
+        for(unsigned int i=0,j=0; i<10; i++)
+        {
+          if(i==3 || i==4 || i==6){
+              splitInfo[j++] = xml->GetAttrValue(attr);
+          }
+          attr = xml->GetNextAttr(attr);  
+        }
+    } else {
+        for(unsigned int i=0; i<3; i++)
+        {
+            splitInfo[i] = xml->GetAttrValue(attr); 
+            attr = xml->GetNextAttr(attr);  
+        }
     }
-
+ 
     // Convert strings into numbers.
     std::stringstream converter;
     Int_t splitVar;

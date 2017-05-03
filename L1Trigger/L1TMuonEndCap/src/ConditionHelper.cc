@@ -8,6 +8,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 
+#include "FWCore/Framework/interface/EventSetup.h"
 
 ConditionHelper::ConditionHelper():
   params_cache_id_(0ULL), forest_cache_id_(0ULL) {

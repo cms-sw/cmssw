@@ -19,7 +19,10 @@
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Utilities.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "TStopwatch.h"
+#include "TString.h"
 
 #include <iostream>
 #include <sstream>
@@ -483,6 +486,9 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
       //std::cout << std::endl << "!! Input greater than the forest size. Using forest.size() = " << trees.size() << " to predict instead." << std::endl;
         numtrees = trees.size();
     }
+
+    // just like in line #2470 of https://root.cern.ch/doc/master/MethodBDT_8cxx_source.html for gradient boosting
+    e->predictedValue = trees[0]->getBoostWeight(); 
 
     // i iterates through the trees in the forest. Each tree corrects the last prediction.
     for(unsigned int i=0; i < numtrees; i++) 
