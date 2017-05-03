@@ -35,11 +35,25 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RZPoint r="75*cm" z="2*m"/>
       <RZPoint r="50*cm" z="2*m"/>
     </Polyhedra>
+    <ExtrudedPolygon name="extrudedpgon">
+      <XYPoint x="-30*cm" y="-30*cm"/>
+      <XYPoint x="-30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y="-30*cm"/>
+      <ZXYSection z="-60*cm" x="0*cm" y="30*cm" scale="0.8*cm"/>
+      <ZXYSection z="-15*cm" x="0*cm" y="-30*cm" scale="1.*cm"/>
+      <ZXYSection z="10*cm" x="0*cm" y="0*cm" scale="0.6*cm"/>
+      <ZXYSection z="60*cm" x="0*cm" y="30*cm" scale="1.2*cm"/>
+    </ExtrudedPolygon>
     <Trd1 name="trd1" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm"/>
     <Trd1 name="trd2" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm" dy2="50*cm"/>
     <Tube name="tube1" rMin="1*m" rMax="1.5*m" dz="1*m"/>
     <Tubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg"/>
-    <CutTubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
+    <CutTubs name="cuttubs" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
     <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm" cutInside="true"/>
     <ShapelessSolid name="momma"/>
     <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>

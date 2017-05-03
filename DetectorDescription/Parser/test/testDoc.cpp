@@ -312,6 +312,12 @@ testSolids( void )
   std::cout << "intsolid is an Intersection(Solid) of cone1 and cone2:" << std::endl;
   std::cout << DDSolid(DDName("intsolid", "testSolids")) << std::endl;
   std::cout << std::endl;
+  std::cout << "cuttubs is a Cut tubs solid:" << std::endl;
+  std::cout << DDSolid(DDName("cuttubs", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "extrudedpgon is an Extruded Polygone solid:" << std::endl;
+  std::cout << DDSolid(DDName("extrudedpgon", "testSolids")) << std::endl;
+  std::cout << std::endl;
 }
 
 void
