@@ -1,7 +1,5 @@
 #include "L1TMuonEndCapTrackProducer.h"
 
-#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 
 L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& iConfig) :
     track_finder_(new TrackFinder(iConfig, consumesCollector())),
@@ -19,13 +17,6 @@ L1TMuonEndCapTrackProducer::~L1TMuonEndCapTrackProducer() {
 }
 
 void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  // Pull configuration from the EventSetup
-  edm::ESHandle<L1TMuonEndCapParams> handle;
-  iSetup.get<L1TMuonEndcapParamsRcd>().get( handle ) ;
-  std::shared_ptr<L1TMuonEndCapParams> params(new L1TMuonEndCapParams(*(handle.product ())));
-  // with the magic above you can use params->fwVersion to change emulator's behavior
-
   // Create pointers to output products
   auto out_hits   = std::make_unique<EMTFHitCollection>();
   auto out_tracks = std::make_unique<EMTFTrackCollection>();

@@ -8,6 +8,7 @@
 
 TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes) :
     geometry_translator_(),
+    condition_helper_(),
     sector_processor_lut_(),
     pt_assign_engine_(),
     sector_processors_(),
@@ -68,7 +69,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     sector_processor_lut_.read(coordLUTDir);
 
     // Configure pT assignment engine
-    pt_assign_engine_.read(bdtXMLDir);
+    //pt_assign_engine_.read(bdtXMLDir);  // deprecated, load from Conditions
 
     // Configure sector processors
     for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
@@ -77,6 +78,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
 
         sector_processors_.at(es).configure(
             &geometry_translator_,
+            &condition_helper_,
             &sector_processor_lut_,
             &pt_assign_engine_,
             verbose_, endcap, sector,
@@ -104,7 +106,7 @@ void TrackFinder::process(
     const edm::Event& iEvent, const edm::EventSetup& iSetup,
     EMTFHitCollection& out_hits,
     EMTFTrackCollection& out_tracks
-) const {
+) {
 
   // Clear output collections
   out_hits.clear();
@@ -112,6 +114,9 @@ void TrackFinder::process(
 
   // Get the geometry for TP conversions
   geometry_translator_.checkAndUpdateGeometry(iSetup);
+
+  // Get the conditions, reload pT LUT if conditions have changed
+  condition_helper_.checkAndUpdateConditions(iSetup, pt_assign_engine_);
 
   // ___________________________________________________________________________
   // Extract all trigger primitives

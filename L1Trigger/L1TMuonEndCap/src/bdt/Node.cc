@@ -62,8 +62,8 @@ Node::Node(std::string cName)
 Node::~Node()
 {
 // Recursively delete all nodes in the tree.
-    delete leftDaughter;
-    delete rightDaughter;
+    if(leftDaughter)  delete leftDaughter;
+    if(rightDaughter) delete rightDaughter;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -408,8 +408,8 @@ Node* Node::filterEventToDaughter(Event* e)
 
     if(left ==0 || right ==0) return 0;
 
-    if(e->data[sv] < sp) nextNode = left;
-    if(e->data[sv] > sp) nextNode = right;
+    if(e->data[sv] <  sp) nextNode = left;
+    if(e->data[sv] >= sp) nextNode = right;
     
     return nextNode;
 }

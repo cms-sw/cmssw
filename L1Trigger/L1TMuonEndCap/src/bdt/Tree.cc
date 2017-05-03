@@ -32,6 +32,8 @@ Tree::Tree()
 
     terminalNodes.push_back(rootNode);
     numTerminalNodes = 1;
+    boostWeight = 0;
+    xmlVersion = 2017;
 }
 
 Tree::Tree(std::vector< std::vector<Event*> >& cEvents)
@@ -41,6 +43,8 @@ Tree::Tree(std::vector< std::vector<Event*> >& cEvents)
 
     terminalNodes.push_back(rootNode);
     numTerminalNodes = 1;
+    boostWeight = 0;
+    xmlVersion = 2017;
 }
 //////////////////////////////////////////////////////////////////////////
 // _______________________Destructor____________________________________//
@@ -51,7 +55,96 @@ Tree::~Tree()
 {
 // When the tree is destroyed it will delete all of the nodes in the tree.
 // The deletion begins with the rootnode and continues recursively.
-    delete rootNode;
+   if(rootNode) delete rootNode;
+}
+
+Tree::Tree(const Tree &tree)
+{
+    // unfortunately, authors of these classes didn't use const qualifiers
+    rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+    numTerminalNodes = tree.numTerminalNodes;
+    rmsError = tree.rmsError;
+    boostWeight = tree.boostWeight;
+    xmlVersion = tree.xmlVersion;
+
+    terminalNodes.resize(0);
+    // find new leafs
+    findLeafs(rootNode,terminalNodes);
+
+///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
+}
+
+Tree& Tree::operator=(const Tree &tree){
+    if(rootNode) delete rootNode;
+    // unfortunately, authors of these classes didn't use const qualifiers
+    rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+    numTerminalNodes = tree.numTerminalNodes;
+    rmsError = tree.rmsError;
+    boostWeight = tree.boostWeight;
+    xmlVersion = tree.xmlVersion;
+
+    terminalNodes.resize(0);
+    // find new leafs
+    findLeafs(rootNode,terminalNodes);
+
+///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
+
+    return *this;
+}
+
+Node* Tree::copyFrom(const Node *local_root)
+{
+    // end-case
+    if( !local_root ) return 0;
+
+    Node *lr = const_cast<Node*>(local_root);
+
+    // recursion
+    Node *left_new_child  = copyFrom( lr->getLeftDaughter()  );
+    Node *right_new_child = copyFrom( lr->getRightDaughter() );
+
+    // performing main work at this level
+    Node *new_local_root  = new Node( lr->getName() );
+    if( left_new_child  ) left_new_child ->setParent(new_local_root);
+    if( right_new_child ) right_new_child->setParent(new_local_root);
+    new_local_root->setLeftDaughter ( left_new_child  );
+    new_local_root->setRightDaughter( right_new_child );
+    new_local_root->setErrorReduction( lr->getErrorReduction() );
+    new_local_root->setSplitValue( lr->getSplitValue() );
+    new_local_root->setSplitVariable( lr->getSplitVariable() );
+    new_local_root->setFitValue( lr->getFitValue() );
+    new_local_root->setTotalError( lr->getTotalError() );
+    new_local_root->setAvgError( lr->getAvgError() );
+    new_local_root->setNumEvents( lr->getNumEvents() );
+//    new_local_root->setEvents( lr->getEvents() ); // no ownership assumed for the events anyways
+
+    return new_local_root;
+}
+
+void Tree::findLeafs(Node *local_root, std::list<Node*> &tn)
+{
+    if( !local_root->getLeftDaughter() && !local_root->getRightDaughter() ){
+        // leaf or ternimal node found
+        tn.push_back(local_root);
+        return;
+    }
+
+    if( local_root->getLeftDaughter() )
+        findLeafs( local_root->getLeftDaughter(), tn );
+
+    if( local_root->getRightDaughter() )
+        findLeafs( local_root->getRightDaughter(), tn );
+}
+
+Tree::Tree(Tree && tree)
+{
+  if(rootNode) delete rootNode; // this line is the only reason not to use default move constructor
+  rootNode = tree.rootNode;
+  terminalNodes = std::move(tree.terminalNodes);
+  numTerminalNodes = tree.numTerminalNodes;
+  rmsError = tree.rmsError;
+  boostWeight = tree.boostWeight;
+  xmlVersion = tree.xmlVersion;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -395,7 +488,21 @@ void Tree::loadFromXML(const char* filename)
 
     // Get access to main node of the xml file.
     XMLNodePointer_t mainnode = xml->DocGetRootElement(xmldoc);
-   
+
+    // the original 2016 pT xmls define the source tree node to be the top-level xml node
+    // while in 2017 TMVA's xmls every decision tree is wrapped in an extra block specifying boostWeight parameter
+    // I choose to identify the format by checking the top xml node name that is a "BinaryTree" in 2017
+    if( std::string("BinaryTree") == xml->GetNodeName(mainnode) ){
+        XMLAttrPointer_t attr = xml->GetFirstAttr(mainnode);
+        attr = xml->GetNextAttr(attr);
+        boostWeight = (attr ? strtod(xml->GetAttrValue(attr),NULL) : 0);
+        // step inside the top-level xml node
+        mainnode = xml->GetChild(mainnode);
+        xmlVersion = 2017;
+    } else {
+        boostWeight = 0;
+        xmlVersion = 2016;
+    }
     // Recursively connect nodes together.
     loadFromXMLRecursive(xml, mainnode, rootNode);
    
@@ -412,12 +519,22 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
     // Get the split information from xml.
     XMLAttrPointer_t attr = xml->GetFirstAttr(xnode);
     std::vector<std::string> splitInfo(3);
-    for(unsigned int i=0; i<3; i++)
-    {
-        splitInfo[i] = xml->GetAttrValue(attr); 
-        attr = xml->GetNextAttr(attr);  
+    if( xmlVersion >= 2017 ){
+        for(unsigned int i=0,j=0; i<10; i++)
+        {
+          if(i==3 || i==4 || i==6){
+              splitInfo[j++] = xml->GetAttrValue(attr);
+          }
+          attr = xml->GetNextAttr(attr);  
+        }
+    } else {
+        for(unsigned int i=0; i<3; i++)
+        {
+            splitInfo[i] = xml->GetAttrValue(attr); 
+            attr = xml->GetNextAttr(attr);  
+        }
     }
-
+ 
     // Convert strings into numbers.
     std::stringstream converter;
     Int_t splitVar;
@@ -464,4 +581,41 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
 
     loadFromXMLRecursive(xml, xleft, tleft);
     loadFromXMLRecursive(xml, xright, tright);
+}
+
+void Tree::loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree)
+{
+    // start fresh in case this is not the only call to construct a tree
+    if( rootNode ) delete rootNode;
+    rootNode = new Node("root");
+
+    const L1TMuonEndCapForest::DTreeNode& mainnode = tree[0];
+    loadFromCondPayloadRecursive(tree, mainnode, rootNode);
+}
+
+void Tree::loadFromCondPayloadRecursive(const L1TMuonEndCapForest::DTree& tree, const L1TMuonEndCapForest::DTreeNode& node, Node* tnode)
+{
+    // Store gathered splitInfo into the node object.
+    tnode->setSplitVariable(node.splitVar);
+    tnode->setSplitValue(node.splitVal);
+    tnode->setFitValue(node.fitVal);
+
+    // If there are no daughters we are done.
+    if( node.ileft == 0 || node.iright == 0) return; // root cannot be anyone's child
+    if( node.ileft  >= tree.size() ||
+        node.iright >= tree.size() ) return; // out of range addressing on purpose
+
+    // If there are daughters link the node objects appropriately.
+    tnode->theMiracleOfChildBirth();
+    Node* tleft = tnode->getLeftDaughter();
+    Node* tright = tnode->getRightDaughter();
+
+    // Update the list of terminal nodes.
+    terminalNodes.remove(tnode);
+    terminalNodes.push_back(tleft);
+    terminalNodes.push_back(tright);
+    numTerminalNodes++;
+
+    loadFromCondPayloadRecursive(tree, tree[node.ileft], tleft);
+    loadFromCondPayloadRecursive(tree, tree[node.iright], tright);
 }

@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.hh"
 
 
@@ -27,11 +25,12 @@ public:
       // Output
       EMTFHitCollection& out_hits,
       EMTFTrackCollection& out_tracks
-  ) const;
+  );
 
 private:
-  // 'mutable' because GeometryTranslator has to 'update' inside the const function
-  mutable GeometryTranslator geometry_translator_;
+  GeometryTranslator geometry_translator_;
+
+  ConditionHelper condition_helper_;
 
   SectorProcessorLUT sector_processor_lut_;
 

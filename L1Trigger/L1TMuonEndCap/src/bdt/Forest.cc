@@ -19,11 +19,15 @@
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Utilities.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "TStopwatch.h"
+#include "TString.h"
 
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <iterator>
 #include <fstream>
 #include <utility>
 
@@ -59,10 +63,36 @@ Forest::~Forest()
 // this should be changed in future upgrades.
 
     for(unsigned int i=0; i < trees.size(); i++)
-    { 
-        delete trees[i];
+    {
+        if(trees[i]) delete trees[i];
     }
 }
+
+Forest::Forest(const Forest &forest)
+{
+    transform(forest.trees.cbegin(),
+              forest.trees.cend(),
+              back_inserter(trees),
+              [] (const Tree *tree) { return new Tree(*tree); }
+    );
+}
+
+Forest& Forest::operator=(const Forest &forest)
+{
+    for(unsigned int i=0; i < trees.size(); i++)
+    { 
+        if(trees[i]) delete trees[i];
+    }
+    trees.resize(0);
+
+    transform(forest.trees.cbegin(),
+              forest.trees.cend(),
+              back_inserter(trees),
+              [] (const Tree *tree) { return new Tree(*tree); }
+    );
+    return *this;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // ______________________Get/Set_Functions______________________________//
 //////////////////////////////////////////////////////////////////////////
@@ -457,6 +487,9 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
         numtrees = trees.size();
     }
 
+    // just like in line #2470 of https://root.cern.ch/doc/master/MethodBDT_8cxx_source.html for gradient boosting
+    e->predictedValue = trees[0]->getBoostWeight(); 
+
     // i iterates through the trees in the forest. Each tree corrects the last prediction.
     for(unsigned int i=0; i < numtrees; i++) 
     {
@@ -501,10 +534,32 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
         ss << directory << "/" << i << ".xml";
 
         //trees[i]->loadFromXML(ss.str().c_str());
-		trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
+        trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
     }   
 
    // std::cout << "Done." << std::endl << std::endl;
+}
+
+void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest)
+{
+// Load a forest that has already been created and stored in CondDB.
+    // Initialize the vector of trees.
+    unsigned int numTrees = forest.size();
+
+    // clean-up leftovers from previous initialization (if any)
+    for(unsigned int i=0; i < trees.size(); i++)
+    {
+        if(trees[i]) delete trees[i];
+    }
+
+    trees = std::vector<Tree*>(numTrees);
+
+    // Load the Forest.
+    for(unsigned int i=0; i < numTrees; i++)
+    {
+        trees[i] = new Tree();
+        trees[i]->loadFromCondPayload(forest[i]);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

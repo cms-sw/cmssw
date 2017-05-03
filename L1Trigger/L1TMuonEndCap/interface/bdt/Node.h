@@ -16,6 +16,8 @@ class Node
         Node(std::string cName);
         ~Node();
 
+        Node(Node &&) = default;
+
         std::string getName();
         void setName(std::string sName);
 
@@ -59,7 +61,10 @@ class Node
         void theMiracleOfChildBirth();
  
     private:
-	std::string name;
+        Node(const Node &);
+        Node& operator=(const Node &);
+
+        std::string name;
 
         Node *leftDaughter;
         Node *rightDaughter;

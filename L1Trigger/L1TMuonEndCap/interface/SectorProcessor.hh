@@ -8,6 +8,9 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.hh"
 
+//#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.hh"
+
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
 
@@ -26,11 +29,14 @@ public:
   explicit SectorProcessor();
   ~SectorProcessor();
 
+  void resetPtAssignment(const PtAssignmentEngine* new_pt_assign_engine);
+
   typedef unsigned long long EventNumber_t;
   typedef PatternRecognition::pattern_ref_t pattern_ref_t;
 
   void configure(
       const GeometryTranslator* tp_geom,
+      const ConditionHelper* cond,
       const SectorProcessorLUT* lut,
       const PtAssignmentEngine* pt_assign_engine,
       int verbose, int endcap, int sector,
@@ -67,6 +73,8 @@ public:
 
 private:
   const GeometryTranslator* tp_geom_;
+
+  const ConditionHelper* cond_;
 
   const SectorProcessorLUT* lut_;
 
