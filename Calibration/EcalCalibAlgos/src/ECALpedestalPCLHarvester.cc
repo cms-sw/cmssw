@@ -166,7 +166,7 @@ bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedesta
         const EcalPedestal& newped=* newPedestals.find(id.rawId());   
         const EcalPedestal& oldped=* oldPedestals.find(id.rawId());
 
-        if  (abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEB++;
+        if  (std::abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEB++;
 
     }
 
@@ -176,7 +176,7 @@ bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedesta
         const EcalPedestal& newped=* newPedestals.find(id.rawId());   
         const EcalPedestal& oldped=* oldPedestals.find(id.rawId());
 
-        if  (abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEE++;
+        if  (std::abs(newped.mean_x12 -oldped.mean_x12)  >  nSigma_ * oldped.rms_x12) nAnomaliesEE++;
 
     }
     
