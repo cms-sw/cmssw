@@ -48,11 +48,11 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenDigi;
 //  edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelCluster> > tokenCluster;
 
- #define NArms 2
- #define NStationMAX 3  // in an arm
- #define NRPotsMAX 6	// per station
- #define NplaneMAX 6	// per RPot
- #define NROCsMAX 6	// per plane
+ static constexpr int NArms=2;
+ static constexpr int NStationMAX=3;  // in an arm
+ static constexpr int NRPotsMAX=6;	// per station
+ static constexpr int NplaneMAX=6;	// per RPot
+ static constexpr int NROCsMAX = 6;	// per plane
  const int RPn_first = 3, RPn_last = 4;
  const int hitMultMAX = 300;
  const int ClusMultMAX = 90; // tuned
