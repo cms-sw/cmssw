@@ -448,6 +448,66 @@ DDPolyhedra::rMaxVec() const {
   return tvec;
 }
 
+DDExtrudedPolygon::DDExtrudedPolygon(const DDSolid & s)
+  : DDPolySolid(s)
+{
+  if( s.shape() != ddextrudedpolygon ) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDExtrudedPolygon.\n";
+    ex = ex + "Use a different solid interface!";
+    throw cms::Exception("DDException") << ex;
+  }
+}
+
+std::vector<double>
+DDExtrudedPolygon::xVec( void ) const
+{
+  auto xysize = ( unsigned int )(( rep().parameters().size() - 4*rep().parameters()[0]) * 0.5 );
+  auto it = rep().parameters().begin() + 1;
+  auto itEnd = rep().parameters().begin() + 1 + xysize;
+  return std::vector<double>( it, itEnd );
+}
+
+std::vector<double>
+DDExtrudedPolygon::yVec( void ) const
+{
+  auto xysize = ( unsigned int )(( rep().parameters().size() - 4*rep().parameters()[0]) * 0.5 );
+  auto it = rep().parameters().begin() + 1 + xysize;
+  auto itEnd = rep().parameters().begin() + 1 + 2*xysize;
+  return std::vector<double>( it, itEnd );
+}
+
+std::vector<double>
+DDExtrudedPolygon::zVec( void ) const
+{
+  auto it = rep().parameters().end() - 4*rep().parameters()[0];
+  auto itEnd = rep().parameters().end() - 3*rep().parameters()[0];
+  return std::vector<double>( it, itEnd );
+}
+
+std::vector<double>
+DDExtrudedPolygon::zxVec( void ) const
+{
+  auto it = rep().parameters().end() - 3*rep().parameters()[0];
+  auto itEnd = rep().parameters().end() - 2*rep().parameters()[0];
+  return std::vector<double>( it, itEnd );
+}
+
+std::vector<double>
+DDExtrudedPolygon::zyVec( void ) const
+{
+  auto it = rep().parameters().end() - 2*rep().parameters()[0];
+  auto itEnd = rep().parameters().end() - rep().parameters()[0];
+  return std::vector<double>( it, itEnd );
+}
+
+std::vector<double>
+DDExtrudedPolygon::zscaleVec( void ) const
+{
+  auto it = rep().parameters().end() - rep().parameters()[0];
+  auto itEnd = rep().parameters().end();
+  return std::vector<double>( it, itEnd );
+}
+
 DDCons::DDCons(const DDSolid& s) 
   : DDSolid(s) {
   if (s.shape() != ddcons) {

@@ -5,6 +5,7 @@
 #include <DetectorDescription/Core/src/Cons.h>
 #include <DetectorDescription/Core/src/Ellipsoid.h>
 #include <DetectorDescription/Core/src/EllipticalTube.h>
+#include <DetectorDescription/Core/src/ExtrudedPolygon.h>
 #include <DetectorDescription/Core/src/Orb.h>
 #include <DetectorDescription/Core/src/Parallelepiped.h>
 #include <DetectorDescription/Core/src/Polycone.h>
@@ -31,6 +32,7 @@
 #include <G4Trd.hh>
 #include <G4Tubs.hh>
 #include <G4CutTubs.hh>
+#include <G4ExtrudedSolid.hh>
 #include <string>
 
 //
@@ -563,6 +565,40 @@ doCutTubs( const std::string& name, double rIn, double rOut,
   std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
 }
 
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+void
+doExtrudedPgon( const std::string& name, const std::vector<double> x,
+		const std::vector<double> y, const std::vector<double> z,
+		const std::vector<double> zx, const std::vector<double> zy,
+		const std::vector<double> zscale )
+{
+  std::vector<G4TwoVector> polygon;
+  std::vector<G4ExtrudedSolid::ZSection> zsections;
+  for( unsigned int it = 0; it < x.size(); ++it )
+    polygon.emplace_back( x[it], y[it] );
+  for( unsigned int it = 0; it < z.size(); ++it )
+    zsections.emplace_back( z[it], G4TwoVector(zx[it], zy[it]), zscale[it] );
+  G4ExtrudedSolid g4( name, polygon, zsections );
+  DDI::ExtrudedPolygon dd( x, y, z, zx, zy, zscale );
+  DDExtrudedPolygon dds = DDSolidFactory::extrudedpolygon( name,  x, y, z, zx, zy, zscale );
+
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
 int
 main( int argc, char *argv[] )
 {
@@ -788,6 +824,28 @@ main( int argc, char *argv[] )
   std::array<double, 3> highNorm = {{ 0.7, 0, 0.71 }};
   
   doCutTubs( name, rIn, rOut, zhalf, startPhi, deltaPhi, lowNorm, highNorm );
+  std::cout << std::endl;
+
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+  std::cout << "\n\nExtruded Polygon tests\n" << std::endl;
+  std::vector<double> x = { -300, -300, 300, 300, 150, 150, -150, -150 };
+  std::vector<double> y = { -300, 300, 300, -300, -300, 150, 150, -300 };
+  std::vector<double> epz = { -600, -150, 100, 600 };
+  std::vector<double> zx = { 0, 0, 0, 0 };
+  std::vector<double> zy = { 300, -300, 0, 300 }; 
+  std::vector<double> zscale = { 8, 10, 6, 12 };
+  
+  doExtrudedPgon( name, x, y, epz, zx, zy, zscale );
   std::cout << std::endl;
   
   return EXIT_SUCCESS;
