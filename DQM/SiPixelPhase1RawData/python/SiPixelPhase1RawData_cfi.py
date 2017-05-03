@@ -69,7 +69,7 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
   name = "nerrors_per_type",
   title = "Number of Errors per Type",
   xlabel = "Error Type",
-  range_min = 0, range_max = 50, range_nbins = 51,#TODO: proper range here
+  range_min = -0.5, range_max = 50.5, range_nbins = 51,#TODO: proper range here
   dimensions = 1,
   specs = VPSet(
     Specification().groupBy("FED/FED").save(),

@@ -237,8 +237,8 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     const std::vector<std::pair<std::string, int> >& errorCodes(l1Logical.errorCodes(iEvent));
     result.first = l1Logical.prescaleFactors();
     int               l1error(l1Logical.isValid() ? 0 : 1);
-    for (unsigned int i=0; i<errorCodes.size(); ++i) {
-      l1error += std::abs(errorCodes[i].second);
+    for (auto const & errorCode : errorCodes) {
+      l1error += std::abs(errorCode.second);
     }
     if (l1error!=0) {
       if (count_[3]<countMax) {
@@ -288,8 +288,8 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
     int l1error(0);
     int l1tPrescale(-1);
-    for (unsigned int i=0; i<l1tSeeds.size(); ++i) {
-      const string& l1tSeed = l1tSeeds[i].tokenName;
+    for (auto const & i : l1tSeeds) {
+      const string& l1tSeed = i.tokenName;
       if (!l1tGlobalUtil_.getPrescaleByName(l1tSeed,l1tPrescale)) {
 	l1error += 1;
       }

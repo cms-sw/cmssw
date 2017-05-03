@@ -293,15 +293,22 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int iso  = gRandom->Integer(4)%2;//1;
     int charge = ( mcParticle.charge()<0 ) ? 1 : 0;
     int chargeValid = 1;
-    int mip = 1;
+    int tfMuIdx = 0;
     int tag = 1;
+    bool debug = false;
+    int isoSum = 0;
+    int dPhi = 0;
+    int dEta = 0;
+    int rank = 0;
+    int hwEtaAtVtx = eta;
+    int hwPhiAtVtx = phi;
 
     // Eta outside of acceptance
     if( eta>=9999 ) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-    l1t::Muon mu(*p4, pt, eta, phi, qual, charge, chargeValid, iso, mip, tag);
+    l1t::Muon mu(*p4, pt, eta, phi, qual, charge, chargeValid, iso, tfMuIdx, tag, debug, isoSum, dPhi, dEta, rank, hwEtaAtVtx, hwPhiAtVtx);
     muonVec.push_back(mu);
   }
 

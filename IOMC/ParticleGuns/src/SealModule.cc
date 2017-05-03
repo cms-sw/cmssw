@@ -17,6 +17,7 @@
 #include "IOMC/ParticleGuns/interface/GaussRandomPThetaGunProducer.h"
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunProducer.h"
 #include "IOMC/ParticleGuns/interface/RandomtXiGunProducer.h"
+#include "IOMC/ParticleGuns/interface/FlatRandomPtAndDxyGunProducer.h"
 
 
 // particle gun prototypes
@@ -52,3 +53,5 @@ using edm::MultiParticleInConeGunProducer;
 DEFINE_FWK_MODULE(MultiParticleInConeGunProducer);
 using edm::RandomtXiGunProducer;
 DEFINE_FWK_MODULE(RandomtXiGunProducer);
+using edm::FlatRandomPtAndDxyGunProducer;
+DEFINE_FWK_MODULE(FlatRandomPtAndDxyGunProducer);

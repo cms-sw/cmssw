@@ -11,8 +11,8 @@ ls -l OnLine*.py
 
 echo
 echo "Creating offline cfg files with cmsDriver"
-echo "./cmsDriver.csh"
-time  ./cmsDriver.csh
+echo "./cmsDriver.csh "$1
+time  ./cmsDriver.csh $1
 
 echo
 date +%F\ %a\ %T

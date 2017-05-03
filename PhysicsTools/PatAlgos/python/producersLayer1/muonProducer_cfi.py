@@ -92,6 +92,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     # ecal PF energy
     embedPfEcalEnergy = cms.bool(True),
+    addPuppiIsolation = cms.bool(False)
 )
 
 

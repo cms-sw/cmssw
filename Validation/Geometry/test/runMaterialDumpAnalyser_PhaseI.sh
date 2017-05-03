@@ -8,6 +8,7 @@ set -x
 # DEFAULTS
 
 events=5000
+geometry=Extended2017Plan1
 
 # ARGUMENT PARSING
 
@@ -39,7 +40,7 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 --era Run2_2017 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
---geometry Extended2017  \
+--geometry ${geometry}  \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
@@ -55,13 +56,13 @@ fi
 
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
   cmsDriver.py step2  \
--s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake \
+-s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017 \
 --conditions auto:phase1_2017_realistic \
 -n -1 \
 --era Run2_2017 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---geometry Extended2017 \
+--geometry ${geometry} \
 --nThreads 6 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
@@ -83,7 +84,7 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 --era Run2_2017 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---geometry Extended2017 \
+--geometry ${geometry} \
 --nThreads 6 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
@@ -105,7 +106,7 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 --era Run2_2017  \
 --scenario pp  \
 --filetype DQM  \
---geometry Extended2017  \
+--geometry ${geometry} \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseI_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseI.py > SingleMuPt10_step4_HARVESTING_PhaseI.log 2>&1
@@ -133,7 +134,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=phaseI label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
@@ -142,11 +143,11 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
-  root -b -q "MaterialBudget.C(\"${t}\")"
+  python MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
+python MaterialBudget.py -c -r DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root -l PhaseIDetector > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1

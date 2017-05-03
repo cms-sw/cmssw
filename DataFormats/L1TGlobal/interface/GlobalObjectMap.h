@@ -31,7 +31,6 @@
 // class declaration
 class GlobalObjectMap
 {
-
 public:
 
     /// constructor(s)
@@ -103,13 +102,13 @@ public:
 
     /// get / set the vector of object types
     /// return a constant reference to the vector of operand tokens
-    inline const std::vector<ObjectTypeInCond>& objectTypeVector() const {
+    inline const std::vector<L1TObjectTypeInCond>& objectTypeVector() const {
         return m_objectTypeVector;
     }
-    void setObjectTypeVector(const std::vector<ObjectTypeInCond>& objectTypeVectorValue) {
+    void setObjectTypeVector(const std::vector<L1TObjectTypeInCond>& objectTypeVectorValue) {
         m_objectTypeVector = objectTypeVectorValue;
     }
-    void swapObjectTypeVector(std::vector<ObjectTypeInCond>& objectTypeVectorValue) {
+    void swapObjectTypeVector(std::vector<L1TObjectTypeInCond>& objectTypeVectorValue) {
       m_objectTypeVector.swap(objectTypeVectorValue);
     }
     
@@ -151,7 +150,7 @@ private:
     std::vector<CombinationsInCond> m_combinationVector;
 
     // vector of object type vectors for all conditions in an algorithm
-    std::vector<ObjectTypeInCond> m_objectTypeVector;
+    std::vector<L1TObjectTypeInCond> m_objectTypeVector;
 
 };
 

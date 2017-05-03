@@ -243,6 +243,7 @@ namespace edm {
     class TransitionIDValueBase {
     public:
       virtual std::string value() const = 0;
+      virtual ~TransitionIDValueBase() {}
     };
     
     template< typename T>

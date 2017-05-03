@@ -50,19 +50,16 @@ void CustomPhysicsListSS::ConstructProcess() {
   fDecayProcess = new G4Decay();
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  aParticleIterator->reset();
-  G4ParticleDefinition* particle;
+  for(auto particle : CustomParticleFactory::GetCustomParticles()) {
 
-  while((*aParticleIterator)()) {
-    particle = aParticleIterator->value();
-    if(CustomParticleFactory::isCustomParticle(particle)) {
-      CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+    CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+    if(cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       edm::LogInfo("SimG4CoreCustomPhysics") 
 	<<"CustomPhysicsListSS: " << particle->GetParticleName()
 	<<" PDGcode= " << particle->GetPDGEncoding()
 	<< " Mass= " << particle->GetPDGMass()/GeV  <<" GeV.";
-      if(cp && pmanager) {
+      if(pmanager) {
 	if(particle->GetPDGCharge() != 0.0) {
 	  ph->RegisterProcess(new G4hMultipleScattering, particle);
 	  ph->RegisterProcess(new G4hIonisation, particle);

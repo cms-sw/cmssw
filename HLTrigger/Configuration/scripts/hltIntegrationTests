@@ -303,7 +303,7 @@ done
 if [ "$SETUP" ]; then
   log "Extracting setup_cff dump"
   read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$SETUP")
-  hltConfigFromDB --$SETUP_Vx --$SETUP_DB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
+  hltConfigFromDB --$SETUP_Vx --$SETUP_DB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 

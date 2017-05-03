@@ -48,11 +48,11 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
     //set the quality bit masks
     qualityBitMasks_.push_back( 0 );
     vector<unsigned int> qualities = cuts[i].getParameter<vector<unsigned int> >("QualityBits");
-    for(size_t j=0; j<qualities.size(); j++){
-      if(7U < qualities[j]){ // qualities[j] >= 0, since qualities[j] is unsigned
+    for(unsigned int qualitie : qualities){
+      if(7U < qualitie){ // qualities[j] >= 0, since qualities[j] is unsigned
         throw edm::Exception(errors::Configuration) << "QualityBits must be between 0 and 7 !";
       }
-      qualityBitMasks_[i] |= 1 << qualities[j];
+      qualityBitMasks_[i] |= 1 << qualitie;
     }
   }
 
@@ -83,8 +83,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   }
 }
 
-HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter(){
-}
+HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter()= default;
 
 void
 HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

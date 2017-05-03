@@ -76,16 +76,13 @@
 #include "TTree.h"
 #include "TChain.h"
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 
 
 using namespace edm;
 using namespace reco;
 using namespace std;
-using namespace __gnu_cxx;
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash;
 
 struct stAPVGain{
   unsigned int Index; 
@@ -196,6 +193,7 @@ private:
         enum statistic_type {None=-1, StdBunch, StdBunch0T, FaABunch, FaABunch0T, IsoBunch, IsoBunch0T, Harvest};
 
         std::vector<string>    dqm_tag_;
+        std::string booked_dir_;
 
         std::vector<MonitorElement*>  Charge_Vs_Index;
         //std::vector<MonitorElement*>  Charge_Vs_Index_Absolute;
@@ -261,13 +259,9 @@ private:
 	string CalibSuffix_; //("");
 
 private :
-	class isEqual{
-	public:
-		template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-	};
 
 	std::vector<stAPVGain*> APVsCollOrdered;
-	__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual > APVsColl;
+        std::unordered_map<unsigned int, stAPVGain*> APVsColl;
 };
 
 inline int
@@ -410,13 +404,11 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* tag)
 {
-    static std::string booked_dir = "";
-
     edm::LogInfo("SiStripGainFromCalibTree") << "Setting " << dqm_dir << "in DQM and booking histograms for tag "
                                              << tag << std::endl;
 
-    if ( strcmp(booked_dir.c_str(),dqm_dir)!=0 ) {
-        booked_dir = dqm_dir;
+    if ( strcmp(booked_dir_.c_str(),dqm_dir)!=0 ) {
+        booked_dir_ = dqm_dir;
         dbe->setCurrentFolder(dqm_dir);
     }
 
@@ -1015,7 +1007,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 	printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
 	printf("Fitting Charge Distribution  :");
 	int TreeStep = APVsColl.size()/50;
-	for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
+	for(auto it = APVsColl.begin();it!=APVsColl.end();it++,I++){
 		if(I%TreeStep==0){printf(".");fflush(stdout);}
 		stAPVGain* APV = it->second;
 		if(APV->Bin<0) APV->Bin = chvsidx->GetXaxis()->FindBin(APV->Index);
@@ -1035,8 +1027,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 			if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
 		}else if(CalibrationLevel==2){
 			for(unsigned int i=0;i<16;i++){  //loop up to 6APV for Strip and up to 16 for Pixels
-				__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator tmpit;
-				tmpit = APVsColl.find((APV->DetId<<4) | i);
+				auto tmpit = APVsColl.find((APV->DetId<<4) | i);
 				if(tmpit==APVsColl.end())continue;
 				stAPVGain* APV2 = tmpit->second;
 				if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            

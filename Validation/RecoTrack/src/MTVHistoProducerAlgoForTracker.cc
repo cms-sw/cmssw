@@ -31,8 +31,15 @@ namespace {
     axis->Set(bins, new_bins.data());
   }
 
-  template<typename T> void fillPlotNoFlow(MonitorElement *h, T val) {
-    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  template<typename T> void fillPlotNoFlow(MonitorElement *me, T val) {
+    auto h = me->getTH1();
+    const auto xaxis = h->GetXaxis();
+    if(val <= xaxis->GetXmin())
+      h->AddBinContent(xaxis->GetFirst());
+    else if(val >= xaxis->GetXmax())
+      h->AddBinContent(xaxis->GetLast());
+    else
+      h->Fill(val);
   }
 
   void setBinLabels(MonitorElement *h, const std::vector<std::string>& labels) {

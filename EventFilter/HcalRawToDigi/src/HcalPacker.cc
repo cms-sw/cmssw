@@ -52,7 +52,7 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
 }
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
-			    unsigned short* buffer, int &presamples, bool& isUS, bool& isMP) {
+			    unsigned short* buffer, int &presamples, bool& isUS, bool& isMP) const {
   if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) { return 0; }
   int size=0;
   HcalGenericDetId genId(did);
@@ -83,7 +83,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 		      int nl1a, int orbitn, int bcn,
 		      const Collections& inputs, 
 		      const HcalElectronicsMap& emap,
-		      FEDRawData& output) {
+		      FEDRawData& output) const{
   std::vector<unsigned short> precdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);

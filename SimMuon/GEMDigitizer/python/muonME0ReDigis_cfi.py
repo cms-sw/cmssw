@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     inputCollection    =cms.string('simMuonME0Digis'),
-    useBuiltinGeo      =cms.bool(True),   #Use CMSSW defined geometry for digitization, not custom strips and paritions
+    useCusGeoFor1PartGeo =cms.bool(True),   #Use custom strips and partitions for digitization for single partition geometry
     numberOfStrips     =cms.uint32(384), # If use custom: number of strips per partition                                             
     numberOfPartitions =cms.uint32(8),   # If use custom:  number of partitions per chamber                                           
     neutronAcceptance  =cms.double(2.0),   # fraction of neutron events to keep in event (>= 1 means no filtering)      

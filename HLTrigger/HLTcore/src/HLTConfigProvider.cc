@@ -63,7 +63,7 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    const ProcessHistory::const_iterator he(iHistory.end());
 
    ProcessConfiguration processConfiguration;
-   const edm::ParameterSet* processPSet(0);
+   const edm::ParameterSet* processPSet(nullptr);
 
    processName_=processName;
    if (processName_=="*") {
@@ -71,7 +71,7 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
      for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
        if (iHistory.getConfigurationForProcess(hi->processName(),processConfiguration)) {
 	 processPSet = edm::pset::Registry::instance()->getMapped(processConfiguration.parameterSetID());
-	 if ((processPSet!=0) && (processPSet->exists("hltTriggerSummaryAOD"))) {
+	 if ((processPSet!=nullptr) && (processPSet->exists("hltTriggerSummaryAOD"))) {
 	   processName_=hi->processName();
 	 }	 
        }
@@ -120,13 +120,13 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID)
   //is it in our registry?
   HLTConfigDataRegistry* reg = HLTConfigDataRegistry::instance();
   const HLTConfigData* d = reg->getMapped(iID);
-  if(0 != d) {
+  if(nullptr != d) {
     changed_ = true;
     inited_  = true;
     hltConfigData_ = d;
   } else {
-    const edm::ParameterSet* processPSet = 0;
-    if ( 0 != (processPSet = edm::pset::Registry::instance()->getMapped(iID))) {
+    const edm::ParameterSet* processPSet = nullptr;
+    if ( nullptr != (processPSet = edm::pset::Registry::instance()->getMapped(iID))) {
        if (not processPSet->id().isValid()) {
          clear();
          edm::LogError("HLTConfigProvider") << "ProcessPSet found is empty!";
@@ -163,7 +163,7 @@ void HLTConfigProvider::init(const std::string& processName)
    // processName) from pset registry
    string pNames("");
    string hNames("");
-   const ParameterSet*   pset = 0;
+   const ParameterSet*   pset = nullptr;
    ParameterSetID psetID;
    unsigned int   nPSets(0);
    const edm::pset::Registry * registry_(pset::Registry::instance());
@@ -178,7 +178,7 @@ void HLTConfigProvider::init(const std::string& processName)
          nPSets++;
          if ((hltConfigData_ != s_dummyHLTConfigData()) && (hltConfigData_->id()==psetID)) {
            hNames += tableName();
-         } else if ( 0 != (pset = registry_->getMapped(psetID))) {
+         } else if ( nullptr != (pset = registry_->getMapped(psetID))) {
            if (pset->exists("HLTConfigVersion")) {
              const ParameterSet& HLTPSet(pset->getParameterSet("HLTConfigVersion"));
              if (HLTPSet.exists("tableName")) {

@@ -18,6 +18,7 @@ class BlockElementImporterBase {
 			  edm::ConsumesCollector & sumes ):
   _importerName( conf.getParameter<std::string>("importerName") ) { }
   BlockElementImporterBase(const BlockElementImporterBase& ) = delete;
+  virtual ~BlockElementImporterBase() = default;
   BlockElementImporterBase& operator=(const BlockElementImporterBase&) = delete;
 
   virtual void updateEventSetup(const edm::EventSetup& ) {}

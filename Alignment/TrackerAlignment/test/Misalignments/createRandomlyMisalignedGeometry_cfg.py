@@ -10,7 +10,7 @@ process = cms.Process("Misaligner")
 options = VarParsing.VarParsing()
 
 options.register('myScenario',
-                 "MisalignmentScenario_NonMisalignedBPIX", # default value
+                 "MisalignmentScenario_PhaseI_PseudoAsymptotic", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "scenario to apply")

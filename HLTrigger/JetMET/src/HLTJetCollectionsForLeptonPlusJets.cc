@@ -94,40 +94,40 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   unique_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
   
  if(!clusCands.empty()){ // try trigger clusters
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){  
+    for(auto & clusCand : clusCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(clusCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+          if (deltaR(clusCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
  }
 
  if(!eleCands.empty()){ // try electrons
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){  
+    for(auto & eleCand : eleCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(eleCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+          if (deltaR(eleCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
  }
  
  if(!photonCands.empty()){ // try photons
-    for(size_t candNr=0;candNr<photonCands.size();candNr++){  
+    for(auto & photonCand : photonCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(photonCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+          if (deltaR(photonCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
  }
 
  if(!muonCands.empty()){ // muons
-    for(size_t candNr=0;candNr<muonCands.size();candNr++){  
+    for(auto & muonCand : muonCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-	  if (deltaR(muonCands[candNr]->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+	  if (deltaR(muonCand->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }

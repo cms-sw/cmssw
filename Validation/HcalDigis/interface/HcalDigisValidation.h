@@ -120,6 +120,7 @@ private:
     std::string mc_;
     int noise_;
     bool testNumber_;
+    bool hep17_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 

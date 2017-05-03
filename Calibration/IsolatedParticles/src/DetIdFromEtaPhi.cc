@@ -7,9 +7,11 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
-  const DetId findDetIdECAL( const CaloGeometry* geo, double eta, double phi, bool debug) {
+  const DetId findDetIdECAL(const CaloGeometry* geo, double eta, double phi, bool debug) {
     double radius=0;
     int    subdet=0;
     double theta=2.0*std::atan(exp(-eta));
@@ -21,7 +23,9 @@ namespace spr{
       subdet = EcalBarrel;
     }
     const CaloSubdetectorGeometry* gECAL = geo->getSubdetectorGeometry(DetId::Ecal,subdet);
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "findDetIdECAL: eta " << eta << " theta " << theta <<" phi " << phi << " radius " << radius << " subdet " << subdet << std::endl;
+#endif
     return spr::findDetIdCalo (gECAL, theta, phi, radius, debug);
   }
 
@@ -33,16 +37,24 @@ namespace spr{
     else
       radius = spr::rFrontHB/std::sin(theta);
     const CaloSubdetectorGeometry* gHCAL = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-    if (debug) std::cout << "findDetIdHCAL: eta " << eta <<" theta "<<theta<< " phi " << phi << " radius " << radius << std::endl;
+ #ifdef EDM_ML_DEBUG
+   if (debug) std::cout << "findDetIdHCAL: eta " << eta <<" theta "<<theta<< " phi " << phi << " radius " << radius << std::endl;
+#endif
     return spr::findDetIdCalo (gHCAL, theta, phi, radius, debug);
   }
 
-  const DetId findDetIdCalo( const CaloSubdetectorGeometry* geo, double theta, double phi, double radius, bool debug) {
+  const DetId findDetIdCalo( const CaloSubdetectorGeometry* geo, double theta,
+			     double phi, double radius, bool 
+#ifdef EDM_ML_DEBUG
+			     debug
+#endif
+			     ) {
     
     double rcyl = radius*std::sin(theta);
     double z    = radius*std::cos(theta);
     GlobalPoint  point (rcyl*std::cos(phi),rcyl*std::sin(phi),z);
     const DetId cell = geo->getClosestCell(point);
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "findDetIdCalo: rcyl " << rcyl << " z " << z << " Point " << point << " DetId ";
       if (cell.det() == DetId::Ecal) {
@@ -53,6 +65,7 @@ namespace spr{
       }
       std::cout << std::endl;
     }
+#endif
     return cell;
   }
 

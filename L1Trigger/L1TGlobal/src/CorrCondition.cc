@@ -410,8 +410,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             case CondMuon: {
 	        lutObj0 = "MU";
                 candMuVec = m_uGtB->getCandL1Mu();
-                phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
-                etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
+                phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
+                etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEtaAtVtx();
 		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
 		chrg0     =  (candMuVec->at(bxEval,obj0Index))->hwCharge();
 		int etaBin0 = etaIndex0;
@@ -705,8 +705,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 case CondMuon: {
 		   lutObj1 = "MU"; 
                    candMuVec = m_uGtB->getCandL1Mu();
-                   phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
-                   etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
+                   phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhiAtVtx(); //(*candMuVec)[obj0Index]->phiIndex();
+                   etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEtaAtVtx();
 		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
 		   chrg1     =  (candMuVec->at(bxEval,obj1Index))->hwCharge();
 		   etaBin1 = etaIndex1;

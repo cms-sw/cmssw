@@ -29,6 +29,7 @@ ME0SegAlgoRU::ME0SegAlgoRU(const edm::ParameterSet& ps)
 
 	allowWideSegments = ps.getParameter<bool>("allowWideSegments");
 	doCollisions = ps.getParameter<bool>("doCollisions");
+
 	stdParameters.maxChi2Additional = ps.getParameter<double>("maxChi2Additional");
 	stdParameters.maxChi2Prune      = ps.getParameter<double>("maxChi2Prune"     );
 	stdParameters.maxChi2GoodSeg    = ps.getParameter<double>("maxChi2GoodSeg"   ) ;
@@ -36,7 +37,8 @@ ME0SegAlgoRU::ME0SegAlgoRU(const edm::ParameterSet& ps)
 	stdParameters.maxPhiAdditional  = ps.getParameter<double>("maxPhiAdditional" );
 	stdParameters.maxETASeeds       = ps.getParameter<double>("maxETASeeds"      );
 	stdParameters.maxTOFDiff        = ps.getParameter<double>("maxTOFDiff"      );
-	stdParameters.minNumberOfHits        = ps.getParameter<unsigned int>("minNumberOfHits"      );
+	stdParameters.requireCentralBX  = ps.getParameter<bool>("requireCentralBX"      );
+	stdParameters.minNumberOfHits   = ps.getParameter<unsigned int>("minNumberOfHits"      );
 	stdParameters.requireBeamConstr = true;
 
 	wideParameters = stdParameters;
@@ -214,9 +216,18 @@ void ME0SegAlgoRU::lookForSegments( const SegmentParameters& params, const unsig
 			edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::lookForSegments] # of hits in segment " << current_proto_segment.size() <<" min # "<< n_seg_min <<" => "<< (current_proto_segment.size() >= n_seg_min) << " chi2/ndof "<<current_fit->chi2()/current_fit->ndof()<<" => "<<(current_fit->chi2()/current_fit->ndof() < params.maxChi2GoodSeg ) <<std::endl;
 
 			if(current_proto_segment.size() < n_seg_min) continue;
-
 			const float current_metric = current_fit->chi2()/current_fit->ndof();
 			if(current_metric > params.maxChi2GoodSeg) continue;
+
+			if(params.requireCentralBX){
+				int nCentral = 0;
+				int nNonCentral =0;
+				for(const auto* rh : current_proto_segment ) {
+					if(std::fabs(rh->rh->tof())  < 2 ) nCentral++;
+					else nNonCentral++;
+				}
+				if(nNonCentral >= nCentral) continue;
+			}
 			//        	segok = true;
 
 			proto_segments.emplace_back( current_metric, current_proto_segment);
@@ -274,8 +285,9 @@ void ME0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments, s
 
 		std::vector<const ME0RecHit*> bareRHs; bareRHs.reserve(currentProtoSegment.size());
 		for(const auto* rh : currentProtoSegment) bareRHs.push_back(rh->rh);
+		const float dPhi = theChamber->computeDeltaPhi(current_fit->intercept(),current_fit->localdir());
 		ME0Segment temp(bareRHs, current_fit->intercept(),
-				current_fit->localdir(), current_fit->covarianceMatrix(), current_fit->chi2(), averageTime, timeUncrt);
+				current_fit->localdir(), current_fit->covarianceMatrix(), current_fit->chi2(), averageTime, timeUncrt, dPhi);
 		segments.push_back(temp);
 
 
