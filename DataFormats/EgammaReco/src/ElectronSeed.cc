@@ -28,6 +28,8 @@ ElectronSeed::ElectronSeed
      isEcalDriven_(false), isTrackerDriven_(false)
 {}
 
+ElectronSeed::~ElectronSeed()=default;
+
 void ElectronSeed::setCtfTrack
 ( const CtfTrackRef & ctfTrack )
 {
