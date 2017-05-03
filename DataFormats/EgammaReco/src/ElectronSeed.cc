@@ -1,6 +1,7 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
+#include <climits>
 
 using namespace reco ;
 
@@ -38,8 +39,9 @@ void ElectronSeed::setCtfTrack
 }
 
 //the hit mask tells us which hits were used in the seed
-//typically all are used but this could change in the future
-int ElectronSeed::hitsMask()const
+//typically all are used at the HLT but this could change in the future
+//RECO only uses some of them
+unsigned int ElectronSeed::hitsMask()const
 {
   int mask=0;
   for(size_t hitNr=0;hitNr<nHits();hitNr++){
@@ -53,16 +55,25 @@ int ElectronSeed::hitsMask()const
   return mask;
 }
 
-void ElectronSeed::initTwoHitSeed(const char hitMask)
+void ElectronSeed::initTwoHitSeed(const unsigned char hitMask)
 {
   hitInfo_.resize(2);
 
-  std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
+  std::vector<unsigned int> hitNrs = hitNrsFromMask(hitMask);
   if(hitNrs.size()!=2){
-    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": number of hits in hit mask is "<<hitNrs.size()<<", pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2"<<" mask "<<static_cast<int>(hitMask)<<std::endl;
+    throw cms::Exception("LogicError") 
+      <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__
+      <<": number of hits in hit mask is "<<hitNrs.size()<<"\n"
+      <<"pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2 hits\n "
+      <<"mask "<<static_cast<unsigned int>(hitMask)<<std::endl;
   }
   if(hitNrs[0]>=nHits() || hitNrs[1]>=nHits()){
-    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]<<" while number of hits are, this means there was a bug in storing or creating the electron seeds "<<nHits();
+    throw cms::Exception("LogicError")
+      <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__
+      <<": hits are "<<hitNrs[0]<<" and  "<<hitNrs[1]
+      <<" while number of hits are "<<nHits()<<"\n"
+      <<"this means there was a bug in storing or creating the electron seeds "
+      <<"mask "<<static_cast<unsigned int>(hitMask)<<std::endl;
   }
   for(size_t hitNr=0;hitNr<hitInfo_.size();hitNr++){
     auto& info = hitInfo_[hitNr];
@@ -96,11 +107,11 @@ void ElectronSeed::setPosAttributes(float dRZ2,float dPhi2,float dRZ1,float dPhi
   hitInfo_[1].dPhiPos = dPhi2;
 }
 
-std::vector<size_t>
-ElectronSeed::hitNrsFromMask(size_t hitMask)
+std::vector<unsigned int>
+ElectronSeed::hitNrsFromMask(unsigned int hitMask)
 {
-  std::vector<size_t> hitNrs;
-  for(size_t bitNr=0;bitNr<sizeof(hitMask);bitNr++){
+  std::vector<unsigned int> hitNrs;
+  for(size_t bitNr=0; bitNr<sizeof(hitMask)*CHAR_BIT ; bitNr++){
     char bit = 0x1 << bitNr;
     if((hitMask&bit)!=0) hitNrs.push_back(bitNr);
   }
@@ -117,13 +128,22 @@ ElectronSeed::createHitInfo(const float dPhi1Pos,const float dPhi1Neg,
   if(hitMask==0) return std::vector<ElectronSeed::PMVars>(); //was trackerDriven so no matched hits
 
   size_t nrRecHits = std::distance(recHits.first,recHits.second);
-  std::vector<size_t> hitNrs = hitNrsFromMask(hitMask);
+  std::vector<unsigned int> hitNrs = hitNrsFromMask(hitMask);
 
   if(hitNrs.size()!=2){
-    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": number of hits in hit mask is "<<nrRecHits<<", pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2, mask "<<static_cast<int>(hitMask)<<std::endl;
+    throw cms::Exception("LogicError")
+      <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__
+      <<": number of hits in hit mask is "<<nrRecHits<<"\n"
+      <<"pre-2017 pixel upgrade ecalDriven ElectronSeeds should have exactly 2 hits\n"
+      <<"mask "<<static_cast<unsigned int>(hitMask)<<std::endl;
   }
   if(hitNrs[0]>=nrRecHits || hitNrs[1]>=nrRecHits){
-    throw cms::Exception("LogicError") <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__<<": hits are "<<hitNrs[0]<<" and "<<hitNrs[1]<<" while number of hits are "<<nrRecHits<<" this means there was a bug in storing or creating the electron seeds, hit mask :"<<static_cast<int>(hitMask)<<std::endl;
+    throw cms::Exception("LogicError")
+      <<"in ElectronSeed::"<<__FUNCTION__<<","<<__LINE__
+      <<": hits are "<<hitNrs[0]<<" and "<<hitNrs[1]
+      <<" while number of hits are "<<nrRecHits<<"\n"
+      <<"this means there was a bug in storing or creating the electron seeds "
+      <<"mask "<<static_cast<unsigned int>(hitMask)<<std::endl;
   }
   
   std::vector<PMVars> hitInfo(2);
@@ -146,5 +166,25 @@ ElectronSeed::PMVars::PMVars():
   detId(0),
   layerOrDiskNr(-1)
 {}
+
+void ElectronSeed::PMVars::setDPhi(float pos,float neg)
+{
+  dPhiPos = pos;
+  dPhiNeg = neg;
+}
+
+void ElectronSeed::PMVars::setDRZ(float pos,float neg)
+{
+  dRZPos = pos;
+  dRZNeg = neg;
+}
+
+void ElectronSeed::PMVars::setDet(int iDetId,int iLayerOrDiskNr)
+{
+  detId = iDetId;
+  layerOrDiskNr = iLayerOrDiskNr;
+}
+
+
 
 
