@@ -156,7 +156,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(*trackerPropagator_, alongMomentum);
 
         int sizeBefore = out->size();
-        std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
+        if (debug_) std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
         const reco::Track &tk = *mu.outerTrack();
 
         TrajectoryStateOnSurface state;
@@ -174,7 +174,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             if(iLayer==0) LogError("OutsideInMuonSeeder") << "TOB has no layers." ;
 
             for (auto it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
-                std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
+                if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -194,7 +194,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             int iLayer = forwLayers.size(); 
             if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC+ has no layers." ;
 
-            std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            if (debug_) std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
             for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying Forward Layer +" << +iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
@@ -216,7 +216,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             int iLayer = forwLayers.size(); 
             if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC- has no layers." ;
 
-            std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            if (debug_) std::cout << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
             for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying Forward Layer -" << -iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
