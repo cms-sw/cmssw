@@ -60,16 +60,17 @@ namespace reco
       int layerOrDiskNr;//redundant as stored in detId but its a huge pain to hence why its saved here
 
       PMVars();
-      void setDPhi(float pos,float neg){dPhiPos=pos;dPhiNeg=neg;}
-      void setDRZ(float pos,float neg){dRZPos=pos;dRZNeg=neg;}
-      void setDet(int iDetId,int iLayerOrDiskNr){detId=iDetId;layerOrDiskNr=iLayerOrDiskNr;}
-
+      
+      void setDPhi(float pos,float neg);
+      void setDRZ(float pos,float neg);
+      void setDet(int iDetId,int iLayerOrDiskNr);
+ 
     };
-    
     
     typedef edm::OwnVector<TrackingRecHit> RecHitContainer ;
     typedef edm::RefToBase<CaloCluster> CaloClusterRef ;
     typedef edm::Ref<TrackCollection> CtfTrackRef ;
+ 
     static std::string const & name()
     {
       static std::string const name_("ElectronSeed") ;
@@ -126,8 +127,8 @@ namespace reco
     float dRz2Pos()const{return dRZPos(1);}   
     int subDet1()const{return subDet(0);}
     int subDet2()const{return subDet(1);}
-    int hitsMask()const; 
-    void initTwoHitSeed(const char hitMask);
+    unsigned int hitsMask()const; 
+    void initTwoHitSeed(const unsigned char hitMask);
     void setNegAttributes(const float dRZ2=std::numeric_limits<float>::infinity(),
 			  const float dPhi2=std::numeric_limits<float>::infinity(),
 			  const float dRZ1=std::numeric_limits<float>::infinity(),
@@ -137,16 +138,6 @@ namespace reco
 			  const float dRZ1=std::numeric_limits<float>::infinity(),
 			  const float dPhi1=std::numeric_limits<float>::infinity());
     
-    
-
-  private:
-    static float bestVal(float val1,float val2){return std::abs(val1)<std::abs(val2) ? val1 : val2;}
-    template<typename T>
-    T getVal(size_t hitNr,T PMVars::*val)const{
-      return hitNr<hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::infinity();
-    }
-    static std::vector<size_t> hitNrsFromMask(size_t hitMask);
-  public:
     //this is a backwards compatible function designed to 
     //convert old format ElectronSeeds to the new format
     //only public due to root io rules, not intended for any other use
@@ -156,9 +147,15 @@ namespace reco
 					     const float dPhi2Pos,const float dPhi2Neg,
 					     const float dRZ2Pos,const float dRZ2Neg, 
 					     const char hitMask,const TrajectorySeed::range recHits);
+  private:
+    static float bestVal(float val1,float val2){return std::abs(val1)<std::abs(val2) ? val1 : val2;}
+    template<typename T>
+    T getVal(unsigned int hitNr,T PMVars::*val)const{
+      return hitNr<hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::infinity();
+    }
+    static std::vector<unsigned int> hitNrsFromMask(unsigned int hitMask);
     
   private:
-
     CtfTrackRef ctfTrack_;
     CaloClusterRef caloCluster_;
     std::vector<PMVars> hitInfo_;
