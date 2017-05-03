@@ -17,7 +17,6 @@ writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc530', 'ref901-s6530.db') ],
             'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref766-s6493.db')],
           }
 def get_cmssw_file(file_name):
-    
     for i in ['CMSSW_BASE','CMSSW_RELEASE_BASE','CMSSW_FULL_RELEASE_BASE']:
         print "Looking for :%s = %s " % (i,os.getenv(i))
         if os.getenv(i) and os.path.exists(str(os.environ[i])+'/%s' % file_name):
@@ -43,10 +42,8 @@ def check_output(*popenargs, **kwargs):
 
     return stdout
 
-
 # nice one from:
 # https://www.daniweb.com/software-development/python/code/216610/timing-a-function-python
-
 def print_timing(func):
     def wrapper(*arg):
         t1 = time.time()
@@ -55,7 +52,6 @@ def print_timing(func):
         print '\n%s(%s) took %0.3f ms\n' % (func.__name__, ','.join([str(x) for x in arg[1:]]), (t2-t1)*1000.0)
         return res
     return wrapper
-
 
 class CondRegressionTester(object):
 
