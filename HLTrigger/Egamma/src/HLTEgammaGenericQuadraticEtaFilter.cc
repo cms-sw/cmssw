@@ -59,7 +59,6 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
 
   candToken_       = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
   varToken_        = consumes<reco::RecoEcalCandidateIsolationMap> (varTag_);
-  rhoToken_        = consumes<double> (rhoTag_);
 
   if (energyLowEdges_.size() != thrRegularEB1_.size() or energyLowEdges_.size() != thrRegularEE1_.size() or
       energyLowEdges_.size() != thrRegularEB2_.size() or energyLowEdges_.size() != thrRegularEE2_.size() or
@@ -78,6 +77,7 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
   }
 
   if (doRhoCorrection_) {
+    rhoToken_        = consumes<double> (rhoTag_);
     if (absEtaLowEdges_.size() != effectiveAreas_.size())
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
 
