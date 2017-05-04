@@ -82,8 +82,8 @@ Specification(OverlayCurvesForTiming).groupBy("DetId/Event")
 #
   
 # To Configure Phase1 DQM for Phase0 data
-SiPixelPhase1Geometry.upgradePhase = 0
-SiPixelPhase1Geometry.onlineblock = 5
+SiPixelPhase1Geometry.upgradePhase = 1
+SiPixelPhase1Geometry.onlineblock = 15
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
 # here and not in the harvestng config.
@@ -95,7 +95,6 @@ DefaultHistoTrack.perLumiHarvesting = True
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
-SiPixelPhase1DigisAnalyzer.src = cms.InputTag("siPixelDigis") # adapt for real data
 
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
