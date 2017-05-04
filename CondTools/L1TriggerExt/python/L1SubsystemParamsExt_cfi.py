@@ -36,6 +36,12 @@ def initL1SubsystemsExt( tagBaseVec = [],
             key = cms.string(objectKey)
         ),
         cms.PSet(
+            record = cms.string('L1TMuonEndcapForestO2ORcd'),
+            tag = cms.string('L1TMuonEndCapForest_' + tagBaseVec[ L1CondEnumExt.L1TMuonEndcapForest ]),
+            type = cms.string('L1TMuonEndCapForest'),
+            key = cms.string(objectKey)
+        ),
+        cms.PSet(
             record = cms.string('L1TMuonOverlapParamsO2ORcd'),
             tag = cms.string('L1TMuonOverlapParams_' + tagBaseVec[ L1CondEnumExt.L1TMuonOverlapParams ]),
             type = cms.string('L1TMuonOverlapParams'),
