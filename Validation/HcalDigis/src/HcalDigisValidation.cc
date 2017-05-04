@@ -108,8 +108,6 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
 
   nChannels_[0] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
 
-  //std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
-
 }
 
 void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
@@ -307,9 +305,9 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	  }
         }
 
-        sprintf(histo, "HcalDigiTask_bin_5_frac_%s", sub);
+        sprintf(histo, "HcalDigiTask_SOI_frac_%s", sub);
         book1D(ib, histo, frac);
-        sprintf(histo, "HcalDigiTask_bin_6_7_frac_%s", sub);
+        sprintf(histo, "HcalDigiTask_postSOI_frac_%s", sub);
         book1D(ib, histo, frac);
 
         if (bmc == 1) {
@@ -779,38 +777,21 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             //KH if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (v_ampl[1] > 30. && depth == 1 && closen == 1 && isubdet != 4) {
-	      double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
-	      double fBin67 = tool[5] + tool[6]
-		- calibrations.pedestal((*digiItr)[5].capid())
-		- calibrations.pedestal((*digiItr)[6].capid());
-	      
-	      fBin5 /= v_ampl[1];
-	      fBin67 /= v_ampl[1];
-	      
-	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
-	      fill1D(strtmp, fBin5);
-	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
-	      fill1D(strtmp, fBin67);
-	      
-	    }
-	    
-	    //Special for HF
-	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
+	    if (v_ampl[1] > 30. && depth == 1) {
               int soi = tool.presamples();
               int lastbin = tool.size() - 1;
 
-	      double fBin5 = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
-	      double fBin67 = 0; 
+	      double fbinSOI = tool[soi] - calibrations.pedestal((*digiItr)[soi].capid());
+	      double fbinPS = 0; 
 
-              for(int j = soi+1; j <= lastbin; j++) fBin67 += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
+              for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((*digiItr)[j].capid());
 
-	      fBin5 /= v_ampl[1];
-	      fBin67 /= v_ampl[1];
-	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
-	      fill1D(strtmp, fBin5);
-	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
-	      fill1D(strtmp, fBin67);
+	      fbinSOI /= v_ampl[1];
+	      fbinPS /= v_ampl[1];
+	      strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
+	      fill1D(strtmp, fbinSOI);
+	      strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
+	      fill1D(strtmp, fbinPS);
             }
 	    
             strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
@@ -1129,40 +1110,23 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             //KH if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (v_ampl[1] > 30. && depth == 1 && closen == 1 && isubdet != 4) {
-	      double fBin5 = tool[4] - calibrations.pedestal((dataFrame)[4].capid());
-	      double fBin67 = tool[5] + tool[6]
-		- calibrations.pedestal((dataFrame)[5].capid())
-		- calibrations.pedestal((dataFrame)[6].capid());
-	      
-	      fBin5 /= v_ampl[1];
-	      fBin67 /= v_ampl[1];
-	      
-	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
-	      fill1D(strtmp, fBin5);
-	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
-	      fill1D(strtmp, fBin67);
-	      
-	    }
-	    
-	    //Special for HF
             //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
-	    if (isubdet == 4 && v_ampl[1] > 30. && depth == 1) {
+	    if (v_ampl[1] > 30. && depth == 1) {
               int soi = tool.presamples();
               int lastbin = tool.size() - 1;
 
-	      double fBin5 = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
-	      double fBin67 = 0; 
+	      double fbinSOI = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
+	      double fbinPS = 0; 
 
-              for(int j = soi+1; j <= lastbin; j++) fBin67 += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
+              for(int j = soi+1; j <= lastbin; j++) fbinPS += tool[j] - calibrations.pedestal((dataFrame)[j].capid());
 
 
-	      fBin5 /= v_ampl[1];
-	      fBin67 /= v_ampl[1];
-	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
-	      fill1D(strtmp, fBin5);
-	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
-	      fill1D(strtmp, fBin67);
+	      fbinSOI /= v_ampl[1];
+	      fbinPS /= v_ampl[1];
+	      strtmp = "HcalDigiTask_SOI_frac_" + subdet_;
+	      fill1D(strtmp, fbinSOI);
+	      strtmp = "HcalDigiTask_postSOI_frac_" + subdet_;
+	      fill1D(strtmp, fbinPS);
             }
 
 
