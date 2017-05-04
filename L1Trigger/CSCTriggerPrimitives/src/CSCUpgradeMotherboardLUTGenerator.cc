@@ -59,8 +59,11 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
 
   // print LUTs
   std::stringstream os;
+  os << "ME11 "<< me1bId <<std::endl;
+
   os << "GEM L1 roll to eta limits" << std::endl;
   os << gem_roll_eta_limits_l1;
+
   os << "GEM L2 roll to eta limits" << std::endl;
   os << gem_roll_eta_limits_l2;
   
@@ -88,7 +91,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
-  std::cout << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -127,11 +129,10 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   std::vector<std::pair<int,int> > cscWgToGemRoll_l2 = cscWgToRollLUT(cscWGToEtaLimits_, gem_roll_eta_limits_l2);
   std::vector<std::pair<int,int> > cscHsToGemPad_ = cscHsToGemPadLUT(keyLayer, randRoll, 5, 155);
   std::vector<int> gemPadToCscHs_ = gemPadToCscHsLUT(keyLayer, randRoll);
-  
- 
-  LogTrace("CSCUpgradeMotherboardLUTGenerator") << "ME21 "<< csc_id <<std::endl;
-
+   
   std::stringstream os;
+  os << "ME21 "<< csc_id <<std::endl;
+
   os << "GEM roll to eta limits" << std::endl;
   os << gem_roll_eta_limits_l1;
 
@@ -152,7 +153,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
-  std::cout << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -175,13 +175,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   const CSCLayer* keyLayer(cscChamber->layer(3));
 
   // RPC trigger geometry
-  const int region((theEndcap == 1) ? 1: -1);
-  const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
-  const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
-  const int csc_trig_chid((3*(csc_trig_sect-1)+csc_trig_id)%18 +1);
-  const int rpc_trig_sect((csc_trig_chid-1)/3+1);
-  const int rpc_trig_subsect((csc_trig_chid-1)%3+1);
-  const RPCDetId rpc_id(region,1,theStation,rpc_trig_sect,1,rpc_trig_subsect,0);
+  const RPCDetId rpc_id(getRPCfromCSC(csc_id));
   const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
   const RPCRoll* randRoll(rpcChamber->roll(2));
 
@@ -193,6 +187,8 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   std::vector<int> rpcStripToCscHs_ = rpcStripToCscHsLUT(keyLayer, randRoll);
 
   std::stringstream os;
+  os << "ME31/41 "<< csc_id <<std::endl;
+
   os << "RPC roll to eta limits" << std::endl;
   os << rpcRollToEtaLimits_;
 
@@ -210,7 +206,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
-  std::cout << os.str();
 }
 
 int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<double,double> >& lut_, double eta) const
