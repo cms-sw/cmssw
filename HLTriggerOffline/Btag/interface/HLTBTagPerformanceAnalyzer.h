@@ -85,6 +85,8 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
 
 		// Other variables
 		edm::EDConsumerBase::Labels label;

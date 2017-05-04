@@ -14,7 +14,8 @@ F5=${LOCAL_TEST_DIR}/test_onPath_wrongOrder_unscheduled_fail_cfg.py
 (cmsRun $F1 ) > test_deepCall_unscheduled.log || die "Failure using $F1" $?
 diff ${LOCAL_TEST_DIR}/unit_test_outputs/test_deepCall_unscheduled.log test_deepCall_unscheduled.log || die "comparing test_deepCall_unscheduled.log" $?
 
-!(cmsRun $F2 ) || die "Failure using $F2" $?
+!(cmsRun -j test_deepCall_fail_fjr.xml $F2 ) || die "Failure using $F2" $?
+(grep '<FrameworkError ExitStatus="8006" Type="Fatal Exception" >' test_deepCall_fail_fjr.xml) || die "Failed to return proper exit code $F2" $?
 (cmsRun $F3 ) || die "Failure using $F3" $?
 
 (cmsRun $F4 )  > test_onPath_unscheduled.log || die "Failure using $F4" $?
