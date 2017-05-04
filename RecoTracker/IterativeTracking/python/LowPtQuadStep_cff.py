@@ -235,7 +235,6 @@ LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
                              lowPtQuadStepSeedLayers*
                              lowPtQuadStepTrackingRegions*
                              lowPtQuadStepHitDoublets*
-                             lowPtQuadStepHitTriplets*
                              lowPtQuadStepHitQuadruplets*
                              lowPtQuadStepSeeds*
                              lowPtQuadStepTrackCandidates*
