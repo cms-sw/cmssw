@@ -48,7 +48,7 @@ private:
   std::array<emtf::Forest, 16> forests_;
   PtLUTReader ptlut_reader_;
 
-  bool ok_;
+  unsigned version_;  // init: 0xFFFFFFFF
 
   int verbose_;
 

@@ -54,3 +54,26 @@ void EMTFSubsystemCollector::extractPrimitives(
   }
   return;
 }
+
+// Specialized for GEM
+template<>
+void EMTFSubsystemCollector::extractPrimitives(
+    GEMTag tag, // Defined in interface/EMTFSubsystemTag.hh, maps to GEMPadDigi
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TriggerPrimitiveCollection& out
+) {
+  edm::Handle<GEMTag::digi_collection> gemDigis;
+  iEvent.getByToken(token, gemDigis);
+
+  auto chamber = gemDigis->begin();
+  auto chend   = gemDigis->end();
+  for( ; chamber != chend; ++chamber ) {
+    auto digi = (*chamber).second.first;
+    auto dend = (*chamber).second.second;
+    for( ; digi != dend; ++digi ) {
+      out.emplace_back((*chamber).first,*digi);
+    }
+  }
+  return;
+}

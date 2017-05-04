@@ -177,6 +177,7 @@ void PatternRecognition::process(
     std::map<pattern_ref_t, int>& patt_lifetime_map,
     zone_array<EMTFRoadCollection>& zone_roads
 ) const {
+  // Exit if no hits
   int num_conv_hits = 0;
   for (const auto& conv_hits : extended_conv_hits)
     num_conv_hits += conv_hits.size();
@@ -189,16 +190,42 @@ void PatternRecognition::process(
   if (verbose_ > 0) {  // debug
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        std::cout << "st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-            << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
-            << " ph_hit: " << (1ul<<conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
-            << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
-            << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
-            << " bx: " << conv_hit.BX()
-            << std::endl;
+        if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
+          std::cout << "st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
+              << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
+              << " ph_hit: " << (1ul<<conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
+              << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
+              << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
+              << " bx: " << conv_hit.BX()
+              << std::endl;
+        }
       }
     }
-  }
+
+    for (const auto& conv_hits : extended_conv_hits) {
+      for (const auto& conv_hit : conv_hits) {
+        if (conv_hit.Subsystem() == TriggerPrimitive::kRPC) {
+          std::cout << "RPC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
+              << " ph>>2: " << (conv_hit.Phi_fp()>>2) << " th>>2: " << (conv_hit.Theta_fp()>>2)
+              << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
+              << " bx: " << conv_hit.BX()
+              << std::endl;
+        }
+      }
+    }
+
+    for (const auto& conv_hits : extended_conv_hits) {
+      for (const auto& conv_hit : conv_hits) {
+        if (conv_hit.Subsystem() == TriggerPrimitive::kGEM) {
+          std::cout << "GEM hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
+              << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
+              << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
+              << " bx: " << conv_hit.BX()
+              << std::endl;
+        }
+      }
+    }
+  }  // end debug
 
   // Perform pattern recognition in each zone
   zone_array<PhiMemoryImage> zone_images;
@@ -215,7 +242,7 @@ void PatternRecognition::process(
     process_single_zone(izone+1, zone_images.at(izone), patt_lifetime_map, zone_roads.at(izone));
   }
 
-  if (verbose_ > 1) {  // debug
+  if (verbose_ > 2) {  // debug
     for (int izone = NUM_ZONES; izone >= 1; --izone) {
       std::cout << "zone: " << izone << std::endl;
       std::cout << zone_images.at(izone-1) << std::endl;
@@ -261,7 +288,10 @@ bool PatternRecognition::is_zone_empty(
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
-        continue;  // Don't use RPCs for pattern formation
+        continue;  // Don't use RPC hits for pattern formation
+
+      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+        continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
         num_conv_hits += 1;
@@ -297,7 +327,10 @@ void PatternRecognition::make_zone_image(
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
-        continue;  // Don't use RPCs for pattern formation
+        continue;  // Don't use RPC hits for pattern formation
+
+      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+        continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
         unsigned int layer = conv_hits_it->Station() - 1;

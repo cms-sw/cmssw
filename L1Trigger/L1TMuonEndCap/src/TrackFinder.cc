@@ -15,23 +15,24 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     config_(iConfig),
     tokenCSC_(iConsumes.consumes<CSCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CSCInput"))),
     tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
+    tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
-    useRPC_(iConfig.getParameter<bool>("RPCEnable"))
+    useRPC_(iConfig.getParameter<bool>("RPCEnable")),
+    useGEM_(iConfig.getParameter<bool>("GEMEnable"))
 {
   auto minBX       = iConfig.getParameter<int>("MinBX");
   auto maxBX       = iConfig.getParameter<int>("MaxBX");
   auto bxWindow    = iConfig.getParameter<int>("BXWindow");
   auto bxShiftCSC  = iConfig.getParameter<int>("CSCInputBXShift");
   auto bxShiftRPC  = iConfig.getParameter<int>("RPCInputBXShift");
-  //auto version     = iConfig.getParameter<int>("Version");        // not yet used
-  //auto ptlut_ver   = iConfig.getParameter<int>("PtLUTVersion");   // not yet used
+  auto bxShiftGEM  = iConfig.getParameter<int>("GEMInputBXShift");
 
   const auto& spPCParams16 = config_.getParameter<edm::ParameterSet>("spPCParams16");
   auto zoneBoundaries     = spPCParams16.getParameter<std::vector<int> >("ZoneBoundaries");
   auto zoneOverlap        = spPCParams16.getParameter<int>("ZoneOverlap");
   auto zoneOverlapRPC     = spPCParams16.getParameter<int>("ZoneOverlapRPC");
-  auto coordLUTDir        = spPCParams16.getParameter<std::string>("CoordLUTDir");
+  //auto coordLUTDir        = spPCParams16.getParameter<std::string>("CoordLUTDir");
   auto includeNeighbor    = spPCParams16.getParameter<bool>("IncludeNeighbor");
   auto duplicateTheta     = spPCParams16.getParameter<bool>("DuplicateTheta");
   auto fixZonePhi         = spPCParams16.getParameter<bool>("FixZonePhi");
@@ -46,6 +47,8 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   const auto& spTBParams16 = config_.getParameter<edm::ParameterSet>("spTBParams16");
   auto thetaWindow        = spTBParams16.getParameter<int>("ThetaWindow");
   auto thetaWindowRPC     = spTBParams16.getParameter<int>("ThetaWindowRPC");
+  auto useSingleHits      = spTBParams16.getParameter<bool>("UseSingleHits");
+  auto bugSt2PhDiff       = spTBParams16.getParameter<bool>("BugSt2PhDiff");
   auto bugME11Dupes       = spTBParams16.getParameter<bool>("BugME11Dupes");
 
   const auto& spGCParams16 = config_.getParameter<edm::ParameterSet>("spGCParams16");
@@ -55,7 +58,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugSameSectorPt0   = spGCParams16.getParameter<bool>("BugSameSectorPt0");
 
   const auto& spPAParams16 = config_.getParameter<edm::ParameterSet>("spPAParams16");
-  auto bdtXMLDir          = spPAParams16.getParameter<std::string>("BDTXMLDir");
+  //auto bdtXMLDir          = spPAParams16.getParameter<std::string>("BDTXMLDir");
   auto readPtLUTFile      = spPAParams16.getParameter<bool>("ReadPtLUTFile");
   auto fixMode15HighPt    = spPAParams16.getParameter<bool>("FixMode15HighPt");
   auto bug9BitDPhi        = spPAParams16.getParameter<bool>("Bug9BitDPhi");
@@ -66,7 +69,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
 
   try {
     // Configure sector processor LUT
-    sector_processor_lut_.read(coordLUTDir);
+    //sector_processor_lut_.read(coordLUTDir);  // deprecated, load using pc_lut_version from Conditions
 
     // Configure pT assignment engine
     //pt_assign_engine_.read(bdtXMLDir);  // deprecated, load from Conditions
@@ -82,11 +85,11 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
             &sector_processor_lut_,
             &pt_assign_engine_,
             verbose_, endcap, sector,
-            minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC,
+            minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC, bxShiftGEM,
             zoneBoundaries, zoneOverlap, zoneOverlapRPC,
             includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
             pattDefinitions, symPattDefinitions, useSymPatterns,
-            thetaWindow, thetaWindowRPC, bugME11Dupes,
+            thetaWindow, thetaWindowRPC, useSingleHits, bugSt2PhDiff, bugME11Dupes,
             maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
             readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi
         );
@@ -115,11 +118,12 @@ void TrackFinder::process(
   // Get the geometry for TP conversions
   geometry_translator_.checkAndUpdateGeometry(iSetup);
 
-  // Get the conditions, reload pT LUT if conditions have changed
-  condition_helper_.checkAndUpdateConditions(iSetup, pt_assign_engine_);
+  // Get the conditions, primarily the firmware version and the BDT forests
+  condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
 
   // ___________________________________________________________________________
   // Extract all trigger primitives
+
   TriggerPrimitiveCollection muon_primitives;
 
   EMTFSubsystemCollector collector;
@@ -127,6 +131,8 @@ void TrackFinder::process(
     collector.extractPrimitives(CSCTag(), iEvent, tokenCSC_, muon_primitives);
   if (useRPC_)
     collector.extractPrimitives(RPCTag(), iEvent, tokenRPC_, muon_primitives);
+  if (useGEM_)
+    collector.extractPrimitives(GEMTag(), iEvent, tokenGEM_, muon_primitives);
 
   // Check trigger primitives
   if (verbose_ > 2) {  // debug
@@ -139,11 +145,23 @@ void TrackFinder::process(
   // ___________________________________________________________________________
   // Run each sector processor
 
+  // Reload primitive conversion LUTs if necessary
+  sector_processor_lut_.read(condition_helper_.get_pc_lut_version());
+
+  // Reload pT LUT if necessary
+  pt_assign_engine_.load(&(condition_helper_.getForest()));
+
   // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.hh
   for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
     for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
       const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
 
+      // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
+      if (iEvent.isRealData()) {
+        sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
+      }
+
+      // Process
       sector_processors_.at(es).process(
           iEvent.id().event(),
           muon_primitives,
@@ -153,34 +171,101 @@ void TrackFinder::process(
     }
   }
 
+
+  // ___________________________________________________________________________
+  // Check emulator input and output. They are printed in a way that is friendly
+  // for comparison with the firmware simulator.
+
   if (verbose_ > 0) {  // debug
-    std::cout << "Num of EMTFHit: " << out_hits.size() << std::endl;
-    std::cout << "bx e s ss st vf ql cp wg id bd hs" << std::endl;
-    for (const auto& h : out_hits) {
-      int bx      = h.BX() + 3;
-      int sector  = h.PC_sector();
-      int station = (h.PC_station() == 0 && h.Subsector() == 1) ? 1 : h.PC_station();
-      int chamber = h.PC_chamber() + 1;
-      int strip   = (h.Station() == 1 && h.Ring() == 4) ? h.Strip() + 128 : h.Strip();  // ME1/1a
-      std::cout << bx << " " << h.Endcap() << " " << sector << " " << h.Subsector() << " "
-          << station << " " << h.Valid() << " " << h.Quality() << " " << h.Pattern() << " "
-          << h.Wire() << " " << chamber << " " << h.Bend() << " " << strip << std::endl;
-    }
 
-    std::cout << "Converted hits: " << std::endl;
-    std::cout << "st ch ph th ph_hit phzvl" << std::endl;
-    for (const auto& h : out_hits) {
-      std::cout << h.PC_station() << " " << h.PC_chamber() << " " << h.Phi_fp() << " " << h.Theta_fp() << " "
-          << (1ul<<h.Ph_hit()) << " " << h.Phzvl() << std::endl;
-    }
+    for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
+      for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
+        const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
 
-    std::cout << "Num of EMTFTrack: " << out_tracks.size() << std::endl;
-    std::cout << "bx e s a mo et ph cr q pt" << std::endl;
-    for (const auto& t : out_tracks) {
-      std::cout << t.BX() << " " << t.Endcap() << " " << t.Sector() << " " << t.PtLUT().address << " " << t.Mode() << " "
-          << t.GMT_eta() << " " << t.GMT_phi() << " " << t.GMT_charge() << " " << t.GMT_quality() << " " << t.Pt() << std::endl;
-    }
-  }
+        // _____________________________________________________________________
+        // This prints the hits as raw text input to the firmware simulator
+        // "12345" is the BX separator
+
+        std::cout << "==== Endcap " << endcap << " Sector " << sector << " Hits ====" << std::endl;
+        std::cout << "bx e s ss st vf ql cp wg id bd hs" << std::endl;
+
+        bool empty_sector = true;
+        for (const auto& h : out_hits) {
+          if (h.Sector_idx() != es)  continue;
+          empty_sector = false;
+        }
+
+        for (int ibx = -3-5; (ibx < +3+5+5) && !empty_sector; ++ibx) {
+
+          for (const auto& h : out_hits) {
+            if (h.Subsystem() == TriggerPrimitive::kCSC) {
+              if (h.Sector_idx() != es)  continue;
+              if (h.BX() != ibx)  continue;
+
+              int bx        = 1;
+              int endcap    = (h.Endcap() == 1) ? 1 : 2;
+              int sector    = h.PC_sector();
+              int station   = (h.PC_station() == 0 && h.Subsector() == 1) ? 1 : h.PC_station();
+              int chamber   = h.PC_chamber() + 1;
+              int strip     = (h.Station() == 1 && h.Ring() == 4) ? h.Strip() + 128 : h.Strip();  // ME1/1a
+              int wire      = h.Wire();
+              int valid     = 1;
+              std::cout << bx << " " << endcap << " " << sector << " " << h.Subsector() << " "
+                  << station << " " << valid << " " << h.Quality() << " " << h.Pattern() << " "
+                  << wire << " " << chamber << " " << h.Bend() << " " << strip << std::endl;
+
+            } else if (h.Subsystem() == TriggerPrimitive::kRPC) {
+              if (h.Sector_idx() != es)  continue;
+              if (h.BX()+5 != ibx)  continue;  // RPC hits should be supplied 5 BX later relative to CSC hits
+
+              // Assign RPC link index. Code taken from src/PrimitiveSelection.cc
+              int rpc_sub = -1;
+              int rpc_chm = -1;
+              if (!h.Neighbor()) {
+                rpc_sub = ((h.Subsector() + 3) % 6);
+              } else {
+                rpc_sub = 6;
+              }
+              if (h.Station() <= 2) {
+                rpc_chm = (h.Station() - 1);
+              } else {
+                rpc_chm = 2 + (h.Station() - 3)*2 + (h.Ring() - 2);
+              }
+
+              int bx        = 1;
+              int endcap    = (h.Endcap() == 1) ? 1 : 2;
+              int sector    = h.PC_sector();
+              int station   = rpc_sub;
+              int chamber   = rpc_chm + 1;
+              int strip     = (h.Phi_fp() >> 2);
+              int wire      = (h.Theta_fp() >> 2);
+              int valid     = 2;  // this marks RPC stub
+              std::cout << bx << " " << endcap << " " << sector << " " << 0 << " "
+                  << station << " " << valid << " " << 0 << " " << 0 << " "
+                  << wire << " " << chamber << " " << 0 << " " << strip << std::endl;
+            }
+          }  // end loop over hits
+
+          std::cout << "12345" << std::endl;
+        }  // end loop over bx
+
+        // _____________________________________________________________________
+        // This prints the tracks as raw text output from the firmware simulator
+
+        std::cout << "==== Endcap " << endcap << " Sector " << sector << " Tracks ====" << std::endl;
+        std::cout << "bx e s a mo et ph cr q pt" << std::endl;
+
+        for (const auto& t : out_tracks) {
+          if (t.Sector_idx() != es)  continue;
+
+          std::cout << t.BX() << " " << (t.Endcap() == 1 ? 1 : 2) << " " << t.Sector() << " " << t.PtLUT().address << " " << t.Mode() << " "
+              << (t.GMT_eta() >= 0 ? t.GMT_eta() : t.GMT_eta()+512)<< " " << t.GMT_phi() << " "
+              << t.GMT_charge() << " " << t.GMT_quality() << " " << t.Pt() << std::endl;
+        }  // end loop over tracks
+
+      }  // end loop over sector
+    }  // end loop over endcap
+  }  // end debug
 
   return;
 }

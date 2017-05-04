@@ -13,11 +13,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Input collections
     CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
     RPCInput = cms.InputTag('simMuonRPCDigis'),
-    #GEMInput = cms.InputTag('simMuonGEMPadDigis'),
+    GEMInput = cms.InputTag('simMuonGEMPadDigis'),
 
-    # Run with CSC, RPC
+    # Run with CSC, RPC, GEM
     CSCEnable = cms.bool(True),
-    RPCEnable = cms.bool(False),
+    RPCEnable = cms.bool(True),
+    GEMEnable = cms.bool(False),
 
     # BX
     MinBX    = cms.int32(-3),
@@ -27,10 +28,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # CSC LCT BX offset correction
     CSCInputBXShift = cms.int32(-6),
     RPCInputBXShift = cms.int32(0),
-
-    # Versioning
-    Version      = cms.int32(1),
-    PtLUTVersion = cms.int32(5),
+    GEMInputBXShift = cms.int32(0),
 
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
@@ -38,7 +36,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         #ZoneBoundaries  = cms.vint32(0,36,54,96,127), # new proposed zone boundaries
         ZoneOverlap     = cms.int32(2),
         ZoneOverlapRPC  = cms.int32(8),
-        CoordLUTDir     = cms.string('ph_lut_v1'),
+        CoordLUTDir     = cms.string('ph_lut_v1'),  # no longer used
         IncludeNeighbor = cms.bool(True),
         DuplicateTheta  = cms.bool(True),
         FixZonePhi      = cms.bool(True),
@@ -75,8 +73,10 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor track-building parameters
     spTBParams16 = cms.PSet(
-        ThetaWindow    = cms.int32(4),
+        ThetaWindow    = cms.int32(8),
         ThetaWindowRPC = cms.int32(8),
+        UseSingleHits  = cms.bool(False),
+        BugSt2PhDiff   = cms.bool(False),
         BugME11Dupes   = cms.bool(False),
     ),
 
@@ -90,7 +90,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor pt-assignment parameters
     spPAParams16 = cms.PSet(
-        BDTXMLDir       = cms.string('v_16_02_21'),
+        BDTXMLDir       = cms.string('v_16_02_21'),  # no longer used
         ReadPtLUTFile   = cms.bool(False),
         FixMode15HighPt = cms.bool(True),
         Bug9BitDPhi     = cms.bool(False),
@@ -104,6 +104,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 simEmtfDigisData = simEmtfDigisMC.clone(
     CSCInput = cms.InputTag('emtfStage2Digis'),
     RPCInput = cms.InputTag('muonRPCDigis'),
+    GEMInput = cms.InputTag('muonGEMPadDigis'),
 )
 
 simEmtfDigis = simEmtfDigisMC.clone()

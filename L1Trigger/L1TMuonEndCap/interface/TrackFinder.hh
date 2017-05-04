@@ -40,11 +40,11 @@ private:
 
   const edm::ParameterSet config_;
 
-  const edm::EDGetToken tokenCSC_, tokenRPC_;
+  const edm::EDGetToken tokenCSC_, tokenRPC_, tokenGEM_;
 
   int verbose_;
 
-  bool useCSC_, useRPC_;
+  bool useCSC_, useRPC_, useGEM_;
 };
 
 #endif

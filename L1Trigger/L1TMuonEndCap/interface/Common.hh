@@ -26,10 +26,18 @@ typedef L1TMuon::GeometryTranslator         GeometryTranslator;
 typedef L1TMuon::TriggerPrimitive           TriggerPrimitive;
 typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
+typedef TriggerPrimitive::CSCData CSCData;
+typedef TriggerPrimitive::RPCData RPCData;
+typedef TriggerPrimitive::GEMData GEMData;
+
 typedef emtf::CSCTag CSCTag;
 typedef emtf::RPCTag RPCTag;
+typedef emtf::GEMTag GEMTag;
 
 // Constants
+
+// Phase 2 Geometry a.k.a. HL-LHC
+#define PHASE_TWO_GEOMETRY 0
 
 // from DataFormats/MuonDetId/interface/CSCDetId.h
 #define MIN_ENDCAP 1

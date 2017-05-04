@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace L1TMuon{
+namespace L1TMuon {
   class TriggerPrimitive;
 
   typedef std::vector<TriggerPrimitive> TriggerPrimitiveCollection;

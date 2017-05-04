@@ -10,8 +10,10 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
 namespace l1t {
@@ -21,7 +23,7 @@ namespace l1t {
 
     EMTFHit() :
         endcap(-99), station(-99), ring(-99), sector(-99), sector_idx(-99), subsector(-99),
-        chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99), rpc_layer(-99), neighbor(-99), mpc_link(-99),
+        chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99), neighbor(-99), mpc_link(-99),
         pc_sector(-99), pc_station(-99), pc_chamber(-99), pc_segment(-99),
         wire(-99), strip(-99), strip_hi(-99), strip_low(-99), track_num(-99), quality(-99),
         pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
@@ -29,7 +31,7 @@ namespace l1t {
         fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
         phi_loc(-99), phi_glob(-99), theta(-99), eta(-99),
         phi_sim(-99), theta_sim(-99), eta_sim(-99),
-        is_CSC(-99), is_RPC(-99), subsystem(-99)
+        is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
         {};
 
     virtual ~EMTFHit() {};
@@ -37,24 +39,32 @@ namespace l1t {
     // void ImportCSCDetId (const CSCDetId& _detId);
     CSCDetId CreateCSCDetId() const;
     // void ImportRPCDetId (const RPCDetId& _detId);
+    // void ImportGEMDetId (const GEMDetId& _detId);
     // RPCDetId CreateRPCDetId() const;
+    // GEMDetId CreateGEMDetId() const;
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi() const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
+    // void ImportGEMPadDigi (const GEMPadDigi& _digi);
+    // GEMPadDigi CreateGEMPadDigi() const;
 
     // void PrintSimulatorHeader() const;
     // void PrintForSimulator() const;
 
     void SetCSCDetId   (const CSCDetId& id)                 { csc_DetId         = id;        }
     void SetRPCDetId   (const RPCDetId& id)                 { rpc_DetId         = id;        }
+    void SetGEMDetId   (const GEMDetId& id)                 { gem_DetId         = id;        }
     void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
     void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
+    void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
 
     CSCDetId CSC_DetId                          () const { return csc_DetId;    }
     RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
+    GEMDetId GEM_DetId                          () const { return gem_DetId;    }
     CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
     RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
+    GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
 
     void set_endcap       (int  bits) { endcap       = bits; }
     void set_station      (int  bits) { station      = bits; }
@@ -66,7 +76,6 @@ namespace l1t {
     void set_csc_ID       (int  bits) { csc_ID       = bits; }
     void set_csc_nID      (int  bits) { csc_nID      = bits; }
     void set_roll         (int  bits) { roll         = bits; }
-    void set_rpc_layer    (int  bits) { rpc_layer    = bits; }
     void set_neighbor     (int  bits) { neighbor     = bits; }
     void set_mpc_link     (int  bits) { mpc_link     = bits; }
     void set_pc_sector    (int  bits) { pc_sector    = bits; }
@@ -105,6 +114,7 @@ namespace l1t {
     void set_eta_sim      (float val) { eta_sim      = val;  }
     void set_is_CSC       (int  bits) { is_CSC       = bits; }
     void set_is_RPC       (int  bits) { is_RPC       = bits; }
+    void set_is_GEM       (int  bits) { is_GEM       = bits; }
     void set_subsystem    (int  bits) { subsystem    = bits; }
 
     int   Endcap       ()  const { return endcap      ; }
@@ -117,7 +127,6 @@ namespace l1t {
     int   CSC_ID       ()  const { return csc_ID      ; }
     int   CSC_nID      ()  const { return csc_nID     ; }
     int   Roll         ()  const { return roll        ; }
-    int   RPC_layer    ()  const { return rpc_layer   ; }
     int   Neighbor     ()  const { return neighbor    ; }
     int   MPC_link     ()  const { return mpc_link    ; }
     int   PC_sector    ()  const { return pc_sector   ; }
@@ -156,6 +165,7 @@ namespace l1t {
     float Eta_sim      ()  const { return eta_sim     ; }
     int   Is_CSC       ()  const { return is_CSC      ; }
     int   Is_RPC       ()  const { return is_RPC      ; }
+    int   Is_GEM       ()  const { return is_GEM      ; }
     int   Subsystem    ()  const { return subsystem   ; }
 
 
@@ -163,8 +173,10 @@ namespace l1t {
 
     CSCDetId csc_DetId;
     RPCDetId rpc_DetId;
+    GEMDetId gem_DetId;
     CSCCorrelatedLCTDigi csc_LCTDigi;
     RPCDigi rpc_Digi;
+    GEMPadDigi gem_PadDigi;
 
     int   endcap      ; //    +/-1.  For ME+ and ME-.
     int   station     ; //  1 -  4.
@@ -176,7 +188,6 @@ namespace l1t {
     int   csc_ID      ; //  1 -  9.  For CSCs only.
     int   csc_nID     ; //  1 - 15.  For CSCs only.  Neighbors 10 - 15, 12 not filled.
     int   roll        ; //  1 -  3.  For RPCs only, sub-division of ring. (Range? - AWB 02.03.17)
-    int   rpc_layer   ; //  ? -  ?.  Forward-backward bit for RPC hits? - AWB 02.03.17
     int   neighbor    ; //  0 or 1.  Filled in EMTFBlockME.cc
     int   mpc_link    ; //  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
     int   pc_sector   ; //  1 -  6.  EMTF sector that received the LCT, even those sent from neighbor sectors.
@@ -215,7 +226,8 @@ namespace l1t {
     float eta_sim     ; // +/-2.5.
     int   is_CSC      ; //  0 or 1.
     int   is_RPC      ; //  0 or 1.
-    int   subsystem   ; //  1 or ?.  1 for CSC, for RPC? - AWB 02.03.17
+    int   is_GEM      ; //  0 or 1.
+    int   subsystem   ; //  1 or ?.  1 for CSC, 2 for RPC, 3 for GEM
 
   }; // End of class EMTFHit
 

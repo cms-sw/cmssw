@@ -26,6 +26,9 @@
 //Global point (created on the fly)
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+// Forward declaration
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
+
 // DT digi types
 class DTChamberId;
 class L1MuDTChambPhDigi;
@@ -39,14 +42,17 @@ class CSCDetId;
 class RPCDigiL1Link;
 class RPCDetId;
 
-#include "MuonTriggerPrimitiveFwd.h"
+// GEM digi types
+class GEMPadDigi;
+class GEMDetId;
+
 
 namespace L1TMuon {
 
   class TriggerPrimitive {
   public:
     // define the subsystems that we have available
-    enum subsystem_type{kDT,kCSC,kRPC,kNSubsystems};
+    enum subsystem_type{kDT,kCSC,kRPC,kGEM,kNSubsystems};
 
     // define the data we save locally from each subsystem type
     // variables in these structs keep their colloquial meaning
@@ -55,16 +61,16 @@ namespace L1TMuon {
     struct RPCData {
       RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0) {}
       uint16_t strip;
-      uint16_t strip_low;
-      uint16_t strip_hi;
+      uint16_t strip_low; // for use in clustering
+      uint16_t strip_hi;  // for use in clustering
       uint16_t layer;
       int16_t bx;
     };
 
     struct CSCData {
       CSCData() : trknmb(0), valid(0), quality(0), keywire(0), strip(0),
-		  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
-		  cscID(0) {}
+                  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
+                  cscID(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -81,9 +87,9 @@ namespace L1TMuon {
 
     struct DTData {
       DTData() : bx(0), wheel(0), sector(0), station(0), radialAngle(0),
-		 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
-		 theta_bti_group(0), segment_number(0), theta_code(0),
-		 theta_quality(0) {}
+                 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
+                 theta_bti_group(0), segment_number(0), theta_code(0),
+                 theta_quality(0) {}
       // from ChambPhDigi (corresponds to a TRACO)
       // this gives us directly the phi
       int bx; // relative? bx number
@@ -106,34 +112,43 @@ namespace L1TMuon {
       int theta_quality;
     };
 
+    struct GEMData {
+      GEMData() : pad(0), pad_low(0), pad_hi(0), bx(0) {}
+      uint16_t pad;
+      uint16_t pad_low; // for use in clustering
+      uint16_t pad_hi;  // for use in clustering
+      int16_t bx;
+    };
+
     //Persistency
     TriggerPrimitive(): _subsystem(kNSubsystems) {}
 
     //DT
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const int segment_number);
+                     const L1MuDTChambPhDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambThDigi&,
-		     const int segment_number);
+                     const L1MuDTChambThDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const L1MuDTChambThDigi&,
-		     const int theta_bti_group);
+                     const L1MuDTChambPhDigi&,
+                     const L1MuDTChambThDigi&,
+                     const int theta_bti_group);
     //CSC
     TriggerPrimitive(const CSCDetId&,
-		     const CSCCorrelatedLCTDigi&);
+                     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
                      const unsigned strip,
                      const unsigned layer,
                      const int bx);
 
+    // GEM
+    TriggerPrimitive(const GEMDetId& detid,
+                     const GEMPadDigi& digi);
+
     //copy
     TriggerPrimitive(const TriggerPrimitive&);
-
-    // Create a copy of TP1 with wire of TP2
-    TriggerPrimitive(const TriggerPrimitive& tp1, const TriggerPrimitive& tp2);
 
     TriggerPrimitive& operator=(const TriggerPrimitive& tp);
     bool operator==(const TriggerPrimitive& tp) const;
@@ -165,14 +180,17 @@ namespace L1TMuon {
     void setDTData(const DTData& dt) { _dt = dt; }
     void setCSCData(const CSCData& csc) { _csc = csc; }
     void setRPCData(const RPCData& rpc) { _rpc = rpc; }
+    void setGEMData(const GEMData& gem) { _gem = gem; }
 
     const DTData  getDTData()  const { return _dt;  }
     const CSCData getCSCData() const { return _csc; }
     const RPCData getRPCData() const { return _rpc; }
+    const GEMData getGEMData() const { return _gem; }
 
     DTData&  accessDTData()  { return _dt; }
     CSCData& accessCSCData() { return _csc; }
     RPCData& accessRPCData() { return _rpc; }
+    GEMData& accessGEMData() { return _gem; }
 
     // consistent accessors to common information
     const int getBX() const;
@@ -180,7 +198,6 @@ namespace L1TMuon {
     const int getWire() const;
     const int getPattern() const;
     const DetId rawId() const {return _id;};
-    const int Id() const;
 
     const unsigned getGlobalSector() const { return _globalsector; }
     const unsigned getSubSector() const { return _subsector; }
@@ -191,18 +208,22 @@ namespace L1TMuon {
     // Translate to 'global' position information at the level of 60
     // degree sectors. Use CSC sectors as a template
     void calculateDTGlobalSector(const DTChamberId& chid,
-				 unsigned& global_sector,
-				 unsigned& subsector );
+                                 unsigned& global_sector,
+                                 unsigned& subsector );
     void calculateCSCGlobalSector(const CSCDetId& chid,
-				  unsigned& global_sector,
-				  unsigned& subsector );
+                                  unsigned& global_sector,
+                                  unsigned& subsector );
     void calculateRPCGlobalSector(const RPCDetId& chid,
-				  unsigned& global_sector,
-				  unsigned& subsector );
+                                  unsigned& global_sector,
+                                  unsigned& subsector );
+    void calculateGEMGlobalSector(const GEMDetId& chid,
+                                  unsigned& global_sector,
+                                  unsigned& subsector );
 
     DTData  _dt;
     CSCData _csc;
     RPCData _rpc;
+    GEMData _gem;
 
     DetId _id;
 
