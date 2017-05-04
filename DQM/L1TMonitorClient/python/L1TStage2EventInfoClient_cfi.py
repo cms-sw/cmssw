@@ -12,7 +12,7 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
-    monitorDir = cms.untracked.string("L1T2016"),
+    monitorDir = cms.untracked.string("L1T"),
 
     # decide when to run and update the results of the quality tests
     # retrieval of quality test results must be consistent with the event / LS / Run execution
@@ -44,12 +44,12 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1LinkErrorThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiECAL"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiECAL"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1MismatchThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiECAL"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiECAL"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
@@ -61,12 +61,12 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1LinkErrorThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiHCAL"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/MismatchDetail/maxEvtLinkErrorsByLumiHCAL"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1MismatchThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiHCAL"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/MismatchDetail/maxEvtMismatchByLumiHCAL"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
@@ -78,12 +78,12 @@ l1tStage2EventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1LinkErrorThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/maxEvtLinkErrorsByLumi"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/maxEvtLinkErrorsByLumi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("Layer1MismatchThreshold"),
-                                QualityTestHist = cms.string("L1T2016/L1TStage2CaloLayer1/maxEvtMismatchByLumi"),
+                                QualityTestHist = cms.string("L1T/L1TStage2CaloLayer1/maxEvtMismatchByLumi"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
