@@ -498,21 +498,21 @@ DDExtrudedPolygon::zVec( void ) const
 std::vector<double>
 DDExtrudedPolygon::zxVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize()),
+  return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize(),
 			      rep().parameters().end() - 2 * zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zyVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize()),
+  return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize(),
 			      rep().parameters().end() - zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zscaleVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - zSectionsSize()),
+  return std::vector<double>( rep().parameters().end() - zSectionsSize(),
 			      rep().parameters().end());
 }
 
