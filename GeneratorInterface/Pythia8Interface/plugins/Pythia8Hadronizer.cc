@@ -674,7 +674,7 @@ bool Pythia8Hadronizer::hadronize()
   }
   
   if (fJetMatchingPy8InternalHook) {
-    const std::vector<double> djrmatch = fJetMatchingPy8InternalHook->GetDJR();
+    const std::vector<double> djrmatch = fJetMatchingPy8InternalHook->getDJR();
     //cap size of djr vector to save storage space (keep only up to first 6 elements)
     unsigned int ndjr = std::min(djrmatch.size(), std::vector<double>::size_type(6));
     for (unsigned int idjr=0; idjr<ndjr; ++idjr) {
@@ -787,8 +787,8 @@ void Pythia8Hadronizer::finalizeEvent()
                                 pythiaHepMCVerbosityParticles) ) {
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) {
-      fMasterGen->info.list(std::cout); 
-      fMasterGen->event.list(std::cout);
+      fMasterGen->info.list(); 
+      fMasterGen->event.list();
     } 
 
     if (pythiaHepMCVerbosity) {
