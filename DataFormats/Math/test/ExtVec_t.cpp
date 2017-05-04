@@ -1,6 +1,3 @@
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#if GCC_PREREQUISITE(4,8,0)
-
 #include "DataFormats/Math/interface/ExtVec.h"
 
 #include<cmath>
@@ -8,18 +5,15 @@
 
 #include<iostream>
 
+#ifdef __AVX__
+#define CMS_USE_AVX
+#endif /* __AVX__ */
 
-// #include <x86intrin.h>
 
 void addScaleddiff(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res = res + s*(a-b);
 } 
 
-/*
-void addScaleddiffIntr(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
-  res =  _mm_add_ps(res, _mm_mul_ps(_mm_set1_ps(s), _mm_sub_ps(a,b)));
-}
-*/
 
 float dotV( Vec3F const & a, Vec3F const & b) {
   return dot(a,b);
@@ -111,6 +105,12 @@ void go2d() {
   std::cout << "\n2d" << std::endl;
   std::cout << sizeof(Vec2d) << std::endl;
 
+  std::vector<Vec2d> vec1; vec1.reserve(50);
+  std::vector<T> vect(23);
+  std::vector<Vec2d> vec2(53);
+  std::vector<Vec2d> vec3; vec3.reserve(50234);
+
+
   constexpr Vec2d k{-2.0,3.14};
   std::cout << k << std::endl;  
   std::cout << k+k << std::endl;
@@ -149,17 +149,20 @@ void go2d() {
 }
 
 template<typename T> 
-void go() {
+void go(bool dovec=true) {
 
   typedef Vec4<T> Vec;
   typedef Vec2<T> Vec2D;
 
   std::cout << std::endl;
   std::cout << sizeof(Vec) << std::endl;
+
+if(dovec) {
   std::vector<Vec> vec1; vec1.reserve(50);
   std::vector<T> vect(23);
   std::vector<Vec> vec2(53);
   std::vector<Vec> vec3; vec3.reserve(50234);
+}
 
   constexpr Vec zero{0,0,0,0};
   constexpr Vec x{2.0f,4.0f,5.0f};
@@ -260,15 +263,18 @@ void go() {
 
 
 int main() {
+#ifdef CMS_USE_AVX
+  std::cout << "using AVX" << std::endl;
+#endif
   testBa();
   go<float>();
+#ifdef CMS_USE_AVX
+  go<double>(false);
+#else
   go<double>();
+#endif
   go2d<float>();
   go2d<double>();
 
   return 0;
 }
-
-#else
-int main() {return 0;}
-#endif
