@@ -658,6 +658,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<unsigned int>> tpNPixelLayersToken_;
   edm::EDGetTokenT<edm::ValueMap<unsigned int>> tpNStripStereoLayersToken_;
   const bool includeSeeds_;
+  const bool addSeedCartesianCov_;
   const bool includeAllHits_;
   const bool includeMVA_;
   const bool includeTrackingParticles_;
@@ -1215,6 +1216,27 @@ private:
   std::vector<float> see_stateTrajGlbPx;
   std::vector<float> see_stateTrajGlbPy;
   std::vector<float> see_stateTrajGlbPz;
+  std::vector<float> see_stateCcov00;
+  std::vector<float> see_stateCcov01;
+  std::vector<float> see_stateCcov02;
+  std::vector<float> see_stateCcov03;
+  std::vector<float> see_stateCcov04;
+  std::vector<float> see_stateCcov05;
+  std::vector<float> see_stateCcov11;
+  std::vector<float> see_stateCcov12;
+  std::vector<float> see_stateCcov13;
+  std::vector<float> see_stateCcov14;
+  std::vector<float> see_stateCcov15;
+  std::vector<float> see_stateCcov22;
+  std::vector<float> see_stateCcov23;
+  std::vector<float> see_stateCcov24;
+  std::vector<float> see_stateCcov25;
+  std::vector<float> see_stateCcov33;
+  std::vector<float> see_stateCcov34;
+  std::vector<float> see_stateCcov35;
+  std::vector<float> see_stateCcov44;
+  std::vector<float> see_stateCcov45;
+  std::vector<float> see_stateCcov55;
   std::vector<int> see_q;
   std::vector<unsigned int> see_nValid;
   std::vector<unsigned int> see_nPixel;
@@ -1312,6 +1334,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       tpNStripStereoLayersToken_(consumes<edm::ValueMap<unsigned int>>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNstripstereolayers"))),
       includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
+      addSeedCartesianCov_(iConfig.getUntrackedParameter<bool>("addSeedCartesianCov")),
       includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
       includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
       includeTrackingParticles_(iConfig.getUntrackedParameter<bool>("includeTrackingParticles")),
@@ -1660,6 +1683,29 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("see_stateTrajGlbPx", &see_stateTrajGlbPx);
     t->Branch("see_stateTrajGlbPy", &see_stateTrajGlbPy);
     t->Branch("see_stateTrajGlbPz", &see_stateTrajGlbPz);
+    if (addSeedCartesianCov_){
+      t->Branch("see_stateCcov00", &see_stateCcov00);
+      t->Branch("see_stateCcov01", &see_stateCcov01);
+      t->Branch("see_stateCcov02", &see_stateCcov02);
+      t->Branch("see_stateCcov03", &see_stateCcov03);
+      t->Branch("see_stateCcov04", &see_stateCcov04);
+      t->Branch("see_stateCcov05", &see_stateCcov05);
+      t->Branch("see_stateCcov11", &see_stateCcov11);
+      t->Branch("see_stateCcov12", &see_stateCcov12);
+      t->Branch("see_stateCcov13", &see_stateCcov13);
+      t->Branch("see_stateCcov14", &see_stateCcov14);
+      t->Branch("see_stateCcov15", &see_stateCcov15);
+      t->Branch("see_stateCcov22", &see_stateCcov22);
+      t->Branch("see_stateCcov23", &see_stateCcov23);
+      t->Branch("see_stateCcov24", &see_stateCcov24);
+      t->Branch("see_stateCcov25", &see_stateCcov25);
+      t->Branch("see_stateCcov33", &see_stateCcov33);
+      t->Branch("see_stateCcov34", &see_stateCcov34);
+      t->Branch("see_stateCcov35", &see_stateCcov35);
+      t->Branch("see_stateCcov44", &see_stateCcov44);
+      t->Branch("see_stateCcov45", &see_stateCcov45);
+      t->Branch("see_stateCcov55", &see_stateCcov55);
+    }
     t->Branch("see_q", &see_q);
     t->Branch("see_nValid", &see_nValid);
     t->Branch("see_nPixel", &see_nPixel);
@@ -1973,6 +2019,27 @@ void TrackingNtuple::clearVariables() {
   see_stateTrajGlbPx.clear();
   see_stateTrajGlbPy.clear();
   see_stateTrajGlbPz.clear();
+  see_stateCcov00.clear();
+  see_stateCcov01.clear();
+  see_stateCcov02.clear();
+  see_stateCcov03.clear();
+  see_stateCcov04.clear();
+  see_stateCcov05.clear();
+  see_stateCcov11.clear();
+  see_stateCcov12.clear();
+  see_stateCcov13.clear();
+  see_stateCcov14.clear();
+  see_stateCcov15.clear();
+  see_stateCcov22.clear();
+  see_stateCcov23.clear();
+  see_stateCcov24.clear();
+  see_stateCcov25.clear();
+  see_stateCcov33.clear();
+  see_stateCcov34.clear();
+  see_stateCcov35.clear();
+  see_stateCcov44.clear();
+  see_stateCcov45.clear();
+  see_stateCcov55.clear();
   see_q.clear();
   see_nValid.clear();
   see_nPixel.clear();
@@ -2953,6 +3020,30 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajGlbPx.push_back(stateGlobal.momentum().x());
       see_stateTrajGlbPy.push_back(stateGlobal.momentum().y());
       see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
+      if (addSeedCartesianCov_){
+	auto const& stateCcov = tsos.cartesianError().matrix();
+	see_stateCcov00.push_back( stateCcov[0][0] );
+	see_stateCcov01.push_back( stateCcov[0][1] );
+	see_stateCcov02.push_back( stateCcov[0][2] );
+	see_stateCcov03.push_back( stateCcov[0][3] );
+	see_stateCcov04.push_back( stateCcov[0][4] );
+	see_stateCcov05.push_back( stateCcov[0][5] );
+	see_stateCcov11.push_back( stateCcov[1][1] );
+	see_stateCcov12.push_back( stateCcov[1][2] );
+	see_stateCcov13.push_back( stateCcov[1][3] );
+	see_stateCcov14.push_back( stateCcov[1][4] );
+	see_stateCcov15.push_back( stateCcov[1][5] );
+	see_stateCcov22.push_back( stateCcov[2][2] );
+	see_stateCcov23.push_back( stateCcov[2][3] );
+	see_stateCcov24.push_back( stateCcov[2][4] );
+	see_stateCcov25.push_back( stateCcov[2][5] );
+	see_stateCcov33.push_back( stateCcov[3][3] );
+	see_stateCcov34.push_back( stateCcov[3][4] );
+	see_stateCcov35.push_back( stateCcov[3][5] );
+	see_stateCcov44.push_back( stateCcov[4][4] );
+	see_stateCcov45.push_back( stateCcov[4][5] );
+	see_stateCcov55.push_back( stateCcov[5][5] );
+      }
 
       see_trkIdx.push_back(-1);  // to be set correctly in fillTracks
       if (includeTrackingParticles_) {
@@ -3728,6 +3819,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.addUntracked<std::string>("parametersDefiner", "LhcParametersDefinerForTP");
   desc.addUntracked<bool>("includeSeeds", false);
+  desc.addUntracked<bool>("addSeedCartesianCov", false);
   desc.addUntracked<bool>("includeAllHits", false);
   desc.addUntracked<bool>("includeMVA", true);
   desc.addUntracked<bool>("includeTrackingParticles", true);
