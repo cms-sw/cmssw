@@ -35,6 +35,25 @@ public:
   std::vector<std::pair<double,double> > 
   rpcRollToEtaLimitsLUT(const RPCChamber* c) const;
 
+  std::vector<std::pair<int,int> > 
+  cscWgToRollLUT(const std::vector<std::pair<double,double> >&,
+		 const std::vector<std::pair<double,double> >&) const;
+  
+  std::vector<std::pair<double,double> > 
+  cscWgToEtaLimitsLUT(const CSCLayer*) const;
+  
+  std::vector<std::pair<int,int> >
+  cscHsToGemPadLUT(const CSCLayer*, const GEMEtaPartition*, int minH, int maxH) const;
+
+  std::vector<int>
+  gemPadToCscHsLUT(const CSCLayer*, const GEMEtaPartition*) const;
+
+  std::vector<std::pair<int,int> >
+  cscHsToRpcStripLUT(const CSCLayer*, const RPCRoll*, int minH, int maxH) const;
+
+  std::vector<int>
+  rpcStripToCscHsLUT(const CSCLayer*, const RPCRoll*) const;
+
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
   const RPCGeometry* rpc_g;
