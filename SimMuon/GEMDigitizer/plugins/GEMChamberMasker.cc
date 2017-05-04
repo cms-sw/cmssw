@@ -105,7 +105,7 @@ GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByToken(m_digiTag, gemDigis);
       
       
-      for ( auto gemLayerId : (*gemDigis) )
+      for ( const auto & gemLayerId : (*gemDigis) )
 	{
 	  auto chambId = gemLayerId.first.chamberId();
 

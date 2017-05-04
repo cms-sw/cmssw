@@ -124,7 +124,7 @@ RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<RPCDigiCollection> rpcDigis;
       iEvent.getByToken(m_digiTag, rpcDigis);
       
-      for ( auto rpcLayerId : (*rpcDigis) )
+      for ( const auto & rpcLayerId : (*rpcDigis) )
 	{
           int id = (rpcLayerId.first).rawId();
 	  auto chEffIt = m_ChEffs.find(id);
@@ -158,7 +158,7 @@ RPCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
       uint32_t rollRawId = rollId.rawId();
       
       Float_t chamberEff = 1.; 
-      for ( auto & agingPair : agingObj->m_RPCChambEffs)
+      for ( const auto & agingPair : agingObj->m_RPCChambEffs)
 	{
 	  
 	  if ( agingPair.first == rollRawId)

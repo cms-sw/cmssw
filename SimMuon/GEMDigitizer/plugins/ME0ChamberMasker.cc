@@ -101,7 +101,7 @@ ME0ChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<ME0DigiPreRecoCollection> me0Digis;
       iEvent.getByToken(m_digiTag, me0Digis);
       
-      for ( auto me0LayerId : (*me0Digis) )
+      for ( const auto & me0LayerId : (*me0Digis) )
 	{
 
 	  auto chambId = me0LayerId.first.chamberId();
