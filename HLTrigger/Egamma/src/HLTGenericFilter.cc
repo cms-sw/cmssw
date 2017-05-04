@@ -49,7 +49,6 @@ HLTGenericFilter<T1>::HLTGenericFilter(const edm::ParameterSet& iConfig) : HLTFi
 
     candToken_ = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
     varToken_  = consumes<T1IsolationMap> (varTag_);
-    rhoToken_  = consumes<double> (rhoTag_);
 
     if (energyLowEdges_.size() != thrRegularEB_.size() or energyLowEdges_.size() != thrRegularEE_.size() or
         energyLowEdges_.size() != thrOverEEB_.size() or energyLowEdges_.size() != thrOverEEE_.size() or
@@ -65,6 +64,7 @@ HLTGenericFilter<T1>::HLTGenericFilter(const edm::ParameterSet& iConfig) : HLTFi
     }
 
     if (doRhoCorrection_) {
+      rhoToken_  = consumes<double> (rhoTag_);
       if (absEtaLowEdges_.size() != effectiveAreas_.size())
         throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
 
