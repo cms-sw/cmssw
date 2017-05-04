@@ -32,7 +32,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
 
   theRegion = (theEndcap == 1) ? 1: -1;
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber);
-  isEven = theChamber%2==0;  
+  par = theChamber%2==0 ? Parity::Even : Parity::Odd;
 
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
   if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");

@@ -65,7 +65,7 @@ public:
   /** Chamber id (trigger-type labels). */
   unsigned theRegion;
   unsigned theChamber;
-  bool isEven;
+  Parity par;
 
   edm::ParameterSet tmbParams_;
   edm::ParameterSet commonParams_;
