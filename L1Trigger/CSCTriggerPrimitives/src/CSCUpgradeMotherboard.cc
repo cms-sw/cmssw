@@ -1,6 +1,5 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx) const 
 {
@@ -97,7 +96,8 @@ void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bo
 void CSCUpgradeMotherboard::setupGeometry()
 {
   // check whether chamber is even or odd
-  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
-  cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  const int chid(CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber));
+  const CSCDetId csc_id(theEndcap, theStation, theStation, chid, 0);
+  cscChamber = csc_g->chamber(csc_id);
   generator_->setCSCGeometry(csc_g);
 }

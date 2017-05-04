@@ -1,6 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboard.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
                                      unsigned sector, unsigned subsector,
