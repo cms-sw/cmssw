@@ -97,6 +97,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
     std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
 
+//KK add pcLuts timestamp here ...
+
     return retval;
 }
 
