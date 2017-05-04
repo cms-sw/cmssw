@@ -294,10 +294,10 @@ bool CSCGEMMotherboard::isPadInOverlap(int roll)
 {
   // this only works for ME1A!
   auto mymap = (*getLUT()->get_csc_wg_to_gem_roll(isEven));
-  for (auto& p : mymap) {
+  for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
-    if ((p.first < 10) or (p.first > 15)) continue;
-    if (((p.second).first <= roll) and (roll <= (p.second).second)) return true;
+    if ((i < 10) or (i > 15)) continue;
+    if ((mymap[i].first <= roll) and (roll <= mymap[i].second)) return true;
   }
   return false;
 }

@@ -14,9 +14,9 @@ class CSCGEMMotherboardLUT
   CSCGEMMotherboardLUT();
   virtual ~CSCGEMMotherboardLUT();
   
-  virtual std::map<int,int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const=0;
-  virtual std::map<int,std::pair<int,int>>* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const=0;
-  std::map<int,std::pair<int,int>>* get_csc_wg_to_gem_roll(bool isEven) const {
+  virtual std::vector<int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const=0;
+  virtual std::vector<std::pair<int,int> >* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const=0;
+  std::vector<std::pair<int,int> >* get_csc_wg_to_gem_roll(bool isEven) const {
     return isEven ? csc_wg_to_gem_roll_odd : csc_wg_to_gem_roll_even;
   }
 
@@ -32,11 +32,13 @@ class CSCGEMMotherboardLUT
   //LUTs that map CSC trigger geometry to GEM trigger geometry
 
   // map of roll N to min and max eta
-  std::map<int,std::pair<double,double> >* gem_roll_eta_limits_odd;
-  std::map<int,std::pair<double,double> >* gem_roll_eta_limits_even;
+  std::vector<std::pair<double,double> >* gem_roll_eta_limits_odd_l1;
+  std::vector<std::pair<double,double> >* gem_roll_eta_limits_odd_l2;
+  std::vector<std::pair<double,double> >* gem_roll_eta_limits_even_l1;
+  std::vector<std::pair<double,double> >* gem_roll_eta_limits_even_l2;
 
-  std::map<int,std::pair<int,int>>* csc_wg_to_gem_roll_odd;
-  std::map<int,std::pair<int,int>>* csc_wg_to_gem_roll_even;
+  std::vector<std::pair<int,int> >* csc_wg_to_gem_roll_odd;
+  std::vector<std::pair<int,int> >* csc_wg_to_gem_roll_even;
 };
 
 
@@ -47,8 +49,8 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
   CSCGEMMotherboardLUTME11();
   virtual ~CSCGEMMotherboardLUTME11();
 
-  virtual std::map<int,int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const;
-  virtual std::map<int,std::pair<int,int>>* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const;
+  virtual std::vector<int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const;
+  virtual std::vector<std::pair<int,int> >* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const;
   virtual std::vector<std::vector<double>> * get_lut_wg_vs_hs(enum CSCPart) const;
 
   // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
@@ -60,17 +62,17 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
   std::vector<std::vector<double>> * lut_wg_vs_hs_me1b;
 
   // map of pad to HS
-  std::map<int,int>* gem_pad_to_csc_hs_me1a_odd;
-  std::map<int,int>* gem_pad_to_csc_hs_me1a_even;
+  std::vector<int>* gem_pad_to_csc_hs_me1a_odd;
+  std::vector<int>* gem_pad_to_csc_hs_me1a_even;
 
-  std::map<int,int>* gem_pad_to_csc_hs_me1b_odd;
-  std::map<int,int>* gem_pad_to_csc_hs_me1b_even;
+  std::vector<int>* gem_pad_to_csc_hs_me1b_odd;
+  std::vector<int>* gem_pad_to_csc_hs_me1b_even;
 
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_me1a_odd;
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_me1a_even;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_me1a_odd;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_me1a_even;
 
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_me1b_odd;
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_me1b_even;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_me1b_odd;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_me1b_even;
 };
 
 class CSCGEMMotherboardLUTME21 : public CSCGEMMotherboardLUT
@@ -80,15 +82,15 @@ class CSCGEMMotherboardLUTME21 : public CSCGEMMotherboardLUT
   CSCGEMMotherboardLUTME21();
   virtual ~CSCGEMMotherboardLUTME21();
   
-  virtual std::map<int,int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const;
-  virtual std::map<int,std::pair<int,int>>* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const;
+  virtual std::vector<int>* get_gem_pad_to_csc_hs(bool isEven, enum CSCPart) const;
+  virtual std::vector<std::pair<int,int> >* get_csc_hs_to_gem_pad(bool isEven, enum CSCPart) const;
   
   // map of pad to HS
-  std::map<int,int>* gem_pad_to_csc_hs_odd;
-  std::map<int,int>* gem_pad_to_csc_hs_even;
+  std::vector<int>* gem_pad_to_csc_hs_odd;
+  std::vector<int>* gem_pad_to_csc_hs_even;
 
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_odd;
-  std::map<int,std::pair<int,int>>* csc_hs_to_gem_pad_even;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_odd;
+  std::vector<std::pair<int,int> >* csc_hs_to_gem_pad_even;
 };
 
 class CSCRPCMotherboardLUT
@@ -99,10 +101,10 @@ public:
   virtual ~CSCRPCMotherboardLUT();
 
   std::vector<std::vector<double>> * get_lut_wg_eta(bool isEven) const;
-  std::map<int,std::pair<double,double> >* get_rpc_roll_eta_limits(bool isEven) const;
-  std::map<int,int>* get_rpc_strip_to_csc_hs(bool isEven) const;
-  std::map<int,std::pair<int,int>>* get_csc_hs_to_rpc_strip(bool isEven) const;
-  std::map<int,int>* get_csc_wg_to_rpc_roll(bool isEven) const;
+  std::vector<std::pair<double,double> >* get_rpc_roll_eta_limits(bool isEven) const;
+  std::vector<int>* get_rpc_strip_to_csc_hs(bool isEven) const;
+  std::vector<std::pair<int,int> >* get_csc_hs_to_rpc_strip(bool isEven) const;
+  std::vector<int>* get_csc_wg_to_rpc_roll(bool isEven) const;
 
  protected:
   // map of wg to eta roll
@@ -110,18 +112,18 @@ public:
   std::vector<std::vector<double>> * lut_wg_eta_even;
 
   // map of roll N to min and max eta
-  std::map<int,std::pair<double,double> >* rpc_roll_eta_limits_odd;
-  std::map<int,std::pair<double,double> >* rpc_roll_eta_limits_even;
+  std::vector<std::pair<double,double> >* rpc_roll_eta_limits_odd;
+  std::vector<std::pair<double,double> >* rpc_roll_eta_limits_even;
 
   // map of strip to HS
-  std::map<int,int>* rpc_strip_to_csc_hs_odd;
-  std::map<int,int>* rpc_strip_to_csc_hs_even;
+  std::vector<int>* rpc_strip_to_csc_hs_odd;
+  std::vector<int>* rpc_strip_to_csc_hs_even;
 
-  std::map<int,std::pair<int,int>>* csc_hs_to_rpc_strip_odd;
-  std::map<int,std::pair<int,int>>* csc_hs_to_rpc_strip_even;
+  std::vector<std::pair<int,int> >* csc_hs_to_rpc_strip_odd;
+  std::vector<std::pair<int,int> >* csc_hs_to_rpc_strip_even;
 
-  std::map<int,int>* csc_wg_to_rpc_roll_odd;
-  std::map<int,int>* csc_wg_to_rpc_roll_even;
+  std::vector<int>* csc_wg_to_rpc_roll_odd;
+  std::vector<int>* csc_wg_to_rpc_roll_even;
 };
 
 class CSCRPCMotherboardLUTME31 : public CSCRPCMotherboardLUT 
