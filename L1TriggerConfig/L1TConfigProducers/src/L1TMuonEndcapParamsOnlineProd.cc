@@ -8,7 +8,6 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
@@ -90,12 +89,10 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
     strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
     time_t sinceEpoch = timegm(&brokenTime);
 
-    l1t::EndCapParamsHelper data( new L1TMuonEndCapParams() );
+    std::shared_ptr< L1TMuonEndCapParams > retval( new L1TMuonEndCapParams() );
 
-    data.SetFirmwareVersion( sinceEpoch );
-    data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
-
-    std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
+    retval->firmwareVersion_ = sinceEpoch;
+    retval->PtAssignVersion_ = conf["pt_lut_version"].getValue<unsigned int>();
 
     return retval;
 }
