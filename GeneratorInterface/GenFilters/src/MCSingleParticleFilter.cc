@@ -65,7 +65,7 @@ betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
     } 
 
     // check if beta is smaller than 1
-    if (abs(betaBoost) >= 1 ){
+    if (std::abs(betaBoost) >= 1 ){
       edm::LogError("MCSingleParticleFilter") << "Input beta boost is >= 1 !";
     }
 
@@ -99,11 +99,15 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
      for (unsigned int i = 0; i < particleID.size(); i++){
        if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
     
-         HepMC::FourVector mom = zboost((*p)->momentum());
-	 if ( mom.perp() > ptMin[i] && mom.eta() > etaMin[i] 
-	      && mom.eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
-          accepted = true; 
-	 }  
+	 if ( (*p)->momentum().perp() > ptMin[i]
+	      && ((*p)->status() == status[i] || status[i] == 0)) {
+
+           HepMC::FourVector mom = zboost((*p)->momentum());
+           if ( mom.eta() > etaMin[i] && mom.eta() < etaMax[i] ) {
+             accepted = true;
+           }
+
+         }
 	 
        } 
      }
