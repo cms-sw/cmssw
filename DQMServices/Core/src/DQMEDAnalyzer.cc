@@ -19,6 +19,7 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
   dqmBeginRun(iRun, iSetup);
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
+                           b.cd();
                            this->bookHistograms(b, iRun, iSetup);
                          },
                          iRun.run(),
@@ -99,6 +100,7 @@ void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
   dqmBeginRun(iRun, iSetup);
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
+      b.cd();
       this->bookHistograms(b, iRun, iSetup);
     },
     iRun.run(),
