@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# lumi
-from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 
@@ -33,11 +31,10 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
+# pixel
+from DQMOffline.Hcal.HLTHcalRecHitParam_cfi import *
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
-
-# pixel
-from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
@@ -54,12 +51,15 @@ from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
+
 # EXO
 from DQMOffline.Trigger.ExoticaMonitoring_cff import *
-
+# SUS
 from DQMOffline.Trigger.SusyMonitoring_cff import *
 # B2G
 from DQMOffline.Trigger.B2GMonitoring_cff import *
+# BPH
+from DQMOffline.Trigger.BPhysicsMonitoring_cff import *
 # HIG
 from DQMOffline.Trigger.HiggsMonitoring_cff import *
 # SMP
@@ -69,13 +69,12 @@ from DQMOffline.Trigger.TopMonitoring_cff import *
 
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
-# BPH
-from DQMOffline.Trigger.BPHMonitor_cff import *
+
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
-    lumiMonitorHLTsequence *
+    hltHCALRecHitsAnalyzer *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
@@ -92,11 +91,11 @@ offlineHLTSource = cms.Sequence(
     exoticaMonitorHLT *
     susyMonitorHLT *
     b2gMonitorHLT *
+    bphysicsMonitorHLT *
     higgsMonitorHLT *
     smpMonitorHLT *
     topMonitorHLT *
-    btagMonitorHLT *
-    bphMonitorHLT
+    btagMonitorHLT
     )
 
 # offline DQM for the HLTMonitoring stream
@@ -106,9 +105,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
-    lumiMonitorHLTsequence * # lumi
     sistripMonitorHLTsequence * # strip
-    sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
     egmTrackingMonitorHLT * # egm tracking
