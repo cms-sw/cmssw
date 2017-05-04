@@ -302,7 +302,6 @@ DetachedQuadStep = cms.Sequence(detachedQuadStepClusters*
                                 detachedQuadStepSeedLayers*
                                 detachedQuadStepTrackingRegions*
                                 detachedQuadStepHitDoublets*
-                                detachedQuadStepHitTriplets*
                                 detachedQuadStepHitQuadruplets*
                                 detachedQuadStepSeeds*
                                 detachedQuadStepTrackCandidates*
