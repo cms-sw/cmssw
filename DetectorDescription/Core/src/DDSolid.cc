@@ -333,20 +333,19 @@ DDPolySolid::DDPolySolid(const DDSolid & s)
 std::vector<double>
 DDPolySolid::getVec (const size_t& which, 
 		     const size_t& offset,
-		     const size_t& numVecs) const {
-
+		     const size_t& numVecs) const
+{
   // which:  first second or third std::vector 
   // offset: number of non-std::vector components before std::vectors start
-  std::string locErr;
-  std::vector<double> tvec;
   if(( rep().parameters().size() - offset) % numVecs != 0 ) {
-    locErr = std::string("Could not find equal sized components of std::vectors in a PolySolid description.");
-    edm::LogError ("DDSolid") << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
-	 << "  offset=" << offset << std::endl;
+    edm::LogError ("DDSolid") << "Could not find equal sized components of std::vectors in a PolySolid description."
+			      << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
+			      << "  offset=" << offset << std::endl;
   }
+  std::vector<double> tvec;
   for( size_t i = offset + which; i < rep().parameters().size(); i = i + numVecs ) {
     tvec.emplace_back( rep().parameters()[i]);
-  }		   
+  }               
   return tvec;
 }
 
@@ -461,7 +460,9 @@ DDExtrudedPolygon::DDExtrudedPolygon(const DDSolid & s)
 auto
 DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
 {
-  // Here we compute the size of X and Y polygone vectors
+  // Compute the size of the X and Y coordinate vectors
+  // which define the vertices of the outlined polygon
+  // defined in clock-wise order
 
   return ( rep().parameters().size() - 4 * zSectionsSize()) * 0.5;
 }
@@ -469,7 +470,14 @@ DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
 auto
 DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
 {
-  // First parameters element stores a size of four Z section vectors
+  // The first parameters element stores a size of the four equal size vectors
+  // which form the ExtrudedPolygon shape Z sections:
+  // 
+  //    * first: Z coordinate of the XY polygone plane,
+  //    * second and third: x and y offset of the polygone in the XY plane,
+  //    * fourth: the polygone scale in each XY plane
+  //
+  // The Z sections defined by the z position in an increasing order.
 
   return rep().parameters()[0];
 }
