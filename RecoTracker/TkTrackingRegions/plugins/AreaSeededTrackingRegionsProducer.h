@@ -68,6 +68,9 @@ public:
     }
     if(m_areas.empty())
       throw cms::Exception("Configuration") << "Empty 'areas' parameter.";
+    m_extraPhi = regPSet.getParameter<double>("extraPhi");
+    m_extraEta = regPSet.getParameter<double>("extraEta");
+
     
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
@@ -122,6 +125,8 @@ public:
     vDefaults.push_back(vDefaults1);
     */
     desc.addVPSet("areas", descAreas, vDefaults);
+    desc.add<double>("extraPhi", 0.);
+    desc.add<double>("extraEta", 0.);
   
     desc.add<std::string>("mode", "BeamSpotFixed");
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
@@ -265,8 +270,8 @@ public:
 
       const auto meanEta = (minEta+maxEta)/2.f;
       const auto meanPhi = (minPhi+maxPhi)/2.f;
-      const auto deltaEta = maxEta-meanEta;
-      const auto deltaPhi = maxPhi-meanPhi;
+      const auto deltaEta = maxEta-meanEta + m_extraEta;
+      const auto deltaPhi = maxPhi-meanPhi + m_extraPhi;
 
       const auto x = std::cos(meanPhi);
       const auto y = std::sin(meanPhi);
@@ -325,6 +330,8 @@ private:
   };
   std::vector<Area> m_areas;
 
+  float m_extraPhi;
+  float m_extraEta;
   float m_ptMin;
   float m_originRadius;
   float m_zErrorBeamSpot;
