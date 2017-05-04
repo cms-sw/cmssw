@@ -265,6 +265,8 @@ public:
 
 private:
   DDExtrudedPolygon( void );
+  auto xyPointsSize( void ) const -> std::size_t;
+  auto zSectionsSize( void ) const -> std::size_t;
 };
 
 class DDTubs : public DDSolid

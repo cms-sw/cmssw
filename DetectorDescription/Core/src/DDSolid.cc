@@ -458,54 +458,62 @@ DDExtrudedPolygon::DDExtrudedPolygon(const DDSolid & s)
   }
 }
 
+auto
+DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
+{
+  // Here we compute the size of X and Y polygone vectors
+
+  return ( rep().parameters().size() - 4 * zSectionsSize()) * 0.5;
+}
+
+auto
+DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
+{
+  // First parameters element stores a size of four Z section vectors
+
+  return rep().parameters()[0];
+}
+
 std::vector<double>
 DDExtrudedPolygon::xVec( void ) const
 {
-  auto xysize = ( unsigned int )(( rep().parameters().size() - 4*rep().parameters()[0]) * 0.5 );
-  auto it = rep().parameters().begin() + 1;
-  auto itEnd = rep().parameters().begin() + 1 + xysize;
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().begin() + 1,
+			      rep().parameters().begin() + 1 + xyPointsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::yVec( void ) const
 {
-  auto xysize = ( unsigned int )(( rep().parameters().size() - 4*rep().parameters()[0]) * 0.5 );
-  auto it = rep().parameters().begin() + 1 + xysize;
-  auto itEnd = rep().parameters().begin() + 1 + 2*xysize;
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().begin() + 1 + xyPointsSize(),
+			      rep().parameters().begin() + 1 + 2 * xyPointsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zVec( void ) const
 {
-  auto it = rep().parameters().end() - 4*rep().parameters()[0];
-  auto itEnd = rep().parameters().end() - 3*rep().parameters()[0];
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().end() - 4 * zSectionsSize(),
+			      rep().parameters().end() - 3 * zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zxVec( void ) const
 {
-  auto it = rep().parameters().end() - 3*rep().parameters()[0];
-  auto itEnd = rep().parameters().end() - 2*rep().parameters()[0];
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize()),
+			      rep().parameters().end() - 2 * zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zyVec( void ) const
 {
-  auto it = rep().parameters().end() - 2*rep().parameters()[0];
-  auto itEnd = rep().parameters().end() - rep().parameters()[0];
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize()),
+			      rep().parameters().end() - zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zscaleVec( void ) const
 {
-  auto it = rep().parameters().end() - rep().parameters()[0];
-  auto itEnd = rep().parameters().end();
-  return std::vector<double>( it, itEnd );
+  return std::vector<double>( rep().parameters().end() - zSectionsSize()),
+			      rep().parameters().end());
 }
 
 DDCons::DDCons(const DDSolid& s) 

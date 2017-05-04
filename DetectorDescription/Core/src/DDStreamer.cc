@@ -457,6 +457,7 @@ void DDStreamer::solids_read()
               (shape==ddpolycone_rrz) ||
               (shape==ddpolyhedra_rz) ||	      	          
               (shape==ddpolyhedra_rrz) ||
+	      (shape==ddextrudedpolygon) ||
               (shape==ddpseudotrap) ||
               (shape==ddshapeless) )
     {
