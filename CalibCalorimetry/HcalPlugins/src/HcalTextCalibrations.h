@@ -66,7 +66,7 @@ public:
   template<class T>
   class CheckGetObjectTopo : public CheckGetObject<T> {
     public:
-      CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo_), topo_(topo) {}
+      CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo), topo_(topo) {}
     protected:
       std::unique_ptr<T> makeResult() override { return std::make_unique<T>(topo_); }
     private:
