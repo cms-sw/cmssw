@@ -59,12 +59,12 @@ printBins = ""
 for compNTT4 in compNTT4Range:
     for ieta in etaRange:
         towEtThresh = int(round((float(towerAreas[ieta-1])**1.2)*(1/(1+math.exp(-0.2*(ieta-5))))*(float(compNTT4)/10)))
-        if ieta < 16:
-            towEtThresh = 0
-        if ieta > 28 and towEtThresh > 1:
-            towEtThresh -= 2
+        if ieta > 28:
+            towEtThresh -= 4
         if towEtThresh > 16:
             towEtThresh = int(16)
+        if ieta < 13 or towEtThresh < 0:
+            towEtThresh = 0
         if (addr % 64) == 0:
             printBins = "             # nTT4 = " + str(5*compNTT4) + "-" + str((5*compNTT4)+5) + " ieta = " + str(ieta)  
         else:
