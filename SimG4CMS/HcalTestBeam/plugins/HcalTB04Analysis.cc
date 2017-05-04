@@ -412,7 +412,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName
 			<< " of ID " << idHC << " is obtained at " << theHC;
 
-  if (idHC >= 0 && theHC > 0) {
+  if (idHC >= 0 && theHC != nullptr) {
     hhits.reserve(theHC->entries());
     hhitl.reserve(theHC->entries());
     for (j = 0; j < theHC->entries(); j++) {
@@ -536,7 +536,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   etot1 = etot2 = 0;
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName
 			<< " of ID " << idHC << " is obtained at " << theHC;
-  if (idHC >= 0 && theHC > 0) {
+  if (idHC >= 0 && theHC != nullptr) {
     ehits.reserve(theHC->entries());
     for (j = 0; j < theHC->entries(); j++) {
       CaloG4Hit* aHit = (*theHC)[j]; 
