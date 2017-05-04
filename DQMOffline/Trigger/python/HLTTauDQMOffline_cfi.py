@@ -13,6 +13,10 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
+                            etaMin = cms.untracked.double(-2.5),
+                            etaMax = cms.untracked.double(2.5),
+                            phiMin = cms.untracked.double(-3.15),
+                            phiMax = cms.untracked.double(3.15),
                             PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                             ),
                     Electrons = cms.untracked.PSet(
@@ -60,7 +64,10 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             ptMin = cms.untracked.double(0.0)
                             ),
 
-                    EtaMax = cms.untracked.double(2.3)
+                    EtaMin = cms.untracked.double(-2.3),
+                    EtaMax = cms.untracked.double(2.3),
+                    PhiMin = cms.untracked.double(-3.15),
+                    PhiMax = cms.untracked.double(3-15)
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------

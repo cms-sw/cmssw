@@ -64,7 +64,7 @@ private:
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   bool doPFTaus_;
-  double ptMinPFTau_;
+  double ptMinPFTau_,etaMinPFTau_,etaMaxPFTau_,phiMinPFTau_,phiMaxPFTau_;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
@@ -106,7 +106,7 @@ private:
   bool doMET_;
   double ptMinMET_;
 
-  double etaMax_;
+  double etaMin_,etaMax_,phiMin_,phiMax_;
 
   void doPFTaus(edm::Event&) const;
   void doMuons(edm::Event&) const;
