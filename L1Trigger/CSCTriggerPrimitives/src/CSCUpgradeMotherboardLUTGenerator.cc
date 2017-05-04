@@ -38,9 +38,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   
   // CSC trigger geometry
   const CSCLayer* keyLayerME1b(cscChamberME1b->layer(3));
-  const CSCLayerGeometry* keyLayerGeometryME1b(keyLayerME1b->geometry());
   const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
-  const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
   
   const int region((theEndcap == 1) ? 1: -1);
   const GEMDetId gem_id_l1(region, 1, 1, 1, me1bId.chamber(), 0);
@@ -52,24 +50,35 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   std::vector<std::pair<double,double> > gem_roll_eta_limits_l1 = gemRollToEtaLimitsLUT(gemChamber_l1);
   std::vector<std::pair<double,double> > gem_roll_eta_limits_l2 = gemRollToEtaLimitsLUT(gemChamber_l2);
   
+  // LUT<WG,<etaMin,etaMax> >
+  std::vector<std::pair<double,double> > cscWGToEtaLimits_ = cscWgToEtaLimitsLUT(keyLayerME1b);
+
+  // LUT <WG,rollMin,rollMax>
+  std::vector<std::pair<int,int> > cscWgToGemRoll_l1 = cscWgToRollLUT(cscWGToEtaLimits_, gem_roll_eta_limits_l1);
+  std::vector<std::pair<int,int> > cscWgToGemRoll_l2 = cscWgToRollLUT(cscWGToEtaLimits_, gem_roll_eta_limits_l2);
+
+  // pick any roll
+  auto randRoll(gemChamber_l1->etaPartition(2));
+
+  // map of HS to pad
+  std::vector<std::pair<int,int> > cscHsToGemPadME1a_ = cscHsToGemPadLUT(keyLayerME1a, randRoll, 4, 93);
+  std::vector<std::pair<int,int> > cscHsToGemPadME1b_ = cscHsToGemPadLUT(keyLayerME1b, randRoll, 5, 124);
+
+  // map pad to HS
+  std::vector<int> gemPadToCscHsME1a_ = gemPadToCscHsLUT(keyLayerME1a, randRoll);
+  std::vector<int> gemPadToCscHsME1b_ = gemPadToCscHsLUT(keyLayerME1b, randRoll);
+
+  // print LUTs
   std::stringstream os;
-  os << "GEM roll to eta limits" << std::endl;
+  os << "GEM L1 roll to eta limits" << std::endl;
   for(auto p : gem_roll_eta_limits_l1) {
     os << "{" << p.first << ", " << p.second << "}, " << std::endl;
   }
-  
-  // LUT<WG,<etaMin,etaMax> >
-  std::vector<std::pair<double,double> > cscWGToEtaLimits_;
-  
-  const int numberOfWG(keyLayerGeometryME1b->numberOfWireGroups());
-  for (int i = 0; i< numberOfWG; ++i){
-    const float middle_wire(keyLayerGeometryME1b->middleWireOfGroup(i));
-    const std::pair<LocalPoint, LocalPoint> wire_ends(keyLayerGeometryME1b->wireTopology()->wireEnds(middle_wire));
-    
-    const GlobalPoint gp_top(keyLayerME1b->toGlobal(wire_ends.first));
-    const GlobalPoint gp_bottom(keyLayerME1b->toGlobal(wire_ends.first));
-    cscWGToEtaLimits_.push_back(std::make_pair(gp_top.eta(), gp_bottom.eta()));
+  os << "GEM L2 roll to eta limits" << std::endl;
+  for(auto p : gem_roll_eta_limits_l2) {
+    os << "{" << p.first << ", " << p.second << "}, " << std::endl;
   }
+  
 
   os << "ME1b "<< me1bId <<std::endl;
   os << "WG roll to eta limits" << std::endl;
@@ -77,54 +86,21 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
     os << "{" << p.first << ", " << p.second << "}, " << std::endl;
   }
   
-  // LUT <WG,rollMin,rollMax>
-  std::vector<std::pair<int,int> > cscWgToGemRoll_;
-  
-  for (int i = 0; i< numberOfWG; ++i){
-    auto etaMin(cscWGToEtaLimits_[i].first);
-    auto etaMax(cscWGToEtaLimits_[i].second);
-    cscWgToGemRoll_.push_back(std::make_pair(assignRoll(gem_roll_eta_limits_l1, etaMin), assignRoll(gem_roll_eta_limits_l1, etaMax)));
-  }
+
   int i = 0;
-  os << "WG to ROLL" << std::endl;
-  for(auto p : cscWgToGemRoll_) {
+  os << "WG to Roll L1" << std::endl;
+  for(auto p : cscWgToGemRoll_l1) {
+    os << "{" << p.first << ", " << p.second << "}, " << std::endl;
+    if (i%8==0) os << std::endl;
+    i++;
+  }
+  os << "WG to Roll L2" << std::endl;
+  for(auto p : cscWgToGemRoll_l2) {
     os << "{" << p.first << ", " << p.second << "}, " << std::endl;
     if (i%8==0) os << std::endl;
     i++;
   }
   
-
-  // map of HS to pad
-  std::vector<std::pair<int,int> > cscHsToGemPadME1a_;
-  std::vector<std::pair<int,int> > cscHsToGemPadME1b_;
-  
-  // pick any roll
-  auto randRoll(gemChamber_l1->etaPartition(2));
-  
-  // ME1a
-  auto nStripsME1a(keyLayerGeometryME1a->numberOfStrips());
-  for (float i = 0; i< nStripsME1a; i = i+0.5){
-    const LocalPoint lpCSC(keyLayerGeometryME1a->topology()->localPosition(i));
-    const GlobalPoint gp(keyLayerME1a->toGlobal(lpCSC));
-    const LocalPoint lpGEM(randRoll->toLocal(gp));
-    const int HS(i/0.5);
-    const bool edge(HS < 4 or HS > 93);
-    const float pad(edge ? -99 : randRoll->pad(lpGEM));
-    cscHsToGemPadME1a_.push_back(std::make_pair(std::floor(pad),std::ceil(pad)));
-  }
- 
-  // ME1b
-  auto nStripsME1b(keyLayerGeometryME1b->numberOfStrips());
-  for (float i = 0; i< nStripsME1b; i = i+0.5){
-    const LocalPoint lpCSC(keyLayerGeometryME1b->topology()->localPosition(i));
-    const GlobalPoint gp(keyLayerME1b->toGlobal(lpCSC));
-    const LocalPoint lpGEM(randRoll->toLocal(gp));
-    const int HS(i/0.5);
-    const bool edge(HS < 5 or HS > 124);
-    const float pad(edge ? -99 : randRoll->pad(lpGEM));
-    cscHsToGemPadME1b_.push_back(std::make_pair(std::floor(pad),std::ceil(pad)));
-  }
-
   os << "CSC HS to GEM pad LUT in ME1a";
   i = 1;
   for(auto p : cscHsToGemPadME1a_) {
@@ -141,21 +117,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
     i++;
   }
   
-  // map pad to HS
-  std::vector<int> gemPadToCscHsME1a_;
-  std::vector<int> gemPadToCscHsME1b_;
-  
-  const int nGEMPads(randRoll->npads());
-  for (int i = 0; i< nGEMPads; ++i){
-    const LocalPoint lpGEM(randRoll->centreOfPad(i));
-    const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-    const LocalPoint lpCSCME1a(keyLayerME1a->toLocal(gp));
-    const LocalPoint lpCSCME1b(keyLayerME1b->toLocal(gp));
-    const float stripME1a(keyLayerGeometryME1a->strip(lpCSCME1a));
-    const float stripME1b(keyLayerGeometryME1b->strip(lpCSCME1b));
-    gemPadToCscHsME1a_.push_back( (int) (stripME1a)/0.5);
-    gemPadToCscHsME1b_.push_back( (int) (stripME1b)/0.5);
-  }
   
   os << "GEM pad to CSC HS LUT in ME1a";
   i = 1;
@@ -198,20 +159,34 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   }
   
   // trigger geometry
-  const CSCLayer* keyLayer(cscChamber->layer(3));
-  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
-  
+  const CSCLayer* keyLayer(cscChamber->layer(3));  
   const int region((theEndcap == 1) ? 1: -1);
   const GEMDetId gem_id_l1(region, 1, 2, 1, csc_id.chamber(), 0);
   const GEMDetId gem_id_l2(region, 1, 2, 2, csc_id.chamber(), 0);
   const GEMChamber* gemChamber_l1(gem_g->chamber(gem_id_l1));
   const GEMChamber* gemChamber_l2(gem_g->chamber(gem_id_l2));
   
-  LogTrace("CSCUpgradeMotherboardLUTGenerator") << "ME21 "<< csc_id <<std::endl;
-
-  // LUT<roll,<etaMin,etaMax> >    
+  // LUT: roll->(etaMin,etaMax)    
   std::vector<std::pair<double,double> > gem_roll_eta_limits_l1 = gemRollToEtaLimitsLUT(gemChamber_l1);
   std::vector<std::pair<double,double> > gem_roll_eta_limits_l2 = gemRollToEtaLimitsLUT(gemChamber_l2);
+
+  // LUT: WG->(etaMin,etaMax)
+  std::vector<std::pair<double, double> > cscWGToEtaLimits_ = cscWgToEtaLimitsLUT(keyLayer);
+  
+  // LUT: WG->(rollMin,rollMax)
+  std::vector<std::pair<int,int> > cscWgToGemRoll_l1 = cscWgToRollLUT(cscWGToEtaLimits_, gem_roll_eta_limits_l1);
+  std::vector<std::pair<int,int> > cscWgToGemRoll_l2 = cscWgToRollLUT(cscWGToEtaLimits_, gem_roll_eta_limits_l2);
+
+  auto randRoll(gemChamber_l1->etaPartition(2));
+
+  // LUT: HS->pad
+  std::vector<std::pair<int,int> > cscHsToGemPad_ = cscHsToGemPadLUT(keyLayer, randRoll, 5, 155);
+
+  // LUT: pad->HS
+  std::vector<int> gemPadToCscHs_ = gemPadToCscHsLUT(keyLayer, randRoll);
+  
+ 
+  LogTrace("CSCUpgradeMotherboardLUTGenerator") << "ME21 "<< csc_id <<std::endl;
 
   std::stringstream os;
   os << "GEM roll to eta limits" << std::endl;
@@ -219,53 +194,27 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
     os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
   }
 
-  // LUT<WG,<etaMin,etaMax> >
-  std::vector<double> cscWGToEtaLimits_;
-  const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
-  int n = 1;
-  for (int i = 0; i< numberOfWG; ++i){
-    const LocalPoint wire_loc(keyLayerGeometry->localCenterOfWireGroup(i));
-    const GlobalPoint gp(keyLayer->toGlobal(wire_loc));
-    cscWGToEtaLimits_.push_back( gp.eta() );
-    ++n;
-  }
 
   os << "WG to eta limits" << std::endl;
   for(auto p : cscWGToEtaLimits_) {
-    os << p << std::endl;
+    os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
   }
 
-  // LUT <WG,rollMin,rollMax>
-  std::vector<int> cscWgToGemRoll_;
-  for (int i = 0; i< numberOfWG; ++i){
-    auto eta(cscWGToEtaLimits_[i]);
-    cscWgToGemRoll_.push_back( assignRoll(gem_roll_eta_limits_l1, eta) );
-  }
 
-  os << "WG to roll" << std::endl;
-  int i = 1;
-  for(auto p : cscWgToGemRoll_) {
-    os << p;
+  int i = 0;
+  os << "WG to Roll L1" << std::endl;
+  for(auto p : cscWgToGemRoll_l1) {
+    os << "{" << p.first << ", " << p.second << "}, " << std::endl;
+    if (i%8==0) os << std::endl;
+    i++;
+  }
+  os << "WG to Roll L2" << std::endl;
+  for(auto p : cscWgToGemRoll_l2) {
+    os << "{" << p.first << ", " << p.second << "}, " << std::endl;
     if (i%8==0) os << std::endl;
     i++;
   }
   
-  // vector of pad to HS
-  std::vector<int> gemPadToCscHs_;
-  std::vector<std::pair<int,int>> cscHsToGemPad_;
-
-  auto randRoll(gemChamber_l1->etaPartition(2));
-  auto nStrips(keyLayerGeometry->numberOfStrips());
-  for (float i = 0; i< nStrips; i = i+0.5){
-    const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
-    const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
-    const LocalPoint lpGEM(randRoll->toLocal(gp));
-    const int HS(i/0.5);
-    const bool edge(HS < 5 or HS > 155);
-    const float pad(edge ? -99 : randRoll->pad(lpGEM));
-    // HS are wrapped-around
-    cscHsToGemPad_.push_back( std::make_pair(std::floor(pad),std::ceil(pad)) );
-  }
 
   os << "CSC HS to GEM pad LUT in ME21";
   i = 1;
@@ -275,16 +224,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
     i++;
   }
   
-  // pick any roll 
-  const int nGEMPads(randRoll->npads());
-  for (int i = 0; i< nGEMPads; ++i){
-    const LocalPoint lpGEM(randRoll->centreOfPad(i));
-    const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-    const LocalPoint lpCSC(keyLayer->toLocal(gp));
-    const float strip(keyLayerGeometry->strip(lpCSC));
-    // HS are wrapped-around
-    gemPadToCscHs_.push_back( (int) (strip)/0.5 );
-  }
   
   os << "GEM pad to CSC HS LUT in ME21";
   i = 1;
@@ -314,7 +253,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
 
   // trigger geometry
   const CSCLayer* keyLayer(cscChamber->layer(3));
-  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int region((theEndcap == 1) ? 1: -1);
   const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
   const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
@@ -332,23 +270,25 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   // LUT<roll,<etaMin,etaMax> >    
   std::vector<std::pair<double,double> > rpcRollToEtaLimits_ = rpcRollToEtaLimitsLUT(rpcChamber);
   
+  // LUT<WG,<etaMin,etaMax> >
+  std::vector<std::pair<double, double> > cscWGToEtaLimits_ = cscWgToEtaLimitsLUT(keyLayer);
+
+  // LUT <WG,rollMin,rollMax>
+  std::vector<std::pair<int,int> > cscWgToRpcRoll_ = cscWgToRollLUT(cscWGToEtaLimits_, rpcRollToEtaLimits_);
+
+  // pick any roll
+  auto randRoll(rpcChamber->roll(2));
+
+  // map of HS to pad
+  std::vector<std::pair<int,int> > cscHsToRpcStrip_ = cscHsToRpcStripLUT(keyLayer,randRoll,5,155);
+
+  std::vector<int> rpcStripToCscHs_ = rpcStripToCscHsLUT(keyLayer, randRoll);
+
+
   std::stringstream os;
   os << "RPC roll to eta limits" << std::endl;
   for(auto p : rpcRollToEtaLimits_) {
     os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
-  }
-
-  // LUT<WG,<etaMin,etaMax> >
-  std::vector<std::pair<double,double> > cscWGToEtaLimits_;
-
-  const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
-  for (int i = 0; i< numberOfWG; ++i){
-    const float middle_wire(keyLayerGeometry->middleWireOfGroup(i));
-    const std::pair<LocalPoint, LocalPoint> wire_ends(keyLayerGeometry->wireTopology()->wireEnds(middle_wire));
-
-    const GlobalPoint gp_top(keyLayer->toGlobal(wire_ends.first));
-    const GlobalPoint gp_bottom(keyLayer->toGlobal(wire_ends.first));
-    cscWGToEtaLimits_.push_back(std::make_pair(gp_top.eta(), gp_bottom.eta()));
   }
 
   os << "ME3141 "<< csc_id <<std::endl;
@@ -357,14 +297,6 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
     os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
   }
 
-  // LUT <WG,rollMin,rollMax>
-  std::vector<std::pair<int,int> > cscWgToRpcRoll_;
-
-  for (int i = 0; i< numberOfWG; ++i){
-    auto etaMin(cscWGToEtaLimits_[i].first);
-    auto etaMax(cscWGToEtaLimits_[i].second);
-    cscWgToRpcRoll_.push_back(std::make_pair(assignRoll(rpcRollToEtaLimits_, etaMin), assignRoll(rpcRollToEtaLimits_, etaMax)));
-  }
   os << "WG to ROLL" << std::endl;
   int i = 1;
   for(auto p : cscWgToRpcRoll_) {
@@ -373,43 +305,16 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
     i++;
   }
 
-  // map of HS to pad
-  std::vector<std::pair<int,int> > cscHsToRpcStrip_;
   
-  // pick any roll
-  auto randRoll(rpcChamber->roll(2));
-
-  auto nStrips(keyLayerGeometry->numberOfStrips());
-  for (float i = 0; i< nStrips; i = i+0.5){
-    const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
-    const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
-    const LocalPoint lpRPC(randRoll->toLocal(gp));
-    const int HS(i/0.5);
-    const bool edge(HS < 5 or HS > 155);
-    const float strip(edge ? -99 : randRoll->strip(lpRPC));
-    // HS are wrapped-around
-    cscHsToRpcStrip_.push_back(std::make_pair(std::floor(strip),std::ceil(strip)));
-  }
-
- os << "CSC HS to RPC strip LUT" << std::endl;
+  
+  os << "CSC HS to RPC strip LUT" << std::endl;
   i = 1;
   for(auto p : cscHsToRpcStrip_) {
     os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
     if (i%8==0)os << std::endl;
     i++;
   }
-
-  std::vector<int> rpcStripToCscHs_;
   
-  const int nRPCStrips(randRoll->nstrips());
-  for (int i = 0; i< nRPCStrips; ++i){
-    const LocalPoint lpRPC(randRoll->centreOfStrip(i));
-    const GlobalPoint gp(randRoll->toGlobal(lpRPC));
-    const LocalPoint lpCSC(keyLayer->toLocal(gp));
-    const float strip(keyLayerGeometry->strip(lpCSC));
-    // HS are wrapped-around
-    rpcStripToCscHs_.push_back(int((strip - 0.25)/0.5));
-  }
   
   os << "RPC strip to CSC HS LUT" << std::endl;
   i = 1;
@@ -464,6 +369,111 @@ CSCUpgradeMotherboardLUTGenerator::rpcRollToEtaLimitsLUT(const RPCChamber* rpcCh
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
     lut.push_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
+  }
+  return lut;
+}
+
+std::vector<std::pair<int,int> > 
+CSCUpgradeMotherboardLUTGenerator::cscWgToRollLUT(const std::vector<std::pair<double,double> >& inLUT1,
+						  const std::vector<std::pair<double,double> >& inLUT2) const
+{
+  std::vector<std::pair<int,int> > outLUT;
+  for (const auto& p: inLUT1){
+    double etaMin(p.first);
+    double etaMax(p.second);
+    outLUT.push_back(std::make_pair(assignRoll(inLUT2, etaMin), assignRoll(inLUT2, etaMax)));
+  }
+  return outLUT;
+}
+
+std::vector<std::pair<double, double> > 
+CSCUpgradeMotherboardLUTGenerator::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer) const
+{
+  std::vector<std::pair<double, double> > lut;
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
+  for (int i = 0; i< numberOfWG; ++i){
+    const float middle_wire(keyLayerGeometry->middleWireOfGroup(i));
+    const std::pair<LocalPoint, LocalPoint> wire_ends(keyLayerGeometry->wireTopology()->wireEnds(middle_wire));
+    const GlobalPoint gp_top(keyLayer->toGlobal(wire_ends.first));
+    const GlobalPoint gp_bottom(keyLayer->toGlobal(wire_ends.first));
+    lut.push_back(std::make_pair(gp_top.eta(), gp_bottom.eta()));
+  }
+  return lut;
+}
+
+std::vector<std::pair<int,int> >
+CSCUpgradeMotherboardLUTGenerator::cscHsToGemPadLUT(const CSCLayer* keyLayer, 
+						    const GEMEtaPartition* randRoll, 
+						    int minH, int maxH) const
+{
+  std::vector<std::pair<int,int> > lut;
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  auto nStrips(keyLayerGeometry->numberOfStrips());
+  for (float i = 0; i< nStrips; i = i+0.5){
+    const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
+    const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
+    const LocalPoint lpGEM(randRoll->toLocal(gp));
+    const int HS(i/0.5);
+    const bool edge(HS < minH or HS > maxH);
+    const float pad(edge ? -99 : randRoll->pad(lpGEM));
+    lut.push_back(std::make_pair(std::floor(pad),std::ceil(pad)));
+  }
+  return lut;
+}
+
+std::vector<int>
+CSCUpgradeMotherboardLUTGenerator::gemPadToCscHsLUT(const CSCLayer* keyLayer, 
+						    const GEMEtaPartition* randRoll) const
+{
+  std::vector<int> lut;
+  // pick any roll 
+  const int nGEMPads(randRoll->npads());
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  for (int i = 1; i<= nGEMPads; ++i){
+    const LocalPoint lpGEM(randRoll->centreOfPad(i));
+    const GlobalPoint gp(randRoll->toGlobal(lpGEM));
+    const LocalPoint lpCSC(keyLayer->toLocal(gp));
+    const float strip(keyLayerGeometry->strip(lpCSC));
+    lut.push_back( (int) (strip)/0.5 );
+  }
+  return lut;
+}
+
+std::vector<std::pair<int,int> >
+CSCUpgradeMotherboardLUTGenerator::cscHsToRpcStripLUT(const CSCLayer* keyLayer, 
+						      const RPCRoll* randRoll, 
+						      int minH, int maxH) const
+{
+  std::vector<std::pair<int,int> > lut;
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  auto nStrips(keyLayerGeometry->numberOfStrips());
+  for (float i = 0; i< nStrips; i = i+0.5){
+    const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
+    const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
+    const LocalPoint lpRPC(randRoll->toLocal(gp));
+    const int HS(i/0.5);
+    const bool edge(HS < minH or HS > maxH);
+    const float strip(edge ? -99 : randRoll->strip(lpRPC));
+    lut.push_back(std::make_pair(std::floor(strip),std::ceil(strip)));
+  }
+  return lut;
+}
+
+std::vector<int>
+CSCUpgradeMotherboardLUTGenerator::rpcStripToCscHsLUT(const CSCLayer* keyLayer, 
+						      const RPCRoll* randRoll) const
+{
+  std::vector<int> lut;
+  // pick any roll 
+  const int nRPCStrips(randRoll->nstrips());
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  for (int i = 1; i<= nRPCStrips; ++i){
+    const LocalPoint lpRPC(randRoll->centreOfStrip(i));
+    const GlobalPoint gp(randRoll->toGlobal(lpRPC));
+    const LocalPoint lpCSC(keyLayer->toLocal(gp));
+    const float strip(keyLayerGeometry->strip(lpCSC));
+    lut.push_back( (int) (strip-0.25)/0.5 );
   }
   return lut;
 }
