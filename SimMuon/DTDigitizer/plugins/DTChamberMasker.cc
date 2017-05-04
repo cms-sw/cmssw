@@ -123,7 +123,7 @@ DTChamberMasker::produce(edm::Event& event, const edm::EventSetup& conditions)
       edm::Handle<DTDigiCollection> dtDigis;
       event.getByToken(m_digiToken, dtDigis);
   
-      for ( auto dtLayerId : (*dtDigis) )
+      for ( const auto & dtLayerId : (*dtDigis) )
 	{
 	  
 	  uint32_t rawId = (dtLayerId.first).chamberId().rawId();

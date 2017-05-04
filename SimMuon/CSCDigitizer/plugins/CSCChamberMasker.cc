@@ -181,7 +181,7 @@ CSCChamberMasker::copyDigis(edm::Event & event,
     {
       edm::Handle<C> digis;
       event.getByToken(digiToken, digis);
-      for ( auto j : (*digis) ) 
+      for ( const auto & j : (*digis) ) 
 	{
           auto digiItr = j.second.first;
           auto last    = j.second.second;
@@ -211,7 +211,7 @@ CSCChamberMasker::ageDigis(edm::Event & event,
       edm::Handle<C> digis;
       event.getByToken(digiToken, digis);
       
-      for ( auto j : (*digis) ) 
+      for ( const auto & j : (*digis) ) 
 	{
           auto digiItr = j.second.first;
           auto last    = j.second.second;
