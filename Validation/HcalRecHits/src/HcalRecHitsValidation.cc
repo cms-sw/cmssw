@@ -30,8 +30,10 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
   // register for data access
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  edm::InputTag EBRecHitCollectionLabel = conf.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+  tok_EB_ = consumes<EBRecHitCollection>(EBRecHitCollectionLabel);
+  edm::InputTag EERecHitCollectionLabel = conf.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+  tok_EE_ = consumes<EERecHitCollection>(EERecHitCollectionLabel);
 
   tok_hh_ = consumes<edm::PCaloHitContainer>(conf.getUntrackedParameter<edm::InputTag>("SimHitCollectionLabel"));
 
@@ -61,7 +63,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
   Char_t histo[200];
 
-    ib.setCurrentFolder("HcalRecHitsV/HcalRecHitTask");
+  ib.setCurrentFolder(TopFolderName_);
 
     //======================= Now various cases one by one ===================
 
