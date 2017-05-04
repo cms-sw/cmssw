@@ -29,6 +29,12 @@ public:
   int assignRoll(const std::vector<std::pair<double,double> >&, double eta) const;
   
  private:
+  std::vector<std::pair<double,double> > 
+  gemRollToEtaLimitsLUT(const GEMChamber* c) const;
+
+  std::vector<std::pair<double,double> > 
+  rpcRollToEtaLimitsLUT(const RPCChamber* c) const;
+
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
   const RPCGeometry* rpc_g;

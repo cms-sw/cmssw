@@ -43,24 +43,18 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
   
   const int region((theEndcap == 1) ? 1: -1);
-  const GEMDetId gem_id(region, 1, 1, 1, me1bId.chamber(), 0);
-  const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+  const GEMDetId gem_id_l1(region, 1, 1, 1, me1bId.chamber(), 0);
+  const GEMDetId gem_id_l2(region, 1, 1, 2, me1bId.chamber(), 0);
+  const GEMChamber* gemChamber_l1(gem_g->chamber(gem_id_l1));
+  const GEMChamber* gemChamber_l2(gem_g->chamber(gem_id_l2));
   
   // LUT<roll,<etaMin,etaMax> >    
-  std::vector<std::pair<double,double> > gemRollToEtaLimits_;
-  
-  for(auto roll : gemChamber->etaPartitions()) {
-    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
-    const LocalPoint lp_top(0., half_striplength, 0.);
-    const LocalPoint lp_bottom(0., -half_striplength, 0.);
-    const GlobalPoint gp_top(roll->toGlobal(lp_top));
-    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    gemRollToEtaLimits_.push_back(std::make_pair(gp_top.eta(), gp_bottom.eta()));
-  }
+  std::vector<std::pair<double,double> > gem_roll_eta_limits_l1 = gemRollToEtaLimitsLUT(gemChamber_l1);
+  std::vector<std::pair<double,double> > gem_roll_eta_limits_l2 = gemRollToEtaLimitsLUT(gemChamber_l2);
   
   std::stringstream os;
   os << "GEM roll to eta limits" << std::endl;
-  for(auto p : gemRollToEtaLimits_) {
+  for(auto p : gem_roll_eta_limits_l1) {
     os << "{" << p.first << ", " << p.second << "}, " << std::endl;
   }
   
@@ -89,7 +83,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   for (int i = 0; i< numberOfWG; ++i){
     auto etaMin(cscWGToEtaLimits_[i].first);
     auto etaMax(cscWGToEtaLimits_[i].second);
-    cscWgToGemRoll_.push_back(std::make_pair(assignRoll(gemRollToEtaLimits_, etaMin), assignRoll(gemRollToEtaLimits_, etaMax)));
+    cscWgToGemRoll_.push_back(std::make_pair(assignRoll(gem_roll_eta_limits_l1, etaMin), assignRoll(gem_roll_eta_limits_l1, etaMax)));
   }
   int i = 0;
   os << "WG to ROLL" << std::endl;
@@ -105,7 +99,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   std::vector<std::pair<int,int> > cscHsToGemPadME1b_;
   
   // pick any roll
-  auto randRoll(gemChamber->etaPartition(2));
+  auto randRoll(gemChamber_l1->etaPartition(2));
   
   // ME1a
   auto nStripsME1a(keyLayerGeometryME1a->numberOfStrips());
@@ -181,6 +175,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  std::cout << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -207,34 +202,27 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   
   const int region((theEndcap == 1) ? 1: -1);
-  const GEMDetId gem_id(region, 1, 2, 1, csc_id.chamber(), 0);
-  const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+  const GEMDetId gem_id_l1(region, 1, 2, 1, csc_id.chamber(), 0);
+  const GEMDetId gem_id_l2(region, 1, 2, 2, csc_id.chamber(), 0);
+  const GEMChamber* gemChamber_l1(gem_g->chamber(gem_id_l1));
+  const GEMChamber* gemChamber_l2(gem_g->chamber(gem_id_l2));
   
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << "ME21 "<< csc_id <<std::endl;
 
   // LUT<roll,<etaMin,etaMax> >    
-  std::vector<std::pair<double,double> > gemRollToEtaLimits_;
-  int n = 1;
-  for(auto roll : gemChamber->etaPartitions()) {
-    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
-    const LocalPoint lp_top(0., half_striplength, 0.);
-    const LocalPoint lp_bottom(0., -half_striplength, 0.);
-    const GlobalPoint gp_top(roll->toGlobal(lp_top));
-    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    gemRollToEtaLimits_[n] = std::make_pair(gp_top.eta(), gp_bottom.eta());
-    ++n;
-  }
+  std::vector<std::pair<double,double> > gem_roll_eta_limits_l1 = gemRollToEtaLimitsLUT(gemChamber_l1);
+  std::vector<std::pair<double,double> > gem_roll_eta_limits_l2 = gemRollToEtaLimitsLUT(gemChamber_l2);
 
   std::stringstream os;
   os << "GEM roll to eta limits" << std::endl;
-  for(auto p : gemRollToEtaLimits_) {
+  for(auto p : gem_roll_eta_limits_l1) {
     os << "{"<< p.first << ", " << p.second << "}, " << std::endl;
   }
 
   // LUT<WG,<etaMin,etaMax> >
   std::vector<double> cscWGToEtaLimits_;
   const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
-  n = 1;
+  int n = 1;
   for (int i = 0; i< numberOfWG; ++i){
     const LocalPoint wire_loc(keyLayerGeometry->localCenterOfWireGroup(i));
     const GlobalPoint gp(keyLayer->toGlobal(wire_loc));
@@ -251,7 +239,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   std::vector<int> cscWgToGemRoll_;
   for (int i = 0; i< numberOfWG; ++i){
     auto eta(cscWGToEtaLimits_[i]);
-    cscWgToGemRoll_.push_back( assignRoll(gemRollToEtaLimits_, eta) );
+    cscWgToGemRoll_.push_back( assignRoll(gem_roll_eta_limits_l1, eta) );
   }
 
   os << "WG to roll" << std::endl;
@@ -266,7 +254,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   std::vector<int> gemPadToCscHs_;
   std::vector<std::pair<int,int>> cscHsToGemPad_;
 
-  auto randRoll(gemChamber->etaPartition(2));
+  auto randRoll(gemChamber_l1->etaPartition(2));
   auto nStrips(keyLayerGeometry->numberOfStrips());
   for (float i = 0; i< nStrips; i = i+0.5){
     const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
@@ -308,6 +296,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  std::cout << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -341,20 +330,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   }
 
   // LUT<roll,<etaMin,etaMax> >    
-  std::vector<std::pair<double,double> > rpcRollToEtaLimits_;
-
-  for(int i = 1; i<= rpcChamber->nrolls(); ++i){
-    auto roll(rpcChamber->roll(i));
-    if (roll==nullptr) continue;
-    
-    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
-    const LocalPoint lp_top(0., half_striplength, 0.);
-    const LocalPoint lp_bottom(0., -half_striplength, 0.);
-    const GlobalPoint gp_top(roll->toGlobal(lp_top));
-    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    //result[i] = std::make_pair(floorf(gp_top.eta() * 100) / 100, ceilf(gp_bottom.eta() * 100) / 100);
-    rpcRollToEtaLimits_.push_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
-  }
+  std::vector<std::pair<double,double> > rpcRollToEtaLimits_ = rpcRollToEtaLimitsLUT(rpcChamber);
   
   std::stringstream os;
   os << "RPC roll to eta limits" << std::endl;
@@ -445,6 +421,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
 
   // print LUTs
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  std::cout << os.str();
 }
 
 int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<double,double> >& lut_, double eta) const
@@ -459,4 +436,34 @@ int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<do
     }
   }
   return result;
+}
+
+std::vector<std::pair<double,double> >
+CSCUpgradeMotherboardLUTGenerator::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber) const
+{
+  std::vector<std::pair<double,double> > lut;
+  for(auto roll : gemChamber->etaPartitions()) {
+    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
+    const LocalPoint lp_top(0., half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -half_striplength, 0.);
+    const GlobalPoint gp_top(roll->toGlobal(lp_top));
+    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
+    lut.push_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
+  }
+  return lut;
+}
+
+std::vector<std::pair<double,double> >
+CSCUpgradeMotherboardLUTGenerator::rpcRollToEtaLimitsLUT(const RPCChamber* rpcChamber) const
+{
+  std::vector<std::pair<double,double> > lut;
+  for(auto roll : rpcChamber->rolls()) {
+    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
+    const LocalPoint lp_top(0., half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -half_striplength, 0.);
+    const GlobalPoint gp_top(roll->toGlobal(lp_top));
+    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
+    lut.push_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
+  }
+  return lut;
 }
