@@ -47,7 +47,7 @@ namespace cond {
   // register ub8  length;   /* the length of the key */
   // register ub8  level;    /* the previous hash, or an arbitrary value */
   {
-    register ub8 a,b,c,len;
+    ub8 a,b,c,len;
     
     /* Set up the internal state */
     len = length;
