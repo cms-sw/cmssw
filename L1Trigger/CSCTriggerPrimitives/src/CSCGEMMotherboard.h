@@ -244,7 +244,7 @@ matches<S> CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct, enum CSCPart
   else                                    variant_lut = coPads_;
   auto actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
 
-  std::pair<int,int> alctRoll = (*getLUT()->CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(isEven))[alct.getKeyWG()];
+  std::pair<int,int> alctRoll = (*getLUT()->CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(par))[alct.getKeyWG()];
   for (auto p: actual_lut[alct.getBX()]){
     auto padRoll(getRoll(p));
     // only pads in overlap are good for ME1A
@@ -278,7 +278,7 @@ matches<S> CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, enum CSCPart
   }
   auto actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
   
-  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(isEven, part));
+  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
   const int lowPad(mymap[clct.getKeyStrip()].first);
   const int highPad(mymap[clct.getKeyStrip()].second);
   for (auto p: actual_lut[clct.getBX()]){

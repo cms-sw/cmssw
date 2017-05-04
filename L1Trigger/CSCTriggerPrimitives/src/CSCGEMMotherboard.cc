@@ -26,9 +26,9 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
   maxDeltaBXPad_ = tmbParams_.getParameter<int>("maxDeltaBXPad");
   maxDeltaBXCoPad_ = tmbParams_.getParameter<int>("maxDeltaBXCoPad");
 
-  maxDeltaPadL1_ = (isEven ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
+  maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL1Odd") );
-  maxDeltaPadL2_ = (isEven ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
+  maxDeltaPadL2_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL2Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL2Odd") );
 }
 
@@ -88,7 +88,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
  							 enum CSCPart part,
 							 int trknmb) 
 {
-  auto mymap = (*getLUT()->get_gem_pad_to_csc_hs(isEven, part));
+  auto mymap = (*getLUT()->get_gem_pad_to_csc_hs(par, part));
 
   if (useOldLCTDataFormat_){
     // CLCT pattern number - set it to a highest value
@@ -292,7 +292,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 bool CSCGEMMotherboard::isPadInOverlap(int roll)
 {
   // this only works for ME1A!
-  auto mymap = (*getLUT()->get_csc_wg_to_gem_roll(isEven));
+  auto mymap = (*getLUT()->get_csc_wg_to_gem_roll(par));
   for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15)) continue;
@@ -323,7 +323,7 @@ int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p)
 
 int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct)
 {
-  return (*getLUT()->get_csc_wg_to_gem_roll(isEven))[alct.getKeyWG()].first;
+  return (*getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
 }
 
 float CSCGEMMotherboard::getAvePad(const GEMPadDigi& p)
@@ -338,7 +338,7 @@ float CSCGEMMotherboard::getAvePad(const GEMCoPadDigi& p)
 
 float CSCGEMMotherboard::getAvePad(const CSCCLCTDigi& clct, enum CSCPart part)
 {
-  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(isEven, part));
+  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
   return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
 }
 
