@@ -159,15 +159,8 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
 
     // Pick the right EA and do rhoCorr
     if (doRhoCorrection_) {
-      int iEA = -1;
-      for (int cIt = absEtaLowEdges_.size() - 1; cIt > -1; cIt--) {
-        if ( std::abs(EtaSC) >= absEtaLowEdges_.at(cIt) ) {
-          iEA = cIt;
-          break;
-        }
-      }
-
-      vali = vali - (rho * effectiveAreas_.at(iEA));
+      auto cIt = std::lower_bound( absEtaLowEdges_.begin(), absEtaLowEdges_.end(), std::abs(EtaSC) ) - 1;
+      vali = vali - (rho * effectiveAreas_.at( std::distance( absEtaLowEdges_.begin(), cIt ) ));
     }
 
     float energy = ref->superCluster()->energy();
@@ -179,13 +172,9 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
     double cutOverEEB_ = 9999., cutOverEEE_ = 9999.;
     double cutOverE2EB_ = 9999., cutOverE2EE_ = 9999.;
 
-    int iEn = -1;
-    for (int dIt = energyLowEdges_.size() - 1; dIt > -1; dIt--) {
-      if ( energy >= energyLowEdges_.at(dIt) ) {
-        iEn = dIt;
-        break;
-      }
-    }
+    auto dIt = std::lower_bound( energyLowEdges_.begin(), energyLowEdges_.end(), energy ) - 1;
+    unsigned iEn = std::distance( energyLowEdges_.begin(), dIt );
+
     cutRegularEB_ = thrRegularEB_.at(iEn);
     cutRegularEE_ = thrRegularEE_.at(iEn);
     cutOverEEB_ = thrOverEEB_.at(iEn);
