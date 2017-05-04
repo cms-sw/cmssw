@@ -303,6 +303,24 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	     << std::endl;
          break;
       }
+      case ddextrudedpolygon:
+      {
+	 DDExtrudedPolygon rs(solid);
+	 std::vector<double> x = rs.xVec();
+	 std::vector<double> y = rs.yVec();
+	 std::vector<double> z = rs.zVec();
+	 std::vector<double> zx = rs.zxVec();
+	 std::vector<double> zy = rs.zyVec();
+	 std::vector<double> zs = rs.zscaleVec();
+	 
+         xos << "<ExtrudedPolygon name=\""  << rs.toString() << "\"";
+	 for( unsigned int i : x )
+	   xos << " <XYPoint x=\"" << x[i] << "*mm\" y=\"" << y[i] << "*mm\"/>\n";
+	 for( unsigned int k : z )
+	   xos << " <ZXYSection z=\"" << z[k] << "*mm\" x=\"" << zx[k] << "*mm\" y=\"" << zy[k] << "*mm scale=" <<  zs[k] << "*mm\"/>\n";
+	 xos << "</ExtrudedPolygon>\n";
+         break;
+      }
          //       return new PSolid( pstrs(solid.toString()), solid.parameters()
          // 			 , solid.shape(), pstrs(""), pstrs(""), pstrs("") );
       case dd_not_init:
