@@ -3,7 +3,9 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
+HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) 
+  : TopFolderName_           ( conf.getParameter<std::string>("TopFolderName") )
+{
 
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -29,8 +31,10 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
   tok_hf_  = consumes<HFRecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel"));
   tok_ho_ = consumes<HORecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel"));
-  tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  edm::InputTag EBRecHitCollectionLabel = conf.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+  tok_EB_ = consumes<EBRecHitCollection>(EBRecHitCollectionLabel);
+  edm::InputTag EERecHitCollectionLabel = conf.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+  tok_EE_ = consumes<EERecHitCollection>(EERecHitCollectionLabel);
 
   subdet_ = 5;
   if (hcalselector_ == "noise") subdet_ = 0;
@@ -119,7 +123,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
     Char_t histo[200];
 
-    ibooker.setCurrentFolder("HcalRecHitsD/HcalRecHitTask");
+    ibooker.setCurrentFolder(TopFolderName_);
 
     // General counters (drawn)
 
