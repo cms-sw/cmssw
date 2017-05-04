@@ -152,7 +152,7 @@ namespace edm {
     //virtual std::type_info const& typeInfo() const = 0;
     virtual std::type_info const& typeInfo() const {
       assert(false);
-      return *reinterpret_cast<const std::type_info*>(0);
+      return typeid(void);
     }
     
     //returns false if the cache is not yet set
