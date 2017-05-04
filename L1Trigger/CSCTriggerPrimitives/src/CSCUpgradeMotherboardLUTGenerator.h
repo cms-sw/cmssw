@@ -1,14 +1,13 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUTGenerator_h
 #define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUTGenerator_h
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include <vector>
-#include <map>
 
 class CSCUpgradeMotherboardLUTGenerator
 {
@@ -27,7 +26,7 @@ public:
   void generateLUTsME11(unsigned e, unsigned se, unsigned sb, unsigned c) const;
   void generateLUTsME21(unsigned e, unsigned se, unsigned sb, unsigned c) const;
   void generateLUTsME3141(unsigned e, unsigned s, unsigned se, unsigned sb, unsigned c) const;
-  int assignRoll(const std::map<int,std::pair<double,double> >&, double eta) const;
+  int assignRoll(const std::vector<std::pair<double,double> >&, double eta) const;
   
  private:
   const CSCGeometry* csc_g;
