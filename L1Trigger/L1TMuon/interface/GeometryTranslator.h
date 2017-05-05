@@ -1,13 +1,13 @@
 #ifndef __L1TMUON_GEOMETRYTRANSLATOR_H__
 #define __L1TMUON_GEOMETRYTRANSLATOR_H__
-// 
+//
 // Class: L1TMuon::GeometryTranslator
 //
 // Info: This class implements a the translations from packed bits or
 //       digi information into local or global CMS coordinates for all
 //       types of L1 trigger primitives that we want to consider for
 //       use in the integrated muon trigger.
-//       
+//
 // Note: This should be considered as a base class to some sort of global
 //       look-up table
 //
@@ -19,18 +19,20 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
 
+
 // forwards
-namespace edm {  
+namespace edm {
   class EventSetup;
 }
 
+class GEMGeometry;
 class RPCGeometry;
 class CSCGeometry;
 class CSCLayer;
 class DTGeometry;
 class MagneticField;
 
-namespace L1TMuon{
+namespace L1TMuon {
   class TriggerPrimitive;
 
   class GeometryTranslator {
@@ -46,6 +48,7 @@ namespace L1TMuon{
 
     void checkAndUpdateGeometry(const edm::EventSetup&);
 
+    const GEMGeometry& getGEMGeometry() const { return *_geogem; }
     const RPCGeometry& getRPCGeometry() const { return *_georpc; }
     const CSCGeometry& getCSCGeometry() const { return *_geocsc; }
     const DTGeometry&  getDTGeometry()  const { return *_geodt;  }
@@ -55,12 +58,18 @@ namespace L1TMuon{
   private:
     // pointers to the current geometry records
     unsigned long long _geom_cache_id;
+    edm::ESHandle<GEMGeometry> _geogem;
     edm::ESHandle<RPCGeometry> _georpc;
     edm::ESHandle<CSCGeometry> _geocsc;
     edm::ESHandle<DTGeometry>  _geodt;
 
     unsigned long long _magfield_cache_id;
     edm::ESHandle<MagneticField> _magfield;
+
+    GlobalPoint getGEMSpecificPoint(const TriggerPrimitive&) const;
+    double calcGEMSpecificEta(const TriggerPrimitive&) const;
+    double calcGEMSpecificPhi(const TriggerPrimitive&) const;
+    double calcGEMSpecificBend(const TriggerPrimitive&) const;
 
     GlobalPoint getRPCSpecificPoint(const TriggerPrimitive&) const;
     double calcRPCSpecificEta(const TriggerPrimitive&) const;

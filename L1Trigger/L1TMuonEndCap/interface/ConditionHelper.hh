@@ -5,6 +5,7 @@
 
 // forwards
 namespace edm {
+  class Event;
   class EventSetup;
 }
 
@@ -19,10 +20,18 @@ public:
   ConditionHelper();
   ~ConditionHelper();
 
-  void checkAndUpdateConditions(const edm::EventSetup& iSetup, PtAssignmentEngine& pt_assign_engine_);
+  void checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   const L1TMuonEndCapParams& getParams() const { return *params_; }
   const L1TMuonEndCapForest& getForest() const { return *forest_; }
+
+  // EMTF firmware is defined by three numbers:
+  //   1. FW version for the core logic
+  //   2. pT assignment LUT
+  //   3. coordinate conversion LUT
+  unsigned int get_fw_version() const;
+  unsigned int get_pt_lut_version() const;
+  unsigned int get_pc_lut_version() const;
 
 private:
   unsigned long long params_cache_id_;

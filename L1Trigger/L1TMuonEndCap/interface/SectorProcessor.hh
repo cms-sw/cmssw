@@ -29,8 +29,6 @@ public:
   explicit SectorProcessor();
   ~SectorProcessor();
 
-  void resetPtAssignment(const PtAssignmentEngine* new_pt_assign_engine);
-
   typedef unsigned long long EventNumber_t;
   typedef PatternRecognition::pattern_ref_t pattern_ref_t;
 
@@ -40,14 +38,16 @@ public:
       const SectorProcessorLUT* lut,
       const PtAssignmentEngine* pt_assign_engine,
       int verbose, int endcap, int sector,
-      int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC,
+      int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
       const std::vector<int>& zoneBoundaries, int zoneOverlap, int zoneOverlapRPC,
       bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
       const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-      int thetaWindow, int thetaWindowRPC, bool bugME11Dupes,
+      int thetaWindow, int thetaWindowRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes,
       int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
       bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi
   );
+
+  void configure_by_fw_version(unsigned fw_version);
 
   void process(
       // Input
@@ -82,7 +82,7 @@ private:
 
   int verbose_, endcap_, sector_;
 
-  int minBX_, maxBX_, bxWindow_, bxShiftCSC_, bxShiftRPC_;
+  int minBX_, maxBX_, bxWindow_, bxShiftCSC_, bxShiftRPC_, bxShiftGEM_;
 
   // For primitive conversion
   std::vector<int> zoneBoundaries_;
@@ -95,7 +95,8 @@ private:
 
   // For track building
   int thetaWindow_, thetaWindowRPC_;
-  bool bugME11Dupes_;
+  bool useSingleHits_;
+  bool bugSt2PhDiff_, bugME11Dupes_;
 
   // For ghost cancellation
   int maxRoadsPerZone_, maxTracks_;

@@ -11,7 +11,7 @@ public:
   explicit SectorProcessorLUT();
   ~SectorProcessorLUT();
 
-  void read(const std::string& ph_th_lut);
+  void read(unsigned pc_lut_version);
 
   uint32_t get_ph_init(int fw_endcap, int fw_sector, int pc_lut_id) const;
 
@@ -48,7 +48,7 @@ private:
   std::vector<uint32_t> ph_zone_offset_;
   std::vector<uint32_t> ph_init_hard_;
 
-  bool ok_;
+  unsigned version_;  // init: 0xFFFFFFFF
 };
 
 #endif

@@ -9,7 +9,7 @@ PtAssignmentEngine::PtAssignmentEngine() :
     allowedModes_({3,5,9,6,10,12,7,11,13,14,15}),
     forests_(),
     ptlut_reader_(),
-    ok_(false)
+    version_(0xFFFFFFFF)
 {
 
 }
@@ -19,8 +19,6 @@ PtAssignmentEngine::~PtAssignmentEngine() {
 }
 
 void PtAssignmentEngine::read(const std::string& xml_dir) {
-  if (ok_)  return;
-
   //std::string xml_dir_full = "L1Trigger/L1TMuon/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
   std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + xml_dir + "/ModeVariables/trees";
 
@@ -30,12 +28,13 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
     ss << xml_dir_full << "/" << mode_inv;
     forests_.at(mode_inv).loadForestFromXML(ss.str().c_str(), 64);
   }
-
-  ok_ = true;
   return;
 }
 
 void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
+  unsigned pt_lut_version = payload->version_;
+  if (version_ == pt_lut_version)  return;
+
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode_inv = allowedModes_.at(i);
 
@@ -51,6 +50,8 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
     //  tree->saveToXML( ss.str().c_str() );
     //}
   }
+
+  version_ = pt_lut_version;
   return;
 }
 

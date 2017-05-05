@@ -1,7 +1,7 @@
 //!
-//! This piece of code is obsolete and completely unused. It is kept as an 
+//! This piece of code is obsolete and completely unused. It is kept as an
 //! example to show how to access certain geometry information.
-//! 
+//!
 
 #include <cassert>
 #include <cmath>
@@ -21,9 +21,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -108,6 +109,7 @@ void MakeAngleLUT::generateLUTs() {
 
   const CSCGeometry& geocsc = geometry_translator_.getCSCGeometry();
   const RPCGeometry& georpc = geometry_translator_.getRPCGeometry();
+  const GEMGeometry& geogem = geometry_translator_.getGEMGeometry();
   const MagneticField& magfield = geometry_translator_.getMagneticField();
 
   auto average = [](double x, double y) {
@@ -115,7 +117,8 @@ void MakeAngleLUT::generateLUTs() {
   };
 
   // from RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.cc
-  // from RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.cc
+  //      RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.cc
+  //      RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.cc
   auto isFront = [](int subsystem, int station, int ring, int chamber, int subsector) {
     bool result = false;
 
@@ -132,15 +135,23 @@ void MakeAngleLUT::generateLUTs() {
     } else if (subsystem == TriggerPrimitive::kRPC) {
       // 10 degree rings have odd subsectors in front
       result = (subsector % 2 == 0);
+    } else if (subsystem == TriggerPrimitive::kGEM) {
+      //
+      result = (chamber % 2 == 0);
     }
     return result;
   };
   if (isFront) {}  // get around GCC unused-but-set-variable error
 
-  // Save z positions for ME1/1, ME1/2, ME1/3, ME2/2, ME3/2, ME4/2, RE1/2, RE1/3, RE2/2, RE3/2, RE4/2
-  std::vector<double> z_positions(22, 0.);
+  // Save z positions for ME1/1, ME1/2, ME1/3, ME2/2, ME3/2, ME4/2,
+  //                      RE1/2, RE1/3, RE2/2, RE3/2, RE4/2,
+  //                      GE1/1, GE1/2,
+  std::vector<double> z_positions(13*2, 0.);
 
+
+  // ___________________________________________________________________________
   // CSC
+
   for (CSCGeometry::DetUnitContainer::const_iterator it = geocsc.detUnits().begin(); it != geocsc.detUnits().end(); ++it) {
     const CSCLayer* layer = dynamic_cast<const CSCLayer*>(*it);  // like GeomDetUnit
     assert(layer != nullptr);
@@ -193,7 +204,10 @@ void MakeAngleLUT::generateLUTs() {
     }
   }  // end loop over CSC detUnits
 
+
+  // ___________________________________________________________________________
   // RPC
+
   for (RPCGeometry::DetUnitContainer::const_iterator it = georpc.detUnits().begin(); it != georpc.detUnits().end(); ++it) {
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(*it);  // like GeomDetUnit
     assert(roll != nullptr);
@@ -243,7 +257,26 @@ void MakeAngleLUT::generateLUTs() {
     }
   }  // end loop over RPC detUnits
 
+
+  // ___________________________________________________________________________
+  // GEM
+
+  for (GEMGeometry::DetUnitContainer::const_iterator it = geogem.detUnits().begin(); it != geogem.detUnits().end(); ++it) {
+    const GEMEtaPartition* roll = dynamic_cast<const GEMEtaPartition*>(*it);  // like GeomDetUnit
+    assert(roll != nullptr);
+    //const GEMChamber* chamber = roll->chamber();  // like GeomDet
+    //assert(chamber != nullptr);
+    const GEMDetId& gemDetId = roll->id();
+    if (gemDetId.region() == 0)  // skip barrel
+      continue;
+    //double zpos = roll->surface().position().z();  // [cm]
+    //std::cout << "GEM: " << gemDetId.region() << " " << gemDetId.ring() << " " << gemDetId.station() << " " << gemDetId.layer() << " " << gemDetId.chamber() << " " << gemDetId.roll() << " " << zpos << std::endl;
+  }  // end loop over GEM detUnits
+
+
+  // ___________________________________________________________________________
   // Verbose
+
   if (verbose_) {
     std::cout << "z positions:" << std::endl;
     for (const auto& zpos : z_positions) {
@@ -300,7 +333,6 @@ void MakeAngleLUT::generateLUTs() {
 
     // Loop over eta bins
     for (int ieta = 0; ieta < num_eta_bins; ++ieta) {
-
       // Find magnetic field strength
       double zpos     = z_positions.at(iz);
       double deltaZ   = zpos - common_zpos;

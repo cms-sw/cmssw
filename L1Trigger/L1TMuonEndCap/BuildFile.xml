@@ -6,18 +6,6 @@
 
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-
-<use name="DataFormats/CSCDigi"/>
-<use name="DataFormats/RPCDigi"/>
 <use name="DataFormats/L1TMuon"/>
-
-<use name="Geometry/RPCGeometry"/>
-<use name="Geometry/CSCGeometry"/>
-
-<use name="L1Trigger/CSCCommonTrigger"/>
 <use name="L1Trigger/L1TMuon"/>
-
-<use name="MagneticField/Engine"/>
-<use name="MagneticField/Records"/>
-
 <use name="root"/>

@@ -105,11 +105,11 @@ void BestTrackSelection::cancel_one_bx(
         assert(conv_hit.Valid());
 
         // A segment identifier (chamber, strip, bx)
-        //const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), 0}};
-        int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
-        chamber_index     += conv_hit.PC_station()*9;
-        chamber_index     += conv_hit.PC_chamber();
-        const segment_ref_t segment = {{chamber_index, conv_hit.Strip(), 0}};
+        const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), 0}};  // FW doesn't check whether a segment is CSC or RPC
+        //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
+        //chamber_index     += conv_hit.PC_station()*9;
+        //chamber_index     += conv_hit.PC_chamber();
+        //const segment_ref_t segment = {{chamber_index, conv_hit.Strip(), 0}};
         segments.at(zn).push_back(segment);
       }
     }  // end loop over n
@@ -301,12 +301,22 @@ void BestTrackSelection::cancel_multi_bx(
         for (const auto& conv_hit : track.Hits()) {
           assert(conv_hit.Valid());
 
+          // Notes from Alex (2017-03-16):
+          //
+          //     What happens currently is that RPC hits are inserted instead of
+          // CSC hits, if CSC hits are missing. So the track address will point
+          // at a CSC chamber, but the actual hit may have come from
+          // corresponding RPC located behind it. If the same substitution
+          // happened in the neighboring sector, then the cancellation in uGMT
+          // will work correctly. If the substitution happened in only one
+          // sector, then RPC hit may "trump" a CSC hit, or vice versa.
+
           // A segment identifier (chamber, strip, bx)
-          //const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), conv_hit.BX()}};
-          int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
-          chamber_index     += conv_hit.PC_station()*9;
-          chamber_index     += conv_hit.PC_chamber();
-          const segment_ref_t segment = {{chamber_index, conv_hit.Strip(), conv_hit.BX()}};
+          const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), conv_hit.BX()}};  // FW doesn't check whether a segment is CSC or RPC
+          //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
+          //chamber_index     += conv_hit.PC_station()*9;
+          //chamber_index     += conv_hit.PC_chamber();
+          //const segment_ref_t segment = {{chamber_index, conv_hit.Strip(), conv_hit.BX()}};
           segments.at(hzn).push_back(segment);
         }
       }  // end loop over n

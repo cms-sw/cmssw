@@ -139,7 +139,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
       for (const auto& conv_hitA : conv_hitsA) {
         for (const auto& conv_hitB : conv_hitsB) {
           // Has RPC?
-          bool has_rpc = (conv_hitA.Subsystem() == TriggerPrimitive::kRPC || conv_hitB.Subsystem() == TriggerPrimitive::kRPC);
+          //bool has_rpc = (conv_hitA.Subsystem() == TriggerPrimitive::kRPC || conv_hitB.Subsystem() == TriggerPrimitive::kRPC);
 
           // Calculate theta deltas
           int thA = conv_hitA.Theta_fp();
@@ -153,7 +153,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
             best_dtheta_arr.at(ipair) = dth;
             best_dtheta_sign_arr.at(ipair) = dth_sign;
             best_dtheta_valid_arr.at(ipair) = true;
-            best_has_rpc_arr.at(ipair) = has_rpc;
+            //best_has_rpc_arr.at(ipair) = has_rpc;  // FW doesn't check whether a segment is CSC or RPC
 
             // first 3 pairs, use station B
             // last 3 pairs, use station A
@@ -330,6 +330,10 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     if (subsystem == TriggerPrimitive::kRPC)
       return (station == 2);
 
+    // GEMs are in front of the CSCs
+    if (subsystem == TriggerPrimitive::kGEM)
+      return true;
+
     bool result = false;
     bool isOverlapping = !(station == 1 && ring == 3);
     // not overlapping means back
@@ -359,7 +363,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
 
   for (int i = 0; i < NUM_STATIONS; ++i) {
     const auto& v = st_conv_hits.at(i);
-    ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically 10 for RPCs
+    ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
     ptlut_data.fr[i]       = v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
   }
 

@@ -17,7 +17,7 @@ ConditionHelper::ConditionHelper():
 ConditionHelper::~ConditionHelper() {
 }
 
-void ConditionHelper::checkAndUpdateConditions(const edm::EventSetup& iSetup, PtAssignmentEngine& pt_assign_engine_) {
+void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Pull configuration from the EventSetup
   auto& params_setup = iSetup.get<L1TMuonEndcapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
@@ -36,9 +36,27 @@ void ConditionHelper::checkAndUpdateConditions(const edm::EventSetup& iSetup, Pt
     forest_setup.get(forest_);
 
     // at this point we want to reload the newly pulled pT LUT
-    pt_assign_engine_.load(&(*forest_));
+    // ...
 
     // reset cache id
     forest_cache_id_ = forest_setup.cacheIdentifier();
   }
+
+  // Debug
+  //std::cout << "Run number: " << iEvent.id().run() << " fw_version: " << get_fw_version()
+  //    << " pt_lut_version: " << get_pt_lut_version() << " pc_lut_version: " << get_pc_lut_version()
+  //    << std::endl;
+}
+
+unsigned int ConditionHelper::get_fw_version() const {
+  return params_->firmwareVersion_;
+}
+
+unsigned int ConditionHelper::get_pt_lut_version() const {
+  return params_->PtAssignVersion_;
+}
+
+unsigned int ConditionHelper::get_pc_lut_version() const {
+  //return params_->PrimConvVersion_;  // not yet implemented
+  return 0;
 }

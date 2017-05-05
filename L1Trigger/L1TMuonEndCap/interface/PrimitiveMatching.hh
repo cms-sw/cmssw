@@ -12,7 +12,7 @@ public:
   void configure(
       int verbose, int endcap, int sector, int bx,
       bool fixZonePhi, bool useNewZones,
-      bool bugME11Dupes
+      bool bugSt2PhDiff, bool bugME11Dupes
   );
 
   void process(
@@ -37,7 +37,7 @@ private:
   int verbose_, endcap_, sector_, bx_;
 
   bool fixZonePhi_, useNewZones_;
-  bool bugME11Dupes_;
+  bool bugSt2PhDiff_, bugME11Dupes_;
 };
 
 #endif
