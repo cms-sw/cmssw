@@ -334,8 +334,8 @@ Propagator * RKPropagatorInS::clone() const
     return new RKPropagatorInS(*this);
 }
 
-GlobalTrajectoryParameters RKPropagatorInS::gtpFromLocal( const Basic3DVector<double>& lpos,
-							  const Basic3DVector<double>& lmom,
+GlobalTrajectoryParameters RKPropagatorInS::gtpFromLocal( const Basic3DVector<float>& lpos,
+							  const Basic3DVector<float>& lmom,
 							  TrackCharge ch, const Surface& surf) const
 {
     return GlobalTrajectoryParameters( surf.toGlobal( LocalPoint( lpos)),
@@ -370,13 +370,13 @@ Basic3DVector<double> RKPropagatorInS::rkMomentum( const GlobalVector& mom) cons
   else return mom.basicVector();
 }
 
-GlobalPoint RKPropagatorInS::globalPosition( const Basic3DVector<double>& pos) const
+GlobalPoint RKPropagatorInS::globalPosition( const Basic3DVector<float>& pos) const
 {
   if (theVolume != 0) return theVolume->toGlobal( LocalPoint(pos));
   else return GlobalPoint(pos);
 }
 
-GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<double>& mom) const
+GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<float>& mom) const
 
 {
   if (theVolume != 0) return theVolume->toGlobal( LocalVector(mom));
