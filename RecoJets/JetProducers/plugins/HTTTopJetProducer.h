@@ -61,7 +61,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
+#include "RecoJets/JetProducers/interface/FastjetJetProducer.h"
 
 #include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
 

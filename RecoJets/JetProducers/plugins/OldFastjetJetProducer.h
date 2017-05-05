@@ -1,12 +1,12 @@
-#ifndef RecoJets_JetProducers_plugins_FastjetJetProducer_h
-#define RecoJets_JetProducers_plugins_FastjetJetProducer_h
+#ifndef RecoJets_JetProducers_plugins_OldFastjetJetProducer_h
+#define RecoJets_JetProducers_plugins_OldFastjetJetProducer_h
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-#include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
+#include "RecoJets/JetProducers/plugins/OldVirtualJetProducer.h"
 
 #include <fastjet/tools/Transformer.hh>
 
@@ -36,7 +36,7 @@ private:
 
 
 
-class FastjetJetProducer : public VirtualJetProducer
+class OldFastjetJetProducer : public OldVirtualJetProducer
 {
 
 public:
@@ -47,8 +47,8 @@ public:
   //
   // construction/destruction
   //
-  explicit FastjetJetProducer(const edm::ParameterSet& iConfig);
-  virtual ~FastjetJetProducer();
+  explicit OldFastjetJetProducer(const edm::ParameterSet& iConfig);
+  virtual ~OldFastjetJetProducer();
 
   virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 
