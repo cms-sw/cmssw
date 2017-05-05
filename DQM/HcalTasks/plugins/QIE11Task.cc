@@ -53,7 +53,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			_cShapeCut_EChannel[itr].initialize(_name,
 				"ShapeCut", hcaldqm::hashfunctions::fEChannel,
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000));
 			_cLETDCvsTS_EChannel[itr].initialize(_name, 
 				"LETDCvsTS", hcaldqm::hashfunctions::fEChannel, 
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
@@ -84,7 +84,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cShapeCut.initialize(_name,
 		"ShapeCut", 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000));
 	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
