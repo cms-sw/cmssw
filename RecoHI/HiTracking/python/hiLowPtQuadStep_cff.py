@@ -214,20 +214,20 @@ hiLowPtQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiLowPtQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiLowPtQuadStepTight',
     preFilterName = 'hiLowPtQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.2)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiLowPtQuadStep',
     preFilterName = 'hiLowPtQuadStepTight',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.09)
     ),
     ) #end of vpset

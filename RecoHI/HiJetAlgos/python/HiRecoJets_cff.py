@@ -140,8 +140,8 @@ hiRecoJets = cms.Sequence(
     caloTowersRec*caloTowers*
     iterativeConePu5CaloJets*
     akPu3CaloJets*akPu4CaloJets*akPu5CaloJets
-    #voronoiBackgroundCalo*
-    #akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets
+    voronoiBackgroundCalo*
+    akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets
     )
 
 ## Extended Sequence

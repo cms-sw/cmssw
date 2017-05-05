@@ -214,20 +214,20 @@ hiDetachedQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiDetachedQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiDetachedQuadStepTight',
     preFilterName = 'hiDetachedQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.2)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiDetachedQuadStep',
     preFilterName = 'hiDetachedQuadStepTight',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.09)
     ),
     ) #end of vpset

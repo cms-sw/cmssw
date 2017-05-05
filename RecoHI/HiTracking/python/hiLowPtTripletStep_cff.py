@@ -181,18 +181,18 @@ hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(False)
+    useMVA = cms.bool(True)
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiLowPtTripletStepTight',
     preFilterName = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.58)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiLowPtTripletStep',
     preFilterName = 'hiLowPtTripletStepTight',
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(0.35)
     ),
     ) #end of vpset

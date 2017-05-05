@@ -12,18 +12,18 @@ hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackS
     trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiInitialStepLoose',
-    useMVA = cms.bool(False)
+    useMVA = cms.bool(True)
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiInitialStepTight',
     preFilterName = 'hiInitialStepLoose',
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.77)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiInitialStep',
     preFilterName = 'hiInitialStepTight',
-    useMVA = cms.bool(False),
+    useMVA = cms.bool(True),
     minMVA = cms.double(-0.77)
     ),
     ) #end of vpset
