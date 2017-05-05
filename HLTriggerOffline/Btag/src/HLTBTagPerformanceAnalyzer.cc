@@ -221,8 +221,8 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				labelEta=label;
 				labelPhi=label;
 				label+=flavour+TString("_disc_pT");
-				labelEta+=flavour+"_disc_eta";
-				labelPhi+=flavour+"_disc_phi";
+				labelEta+=std::string(static_cast<const char *>(flavour))+"_disc_eta";
+				labelPhi+=std::string(static_cast<const char *>(flavour))+"_disc_phi";
 
 				//book 2D btag plot for 'b,c,light,g'
 				H2_.back()[label.Data()] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
