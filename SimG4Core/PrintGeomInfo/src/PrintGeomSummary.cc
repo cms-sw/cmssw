@@ -59,6 +59,7 @@ PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet &p) : theTopPV_(0) {
   solidShape_[ddellipsoid]      = "Ellipsoid";
   solidShape_[ddparallelepiped] = "Parallelepiped";
   solidShape_[ddcuttubs]        = "CutTubs";
+  solidShape_[ddextrudedpolygon]= "ExtrudedPolygon";
   solidShape_[dd_not_init]      = "Unknown";
 }
  

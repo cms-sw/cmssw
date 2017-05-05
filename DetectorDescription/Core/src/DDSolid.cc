@@ -333,20 +333,19 @@ DDPolySolid::DDPolySolid(const DDSolid & s)
 std::vector<double>
 DDPolySolid::getVec (const size_t& which, 
 		     const size_t& offset,
-		     const size_t& numVecs) const {
-
+		     const size_t& numVecs) const
+{
   // which:  first second or third std::vector 
   // offset: number of non-std::vector components before std::vectors start
-  std::string locErr;
-  std::vector<double> tvec;
   if(( rep().parameters().size() - offset) % numVecs != 0 ) {
-    locErr = std::string("Could not find equal sized components of std::vectors in a PolySolid description.");
-    edm::LogError ("DDSolid") << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
-	 << "  offset=" << offset << std::endl;
+    edm::LogError ("DDSolid") << "Could not find equal sized components of std::vectors in a PolySolid description."
+			      << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
+			      << "  offset=" << offset << std::endl;
   }
+  std::vector<double> tvec;
   for( size_t i = offset + which; i < rep().parameters().size(); i = i + numVecs ) {
     tvec.emplace_back( rep().parameters()[i]);
-  }		   
+  }               
   return tvec;
 }
 
@@ -446,6 +445,83 @@ DDPolyhedra::rMaxVec() const {
   if (shape() == ddpolyhedra_rrz)
     tvec = getVec(2, 3, 3);
   return tvec;
+}
+
+DDExtrudedPolygon::DDExtrudedPolygon(const DDSolid & s)
+  : DDPolySolid(s)
+{
+  if( s.shape() != ddextrudedpolygon ) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDExtrudedPolygon.\n";
+    ex = ex + "Use a different solid interface!";
+    throw cms::Exception("DDException") << ex;
+  }
+}
+
+auto
+DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
+{
+  // Compute the size of the X and Y coordinate vectors
+  // which define the vertices of the outlined polygon
+  // defined in clock-wise order
+
+  return ( rep().parameters().size() - 4 * zSectionsSize()) * 0.5;
+}
+
+auto
+DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
+{
+  // The first parameters element stores a size of the four equal size vectors
+  // which form the ExtrudedPolygon shape Z sections:
+  // 
+  //    * first: Z coordinate of the XY polygone plane,
+  //    * second and third: x and y offset of the polygone in the XY plane,
+  //    * fourth: the polygone scale in each XY plane
+  //
+  // The Z sections defined by the z position in an increasing order.
+
+  return rep().parameters()[0];
+}
+
+std::vector<double>
+DDExtrudedPolygon::xVec( void ) const
+{
+  return std::vector<double>( rep().parameters().begin() + 1,
+			      rep().parameters().begin() + 1 + xyPointsSize());
+}
+
+std::vector<double>
+DDExtrudedPolygon::yVec( void ) const
+{
+  return std::vector<double>( rep().parameters().begin() + 1 + xyPointsSize(),
+			      rep().parameters().begin() + 1 + 2 * xyPointsSize());
+}
+
+std::vector<double>
+DDExtrudedPolygon::zVec( void ) const
+{
+  return std::vector<double>( rep().parameters().end() - 4 * zSectionsSize(),
+			      rep().parameters().end() - 3 * zSectionsSize());
+}
+
+std::vector<double>
+DDExtrudedPolygon::zxVec( void ) const
+{
+  return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize(),
+			      rep().parameters().end() - 2 * zSectionsSize());
+}
+
+std::vector<double>
+DDExtrudedPolygon::zyVec( void ) const
+{
+  return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize(),
+			      rep().parameters().end() - zSectionsSize());
+}
+
+std::vector<double>
+DDExtrudedPolygon::zscaleVec( void ) const
+{
+  return std::vector<double>( rep().parameters().end() - zSectionsSize(),
+			      rep().parameters().end());
 }
 
 DDCons::DDCons(const DDSolid& s) 
