@@ -165,6 +165,18 @@ def customiseFor18429(process):
 
      return process
 
+# Add new parameters required by RecoTauBuilderConePlugin
+def customiseFor18429(process):
+     for producer in producers_by_type(process, "RecoTauProducer"):
+          if hasattr(producer,'builders'):
+               for pset in producer.builders:
+                    if not hasattr(pset,'minAbsPhotonSumPt_insideSignalCone'):
+                         pset.minAbsPhotonSumPt_insideSignalCone = cms.double(2.5)
+                    if not hasattr(pset,'minRelPhotonSumPt_insideSignalCone'):
+                         pset.minRelPhotonSumPt_insideSignalCone = cms.double(0.10)
+
+     return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
@@ -173,6 +185,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor17792(process)
     process = customiseFor17794(process)
     process = customiseFor18330(process)
+    process = customiseFor18429(process)
     process = customiseFor18559(process)
 
     return process
