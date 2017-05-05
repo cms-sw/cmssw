@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.hh"
 
 #include "helper.hh"
@@ -54,7 +54,7 @@ private:
 #define PTLUT_SIZE (1<<30)
 
 MakePtLUT::MakePtLUT(const edm::ParameterSet& iConfig) :
-    pt_assign_engine_(new PtAssignmentEngine()),
+    pt_assign_engine_(new PtAssignmentEngine2016()),
     ptlut_writer_(),
     config_(iConfig),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
