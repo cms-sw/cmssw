@@ -412,8 +412,8 @@ bool PulseChiSqSNNLS::NNLS() {
     
     //adaptive convergence threshold to avoid infinite loops but still
     //ensure best value is used
-    if (iter%50==0) {
-      threshold *= 10.;
+    if (iter % 16 == 0) {
+      threshold *= 2;
     }
   }
   
