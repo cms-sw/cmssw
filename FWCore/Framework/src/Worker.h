@@ -50,6 +50,7 @@ the worker is reset().
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -103,6 +104,13 @@ namespace edm {
                                   StreamID stream,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
+
+    template <typename T>
+    void runStatusInserter(typename T::MyPrincipal const& ep,
+                           EventSetup const& es,
+                           StreamID streamID,
+                           ParentContext const& parentContext,
+                           typename T::Context const* context);
 
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
@@ -864,6 +872,33 @@ namespace edm {
     }
     
     return rc;
+  }
+
+  template <typename T>
+  void Worker::runStatusInserter(typename T::MyPrincipal const& ep,
+                                 EventSetup const& es,
+                                 StreamID streamID,
+                                 ParentContext const& parentContext,
+                                 typename T::Context const* context) {
+
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    timesVisited_.fetch_add(1,std::memory_order_relaxed);
+    timesRun_.fetch_add(1,std::memory_order_relaxed);
+
+    try {
+      convertException::wrap([&]()
+      {
+        workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
+        timesPassed_.fetch_add(1,std::memory_order_relaxed);
+      });
+    } catch(cms::Exception& ex) {
+      timesExcept_.fetch_add(1,std::memory_order_relaxed);
+      exceptionContext(ex, &moduleCallingContext_);
+      std::exception_ptr exceptionPtr = std::current_exception();
+      waitingTasks_.doneWaiting(exceptionPtr);
+      std::rethrow_exception(exceptionPtr);
+    }
+    waitingTasks_.doneWaiting(nullptr);
   }
 }
 #endif
