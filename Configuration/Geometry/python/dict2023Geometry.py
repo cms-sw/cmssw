@@ -195,7 +195,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalouteralgo.xml',
             'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
             'Geometry/HcalCommonData/data/hcalSimNumbering/2016a/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/hcalRecNumbering/Run2016a/hcalRecNumbering.xml',
+            'Geometry/HcalCommonData/data/hcalRecNumbering/2016a/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
         ],
         3 : [
