@@ -180,7 +180,7 @@ hiDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiDetachedTripletStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiDetachedTripletStepTight',

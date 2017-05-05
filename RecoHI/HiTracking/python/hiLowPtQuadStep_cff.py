@@ -214,7 +214,7 @@ hiLowPtQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiLowPtQuadStepLoose',
     applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiLowPtQuadStepTight',
