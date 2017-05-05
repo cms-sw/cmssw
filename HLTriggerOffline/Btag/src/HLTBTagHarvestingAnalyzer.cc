@@ -49,8 +49,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 			std::string labelEta = label.Data();
 			std::string labelPhi = label.Data();
 			label+=flavour+TString("_disc_pT");
-			labelEta+=flavour+"_disc_eta";
-			labelPhi+=flavour+"_disc_phi";
+			labelEta+=std::string(static_cast<const char *>(flavour))+"_disc_eta";
+			labelPhi+=std::string(static_cast<const char *>(flavour))+"_disc_phi";
 			isOK=GetNumDenumerators (ibooker,igetter,(TString(dqmFolder_hist)+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+label).Data(),num,den,1);
 			if (isOK) {
 			
