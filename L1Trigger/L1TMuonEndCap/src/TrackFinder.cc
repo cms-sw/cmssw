@@ -21,8 +21,18 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
-    useGEM_(iConfig.getParameter<bool>("GEMEnable"))
+    useGEM_(iConfig.getParameter<bool>("GEMEnable")),
+    era_(iConfig.getParameter<std::string>("Era"))
 {
+
+  if (era_ == "Run2_2016") {
+    pt_assign_engine_.reset(new PtAssignmentEngine2016());
+  } else if (era_ == "Run2_2017") {
+    pt_assign_engine_.reset(new PtAssignmentEngine2017());
+  } else {
+    assert(false && "Cannot recognize the era option");
+  }
+
   auto minBX       = iConfig.getParameter<int>("MinBX");
   auto maxBX       = iConfig.getParameter<int>("MaxBX");
   auto bxWindow    = iConfig.getParameter<int>("BXWindow");
@@ -67,12 +77,6 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugMode7CLCT       = spPAParams16.getParameter<bool>("BugMode7CLCT");
   auto bugNegPt           = spPAParams16.getParameter<bool>("BugNegPt");
   auto bugGMTPhi          = spPAParams16.getParameter<bool>("BugGMTPhi");
-
-  int spPAversion = config_.getParameter<int32_t>("spPAversion");
-  if( spPAversion == 2016 )
-      pt_assign_engine_.reset(new PtAssignmentEngine2016());
-  else
-      pt_assign_engine_.reset(new PtAssignmentEngine2017());
 
   try {
     // Configure sector processor LUT
@@ -156,7 +160,7 @@ void TrackFinder::process(
   sector_processor_lut_.read(condition_helper_.get_pc_lut_version());
 
   // Reload pT LUT if necessary
-  pt_assign_engine_.load(&(condition_helper_.getForest()));
+  pt_assign_engine_->load(&(condition_helper_.getForest()));
 
   // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.hh
   for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {

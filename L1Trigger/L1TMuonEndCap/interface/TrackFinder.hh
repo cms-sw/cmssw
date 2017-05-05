@@ -45,6 +45,8 @@ private:
   int verbose_;
 
   bool useCSC_, useRPC_, useGEM_;
+
+  std::string era_;
 };
 
 #endif
