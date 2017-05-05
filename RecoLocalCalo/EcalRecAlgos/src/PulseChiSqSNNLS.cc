@@ -376,9 +376,11 @@ bool PulseChiSqSNNLS::NNLS() {
       eigen_solve_submatrix(aTamat,aTbvec,ampvecpermtest,_nP);
       
       //check solution
-      auto ampvecpermhead = ampvecpermtest.head(_nP);
-      if ( ampvecpermhead.minCoeff()>0. ) {
-        _ampvec.head(_nP) = ampvecpermhead.head(_nP);
+      bool positive = true;
+      for (unsigned int i = 0; i < _nP; ++i)
+        positive &= (ampvecpermtest(i) > 0);
+      if (positive) {
+        _ampvec.head(_nP) = ampvecpermtest.head(_nP);
         break;
       }      
 
@@ -398,7 +400,7 @@ bool PulseChiSqSNNLS::NNLS() {
         }
       }
 
-      _ampvec.head(_nP) += minratio*(ampvecpermhead - _ampvec.head(_nP));
+      _ampvec.head(_nP) += minratio*(ampvecpermtest.head(_nP)- _ampvec.head(_nP));
       
       //avoid numerical problems with later ==0. check
       _ampvec.coeffRef(minratioidx) = 0.;
