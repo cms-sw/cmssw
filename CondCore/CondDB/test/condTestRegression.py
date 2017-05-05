@@ -163,9 +163,9 @@ class CondRegressionTester(object):
               print 'Executable %s not found in local release.'
               executable = None
               for rel_base_env in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE' ]:
-                  #print "Looking for: %s = %s " %(rel_base_env,os.getenv(rel_base_env))
                   if os.getenv(rel_base_env) and os.path.exists(str(os.environ[rel_base_env])+'/%s' %execName):
                       executable = str(os.environ[rel_base_env])+'/%s' %execName
+                      break
 
           if executable is None:
               raise Exception("Can't find the %s executable." %execName )
