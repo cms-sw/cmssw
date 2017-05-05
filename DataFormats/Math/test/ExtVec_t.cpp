@@ -103,7 +103,7 @@ void go2d() {
   typedef Vec4<T> Vec3d;
 
   std::cout << "\n2d" << std::endl;
-  std::cout << sizeof(Vec2d) << std::endl;
+  std::cout << sizeof(Vec2d) << ' ' << alignof(Vec2d) << std::endl;
 
   std::vector<Vec2d> vec1; vec1.reserve(50);
   std::vector<T> vect(23);
@@ -155,7 +155,7 @@ void go(bool dovec=true) {
   typedef Vec2<T> Vec2D;
 
   std::cout << std::endl;
-  std::cout << sizeof(Vec) << std::endl;
+  std::cout << sizeof(Vec) << ' ' << alignof(Vec) << std::endl;
 
 if(dovec) {
   std::vector<Vec> vec1; vec1.reserve(50);
