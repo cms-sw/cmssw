@@ -72,6 +72,18 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         throw std::runtime_error("Broken key");
     }
 
+    // for debugging purposes dump the configs to local files
+    {
+        std::ofstream output(std::string("/tmp/").append(hw_key.substr(0,hw_key.find("/"))).append(".xml"));
+        output << hw_payload;
+        output.close();
+    }
+    {
+        std::ofstream output(std::string("/tmp/").append(algo_key.substr(0,algo_key.find("/"))).append(".xml"));
+        output << algo_payload;
+        output.close();
+    }
+
     l1t::XmlConfigParser xmlRdr;
     l1t::TriggerSystem trgSys;
 
@@ -88,16 +100,19 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
     std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
     tm brokenTime;
     strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
-    time_t sinceEpoch = timegm(&brokenTime);
+    time_t fw_sinceEpoch = timegm(&brokenTime);
+
+    std::string pclut_v = conf["pc_lut_version"].getValueAsStr();
+    strptime(pclut_v.c_str(), "%Y-%m-%d", &brokenTime);
+    time_t pclut_sinceEpoch = timegm(&brokenTime);
 
     l1t::EndCapParamsHelper data( new L1TMuonEndCapParams() );
 
-    data.SetFirmwareVersion( sinceEpoch );
+    data.SetFirmwareVersion( fw_sinceEpoch );
     data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
+    data.SetSt2PhiMatchWindow( pclut_sinceEpoch ); /// data.SetPcLUTversion(); KK: need to add such function to the EndCapParamsHelper class
 
     std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
-
-//KK add pcLuts timestamp here ...
 
     return retval;
 }

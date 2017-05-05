@@ -33,6 +33,7 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
     std::string  rsKey = EMTFKey.substr(   EMTFKey.find(":")+1, std::string::npos );
 
 ////////////////////////
+// the block below reproduces L1TMuonEndcapParamsOnlineProd identically
 
     std::string algo_key, hw_key;
     std::string algo_payload, hw_payload;
@@ -87,7 +88,7 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
     // simply assign the algo key to the record
     pL1TriggerKey->add( "L1TMuonEndcapForestO2ORcd",
                         "L1TMuonEndCapForest",
-                        conf["pt_lut_version"].getValue<std::string>()) ;
+                        conf["pt_lut_version"].getValueAsStr()) ;
 }
 
 
