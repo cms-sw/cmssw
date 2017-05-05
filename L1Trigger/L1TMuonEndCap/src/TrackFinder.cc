@@ -1,4 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.hh"
 
 #include <iostream>
 #include <sstream>
@@ -63,6 +65,11 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugNegPt           = spPAParams16.getParameter<bool>("BugNegPt");
   auto bugGMTPhi          = spPAParams16.getParameter<bool>("BugGMTPhi");
 
+  int spPAversion = config_.getParameter<int32_t>("spPAversion");
+  if( spPAversion == 2016 )
+      pt_assign_engine_.reset(new PtAssignmentEngine2016());
+  else
+      pt_assign_engine_.reset(new PtAssignmentEngine2017());
 
   try {
     // Configure sector processor LUT
@@ -80,7 +87,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
             &geometry_translator_,
             &condition_helper_,
             &sector_processor_lut_,
-            &pt_assign_engine_,
+            pt_assign_engine_.get(),
             verbose_, endcap, sector,
             minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC,
             zoneBoundaries, zoneOverlap, zoneOverlapRPC,
@@ -116,7 +123,7 @@ void TrackFinder::process(
   geometry_translator_.checkAndUpdateGeometry(iSetup);
 
   // Get the conditions, reload pT LUT if conditions have changed
-  condition_helper_.checkAndUpdateConditions(iSetup, pt_assign_engine_);
+  condition_helper_.checkAndUpdateConditions(iSetup, *(pt_assign_engine_.get()));
 
   // ___________________________________________________________________________
   // Extract all trigger primitives

@@ -9,7 +9,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.hh"
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.hh"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Node.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Tree.h"
 #include "L1Trigger/L1TMuonEndCap/interface/bdt/Forest.h"
@@ -88,7 +88,7 @@ L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
    // piggiback on the PtAssignmentEngine class to read the XMLs in
-   PtAssignmentEngine pt_assign_engine_;
+   PtAssignmentEngine2016 pt_assign_engine_;
    pt_assign_engine_.read(bdtXMLDir);
    // get a hold on the forests; copy to non-const locals
    std::array<emtf::Forest, 16> forests = pt_assign_engine_.getForests();

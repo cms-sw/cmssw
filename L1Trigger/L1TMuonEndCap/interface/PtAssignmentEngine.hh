@@ -17,7 +17,7 @@
 class PtAssignmentEngine {
 public:
   explicit PtAssignmentEngine();
-  ~PtAssignmentEngine();
+  virtual ~PtAssignmentEngine();
 
   typedef uint64_t address_t;
 
@@ -36,14 +36,14 @@ public:
 
   const PtAssignmentEngineAux& aux() const;
 
-  address_t calculate_address(const EMTFTrack& track) const;
+  virtual address_t calculate_address(const EMTFTrack& track) const = 0;
 
-  float calculate_pt(const address_t& address);
+  virtual float calculate_pt(const address_t& address);
 
-  float calculate_pt_lut(const address_t& address);
-  float calculate_pt_xml(const address_t& address);
+  virtual float calculate_pt_lut(const address_t& address);
+  virtual float calculate_pt_xml(const address_t& address) = 0;
 
-private:
+protected:
   std::vector<int> allowedModes_;
   std::array<emtf::Forest, 16> forests_;
   PtLUTReader ptlut_reader_;
