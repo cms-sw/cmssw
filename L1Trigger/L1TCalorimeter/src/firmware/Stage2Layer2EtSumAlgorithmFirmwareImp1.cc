@@ -62,9 +62,10 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	    else towEtThresh_ = params_->etSumPUSLUT()->data(towEtLUTAddr);
 	    //std::cout << "addr = " << towEtLUTAddr  << ", ntow = " << nTT4 << ", comp ntt4 = " << compNTT4 << ", ieta = " << ieta << ", towEtThresh = " << towEtThresh_ << std::endl;
 	  } else {
-	    if(params_->etSumPUSType() != "None" && params_->etSumPUSType() != "none") 
+	    if(params_->etSumPUSType() != "None" && params_->etSumPUSType() != "none") {
 	      edm::LogError("l1t|stage 2") << "Invalid PUS type in calo params. Not applying PUS to Stage 2 ETT & MET" << std::endl;
-	    return;
+	      return;
+	    }
 	  }
 	}
       }
