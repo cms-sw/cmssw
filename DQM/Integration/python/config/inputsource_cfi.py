@@ -80,5 +80,12 @@ else:
         fileNames = cms.untracked.vstring(files),
         secondaryFileNames = cms.untracked.vstring()
     )
+    
+#source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(
+#       '/store/user/tosi/STEAM/DQM/online/outputDQM_3.root'
+#    ),
+#    secondaryFileNames = cms.untracked.vstring()
+#)
 
 print "Source:", source

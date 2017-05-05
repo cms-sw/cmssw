@@ -12,7 +12,7 @@ from ROOT import gROOT, gStyle
 gROOT.SetBatch(True)
 sys.argv = oldargv
 
-from plot_utils import setTDRStyle, Plot_params, plots, COMPOUNDS, DETECTORS, sDETS, hist_label_to_num, drawEtaValues
+from Validation.Geometry.plot_utils import setTDRStyle, Plot_params, plots, COMPOUNDS, DETECTORS, sDETS, hist_label_to_num, drawEtaValues
 from collections import namedtuple, OrderedDict
 import sys, os
 import argparse
