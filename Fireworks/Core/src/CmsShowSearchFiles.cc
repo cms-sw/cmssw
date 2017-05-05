@@ -356,7 +356,7 @@ CmsShowSearchFiles::readInfo()
       "<BR>",
       "<b>You may look at examples:</b><BR>",  
       "If you are in Europe, open example data files at CERN :  ", " <a href=" , Form("http://fireworks.web.cern.ch/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] ),"> http://fireworks.web.cern.ch/fireworks/ </a><BR>",
-      "If you are in US, open example data files at UCSD:  ", " <a href=" , Form("http://uaf-2.t2.ucsd.edu/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] ),">http://uaf-2.t2.ucsd.edu/fireworks/ </a><BR>",
+      "If you are in US, open example data files at UCSD:  ", " <a href=" , Form("http://uaf.t2.ucsd.edu/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] ),">http://uaf-2.t2.ucsd.edu/fireworks/ </a><BR>",
       "<BR>"
       "<b>You also may load files with Choose Prefix </b><BR>"
       "</BODY></HTML> ",
