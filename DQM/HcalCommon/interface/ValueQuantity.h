@@ -48,7 +48,7 @@ namespace hcaldqm
 			fBX = 33,
 			fEnergy_1TeV = 34,
 			fState = 35,
-			fQIE10fC_300000 = 36,
+			fQIE10fC_400000 = 36,
 			fDataSize = 37,
 			fQIE10fC_2000 = 38,
 			fQIE10fC_10000 = 39,
@@ -58,7 +58,8 @@ namespace hcaldqm
 			ffC_generic_10000 = 43,
 			ffC_generic_400000 = 44,
 			fQIE10ADC_16 = 45,
-			nValueQuantityType = 46,
+			fDualAnodeAsymmetry = 46,
+			nValueQuantityType = 47,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -77,7 +78,7 @@ namespace hcaldqm
 			{fQIE8fC_1000_50,"fC (QIE8)"},
 			{fQIE10fC_2000,"fC (QIE10/11)"},
 			{fQIE10fC_10000,"fC (QIE10/11)"},
-			{fQIE10fC_300000,"fC (QIE10/11)"},
+			{fQIE10fC_400000,"fC (QIE10/11)"},
 			{ffC_generic_10000,"fC (QIE8/10/11)"},
 			{ffC_generic_400000,"fC (QIE8/10/11)"},			
 			{fTiming_TS,"Timing"},
@@ -107,6 +108,7 @@ namespace hcaldqm
 			{fState,"State"},
 			{fDataSize,"FED Data Size (kB)"},
 			{fTime_ns_250,"Time (ns)"},
+			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"}
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -146,7 +148,7 @@ namespace hcaldqm
 			{fBX,-0.5},
 			{fEnergy_1TeV,0},
 			{fState,flag::fNA},
-			{fQIE10fC_300000,0},
+			{fQIE10fC_400000,0},
 			{fDataSize,0},
 			{fQIE10fC_2000,0},
 			{fQIE10fC_10000,0},
@@ -154,7 +156,8 @@ namespace hcaldqm
 			{fTime_ns_250,-0.5},
 			{fADC_256,-0.5},
 			{ffC_generic_10000,0.},
-			{ffC_generic_400000,0.},			
+			{ffC_generic_400000,0.},	
+			{fDualAnodeAsymmetry,-1.},		
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -194,7 +197,7 @@ namespace hcaldqm
 			{fBX,3600.5},
 			{fEnergy_1TeV,1000},
 			{fState,flag::nState},
-			{fQIE10fC_300000,300000},
+			{fQIE10fC_400000,400000},
 			{fDataSize,100},
 			{fQIE10fC_2000,2000},
 			{fQIE10fC_10000,10000},
@@ -202,7 +205,8 @@ namespace hcaldqm
 			{fTime_ns_250,249.5},
 			{fADC_256,255.5},
 			{ffC_generic_10000,10000},
-			{ffC_generic_400000,400000},			
+			{ffC_generic_400000,400000},	
+			{fDualAnodeAsymmetry,1.}		
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -241,7 +245,7 @@ namespace hcaldqm
 			{fBX,3601},
 			{fEnergy_1TeV,200},
 			{fState,flag::nState},
-			{fQIE10fC_300000,10000},
+			{fQIE10fC_400000,4000},
 			{fDataSize,100},
 			{fQIE10fC_2000,100},
 			{fQIE10fC_10000,500},
@@ -249,7 +253,8 @@ namespace hcaldqm
 			{fTime_ns_250,250},
 			{fADC_256,256},
 			{ffC_generic_10000,10000},
-			{ffC_generic_400000,10000},			
+			{ffC_generic_400000,10000},	
+			{fDualAnodeAsymmetry,40},	
 		};
 		class ValueQuantity : public Quantity
 		{
