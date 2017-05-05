@@ -203,7 +203,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       //int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
       //if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
       
-      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus,
+      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus, IrradiationBiasCorrection_,
                                           theClusterParam.pixmx, theClusterParam.sigmay, theClusterParam.deltay,
                                           theClusterParam.sigmax, theClusterParam.deltax, theClusterParam.sy1,
                                           theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1,
@@ -238,10 +238,10 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       
    } // if ( UseErrorsFromTemplates_ )
    
-   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X
-   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
-   float Q_f_Y = 0.0;        //!< Q of the first  pixel  in Y
-   float Q_l_Y = 0.0;        //!< Q of the last   pixel  in Y
+   int Q_f_X;        //!< Q of the first  pixel  in X
+   int Q_l_X;        //!< Q of the last   pixel  in X
+   int Q_f_Y;        //!< Q of the first  pixel  in Y
+   int Q_l_Y;        //!< Q of the last   pixel  in Y
    collect_edge_charges( theClusterParam,
                         Q_f_X, Q_l_X,
                         Q_f_Y, Q_l_Y );
@@ -349,7 +349,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
          // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
          //float tmp1 =  (0.5 * theDetParam.lorentzShiftInCmX);
          //cout << "Apply correction correction_dx1 = " << theClusterParam.dx1 << " to xPos = " << xPos;
-         xPos = xPos - (0.5 * theDetParam.lorentzShiftInCmX);
+         xPos = xPos - (0.5f * theDetParam.lorentzShiftInCmX);
          // Find if pixel is double (big).
          bool bigInX = theDetParam.theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );
          if ( !bigInX ) xPos -= theClusterParam.dx1;
@@ -363,7 +363,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       
       if ( theClusterParam.theCluster->sizeY() == 1 ) {
          // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-         yPos = yPos - (0.5 * theDetParam.lorentzShiftInCmY);
+         yPos = yPos - (0.5f * theDetParam.lorentzShiftInCmY);
          
          // Find if pixel is double (big).
          bool bigInY = theDetParam.theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() );
@@ -395,8 +395,8 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 float
 PixelCPEGeneric::
 generic_position_formula( int size,                //!< Size of this projection.
-                         float Q_f,              //!< Charge in the first pixel.
-                         float Q_l,              //!< Charge in the last pixel.
+                         int Q_f,              //!< Charge in the first pixel.
+                         int Q_l,              //!< Charge in the last pixel.
                          float upper_edge_first_pix, //!< As the name says.
                          float lower_edge_last_pix,  //!< As the name says.
                          float lorentz_shift,   //!< L-shift at half thickness
@@ -520,10 +520,10 @@ generic_position_formula( int size,                //!< Size of this projection.
 void
 PixelCPEGeneric::
 collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluster
-                     float & Q_f_X,              //!< output, Q first  in X
-                     float & Q_l_X,              //!< output, Q last   in X
-                     float & Q_f_Y,              //!< output, Q first  in Y
-                     float & Q_l_Y               //!< output, Q last   in Y
+                     int & Q_f_X,              //!< output, Q first  in X
+                     int & Q_l_X,              //!< output, Q last   in X
+                     int & Q_f_Y,              //!< output, Q first  in Y
+                     int & Q_l_Y               //!< output, Q last   in Y
 ) const
 {
    ClusterParamGeneric & theClusterParam = static_cast<ClusterParamGeneric &>(theClusterParamBase);
@@ -546,7 +546,7 @@ collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluste
    {
       auto const & pixel = theClusterParam.theCluster->pixel(i);
       // ggiurgiu@fnal.gov: add pixel charge truncation
-      float pix_adc = pixel.adc;
+      int pix_adc = pixel.adc;
       if ( UseErrorsFromTemplates_ && TruncatePixelCharge_ )
          pix_adc = std::min(pix_adc, theClusterParam.pixmx );
       
