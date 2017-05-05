@@ -219,7 +219,9 @@ ViewerParameterGUI::reset()
       assert (f == m_tab);
       f->UnmapWindow();
       RemoveFrame(f);
+#ifndef R__MACOSX
       f->DeleteWindow();
+#endif
       m_tab = 0;
    }
 }
