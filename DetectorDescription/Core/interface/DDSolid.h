@@ -1,5 +1,5 @@
-#ifndef DDSolid_h
-#define DDSolid_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
+#define DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
 
 #include <stddef.h>
 #include <iosfwd>
@@ -13,11 +13,12 @@
 
 class DDSolid;
 class DDStreamer;
+
 namespace DDI {
-class BooleanSolid;
-class Reflection;
-class Solid;
-}  // namespace DDI
+  class BooleanSolid;
+  class Reflection;
+  class Solid;
+}
 struct DDSolidFactory;
 
 std::ostream & operator<<( std::ostream &, const DDSolid & );
@@ -36,7 +37,7 @@ std::ostream & operator<<( std::ostream &, const DDSolid & );
 */
 class DDSolid : public DDBase<DDName, DDI::Solid*>
 {
-  friend std::ostream & operator<<( std::ostream &, const DDSolid & );
+  friend std::ostream & operator <<( std::ostream &, const DDSolid & );
   friend struct DDSolidFactory;
   friend class DDDToPersFactory;
   friend class DDPersToDDDFactory;
@@ -264,6 +265,8 @@ public:
 
 private:
   DDExtrudedPolygon( void );
+  auto xyPointsSize( void ) const -> std::size_t;
+  auto zSectionsSize( void ) const -> std::size_t;
 };
 
 class DDTubs : public DDSolid

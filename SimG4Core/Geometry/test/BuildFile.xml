@@ -29,6 +29,10 @@
  <use   name="cppunit"/>
 </bin>
 
+<bin  file="ExtrudedPolygon_.cpp">
+ <use   name="cppunit"/>
+</bin>
+
 <bin  file="Para_.cpp">
  <use   name="cppunit"/>
 </bin>
