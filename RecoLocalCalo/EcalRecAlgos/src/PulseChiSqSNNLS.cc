@@ -328,9 +328,8 @@ bool PulseChiSqSNNLS::NNLS() {
   constexpr unsigned int nsamples = SampleVector::RowsAtCompileTime;
 
   invcovp = _covdecomp.matrixL().solve(_pulsemat);
-  aTamat = invcovp.transpose()*invcovp; //.triangularView<Eigen::Lower>()
-  //aTamat = aTamat.selfadjointView<Eigen::Lower>();  
-  aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
+  aTamat.noalias() = invcovp.transpose().lazyProduct(invcovp);
+  aTbvec.noalias() = invcovp.transpose().lazyProduct(_covdecomp.matrixL().solve(_sampvec));
   
   int iter = 0;
   Index idxwmax = 0;
