@@ -68,6 +68,7 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EtMinForSeedHit = cms.untracked.double(1.0), # 1 GeV decault for seed hit
    debug = cms.untracked.bool(False),
    useRecHits = cms.bool(False),
+   doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
    ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
    #ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
    ecalRecHitEB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),

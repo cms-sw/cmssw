@@ -84,6 +84,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       double EtMinForSeedHit;
       bool debug;
       bool useRecHits;
+      bool doBremClustering;
       edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEBToken_;
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
       edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
@@ -158,6 +159,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    EtMinForSeedHit(iConfig.getUntrackedParameter<double>("EtMinForSeedHit", 1.0)), // Default to 1 GeV
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
    useRecHits(iConfig.getParameter<bool>("useRecHits")),
+   doBremClustering(iConfig.getUntrackedParameter<bool>("doBremClustering", true)),
    ecalRecHitEBToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEB"))),
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
    hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
@@ -576,39 +578,44 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       params["phiStripContiguous3p"] = threepair.first;
       params["phiStripOneHole3p"] = threepair.second;
 
-      // Check if sidelobes should be included in sum
-      if ( upperSideLobePt/params["uncorrectedPt"] > 0.1 )
+      // Check if brem clustering is desired
+      if (doBremClustering)
       {
-         for(auto& hit : ecalhits)
+         // Check if sidelobes should be included in sum
+         if ( upperSideLobePt/params["uncorrectedPt"] > 0.1 )
          {
-            if ( !hit.stale &&
-                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 8)
-                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*8 )
-                 ) )
+            for(auto& hit : ecalhits)
             {
-               weightedPosition += hit.position*hit.energy;
-               totalEnergy += hit.energy;
-               hit.stale = true;
-               crystalPt.push_back(hit.pt());
+               if ( !hit.stale &&
+                    (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 8)
+                      || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*8 )
+                    ) )
+               {
+                  weightedPosition += hit.position*hit.energy;
+                  totalEnergy += hit.energy;
+                  hit.stale = true;
+                  crystalPt.push_back(hit.pt());
+               }
             }
          }
-      }
-      if ( lowerSideLobePt/params["uncorrectedPt"] > 0.1 )
-      {
-         for(auto& hit : ecalhits)
+         if ( lowerSideLobePt/params["uncorrectedPt"] > 0.1 )
          {
-            if ( !hit.stale &&
-                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -8 && hit.diphi(centerhit) <= -3)
-                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*8 )
-                 ) )
+            for(auto& hit : ecalhits)
             {
-               weightedPosition += hit.position*hit.energy;
-               totalEnergy += hit.energy;
-               hit.stale = true;
-               crystalPt.push_back(hit.pt());
+               if ( !hit.stale &&
+                    (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -8 && hit.diphi(centerhit) <= -3)
+                      || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*8 )
+                    ) )
+               {
+                  weightedPosition += hit.position*hit.energy;
+                  totalEnergy += hit.energy;
+                  hit.stale = true;
+                  crystalPt.push_back(hit.pt());
+               }
             }
          }
-      }
+      } // Brem section finished
+
       // no need to rescale weightedPosition if we only use theta
       float correctedTotalPt = totalEnergy*sin(weightedPosition.theta());
       params["avgIsoCrystalE"] = (params["nIsoCrystals1"] > 0.) ? ECalIsolation/params["nIsoCrystals1"] : 0.;
