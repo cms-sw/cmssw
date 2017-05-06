@@ -64,6 +64,8 @@ process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
 
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EtminForStore = cms.double(0.),
+   EcalTpEtMin = cms.untracked.double(0.5), # 500 MeV default per each Ecal TP
+   EtMinForSeedHit = cms.untracked.double(1.0), # 1 GeV decault for seed hit
    debug = cms.untracked.bool(False),
    useRecHits = cms.bool(False),
    ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),

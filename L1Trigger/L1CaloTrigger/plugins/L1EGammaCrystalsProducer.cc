@@ -80,6 +80,8 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       bool cluster_passes_photonWP90(float &cluster_pt, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
 
       double EtminForStore;
+      double EcalTpEtMin;
+      double EtMinForSeedHit;
       bool debug;
       bool useRecHits;
       edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEBToken_;
@@ -152,6 +154,8 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
    EtminForStore(iConfig.getParameter<double>("EtminForStore")),
+   EcalTpEtMin(iConfig.getUntrackedParameter<double>("EcalTpEtMin", 0.5)), // Default to 500 MeV
+   EtMinForSeedHit(iConfig.getUntrackedParameter<double>("EtMinForSeedHit", 1.0)), // Default to 1 GeV
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
    useRecHits(iConfig.getParameter<bool>("useRecHits")),
    ecalRecHitEBToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEB"))),
@@ -195,7 +199,6 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       edm::Handle<EcalEBTrigPrimDigiCollection> pcalohits;
       iEvent.getByToken(ecalTPEBToken_,pcalohits);
       int totNumHits = 0;
-      int totNumHitsZero = 0;
       for(auto& hit : *pcalohits.product())
       {
          // Have to comment out kOutOfTime and kLiSpikeFlag because we're testing basic TPs
@@ -204,7 +207,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          {
 
             float et = hit.encodedEt()/8.; // Et is 10 bit, by keeping the ADC saturation Et at 120 GeV it means that you have to divide by 8
-            if (et < 0.5) continue; // keep the 500 MeV ET Cut
+            if (et < EcalTpEtMin) continue; // keep the 500 MeV ET Cut
 
             auto cell = ebGeometry->getGeometry(hit.id());
             SimpleCaloHit ehit;
@@ -221,9 +224,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             ecalhits.push_back(ehit);
             totNumHits++;
          }
-         else {totNumHitsZero++;}
       }
-      //std::cout << "TOTAL HITS: " << totNumHits << "   ZERO: " << totNumHitsZero << std::endl;
    } // Done loading ECAL TPs
 
    if (useRecHits) {
@@ -363,8 +364,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             centerhit = hit;
          }
       }
-      // If we are less than 1GeV or out of hits (i.e. when centerhit is default constructed) we stop
-      if ( centerhit.pt() <= 1. ) break;
+      // If we are less than 1GeV (configurable with EtMinForSeedHit) 
+      // or out of hits (i.e. when centerhit is default constructed) we stop
+      if ( centerhit.pt() < EtMinForSeedHit ) break;
       if ( debug ) std::cout << "-------------------------------------" << std::endl;
       if ( debug ) std::cout << "New cluster: center crystal pt = " << centerhit.pt() << std::endl;
 
