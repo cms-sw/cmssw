@@ -53,7 +53,6 @@ public:
   explicit TemplatedDeepNNTagInfoProducer(const edm::ParameterSet&);
   ~TemplatedDeepNNTagInfoProducer();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
 private:
   virtual void beginStream(edm::StreamID) override {}
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
