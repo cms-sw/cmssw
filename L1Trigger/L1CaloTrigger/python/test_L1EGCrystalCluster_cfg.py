@@ -35,21 +35,21 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 # --------------------------------------------------------------------------------------------
 #
 # ----    Produce the ECAL TPs
-
-#process.simEcalEBTriggerPrimitiveDigis = cms.EDProducer("EcalEBTrigPrimProducer",
-process.EcalEBTrigPrimProducer = cms.EDProducer("EcalEBTrigPrimProducer",
-    BarrelOnly = cms.bool(True),
-#    barrelEcalDigis = cms.InputTag("simEcalUnsuppressedDigis","ebDigis"),
-    barrelEcalDigis = cms.InputTag("simEcalDigis","ebDigis"),
-#    barrelEcalDigis = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-    TcpOutput = cms.bool(False),
-    Debug = cms.bool(False),
-    Famos = cms.bool(False),
-    nOfSamples = cms.int32(1)
-)
-
-process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
+#
+##process.simEcalEBTriggerPrimitiveDigis = cms.EDProducer("EcalEBTrigPrimProducer",
+#process.EcalEBTrigPrimProducer = cms.EDProducer("EcalEBTrigPrimProducer",
+#    BarrelOnly = cms.bool(True),
+##    barrelEcalDigis = cms.InputTag("simEcalUnsuppressedDigis","ebDigis"),
+#    barrelEcalDigis = cms.InputTag("simEcalDigis","ebDigis"),
+##    barrelEcalDigis = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
+#    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
+#    TcpOutput = cms.bool(False),
+#    Debug = cms.bool(False),
+#    Famos = cms.bool(False),
+#    nOfSamples = cms.int32(1)
+#)
+#
+#process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
 
 
 
@@ -69,8 +69,8 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    debug = cms.untracked.bool(False),
    useRecHits = cms.bool(False),
    doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
-   ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
-   #ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
+   #ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
+   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
    ecalRecHitEB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
    hcalRecHit = cms.InputTag("hbhereco"),
    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
