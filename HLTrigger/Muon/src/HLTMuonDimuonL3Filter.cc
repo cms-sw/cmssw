@@ -22,6 +22,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -70,7 +71,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")),
    max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
    max_YPair_   (iConfig.getParameter<double>("MaxRapidityPair")),
-   cutCowboys_(iConfig.getParameter<bool>("CutCowboys"))
+   cutCowboys_(iConfig.getParameter<bool>("CutCowboys")),
+   theL3LinksLabel (iConfig.getParameter<InputTag>("InputLinks")),
+   linkToken_ (consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel))
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
@@ -132,6 +135,7 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityPair",999999.0);
   desc.add<bool>("CutCowboys",false);
+  desc.add<edm::InputTag>("InputLinks",edm::InputTag(""));
   descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
@@ -161,19 +165,63 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    Handle<RecoChargedCandidateCollection> mucands;
    if (saveTags()) filterproduct.addCollectionTag(candTag_);
    iEvent.getByToken(candToken_,mucands);
+
+   // Test to see if we can use L3MuonTrajectorySeeds:
+   if (mucands->size()<1) return false;
+   auto tk = (*mucands)[0].track();
+   bool useL3MTS=false;
+
+   if (tk->seedRef().isNonnull()){
+	   auto a = dynamic_cast<const L3MuonTrajectorySeed*>(tk->seedRef().get());
+	   useL3MTS = a != nullptr;
+   }
+
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
-   unsigned int maxI = mucands->size();
-   for (unsigned int i=0;i!=maxI;i++){
-     TrackRef tk = (*mucands)[i].track();
-     if (previousCandIsL2_) {
-         edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
-         TrackRef staTrack = l3seedRef->l2Track();
-         L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
-     } else {
-         L2toL3s[tk].push_back(RecoChargedCandidateRef(mucands,i));
+
+   // If we can use L3MuonTrajectory seeds run the older code:
+   if (useL3MTS){
+     unsigned int maxI = mucands->size();
+     for (unsigned int i=0;i!=maxI;i++){
+       TrackRef tk = (*mucands)[i].track();
+       if (previousCandIsL2_) {
+           edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+           TrackRef staTrack = l3seedRef->l2Track();
+           L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+       } else {
+           L2toL3s[tk].push_back(RecoChargedCandidateRef(mucands,i));
+       }
      }
    }
+   // Using normal TrajectorySeeds:
+   else{
+     // Read Links collection:
+     edm::Handle<reco::MuonTrackLinksCollection> links;
+     iEvent.getByToken(linkToken_, links);
+
+     // Loop over RecoChargedCandidates:
+     for(unsigned int i(0); i < mucands->size(); ++i){
+	RecoChargedCandidateRef cand(mucands,i);
+	for(auto const & l : *links){
+	  const reco::MuonTrackLinks* link = &l;
+	  TrackRef tk = cand->track();
+
+	  // Using the same method that was used to create the links between L3 and L2
+	  // ToDo: there should be a better way than dR,dPt matching
+	  const reco::Track& globalTrack = *link->globalTrack();
+	  float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
+	  float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
+          const TrackRef staTrack = link->standAloneTrack();
+	  if (dR2 < 0.02*0.02 and dPt < 0.001 and previousCandIsL2_) {
+	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	  }
+	  else if (not previousCandIsL2_){
+	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	  }
+        } //MTL loop
+     } //RCC loop
+   } //end of using normal TrajectorySeeds
+
 
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByToken(previousCandToken_,previousLevelCands);
