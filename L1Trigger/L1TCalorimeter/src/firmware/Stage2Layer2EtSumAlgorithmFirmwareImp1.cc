@@ -54,7 +54,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       int ieta = etaSide * absieta;
 
       towEtThresh_ = 0;
-      if(abs(ieta)>10){
+      if(abs(ieta)>12){
 	if(!params_->etSumBypassPUS()){
 	  if(params_->etSumPUSType() == "LUT"){
 	    uint towEtLUTAddr = (compNTT4<<6) | (abs(ieta)-1);
