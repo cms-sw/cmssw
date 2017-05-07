@@ -285,13 +285,15 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                     int region_rh = (int) me0id.region();
                     int layer_rh = (int) me0id.layer();
                     int chamber_rh = (int) me0id.chamber();
+                    int roll_rh = (int) me0id.roll();
                     
                     const ME0DetId id(sh.detUnitId());
                     int region_sh = id.region();
                     int layer_sh = id.layer();
                     int chamber_sh = id.chamber();
+                    int roll_sh = id.roll();
                     
-                    if( !(region_sh == region_rh && chamber_sh == chamber_rh && layer_sh == layer_rh) ) continue;
+                    if( !(region_sh == region_rh && chamber_sh == chamber_rh && layer_sh == layer_rh && roll_sh == roll_rh) ) continue;
 
                     LocalPoint lp_sh = sh.localPosition();
                     LocalPoint lp_rh = rh.localPosition();
