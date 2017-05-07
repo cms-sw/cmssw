@@ -41,6 +41,7 @@ public:
 
 
   std::unordered_map<uint32_t, unsigned int> det2fedMap() const override;
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const override;
 
 
   int checkNumbering() const;

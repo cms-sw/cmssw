@@ -129,12 +129,21 @@ std::unordered_map<uint32_t, unsigned int>  SiPixelFedCablingMap::det2fedMap() c
   return result;
 }
 
+std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > SiPixelFedCablingMap::det2PathMap() const {
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > result;
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
+    CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
+    result[im->second.rawId()].push_back(path);
+  }
+  return result;
+}
+
 
 std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingMap::pathToDetUnit(
       uint32_t rawDetId) const {
 
   std::vector<sipixelobjects::CablingPathToDetUnit> result;
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); ++im) {
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
     if(im->second.rawId()==rawDetId ) {
       CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
       result.push_back(path);
