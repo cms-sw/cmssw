@@ -295,10 +295,13 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
 
                     LocalPoint lp_sh = sh.localPosition();
                     LocalPoint lp_rh = rh.localPosition();
-                    float dx_loc = lp_sh.x()-lp_rh.x();
-                    float dy_loc = lp_sh.y()-lp_rh.y();
+                    
+                    GlobalPoint gp_sh = ME0Geometry_->idToDet(id)->surface().toGlobal(lp_sh);
+                    GlobalPoint gp = ME0Geometry_->idToDet((rh).me0Id())->surface().toGlobal(lp_rh);
+                    float dphi_glob = gp_sh.phi()-gp.phi();
+                    float deta_glob = gp_sh.eta()-gp.eta();
 
-                    if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_) ++num_sh_matched;
+                    if(fabs(dphi_glob) < 3*sigma_x_ && fabs(deta_glob) < 3*sigma_y_) ++num_sh_matched;
                     
                 }//End loop over RHs
             
