@@ -1709,8 +1709,8 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_0_0-90X_upgrade2017_realistic_v20_resub-v'
-defaultDataSets['2017Design']='CMSSW_9_0_0-90X_upgrade2017_design_IdealBS_v19_resub-v'
+defaultDataSets['2017']='CMSSW_9_1_0_pre3-91X_upgrade2017_realistic_v3-v'
+defaultDataSets['2017Design']='CMSSW_9_1_0_pre3-91X_upgrade2017_design_IdealBS_v3_resub-v'
 #defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2023D7']=''
@@ -1734,9 +1734,7 @@ for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
   
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
-versionOverrides={'SingleNuE10_cf_2017':'2',
-                  'SingleNuE10_cf_2017PU':'2'
-}
+versionOverrides={}
 
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
