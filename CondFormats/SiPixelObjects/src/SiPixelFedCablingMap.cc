@@ -120,6 +120,16 @@ const sipixelobjects::PixelROC* SiPixelFedCablingMap::findItem(
   return roc;
 }
 
+
+std::unordered_map<uint32_t, unsigned int>  SiPixelFedCablingMap::det2fedMap() const {
+  std::unordered_map<uint32_t, unsigned int> result;
+  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
+    result[im->second.rawId()] = im->first.fed;  // we know: a det is in only one fed!
+  }
+  return result;
+}
+
+
 std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingMap::pathToDetUnit(
       uint32_t rawDetId) const {
 

@@ -39,6 +39,10 @@ public:
   const sipixelobjects::PixelROC* findItemInFed(const sipixelobjects::CablingPathToDetUnit & path, 
 						const PixelFEDCabling * aFed) const;  
 
+
+  std::unordered_map<uint32_t, unsigned int> det2fedMap() const override;
+
+
   int checkNumbering() const;
 
 private:

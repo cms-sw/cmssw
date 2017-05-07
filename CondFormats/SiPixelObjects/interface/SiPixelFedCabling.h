@@ -21,6 +21,8 @@ public:
   virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(
       uint32_t rawDetId) const = 0;
 
+  virtual std::unordered_map<uint32_t, unsigned int> det2fedMap() const =0; 
+
   COND_SERIALIZABLE;
 };
 
