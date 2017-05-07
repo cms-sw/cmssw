@@ -141,8 +141,8 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    iEvent.getByToken(candToken_,mucands);
 
    // Test to see if we can use L3MuonTrajectorySeeds:
-   if (mucands->size()<1) return false;
-   auto tk = (*mucands)[0].track();
+   if (mucands->empty()) return false;
+   auto const &tk = (*mucands)[0].track();
    bool useL3MTS=false;
 
    if (tk->seedRef().isNonnull()){
@@ -157,7 +157,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
    if (useL3MTS){
      unsigned int maxI = mucands->size();
      for (unsigned int i=0;i!=maxI;i++){
-       TrackRef tk = (*mucands)[i].track();
+       const TrackRef &tk = (*mucands)[i].track();
        edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
        TrackRef staTrack = l3seedRef->l2Track();
        L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
@@ -172,16 +172,15 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
      // Loop over RecoChargedCandidates:
      for(unsigned int i(0); i < mucands->size(); ++i){
 	RecoChargedCandidateRef cand(mucands,i);
-	for(auto const & l : *links){
-	  const reco::MuonTrackLinks* link = &l;
+	for(auto const & link : *links){
 	  TrackRef tk = cand->track();
 
 	  // Using the same method that was used to create the links between L3 and L2
 	  // ToDo: there should be a better way than dR,dPt matching
-	  const reco::Track& globalTrack = *link->globalTrack();
+	  const reco::Track& globalTrack = *link.globalTrack();
 	  float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
 	  float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
-          const TrackRef staTrack = link->standAloneTrack();
+          const TrackRef staTrack = link.standAloneTrack();
 	  if (dR2 < 0.02*0.02 and dPt < 0.001) {
 	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
 	  }
