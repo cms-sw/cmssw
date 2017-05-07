@@ -9,6 +9,8 @@
 #define CMS_USE_AVX
 #endif /* __AVX__ */
 
+// clang complains that it is not "standard"
+#define constexpr
 
 void addScaleddiff(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res = res + s*(a-b);
