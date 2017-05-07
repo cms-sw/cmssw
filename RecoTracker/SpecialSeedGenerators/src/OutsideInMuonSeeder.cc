@@ -83,9 +83,6 @@ class OutsideInMuonSeeder final : public edm::stream::EDProducer<> {
       /// Dump deug information
       const bool debug_;
 
-      /// Surface used to make a TSOS at the PCA to the beamline
-      Plane::PlanePointer dummyPlane_;
-
       int doLayer(const GeometricSearchDet &layer,
                   const TrajectoryStateOnSurface &state,
                   std::vector<TrajectorySeed> &out,
