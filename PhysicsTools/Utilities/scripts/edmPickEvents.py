@@ -89,8 +89,9 @@ def getFileNames(event, client=None):
     elif client == 'dasgoclient':
         return getFileNames_dasgoclient(event)
     # default action
-    if  os.path.isfile('/cvmfs/cms.cern.ch/common/dasgoclient'):
-        return getFileNames_dasgoclient(event)
+    for path in os.getenv('PATH').split(':'):
+        if  os.path.isfile(os.path.join(path, 'dasgoclient')):
+            return getFileNames_dasgoclient(event)
     return getFileNames_das_client(event)
 
 def getFileNames_das_client(event):
