@@ -69,7 +69,7 @@ DDLPgonGenerator::processElement( const std::string& name,
       zy.push_back( ev.eval( nmspace, yit->second ));
     auto sit = atts.find( "scale" );
     if( sit != atts.end())
-      zscale.push_back( ev.eval( nmspace, sit->second ));
+      zscale.push_back( std::stod( sit->second ));
   }
   assert( z.size() == zx.size());
   assert( z.size() == zy.size());
