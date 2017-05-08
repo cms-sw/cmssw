@@ -12,10 +12,10 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
 class DDSolid;
-class DDStreamer;
 
 namespace DDI {
   class BooleanSolid;
+  class MultiUnion;
   class Reflection;
   class Solid;
 }
@@ -41,7 +41,6 @@ class DDSolid : public DDBase<DDName, DDI::Solid*>
   friend struct DDSolidFactory;
   friend class DDDToPersFactory;
   friend class DDPersToDDDFactory;
-  friend class DDStreamer;
     
 public: 
   //! Uninitialilzed solid reference-object; for further details on reference-objects see documentation of DDLogicalPart
@@ -209,6 +208,19 @@ private:
   DDI::BooleanSolid * boolean_;  
 };
 
+class DDMultiUnionSolid : public DDSolid
+{
+public:
+  DDMultiUnionSolid( const DDSolid & s );
+  const std::vector<DDSolid>& solids( void ) const;
+  const std::vector<DDTranslation>& translations( void ) const;
+  const std::vector<DDRotation>& rotations( void ) const;
+
+private:
+  DDMultiUnionSolid( void );
+  DDI::MultiUnion * union_;  
+};
+
 /// Abstract class for DDPolycone and DDPolyhedra.  Basically a common member function.
 class DDPolySolid : public DDSolid
 {
@@ -336,6 +348,15 @@ public:
   
 private:
   DDUnion( void );
+};
+
+class DDMultiUnion : public DDMultiUnionSolid
+{
+public:
+  DDMultiUnion( const DDSolid & s );
+  
+private:
+  DDMultiUnion( void );
 };
 
 class DDIntersection : public DDBooleanSolid
@@ -481,6 +502,11 @@ struct DDSolidFactory
 			     const DDSolid & b,
 			     const DDTranslation & t,
 			     const DDRotation & r );
+
+  static DDSolid multiUnionSolid( const DDName & name,
+				  const std::vector<DDSolid> & a,
+				  const std::vector<DDTranslation> & t,
+				  const std::vector<DDRotation> & r );
 
   static DDSolid intersection( const DDName & name,
 			       const DDSolid & a,
