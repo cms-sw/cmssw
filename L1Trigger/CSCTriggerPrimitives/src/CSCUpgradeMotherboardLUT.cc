@@ -58,20 +58,8 @@ CSCGEMMotherboardLUTME11::get_lut_wg_vs_hs(enum CSCPart p) const
   else                       { return lut_wg_vs_hs_me1ag; } 
 }
 
-CSCGEMMotherboardLUT::~CSCGEMMotherboardLUT(){
-  if(lut_wg_eta_odd       ) delete lut_wg_eta_odd       ;
-  if(lut_wg_eta_even      ) delete lut_wg_eta_even      ;
-  if(lut_pt_vs_dphi_gemcsc) delete lut_pt_vs_dphi_gemcsc;
-
-  if(gem_roll_eta_limits_odd_l1) delete gem_roll_eta_limits_odd_l1;
-  if(gem_roll_eta_limits_odd_l2) delete gem_roll_eta_limits_odd_l2;
-  if(gem_roll_eta_limits_even_l1) delete gem_roll_eta_limits_even_l1;
-  if(gem_roll_eta_limits_even_l2) delete gem_roll_eta_limits_even_l2;
-
- if (csc_wg_to_gem_roll_odd_l1) delete csc_wg_to_gem_roll_odd_l1;
- if (csc_wg_to_gem_roll_odd_l2) delete csc_wg_to_gem_roll_odd_l2;
- if (csc_wg_to_gem_roll_even_l1) delete csc_wg_to_gem_roll_even_l1; 
- if (csc_wg_to_gem_roll_even_l2) delete csc_wg_to_gem_roll_even_l2;
+CSCGEMMotherboardLUT::~CSCGEMMotherboardLUT()
+{
 }
 
 
@@ -166,20 +154,8 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
   };
 }
 
-CSCGEMMotherboardLUTME11::~CSCGEMMotherboardLUTME11() {
- if (lut_wg_vs_hs_me1a) delete lut_wg_vs_hs_me1a;
- if (lut_wg_vs_hs_me1ag) delete lut_wg_vs_hs_me1ag;
- if (lut_wg_vs_hs_me1b) delete lut_wg_vs_hs_me1b;
-
- if (gem_pad_to_csc_hs_me1a_odd) delete gem_pad_to_csc_hs_me1a_odd;
- if (gem_pad_to_csc_hs_me1a_even) delete gem_pad_to_csc_hs_me1a_even;
- if (gem_pad_to_csc_hs_me1b_odd) delete gem_pad_to_csc_hs_me1b_odd;
- if (gem_pad_to_csc_hs_me1b_even) delete gem_pad_to_csc_hs_me1b_even;
-
- if (csc_hs_to_gem_pad_me1a_odd) delete csc_hs_to_gem_pad_me1a_odd;
- if (csc_hs_to_gem_pad_me1a_even) delete csc_hs_to_gem_pad_me1a_even;
- if (csc_hs_to_gem_pad_me1b_odd) delete csc_hs_to_gem_pad_me1b_odd;
- if (csc_hs_to_gem_pad_me1b_even) delete csc_hs_to_gem_pad_me1b_even;
+CSCGEMMotherboardLUTME11::~CSCGEMMotherboardLUTME11() 
+{
 }
 
 
@@ -235,11 +211,6 @@ CSCGEMMotherboardLUTME21::CSCGEMMotherboardLUTME21() :   CSCGEMMotherboardLUT()
 
 CSCGEMMotherboardLUTME21::~CSCGEMMotherboardLUTME21() 
 {
- if (gem_pad_to_csc_hs_odd) delete gem_pad_to_csc_hs_odd;
- if (gem_pad_to_csc_hs_even) delete gem_pad_to_csc_hs_even;
-
- if (csc_hs_to_gem_pad_odd) delete csc_hs_to_gem_pad_odd;
- if (csc_hs_to_gem_pad_even) delete csc_hs_to_gem_pad_even;
 }
 
 
@@ -263,20 +234,6 @@ CSCRPCMotherboardLUT::CSCRPCMotherboardLUT()
 
 CSCRPCMotherboardLUT::~CSCRPCMotherboardLUT()
 {
-  if(lut_wg_eta_odd) delete lut_wg_eta_odd;
-  if(lut_wg_eta_even) delete lut_wg_eta_even;
-
-  if(rpc_roll_eta_limits_odd) delete rpc_roll_eta_limits_odd;
-  if(rpc_roll_eta_limits_even) delete rpc_roll_eta_limits_even;
-
-  if(rpc_strip_to_csc_hs_odd) delete rpc_strip_to_csc_hs_odd;
-  if(rpc_strip_to_csc_hs_even) delete rpc_strip_to_csc_hs_even;
-
-  if(csc_hs_to_rpc_strip_odd) delete csc_hs_to_rpc_strip_odd;
-  if(csc_hs_to_rpc_strip_even) delete csc_hs_to_rpc_strip_even;
-
-  if(csc_wg_to_rpc_roll_odd) delete csc_wg_to_rpc_roll_odd;
-  if(csc_wg_to_rpc_roll_even) delete csc_wg_to_rpc_roll_even;
 }
 
 CSCRPCMotherboardLUTME31::CSCRPCMotherboardLUTME31() 

@@ -89,7 +89,7 @@ protected:
 			  enum CSCPart part);
 
   template <class T>  
-  void correlateLCTsGEM(T best, T second, const GEMCoPadDigiIds& coPads, 
+  void correlateLCTsGEM(const T& best, const T& second, const GEMCoPadDigiIds& coPads, 
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, enum CSCPart);
   
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCoPadDigi& gem, enum CSCPart, int i); 
@@ -143,8 +143,8 @@ protected:
 
 
 template <class S>  
-void CSCGEMMotherboard::correlateLCTsGEM(S bestLCT,
-					 S secondLCT,
+void CSCGEMMotherboard::correlateLCTsGEM(const S& bestLCT,
+					 const S& secondLCT,
 					 const GEMCoPadDigiIds& coPads, 
 					 CSCCorrelatedLCTDigi& lct1,
 					 CSCCorrelatedLCTDigi& lct2, 
@@ -184,7 +184,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const matches<S>&
   if (not alct1.isValid()) return result;
 
   // return the first one with the same roll number
-  for (auto& p: pads){
+  for (const auto& p: pads){
     if (getRoll(p) == getRoll(alct1)){
       return p.second;
     }
@@ -201,7 +201,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCCLCTDigi& clct, const matches<S>& 
   // return the pad with the smallest bending angle
   float averagePadNumberCSC = getAvePad(clct, part);
   float minDeltaPad = 999;
-  for (auto p: pads){
+  for (const auto& p: pads){
     float averagePadNumberGEM = getAvePad(p.second);
     if (std::abs(averagePadNumberCSC - averagePadNumberGEM) < minDeltaPad){
       minDeltaPad = std::abs(averagePadNumberCSC - averagePadNumberGEM);
@@ -221,7 +221,7 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi
   // return the pad with the smallest bending angle
   float averagePadNumberCSC = getAvePad(clct1, part);
   float minDeltaPad = 999;
-  for (auto& p: pads){
+  for (const auto& p: pads){
     float averagePadNumberGEM = getAvePad(p.second);
     // add another safety to make sure that the deltaPad is not larger than max value!!!
     if (std::abs(averagePadNumberCSC - averagePadNumberGEM) < minDeltaPad and getRoll(p) == getRoll(alct1)){
@@ -242,10 +242,10 @@ matches<S> CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct, enum CSCPart
   boost::variant<GEMPadDigiIdsBX, GEMCoPadDigiIdsBX> variant_lut;
   if (std::is_same<S, GEMPadDigi>::value) variant_lut = pads_;
   else                                    variant_lut = coPads_;
-  auto actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
+  const auto& actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
 
   std::pair<int,int> alctRoll = (*getLUT()->CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(par))[alct.getKeyWG()];
-  for (auto p: actual_lut[alct.getBX()]){
+  for (const auto& p: actual_lut[alct.getBX()]){
     auto padRoll(getRoll(p));
     // only pads in overlap are good for ME1A
     if (part==CSCPart::ME1A and !isPadInOverlap(padRoll)) continue;
@@ -276,12 +276,12 @@ matches<S> CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, enum CSCPart
     variant_lut = coPads_;
     deltaBX = maxDeltaBXCoPad_;
   }
-  auto actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
+  const auto& actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
   
-  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
+  const auto& mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
   const int lowPad(mymap[clct.getKeyStrip()].first);
   const int highPad(mymap[clct.getKeyStrip()].second);
-  for (auto p: actual_lut[clct.getBX()]){
+  for (const auto& p: actual_lut[clct.getBX()]){
     auto padRoll(getAvePad(p.second));
     int pad_bx = getBX(p.second)+lct_central_bx;
     if (std::abs(clct.getBX()-pad_bx)>deltaBX) continue;
@@ -333,7 +333,7 @@ void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCP
     variant_lut = coPads_;
     iscopad = true;
   }
-  auto actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
+  const auto& actual_lut = boost::get<std::map<int, matches<S> > >(variant_lut);
 
   // pads or copads?
   const bool hasPads(actual_lut.size()!=0);
@@ -350,7 +350,7 @@ void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCP
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){
-      for (auto pad : in_pads){ 
+      for (const auto& pad : in_pads){ 
 	std::cout << "\tdetId " << GEMDetId(pad.first) << ", pad = " << pad.second;
 	auto roll_id(GEMDetId(pad.first));
         if (part==CSCPart::ME11 and isPadInOverlap(GEMDetId(roll_id).roll())) std::cout << " (in overlap)" << std::endl;

@@ -15,7 +15,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::LCTContainer::getMatche
 {
   std::vector<CSCCorrelatedLCTDigi> lcts;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++){
-    auto temp_lcts = CSCUpgradeMotherboard::LCTContainer::getTimeMatched(bx);
+    const auto& temp_lcts = CSCUpgradeMotherboard::LCTContainer::getTimeMatched(bx);
     lcts.insert(std::end(lcts), std::begin(temp_lcts), std::end(temp_lcts));
   }
   return lcts;
@@ -37,9 +37,9 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
   if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
   else if (theStation==2) tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
-  else if (theStation==3 or theStation==3) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC");
+  else if (theStation==3 or theStation==4) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC");
   
-  generator_ = new CSCUpgradeMotherboardLUTGenerator();
+  generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");

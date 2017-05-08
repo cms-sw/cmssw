@@ -6,25 +6,17 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
                                      unsigned chamber,
                                      const edm::ParameterSet& conf) :
   CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf)
+  , maxDeltaBXPad_(tmbParams_.getParameter<int>("maxDeltaBXPad"))
+  , maxDeltaBXCoPad_(tmbParams_.getParameter<int>("maxDeltaBXCoPad"))
+  , useOldLCTDataFormat_(tmbParams_.getParameter<bool>("useOldLCTDataFormat"))
+  , promoteALCTGEMpattern_(tmbParams_.getParameter<bool>("promoteALCTGEMpattern"))
+  , promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality"))
+  , doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs"))
 {
   gemId = GEMDetId(theRegion, 1, theStation, 1, theChamber, 0).rawId();
   
   const edm::ParameterSet coPadParams(conf.getParameter<edm::ParameterSet>("copadParam"));
   coPadProcessor.reset( new GEMCoPadProcessor(endcap, station, 1, chamber, coPadParams) );
-
-  // use "old" or "new" dataformat for integrated LCTs?
-  useOldLCTDataFormat_ = tmbParams_.getParameter<bool>("useOldLCTDataFormat");
-
-  // LCT ghostbusting
-  doLCTGhostBustingWithGEMs_ = tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs");
-
-  // promote ALCT-GEM pattern
-  promoteALCTGEMpattern_ = tmbParams_.getParameter<bool>("promoteALCTGEMpattern");
-  promoteALCTGEMquality_ = tmbParams_.getParameter<bool>("promoteALCTGEMquality");
-
-  //  deltas used to match to GEM pads
-  maxDeltaBXPad_ = tmbParams_.getParameter<int>("maxDeltaBXPad");
-  maxDeltaBXCoPad_ = tmbParams_.getParameter<int>("maxDeltaBXCoPad");
 
   maxDeltaPadL1_ = (par ? tmbParams_.getParameter<int>("maxDeltaPadL1Even") :
 		    tmbParams_.getParameter<int>("maxDeltaPadL1Odd") );
@@ -60,8 +52,8 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
 void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
   auto superChamber(gem_g->superChamber(id));
-  for (auto ch : superChamber->chambers()) {
-    for (auto roll : ch->etaPartitions()) {
+  for (const auto& ch : superChamber->chambers()) {
+    for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
@@ -77,7 +69,7 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
 
 void CSCGEMMotherboard::retrieveGEMCoPads()
 {
-  for (auto copad: gemCoPadV){
+  for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad));  
   }
@@ -88,7 +80,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
  							 enum CSCPart part,
 							 int trknmb) 
 {
-  auto mymap = (*getLUT()->get_gem_pad_to_csc_hs(par, part));
+  const auto& mymap = (*getLUT()->get_gem_pad_to_csc_hs(par, part));
 
   if (useOldLCTDataFormat_){
     // CLCT pattern number - set it to a highest value
@@ -108,12 +100,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
 
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // return CSCCorrelatedLCTDigi(0,0,0,0,0,0,0,0,0,0,0,0);
-   } 
+  } 
   else {
     
     // CLCT pattern number - no pattern
@@ -131,11 +119,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
     
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // else return CSCCorrelatedLCTDigi(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
    }
 }
 
@@ -203,12 +187,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
 
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // return CSCCorrelatedLCTDigi(0,0,0,0,0,0,0,0,0,0,0,0);
-   } 
+  } 
   else {
     
     // CLCT pattern number - no pattern
@@ -226,12 +206,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
     
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // else return CSCCorrelatedLCTDigi(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-   }
+  }
 }
 
 
@@ -258,12 +234,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
 
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // return CSCCorrelatedLCTDigi(0,0,0,0,0,0,0,0,0,0,0,0);
-   } 
+  } 
   else {
     
     // CLCT pattern number - no pattern
@@ -281,18 +253,14 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     // get wiregroup from ALCT
     int wg = alct.getKeyWG();
     
-    // if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
-    // { // construct correlated LCT; temporarily assign track number of 0.
     return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-    // }
-    // else return CSCCorrelatedLCTDigi(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-   }
+  }
 }
 
 bool CSCGEMMotherboard::isPadInOverlap(int roll)
 {
   // this only works for ME1A!
-  auto mymap = (*getLUT()->get_csc_wg_to_gem_roll(par));
+  const auto& mymap = (*getLUT()->get_csc_wg_to_gem_roll(par));
   for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15)) continue;
@@ -338,7 +306,7 @@ float CSCGEMMotherboard::getAvePad(const GEMCoPadDigi& p)
 
 float CSCGEMMotherboard::getAvePad(const CSCCLCTDigi& clct, enum CSCPart part)
 {
-  auto mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
+  const auto& mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
   return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
 }
 
