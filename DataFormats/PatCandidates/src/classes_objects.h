@@ -19,6 +19,7 @@
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/StoppedTrack.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
