@@ -83,6 +83,7 @@ namespace pat {
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCandsNoLep_;
             std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > SVWhiteLists_;
+            const bool storeChargedHadronIsolation_;
             const edm::EDGetTokenT<edm::ValueMap<bool> >            ChargedHadronIsolation_;
 
             const double minPtForChargedHadronProperties_;
@@ -113,6 +114,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(usePuppi_ ? consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >() ),
   PuppiCands_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >() ),
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
+  storeChargedHadronIsolation_(!iConfig.getParameter<edm::InputTag>("chargedHadronIsolation").encode().empty()),
   ChargedHadronIsolation_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
   minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
@@ -170,8 +172,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     const edm::ValueMap<int>  &  associationQuality=*(assoQualityHandle.product());
            
     edm::Handle<edm::ValueMap<bool> > chargedHadronIsolationHandle;
-    iEvent.getByToken(ChargedHadronIsolation_,chargedHadronIsolationHandle);
-    const edm::ValueMap<bool>  &  chargedHadronIsolation=*(chargedHadronIsolationHandle.product());
+    if(storeChargedHadronIsolation_)
+      iEvent.getByToken(ChargedHadronIsolation_,chargedHadronIsolationHandle);
 
     std::set<unsigned int> whiteList;
     std::set<reco::TrackRef> whiteListTk;
@@ -296,8 +298,12 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
 	// neutrals and isolated charged hadrons
 
-        bool isIsolatedChargedHadron = ((cand.pt()>minPtForChargedHadronProperties_)&&(chargedHadronIsolation[reco::PFCandidateRef(cands,ic)]));
-        outPtrP->back().setIsIsolatedChargedHadron(isIsolatedChargedHadron);
+        bool isIsolatedChargedHadron = false;
+        if(storeChargedHadronIsolation_) {
+          const edm::ValueMap<bool>  &  chargedHadronIsolation=*(chargedHadronIsolationHandle.product());
+          isIsolatedChargedHadron=((cand.pt()>minPtForChargedHadronProperties_)&&(chargedHadronIsolation[reco::PFCandidateRef(cands,ic)]));
+          outPtrP->back().setIsIsolatedChargedHadron(isIsolatedChargedHadron);
+        }
 
 	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
 	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));

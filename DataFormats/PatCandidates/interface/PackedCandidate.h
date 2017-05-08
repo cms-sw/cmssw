@@ -662,7 +662,7 @@ namespace pat {
 
     int8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
-    int8_t rawCaloFraction_;
+    uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
 
     bool isIsolatedChargedHadron_;
