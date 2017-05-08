@@ -3,6 +3,7 @@
 #include <array>
 #include <utility>
 
+//a K-dimensional point to interface with the FKDTree class
 template<class TYPE, int numberOfDimensions>
 class FKDPoint
 {
