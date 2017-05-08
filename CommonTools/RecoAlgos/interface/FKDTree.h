@@ -218,10 +218,10 @@ class FKDTree
         // returns the index of the element which makes the FKDtree a left-complete heap
         // e.g.: if we have 6 elements, the tree will be shaped like
         //                 O
-        //                / \
-        //               O   O
-        //              / \ /
-        //             O  O O
+        //                / '\'
+        //               O    O
+        //              /'\' /
+        //             O   OO
         //
         // This will return for a length of 6 the 4th element, which will partition the tree so that
         // 3 elements are on its left and 2 elements are on its right
