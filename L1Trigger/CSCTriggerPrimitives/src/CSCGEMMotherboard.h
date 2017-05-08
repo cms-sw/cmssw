@@ -91,11 +91,25 @@ protected:
   template <class T>  
   void correlateLCTsGEM(const T& best, const T& second, const GEMCoPadDigiIds& coPads, 
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, enum CSCPart);
-  
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCoPadDigi& gem, enum CSCPart, int i); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCoPadDigi& gem, enum CSCPart, int i); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const GEMCoPadDigi& gem, enum CSCPart p, int i); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const GEMPadDigi& gem, enum CSCPart p, int i); 
+
+  // specific functions
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCoPadDigi& gem, enum CSCPart, int i);
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCoPadDigi& gem, enum CSCPart, int i);
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
+					const GEMCoPadDigi& gem, enum CSCPart p, int i);
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
+					const GEMPadDigi& gem, enum CSCPart p, int i);
+  /*
+   * General function to construct integrated stubs from CSC and GEM information.
+   * Options are:
+   * 1. ALCT-CLCT-GEMPad
+   * 2. ALCT-CLCT-GEMCoPad
+   * 3. ALCT-GEMCoPad
+   * 4. CLCT-GEMCoPad
+   */
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
+					const GEMPadDigi& gem1,  const GEMCoPadDigi& gem2,
+					enum CSCPart p, int i);
   
   void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
   void retrieveGEMCoPads();

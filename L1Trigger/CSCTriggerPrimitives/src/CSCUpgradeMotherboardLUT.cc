@@ -24,6 +24,13 @@ CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(Parity par, int layer) const
   else                  { return layer==1 ? csc_wg_to_gem_roll_odd_l1 :  csc_wg_to_gem_roll_odd_l2; }
 } 
 
+std::vector<int>
+CSCGEMMotherboardLUT::get_gem_roll_to_csc_wg(Parity par, int layer) const
+{
+  if (par==Parity::Even){ return layer==1 ? gem_roll_to_csc_wg_even_l1 : gem_roll_to_csc_wg_even_l2; }
+  else                  { return layer==1 ? gem_roll_to_csc_wg_odd_l1 :  gem_roll_to_csc_wg_odd_l2; }
+}
+
 std::vector<int> 
 CSCGEMMotherboardLUTME11::get_gem_pad_to_csc_hs(Parity par, enum CSCPart p) const
 {
@@ -125,6 +132,11 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
   csc_wg_to_gem_roll_even_l1 = {};
   csc_wg_to_gem_roll_even_l2 = {};
   
+  gem_roll_to_csc_wg_odd_l1 = {};
+  gem_roll_to_csc_wg_odd_l2 = {};
+  gem_roll_to_csc_wg_even_l1 = {};
+  gem_roll_to_csc_wg_even_l2 = {};
+
   gem_pad_to_csc_hs_me1a_odd = {};
   gem_pad_to_csc_hs_me1b_odd = {};
   gem_pad_to_csc_hs_me1a_even = {};

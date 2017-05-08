@@ -18,6 +18,8 @@ class CSCGEMMotherboardLUT
   virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const=0;
   virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const=0;
   std::vector<std::pair<int,int> > get_csc_wg_to_gem_roll(Parity par, int layer=1) const;
+  // map the GEM roll to the wire-group in the middle of that roll
+  std::vector<int> get_gem_roll_to_csc_wg(Parity par, int layer=1) const;
 
  protected:
 
@@ -36,10 +38,17 @@ class CSCGEMMotherboardLUT
   std::vector<std::pair<double,double> > gem_roll_eta_limits_even_l1;
   std::vector<std::pair<double,double> > gem_roll_eta_limits_even_l2;
 
+  // map CSC wire-group to GEM roll number
   std::vector<std::pair<int,int> > csc_wg_to_gem_roll_odd_l1;
   std::vector<std::pair<int,int> > csc_wg_to_gem_roll_odd_l2;
   std::vector<std::pair<int,int> > csc_wg_to_gem_roll_even_l1;
   std::vector<std::pair<int,int> > csc_wg_to_gem_roll_even_l2;
+
+  // map the GEM roll to the wire-group in the middle of that roll
+  std::vector<int> gem_roll_to_csc_wg_odd_l1;
+  std::vector<int> gem_roll_to_csc_wg_odd_l2;
+  std::vector<int> gem_roll_to_csc_wg_even_l1;
+  std::vector<int> gem_roll_to_csc_wg_even_l2;
 };
 
 
