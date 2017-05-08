@@ -4,7 +4,6 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 #include <limits>
 
@@ -32,7 +31,6 @@ Electron::Electron() :
     ecalRegressionSmear_(-99999.),
     ecalTrackRegressionScale_(-99999.),
     ecalTrackRegressionSmear_(-99999.),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.})),
     packedPFCandidates_(),
     associatedPackedFCandidateIndices_()
 {
@@ -50,8 +48,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectron.p4()),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    ecalDrivenMomentum_(anElectron.p4())
 {
   initImpactParameters();
 }
@@ -67,8 +64,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectronRef->p4()),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    ecalDrivenMomentum_(anElectronRef->p4())
 {
   initImpactParameters();
 }
@@ -84,8 +80,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedSeedCluster_(false),
     embeddedRecHits_(false),
     embeddedPFCandidate_(false),
-    ecalDrivenMomentum_(anElectronRef->p4()),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    ecalDrivenMomentum_(anElectronRef->p4())
 {
   initImpactParameters();
 }

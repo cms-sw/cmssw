@@ -1,8 +1,9 @@
 #include <string>
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -12,16 +13,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 
 namespace pat {
 
-    class PATIsolatedTrackProducer : public edm::EDProducer {
+    class PATIsolatedTrackProducer : public edm::global::EDProducer<> {
         public:
             explicit PATIsolatedTrackProducer(const edm::ParameterSet&);
             ~PATIsolatedTrackProducer();
 
-            virtual void produce(edm::Event&, const edm::EventSetup&);
+        virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
         private: 
             
@@ -29,6 +29,7 @@ namespace pat {
             const float pT_cut;  // only save cands with pT>pT_cut
             const float dR_cut;  // isolation radius
             const float dZ_cut;  // save if either from PV or |dz|<dZ_cut
+            const std::vector<double> miniIsoParams;
             const float absIso_cut;  // save if ANY of absIso, relIso, or miniRelIso pass the cuts 
             const float relIso_cut;
             const float miniRelIso_cut;
@@ -40,6 +41,7 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   pT_cut(iConfig.getParameter<double>("pT_cut")),
   dR_cut(iConfig.getParameter<double>("dR_cut")),
   dZ_cut(iConfig.getParameter<double>("dZ_cut")),
+  miniIsoParams(iConfig.getParameter<std::vector<double> >("miniIsoParams")),
   absIso_cut(iConfig.getParameter<double>("absIso_cut")),
   relIso_cut(iConfig.getParameter<double>("relIso_cut")),
   miniRelIso_cut(iConfig.getParameter<double>("miniRelIso_cut"))
@@ -50,7 +52,7 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
 pat::PATIsolatedTrackProducer::~PATIsolatedTrackProducer() {}
 
 
-void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATIsolatedTrackProducer::produce(edm::StreamID stream, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
     edm::Handle<pat::PackedCandidateCollection> pc_h;
     iEvent.getByToken( pc_, pc_h );
@@ -60,7 +62,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     
     for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
 
-        if(pf_it->p4().pt() < 5)
+        if(pf_it->p4().pt() < pT_cut)
             continue;
 
         if(pf_it->fromPV()<=1 && fabs(pf_it->dz()) > dZ_cut)
@@ -69,12 +71,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         if(pf_it->charge() == 0)
             continue;
 
-        pat::PackedCandidatePtr pcref = refToPtr(pat::PackedCandidateRef(pc_h, (unsigned int)(pf_it - pc->begin())));
+        pat::PackedCandidateRef pcref = pat::PackedCandidateRef(pc_h, (unsigned int)(pf_it - pc->begin()));
 
-        // compute track isolation
-        pat::IsolatedTrack::Isolation isolationDR03 = {0,0,0,0};
-        MiniIsolation miniIso = {0,0,0,0};
-        float miniDR = std::min(0.2, std::max(0.05, 10./pf_it->p4().pt()));
+        // compute both standard and mini PFIsolation
+        // mini-isolation reference: https://hypernews.cern.ch/HyperNews/CMS/get/susy/1991.html
+        float chiso=0, nhiso=0, phiso=0, puiso=0;   // standard isolation
+        float chmiso=0, nhmiso=0, phmiso=0, pumiso=0;  // mini isolation
+        float miniDR = std::max(miniIsoParams[0], std::min(miniIsoParams[1], miniIsoParams[2]/pf_it->p4().pt()));
         for(pat::PackedCandidateCollection::const_iterator pf_it2 = pc->begin(); pf_it2 != pc->end(); pf_it2++){
             if(pf_it == pf_it2)
                 continue;
@@ -86,33 +89,36 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
             if(dr < dR_cut){
                 // charged cands from PV get added to trackIso
                 if(id==211 && fromPV)
-                    isolationDR03.chiso += pt;
+                    chiso += pt;
                 // charged cands not from PV get added to pileup iso
                 else if(id==211)
-                    isolationDR03.puiso += pt;
+                    puiso += pt;
                 // neutral hadron iso
                 if(id==130)
-                    isolationDR03.nhiso += pt;
+                    nhiso += pt;
                 // photon iso
                 if(id==130)
-                    isolationDR03.phiso += pt;
+                    phiso += pt;
             }
             // same for mini isolation
             if(dr < miniDR){
                 if(id == 211 && fromPV)
-                    miniIso.chiso += pt;
+                    chmiso += pt;
                 else if(id == 211)
-                    miniIso.puiso += pt;
+                    pumiso += pt;
                 if(id == 130)
-                    miniIso.nhiso += pt;
+                    nhmiso += pt;
                 if(id == 22)
-                    miniIso.phiso += pt;
+                    phmiso += pt;
             }
         }
+        
+        pat::PFIsolation isolationDR03(chiso, nhiso, phiso, puiso);
+        pat::PFIsolation miniIso(chmiso, nhmiso, phmiso, pumiso);
 
-        if(isolationDR03.chiso < absIso_cut ||
-           isolationDR03.chiso/pf_it->p4().pt() < relIso_cut ||
-           (miniIso.chiso)/pf_it->p4().pt() < miniRelIso_cut){
+        if(isolationDR03.chargedHadronIso() < absIso_cut ||
+           isolationDR03.chargedHadronIso()/pf_it->p4().pt() < relIso_cut ||
+           miniIso.chargedHadronIso()/pf_it->p4().pt() < miniRelIso_cut){
             outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, pf_it->p4(), 
                                                   pf_it->charge(), pf_it->pdgId(), pf_it->dz(),
                                                   pf_it->dxy(), pcref));
