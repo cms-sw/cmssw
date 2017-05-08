@@ -60,12 +60,31 @@ hiLowPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 hiLowPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "hiLowPtTripletStepTracksHitDoublets",
-    maxElement = 5000000,
+    #maxElement = 5000000,
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     produceSeedingHitSets = True,
 )
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+hiLowPtTripletStepTracksHitDoubletsCA = hiLowPtTripletStepTracksHitDoublets.clone()
+hiLowPtTripletStepTracksHitDoubletsCA.layerPairs = [0,1]
+
+hiLowPtTripletStepTracksHitTripletsCA = _caHitTripletEDProducer.clone(
+    doublets = "hiLowPtTripletStepTracksHitDoubletsCA",
+    extraHitRPhitolerance = hiLowPtTripletStepTracksHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = hiLowPtTripletStepTracksHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 70 , value2 = 8,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.002,
+    CAPhiCut = 0.05,
+)
+
 hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
     nSigmaLipMaxTolerance = 4.0,
     nSigmaTipMaxTolerance = 4.0,
@@ -78,6 +97,7 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     # Ordered Hits
     SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTriplets"),
+    #SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA"),
 	
     # Fitter
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
@@ -87,6 +107,10 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 	
     # Cleaner
     Cleaner = cms.string("trackCleaner")
+)
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(hiLowPtTripletStepPixelTracks,
+    SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA")
 )
 
 
@@ -175,7 +199,6 @@ hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     ) #end of clone
 
 
-from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('hiLowPtTripletStepTracks')),
@@ -201,3 +224,7 @@ hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
                                         hiLowPtTripletStepSelector*
                                         hiLowPtTripletStepQual
                                         )
+hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)# 'CA' can be removed
+hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)# 'CA' can be removed
+trackingPhase1QuadProp.toReplaceWith(hiLowPtTripletStep, hiLowPtTripletStep_Phase1)
