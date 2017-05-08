@@ -237,6 +237,9 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
       
    } // if ( UseErrorsFromTemplates_ )
+   else {
+     theClusterParam.qBin_ = 0;
+   }
    
    int Q_f_X;        //!< Q of the first  pixel  in X
    int Q_l_X;        //!< Q of the last   pixel  in X
