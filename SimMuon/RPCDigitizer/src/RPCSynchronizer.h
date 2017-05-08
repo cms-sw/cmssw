@@ -63,5 +63,6 @@ class RPCSynchronizer
   double the_exact_time;
   double the_smeared_time;
   RPCSimSetUp * theSimSetUp;
+  int N_BX;
 };
 #endif
