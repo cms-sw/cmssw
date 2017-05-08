@@ -62,7 +62,7 @@ def run(args):
                 if 'PayloadChange' in line:
                     status[jobname]['changed'] = ('true' in line)
         else:
-            logging.error('Job for %s FAILED!' % tag_type)
+            logging.error('Job %s FAILED!' % jobname)
             status[jobname]['job'] = '@@@CMSSW job return code = 0@@@' in log
             status[jobname]['upload'] = '@@@Upload return code = 0@@@' in log
             is_ok = False
