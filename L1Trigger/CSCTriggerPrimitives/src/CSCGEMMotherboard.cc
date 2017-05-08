@@ -80,7 +80,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
  							 enum CSCPart part,
 							 int trknmb) 
 {
-  const auto& mymap = (*getLUT()->get_gem_pad_to_csc_hs(par, part));
+  const auto& mymap = getLUT()->get_gem_pad_to_csc_hs(par, part);
 
   if (useOldLCTDataFormat_){
     // CLCT pattern number - set it to a highest value
@@ -260,7 +260,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 bool CSCGEMMotherboard::isPadInOverlap(int roll)
 {
   // this only works for ME1A!
-  const auto& mymap = (*getLUT()->get_csc_wg_to_gem_roll(par));
+  const auto& mymap = (getLUT()->get_csc_wg_to_gem_roll(par));
   for (unsigned i=0; i<mymap.size(); i++) {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15)) continue;
@@ -291,7 +291,7 @@ int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p)
 
 int CSCGEMMotherboard::getRoll(const CSCALCTDigi& alct)
 {
-  return (*getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
+  return (getLUT()->get_csc_wg_to_gem_roll(par))[alct.getKeyWG()].first;
 }
 
 float CSCGEMMotherboard::getAvePad(const GEMPadDigi& p)
@@ -306,7 +306,7 @@ float CSCGEMMotherboard::getAvePad(const GEMCoPadDigi& p)
 
 float CSCGEMMotherboard::getAvePad(const CSCCLCTDigi& clct, enum CSCPart part)
 {
-  const auto& mymap = (*getLUT()->get_csc_hs_to_gem_pad(par, part));
+  const auto& mymap = (getLUT()->get_csc_hs_to_gem_pad(par, part));
   return 0.5*(mymap[clct.getKeyStrip()].first + mymap[clct.getKeyStrip()].second);
 }
 
