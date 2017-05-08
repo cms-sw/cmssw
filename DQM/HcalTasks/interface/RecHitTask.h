@@ -126,7 +126,6 @@ class RecHitTask : public hcaldqm::DQTask
 		// QIE10 dual anode histograms
 		hcaldqm::Container2D _cDAAsymmetryVsCharge_SubdetPM;
 		hcaldqm::ContainerProf2D _cDAAsymmetryMean_cut_depth;
-		hcaldqm::ContainerProf2D _cDAAsymmetryRMS_cut_depth;
 		hcaldqm::Container1D _cDAAsymmetry_cut_SubdetPM;
 
 		//	tracks the unknown ids
