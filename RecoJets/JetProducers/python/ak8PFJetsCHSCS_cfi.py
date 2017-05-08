@@ -8,7 +8,6 @@ ak8PFJetsCHSCS = ak4PFJets.clone(
 	rParam = cms.double( 0.8 ),
 	useConstituentSubtraction = cms.bool(True),    
 	csRParam = cms.double(0.4),
-	csRho_EtaMax = ak4PFJets.Rho_EtaMax,   # Just use the same eta for both C.S. and rho by default
 	useExplicitGhosts = cms.bool(True),
 	doAreaFastjet = cms.bool(True),
 	jetPtMin = cms.double(100.0)

@@ -3,7 +3,7 @@ from RecoJets.JetProducers.CATopJetParameters_cfi import *
 # CATopJet PF Jets
 # with adjacency 
 cmsTopTagPFJetsCHS = cms.EDProducer( "CATopJetProducer",
-	CATopJetParameters,
+	#CATopJetParameters,
 	doAreaFastjet = cms.bool(True),
 	doRhoFastjet = cms.bool(False),
 	jetPtMin = cms.double(100.0),
