@@ -1152,62 +1152,8 @@ FastTimerService::postEndJob()
 }
 
 
-
 template <typename T>
-void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
-{
-  out << "FastReport --------------------------- Event Summary ---------------------------\n";
-  out << "FastReport       CPU time      Real time  Modules\n";
-  auto const& source_d = callgraph_.source();
-  auto const& source   = data.modules[source_d.id()];
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int m: proc_d.modules_) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
-    }
-  }
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
-  out << '\n';
-  out << "FastReport       CPU time      Real time  Processes and Paths\n";
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(source.total.time_thread) % ms(source.total.time_real) % source_d.moduleLabel();
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  process %s\n") % ms(proc.total.time_thread) % ms(proc.total.time_real) % proc_d.name_;
-    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const& name = proc_d.paths_[p].name_;
-      auto const& path = proc.paths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
-    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const& name = proc_d.endPaths_[p].name_;
-      auto const& path = proc.endpaths[p];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (only scheduled modules)\n") % ms(path.active.time_thread) % ms(path.active.time_real) % name;
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s (including dependencies)\n") % ms(path.total.time_thread)  % ms(path.total.time_real)  % name;
-    }
-  }
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  total\n") % ms(data.total.time_thread) % ms(data.total.time_real);
-  out << '\n';
-  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
-    out << "FastReport       CPU time      Real time  Highlighted modules\n";
-    for (unsigned int m: highlight_modules_[group].modules) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms    %s\n") % ms(module.total.time_thread) % ms(module.total.time_real) % module_d.moduleLabel();
-    }
-    out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(data.highlight[group].time_thread) % ms(data.highlight[group].time_real) % highlight_modules_[group].label;
-    out << '\n';
-  }
-}
-
-template <typename T>
-void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const
+void FastTimerService::printHeader(T& out, std::string const & label) const
 {
   out << "FastReport ";
   if (label.size() < 60)
@@ -1218,88 +1164,151 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     for (unsigned int i = (59-label.size()) / 2; i > 0; --i)
       out << '-';
   out << '\n';
-  out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Modules\n";
+}
+
+template <typename T>
+void FastTimerService::printEventHeader(T& out, std::string const & label) const
+{
+  out << "FastReport       CPU time      Real time  " << label << "\n";
+}
+
+template <typename T>
+void FastTimerService::printEventLine(T& out, Resources const& data, std::string const & label) const
+{
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %s\n") % ms(data.time_thread) % ms(data.time_real) % label;
+}
+
+template <typename T>
+void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const
+{
+  printHeader(out, "Event");
+  printEventHeader(out, "Modules");
   auto const& source_d = callgraph_.source();
   auto const& source   = data.modules[source_d.id()];
-  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %s\n")
-    % (ms(source.total.time_thread) / data.events) % (ms(source.total.time_thread) / source.events)
-    % (ms(source.total.time_real) / data.events)   % (ms(source.total.time_real) / source.events)
-    % source_d.moduleLabel();
+  printEventLine(out, source.total, source_d.moduleLabel());
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
     auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
-      % (ms(proc.total.time_thread) / data.events)
-      % (ms(proc.total.time_real) / data.events)
-      % proc_d.name_;
+    printEventLine(out, proc.total, "process " + proc_d.name_);
     for (unsigned int m: proc_d.modules_) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
-        % (ms(module.total.time_thread) / data.events) % (ms(module.total.time_thread) / module.events)
-        % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
-        % module_d.moduleLabel();
+      printEventLine(out, module.total, "  " + module_d.moduleLabel());
     }
   }
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
-    % (ms(data.total.time_thread) / data.events)
-    % (ms(data.total.time_real) / data.events);
+  printEventLine(out, data.total, "total");
   out << '\n';
-  out << "FastReport       CPU time                     Real time                 Processes and Paths\n";
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
-    % (ms(source.total.time_thread) / data.events)
-    % (ms(source.total.time_real) / data.events)
-    % source_d.moduleLabel();
+  printEventHeader(out, "Processes and Paths");
+  printEventLine(out, source.total, source_d.moduleLabel());
   for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
     auto const& proc_d = callgraph_.processDescription(i);
     auto const& proc   = data.processes[i];
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 process %s\n")
-      % (ms(proc.total.time_thread) / data.events)
-      % (ms(proc.total.time_real) / data.events)
-      % proc_d.name_;
+    printEventLine(out, proc.total, "process " + proc_d.name_);
     for (unsigned int p = 0; p < proc.paths.size(); ++p) {
       auto const& name = proc_d.paths_[p].name_;
       auto const& path = proc.paths[p];
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
-       % (ms(path.active.time_thread) / data.events)
-       % (ms(path.active.time_real) / data.events)
-       % name;
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
-       % (ms(path.total.time_thread) / data.events)
-       % (ms(path.total.time_real) / data.events)
-       % name;
+      printEventLine(out, path.active, name + " (only scheduled modules)");
+      printEventLine(out, path.total,  name + " (including dependencies)");
     }
     for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
       auto const& name = proc_d.endPaths_[p].name_;
       auto const& path = proc.endpaths[p];
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (only scheduled modules)\n")
-       % (ms(path.active.time_thread) / data.events)
-       % (ms(path.active.time_real) / data.events)
-       % name;
-      out << boost::format("FastReport  %10.3f ms                 %10.3f ms                   %s (including dependencies)\n")
-       % (ms(path.total.time_thread) / data.events)
-       % (ms(path.total.time_real) / data.events)
-       % name;
+      printEventLine(out, path.active, name + " (only scheduled modules)");
+      printEventLine(out, path.total,  name + " (including dependencies)");
     }
   }
-  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 total\n")
-       % (ms(data.total.time_thread) / data.events)
-       % (ms(data.total.time_real) / data.events);
+  printEventLine(out, data.total, "total");
   out << '\n';
   for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
-    out << "FastReport   CPU time avg.      when run  Real time avg.      when run  Highlighted modules\n";
+    printEventHeader(out, "Highlighted modules");
     for (unsigned int m: highlight_modules_[group].modules) {
       auto const& module_d = callgraph_.module(m);
       auto const& module   = data.modules[m];
-      out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms    %s\n")
-        % (ms(module.total.time_thread) / data.events) % (ms(module.total.time_thread) / module.events)
-        % (ms(module.total.time_real) / data.events)   % (ms(module.total.time_real) / module.events)
-        % module_d.moduleLabel();
+      printEventLine(out, module.total, "  " + module_d.moduleLabel());
     }
-    out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
-      % (ms(data.highlight[group].time_thread) / data.events)
-      % (ms(data.highlight[group].time_real) / data.events)
-      % highlight_modules_[group].label;
+    printEventLine(out, data.highlight[group], highlight_modules_[group].label);
+    out << '\n';
+  }
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const
+{
+  out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %s\n")
+    % (ms(data.time_thread) / events)
+    % (ms(data.time_real)   / events)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const
+{
+  out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %s\n")
+    % (ms(data.time_thread) / events) % (ms(data.time_thread) / active)
+    % (ms(data.time_real)   / events) % (ms(data.time_real)   / active)
+    % label;
+}
+
+template <typename T>
+void FastTimerService::printSummaryHeader(T& out, std::string const& label, bool detailed) const
+{
+  out << "FastReport   "
+      << "CPU time avg. "
+      << (detailed ? "     when run  " : "               ")
+      << "Real time avg. "
+      << (detailed ? "     when run  " : "               ")
+      << label << "\n";
+}
+
+template <typename T>
+void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::string const& label) const
+{
+  printHeader(out, label);
+  printSummaryHeader(out, "Modules", true);
+  auto const& source_d = callgraph_.source();
+  auto const& source   = data.modules[source_d.id()];
+  printSummaryLine(out, source.total, data.events, source.events, source_d.moduleLabel());
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+    for (unsigned int m: proc_d.modules_) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      printSummaryLine(out, module.total, data.events, module.events, module_d.moduleLabel());
+    }
+  }
+  printSummaryLine(out, data.total, data.events, "total");
+  out << '\n';
+  printSummaryHeader(out, "Processes and Paths", false);
+  printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
+  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
+    auto const& proc_d = callgraph_.processDescription(i);
+    auto const& proc   = data.processes[i];
+    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+      auto const& name = proc_d.paths_[p].name_;
+      auto const& path = proc.paths[p];
+      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
+      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+    }
+    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+      auto const& name = proc_d.endPaths_[p].name_;
+      auto const& path = proc.endpaths[p];
+      printSummaryLine(out, path.active, data.events, name + " (only scheduled modules)");
+      printSummaryLine(out, path.total,  data.events, name + " (including dependencies)");
+    }
+  }
+  printSummaryLine(out, data.total, data.events, "total");
+  out << '\n';
+  for (unsigned int group: boost::irange(0ul, highlight_modules_.size())) {
+    printSummaryHeader(out, "Highlighted modules", true);
+    for (unsigned int m: highlight_modules_[group].modules) {
+      auto const& module_d = callgraph_.module(m);
+      auto const& module   = data.modules[m];
+      printSummaryLine(out, module.total, data.events, module.events, module_d.moduleLabel());
+    }
+    printSummaryLine(out, data.highlight[group], data.events, highlight_modules_[group].label);
     out << '\n';
   }
 }
