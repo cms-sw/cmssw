@@ -17,7 +17,7 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="36">
-   <version ClassVersion="36" checksum="3673817176"/>
+   <version ClassVersion="36" checksum="199321903"/>
    <version ClassVersion="35" checksum="482655666"/>
    <version ClassVersion="34" checksum="3720919820"/>
    <version ClassVersion="33" checksum="459924678"/>
@@ -60,7 +60,7 @@
 
 
   <class name="pat::Muon"  ClassVersion="21">
-   <version ClassVersion="21" checksum="2645981547"/>
+   <version ClassVersion="21" checksum="1539691612"/>
    <version ClassVersion="20" checksum="357097717"/>
    <version ClassVersion="19" checksum="2754486523"/>
    <version ClassVersion="18" checksum="1163602263"/>
@@ -83,7 +83,8 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
-  <class name="pat::Tau"  ClassVersion="17">
+  <class name="pat::Tau"  ClassVersion="18">
+   <version ClassVersion="18" checksum="3279584614"/>
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
@@ -104,9 +105,11 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="0">
-   <version ClassVersion="0" checksum="1532141478"/>
+  <class name="pat::IsolatedTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="550880582"/>
   </class>
+
+  <class name="pat::PFIsolation" />
 
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">

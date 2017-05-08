@@ -11,71 +11,53 @@
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
-
-namespace pat {
-    class IsolatedTrack;
-    typedef std::vector<IsolatedTrack>  IsolatedTrackCollection; 
-    typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
-}
-
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 namespace pat {
 
     class IsolatedTrack : public reco::LeafCandidate {
 
       public:
-        typedef MiniIsolation Isolation;
 
         IsolatedTrack() :
           LeafCandidate(0, LorentzVector(0,0,0,0)),
-          isolationDR03_({0.,0.,0.,0.}),
-          miniIsolation_(pat::MiniIsolation({0,0,0,0})),
+          pfIsolationDR03_(pat::PFIsolation()),
+          miniIsolation_(pat::PFIsolation()),
           dz_(0.), dxy_(0.),
-          refToCand_(PackedCandidatePtr()) {}
+          packedCandRef_(PackedCandidateRef()) {}
 
-        explicit IsolatedTrack(Isolation iso, MiniIsolation miniiso, 
-                               LorentzVector p4, int charge, int id, 
-                               float dz, float dxy, PackedCandidatePtr ref) :
+        explicit IsolatedTrack(const PFIsolation &iso, const PFIsolation &miniiso,
+                               const LorentzVector &p4, int charge, int id,
+                               float dz, float dxy, const PackedCandidateRef &ref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
-          isolationDR03_(iso),
+          pfIsolationDR03_(iso),
           miniIsolation_(miniiso),
           dz_(dz), dxy_(dxy),
-          refToCand_(ref) {}
+          packedCandRef_(ref) {}
 
         ~IsolatedTrack() {}
 
-        Isolation isolationDR03() const  { return isolationDR03_; }
-        float chargedHadronIso() const   { return isolationDR03_.chiso; }
-        float neutralHadronIso() const   { return isolationDR03_.nhiso; }
-        float photonIso() const          { return isolationDR03_.phiso; }
-        float puChargedHadronIso() const { return isolationDR03_.puiso; }
-        void setIsolationDR03(float ch, float nh, float ph, float pu){ isolationDR03_={ch, nh, ph, pu}; }
-
-        MiniIsolation miniPFIsolation() const { return miniIsolation_; }
-        float chargedHadronMiniIso() const    { return miniIsolation_.chiso; }
-        float neutralHadronMiniIso() const    { return miniIsolation_.nhiso; }
-        float photonMiniIso() const           { return miniIsolation_.phiso; }
-        float puChargedHadronMiniIso() const  { return miniIsolation_.puiso; }
-        void setMiniPFIsolation(MiniIsolation iso){ miniIsolation_ = iso; }
-
+        const PFIsolation& pfIsolationDR03() const  { return pfIsolationDR03_; }
+        const PFIsolation& miniPFIsolation() const { return miniIsolation_; }
         float dz() const { return dz_; }
-        void setDz(float dz){ dz_=dz; }
-
         float dxy() const { return dxy_; }
-        void setDxy(float dxy){ dxy_=dxy; }
         
-        PackedCandidatePtr refToCand() const { return refToCand_; }
-        void setPackedCandRef(PackedCandidatePtr ref){ refToCand_ = ref; }
+        const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
       protected:
-        Isolation isolationDR03_;
-        MiniIsolation miniIsolation_;
+        PFIsolation pfIsolationDR03_;
+        PFIsolation miniIsolation_;
         float dz_, dxy_;
 
-        PackedCandidatePtr refToCand_;
+        PackedCandidateRef packedCandRef_;
     };
 
+}
+
+
+namespace pat {
+    class IsolatedTrack;
+    typedef std::vector<IsolatedTrack>  IsolatedTrackCollection;
 }
 
 
