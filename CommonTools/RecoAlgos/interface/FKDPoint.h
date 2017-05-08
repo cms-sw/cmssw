@@ -43,7 +43,7 @@ class FKDPoint
             theElements[3] = w;
         }
 
-// the user should check that i < numberOfDimensions
+        // the user should check that i < numberOfDimensions
         TYPE& operator[](unsigned int const i)
         {
             return theElements[i];
