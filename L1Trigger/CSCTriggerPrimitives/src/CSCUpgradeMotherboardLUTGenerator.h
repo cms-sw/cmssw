@@ -87,7 +87,7 @@ std::ostream &operator <<(std::ostream &os, const std::vector<std::pair<T,T> >&v
 {
   int i = 0;
   os << "{" << std::endl;
-  for(auto p : v) {
+  for(const auto& p : v) {
     os << " {" << p.first << ", " << p.second << "}, ";
     if (i%8==0) os << std::endl;
     i++;
@@ -103,7 +103,7 @@ std::ostream &operator <<(std::ostream &os, const std::vector<T>&v)
 {
   int i = 0;
   os << "{" << std::endl;
-  for(auto p : v) {
+  for(const auto& p : v) {
     os << " " << p << ",";
     if (i%10==0) os << std::endl;
     i++;
