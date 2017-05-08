@@ -138,8 +138,8 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
    
    // Test to see if we can use L3MuonTrajectorySeeds:
-   if (mucands->size()<1) return false;
-   auto tk = (*mucands)[0].track();
+   if (mucands->empty()) return false;
+   auto const &tk = (*mucands)[0].track();
    bool useL3MTS=false;
 
    if (tk->seedRef().isNonnull()){
@@ -153,15 +153,42 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
 
      unsigned int maxI = mucands->size();
      for (unsigned int i=0;i!=maxI;++i){
-       TrackRef tk = (*mucands)[i].track();
+       const TrackRef &tk = (*mucands)[i].track();
        edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
        TrackRef staTrack = l3seedRef->l2Track();
        LogDebug("HLTMuonL3PreFilter") <<"L2 from: "<<iEvent.getProvenance(staTrack.id()).moduleLabel() <<" index: "<<staTrack.key();
        L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
      }
+   } //end of useL3MTS
+
+   // Using normal TrajectorySeeds:
+   else{
+     LogDebug("HLTMuonL3PreFilter") << "HLTMuonL3PreFilter::hltFilter is in mode: not useL3MTS";
+ 
+     // Read Links collection:
+     edm::Handle<reco::MuonTrackLinksCollection> links;
+     iEvent.getByToken(linkToken_, links);
+ 
+     // Loop over RecoChargedCandidates:
+     for(unsigned int i(0); i < mucands->size(); ++i){
+	RecoChargedCandidateRef cand(mucands,i);
+	for(auto const & link : *links){
+	  TrackRef tk = cand->track();
+
+	  // Using the same method that was used to create the links between L3 and L2
+	  // ToDo: there should be a better way than dR,dPt matching
+	  const reco::Track& globalTrack = *link.globalTrack();
+	  float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
+	  float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
+	  if (dR2 < 0.02*0.02 and dPt < 0.001) {
+	      const TrackRef staTrack = link.standAloneTrack();
+	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	  }
+        } //MTL loop
+     } //RCC loop
+   } //end of using normal TrajectorySeeds
 
      // look at all mucands,  check cuts and add to filter object
-     int n = 0;
      auto L2toL3s_it = L2toL3s.begin();
      auto L2toL3s_end = L2toL3s.end();
      LogDebug("HLTMuonL3PreFilter")<<"looking at: "<<L2toL3s.size()<<" L2->L3s from: "<<mucands->size();
@@ -251,101 +278,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
      LogDebug("HLTMuonL3PreFilter") << " >>>>> Result of HLTMuonL3PreFilter is " << accept << ", number of muons passing thresholds= " << n;
   
      return accept;
-  } //end of useL3MTS
 
-  // Using normal TrajectorySeeds:
-  else{
-    LogDebug("HLTMuonL3PreFilter") << "HLTMuonL3PreFilter::hltFilter is in mode: not useL3MTS";
-
-    // Read Links collection:
-    edm::Handle<reco::MuonTrackLinksCollection> links;
-    iEvent.getByToken(linkToken_, links);
-
-    // Loop over RecoChargedCandidates:
-    for(unsigned int i(0); i < mucands->size(); ++i){
-      RecoChargedCandidateRef cand(mucands,i);
-      for(auto const & l : *links){
-        const reco::MuonTrackLinks* link = &l;
-	bool useThisLink=false;
-	TrackRef tk = cand->track();
-	reco::TrackRef trkTrack = link->trackerTrack();
-
-	// Using the same method that was used to create the links
-	// ToDo: there should be a better way than dR,dPt matching
-	const reco::Track& globalTrack = *link->globalTrack();
-	float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
-	float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
-	if (dR2 < 0.02*0.02 and dPt < 0.001) {
-		useThisLink=true;
-	}
-
-	if (useThisLink){
-          const TrackRef staTrack = link->standAloneTrack();
-	  if (!triggeredByLevel2(staTrack,vl2cands)) continue;
-
-           // eta cut
-           if (std::abs(cand->eta())>max_Eta_) continue;
-    
-           // cut on number of hits
-           if (tk->numberOfValidHits()<min_Nhits_) continue;
-    
-           //max dr cut
-           //if (std::abs(tk->d0())>max_Dr_) continue;
-           auto dr = std::abs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() );
-           if (dr >max_Dr_) continue;
-    
-           //min dr cut
-           if (dr <min_Dr_) continue;
-    
-           //dz cut
-           if (std::abs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) continue;
-    
-           // dxy significance cut (safeguard against bizarre values)
-           if (min_DxySig_ > 0 && (tk->dxyError() <= 0 || std::abs(tk->dxy(beamSpot.position())/tk->dxyError()) < min_DxySig_)) continue;
-    
-           //normalizedChi2 cut
-           if (tk->normalizedChi2() > max_NormalizedChi2_ ) continue;
-    
-           //dxy beamspot cut
-           float absDxy = std::abs(tk->dxy(beamSpot.position()));
-           if (absDxy > max_DXYBeamSpot_ || absDxy < min_DXYBeamSpot_ ) continue;
-    
-           //min muon hits cut
-           const reco::HitPattern& trackHits = tk->hitPattern();
-           if (trackHits.numberOfValidMuonHits() < min_NmuonHits_ ) continue;
-    
-           //pt difference cut
-           double candPt = cand->pt();
-           double trackPt = tk->pt();
-    
-           if (std::abs(candPt - trackPt) > max_PtDifference_ ) continue;
-    
-           //track pt cut
-           if (trackPt < min_TrackPt_ ) continue;
-    
-           // Pt threshold cut
-           double pt = cand->pt();
-           double err0 = tk->error(0);
-           double abspar0 = std::abs(tk->parameter(0));
-           double ptLx = pt;
-           // convert 50% efficiency threshold to 90% efficiency threshold
-           if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
-           LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, trackkRef pt= "
-    				      << tk->pt() << ", ptLx= " << ptLx
-    				      << " cand pT " << cand->pt();
-          if (ptLx<min_Pt_) continue;
-    
-          filterproduct.addObject(TriggerMuon,cand);
-          n++;
-          break; // and go on with the next L2 association
-	} //end of useThisLink
-      } //end of muons in links collection
-    } //end of RecoCand collection
-
-    // filter decision:
-    const bool accept (n >= min_N_);
-    return accept;
-  } //not useL3MTS
 }
 
 bool
