@@ -17,40 +17,40 @@ CSCGEMMotherboardLUT::CSCGEMMotherboardLUT()
 {
 }
 
-std::vector<std::pair<int,int> >*
+std::vector<std::pair<int,int> >
 CSCGEMMotherboardLUT::get_csc_wg_to_gem_roll(Parity par, int layer) const
 {
   if (par==Parity::Even){ return layer==1 ? csc_wg_to_gem_roll_even_l1 : csc_wg_to_gem_roll_even_l2; }
   else                  { return layer==1 ? csc_wg_to_gem_roll_odd_l1 :  csc_wg_to_gem_roll_odd_l2; }
 } 
 
-std::vector<int>* 
+std::vector<int> 
 CSCGEMMotherboardLUTME11::get_gem_pad_to_csc_hs(Parity par, enum CSCPart p) const
 {
   if (p==CSCPart::ME1A) { return par==Parity::Even ? gem_pad_to_csc_hs_me1a_even : gem_pad_to_csc_hs_me1a_odd; }
   else                  { return par==Parity::Even ? gem_pad_to_csc_hs_me1b_even : gem_pad_to_csc_hs_me1b_odd; }
 }
 
-std::vector<int>* 
+std::vector<int> 
 CSCGEMMotherboardLUTME21::get_gem_pad_to_csc_hs(Parity par, enum CSCPart p) const
 {
   return par==Parity::Even ? gem_pad_to_csc_hs_even : gem_pad_to_csc_hs_odd;
 }
 
-std::vector<std::pair<int,int> >* 
+std::vector<std::pair<int,int> > 
 CSCGEMMotherboardLUTME21::get_csc_hs_to_gem_pad(Parity par, enum CSCPart p) const
 {
   return par==Parity::Even ? csc_hs_to_gem_pad_even : csc_hs_to_gem_pad_odd;
 }
 
-std::vector<std::pair<int,int> >* 
+std::vector<std::pair<int,int> > 
 CSCGEMMotherboardLUTME11::get_csc_hs_to_gem_pad(Parity par, enum CSCPart p) const
 {
   if (p==CSCPart::ME1A) { return par==Parity::Even ? csc_hs_to_gem_pad_me1a_even : csc_hs_to_gem_pad_me1a_odd; }
   else                  { return par==Parity::Even ? csc_hs_to_gem_pad_me1b_even : csc_hs_to_gem_pad_me1b_odd; }
 }
 
-std::vector<std::vector<double>> * 
+std::vector<std::vector<double> > 
 CSCGEMMotherboardLUTME11::get_lut_wg_vs_hs(enum CSCPart p) const
 {
   if (p==CSCPart::ME1A)      { return lut_wg_vs_hs_me1a;  }
@@ -66,13 +66,10 @@ CSCGEMMotherboardLUT::~CSCGEMMotherboardLUT()
 CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11() 
   : CSCGEMMotherboardLUT()
 {
-  lut_wg_eta_odd = new std::vector<std::vector<double>> {
-  };
-  lut_wg_eta_even = new std::vector<std::vector<double>> {
-  };
+  lut_wg_eta_odd = {};
+  lut_wg_eta_even = {};
 
-
-  lut_pt_vs_dphi_gemcsc = new std::vector<std::vector<double>> {
+  lut_pt_vs_dphi_gemcsc = {
     {3, 0.03971647, 0.01710244},
     {5, 0.02123785, 0.00928431},
     {7, 0.01475524, 0.00650928},
@@ -82,7 +79,7 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
     {30, 0.00389050, 0.00224959},
     {40, 0.00329539, 0.00204670}};
 
-  lut_wg_vs_hs_me1a  = new std::vector<std::vector<double>> {
+  lut_wg_vs_hs_me1a  =  {
     {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
     {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
     {0, 95},{0, 95},{0, 77},{0, 61},{0, 39},
@@ -94,7 +91,7 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
     {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
     {-1,-1},{-1,-1},{-1,-1} };
 
-  lut_wg_vs_hs_me1ag = new std::vector<std::vector<double>> {
+  lut_wg_vs_hs_me1ag =  {
     {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
     {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
     {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
@@ -106,7 +103,7 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
     {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
     {-1,-1},{-1,-1},{-1,-1} };
 
-  lut_wg_vs_hs_me1b  = new std::vector<std::vector<double>> {
+  lut_wg_vs_hs_me1b  =  {
     {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
     {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
     {100, 127},{73, 127},{47, 127},{22, 127},{0, 127},
@@ -118,40 +115,26 @@ CSCGEMMotherboardLUTME11::CSCGEMMotherboardLUTME11()
     {0, 127},{0, 127},{0, 127},{0, 127},{0, 105},
     {0, 93},{0, 78},{0, 63} };
   
-  gem_roll_eta_limits_odd_l1 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_odd_l2 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_even_l1 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_even_l2 = new std::vector<std::pair<double,double> >{};
+  gem_roll_eta_limits_odd_l1 = {};
+  gem_roll_eta_limits_odd_l2 = {};
+  gem_roll_eta_limits_even_l1 = {};
+  gem_roll_eta_limits_even_l2 = {};
   
-  csc_wg_to_gem_roll_odd_l1 = new std::vector<std::pair<int,int> >{};
-  csc_wg_to_gem_roll_odd_l2 = new std::vector<std::pair<int,int> >{};
-  csc_wg_to_gem_roll_even_l1 = new std::vector<std::pair<int,int> >{};
-  csc_wg_to_gem_roll_even_l2 = new std::vector<std::pair<int,int> >{};
+  csc_wg_to_gem_roll_odd_l1 = {};
+  csc_wg_to_gem_roll_odd_l2 = {};
+  csc_wg_to_gem_roll_even_l1 = {};
+  csc_wg_to_gem_roll_even_l2 = {};
   
-  gem_pad_to_csc_hs_me1a_odd = new std::vector<int>{
-  };
-  
-  gem_pad_to_csc_hs_me1b_odd = new std::vector<int>{
-  };
-  
-  gem_pad_to_csc_hs_me1a_even = new std::vector<int>{
-  };
-  
-  gem_pad_to_csc_hs_me1b_even = new std::vector<int>{
-  };
+  gem_pad_to_csc_hs_me1a_odd = {};
+  gem_pad_to_csc_hs_me1b_odd = {};
+  gem_pad_to_csc_hs_me1a_even = {};
+  gem_pad_to_csc_hs_me1b_even = {};
   
   // LUTs for positive endcap differ from negative endcap!
-  csc_hs_to_gem_pad_me1a_odd = new std::vector<std::pair<int,int> >{
-  };
-  
-  csc_hs_to_gem_pad_me1a_even = new std::vector<std::pair<int,int> >{
-  };
-  
-  csc_hs_to_gem_pad_me1b_odd = new std::vector<std::pair<int,int> >{
-  };
-  
-  csc_hs_to_gem_pad_me1b_even = new std::vector<std::pair<int,int> >{
-  };
+  csc_hs_to_gem_pad_me1a_odd = {};
+  csc_hs_to_gem_pad_me1a_even = {};
+  csc_hs_to_gem_pad_me1b_odd = {};
+  csc_hs_to_gem_pad_me1b_even = {};
 }
 
 CSCGEMMotherboardLUTME11::~CSCGEMMotherboardLUTME11() 
@@ -161,13 +144,10 @@ CSCGEMMotherboardLUTME11::~CSCGEMMotherboardLUTME11()
 
 CSCGEMMotherboardLUTME21::CSCGEMMotherboardLUTME21() :   CSCGEMMotherboardLUT()
 {
-  lut_wg_eta_odd = new std::vector<std::vector<double>> {
-  };
+  lut_wg_eta_odd = {};
+  lut_wg_eta_even = {};
   
-  lut_wg_eta_even = new std::vector<std::vector<double>> {
-  };
-  
-  lut_pt_vs_dphi_gemcsc = new std::vector<std::vector<double>> {
+  lut_pt_vs_dphi_gemcsc = {
     {3, 0.01832829, 0.01003643 },
     {5, 0.01095490, 0.00631625 },
     {7, 0.00786026, 0.00501017 },
@@ -178,34 +158,21 @@ CSCGEMMotherboardLUTME21::CSCGEMMotherboardLUTME21() :   CSCGEMMotherboardLUT()
     {40, 0.00372145, 0.00366262 }
   };
 
-  gem_roll_eta_limits_odd_l1 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_odd_l2 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_even_l1 = new std::vector<std::pair<double,double> >{};
-  gem_roll_eta_limits_even_l2 = new std::vector<std::pair<double,double> >{};
+  gem_roll_eta_limits_odd_l1 = {};
+  gem_roll_eta_limits_odd_l2 = {};
+  gem_roll_eta_limits_even_l1 = {};
+  gem_roll_eta_limits_even_l2 = {};
   
-  csc_wg_to_gem_roll_odd_l1 = new std::vector<std::pair<int,int> >{
-  };
+  csc_wg_to_gem_roll_odd_l1 = {};
+  csc_wg_to_gem_roll_even_l1 = {};
+  csc_wg_to_gem_roll_odd_l2 = {};
+  csc_wg_to_gem_roll_even_l2 = {};
 
-  csc_wg_to_gem_roll_even_l1 = new std::vector<std::pair<int,int> >{
-  };
+  gem_pad_to_csc_hs_odd = {};
+  gem_pad_to_csc_hs_even = {};
 
-  csc_wg_to_gem_roll_odd_l2 = new std::vector<std::pair<int,int> >{
-  };
-
-  csc_wg_to_gem_roll_even_l2 = new std::vector<std::pair<int,int> >{
-  };
-  
-  gem_pad_to_csc_hs_odd = new std::vector<int>{
-  };
-
-  gem_pad_to_csc_hs_even = new std::vector<int>{
-  };
-  
-  csc_hs_to_gem_pad_odd = new std::vector<std::pair<int,int> >{
-  };
-
-  csc_hs_to_gem_pad_even = new std::vector<std::pair<int,int> >{
-  };
+  csc_hs_to_gem_pad_odd = {};
+  csc_hs_to_gem_pad_even = {};
 }
 
 
@@ -246,31 +213,31 @@ CSCRPCMotherboardLUTME41::CSCRPCMotherboardLUTME41()
 {
 }
 
-std::vector<std::vector<double>> * 
+std::vector<std::vector<double> > 
 CSCRPCMotherboardLUT::get_lut_wg_eta(Parity par) const
 {
   return par==Parity::Even ? lut_wg_eta_even : lut_wg_eta_odd;
 }
 
-std::vector<std::pair<double,double> >* 
+std::vector<std::pair<double,double> > 
 CSCRPCMotherboardLUT::get_rpc_roll_eta_limits(Parity par) const
 {
   return par==Parity::Even ? rpc_roll_eta_limits_even : rpc_roll_eta_limits_odd;
 }
 
-std::vector<int>* 
+std::vector<int> 
 CSCRPCMotherboardLUT::get_rpc_strip_to_csc_hs(Parity par) const
 {
   return par==Parity::Even ? rpc_strip_to_csc_hs_even : rpc_strip_to_csc_hs_odd;
 }
 
-std::vector<std::pair<int,int> >* 
+std::vector<std::pair<int,int> > 
 CSCRPCMotherboardLUT::get_csc_hs_to_rpc_strip(Parity par) const
 {
   return par==Parity::Even ? csc_hs_to_rpc_strip_even : csc_hs_to_rpc_strip_odd;
 }
 
-std::vector<int>* 
+std::vector<int> 
 CSCRPCMotherboardLUT::get_csc_wg_to_rpc_roll(Parity par) const
 {
   return par==Parity::Even ? csc_wg_to_rpc_roll_even : csc_wg_to_rpc_roll_odd;
