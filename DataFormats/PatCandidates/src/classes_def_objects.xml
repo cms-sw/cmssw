@@ -108,6 +108,8 @@
    <version ClassVersion="0" checksum="1532141478"/>
   </class>
 
+  <class name="pat::StoppedTrack" />
+
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
      <field name="m_data" transient="true"/>
@@ -418,6 +420,7 @@
   <class name="std::vector<pat::Conversion>" />
   <class name="std::vector<pat::PackedCandidate>"/>
   <class name="std::vector<pat::IsolatedTrack>"/>
+  <class name="std::vector<pat::StoppedTrack>"/>
   <class name="std::vector<pat::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
@@ -453,6 +456,7 @@
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
   <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
   <class name="edm::Wrapper<std::vector<pat::IsolatedTrack> >"/>
+  <class name="edm::Wrapper<std::vector<pat::StoppedTrack> >"/>
   <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->

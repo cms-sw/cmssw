@@ -34,6 +34,7 @@ MicroEventContent = cms.PSet(
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
         'keep *_isolatedTracks_*_*',
+        'keep *_stoppedTracks_*_*',
         # low energy conversions for BPH
         'keep *_oniaPhotonCandidates_*_*',
 
