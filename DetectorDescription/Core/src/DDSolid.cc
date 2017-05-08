@@ -306,6 +306,16 @@ DDUnion::DDUnion(const DDSolid & s)
   }
 }
 
+DDMultiUnion::DDMultiUnion(const DDSolid & s) 
+  : DDMultiUnionSolid(s)
+{
+  if (s.shape() != ddmultiunion) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDMultiUnion.\n";
+    ex = ex + "Use a different solid interface!";
+    throw cms::Exception("DDException") << ex;
+  }
+}
+
 DDIntersection::DDIntersection(const DDSolid & s) 
   : DDBooleanSolid(s)
 {
@@ -602,6 +612,30 @@ DDTubs::startPhi() const { return rep().parameters()[3]; }
 double
 DDTubs::deltaPhi() const { return rep().parameters()[4]; }
 
+DDMultiUnionSolid::DDMultiUnionSolid( const DDSolid &s )
+ : DDSolid( s ), union_(0)
+{
+  union_ = dynamic_cast<DDI::MultiUnion*>(&s.rep());
+}
+
+const std::vector<DDSolid> &
+DDMultiUnionSolid::solids() const
+{
+  return union_->solids();
+}
+
+const std::vector<DDTranslation> &
+DDMultiUnionSolid::translations() const
+{
+  return union_->t();
+}
+
+const std::vector<DDRotation> &
+DDMultiUnionSolid::rotations() const
+{
+  return union_->r();
+}
+
 DDBooleanSolid::DDBooleanSolid(const DDSolid &s)
  : DDSolid(s), boolean_(0)
 {
@@ -846,6 +880,15 @@ DDSolidFactory::unionSolid(const DDName & name,
 			   const DDRotation & r)
 {
   return DDSolid(name, new DDI::Union(a,b,t,r));
+}
+
+DDSolid
+DDSolidFactory::multiUnionSolid( const DDName & name,
+				 const std::vector<DDSolid> & a,
+				 const std::vector<DDTranslation> & t,
+				 const std::vector<DDRotation> & r )
+{
+  return DDSolid(name, new DDI::MultiUnion(a,t,r));
 }
 
 DDSolid
