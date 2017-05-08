@@ -80,47 +80,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
  							 enum CSCPart part,
 							 int trknmb) 
 {
-  const auto& mymap = getLUT()->get_gem_pad_to_csc_hs(par, part);
-
-  if (useOldLCTDataFormat_){
-    // CLCT pattern number - set it to a highest value
-    // hack to get LCTs in the CSCTF
-    unsigned int pattern = promoteALCTGEMpattern_ ? 10 : 0;
-    
-    // LCT quality number - set it to a very high value 
-    // hack to get LCTs in the CSCTF
-    unsigned int quality = promoteALCTGEMquality_ ? 15 : 11;
-    
-    // Bunch crossing
-    int bx = alct.getBX();
-    
-    // get keyStrip from LUT
-    int keyStrip = mymap[gem.pad(2)];
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  } 
-  else {
-    
-    // CLCT pattern number - no pattern
-    unsigned int pattern = 0;
-
-    // LCT quality number
-    unsigned int quality = 1;
-    
-    // Bunch crossing
-    int bx = gem.bx(1) + lct_central_bx;
-    
-    // get keyStrip from LUT
-    int keyStrip = mymap[gem.pad(2)];
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-    
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-   }
+  return constructLCTsGEM(alct, CSCCLCTDigi(), GEMPadDigi(), gem, part, trknmb);
 }
 
 
@@ -129,133 +89,89 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct
 							 enum CSCPart part,
 							 int trknmb) 
 {
-  if (useOldLCTDataFormat_){
-    // CLCT pattern number - no pattern
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    
-    // LCT quality number -  dummy quality
-    // const bool promoteCLCTGEMquality(ME == ME1A ? promoteCLCTGEMquality_ME1a_:promoteCLCTGEMquality_ME1b_);
-    unsigned int quality = 15;//promoteCLCTGEMquality ? 14 : 11;
-    
-    // Bunch crossing: get it from cathode LCT if anode LCT is not there.
-    int bx = gem.bx(1) + lct_central_bx;;
-    
-   // pick a random WG in the roll range    
-    int wg = 5;
-    
-    // construct correlated LCT; temporarily assign track number of 0.
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, clct.getKeyStrip(), pattern, clct.getBend(), bx, 0, 0, 0, theTrigChamber);
-  }
-  else {
-    // CLCT pattern number - no pattern
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    
-    // LCT quality number -  dummy quality
-    unsigned int quality = 15;//findQualityGEM(alct, gem);
-    
-    // Bunch crossing: get it from cathode LCT if anode LCT is not there.
-    int bx = gem.bx(1) + lct_central_bx;
-    
-    // ALCT WG
-    int wg = 2;
-    
-    // construct correlated LCT; temporarily assign track number of 0.
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, 0, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  }
+  return constructLCTsGEM(CSCALCTDigi(), clct, GEMPadDigi(), gem, part, trknmb);
 }
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
 							 const CSCCLCTDigi& clct,
 							 const GEMCoPadDigi& gem,
-							 enum CSCPart p,
+							 enum CSCPart part,
 							 int trknmb) 
 {
-  if (useOldLCTDataFormat_){
-    // CLCT pattern number - set it to a highest value
-    // hack to get LCTs in the CSCTF
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    
-    // LCT quality number 
-    unsigned int quality = findQualityGEM<GEMCoPadDigi>(alct, clct);
-    
-    // Bunch crossing
-    int bx = alct.getBX();
-    
-    // get keyStrip from LUT
-    int keyStrip = clct.getKeyStrip();
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  } 
-  else {
-    
-    // CLCT pattern number - no pattern
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-
-    // LCT quality number
-    unsigned int quality = 1;
-    
-    // Bunch crossing
-    int bx = gem.bx(1) + lct_central_bx;
-    
-    // get keyStrip from LUT
-    int keyStrip = clct.getKeyStrip();
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-    
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  }
+  return constructLCTsGEM(alct, clct, GEMPadDigi(), gem, part, trknmb);
 }
 
 
 CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
 							 const CSCCLCTDigi& clct,
 							 const GEMPadDigi& gem,
-							 enum CSCPart p,
+							 enum CSCPart part,
 							 int trknmb) 
 {
-  if (useOldLCTDataFormat_){
-    // CLCT pattern number - set it to a highest value
-    // hack to get LCTs in the CSCTF
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-    
-    // LCT quality number
-    unsigned int quality = findQualityGEM<GEMPadDigi>(alct, clct);
-    
-    // Bunch crossing
-    int bx = alct.getBX();
-    
-    // get keyStrip from LUT
-    int keyStrip = clct.getKeyStrip();
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  } 
-  else {
-    
-    // CLCT pattern number - no pattern
-    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
-
-    // LCT quality number
-    unsigned int quality = 1;
-    
-    // Bunch crossing
-    int bx = alct.getBX();
-    
-    // get keyStrip from LUT
-    int keyStrip = clct.getKeyStrip();
-
-    // get wiregroup from ALCT
-    int wg = alct.getKeyWG();
-    
-    return CSCCorrelatedLCTDigi(trknmb, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  }
+  return constructLCTsGEM(alct, clct, gem, GEMCoPadDigi(), part, trknmb);
 }
+
+CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
+							 const CSCCLCTDigi& clct,
+							 const GEMPadDigi& gem1,
+							 const GEMCoPadDigi& gem2,
+							 enum CSCPart p, int trknmb)
+{
+  // step 1: determine the case
+  int lctCase = 0;
+  if (alct.isValid() and clct.isValid() and gem1 != GEMPadDigi() and gem2 == GEMCoPadDigi())      lctCase = 1;
+  else if (alct.isValid() and clct.isValid() and gem1 == GEMPadDigi() and gem2 != GEMCoPadDigi()) lctCase = 2;
+  else if (alct.isValid() and gem2 != GEMCoPadDigi()) lctCase = 3;
+  else if (clct.isValid() and gem2 != GEMCoPadDigi()) lctCase = 4;
+
+  // step 2: assign properties depending on the LCT dataformat (old/new)
+  int pattern = 0, quality = 0, bx = 0, keyStrip = 0, keyWG = 0;
+  switch(lctCase){
+  case 1: {
+    pattern = encodePattern(clct.getPattern(), clct.getStripType());
+    quality = findQualityGEM<GEMPadDigi>(alct, clct);
+    bx = alct.getBX();
+    keyStrip = clct.getKeyStrip();
+    keyWG = alct.getKeyWG();
+    break;
+  }
+  case 2: {
+    pattern = encodePattern(clct.getPattern(), clct.getStripType());
+    quality = findQualityGEM<GEMCoPadDigi>(alct, clct);
+    bx = alct.getBX();
+    keyStrip = clct.getKeyStrip();
+    keyWG = alct.getKeyWG();
+    break;
+  }
+  case 3: {
+    const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
+    pattern = promoteALCTGEMpattern_ ? 10 : 0;
+    quality = promoteALCTGEMquality_ ? 15 : 11;
+    bx = alct.getBX();
+    keyStrip = mymap1[gem2.pad(2)];
+    keyWG = alct.getKeyWG();
+    break;
+  }
+  case 4: {
+    const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
+    pattern = encodePattern(clct.getPattern(), clct.getStripType());
+    quality = promoteCLCTGEMquality_ ? 15 : 11;
+    bx = gem2.bx(1) + lct_central_bx;;
+    keyStrip = clct.getKeyStrip();
+    // choose the corresponding wire-group in the middle of the partition
+    keyWG = mymap2[gem2.roll()];
+    break;
+  }
+  };
+
+  // future work: add a section that produces LCTs according
+  // to the new LCT dataformat (not yet defined)
+
+  // step 3: make new LCT with afore assigned properties}
+  return CSCCorrelatedLCTDigi(trknmb, 1, quality, keyWG, keyStrip,
+			      pattern, 0, bx, 0, 0, 0, theTrigChamber);
+}
+
 
 bool CSCGEMMotherboard::isPadInOverlap(int roll)
 {
