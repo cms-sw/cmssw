@@ -91,7 +91,7 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset,edm::ConsumesColl
   muonSeedClean_    = new MuonSeedCleaner( pset ); 
 
  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
-  muonMeasurements = new MuonDetLayerMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),edm::InputTag(),edm::InputTag(),iC,
+  muonMeasurements = new MuonDetLayerMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),edm::InputTag(),edm::InputTag(),edm::InputTag(),iC,
 						  enableDTMeasurement,enableCSCMeasurement,false,false,false);
 
   
