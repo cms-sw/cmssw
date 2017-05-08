@@ -124,14 +124,10 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),0);
-	_cDAAsymmetryRMS_cut_depth.initialize(_name, "AsymmetryRMS",
-		hcaldqm::hashfunctions::fdepth,
-		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),0);
 	_cDAAsymmetry_cut_SubdetPM.initialize(_name, "Asymmetry",
 		hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDualAnodeAsymmetry),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	//	INITIALIZE HISTOGRAMS to be used only in Online
 	if (_ptype==fOnline)
@@ -343,7 +339,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	_cDAAsymmetryVsCharge_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cDAAsymmetryMean_cut_depth.book(ib, _emap, _filter_HF, _subsystem);
-	_cDAAsymmetryRMS_cut_depth.book(ib, _emap, _filter_HF, _subsystem);
 	_cDAAsymmetry_cut_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	//	BOOK HISTOGRAMS to be used only in Online
 	if (_ptype==fOnline)
@@ -837,7 +832,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		}
 		if (chargeAsymmetryCut.second) {
 			_cDAAsymmetryMean_cut_depth.fill(did, chargeAsymmetryCut.first);
-			_cDAAsymmetryRMS_cut_depth.fill(did, chargeAsymmetryCut.first);
 			_cDAAsymmetry_cut_SubdetPM.fill(did, chargeAsymmetryCut.first);
 		}
 	}
