@@ -8,7 +8,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         # 'Geometry/CMSCommonData/data/cms.xml',            # Phase-1 Muon
-        'Geometry/CMSCommonData/data/PhaseII/cms.xml',      # Phase-2 Muon
+        'Geometry/CMSCommonData/data/cms/2023/v1/cms.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',

@@ -249,6 +249,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 

@@ -8,7 +8,7 @@
   <class name="edm::DetSetVector<TotemRPDigi>"/>
   <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
-
+  
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
@@ -49,7 +49,20 @@
   <class name="HPTDCErrorFlags" ClassVersion="3">
     <version ClassVersion="3" checksum="508529379"/>
   </class>
-
-
+  
+  <class name="CTPPSPixelDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="125589380"/>
+  </class>
+  <class name="CTPPSPixelDigiCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="913646850"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelDigi>"/>
+  <class name="std::vector<CTPPSPixelDigi>"/>
+  <class name="edm::DetSetVector<CTPPSPixelDigi>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelDigi> >"/>
+  <class name="edm::Wrapper< edm::DetSet<CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDigi> > >" splitLevel="0"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::Wrapper<CTPPSPixelDigiCollection>" splitLevel="0"/>
 
 </lcgdict>

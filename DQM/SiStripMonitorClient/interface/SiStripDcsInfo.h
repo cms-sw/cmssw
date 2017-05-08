@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 class DQMStore;
 class MonitorElement;
@@ -86,6 +87,7 @@ private:
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
+    std::unordered_map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
@@ -97,6 +99,11 @@ private:
   int  nFEDConnected_;
 
   int nLumiAnalysed_;
+
+  bool IsLumiGoodDcs_;
+  int nGoodDcsLumi_;
+  float MinAcceptableDcsDetFrac_ = 0.90;
+  float MaxAcceptableBadDcsLumi_ = 2;
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 };

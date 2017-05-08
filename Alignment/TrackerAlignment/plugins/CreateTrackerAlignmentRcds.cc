@@ -161,6 +161,7 @@ CreateIdealTkAlRecords::toString(const GeomDetEnumerators::SubDetector& sub)
   case GeomDetEnumerators::P2OTEC:      return "P2OTEC";
   case GeomDetEnumerators::P1PXB:       return "P1PXB";
   case GeomDetEnumerators::P1PXEC:      return "P1PXEC";
+  case GeomDetEnumerators::P2PXB:       return "P2PXB";
   case GeomDetEnumerators::P2PXEC:      return "P2PXEC";
   case GeomDetEnumerators::invalidDet:  return "invalidDet";
   default:
@@ -188,6 +189,7 @@ CreateIdealTkAlRecords::toSubDetector(const std::string& sub)
   else if (sub == "P2OTEC")      return GeomDetEnumerators::P2OTEC;
   else if (sub == "P1PXB")       return GeomDetEnumerators::P1PXB;
   else if (sub == "P1PXEC")      return GeomDetEnumerators::P1PXEC;
+  else if (sub == "P2PXB")       return GeomDetEnumerators::P2PXB;
   else if (sub == "P2PXEC")      return GeomDetEnumerators::P2PXEC;
   else if (sub == "invalidDet")  return GeomDetEnumerators::invalidDet;
   else throw cms::Exception("UnknownSubdetector") << sub;

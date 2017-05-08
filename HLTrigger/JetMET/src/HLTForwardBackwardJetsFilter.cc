@@ -47,7 +47,7 @@ HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::Paramet
 }
 
 template<typename T>
-HLTForwardBackwardJetsFilter<T>::~HLTForwardBackwardJetsFilter(){}
+HLTForwardBackwardJetsFilter<T>::~HLTForwardBackwardJetsFilter()= default;
 
 template<typename T>
 void

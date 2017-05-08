@@ -24,12 +24,12 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
             cluster_product_( new l1t::HGCalClusterBxCollection )
 	{}
 
-        virtual void setProduces(edm::EDProducer& prod) const override final 
+        virtual void setProduces(edm::stream::EDProducer<>& prod) const override final 
         {
             prod.produces<l1t::HGCalClusterBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt ) override final;
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
         virtual void putInEvent(edm::Event& evt) override final 
         {
             evt.put(std::move(cluster_product_),name());
@@ -49,7 +49,7 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
 template<typename FECODEC, typename DATA>
 void FullModuleSumAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& coll, 
 			const edm::EventSetup& es,
-			const edm::Event&evt
+			edm::Event&evt
 			) 
 /*****************************************************************/
 {
@@ -71,8 +71,6 @@ void FullModuleSumAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection&
         l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
                 moduleSum, 0, 0);
         cluster.setModule(moduleId.wafer());
-        cluster.setLayer(moduleId.layer());
-        cluster.setSubDet(moduleId.subdetId());
         cluster_product_->push_back(0,cluster);
     }
 }

@@ -3,7 +3,6 @@
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
-#include <cassert>
 
 class TBuffer;
 

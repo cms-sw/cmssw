@@ -58,18 +58,25 @@ if options.scanOnce:
     endOfRunKills = False
     nextLumiTimeoutMillis = 0
 
-source = cms.Source("DQMStreamerReader",
-    runNumber = cms.untracked.uint32(options.runNumber),
-    runInputDir = cms.untracked.string(options.runInputDir),
-    SelectEvents = cms.untracked.vstring('*'),
-    streamLabel = cms.untracked.string('streamDQM'),
-    scanOnce = cms.untracked.bool(options.scanOnce),
-    minEventsPerLumi = cms.untracked.int32(1),
-    delayMillis = cms.untracked.uint32(500),
-    nextLumiTimeoutMillis = cms.untracked.int32(nextLumiTimeoutMillis),
-    skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
-    deleteDatFiles = cms.untracked.bool(False),
-    endOfRunKills  = cms.untracked.bool(endOfRunKills),
+#source = cms.Source("DQMStreamerReader",
+#    runNumber = cms.untracked.uint32(options.runNumber),
+#    runInputDir = cms.untracked.string(options.runInputDir),
+#    SelectEvents = cms.untracked.vstring('*'),
+#    streamLabel = cms.untracked.string('streamDQM'),
+#    scanOnce = cms.untracked.bool(options.scanOnce),
+#    minEventsPerLumi = cms.untracked.int32(1),
+#    delayMillis = cms.untracked.uint32(500),
+#    nextLumiTimeoutMillis = cms.untracked.int32(nextLumiTimeoutMillis),
+#    skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
+#    deleteDatFiles = cms.untracked.bool(False),
+#    endOfRunKills  = cms.untracked.bool(endOfRunKills),
+#)
+
+source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+       '/store/user/tosi/STEAM/DQM/online/outputDQM_3.root'
+    ),
+    secondaryFileNames = cms.untracked.vstring()
 )
 
 print "Source:", source

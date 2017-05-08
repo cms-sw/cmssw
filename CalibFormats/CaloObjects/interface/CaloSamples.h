@@ -70,11 +70,12 @@ public:
 
   void resetPrecise();
 
+  //preserved for use in other packages - no longer used in this class
   static const int MAXSAMPLES=10;
 private:
   DetId id_;
-  double data_[MAXSAMPLES]; // 
   int size_, presamples_;
+  std::vector<double> data_; // 
   float deltaTprecise_;
   std::vector<float> preciseData_;
   int preciseSize_,precisePresamples_;

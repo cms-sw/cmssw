@@ -481,7 +481,7 @@ class FileListCreator(object):
         """
 
         name += ".txt"
-        print_msg("Creating datset file list: "+name)
+        print_msg("Creating dataset file list: "+name)
         with open(os.path.join(self._formatted_dataset, name), "w") as f:
             f.write("\n".join(file_list))
 

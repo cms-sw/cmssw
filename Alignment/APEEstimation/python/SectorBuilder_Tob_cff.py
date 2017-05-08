@@ -124,7 +124,7 @@ TobLayer1Rphi = TobLayer1.clone(
 )
 TobLayer1Stereo = TobLayer1.clone(
     name = 'TobLayer1Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 TobLayer2Rphi = TobLayer2.clone(
     name = 'TobLayer2Rphi',
@@ -132,7 +132,7 @@ TobLayer2Rphi = TobLayer2.clone(
 )
 TobLayer2Stereo = TobLayer2.clone(
     name = 'TobLayer2Stereo',
-    isRPhi = [2],
+    isStereo = [1],
 )
 
 TOBLayerSeparation = cms.VPSet(

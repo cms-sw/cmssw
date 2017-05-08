@@ -209,9 +209,11 @@ namespace edm {
         worker->doWork<T>(p, es,StreamID::invalidStreamID(), parentContext, context);
       }
       catch (cms::Exception & ex) {
-        std::ostringstream ost;
-        ost << "Processing " <<T::transitionName()<<" "<< p.id();
-        ex.addContext(ost.str());
+        if(ex.context().empty()) {
+          std::ostringstream ost;
+          ost << "Processing " <<T::transitionName()<<" "<< p.id();
+          ex.addContext(ost.str());
+        }
         throw;
       }
     }

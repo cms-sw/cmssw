@@ -64,9 +64,9 @@ namespace edm {
                             BranchType branchType,
                             ModuleDescription const& desc,
                             std::string const& id) {
-
-    exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
-
+    if(e.context().empty()) {
+      exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
+    }
     bool should_continue = true;
 
     // there is no support as of yet for specific paths having

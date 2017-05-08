@@ -647,13 +647,13 @@ void IsoTrackCalib::beginJob() {
 void IsoTrackCalib::endJob() {
 }
 
-int iErrorCode = -1;
 // ------------ method called when starting to processes a run  ------------
 void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed = false;
   bool ok = hltConfig_.init(iRun,iSetup,"HLT",changed);
   edm::LogInfo("IsoTrack")  << "Run " << iRun.run() << " hltconfig.init " << ok;
 
+  int iErrorCode = -1;
   m_l1GtMenu   = m_l1GtUtils.ptrL1TriggerMenuEventSetup(iErrorCode);
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
   const std::string&  menuName     = m_l1GtMenu->gtTriggerMenuName();

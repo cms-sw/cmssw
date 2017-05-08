@@ -24,7 +24,7 @@ HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset)
   inputToken = consumes<FEDRawDataCollection>(inputLabel);
 }
 
-HLTDTROMonitorFilter::~HLTDTROMonitorFilter(){}
+HLTDTROMonitorFilter::~HLTDTROMonitorFilter()= default;
 
 void
 HLTDTROMonitorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

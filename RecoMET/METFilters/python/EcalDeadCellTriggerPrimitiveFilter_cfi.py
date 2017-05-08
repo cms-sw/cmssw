@@ -20,9 +20,6 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     maskedEcalChannelStatusThreshold = cms.int32( 1 ),
     
     doEEfilter = cms.untracked.bool( True ), # turn it on by default
-    
-    makeProfileRoot = cms.untracked.bool( False ),
-    profileRootName = cms.untracked.string("deadCellFilterProfile.root" ),
 
     useTTsum = cms.bool ( True ),
     usekTPSaturated = cms.bool ( False)

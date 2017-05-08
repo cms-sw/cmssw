@@ -1109,6 +1109,7 @@ namespace edm {
     for(auto& s: streamSchedules_) {
       s->getTriggerReport(rep);
     }
+    sort_all(rep.workerSummaries);
   }
 
   void

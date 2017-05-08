@@ -28,9 +28,7 @@ L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(const edm::ParameterSet& ps) :
                                                      
 }
 
-L1TriggerJSONMonitoring::~L1TriggerJSONMonitoring()
-{
-}
+L1TriggerJSONMonitoring::~L1TriggerJSONMonitoring() = default;
 
 void
 L1TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -66,7 +64,7 @@ L1TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup
   //The GlobalAlgBlkBxCollection is a vector of vectors, but the second layer can only ever
   //have one entry since there can't be more than one collection per bunch crossing. The "0"
   //here means BX = 0, the "begin" is used to access the first and only element
-  std::vector<GlobalAlgBlk>::const_iterator algBlk = l1tResults->begin(0);
+  auto algBlk = l1tResults->begin(0);
   
   for (unsigned int i = 0; i < algBlk->maxPhysicsTriggers; i++){
     if (algBlk->getAlgoDecisionFinal(i)){
@@ -130,8 +128,8 @@ L1TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   //Update trigger and dataset names, clear L1 names and counters   
   L1AlgoNames_.resize(alg.maxPhysicsTriggers);         
-  for (unsigned int i = 0; i < L1AlgoNames_.size(); i++) {
-    L1AlgoNames_.at(i) = "";
+  for (auto & L1AlgoName : L1AlgoNames_) {
+    L1AlgoName = "";
   }
   
   //Get L1 algorithm trigger names -      
@@ -141,9 +139,9 @@ L1TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
   m_l1GtMenu = l1GtMenu.product();
   m_algorithmMap = &(m_l1GtMenu->getAlgorithmMap());
 
-  for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
-    int bitNumber = (itAlgo->second).getIndex();
-    L1AlgoNames_.at(bitNumber) = itAlgo->first;
+  for (auto const & itAlgo : *m_algorithmMap) {
+    int bitNumber = (itAlgo.second).getIndex();
+    L1AlgoNames_.at(bitNumber) = itAlgo.first;
   }
   
   L1GlobalType_.clear();   
@@ -189,13 +187,13 @@ L1TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     Json::StyledWriter writer;
 
     Json::Value l1AlgoNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1AlgoNames_.size(); ui++){
-      l1AlgoNamesVal.append(L1AlgoNames_.at(ui));
+    for (auto & L1AlgoName : L1AlgoNames_){
+      l1AlgoNamesVal.append(L1AlgoName);
     }
 
     Json::Value eventTypeVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){
-      eventTypeVal.append(L1GlobalType_.at(ui));
+    for (auto & ui : L1GlobalType_){
+      eventTypeVal.append(ui);
     }
 
     l1Ini["L1-Algo-Names"] = l1AlgoNamesVal;

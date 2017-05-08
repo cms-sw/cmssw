@@ -35,10 +35,10 @@ class GEMRegion
   void add(GEMStation* st);
   
   /// Return the super chambers in the region
-  virtual std::vector<const GeomDet*> components() const;
+  std::vector<const GeomDet*> components() const;
 
   /// Return the sub-component (super chamber) with a given id in this region
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const;
 
   /// Return the super chamber corresponding to the given id 
   const GEMSuperChamber* superChamber(GEMDetId id) const;

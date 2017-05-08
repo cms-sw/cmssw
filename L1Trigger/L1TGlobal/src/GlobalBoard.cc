@@ -394,7 +394,7 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
 		  edm::LogWarning("L1TGlobal") << " Too many Muons ("<<nObj<<") for uGT Configuration maxMu =" <<nrL1Mu << std::endl;
 		}
 		   
-	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " Eta  " << mu->hwEta() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx " << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
 		nObj++;
               } //end loop over muons in bx
 	   } //end loop over bx   
@@ -749,12 +749,12 @@ void l1t::GlobalBoard::runGTL(
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-	  std::vector<ObjectTypeInCond> otypes;	  
+	  std::vector<L1TObjectTypeInCond> otypes;	  
 	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
 	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
 	    int myChip = -1;
 	    int found =0;
-	    ObjectTypeInCond otype;	      
+	    L1TObjectTypeInCond otype;	      
 	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
 	      myChip++;
 	      auto match = imap->find(iop->tokenName);

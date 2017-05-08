@@ -382,7 +382,6 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     label_tp_fake = trackValidator.label_tp_fake.value(),
     label_tp_effic_refvector = False,
     label_tp_fake_refvector = False,
-    associators = trackValidator.associators.value(),
     doSimPlots = False,
     doSimTrackPlots = False,
 )
@@ -392,7 +391,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     dirName = "Tracking/TrackAllTPEffic/",
     label = [x for x in trackValidator.label.value() if "Pt09" not in x],
     doSimPlots = False,
-    doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+    doRecoTrackPlots = True, # Fake rate of all tracks vs. all TPs is already included in trackValidator, but we want the reco plots for other reasons
     doPVAssociationPlots = False,
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
@@ -440,8 +439,6 @@ trackValidatorBHadron = trackValidator.clone(
     dirName = "Tracking/TrackBHadron/",
     label_tp_effic = "trackingParticlesBHadron",
     label_tp_effic_refvector = True,
-    associators = ["quickTrackAssociatorByHits"],
-    UseAssociators = True,
     doSimPlots = True,
     doRecoTrackPlots = False, # Fake rate is defined wrt. all TPs, and that is already included in trackValidator
     dodEdxPlots = False,

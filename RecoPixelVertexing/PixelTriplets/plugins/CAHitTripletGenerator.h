@@ -60,7 +60,7 @@ private:
     // actual work
     void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets& result,
                      std::vector<const HitDoublets *>& hitDoublets,
-                     const CAGraph& g,
+                     CAGraph& g,
                      const edm::EventSetup& es);
 
     edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;

@@ -2,8 +2,8 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="ahcal.xml" eval="true">
-  <Constant name="absorberThick" value="5.0*mm"/>
-  <Constant name="radiatorThick" value="17.2*mm"/>
+  <Constant name="absorberThick" value="12.0*mm"/>
+  <Constant name="radiatorThick" value="72.0*mm"/>
   <Constant name="airgapThick"   value="1.285*mm"/>
   <Constant name="cassetteThick" value="0.5*mm"/>
   <Constant name="cableThick"    value="1.5*mm"/>
@@ -119,8 +119,8 @@
     <Vector name="Layers" type="numeric" nEntries="12"> 
       10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="12"> 
-      14.0*mm, 26.2*mm, 26.2*mm, 26.2*mm, 26.2*mm, 26.2*mm, 26.2*mm, 26.2*mm,
-      26.2*mm, 26.2*mm, 26.2*mm, 31.2*mm</Vector>
+      21.0*mm, 81.0*mm, 81.0*mm, 81.0*mm, 81.0*mm, 81.0*mm, 81.0*mm, 81.0*mm,
+      81.0*mm, 81.0*mm, 81.0*mm, 93.0*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="121"> 
       7, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
       0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
@@ -152,8 +152,17 @@
 
 <SpecParSection label="ahcal.xml" eval="true">
   <SpecPar name="AHcal">
-    <PartSelector path="/AHcalTileSensitive.*"/>
+    <PartSelector path="//AHcalTileSensitive.*"/>
     <Parameter name="Volume" value="AHcalTileSensitive" eval="false"/>
+    <Parameter name="SensitiveDetector" value="AHcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsAHcal">
+    <PartSelector path="//HGCalAH"/>
+    <Parameter name="CMSCutsRegion" value="HGCalAHcalRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
   </SpecPar>
 </SpecParSection>
 

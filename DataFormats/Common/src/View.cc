@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/View.h"
+#include <typeinfo>
 
 namespace edm
 {

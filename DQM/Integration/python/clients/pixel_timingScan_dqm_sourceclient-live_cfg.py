@@ -180,7 +180,7 @@ process.p = cms.Path(
 # *process.SiPixelClusterSource
 # *process.PixelP5DQMClientWithDataCertification
  *process.siPixelPhase1OnlineDQM_source
- *process.siPixelPhase1OnlineDQM_harvesting
+ *process.siPixelPhase1OnlineDQM_timing_harvesting
 )
     
 ### process customizations included here

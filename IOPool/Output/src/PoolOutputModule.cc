@@ -351,7 +351,7 @@ namespace edm {
     ProductProvenanceRetriever const* provRetriever,
     BranchID const& branchID) {
 
-    ProductProvenance const* provenance = provRetriever->branchIDToProvenance(branchID);
+    ProductProvenance const* provenance = provRetriever->branchIDToProvenanceForProducedOnly(branchID);
     if (provenance != nullptr) {
       BranchParents::iterator it = branchParents_.find(branchID);
       if (it == branchParents_.end()) {

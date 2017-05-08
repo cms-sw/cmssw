@@ -160,14 +160,14 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 1000030
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
-++++++ starting: end lumi for module: stream = 0 label = 'one' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'one' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'getOne' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: end lumi for module: stream = 0 label = 'two' id = 4
 ++++++ finished: end lumi for module: stream = 0 label = 'two' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'getOne' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: end lumi for module: stream = 0 label = 'getTwo' id = 5
 ++++++ finished: end lumi for module: stream = 0 label = 'getTwo' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'one' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'one' id = 2
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++++ starting: global end lumi for module: label = 'one' id = 2
@@ -182,14 +182,14 @@
 ++++++ finished: global end lumi for module: label = 'TriggerResults' id = 1
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
-++++++ starting: end run for module: stream = 0 label = 'one' id = 2
-++++++ finished: end run for module: stream = 0 label = 'one' id = 2
-++++++ starting: end run for module: stream = 0 label = 'getOne' id = 3
-++++++ finished: end run for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: end run for module: stream = 0 label = 'two' id = 4
 ++++++ finished: end run for module: stream = 0 label = 'two' id = 4
+++++++ starting: end run for module: stream = 0 label = 'getOne' id = 3
+++++++ finished: end run for module: stream = 0 label = 'getOne' id = 3
 ++++++ starting: end run for module: stream = 0 label = 'getTwo' id = 5
 ++++++ finished: end run for module: stream = 0 label = 'getTwo' id = 5
+++++++ starting: end run for module: stream = 0 label = 'one' id = 2
+++++++ finished: end run for module: stream = 0 label = 'one' id = 2
 ++++ finished: end run: stream = 0 run = 1 time = 1000030
 ++++ starting: global end run 1 : time = 1000030
 ++++++ starting: global end run for module: label = 'one' id = 2

@@ -4,7 +4,7 @@ process = cms.Process("ICALIB")
 process.load("Configuration.StandardSequences.Services_cff")
 #process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5D_cff')
 #process.load('Configuration.Geometry.GeometryExtended2023TiltedTKReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D11Reco_cff')
 
 #process.load('Geometry.TrackerGeometryBuilder.trackerSLHCGeometry_cfi')
 #process.trackerSLHCGeometry.applyAlignment = cms.bool(False)
@@ -16,7 +16,7 @@ process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 process.source = cms.Source("EmptyIOVSource",

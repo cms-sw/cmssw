@@ -365,23 +365,31 @@ def _getXmax(obj, limitToNonZeroContent=False):
         return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
-def _getYmin(obj):
+def _getYmin(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH2):
         yaxis = obj.GetYaxis()
         return yaxis.GetBinLowEdge(yaxis.GetFirst())
     elif isinstance(obj, ROOT.TH1):
-        return obj.GetMinimum()
+        if limitToNonZeroContent:
+            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            return min(lst) if len(lst) != 0 else 0
+        else:
+            return obj.GetMinimum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         m = min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
         return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
-def _getYmax(obj):
+def _getYmax(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH2):
         yaxis = obj.GetYaxis()
         return yaxis.GetBinUpEdge(yaxis.GetLast())
     elif isinstance(obj, ROOT.TH1):
-        return obj.GetMaximum()
+        if limitToNonZeroContent:
+            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            return max(lst) if len(lst) != 0 else 0
+        else:
+            return obj.GetMaximum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         m = max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
         return m*1.1 if m > 0 else m*0.9
@@ -547,8 +555,8 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
                 if ylog and isinstance(ymin, list):
                     _ymin = _getYminIgnoreOutlier(th1)
                 else:
-                    _ymin = _getYmin(th1)
-                _ymax = _getYmax(th1)
+                    _ymin = _getYmin(th1, limitToNonZeroContent=isinstance(ymin, list))
+                _ymax = _getYmax(th1, limitToNonZeroContent=isinstance(ymax, list))
 #                _ymax = _getYmaxWithError(th1)
 
             ymins.append(_ymin)

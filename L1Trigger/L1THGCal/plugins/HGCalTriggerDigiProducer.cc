@@ -1,8 +1,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
@@ -15,7 +16,7 @@
 #include <sstream>
 #include <memory>
 
-class HGCalTriggerDigiProducer : public edm::EDProducer {  
+class HGCalTriggerDigiProducer : public edm::stream::EDProducer<> {  
  public:    
   HGCalTriggerDigiProducer(const edm::ParameterSet&);
   ~HGCalTriggerDigiProducer() { }

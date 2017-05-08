@@ -45,7 +45,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_Output_cff import
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAfterAbortGap_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff import *
 
-# AlCaReco for tracker based alignment using beam halo 
+# AlCaReco for tracker based alignment using beam halo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
 ###############################################################
 # ECAL Calibration
@@ -57,7 +57,7 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 
 # The following paths are obsoleted since pi0 calibration
 # has a HLT path (argiro,20080314 )
-# ECAL calibration with pi0 
+# ECAL calibration with pi0
 #  include "Calibration/EcalAlCaRecoProducers/data/ALCARECOEcalCalPi0_Output.cff"
 # ECAL calibration with pi0 Basic Clusters
 #  include "Calibration/EcalAlCaRecoProducers/data/ALCARECOEcalCalPi0BC_Output.cff"
@@ -80,7 +80,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
-# HCAL calibration with iterative phi sym                                                                                       
+# HCAL calibration with iterative phi sym
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_Output_cff import *
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import *
@@ -134,9 +134,18 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAfterAbo
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
 
-# stream for the LumiPixels workflow
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_Output_cff import *
+
+# Pixel Cluster Counting ALCARECOs
+# in AlCaLumiPixels stream
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_Output_cff import *
+
+# on top of prompt RECO
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBiasFromRECO_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandomFromRECO_Output_cff import *
 
 ###############################################################
 # hotline skim workflows

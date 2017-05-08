@@ -411,6 +411,10 @@ muonValidation_reduced_seq = cms.Sequence(
 #    +muonAssociatorByHitsNoSimHitsHelperStandalone +recoMuonVMuAssoc_sta
 #    +muonAssociatorByHitsNoSimHitsHelperGlobal +recoMuonVMuAssoc_glb
 #    +muonAssociatorByHitsNoSimHitsHelperTight +recoMuonVMuAssoc_tgt
+#    +seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
+    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
+    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
+    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
 )
 
 muonValidationTEV_seq = cms.Sequence(

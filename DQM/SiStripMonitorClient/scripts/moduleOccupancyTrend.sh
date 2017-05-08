@@ -5,6 +5,12 @@ if [[ "$#" == "0" ]]; then
     exit 1;
 fi
 
+mkdir /data/users/tmpTrend
+cp $6  /data/users/tmpTrend/.
+cp $3  /data/users/tmpTrend/.
+
+cd  /data/users/tmpTrend
+
 rm -f modulefile
 
 cat $6 | while read line
@@ -26,3 +32,8 @@ echo "Summary" >> modulefile
 moduleOccupancyTrend rootfilestmp.txt modulefile
 
 rm modulefile
+
+cd -
+
+cp  /data/users/tmpTrend/* .
+rm -rf  /data/users/tmpTrend

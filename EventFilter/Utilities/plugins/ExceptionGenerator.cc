@@ -137,7 +137,7 @@ namespace evf{
     timingHisto_->SetEntries(24934);
   }
 
-  void ExceptionGenerator::beginRun(edm::Run& r, const edm::EventSetup& iSetup)
+  void ExceptionGenerator::beginRun(const edm::Run& r, const edm::EventSetup& iSetup)
   {
 
     gettimeofday(&tv_start_,0);

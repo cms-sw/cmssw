@@ -32,7 +32,7 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments & nArgs,
 				   const DDMapArguments & ,
 				   const DDStringArguments & sArgs,
 				   const DDStringVectorArguments &vsArgs){
-
+  
   wafer         = vsArgs["WaferName"];
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalModuleAlgo: " << wafer.size() << " wafers" << std::endl;
@@ -73,11 +73,12 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments & nArgs,
   zMinBlock     = nArgs["zMinBlock"];
   rMaxFine      = nArgs["rMaxFine"];
   waferW        = nArgs["waferW"];
+  waferGap      = nArgs["waferGap"];
   sectors       = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalModuleAlgo: zStart " << zMinBlock << " rFineCoarse " 
-	    << rMaxFine << " wafer width " << waferW << " sectors " << sectors
-	    << std::endl;
+	    << rMaxFine << " wafer width " << waferW << " gap among wafers "
+	    << waferGap << " sectors " << sectors << std::endl;
 #endif
   slopeB        = vArgs["SlopeBottom"];
   slopeT        = vArgs["SlopeTop"];
@@ -230,11 +231,12 @@ double DDHGCalModuleAlgo::rMax(double z) {
 
 void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
 					  double rout, DDCompactView& cpv) {
-  double dx   = 0.5*waferW;
+  double ww   = (waferW+waferGap);
+  double dx   = 0.5*ww;
   double dy   = 3.0*dx*tan(30.0*CLHEP::deg);
   double rr   = 2.0*dx*tan(30.0*CLHEP::deg);
-  int    ncol = (int)(2.0*rout/waferW) + 1;
-  int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
+  int    ncol = (int)(2.0*rout/ww) + 1;
+  int    nrow = (int)(rout/(ww*tan(30.0*CLHEP::deg))) + 1;
   int    incm(0), inrm(0), kount(0);
   double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG

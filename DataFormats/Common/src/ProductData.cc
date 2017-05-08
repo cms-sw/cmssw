@@ -6,6 +6,8 @@
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
+#include <algorithm>
+
 namespace edm {
   ProductData::ProductData() :
     wrapper_(),

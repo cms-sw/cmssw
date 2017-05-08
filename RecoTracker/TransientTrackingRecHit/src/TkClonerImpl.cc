@@ -119,7 +119,7 @@ namespace {
 std::unique_ptr<SiStripMatchedRecHit2D> TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
     const GeomDet * det = hit.det();
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
-    LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+    LocalVector tkDir = (tsos.isValid() ? tsos.localParameters().directionNotNormalized() : 
 			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
 
     const SiStripCluster& monoclust   = hit.monoCluster();  

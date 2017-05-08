@@ -39,11 +39,11 @@ HLTMuonL1TFilter::HLTMuonL1TFilter(const edm::ParameterSet& iConfig) : HLTFilter
   //set the quality bit mask
   qualityBitMask_ = 0;
   vector<int> selectQualities = iConfig.getParameter<vector<int> >("SelectQualities");
-  for(size_t i=0; i<selectQualities.size(); i++){
+  for(int selectQualitie : selectQualities){
 //     if(selectQualities[i] > 7){  // FIXME: this will be updated once we have info from L1
 //       throw edm::Exception(edm::errors::Configuration) << "QualityBits must be smaller than 8!";
 //     }
-    qualityBitMask_ |= 1<<selectQualities[i];
+    qualityBitMask_ |= 1<<selectQualitie;
   }
 
   // dump parameters for debugging
@@ -68,9 +68,7 @@ HLTMuonL1TFilter::HLTMuonL1TFilter(const edm::ParameterSet& iConfig) : HLTFilter
 }
 
 
-HLTMuonL1TFilter::~HLTMuonL1TFilter()
-{
-}
+HLTMuonL1TFilter::~HLTMuonL1TFilter() = default;
 
 
  

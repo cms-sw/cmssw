@@ -84,33 +84,28 @@ ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRunAAG*ALCARECOSha
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
-
-from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
-ALCARECOSiStripCalibAfterAbortGap = SiStripCalib.clone()
-ALCARECOSiStripCalibAfterAbortGap.AlgoMode            = cms.untracked.string('PCL')
-ALCARECOSiStripCalibAfterAbortGap.FirstSetOfConstants = cms.untracked.bool(False)
-ALCARECOSiStripCalibAfterAbortGap.harvestingMode      = cms.untracked.bool(False)
-ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('AagBunch')
+from CalibTracker.SiStripChannelGain.SiStripGainsPCLWorker_cfi import SiStripGainsPCLWorker                         
+ALCARECOSiStripCalibAfterAbortGap = SiStripGainsPCLWorker.clone()                                                            
+ALCARECOSiStripCalibAfterAbortGap.FirstSetOfConstants = cms.untracked.bool(False)   
 ALCARECOSiStripCalibAfterAbortGap.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap')
-ALCARECOSiStripCalibAfterAbortGap.doStoreOnDB         = cms.bool(False)
-ALCARECOSiStripCalibAfterAbortGap.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')
-ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')
-ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')
-# ----------------------------------------------------------------------------
-
+ALCARECOSiStripCalibAfterAbortGap.calibrationMode     = cms.untracked.string('AagBunch')          
+ALCARECOSiStripCalibAfterAbortGap.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')      
+ALCARECOSiStripCalibAfterAbortGap.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')             
+ALCARECOSiStripCalibAfterAbortGap.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')             
+# ----------------------------------------------------------------------------  
 
 # ****************************************************************************
 # ** Conversion for the SiStripGain DQM dir not used for split statistics   **
 # ****************************************************************************
 MEtoEDMConvertSiStripGainsAfterAbortGap = cms.EDProducer("MEtoEDMConverter",
-                                            Name = cms.untracked.string('MEtoEDMConverter'),
-                                            Verbosity = cms.untracked.int32(1), # 0 provides no output
-                                            # 1 provides basic output
-                                            # 2 provide more detailed output
-                                            Frequency = cms.untracked.int32(50),
-                                            MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap'),
-                                            deleteAfterCopy = cms.untracked.bool(True)
-)
+                                                         Name = cms.untracked.string('MEtoEDMConverter'),
+                                                         Verbosity = cms.untracked.int32(1), # 0 provides no output
+                                                         # 1 provides basic output
+                                                         # 2 provide more detailed output
+                                                         Frequency = cms.untracked.int32(50),
+                                                         MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap'),
+                                                         deleteAfterCopy = cms.untracked.bool(True)
+                                                         )
 
 # The actual sequence
 seqALCARECOPromptCalibProdSiStripGainsAfterAbortGap = cms.Sequence(

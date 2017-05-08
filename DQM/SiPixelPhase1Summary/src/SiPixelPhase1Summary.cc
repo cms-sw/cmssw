@@ -92,7 +92,6 @@ void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
 {
-
   if (runOnEndJob_) fillSummaries(iBooker,iGetter);
 
 }
@@ -103,8 +102,8 @@ void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
 void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
   iBooker.setCurrentFolder("PixelPhase1/Summary");
 
-  std::vector<std::string> xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"};
-  std::vector<std::string> yAxisLabels_ = {"1","2","3","4"};
+  std::vector<std::string> xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"}; // why not having a global variable !?!?!?! 
+  std::vector<std::string> yAxisLabels_ = {"1","2","3","4"}; // why not having a global variable ?!?!?!!?
     
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
@@ -117,8 +116,8 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
     }
     summaryMap_[name]->setAxisTitle("Subdetector",1);
     summaryMap_[name]->setAxisTitle("Layer/disk",2);
-    for (int i = 0; i < 12; i++){
-      for (int j = 0; j < 4; j++){
+    for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
+      for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
 	summaryMap_[name]->Fill(i,j,-1.);
       }
     }
@@ -130,26 +129,29 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
   //Firstly, we will fill the regular summary maps.
-
   for (auto mapInfo: summaryPlotName_){
     auto name = mapInfo.first;
     if (name == "Grand") continue;
     std::ostringstream histNameStream;
     std::string histName;
 
-    for (int i = 0; i < 12; i++){
-      for (int j = 0; j < 4; j++){
+    for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
+      for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
 	if (i > 3 && j == 3) continue;
-	bool minus = i < 2  || (i > 3 && i < 8);
+	bool minus = i < 2  || (i > 3 && i < 8); // bleah !
 	int iOver2 = floor(i/2.);
 	bool outer = (i > 3)?iOver2%2==0:i%2==0;
 	//Complicated expression that creates the name of the histogram we are interested in.
 	histNameStream.str("");
 	histNameStream << topFolderName_.c_str() << "PX" << ((i > 3)?"Forward":"Barrel") << "/" << ((i > 3)?"HalfCylinder":"Shell") << "_" << (minus?"m":"p") << ((outer)?"O":"I") << "/" << ((i > 3)?((i%2 == 0)?"PXRing_1/":"PXRing_2/"):"") << summaryPlotName_[name].c_str() << "_PX" << ((i > 3)?"Disk":"Layer") << "_" << ((i>3)?((minus)?"-":"+"):"") << (j+1);
 	histName = histNameStream.str();
-	//	std::cout << histName << std::endl;
 	MonitorElement * me = iGetter.get(histName);
-	
+
+	if (!me) {
+	  edm::LogWarning("SiPixelPhase1Summary") << "ME " << histName << " is not available !!";
+	  continue; // Ignore non-existing MEs, as this can cause the whole thing to crash
+	}
+
 	if (me->hasError()) {
 	  //If there is an error, fill with 0
 	  summaryMap_[name]->setBinContent(i+1,j+1,0);
@@ -157,13 +159,12 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	else if (me->hasWarning()){
 	  summaryMap_[name]->setBinContent(i+1,j+1,0.5);
 	}
-	else summaryMap_[name]->setBinContent(i+1,j+1,1);
-      }
-    }  
-  }    
+      }  
+    }    
+  }
   //Now we will use the other summary maps to create the overall map.
-  for (int i = 0; i < 12; i++){
-    for (int j = 0; j < 4; j++){
+  for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
+    for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
       summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
       for (auto const mapInfo: summaryPlotName_){ //Check summary maps
 	auto name = mapInfo.first;

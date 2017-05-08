@@ -1,0 +1,14 @@
+<lcgdict>
+    <class name="CTPPSPixelFramePosition"  class_version="0"/>
+    
+    <class name="CTPPSPixelROCInfo"  class_version="0"/>
+    
+    <class name="CTPPSPixelDAQMapping"  class_version="0"/>
+    <class name="std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>"/>
+    
+    <class name="CTPPSPixelAnalysisMask"  class_version="0"/>
+
+    <class name="CTPPSPixelROCAnalysisMask"  class_version="0"/>
+    <class name="std::map<uint32_t, CTPPSPixelROCAnalysisMask>"/>
+
+</lcgdict>

@@ -1,7 +1,6 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/JsonPrinter.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
-#include "CondCore/CondDB/interface/PayloadReader.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 
@@ -10,74 +9,26 @@
 
 namespace {
 
-  class SiStripDetVOff_LV {
+  class SiStripDetVOff_LV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int>{
   public:
-    SiStripDetVOff_LV(){
+    SiStripDetVOff_LV(): cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int >( "Nr of mod with LV OFF vs time", "nLVOff"){
     }
 
-    // return the type-name of the objects we handle, so the PayloadInspector can find corresponding tags
-    std::string objectType() {
-      return "SiStripDetVOff";
+    int getFromPayload( SiStripDetVOff& payload ){
+      return payload.getLVoffCounts();
     }
 
-    // return a title string to be used in the PayloadInspector
-    std::string title() {
-      return "Nr of mod with LV OFF vs time";
-    }
-
-    std::string info() {
-      return title();
-    }
-
-    std::string data( const boost::python::list& iovs ){
-      cond::persistency::PayloadReader reader;
-      // TO DO: add try /catch block                                                                                                                                                    
-      reader.open();
-      cond::utilities::JsonPrinter jprint("Time","nLVOff");
-      for( int i=0; i< len( iovs ); i++ ) {
-	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	std::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
-	jprint.append(boost::lexical_cast<std::string>( iov.since ),
-		      boost::lexical_cast<std::string>( obj->getLVoffCounts() ),
-		      boost::lexical_cast<std::string>( 0. ) );
-      }
-      return jprint.print();
-    }
   };
 
-  class SiStripDetVOff_HV {
+  class SiStripDetVOff_HV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int> {
   public:
-    SiStripDetVOff_HV(){
+    SiStripDetVOff_HV() : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff,int >( "Nr of mod with HV OFF vs time","nHVOff"){
     }
 
-    // return the type-name of the objects we handle, so the PayloadInspector can find corresponding tags
-    std::string objectType() {
-      return "SiStripDetVOff";
+    int getFromPayload( SiStripDetVOff& payload ){
+      return payload.getHVoffCounts();
     }
 
-    // return a title string to be used in the PayloadInspector
-    std::string title() {
-      return "Nr of mod with HV OFF vs time";
-    }
-
-    std::string info() {
-      return title();
-    }
-
-    std::string data( const boost::python::list& iovs ){
-      cond::persistency::PayloadReader reader;
-      // TO DO: add try /catch block                                                                                                                                                    
-      reader.open();
-      cond::utilities::JsonPrinter jprint("Time","nHVOff");
-      for( int i=0; i< len( iovs ); i++ ) {
-	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	std::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
-	jprint.append(boost::lexical_cast<std::string>( iov.since ),
-		      boost::lexical_cast<std::string>( obj->getHVoffCounts() ),
-		      boost::lexical_cast<std::string>( 0. ) );
-      }
-      return jprint.print();
-    }
   };
 
 }

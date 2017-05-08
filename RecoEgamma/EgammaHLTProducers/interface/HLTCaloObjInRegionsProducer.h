@@ -74,6 +74,7 @@ private:
 class EtaPhiRegionDataBase {
 public:
   EtaPhiRegionDataBase(){}
+  virtual ~EtaPhiRegionDataBase() = default;
   virtual void getEtaPhiRegions(const edm::Event&,std::vector<EtaPhiRegion>&)const=0;
 };
 

@@ -16,7 +16,7 @@ from html import PlotPurpose
 #
 ########################################
 
-_maxEff = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
+_maxEff = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025, 1.2, 1.5, 2]
 _maxFake = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
 #_minMaxResol = [1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 0.1, 0.2, 0.5, 1]
@@ -32,6 +32,7 @@ _min3DLayers = [0, 5, 10]
 _max3DLayers = [5, 10, 20]
 _minPU = [0, 10, 20, 50, 100, 150]
 _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
+_minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
 
 _legendDy_1row = 0.46
 _legendDy_2rows = -0.025
@@ -371,6 +372,20 @@ _extDist5 = PlotGroup("dist5",
                       _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
                       ncols=4, legendDy=_legendDy_2rows_3cols
 )
+_common = dict(title="", ytitle="Selected tracks/TrackingParticles", ymax=_maxEff)
+_extNrecVsNsim = PlotGroup("nrecVsNsim", [
+    Plot("nrec_vs_nsim", title="", xtitle="TrackingParticles", ytitle="Tracks", profileX=True, xmin=_minMaxTracks, xmax=_minMaxTracks, ymin=_minMaxTracks, ymax=_minMaxTracks),
+    Plot("nrecPerNsim_vs_pu", xtitle="Pileup", xmin=_minPU, xmax=_maxPU, **_common),
+    Plot("nrecPerNsimPt", xtitle="p_{T} (GeV)", xlog=True, **_common),
+    Plot("nrecPerNsim", xtitle="#eta", **_common)
+], legendDy=_legendDy_2rows)
+_extHitsLayers = PlotGroup("hitsLayers", [
+    Plot("PXLhits_vs_eta", xtitle="#eta", ytitle="<pixel hits>"),
+    Plot("PXLlayersWithMeas_vs_eta", xtitle="#eta", ytitle="<pixel layers>"),
+    Plot("STRIPhits_vs_eta", xtitle="#eta", ytitle="<strip hits>"),
+    Plot("STRIPlayersWithMeas_vs_eta", xtitle="#eta", ytitle="<strip layers>"),
+], legendDy=_legendDy_2rows)
+
 
 ## Extended set of plots also for simulation
 _extDistSim1 = PlotGroup("distsim1",
@@ -966,6 +981,8 @@ _extendedPlots = [
     _extDist3,
     _extDist4,
     _extDist5,
+    _extNrecVsNsim,
+    _extHitsLayers,
     _extDistSim1,
     _extDistSim2,
     _extDistSim3,
@@ -1064,6 +1081,16 @@ plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
 plotter.append("packedCandidateLostTracks", _trackingFolders("PackedCandidate/lostTracks"),
                PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
                           purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate (lostTracks)"))
+
+# HLT
+_hltFolder = [
+    "DQMData/Run 1/HLT/Run summary/Tracking/ValidationWRTtp",
+]
+plotterHLT = Plotter()
+plotterHLTExt = Plotter()
+_common = dict(purpose=PlotPurpose.HLT, page="hlt")
+plotterHLT.append("hlt", _hltFolder, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+plotterHLTExt.append("hlt", _hltFolder, TrackingPlotFolder(*_extendedPlots, **_common))
 
 # Timing
 class Iteration:
