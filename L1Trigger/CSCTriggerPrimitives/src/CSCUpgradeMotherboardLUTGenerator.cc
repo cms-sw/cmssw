@@ -90,7 +90,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   os << gemPadToCscHsME1b_;
 
   // print LUTs
-  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -152,7 +152,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   os << gemPadToCscHs_;
 
   // print LUTs
-  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os.str();
 }
 
 void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
@@ -205,13 +205,13 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME3141(unsigned theEndcap, u
   os << rpcStripToCscHs_;
 
   // print LUTs
-  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os;
+  LogTrace("CSCUpgradeMotherboardLUTGenerator") << os.str();
 }
 
 int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<double,double> >& lut_, double eta) const
 {
   int result = -99;
-  for(auto p : lut_) {
+  for(const auto& p : lut_) {
     const float minEta(p.first);
     const float maxEta(p.second);
     if (minEta <= std::abs(eta) and std::abs(eta) < maxEta) {
@@ -226,7 +226,7 @@ std::vector<std::pair<double,double> >
 CSCUpgradeMotherboardLUTGenerator::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber) const
 {
   std::vector<std::pair<double,double> > lut;
-  for(auto roll : gemChamber->etaPartitions()) {
+  for(const auto& roll : gemChamber->etaPartitions()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
@@ -241,7 +241,7 @@ std::vector<std::pair<double,double> >
 CSCUpgradeMotherboardLUTGenerator::rpcRollToEtaLimitsLUT(const RPCChamber* rpcChamber) const
 {
   std::vector<std::pair<double,double> > lut;
-  for(auto roll : rpcChamber->rolls()) {
+  for(const auto& roll : rpcChamber->rolls()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);

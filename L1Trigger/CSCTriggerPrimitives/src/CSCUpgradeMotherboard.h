@@ -75,7 +75,7 @@ public:
 
   std::vector<CSCALCTDigi> alctV;
 
-  CSCUpgradeMotherboardLUTGenerator* generator_;
+  std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[MAX_LCT_BINS];
@@ -113,8 +113,8 @@ template <class S>
 S CSCUpgradeMotherboard::intersection(const S& d1, const S& d2)
 {
   S result;
-  for (auto p: d1){
-    for (auto q: d2){
+  for (const auto& p: d1){
+    for (const auto& q: d2){
       if (compare(p,q)){
 	result.push_back(p);
 	break;
