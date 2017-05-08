@@ -450,7 +450,25 @@ private:
 
   // print the resource usage summary for en event, a run, or the while job
   template <typename T>
+  void printHeader(T& out, std::string const & label) const;
+
+  template <typename T>
+  void printEventHeader(T& out, std::string const & label) const;
+
+  template <typename T>
+  void printEventLine(T& out, Resources const& data, std::string const & label) const;
+
+  template <typename T>
   void printEvent(T& out, ResourcesPerJob const&) const;
+
+  template <typename T>
+  void printSummaryHeader(T& out, std::string const & label, bool detaile) const;
+
+  template <typename T>
+  void printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const;
+
+  template <typename T>
+  void printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const;
 
   template <typename T>
   void printSummary(T& out, ResourcesPerJob const&, std::string const& label) const;
