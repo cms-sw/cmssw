@@ -350,7 +350,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      mySolid->DefinePolygon(x.size(), &(*x.begin()), &(*y.begin()));
 	      for( size_t i = 0; i < params[0]; ++i )
 	      {
-		mySolid->DefineSection( i, z[i]/cm, zx[i]/cm, zy[i]/cm, zscale[i]/cm);
+		mySolid->DefineSection( i, z[i]/cm, zx[i]/cm, zy[i]/cm, zscale[i]);
 	      }
 	      
 	      rSolid = mySolid;
