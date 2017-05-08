@@ -71,7 +71,6 @@ using namespace edm;
 FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
 	VirtualJetProducer( iConfig )
 {
-
 	useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
 	useOnlyOnePV_ 	= iConfig.getParameter<bool>("UseOnlyOnePV");
 	dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
@@ -481,8 +480,9 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<int>("maxDepth",	-1);
 	descFastjetJetProducer.add<int>("nFilt",	-1);
 	descFastjetJetProducer.add<int>("MinVtxNdof",	5);
+	///// From VirtualJetProducer
 	descFastjetJetProducer.add<string> ("module_label",	"" );
-	descFastjetJetProducer.add<edm::InputTag>("src",		edm::InputTag("particleFlow") );
+	descFastjetJetProducer.add<InputTag>("src",	InputTag("particleFlow") );
 	descFastjetJetProducer.add<bool>("doAreaFastjet",	false );
 	descFastjetJetProducer.add<double>("Rho_EtaMax", 	4.4 	);
 	descFastjetJetProducer.add<double>("rParam",		0.4 );
@@ -518,51 +518,8 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<unsigned int>("maxProblematicHcalCells",	9999999 );
 	descFastjetJetProducer.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
 	descFastjetJetProducer.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
-	//descriptions.add("FastjetJetProducerInputs", descFastjetJetProducer);
+	/////////////////////
 	descriptions.addDefault(descFastjetJetProducer);
-
-	/*//// Including parameters from VirtualJetProducer
-	edm::ParameterSetDescription descVirtualJetProducer;
-	descVirtualJetProducer.add<string> ("module_label",	"" );
-	descVirtualJetProducer.add<InputTag>("src",		InputTag("particleFlow") );
-	descVirtualJetProducer.add<bool>("doAreaFastjet",	false );
-	descVirtualJetProducer.add<double>("Rho_EtaMax", 	4.4 	);
-	descVirtualJetProducer.add<double>("rParam",		0.4 );
-	descVirtualJetProducer.add<string>("jetAlgorithm",	"AntiKt" );
-	descVirtualJetProducer.add<InputTag>("srcPVs",	InputTag("") );
-	descVirtualJetProducer.add<string>("jetType",		"PFJet" );
-	descVirtualJetProducer.add<double>("inputEtMin", 	0.0 );
-	descVirtualJetProducer.add<double>("inputEMin",		0.0 );
-	descVirtualJetProducer.add<double>("jetPtMin",		5. );
-	descVirtualJetProducer.add<bool>("doPVCorrection",	false );
-	descVirtualJetProducer.add<bool>("doRhoFastjet",	false );
-	descVirtualJetProducer.add<string>("jetCollInstanceName", ""	);
-	descVirtualJetProducer.add<bool>("doPUOffsetCorr", 	false	);
-	descVirtualJetProducer.add<string>("subtractorName", 	""	);
-	descVirtualJetProducer.add<bool>("useExplicitGhosts", 	false	);
-	descVirtualJetProducer.add<bool>("doAreaDiskApprox", 	false 	);
-	descVirtualJetProducer.add<double>("voronoiRfact", 	-0.9 	);
-	descVirtualJetProducer.add<double>("Ghost_EtaMax",	5. 	);
-	descVirtualJetProducer.add<int>("Active_Area_Repeats",	1 	);
-	descVirtualJetProducer.add<double>("GhostArea",	 	0.01 	);
-	descVirtualJetProducer.add<bool>("restrictInputs", 	false 	);
-	descVirtualJetProducer.add<unsigned int>("maxInputs", 	1 	);
-	descVirtualJetProducer.add<bool>("writeCompound", 	false 	);
-	descVirtualJetProducer.add<bool>("doFastJetNonUniform", false 	);
-	descVirtualJetProducer.add<bool>("useDeterministicSeed",false 	);
-	descVirtualJetProducer.add<unsigned int>("minSeed", 	14327 	);
-	descVirtualJetProducer.add<int>("verbosity", 		1 	);
-	descVirtualJetProducer.add<double>("puWidth",	 	0. 	);
-	descVirtualJetProducer.add<unsigned int>("nExclude", 	0 	);
-	descVirtualJetProducer.add<unsigned int>("maxBadEcalCells", 	9999999	);
-	descVirtualJetProducer.add<unsigned int>("maxBadHcalCells",	9999999 );
-	descVirtualJetProducer.add<unsigned int>("maxProblematicEcalCells",	9999999 );
-	descVirtualJetProducer.add<unsigned int>("maxProblematicHcalCells",	9999999 );
-	descVirtualJetProducer.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
-	descVirtualJetProducer.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
-	//descriptions.add("Virtual", descVirtualJetProducer);
-	//descriptions.addDefault(descVirtualJetProducer);
-	//*/
 
 }
 
