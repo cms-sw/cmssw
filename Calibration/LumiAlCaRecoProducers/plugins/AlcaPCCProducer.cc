@@ -113,8 +113,7 @@ void AlcaPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
 
-
-    //Saving the PCC object 
+    //Saving the PCC object
     lumiSeg.put(std::move(thePCCob), std::string(trigstring_)); 
 
 }

@@ -45,7 +45,9 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 # LUMI Calibration
 ###############################################################
 # AlCaReco for A stream (PD=MinBias)
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBiasFromRECO_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandomFromRECO_cff import *
 
 ###############################################################
 # ECAL Calibration
@@ -155,7 +157,9 @@ pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSi
 pathALCARECOSiStripCalMinBiasAfterAbortGap = cms.Path(seqALCARECOSiStripCalMinBiasAfterAbortGap*ALCARECOSiStripCalMinBiasAfterAbortGapDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
 
-pathALCARECOLumiPixelsMinBias = cms.Path(seqALCARECOLumiPixelsMinBias)
+pathALCARECOLumiPixelsMinBias       = cms.Path(seqALCARECOLumiPixelsMinBias)
+pathALCARECOAlCaPCCZeroBiasFromRECO = cms.Path(seqALCARECOAlCaPCCZeroBiasFromRECO)
+pathALCARECOAlCaPCCRandomFromRECO   = cms.Path(seqALCARECOAlCaPCCRandomFromRECO)
 
 #### ECAL
 pathALCARECOEcalCalZElectron     = cms.Path(seqALCARECOEcalCalZElectron)
@@ -358,6 +362,24 @@ ALCARECOStreamLumiPixelsMinBias = cms.FilteredStream(
 	paths  = (pathALCARECOLumiPixelsMinBias),
 	content = OutALCARECOLumiPixelsMinBias.outputCommands,
 	selectEvents = OutALCARECOLumiPixelsMinBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamAlCaPCCZeroBiasFromRECO = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'AlCaPCCZeroBiasFromRECO',
+	paths  = (pathALCARECOAlCaPCCZeroBiasFromRECO),
+	content = OutALCARECOAlCaPCCZeroBiasFromRECO.outputCommands,
+	selectEvents = OutALCARECOAlCaPCCZeroBiasFromRECO.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamAlCaPCCRandomFromRECO = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'AlCaPCCRandomFromRECO',
+	paths  = (pathALCARECOAlCaPCCRandomFromRECO),
+	content = OutALCARECOAlCaPCCRandomFromRECO.outputCommands,
+	selectEvents = OutALCARECOAlCaPCCRandomFromRECO.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
