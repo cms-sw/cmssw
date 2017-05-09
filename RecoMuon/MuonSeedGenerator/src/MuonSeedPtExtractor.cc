@@ -258,7 +258,6 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       GEMDetId gemId(detId_inner);
       std::ostringstream os;
       int ring = gemId.ring();
-      //if(ring == 4) ring = 1;
       os << gemId.station() << ring;
       combination = "SME_"+os.str();
     }

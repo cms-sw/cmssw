@@ -180,7 +180,8 @@ void L2MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
             psd1.add<edm::InputTag>("RPCRecSegmentLabel", edm::InputTag("hltRpcRecHits"));
             psd1.add<std::string>("Propagator", "hltESPFastSteppingHelixPropagatorAny");
             psd1.add<bool>("EnableGEMMeasurement", false);
-            psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemRecHits"));
+            psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemSegments"));
+            psd1.add<edm::InputTag>("GEMRecHitLabel", edm::InputTag("gemRecHits"));
             psd1.add<bool>("EnableME0Measurement", false);
             psd1.add<edm::InputTag>("ME0RecSegmentLabel", edm::InputTag("me0Segments"));
             psd1.add<bool>("EnableCSCMeasurement", true);
@@ -222,7 +223,8 @@ void L2MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
             psd1.add<edm::InputTag>("RPCRecSegmentLabel", edm::InputTag("hltRpcRecHits"));
             psd1.add<std::string>("Propagator", "hltESPFastSteppingHelixPropagatorAny");
             psd1.add<bool>("EnableGEMMeasurement", false);
-            psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemRecHits"));
+            psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemSegments"));
+            psd1.add<edm::InputTag>("GEMRecHitLabel", edm::InputTag("gemRecHits"));
             psd1.add<bool>("EnableME0Measurement", false);
             psd1.add<edm::InputTag>("ME0RecSegmentLabel", edm::InputTag("me0Segments"));
             psd1.add<bool>("EnableCSCMeasurement", true);
