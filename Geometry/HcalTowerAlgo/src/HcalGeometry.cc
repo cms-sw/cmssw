@@ -17,9 +17,7 @@ HcalGeometry::HcalGeometry( const HcalTopology& topology ) :
   init();
 }
   
-
 HcalGeometry::~HcalGeometry() {}
-
 
 void HcalGeometry::init() {
   edm::LogInfo("HcalGeometry") << "HcalGeometry::init() "
@@ -37,55 +35,67 @@ void HcalGeometry::init() {
 void
 HcalGeometry::fillDetIds() const
 {
-   const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
-   for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
-   {
-      const DetId id ( baseIds[i] );
-      if( id.subdetId() == HcalBarrel )
-      { 
-	 m_hbIds.push_back( id ) ;
-      }
-      else
-      {
-	 if( id.subdetId() == HcalEndcap )
-	 { 
-	    m_heIds.push_back( id ) ;
-	 }
-	 else
-	 {
-	    if( id.subdetId() == HcalOuter )
-	    { 
-	       m_hoIds.push_back( id ) ;
-	    }
-	    else
-	    {
-	       if( id.subdetId() == HcalForward )
-	       { 
-		  m_hfIds.push_back( id ) ;
-	       }
-	    }
-	 }
-      }
+   if(!m_emptyIds.isSet()) {
+       std::unique_ptr<std::vector<DetId>> p_hbIds{new std::vector<DetId>};
+       std::unique_ptr<std::vector<DetId>> p_heIds{new std::vector<DetId>};
+       std::unique_ptr<std::vector<DetId>> p_hoIds{new std::vector<DetId>};
+       std::unique_ptr<std::vector<DetId>> p_hfIds{new std::vector<DetId>};
+       std::unique_ptr<std::vector<DetId>> p_emptyIds{new std::vector<DetId>};
+
+       const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
+       for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i )
+       {
+          const DetId id ( baseIds[i] );
+          if( id.subdetId() == HcalBarrel )
+          {
+             p_hbIds->push_back( id ) ;
+          }
+          else
+          {
+             if( id.subdetId() == HcalEndcap )
+             {
+                p_heIds->push_back( id ) ;
+             }
+             else
+             {
+                if( id.subdetId() == HcalOuter )
+                {
+                   p_hoIds->push_back( id ) ;
+                }
+                else
+                {
+                   if( id.subdetId() == HcalForward )
+                   {
+                     p_hfIds->push_back( id ) ;
+                   }
+                }
+             }
+          }
+       }
+       std::sort( p_hbIds->begin(), p_hbIds->end() ) ;
+       std::sort( p_heIds->begin(), p_heIds->end() ) ;
+       std::sort( p_hoIds->begin(), p_hoIds->end() ) ;
+       std::sort( p_hfIds->begin(), p_hfIds->end() ) ;
+       p_emptyIds->resize( 0 ) ;
+
+       m_hbIds.set(std::move(p_hbIds));
+       m_heIds.set(std::move(p_heIds));
+       m_hoIds.set(std::move(p_hoIds));
+       m_hfIds.set(std::move(p_hfIds));
+       m_emptyIds.set(std::move(p_emptyIds));
    }
-   std::sort( m_hbIds.begin(), m_hbIds.end() ) ;
-   std::sort( m_heIds.begin(), m_heIds.end() ) ;
-   std::sort( m_hoIds.begin(), m_hoIds.end() ) ;
-   std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
-       
-   m_emptyIds.resize( 0 ) ;
 }
 
 const std::vector<DetId>& 
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const 
 {
-   if( 0 != subdet &&
-       0 == m_hbIds.size() ) fillDetIds() ;
+   if( 0 != subdet && !m_hbIds.isSet() ) fillDetIds() ;
    return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
-	    ( HcalBarrel == subdet ? m_hbIds :
-	      ( HcalEndcap == subdet ? m_heIds :
-		( HcalOuter == subdet ? m_hoIds :
-		  ( HcalForward == subdet ? m_hfIds : m_emptyIds ) ) ) ) ) ;
+	    ( HcalBarrel == subdet ? *m_hbIds.load() :
+	      ( HcalEndcap == subdet ? *m_heIds.load() :
+		( HcalOuter == subdet ? *m_hoIds.load() :
+		  ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
 DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
