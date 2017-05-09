@@ -6,7 +6,7 @@ import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 # AlCaReco DQM #
 #---------------
 
-__selectionName = 'SiStripCalMinBiasAfterAbortGap'
+__selectionName = 'SiStripCalMinBiasAAG'
 ALCARECOSiStripCalMinBiasAfterAbortGapTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
