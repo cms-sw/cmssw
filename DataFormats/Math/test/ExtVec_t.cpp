@@ -9,8 +9,6 @@
 #define CMS_USE_AVX
 #endif /* __AVX__ */
 
-// clang complains that it is not "standard"
-#define constexpr
 
 void addScaleddiff(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res = res + s*(a-b);
@@ -170,7 +168,8 @@ if(dovec) {
   constexpr Vec x{2.0f,4.0f,5.0f};
   constexpr Vec y{-3.0f,2.0f,-5.0f};
   Vec x0 = x[0] + zero;
-  constexpr Vec xx = T(3.3) + zero;
+  //constexpr Vec xx = T(3.3) + zero;  // clang 3.8 does not like it
+  const Vec xx = T(3.3) + zero;
   std::cout << x << std::endl;
   std::cout << (Vec4<float>){float(x[0]),float(x[1]),float(x[2]),float(x[3])} << std::endl;
   std::cout << (Vec4<double>){x[0],x[1],x[2],x[3]} << std::endl;
@@ -200,9 +199,9 @@ if(dovec) {
 
   std::cout << "\nrotations" << std::endl;
 
-  constexpr T a = 0.01;
-  constexpr T ca = std::cos(a);
-  constexpr T sa = std::sin(a);
+  // constexpr T a = 0.01;
+  constexpr T ca = 0.9999500004166653; // std::cos(a);  clang does not support constepxr math functions....
+  constexpr T sa = 0.009999833334166664; // std::sin(a);
 
   constexpr Rot3<T> r1( ca, sa, 0,
 			-sa, ca, 0,
