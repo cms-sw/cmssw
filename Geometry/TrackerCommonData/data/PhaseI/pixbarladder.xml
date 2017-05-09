@@ -72,6 +72,8 @@
 <RotationSection label="pixbarladder.xml">
   <Rotation name="Z2XY" thetaX="90*deg" phiX="0*deg"     thetaY="180*deg" 
                         phiY="0*deg"    thetaZ="90*deg"  phiZ="90*deg" />
+  <Rotation name="Y180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg" 
+                         phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
 </RotationSection>
 
 </DDDefinition>
