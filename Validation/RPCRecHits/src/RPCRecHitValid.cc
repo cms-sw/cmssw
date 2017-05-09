@@ -777,20 +777,6 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
     if ( !matched )
     {
-      // FIXME : kept for backward compatibility //
-      if ( region == 0 )
-      {
-        h_.umOccupancyBarrel_wheel->Fill(ring);
-        h_.umOccupancyBarrel_station->Fill(station);
-        h_.umOccupancyBarrel_wheel_station->Fill(ring, station);
-      }
-      else
-      {
-        h_.umOccupancyEndcap_disk->Fill(region*station);
-        h_.umOccupancyEndcap_disk_ring->Fill(region*station, ring);
-      }
-      // End of FIXME //
-
       int nPunchMatched = 0;
       // Check if this recHit came from non-muon simHit
       for ( auto simHit : pthrSimHits )
