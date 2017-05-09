@@ -26,13 +26,13 @@ export X509_USER_PROXY=${RUNDIR}/.user_proxy
 TREEFILELIST=
 if [ "${MSSDIRPOOL}" != "cmscafuser" ]
 then
-    :				# do nothing
+    :                           # do nothing
 else
     TREEFILELIST=`${EOS} ls -l ${MSSDIR} | grep -i treeFile | grep -i root`
 fi
 if [[ -z "${TREEFILELIST}" ]]
 then
-    echo "\nThe list of treefiles seems to be empty.\n"
+    echo -e "\nThe list of treefiles seems to be empty.\n"
 fi
 
 clean_up () {
@@ -67,14 +67,14 @@ untilSuccess () {
     MAX_TRIES=5
     if [[ ${#} -eq 4 ]]
     then
-	MAX_TRIES=${4}
+        MAX_TRIES=${4}
     fi
 
     ${1} ${2} ${3} > /dev/null
     while [[ ${?} -ne 0 ]]
     do # if not successfull, retry...
         if [[ ${TRIES} -ge ${MAX_TRIES} ]]
-	then # ... but not until infinity!
+        then # ... but not until infinity!
             echo ${0}: Give up doing \"${1} ${2} ${3} \> /dev/null\".
             return 1
         fi
@@ -95,7 +95,7 @@ copytreefile () {
         untilSuccess ${1} ${2} ${3}
     else
         if [[ -n "${CHECKFILE}" ]]
-	then
+        then
             untilSuccess ${1} ${2} ${3}
         fi
     fi
@@ -142,7 +142,7 @@ hash -r
 cd ${BATCH_DIR}
 echo Running directory changed to $(pwd).
 
-echo "\nDirectory content before running cmsRun:"
+echo -e "\nDirectory content before running cmsRun:"
 ls -lh
 # Execute. The cfg file name will be overwritten by MPS
 time cmsRun ${CONFIG_FILE}
@@ -171,6 +171,8 @@ hadd millePedeMonitor_merge.root ${RUNDIR}/../job???/millePedeMonitor*.root
 if [[ ${?} -eq 0 ]]
 then
     rm ${RUNDIR}/../job???/millePedeMonitor*.root
+else
+    rm millePedeMonitor_merge.root
 fi
 
 # Macro creating chi2ndfperbinary.pdf with pede chi2/ndf information hists:
@@ -217,7 +219,7 @@ done
 #split the IOVs
 aligncond_split_iov.sh alignments_MP.db alignments_split_MP.db
 
-echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
+echo -e "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
 # Copy everything you need to MPS directory of your job
 # (separate cp's for each item, otherwise you loose all if one file is missing):
@@ -226,8 +228,39 @@ cp -p *.gz ${RUNDIR}
 cp -p *.db ${RUNDIR}
 cp -p *.end ${RUNDIR}
 
+# create symlinks of the monitoring files in other (possibly non-existing) jobm folders
+nTry=0
+while true
+do
+    if [[ ${nTry} -ge 10 ]]     # wait up to 10 times for monitoring files
+    then
+        break
+    fi
+
+    monFiles=$(ls --color=never ${RUNDIR}/../jobm*/*.root | egrep -i 'millepedemonitor_.+\.root$')
+    if [[ ${?} -eq 0 ]]
+    then
+        monFiles=$(echo ${monFiles} | xargs -n 1 readlink -e)
+        break
+    else
+        sleep 60                # wait a minute and retry
+        nTry=$((${nTry} + 1))
+    fi
+done
+jobmFolders=$(ls --color=never -d ${RUNDIR}/../jobm* | xargs -n 1 readlink -e)
+for folder in ${jobmFolders}
+do
+    for mon in ${monFiles}
+    do
+        ln -s ${mon} ${folder}/ > /dev/null 2>&1
+        ln -s ${mon} > /dev/null 2>&1 # make them also available here
+    done
+done
+
 # copy aligment_merge.py for mps_validate.py
-cp -p ${CONFIG_FILE} alignment_merge.py
+ln -s ${CONFIG_FILE} alignment_merge.py
+ln -s ${RUNDIR}/.TrackerTree.root
+ln -s ${RUNDIR}/.weights.pkl
 # run mps_validate.py
 campaign=`basename ${MSSDIR}`
 mps_validate.py -m ${campaign} -p ./
