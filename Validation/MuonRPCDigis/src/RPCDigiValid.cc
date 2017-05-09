@@ -132,62 +132,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         if ( roll->isIRPC() ) hDigiTimeIRPC->Fill(digiTime);
         else hDigiTimeNoIRPC->Fill(digiTime);
       }
-
-      ndigi++;
-    }
-
-    if (sims.size() == 0)
-    {
-      noiseCLS->Fill(ndigi);
-      if (Rsid.region() == 0)
-      {
-        noiseCLSBarrel->Fill(ndigi);
-      }
-      if (Rsid.region() == +1 || Rsid.region() == 1)
-      {
-        noiseCLSEndcaps->Fill(ndigi);
-      }
-    }
-    //CLS histos
-    if (Rsid.region() == 0)
-    {
-      clsBarrel->Fill(ndigi);
-    }
-    //endcap 
-    if (Rsid.region() != 0)
-    {
-      if (Rsid.ring() == 2)
-      {
-        if (abs(Rsid.station()) == 1)
-        {
-          if (Rsid.roll() == 1)
-            CLS_Endcap_1_Ring2_A->Fill(ndigi);
-          if (Rsid.roll() == 2)
-            CLS_Endcap_1_Ring2_B->Fill(ndigi);
-          if (Rsid.roll() == 3)
-            CLS_Endcap_1_Ring2_C->Fill(ndigi);
-        }
-        if (abs(Rsid.station()) == 2 || abs(Rsid.station()) == 3)
-        {
-          if (Rsid.roll() == 1)
-            CLS_Endcap_23_Ring2_A->Fill(ndigi);
-          if (Rsid.roll() == 2)
-            CLS_Endcap_23_Ring2_B->Fill(ndigi);
-          if (Rsid.roll() == 3)
-            CLS_Endcap_23_Ring2_C->Fill(ndigi);
-        }
-      }
-      if (Rsid.ring() == 3)
-      {
-        if (Rsid.roll() == 1)
-          CLS_Endcap_123_Ring3_A->Fill(ndigi);
-        if (Rsid.roll() == 2)
-          CLS_Endcap_123_Ring3_B->Fill(ndigi);
-        if (Rsid.roll() == 3)
-          CLS_Endcap_123_Ring3_C->Fill(ndigi);
-      }
-      if (abs(Rsid.station()) == 4)
-        CLS_Endcap_4->Fill(ndigi);
     }
 
     if (sims.size() == 1 && ndigi == 1)
@@ -313,28 +257,6 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run
 
   BxDisc_4Plus = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
   BxDisc_4Min = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
-
-  //cls histos
-  noiseCLS = booker.book1D("noiseCLS", "noiseCLS", 10, 0.5, 10.5);
-  noiseCLSBarrel = booker.book1D("noiseCLSBarrel", "noiseCLSBarrel", 10, 0.5, 10.5);
-  noiseCLSEndcaps = booker.book1D("noiseCLSEndcaps", "noiseCLSEndcaps", 10, 0.5, 10.5);
-
-  clsBarrel = booker.book1D("clsBarrel", "clsBarrel", 10, 0.5, 10.5);
-
-  //endcap CLS
-  CLS_Endcap_1_Ring2_A = booker.book1D("CLS_Endcap_1_1Ring2_A", "CLS_Endcap_1_Ring2_A", 10, 0.5, 10.5);
-  CLS_Endcap_1_Ring2_B = booker.book1D("CLS_Endcap_1_1Ring2_B", "CLS_Endcap_1_Ring2_B", 10, 0.5, 10.5);
-  CLS_Endcap_1_Ring2_C = booker.book1D("CLS_Endcap_1_1Ring2_C", "CLS_Endcap_1_Ring2_C", 10, 0.5, 10.5);
-
-  CLS_Endcap_23_Ring2_A = booker.book1D("CLS_Endcap_23_Ring2_A", "CLS_Endcap_23_Ring2_A", 10, 0.5, 10.5);
-  CLS_Endcap_23_Ring2_B = booker.book1D("CLS_Endcap_23_Ring2_B", "CLS_Endcap_23_Ring2_B", 10, 0.5, 10.5);
-  CLS_Endcap_23_Ring2_C = booker.book1D("CLS_Endcap_23_Ring2_C", "CLS_Endcap_23_Ring2_C", 10, 0.5, 10.5);
-
-  CLS_Endcap_123_Ring3_A = booker.book1D("CLS_Endcap_123_Ring3_A", "CLS_Endcap_123_Ring3_A", 10, 0.5, 10.5);
-  CLS_Endcap_123_Ring3_B = booker.book1D("CLS_Endcap_123_Ring3_B", "CLS_Endcap_123_Ring3_B", 10, 0.5, 10.5);
-  CLS_Endcap_123_Ring3_C = booker.book1D("CLS_Endcap_123_Ring3_C", "CLS_Endcap_123_Ring3_C", 10, 0.5, 10.5);
-
-  CLS_Endcap_4 = booker.book1D("CLS_Endcap_4", "CLS_Endcap_4", 10, 0.5, 10.5);
 
   //endcap residuals
   ResDmin1 = booker.book1D("Disk_Min1_Residuals", "Disk_Min1_Residuals", 400, -8, 8);
