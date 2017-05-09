@@ -18,6 +18,14 @@ void SiPixelFedCablingMap::initializeRocs() {
   // Decide if it is phase0 or phase1 based on the first fed, 0-phase0, 1200-phase1
   unsigned int fedId = (theMap.begin())->first.fed; // get the first fed
 
+  // Specifically for CMSSW_9_0_X, we need to call a different version of the frame 
+  // conversion steered by the version name in the cabling map
+  if (theVersion.find("CMSSW_9_0_X")!=std::string::npos) {
+    for (auto & v : theMap) v.second.initFrameConversionPhase1_CMSSW_9_0_X(); // works
+    std::cout<<"*** Found CMSSW_9_0_X specific cabling map\n";
+    return;
+  }
+
   if(fedId>=FEDNumbering::MINSiPixeluTCAFEDID) { // phase1 >= 1200
     for (auto & v : theMap) v.second.initFrameConversionPhase1(); // works
   } else { // phase0
