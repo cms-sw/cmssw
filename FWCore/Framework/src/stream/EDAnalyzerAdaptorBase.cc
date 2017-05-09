@@ -95,9 +95,9 @@ EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolver
 }
 
 std::vector<edm::ProductResolverIndexAndSkipBit> const&
-EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
+EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFromEvent();  
+  return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
 void
