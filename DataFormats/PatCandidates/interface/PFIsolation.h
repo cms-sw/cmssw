@@ -30,10 +30,10 @@ namespace pat {
             return *this;
         }
 
-        float chargedHadronIso()   { return chiso_; }
-        float neutralHadronIso()   { return nhiso_; }
-        float photonIso()          { return phiso_; }
-        float puChargedHadronIso() { return puiso_; }
+        float chargedHadronIso()   const { return chiso_; }
+        float neutralHadronIso()   const { return nhiso_; }
+        float photonIso()          const { return phiso_; }
+        float puChargedHadronIso() const { return puiso_; }
 
     private:
         float chiso_; // charged hadrons from PV

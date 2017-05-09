@@ -52,11 +52,7 @@ namespace pat {
         PackedCandidateRef packedCandRef_;
     };
 
-}
 
-
-namespace pat {
-    class IsolatedTrack;
     typedef std::vector<IsolatedTrack>  IsolatedTrackCollection;
 }
 
