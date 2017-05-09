@@ -11,3 +11,4 @@ caloDeepFlavourTask = cms.Task(
     caloDeepCSVJetTags
 )
 caloDeepFlavour = cms.Sequence(caloDeepFlavourTask)
+
