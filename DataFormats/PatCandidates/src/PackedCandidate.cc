@@ -336,8 +336,8 @@ float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packed
 float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}
 
 void pat::PackedCandidate::setRawCaloFraction(float p) {
-  if(p>1)
-    rawCaloFraction_ = 250; // Set to overflow value of 250 (since uint8 only goes up to 256)
+  if(100*p>std::numeric_limits<uint8_t>::max())
+    rawCaloFraction_ = std::numeric_limits<uint8_t>::max(); // Set to overflow value
   else
     rawCaloFraction_ = 100*p;
 }
