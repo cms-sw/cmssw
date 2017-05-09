@@ -5,7 +5,6 @@ from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
 ak4PFJets = cms.EDProducer(
     "FastjetJetProducer",
-    PFJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("AntiKt"),
     rParam       = cms.double(0.4)
