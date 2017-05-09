@@ -17,6 +17,85 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# EG filter enhancements PR #18559
+def customiseFor18559(process):
+    for filt in filters_by_type(process, "HLTEgammaGenericFilter", "HLTMuonGenericFilter", "HLTEgammaGenericQuadraticFilter", "HLTEgammaGenericQuadraticEtaFilter"):
+        if not hasattr(filt, "doRhoCorrection"):
+            filt.doRhoCorrection = cms.bool( False )
+            filt.rhoTag = cms.InputTag( "" )
+            filt.effectiveAreas = cms.vdouble( 0.0 )
+            filt.absEtaLowEdges = cms.vdouble( 0.0 )
+            filt.rhoMax = cms.double( 9.9999999E7 )
+            filt.rhoScale = cms.double( 1.0 )
+
+    for filt in filters_by_type(process, "HLTEgammaGenericFilter", "HLTMuonGenericFilter", "HLTEgammaGenericQuadraticFilter"):
+        if not hasattr(filt, "energyLowEdges"):
+            cutRegularEB = filt.thrRegularEB.value()
+            cutRegularEE = filt.thrRegularEE.value()
+            cutOverEEB = filt.thrOverEEB.value()
+            cutOverEEE = filt.thrOverEEE.value()
+            cutOverE2EB = filt.thrOverE2EB.value()
+            cutOverE2EE = filt.thrOverE2EE.value()
+
+            del filt.thrRegularEB
+            del filt.thrRegularEE
+            del filt.thrOverEEB
+            del filt.thrOverEEE
+            del filt.thrOverE2EB
+            del filt.thrOverE2EE
+
+            filt.energyLowEdges = cms.vdouble( 0.0 )
+            filt.thrRegularEB = cms.vdouble( cutRegularEB )
+            filt.thrRegularEE = cms.vdouble( cutRegularEE )
+            filt.thrOverEEB = cms.vdouble( cutOverEEB )
+            filt.thrOverEEE = cms.vdouble( cutOverEEE )
+            filt.thrOverE2EB = cms.vdouble( cutOverE2EB )
+            filt.thrOverE2EE = cms.vdouble( cutOverE2EE )
+
+    for filt in filters_by_type(process, "HLTEgammaGenericQuadraticEtaFilter"):
+        if not hasattr(filt, "energyLowEdges"):
+            cutRegularEB1 = filt.thrRegularEB1.value()
+            cutRegularEE1 = filt.thrRegularEE1.value()
+            cutOverEEB1 = filt.thrOverEEB1.value()
+            cutOverEEE1 = filt.thrOverEEE1.value()
+            cutOverE2EB1 = filt.thrOverE2EB1.value()
+            cutOverE2EE1 = filt.thrOverE2EE1.value()
+            cutRegularEB2 = filt.thrRegularEB2.value()
+            cutRegularEE2 = filt.thrRegularEE2.value()
+            cutOverEEB2 = filt.thrOverEEB2.value()
+            cutOverEEE2 = filt.thrOverEEE2.value()
+            cutOverE2EB2 = filt.thrOverE2EB2.value()
+            cutOverE2EE2 = filt.thrOverE2EE2.value()
+
+            del filt.thrRegularEB1
+            del filt.thrRegularEE1
+            del filt.thrOverEEB1
+            del filt.thrOverEEE1
+            del filt.thrOverE2EB1
+            del filt.thrOverE2EE1
+            del filt.thrRegularEB2
+            del filt.thrRegularEE2
+            del filt.thrOverEEB2
+            del filt.thrOverEEE2
+            del filt.thrOverE2EB2
+            del filt.thrOverE2EE2
+
+            filt.energyLowEdges = cms.vdouble( 0.0 )
+            filt.thrRegularEB1 = cms.vdouble( cutRegularEB1 )
+            filt.thrRegularEE1 = cms.vdouble( cutRegularEE1 )
+            filt.thrOverEEB1 = cms.vdouble( cutOverEEB1 )
+            filt.thrOverEEE1 = cms.vdouble( cutOverEEE1 )
+            filt.thrOverE2EB1 = cms.vdouble( cutOverE2EB1 )
+            filt.thrOverE2EE1 = cms.vdouble( cutOverE2EE1 )
+            filt.thrRegularEB2 = cms.vdouble( cutRegularEB2 )
+            filt.thrRegularEE2 = cms.vdouble( cutRegularEE2 )
+            filt.thrOverEEB2 = cms.vdouble( cutOverEEB2 )
+            filt.thrOverEEE2 = cms.vdouble( cutOverEEE2 )
+            filt.thrOverE2EB2 = cms.vdouble( cutOverE2EB2 )
+            filt.thrOverE2EE2 = cms.vdouble( cutOverE2EE2 )
+    return process
+
+
 # Matching ECAL selective readout in particle flow, need a new input with online Selective Readout Flags
 def customiseFor17794(process):
      for edproducer in producers_by_type(process, "PFRecHitProducer"):
@@ -95,5 +174,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor17794(process)
     process = customiseFor18330(process)
     process = customiseFor18429(process)
+    process = customiseFor18559(process)
 
     return process
