@@ -542,6 +542,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     //const int layer = roll->id().layer();
     //const int subSector = roll->id().subsector();
 
+    const double time = recHitIter->timeError() >= 0 ? recHitIter->time() : recHitIter->BunchX()*25;
+
     h_.clusterSize->Fill(recHitIter->clusterSize());
 
     if ( region == 0 )
@@ -552,6 +554,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       h_.recHitOccupancyBarrel_wheel->Fill(ring);
       h_.recHitOccupancyBarrel_station->Fill(station);
       h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
+
+      h_.timeBarrel->Fill(time);
     }
     else
     {
@@ -560,6 +564,15 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
       h_.recHitOccupancyEndcap_disk->Fill(region*station);
       h_.recHitOccupancyEndcap_disk_ring->Fill(region*station, ring);
+
+      h_.timeEndcap->Fill(time);
+    }
+
+    if ( roll->isIRPC() ) {
+      h_.timeIRPC->Fill(time);
+    }
+    else {
+      h_.timeCRPC->Fill(time);
     }
 
   }
