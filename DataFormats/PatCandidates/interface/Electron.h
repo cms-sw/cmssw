@@ -1,4 +1,4 @@
-
+//
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -265,7 +265,7 @@ namespace pat {
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
-      
+
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
