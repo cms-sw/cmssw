@@ -1368,10 +1368,10 @@ template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, std::string const& label) const
 {
   out << boost::format("FastReport  %10.3f ms                 %10.3f ms                 %+10d kB                 %+10d kB                   %s\n")
-    % (ms(data.time_thread) / events)
-    % (ms(data.time_real)   / events)
-    % (kB(data.allocated)   / events)
-    % (kB(data.deallocated) / events)
+    % (events ? ms(data.time_thread) / events : 0)
+    % (events ? ms(data.time_real)   / events : 0)
+    % (events ? kB(data.allocated)   / events : 0)
+    % (events ? kB(data.deallocated) / events : 0)
     % label;
 }
 
@@ -1379,10 +1379,10 @@ template <typename T>
 void FastTimerService::printSummaryLine(T& out, Resources const& data, uint64_t events, uint64_t active, std::string const& label) const
 {
   out << boost::format("FastReport  %10.3f ms  %10.3f ms  %10.3f ms  %10.3f ms  %+10d kB  %+10d kB  %+10d kB  %+10d kB  %s\n")
-    % (ms(data.time_thread) / events) % (ms(data.time_thread) / active)
-    % (ms(data.time_real)   / events) % (ms(data.time_real)   / active)
-    % (kB(data.allocated)   / events) % (kB(data.allocated)   / active)
-    % (kB(data.deallocated) / events) % (kB(data.deallocated) / active)
+    % (events ? ms(data.time_thread) / events : 0) % (active ? ms(data.time_thread) / active : 0)
+    % (events ? ms(data.time_real)   / events : 0) % (active ? ms(data.time_real)   / active : 0)
+    % (events ? kB(data.allocated)   / events : 0) % (active ? kB(data.allocated)   / active : 0)
+    % (events ? kB(data.deallocated) / events : 0) % (active ? kB(data.deallocated) / active : 0)
     % label;
 }
 
