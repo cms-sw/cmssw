@@ -1,6 +1,52 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+ClusterSummary::ClusterSummary()
+    : userContent(nullptr), genericVariablesTmp_(6, std::vector<double>(100,0) )
+{
+}
+
+ClusterSummary::~ClusterSummary()
+{
+    delete userContent;
+    userContent = nullptr;
+}
+
+// swap function
+void ClusterSummary::swap(ClusterSummary& other)
+{
+    other.userContent.exchange(
+            userContent.exchange(other.userContent.load(std::memory_order_acquire), std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
+    std::swap(iterator_, other.iterator_);
+    std::swap(modules_, other.modules_);
+    std::swap(genericVariables_, other.genericVariables_);
+    std::swap(genericVariablesTmp_, other.genericVariablesTmp_);
+}
+
+// copy ctor
+ClusterSummary::ClusterSummary(const ClusterSummary& src)
+    : userContent(nullptr), iterator_(src.iterator_), modules_(src.modules_),
+    genericVariables_(src.genericVariables_),
+    genericVariablesTmp_(src.genericVariablesTmp_)
+{
+}
+
+// copy assingment operator
+ClusterSummary& ClusterSummary::operator=(const ClusterSummary& rhs)
+{
+    ClusterSummary temp(rhs);
+    temp.swap(*this);
+    return *this;
+}
+
+// move ctor
+ClusterSummary::ClusterSummary(ClusterSummary&& other) 
+    : ClusterSummary() 
+{
+    other.swap(*this);
+}
+
 int ClusterSummary::GetModuleLocation ( int mod ) const {
 
   int placeInModsVector = -1;
@@ -50,7 +96,46 @@ int ClusterSummary::GetModuleLocation ( int mod ) const {
 
 }
 
+void ClusterSummary::PrepairGenericVariable() { 
 
+    genericVariables_ = genericVariablesTmp_;
+
+    for (unsigned int i = 0; i < (*userContent.load(std::memory_order_acquire)).size(); ++i){
+      genericVariables_[i].erase(std::remove(genericVariables_[i].begin(), genericVariables_[i].end(), 0), genericVariables_[i].end());
+    }
+} 
+
+// Setter and Getter for the User Content. You can also return the size and what is stored in the UserContent 
+void ClusterSummary::SetUserContent(const std::vector<std::string>& Content)  const
+{
+    if(!userContent.load(std::memory_order_acquire)) {
+      auto ptr = new std::vector<std::string>;
+      for(auto i=Content.begin(); i!=Content.end(); ++i) {
+          ptr->push_back(*i);
+      }
+      //atomically try to swap this to become mItemsById
+      std::vector<std::string>* expect = nullptr;
+      bool exchanged = userContent.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
+      if(!exchanged) {
+          delete ptr;
+      }
+    }
+}
+std::vector<std::string> ClusterSummary::GetUserContent()
+{
+    return (*userContent.load(std::memory_order_acquire));
+}
+int ClusterSummary::GetUserContentSize()
+{
+    return (*userContent.load(std::memory_order_acquire)).size();
+}
+void  ClusterSummary::GetUserContentInfo() const  { 
+    std::cout << "Saving info for " ;
+    for (unsigned int i = 0; i < (*userContent.load(std::memory_order_acquire)).size(); ++i) {
+        std::cout << (*userContent.load(std::memory_order_acquire)).at(i) << " " ;
+    }
+    std::cout << std::endl;
+}
 
 int ClusterSummary::GetVariableLocation ( std::string var ) const {
 
@@ -58,7 +143,8 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
     
 
   int cnt = 0;
-  for(std::vector<std::string>::const_iterator it = userContent.begin(); it != userContent.end(); ++it) {
+  auto obj = (*userContent.load(std::memory_order_acquire));
+  for(auto it=obj.begin(); it!=obj.end(); ++it) {
 
     if ( var == (*it) ) { 
       placeInUserVector = cnt; 

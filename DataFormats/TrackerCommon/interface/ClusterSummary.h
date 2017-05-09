@@ -20,6 +20,9 @@
 #define CLUSTERSUMMARY
 
 // system include files
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include <memory>
 #include <string>
 #include <map>
@@ -122,7 +125,17 @@ class ClusterSummary {
 
  public:
   
-  ClusterSummary():genericVariablesTmp_(6, std::vector<double>(100,0) ){}
+  ClusterSummary();
+  ~ClusterSummary();
+  // swap function
+  void swap(ClusterSummary& other);
+  // copy ctor
+  ClusterSummary(const ClusterSummary& src);
+  // copy assingment operator
+  ClusterSummary& operator=(const ClusterSummary& rhs);
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  ClusterSummary(ClusterSummary&& other);
+#endif
 
   // Enum for each partition within Tracer
   enum CMSTracker { TRACKER = 0,
@@ -221,14 +234,7 @@ class ClusterSummary {
   } 
 
   //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.
-  void PrepairGenericVariable() { 
-    
-    genericVariables_ = genericVariablesTmp_;
-    
-    for (unsigned int i = 0; i < userContent.size(); ++i){
-      genericVariables_[i].erase(std::remove(genericVariables_[i].begin(), genericVariables_[i].end(), 0), genericVariables_[i].end());
-    }
-  } 
+  void PrepairGenericVariable();
 
   //Clear genericVariablesTmp_. Must be done at the end of each event.
   void ClearGenericVariable() { 
@@ -245,14 +251,10 @@ class ClusterSummary {
 
 
   // Setter and Getter for the User Content. You can also return the size and what is stored in the UserContent 
-  void SetUserContent(const std::vector<std::string>& Content)  const { userContent = Content;}
-  std::vector<std::string> GetUserContent()  { return userContent;}
-  int GetUserContentSize()  { return userContent.size(); }
-  void  GetUserContentInfo() const  { 
-    std::cout << "Saving info for " ;
-    for (unsigned int i = 0; i < userContent.size(); ++i){ std::cout << userContent.at(i) << " " ;}
-    std::cout << std::endl;
-  }
+  void SetUserContent(const std::vector<std::string>& Content)  const;
+  std::vector<std::string> GetUserContent();
+  int GetUserContentSize();
+  void  GetUserContentInfo() const;
   int GetVariableLocation ( std::string var ) const;
 
 
@@ -290,12 +292,17 @@ class ClusterSummary {
   
 
   // String which stores the name of the variables the user is getting the summary info for
-  mutable std::vector<std::string>        userContent;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  mutable std::atomic<std::vector<std::string>*>        userContent;
+#else
+  mutable std::vector<std::string>*        userContent;
+#endif
 
   std::vector<int>    iterator_;   // <number of varibale for Module1, number of varibale for Module2 ...>
   std::vector<int>    modules_;    // <Module1, Module2 ...>
 
   std::vector< std::vector<double> > genericVariables_; 
+  // CMS-THREADSAFE: this mutable member data used in non-const functions
   mutable std::vector< std::vector<double> > genericVariablesTmp_; 
 
 };
