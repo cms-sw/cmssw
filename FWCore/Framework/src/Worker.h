@@ -216,7 +216,8 @@ namespace edm {
     virtual void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
-    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
+    virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
+
 
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
@@ -334,13 +335,15 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        try {
-          //pre was called in prefetchAsync
-          m_worker->emitPostModuleEventPrefetchingSignal();
-        }catch(...) {
-          temp_excptr = std::current_exception();
-          if(not excptr) {
-            excptr = &temp_excptr;
+        if(T::isEvent_) {
+          try {
+            //pre was called in prefetchAsync
+            m_worker->emitPostModuleEventPrefetchingSignal();
+          }catch(...) {
+            temp_excptr = std::current_exception();
+            if(not excptr) {
+              excptr = &temp_excptr;
+            }
           }
         }
 
