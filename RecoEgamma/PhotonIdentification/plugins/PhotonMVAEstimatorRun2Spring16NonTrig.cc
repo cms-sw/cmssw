@@ -263,7 +263,7 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
 
   //photon iso corrected:
 
-  double eA = effectiveAreas_.getEffectiveArea( abs(superCluster->eta()) );
+  double eA = effectiveAreas_.getEffectiveArea( std::abs(superCluster->eta()) );
   double phoIsoPtScalingCoeffVal = 0;
   if( !isEndcapCategory( findCategory ( particle ) ) ) 
     phoIsoPtScalingCoeffVal = phoIsoPtScalingCoeff_.at(0); // barrel case

@@ -31,7 +31,7 @@ mvaSpring16NonTrigWeightFiles_V1 = cms.vstring(
     "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V3.weights.xml"
     )
 
-effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"
+effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased_3bins.txt"
 
 # Load some common definitions for MVA machinery
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools \
