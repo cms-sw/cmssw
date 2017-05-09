@@ -15,10 +15,13 @@ import re
 import subprocess
 import ConfigParser
 import sys
+import cPickle
 import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_trackerTree
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
@@ -273,6 +276,20 @@ def create_mass_storage_directory(mps_dir_name, general_options):
     return mss_dir
 
 
+def create_tracker_tree(global_tag, first_run):
+    """Method to create hidden 'TrackerTree.root'.
+
+    Arguments:
+    - `global_tag`: global tag from which the tracker geometry is taken
+    - `first_run`: run to specify IOV within `global_tag`
+    """
+
+    config = mpsv_iniparser.ConfigData()
+    config.jobDataPath = "."    # current directory
+    config.globalTag = global_tag
+    config.firstRun = first_run
+    return mpsv_trackerTree.check(config)
+
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
 
@@ -457,23 +474,32 @@ if args.weight:
             lib = mpslib.jobdatabase()
             lib.read_db()
 
+            # short cut for jobm path
+            jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
+
             # delete old merge-config
             command = [
                 "rm", "-f",
-                os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py")]
+                os.path.join(jobm_path, "alignment_merge.py")]
             handle_process_call(command, args.verbose)
 
             # create new merge-config
             command = [
                 "mps_merge.py",
                 "-w", thisCfgTemplate,
-                os.path.join("jobData", lib.JOBDIR[-1],"alignment_merge.py"),
-                os.path.join("jobData", lib.JOBDIR[-1]),
+                os.path.join(jobm_path, "alignment_merge.py"),
+                jobm_path,
                 str(lib.nJobs),
             ]
             if setting is not None: command.extend(["-a", setting])
             print " ".join(command)
             handle_process_call(command, args.verbose)
+            create_tracker_tree(globalTag, first_run)
+
+            # store weights configuration
+            with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
+                cPickle.dump(weight_conf, f, 2)
+
 
     # remove temporary file
     handle_process_call(["rm", thisCfgTemplate])
@@ -693,9 +719,7 @@ for setting in pedesettings:
         for name,weight in weight_conf:
             handle_process_call(["mps_weight.pl", "-N", name, weight], True)
 
-        if firstPedeConfig:
-            firstPedeConfig = False
-        else:
+        if not firstPedeConfig:
             # create new mergejob
             handle_process_call(["mps_setupm.pl"], True)
 
@@ -703,10 +727,11 @@ for setting in pedesettings:
         lib = mpslib.jobdatabase()
         lib.read_db()
 
+        # short cut for jobm path
+        jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
+
         # delete old merge-config
-        command = [
-            "rm", "-f",
-            os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py")]
+        command = ["rm", "-f", os.path.join(jobm_path, "alignment_merge.py")]
         handle_process_call(command, args.verbose)
 
         thisCfgTemplate = "tmp.py"
@@ -717,13 +742,24 @@ for setting in pedesettings:
         command = [
             "mps_merge.py",
             "-w", thisCfgTemplate,
-            os.path.join("jobData", lib.JOBDIR[-1], "alignment_merge.py"),
-            os.path.join("jobData", lib.JOBDIR[-1]),
+            os.path.join(jobm_path, "alignment_merge.py"),
+            jobm_path,
             str(lib.nJobs),
         ]
         if setting is not None: command.extend(["-a", setting])
         print " ".join(command)
         handle_process_call(command, args.verbose)
+        tracker_tree_path = create_tracker_tree(datasetOptions["globaltag"],
+                                                generalOptions["FirstRunForStartGeometry"])
+        if firstPedeConfig:
+            os.symlink(tracker_tree_path,
+                       os.path.abspath(os.path.join(jobm_path,
+                                                    ".TrackerTree.root")))
+            firstPedeConfig = False
+
+        # store weights configuration
+        with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
+            cPickle.dump(weight_conf, f, 2)
 
     # remove temporary file
     handle_process_call(["rm", thisCfgTemplate])
