@@ -1,5 +1,5 @@
-#ifndef MuonTiming_H
-#define MuonTiming_H
+#ifndef DQMOffline_Muon_MuonTiming_H
+#define DQMOffline_Muon_MuonTiming_H
 
 /** \class MuRecoAnalyzer
  *
