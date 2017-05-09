@@ -28,7 +28,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
-
 // Define typedefs for convenience
 namespace pat {
   class Muon;
@@ -210,7 +209,7 @@ namespace pat {
       /// not be set, but the "getters" will return the appropriate
       /// value. The exception is dB which requires the beamline
       //  as external input. 
-
+	
 	// ---- embed various impact parameters with errors ----
 	//
 	// example:
@@ -333,7 +332,6 @@ namespace pat {
       float puppiNoLeptonsPhotonIso_;
 
       float pfEcalEnergy_;
-
   };
 
 
