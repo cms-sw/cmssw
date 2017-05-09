@@ -109,7 +109,9 @@
    <version ClassVersion="3" checksum="550880582"/>
   </class>
 
-  <class name="pat::PFIsolation" />
+  <class name="pat::PFIsolation" ClassVersion="3">
+    <version ClassVersion="3" checksum="2961562419" />
+  </class>
 
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
