@@ -143,19 +143,18 @@ def _findIndicesByModule(name):
             ret.append(i)
    return ret
 
-# from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 # kill tracks in the HGCal
-# this is currently killing pfmuons - add fix later
-#_insertGeneralTracksImporter = {}
-#for idx in _findIndicesByModule('GeneralTracksImporter'):
-#    _insertGeneralTracksImporter[idx] = dict(
-#        importerName = cms.string('GeneralTracksImporterWithVeto'),
-#        veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
-#    )
-#phase2_hgcal.toModify(
-#    particleFlowBlock,
-#    elementImporters = _insertGeneralTracksImporter
-#)
+_insertGeneralTracksImporter = {}
+for idx in _findIndicesByModule('GeneralTracksImporter'):
+    _insertGeneralTracksImporter[idx] = dict(
+        importerName = cms.string('GeneralTracksImporterWithVeto'),
+        veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+    )
+phase2_hgcal.toModify(
+    particleFlowBlock,
+    elementImporters = _insertGeneralTracksImporter
+)
 ### for later
 #_phase2_hgcal_Linkers.append( 
 #    cms.PSet( linkerName = cms.string("SCAndHGCalLinker"),
