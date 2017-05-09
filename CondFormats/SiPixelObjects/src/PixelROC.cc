@@ -53,7 +53,8 @@ PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
 // }
 
 // works for phase 1, find det side from the local method
-void PixelROC::initFrameConversionPhase1() {
+// Frame conversion compatible with CMSSW_9_0_X Monte Carlo samples
+void PixelROC::initFrameConversionPhase1_CMSSW_9_0_X() {
   int side = 0;
   bool isBarrel = PixelModuleName::isBarrel(theDetUnit);
   if(isBarrel) {
@@ -63,6 +64,22 @@ void PixelROC::initFrameConversionPhase1() {
   }
 
   theFrameConverter = FrameConversion(isBarrel,side, theIdDU);
+
+}
+
+// works for phase 1, find det side from the local method
+void PixelROC::initFrameConversionPhase1() {
+  int side = 0;
+  int layer = 0;
+  bool isBarrel = PixelModuleName::isBarrel(theDetUnit);
+  if(isBarrel) {
+    side = bpixSidePhase1(theDetUnit); // find the side for phase1
+    layer = bpixLayerPhase1(theDetUnit);
+  } else {
+    side = fpixSidePhase1(theDetUnit);
+  }
+
+  theFrameConverter = FrameConversion(isBarrel, side, layer, theIdDU);
 
 }
 
