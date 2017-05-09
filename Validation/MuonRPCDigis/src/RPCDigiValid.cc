@@ -123,6 +123,16 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         if (Rsid.station() == 4)
           BxDisc_4Min->Fill(digiIt->bx());
       }
+
+      // Fill timing information
+      const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx()*25;
+      hDigiTimeAll->Fill(digiTime);
+      if ( digiIt->hasTime() ) {
+        hDigiTime->Fill(digiTime);
+        if ( roll->isIRPC() ) hDigiTimeIRPC->Fill(digiTime);
+        else hDigiTimeNoIRPC->Fill(digiTime);
+      }
+
       ndigi++;
     }
 
@@ -348,5 +358,11 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run
   Res_Endcap123_Ring3_A = booker.book1D("Res_Endcap123_Ring3_A", "Res_Endcap123_Ring3_A", 400, -8, 8);
   Res_Endcap123_Ring3_B = booker.book1D("Res_Endcap123_Ring3_B", "Res_Endcap123_Ring3_B", 400, -8, 8);
   Res_Endcap123_Ring3_C = booker.book1D("Res_Endcap123_Ring3_C", "Res_Endcap123_Ring3_C", 400, -8, 8);
+
+  // Timing informations
+  hDigiTimeAll    = booker.book1D("DigiTimeAll"   , "Digi time including present electronics;Digi time (ns)", 150, -12.5, 12.5);
+  hDigiTime       = booker.book1D("DigiTime"      , "Digi time only with timing information;Digi time (ns)", 150, -12.5, 12.5);
+  hDigiTimeIRPC   = booker.book1D("DigiTimeIRPC"  , "IRPC Digi time;Digi time (ns)", 150, -12.5, 12.5);
+  hDigiTimeNoIRPC = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 150, -12.5, 12.5);
 }
 

@@ -100,6 +100,9 @@ private:
   MonitorElement *xyvDmin4;
   MonitorElement *CLS_Endcap_4;
 
+  // Timing information
+  MonitorElement* hDigiTimeAll, * hDigiTime, * hDigiTimeIRPC, *hDigiTimeNoIRPC;
+
   std::string outputFile_;
   std::string digiLabel;
 
