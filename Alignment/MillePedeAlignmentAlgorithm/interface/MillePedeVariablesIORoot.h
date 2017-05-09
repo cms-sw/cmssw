@@ -15,6 +15,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentUserVariablesIO.h"
 
+#include <string>
 #include <vector>
 
 // ROOT types:
@@ -78,6 +79,8 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
   UInt_t       myHitsX;
   UInt_t       myHitsY;
   UInt_t       myLabel;
+  std::string  myName;
+  std::string* myNamePtr;	// needed for ROOT IO
 };
 
 #endif
