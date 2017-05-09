@@ -5,7 +5,6 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include <limits>
 
 using namespace pat;
@@ -30,8 +29,7 @@ Muon::Muon() :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -55,8 +53,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -80,8 +77,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     normChi2_(0.0),
     cachedNumberOfValidHits_(0),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -105,8 +101,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     normChi2_(0.0),
     cachedNumberOfValidHits_(0),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    miniPFIsolation_(pat::MiniIsolation({9999.,9999.,9999.,9999.}))
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }

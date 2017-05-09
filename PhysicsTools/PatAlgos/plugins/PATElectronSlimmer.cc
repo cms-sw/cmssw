@@ -42,6 +42,8 @@ namespace pat {
     const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
     const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
     const edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
+    std::vector<double> miniIsoParamsE;
+    std::vector<double> miniIsoParamsB;
     const bool linkToPackedPF_;
     const bool computeMiniIso_;
     const StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
@@ -87,6 +89,9 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
 
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+
+    miniIsoParamsE = iConfig.getParameter<std::vector<double> >("miniIsoParamsE");
+    miniIsoParamsB = iConfig.getParameter<std::vector<double> >("miniIsoParamsB");
 
     produces<std::vector<pat::Electron> >();
 }
@@ -142,17 +147,20 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
 
         if(computeMiniIso_){
-            pat::MiniIsolation miniiso;
-            // veto on candidates in deadcone only in endcap
-            if(fabs(electron.p4().eta()) > 1.479)
-                miniiso = pat::GetMiniPFIsolation(pc.product(), electron.p4(), 0.05, 0.2, 10., 0.0, 0.015, 0.015, 0.08, 0.);
+            pat::PFIsolation miniiso;
+            if(fabs(electron.isEE()))
+                miniiso = pat::getMiniPFIsolation(pc.product(), electron.p4(),
+                                                  miniIsoParamsE[0], miniIsoParamsE[1], miniIsoParamsE[2],
+                                                  miniIsoParamsE[3], miniIsoParamsE[4], miniIsoParamsE[5],
+                                                  miniIsoParamsE[6], miniIsoParamsE[7], miniIsoParamsE[8]);
             else
-                miniiso = pat::GetMiniPFIsolation(pc.product(), electron.p4(), 0.05, 0.2, 10., 0.0, 0., 0., 0., 0.);
-            electron.setMiniPFIsolation(miniiso);
-        }else{
-            pat::MiniIsolation miniiso = {9999., 9999., 9999., 9999.};
+                miniiso = pat::getMiniPFIsolation(pc.product(), electron.p4(),
+                                                  miniIsoParamsB[0], miniIsoParamsB[1], miniIsoParamsB[2],
+                                                  miniIsoParamsB[3], miniIsoParamsB[4], miniIsoParamsB[5],
+                                                  miniIsoParamsB[6], miniIsoParamsB[7], miniIsoParamsB[8]);
             electron.setMiniPFIsolation(miniiso);
         }
+
 
         if (linkToPackedPF_) {
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
