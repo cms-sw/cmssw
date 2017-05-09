@@ -95,6 +95,21 @@ trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProduce
     CAPhiCut = 0.05,
 ))
 
+trackingPhase2PU140.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
+trackingPhase2PU140.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
+    doublets = "lowPtTripletStepHitDoublets",
+    extraHitRPhitolerance = lowPtTripletStepHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = lowPtTripletStepHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 70 , value2 = 8,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.002,
+    CAPhiCut = 0.05,
+))
+ 
+
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff

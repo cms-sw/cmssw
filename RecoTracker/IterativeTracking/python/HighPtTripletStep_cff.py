@@ -96,14 +96,14 @@ highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
 )
 
 trackingPhase1QuadProp.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
-trackingPhase2PU140.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
+#trackingPhase2PU140.toModify(highPtTripletStepHitDoublets, layerPairs = [0]) # layer pair (0,1)
 _highPtTripletStepHitTriplets_propagation = _pixelTripletHLTEDProducer.clone(
     doublets = "highPtTripletStepHitDoublets",
     produceSeedingHitSets = True,
     SeedComparitorPSet = highPtTripletStepHitTriplets.SeedComparitorPSet,
 )
 trackingPhase1QuadProp.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
-trackingPhase2PU140.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
+#trackingPhase2PU140.toReplaceWith(highPtTripletStepHitTriplets, _highPtTripletStepHitTriplets_propagation)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
