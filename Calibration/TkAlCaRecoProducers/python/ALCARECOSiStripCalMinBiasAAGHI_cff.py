@@ -8,6 +8,7 @@ ALCARECOSiStripCalMinBiasAAGHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighL
 ##     #Minimum Bias
 ##     "HLT_MinBias*"
 ##     ],
+    # GF: we'll want to change this key to SiStripCalMinBiasAAGHI --> update triggerbits first
     eventSetupPathsKey = 'SiStripCalMinBiasAfterAbortGapHI',
     throw = False # tolerate triggers stated above, but not available
     )

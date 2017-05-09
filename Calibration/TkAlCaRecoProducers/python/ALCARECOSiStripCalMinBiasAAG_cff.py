@@ -8,7 +8,7 @@ ALCARECOSiStripCalMinBiasAAGHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighL
 ##     #Minimum Bias
 ##     "HLT_MinBias*"
 ##     ],
-    eventSetupPathsKey = 'SiStripCalMinBiasAfterAbortGap',
+    eventSetupPathsKey = 'SiStripCalMinBiasAAG',
     throw = False # tolerate triggers stated above, but not available
     )
 
