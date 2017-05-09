@@ -45,7 +45,6 @@ class L1MuDTTFConfig {
     virtual ~L1MuDTTFConfig();
 
     static edm::InputTag getDTDigiInputTag() { return m_DTDigiInputTag; }
-    static edm::InputTag getDTDigiThInputTag() { return m_DTDigiThInputTag; }
     static edm::InputTag getCSCTrSInputTag() { return m_CSCTrSInputTag; }
  
     static bool Debug() { return m_debug; }
@@ -80,7 +79,6 @@ class L1MuDTTFConfig {
     const edm::ParameterSet* m_ps;
 
     static edm::InputTag m_DTDigiInputTag;
-    static edm::InputTag m_DTDigiThInputTag;
     static edm::InputTag m_CSCTrSInputTag;
 
     static bool   m_debug;             // debug flag 
