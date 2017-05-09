@@ -134,6 +134,9 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     Handle<MeasurementTrackerEvent> measurementTracker;
     iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
+    ESHandle<TrackerGeometry> tmpTkGeometry;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+
     Handle<View<reco::Muon> > src;
     iEvent.getByToken(src_, src);
 
@@ -153,7 +156,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(*trackerPropagator_, alongMomentum);
 
         int sizeBefore = out->size();
-        if (debug_) std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
+        if (debug_) LogDebug("OutsideInMuonSeeder") << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
         const reco::Track &tk = *mu.outerTrack();
 
         TrajectoryStateOnSurface state;
@@ -166,9 +169,12 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (std::abs(tk.eta()) < maxEtaForTOB_) {
             std::vector< BarrelDetLayer const* > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
-            int iLayer = 6, found = 0;
+            int found = 0;
+            int iLayer = tob.size();
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TOB has no layers." ;
+
             for (auto it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
+                if (debug_) LogDebug("OutsideInMuonSeeder") << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -178,10 +184,19 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }
         if (tk.eta() > minEtaForTEC_) {
-            int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
-            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
+            const auto& forwLayers = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                     measurementTracker->geometricSearchTracker()->posTidLayers() : measurementTracker->geometricSearchTracker()->posTecLayers();
+            if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+              LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID+). ";
+            }
+            LogTrace("OutsideInMuonSeeder") << "\n ==== TEC+ tot layers " << forwLayers.size() << " ====" << std::endl;
+            int found = 0;
+            int iLayer = forwLayers.size(); 
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC+ has no layers." ;
+
+            if (debug_) LogDebug("OutsideInMuonSeeder") << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
+                if (debug_) LogDebug("OutsideInMuonSeeder") << "\n ==== Trying Forward Layer +" << +iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -191,10 +206,19 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }
         if (tk.eta() < -minEtaForTEC_) {
-            int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
-            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
-                if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
+            const auto& forwLayers = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                     measurementTracker->geometricSearchTracker()->negTidLayers() : measurementTracker->geometricSearchTracker()->negTecLayers();
+            if (tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC)) {
+              LogDebug("OutsideInMuonSeeder") << "\n We are using the Phase2 Outer Tracker (defined as a TID-). ";
+            }
+            LogTrace("OutsideInMuonSeeder") << "\n ==== TEC- tot layers " << forwLayers.size() << " ====" << std::endl;
+            int found = 0;
+            int iLayer = forwLayers.size(); 
+            if(iLayer==0) LogError("OutsideInMuonSeeder") << "TEC- has no layers." ;
+
+            if (debug_) LogDebug("OutsideInMuonSeeder") << "\n ==== Tot layers " << forwLayers.size() << " ====" << std::endl;
+            for (auto it = forwLayers.rbegin(), ed = forwLayers.rend(); it != ed; ++it, --iLayer) {
+                if (debug_) LogDebug("OutsideInMuonSeeder") << "\n ==== Trying Forward Layer -" << -iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
                             *(ptracker_cloned.get()),
@@ -203,7 +227,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                 }
             }
         }
-        if (debug_) std::cout << "Outcome of seeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << ": found " << (out->size() - sizeBefore) << " seeds."<< std::endl;
+        if (debug_) LogDebug("OutsideInMuonSeeder") << "Outcome of seeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << ": found " << (out->size() - sizeBefore) << " seeds."<< std::endl;
 
     }
 
@@ -223,7 +247,7 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
     layer.compatibleDetsV(onLayer, muon_propagator, *estimator_, dets);
 
     if (debug_) {
-        std::cout << "Query on layer around x = " << onLayer.globalPosition() <<
+        LogDebug("OutsideInMuonSeeder") << "Query on layer around x = " << onLayer.globalPosition() <<
             " with local pos error " << sqrt(onLayer.localError().positionError().xx()) << " ,  " << sqrt(onLayer.localError().positionError().yy()) << " ,  " <<
             " returned " << dets.size() << " compatible detectors" << std::endl;
     }
@@ -234,7 +258,7 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
         if (det.isNull()) { std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl; continue; }
         if (!it->second.isValid()) continue;
         std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, state, tracker_propagator, *estimator_);
-        if (debug_) std::cout << "Query on detector " << it->first->geographicalId().rawId() << " returned " << mymeas.size() << " measurements." << std::endl;
+        if (debug_) LogDebug("OutsideInMuonSeeder") << "Query on detector " << it->first->geographicalId().rawId() << " returned " << mymeas.size() << " measurements." << std::endl;
         for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
             if (it2->recHit()->isValid()) meas.push_back(*it2);
         }
@@ -243,13 +267,13 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
     std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
     for (std::vector<TrajectoryMeasurement>::const_iterator it2 = meas.begin(), ed2 = meas.end(); it2 != ed2; ++it2) {
         if (debug_) {
-            std::cout << "  inspecting Hit with chi2 = " << it2->estimate() << std::endl;
-            std::cout << "        track state     " << it2->forwardPredictedState().globalPosition() << std::endl;
-            std::cout << "        rechit position " << it2->recHit()->globalPosition() << std::endl;
+            LogDebug("OutsideInMuonSeeder") << "  inspecting Hit with chi2 = " << it2->estimate() << std::endl;
+            LogDebug("OutsideInMuonSeeder") << "        track state     " << it2->forwardPredictedState().globalPosition() << std::endl;
+            LogDebug("OutsideInMuonSeeder") << "        rechit position " << it2->recHit()->globalPosition() << std::endl;
         }
         TrajectoryStateOnSurface updated = updator_->update(it2->forwardPredictedState(), *it2->recHit());
         if (updated.isValid()) {
-            if (debug_) std::cout << "          --> updated state: x = " << updated.globalPosition() << ", p = " << updated.globalMomentum() << std::endl;
+            if (debug_) LogDebug("OutsideInMuonSeeder") << "          --> updated state: x = " << updated.globalPosition() << ", p = " << updated.globalMomentum() << std::endl;
             edm::OwnVector<TrackingRecHit> seedHits;
             seedHits.push_back(*it2->recHit()->hit());
             PTrajectoryStateOnDet const & pstate = trajectoryStateTransform::persistentState(updated, it2->recHit()->geographicalId().rawId());
@@ -271,11 +295,11 @@ OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
         if (det == 0) continue;
         if (i != 0) tsos = pmuon_cloned->propagate(tsos, det->surface());
         if (!tsos.isValid()) continue;
-        std::cout << "  state " << i << " at x = " << tsos.globalPosition() << ", p = " << tsos.globalMomentum() << std::endl;
+        LogDebug("OutsideInMuonSeeder") << "  state " << i << " at x = " << tsos.globalPosition() << ", p = " << tsos.globalMomentum() << std::endl;
         if (hit->isValid()) {
-            std::cout << "         valid   rechit on detid " << hit->geographicalId().rawId() << std::endl;
+            LogDebug("OutsideInMuonSeeder") << "         valid   rechit on detid " << hit->geographicalId().rawId() << std::endl;
         } else {
-            std::cout << "         invalid rechit on detid " << hit->geographicalId().rawId() << std::endl;
+            LogDebug("OutsideInMuonSeeder") << "         invalid rechit on detid " << hit->geographicalId().rawId() << std::endl;
         }
     }
 }

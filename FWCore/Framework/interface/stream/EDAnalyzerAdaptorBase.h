@@ -86,7 +86,7 @@ namespace edm {
       //Same interface as EDConsumerBase
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
 
       void updateLookup(BranchType iBranchType,
                         ProductResolverIndexHelper const&,
