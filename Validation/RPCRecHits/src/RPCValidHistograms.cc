@@ -32,6 +32,11 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   nMatchHitBarrel = booker.book1D("nMatchBarrel", "Number of matched reference hits per event in Barrel;Number of RPC hits", 25, 0, 25);
   nMatchHitEndcap = booker.book1D("nMatchEndcap", "Number of matched reference hits per event in Endcap;Number of RPC hits", 25, 0, 25);
 
+  timeBarrel = booker.book1D("RecHitTimeBarrel", "RecHit time in Barrel;Time (ns)", 100, -12.5, 12.5);
+  timeEndcap = booker.book1D("RecHitTimeEndcap", "RecHit time in Endcap;Time (ns)", 100, -12.5, 12.5);
+  timeIRPC = booker.book1D("RecHitTimeIRPC", "RecHit time of iRPC;Time (ns)", 100, -12.5, 12.5);
+  timeCRPC = booker.book1D("RecHitTimeCPRC", "RecHit time in current RPC;Time (ns)", 100, -12.5, 12.5);
+
   clusterSize->getTH1()->SetMinimum(0);
   clusterSizeBarrel->getTH1()->SetMinimum(0);
   clusterSizeEndcap->getTH1()->SetMinimum(0);

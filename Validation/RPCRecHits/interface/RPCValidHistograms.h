@@ -28,6 +28,8 @@ struct RPCValidHistograms
   MEP nRecHitBarrel, nRecHitEndcap;
   MEP nMatchHitBarrel, nMatchHitEndcap;
 
+  MEP timeBarrel, timeEndcap, timeIRPC, timeCRPC;
+
   // Occupancy 1D
   MEP refHitOccupancyBarrel_wheel, refHitOccupancyEndcap_disk, refHitOccupancyBarrel_station;
   MEP recHitOccupancyBarrel_wheel, recHitOccupancyEndcap_disk, recHitOccupancyBarrel_station;
