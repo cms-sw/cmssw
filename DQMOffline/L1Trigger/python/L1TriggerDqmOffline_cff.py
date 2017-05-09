@@ -257,3 +257,112 @@ l1TriggerStage1Clients.remove(l1tTestsSummary)
 #l1EmulatorMonitorClient.remove(l1EmulatorQualityTests)
 l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 #l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
+
+#stage2 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+
+from L1Trigger.L1TGlobal.hackConditions_cff import *
+from L1Trigger.L1TMuon.hackConditions_cff import *
+from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+
+from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
+l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")
+l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
+from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
+l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
+from DQMOffline.L1Trigger.L1TEfficiencyMuons_Offline_cfi import *
+
+from Configuration.StandardSequences.Eras import eras
+from DQM.L1TMonitor.L1TStage2_cff import *
+from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import *
+
+stage2UnpackPath = cms.Sequence(
+     l1tCaloLayer1Digis +
+     caloStage2Digis +
+     bmtfDigis  +
+#     BMTFStage2Digis +
+     emtfStage2Digis +
+     gmtStage2Digis +
+     gtStage2Digis
+)
+
+##Stage 2 Emulator
+
+from DQM.L1TMonitor.L1TStage2Emulator_cff import *
+from DQM.L1TMonitorClient.L1TStage2CaloLayer2DEClient_cfi import *
+from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import *
+# L1T monitor client sequence (system clients and quality tests)
+l1TStage2EmulatorClients = cms.Sequence(
+                        l1tStage2CaloLayer2DEClient
+                        # l1tStage2EmulatorEventInfoClient 
+                        )
+
+l1tStage2EmulatorMonitorClient = cms.Sequence(
+                        # l1TStage2EmulatorQualityTests +
+                        l1TStage2EmulatorClients
+                        )
+
+#
+# define sequences
+#
+
+Stage2l1TriggerOnline = cms.Sequence(
+                               stage2UnpackPath
+                                * l1tStage2OnlineDQM
+                                * dqmEnvL1T
+                               )
+
+
+
+
+Stage2l1TriggerOffline = cms.Sequence(
+                                Stage2l1TriggerOnline *
+                                dqmEnvL1TriggerReco *
+                                l1tStage2CaloLayer2OfflineDQM *
+                                l1tEGammaOfflineDQM
+
+                                )
+
+#
+from L1Trigger.Configuration.ValL1Emulator_cff import *
+
+Stage2l1TriggerEmulatorOnline = cms.Sequence(
+                                 valHcalTriggerPrimitiveDigis +
+                                 Stage2L1HardwareValidation +
+                                 l1tStage2EmulatorOnlineDQM +
+                                 dqmEnvL1TEMU
+                                )
+
+Stage2l1TriggerEmulatorOffline = cms.Sequence(
+                                Stage2l1TriggerEmulatorOnline +
+                                l1tStage2CaloLayer2OfflineDQMEmu +
+                                l1tEGammaOfflineDQMEmu
+                                )
+
+#
+
+# DQM Offline Step 1 sequence
+Stage2l1TriggerDqmOffline = cms.Sequence(
+                                Stage2l1TriggerOffline
+ #                               * l1tRate_Offline
+  #                              * l1tSync_Offline
+                                * Stage2l1TriggerEmulatorOffline
+                                * l1tEfficiencyMuons_offline
+                                )
+
+# DQM Offline Step 2 sequence                                 
+Stage2l1TriggerDqmOfflineClient = cms.Sequence(
+                                l1tStage2EmulatorMonitorClient *
+                                l1tStage2MonitorClient *
+                                l1tEfficiencyMuons_Harvesting
+                                )
+
+
+#replacements for stage2
+stage2L1Trigger.toReplaceWith(l1TriggerOnline, Stage2l1TriggerOnline)
+stage2L1Trigger.toReplaceWith(l1TriggerOffline, Stage2l1TriggerOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOnline, Stage2l1TriggerEmulatorOnline)
+stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOffline, Stage2l1TriggerEmulatorOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOffline, Stage2l1TriggerDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, Stage2l1TriggerDqmOfflineClient)
+stage2L1Trigger.toReplaceWith(l1EmulatorMonitorClient,l1tStage2EmulatorMonitorClient)
