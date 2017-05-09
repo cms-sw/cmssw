@@ -35,7 +35,7 @@ namespace {
 }
 
 TrackerGeometry*
-TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::ParameterSet& pSet )
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDetPtr gd, const edm::ParameterSet& pSet )
 {
   bool upgradeGeometry = false;
   int BIG_PIX_PER_ROC_X = 1;
@@ -53,16 +53,16 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   theStripDetTypeMap.clear();
    
   TrackerGeometry* tracker = new TrackerGeometry(gd);
-  std::vector<const GeometricDet*> comp;
+  GeometricDet::ConstGeometricDetContainer comp;
   gd->deepComponents(comp);
 
-  std::vector<const GeometricDet*> dets[6];
-  std::vector<const GeometricDet*> & pixB = dets[0]; pixB.reserve(comp.size());
-  std::vector<const GeometricDet*> & pixF = dets[1]; pixF.reserve(comp.size());
-  std::vector<const GeometricDet*> & tib  = dets[2];  tib.reserve(comp.size());
-  std::vector<const GeometricDet*> & tid  = dets[3];  tid.reserve(comp.size());
-  std::vector<const GeometricDet*> & tob  = dets[4];  tob.reserve(comp.size());
-  std::vector<const GeometricDet*> & tec  = dets[5];  tec.reserve(comp.size());
+  GeometricDet::ConstGeometricDetContainer dets[6];
+  auto & pixB = dets[0]; pixB.reserve(comp.size());
+  auto & pixF = dets[1]; pixF.reserve(comp.size());
+  auto & tib  = dets[2];  tib.reserve(comp.size());
+  auto & tid  = dets[3];  tid.reserve(comp.size());
+  auto & tob  = dets[4];  tob.reserve(comp.size());
+  auto & tec  = dets[5];  tec.reserve(comp.size());
 
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
@@ -87,7 +87,8 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   return tracker;
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
+void TrackerGeomBuilderFromGeometricDet::buildPixel(
+                            const GeometricDet::ConstGeometricDetContainer& gdv,
 						    TrackerGeometry* tracker,
 						    GeomDetType::SubDetector det,
 						    bool upgradeGeometry,
@@ -125,7 +126,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
+void TrackerGeomBuilderFromGeometricDet::buildSilicon(
+                              const GeometricDet::ConstGeometricDetContainer& gdv,
 						      TrackerGeometry* tracker,
 						      GeomDetType::SubDetector det,
 						      const std::string& part)

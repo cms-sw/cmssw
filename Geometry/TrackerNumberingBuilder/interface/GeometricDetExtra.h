@@ -10,7 +10,6 @@
 /* #include "DataFormats/GeometrySurface/interface/Surface.h" */
 /* #include "DataFormats/GeometrySurface/interface/Bounds.h" */
 #include "DataFormats/DetId/interface/DetId.h"
-
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -42,12 +41,13 @@ class GeometricDetExtra {
    *
    */
   ~GeometricDetExtra();
+  // swap function
+  void swap(GeometricDetExtra& other);
+  // copy-ctor
+  GeometricDetExtra(const GeometricDetExtra& src);
+  // copy assignment operator
+  GeometricDetExtra& operator=(const GeometricDetExtra& rhs);
   
-  /*
-    GeometricDetExtra(const GeometricDetExtra &);
-  
-  GeometricDetExtra & operator=( const GeometricDetExtra & );
-  */
   /**
    * get and set associated GeometricDet 
    * DOES NO CHECKING!
@@ -58,9 +58,8 @@ class GeometricDetExtra {
   /**
    * set or add or clear components
    */
-  void setGeographicalId(DetId id) const {
-    _geographicalId = id; 
-    //std::cout <<"setGeographicalId " << int(id) << std::endl;
+  void setGeographicalId(DetId id) {
+      _geographicalId = id;
   }
   DetId geographicalId() const { return _geographicalId; }
   //rr
@@ -108,8 +107,6 @@ class GeometricDetExtra {
   /** Data members **/
 
   GeometricDet const* _mygd;  
-  //FIXME WHY? FROM GeometricDet comment 
-  mutable DetId _geographicalId;
   GeoHistory _parents;
   double _volume;
   double _density;
@@ -118,6 +115,7 @@ class GeometricDetExtra {
   std::string _material;
   std::string _name;
   bool _fromDD; // may not need this, keep an eye on it.
+  DetId _geographicalId;
 };
 
 #undef PoolAlloc

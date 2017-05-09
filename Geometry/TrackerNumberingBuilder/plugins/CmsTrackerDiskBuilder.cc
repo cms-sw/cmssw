@@ -22,45 +22,41 @@ PhiSort( const GeometricDet* Panel1, const GeometricDet* Panel2 )
 }
 
 void
-CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
-						  std::vector< GeometricDet const *>::iterator end )
+CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( GeometricDet::GeometricDetContainer::iterator begin,
+						  GeometricDet::GeometricDetContainer::iterator end )
 {
   // first sort in phi, lowest first (-pi to +pi)
   std::sort( begin, end, PhiSort );
 
   // now put positive phi (in order) ahead of negative phi as in std geometry
-  std::vector<const GeometricDet*> theCompsPosNeg;
+  GeometricDet::GeometricDetContainer theCompsPosNeg;
   theCompsPosNeg.empty();
   theCompsPosNeg.clear();
   // also find the average radius (used to split inner and outer disk panels)
   double theRmin = (**begin).rho();
   double theRmax = theRmin;
-  for(vector<const GeometricDet*>::const_iterator it=begin;
-      it!=end;it++){
+  for(auto it=begin;it!=end;it++){
     if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
     theRmin = std::min( theRmin, (**it).rho());
     theRmax = std::max( theRmax, (**it).rho());
   }
-  for(vector<const GeometricDet*>::const_iterator it=begin;
-      it!=end;it++){
+  for(auto it=begin;it!=end;it++){
     if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
   }
 
   // now put inner disk panels first
   double radius_split = 0.5 * (theRmin + theRmax);
-  std::vector<const GeometricDet*> theCompsInnerOuter;
+  GeometricDet::GeometricDetContainer theCompsInnerOuter;
   theCompsInnerOuter.empty();
   theCompsInnerOuter.clear();
   //unsigned int num_inner = 0;
-  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
-      it!=theCompsPosNeg.end();it++){
+  for(auto it=theCompsPosNeg.begin();it!=theCompsPosNeg.end();it++){
     if((**it).rho() <= radius_split) {
       theCompsInnerOuter.push_back(*it);
       //num_inner++;
     }
   }
-  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
-      it!=theCompsPosNeg.end();it++){
+  for(auto it=theCompsPosNeg.begin();it!=theCompsPosNeg.end();it++){
     if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
   }
   //std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;

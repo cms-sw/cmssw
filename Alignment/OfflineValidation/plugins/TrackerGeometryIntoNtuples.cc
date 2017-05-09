@@ -172,7 +172,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,theParameterSet); 
+    auto ptr = GeometricDetPtr(const_cast<GeometricDet*>(&(*theGeometricDet)));
+	TrackerGeometry* theCurTracker = trackerBuilder.build(ptr,theParameterSet); 
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;

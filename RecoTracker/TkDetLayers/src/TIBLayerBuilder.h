@@ -15,12 +15,12 @@
 class TIBLayerBuilder {  
  public:
   TIBLayerBuilder(){};
-  TIBLayer* build(const GeometricDet* aTIBLayer,
+  TIBLayer* build(const GeometricDetPtr aTIBLayer,
 		  const TrackerGeometry* theGeomDetGeometry);
 
-  void constructRings(std::vector<const GeometricDet*>& theGeometricRods,
-		      std::vector<std::vector<const GeometricDet*> >& innerGeometricDetRings,
-		      std::vector<std::vector<const GeometricDet*> >& outerGeometricDetRings);
+  void constructRings(std::vector<GeometricDetPtr>& theGeometricRods,
+		      std::vector<std::vector<GeometricDetPtr> >& innerGeometricDetRings,
+		      std::vector<std::vector<GeometricDetPtr> >& outerGeometricDetRings);
   
 };
 

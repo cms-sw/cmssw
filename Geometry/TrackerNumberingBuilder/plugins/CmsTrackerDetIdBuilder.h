@@ -16,7 +16,7 @@ public:
   CmsTrackerDetIdBuilder( unsigned int layerNumberPXB );
   GeometricDet* buildId( GeometricDet *det );  
 protected:
-  void iterate( GeometricDet const *det, int level, unsigned int ID );
+  void iterate( GeometricDet *det, int level, unsigned int ID );
   
 private:
   // This is the map between detid and navtype to restore backward compatibility between 12* and 13* series

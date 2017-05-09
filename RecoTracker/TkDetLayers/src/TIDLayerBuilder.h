@@ -15,7 +15,7 @@
 class TIDLayerBuilder {  
  public:
   TIDLayerBuilder(){};
-  TIDLayer* build(const GeometricDet* aTIDLayer,
+  TIDLayer* build(const GeometricDetPtr aTIDLayer,
 		  const TrackerGeometry* theGeomDetGeometry);
 
    

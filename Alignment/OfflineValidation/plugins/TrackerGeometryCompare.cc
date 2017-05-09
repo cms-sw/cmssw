@@ -361,7 +361,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params); 
+    auto gdptr = GeometricDetPtr(const_cast<GeometricDet*>(&(*theGeometricDet)));
+	TrackerGeometry* theRefTracker = trackerBuilder.build(gdptr, m_params); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -402,7 +403,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,m_params); 
+    auto gdptr2 = GeometricDetPtr(const_cast<GeometricDet*>(&(*theGeometricDet)));
+	TrackerGeometry* theCurTracker = trackerBuilder.build(gdptr2,m_params); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),

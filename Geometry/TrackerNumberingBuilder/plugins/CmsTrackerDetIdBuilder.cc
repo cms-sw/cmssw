@@ -24,7 +24,7 @@ CmsTrackerDetIdBuilder::buildId( GeometricDet* tracker )
 }
 
 void
-CmsTrackerDetIdBuilder::iterate( GeometricDet const *in, int level, unsigned int ID )
+CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
 {
   std::bitset<32> binary_ID(ID);
 

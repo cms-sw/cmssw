@@ -15,17 +15,19 @@ class StripGeomDetType;
 class TrackerGeomBuilderFromGeometricDet {
 public:
 
-  TrackerGeometry* build(const GeometricDet* gd, const edm::ParameterSet& pSet );
+  TrackerGeometry* build(const GeometricDetPtr gd, const edm::ParameterSet& pSet );
 
 private:
 
-  void buildPixel(std::vector<const GeometricDet*> const &,
+  void buildPixel(
+          const GeometricDet::ConstGeometricDetContainer& gdv,
 		  TrackerGeometry*,GeomDetType::SubDetector det,
 		  bool upgradeGeometry,
 		  int BIG_PIX_PER_ROC_X,
 		  int BIG_PIX_PER_ROC_Y);
-  void buildSilicon(std::vector<const GeometricDet*> const &,
-		    TrackerGeometry*,GeomDetType::SubDetector det, const std::string& part);
+  void buildSilicon(
+          const GeometricDet::ConstGeometricDetContainer& gdv,
+		  TrackerGeometry*,GeomDetType::SubDetector det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);
 
   PlaneBuilderFromGeometricDet::ResultType

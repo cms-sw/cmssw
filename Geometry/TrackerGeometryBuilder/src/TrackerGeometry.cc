@@ -13,14 +13,14 @@
 #include <iostream>
 #include <map>
 
-TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
+TrackerGeometry::TrackerGeometry(GeometricDetPtr gd) :  theTrackerDet(gd){}
 
 TrackerGeometry::~TrackerGeometry() {
     for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete *it;
     for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete *it;
 }
 
-GeometricDet const * TrackerGeometry::trackerDet() const {
+const GeometricDetPtr TrackerGeometry::trackerDet() const {
   return  theTrackerDet;
 }
 

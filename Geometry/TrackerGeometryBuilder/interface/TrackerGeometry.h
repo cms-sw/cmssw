@@ -4,7 +4,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
-class GeometricDet;
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
@@ -28,7 +28,7 @@ class TrackerGeometry : public TrackingGeometry {
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
 
-  explicit TrackerGeometry(GeometricDet const* gd=0);  
+  explicit TrackerGeometry(GeometricDetPtr gd);  
 
   virtual ~TrackerGeometry() ;
 
@@ -53,7 +53,7 @@ public:
   void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
   void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
 
-  GeometricDet const * trackerDet() const; 
+  const GeometricDetPtr trackerDet() const; 
 
   const DetContainer& detsPXB() const;
   const DetContainer& detsPXF() const;
@@ -64,7 +64,7 @@ public:
 
 private:
 
-  GeometricDet const * theTrackerDet; 
+  GeometricDetPtr theTrackerDet; 
 
   /// Aligner has access to map
   friend class GeometryAligner;

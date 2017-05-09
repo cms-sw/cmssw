@@ -15,8 +15,8 @@
 class TOBRodBuilder {  
  public:
   TOBRodBuilder(){};
-  TOBRod* build(const GeometricDet* negTOBRod,
-		const GeometricDet* posTOBRod,
+  TOBRod* build(const GeometricDetPtr negTOBRod,
+		const GeometricDetPtr posTOBRod,
 		const TrackerGeometry* theGeomDetGeometry);
 
   
