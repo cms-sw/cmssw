@@ -10,6 +10,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -20,68 +22,72 @@
 
 class PileUpSubtractor{
   
- public:
+	public:
 
-  typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
-  typedef boost::shared_ptr<fastjet::GhostedAreaSpec>        ActiveAreaSpecPtr;
-  typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
-  
-  PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
-  virtual ~PileUpSubtractor(){;}
+		typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
+		typedef boost::shared_ptr<fastjet::GhostedAreaSpec>        ActiveAreaSpecPtr;
+		typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
+		typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
 
-virtual void setDefinition(JetDefPtr const & jetDef);
-virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
-	     std::vector<fastjet::PseudoJet>& towers,
-	     std::vector<fastjet::PseudoJet>& output);
-virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
-virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
-virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
-virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
-virtual void offsetCorrectJets();
-virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
-virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
- virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
- int getN(const reco::CandidatePtr & in) const;
- int getNwithJets(const reco::CandidatePtr & in) const;
+		PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
+		virtual ~PileUpSubtractor(){;}
+      		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- int ieta(const reco::CandidatePtr & in) const;
- int iphi(const reco::CandidatePtr & in) const;
+		virtual void setDefinition(JetDefPtr const & jetDef);
+		virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+				std::vector<fastjet::PseudoJet>& towers,
+				std::vector<fastjet::PseudoJet>& output);
+		virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
+		virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
+		virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
+		virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
+		virtual void offsetCorrectJets();
+		virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
+		virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
+		virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
+		virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
+		virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
+		int getN(const reco::CandidatePtr & in) const;
+		int getNwithJets(const reco::CandidatePtr & in) const;
 
- protected:
+		int ieta(const reco::CandidatePtr & in) const;
+		int iphi(const reco::CandidatePtr & in) const;
 
-  // From jet producer
-  JetDefPtr                       fjJetDefinition_;  // fastjet jet definition
-  ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
-  std::vector<edm::Ptr<reco::Candidate> >*       inputs_;          // input candidates
-  std::vector<fastjet::PseudoJet>* fjInputs_;        // fastjet inputs
-  std::vector<fastjet::PseudoJet>* fjJets_;          // fastjet jets
-  std::vector<fastjet::PseudoJet> fjOriginalInputs_;        // to back-up unsubtracted fastjet inputs
+	protected:
 
-  // PU subtraction parameters
-  bool     reRunAlgo_;
-  bool     doAreaFastjet_;
-  bool     doRhoFastjet_;
-  double   jetPtMin_;
-  double   puPtMin_;
+		// From jet producer
+		JetDefPtr                       fjJetDefinition_;  // fastjet jet definition
+		ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
+		std::vector<edm::Ptr<reco::Candidate> >*       inputs_;          // input candidates
+		std::vector<fastjet::PseudoJet>* fjInputs_;        // fastjet inputs
+		std::vector<fastjet::PseudoJet>* fjJets_;          // fastjet jets
+		std::vector<fastjet::PseudoJet> fjOriginalInputs_;        // to back-up unsubtracted fastjet inputs
 
-  double                nSigmaPU_;                  // number of sigma for pileup
-  double                radiusPU_;                  // pileup radius
-  ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
-  RangeDefPtr                     fjRangeDef_;      // range definition
+		// PU subtraction parameters
+		bool     reRunAlgo_;
+		bool     doAreaFastjet_;
+		bool     doRhoFastjet_;
+		double   puPtMin_;
 
-  CaloGeometry const *  geo_;                       // geometry
-  int                   ietamax_;                   // maximum eta in geometry
-  int                   ietamin_;                   // minimum eta in geometry
-  std::vector<HcalDetId> allgeomid_;                // all det ids in the geometry
-  std::map<int,int>     geomtowers_;                // map of geometry towers to det id
-  std::map<int,int>     ntowersWithJets_;           // number of towers with jets
-  std::map<int,double>  esigma_;                    // energy sigma
-  std::map<int,double>  emean_;                     // energy mean
+		double ghostEtaMax;
+		int    activeAreaRepeats;
+		double ghostArea;
 
-  std::vector<double>   jetOffset_;
+		double                nSigmaPU_;                  // number of sigma for pileup
+		double                radiusPU_;                  // pileup radius
+		ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
+		RangeDefPtr                     fjRangeDef_;      // range definition
+
+		CaloGeometry const *  geo_;                       // geometry
+		int                   ietamax_;                   // maximum eta in geometry
+		int                   ietamin_;                   // minimum eta in geometry
+		std::vector<HcalDetId> allgeomid_;                // all det ids in the geometry
+		std::map<int,int>     geomtowers_;                // map of geometry towers to det id
+		std::map<int,int>     ntowersWithJets_;           // number of towers with jets
+		std::map<int,double>  esigma_;                    // energy sigma
+		std::map<int,double>  emean_;                     // energy mean
+
+		std::vector<double>   jetOffset_;
 
 };
 
