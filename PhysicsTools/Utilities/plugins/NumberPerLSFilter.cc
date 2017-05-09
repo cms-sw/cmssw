@@ -1,6 +1,5 @@
 // system include files
 #include <memory>
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,7 +47,6 @@ class NumberPerLSFilter : public edm::one::EDFilter<edm::one::WatchLuminosityBlo
 NumberPerLSFilter::NumberPerLSFilter(const edm::ParameterSet& iConfig)
   : maxN_ ( iConfig.getParameter<int>("maxN") )
 {
-  std::cout << "[NumberPerLSFilter::NumberPerLSFilter] maxN_: " << maxN_ << std::endl;
    //now do what ever initialization is needed
   counter_ = 0;
 }
@@ -62,9 +60,7 @@ void
 NumberPerLSFilter::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
 					const edm::EventSetup &setup)
 {
-  std::cout << "[NumberPerLSFilter::beginLuminosityBlock] counter_: " << counter_ << std::endl;
   counter_ = 0;
-  std::cout << "[NumberPerLSFilter::beginLuminosityBlock] --> counter_: " << counter_ << std::endl;
 }
 
 void
@@ -78,14 +74,10 @@ NumberPerLSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
   bool pass = true;
-  std::cout << "[NumberPerLSFilter::filter] counter_: " << counter_ << std::endl;
   counter_++;
-  std::cout << "[NumberPerLSFilter::filter] --> counter_: " << counter_ << std::endl;
 
   if ( maxN_ < 0 ) return pass;
   if (counter_ > maxN_ ) pass = false;
-
-  std::cout << "[NumberPerLSFilter::filter] pass ? " << ( pass ? "YEAP" : "NOPE" ) << std::endl;
 
   return pass;
 }
