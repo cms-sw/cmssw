@@ -7,5 +7,3 @@ QGTagger = cms.EDProducer('QGTagger',
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
   useQualityCuts	= cms.bool(False)
 )
-
-QGTaggerTask = cms.Task(QGTagger)

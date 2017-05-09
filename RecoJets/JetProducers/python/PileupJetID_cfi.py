@@ -41,8 +41,3 @@ pileupJetIdEvaluator = pileupJetId.clone(
     produceJetIds = cms.bool(False),
     jetids = cms.InputTag("pileupJetIdCalculator"),
 )
-
-pileUpJetIDTask = cms.Task(pileupJetId,
-                           pileupJetIdCalculator,
-                           pileupJetIdEvaluator
-)
