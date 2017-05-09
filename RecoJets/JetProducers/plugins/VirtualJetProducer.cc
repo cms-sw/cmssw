@@ -867,7 +867,7 @@ void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	desc.add<bool> 	("doFastJetNonUniform", false 	);
 	desc.add<bool> 	("useDeterministicSeed",false 	);
 	desc.add<unsigned int> 	("minSeed", 	14327 	);
-	desc.add<int> 	("verbosity", 		1 	);
+	desc.add<int> 	("verbosity", 		0 	);
 	desc.add<double>("puWidth",	 	0. 	);
 	desc.add<unsigned int>("nExclude", 	0 	);
 	desc.add<unsigned int>("maxBadEcalCells", 	9999999	);

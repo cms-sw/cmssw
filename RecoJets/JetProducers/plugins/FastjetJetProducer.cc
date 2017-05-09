@@ -122,7 +122,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
 	gridMaxRapidity_ = iConfig.getParameter<double>("gridMaxRapidity");
 	gridSpacing_ = iConfig.getParameter<double>("gridSpacing");
 
-	//input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
 	input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(iConfig.getParameter<edm::InputTag>("src"));
 
 	if ( useFiltering_ ||
@@ -509,7 +508,7 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<bool>("doFastJetNonUniform", false 	);
 	descFastjetJetProducer.add<bool>("useDeterministicSeed",false 	);
 	descFastjetJetProducer.add<unsigned int>("minSeed", 	14327 	);
-	descFastjetJetProducer.add<int>("verbosity", 		1 	);
+	descFastjetJetProducer.add<int>("verbosity", 		0 	);
 	descFastjetJetProducer.add<double>("puWidth",	 	0. 	);
 	descFastjetJetProducer.add<unsigned int>("nExclude", 	0 	);
 	descFastjetJetProducer.add<unsigned int>("maxBadEcalCells", 	9999999	);
