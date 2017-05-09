@@ -50,17 +50,19 @@
 template<typename IPTag, typename SVTag>
 class TemplatedDeepNNTagInfoProducer : public edm::stream::EDProducer<> {
 public:
-  explicit TemplatedDeepNNTagInfoProducer(const edm::ParameterSet&);
-  ~TemplatedDeepNNTagInfoProducer();
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+        explicit TemplatedDeepNNTagInfoProducer(const edm::ParameterSet&);
+        ~TemplatedDeepNNTagInfoProducer();
+
+        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
-  virtual void beginStream(edm::StreamID) override {}
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override {}
-  
-  // ----------member data ---------------------------
-  const edm::EDGetTokenT<std::vector<SVTag> > svSrc_;
-  CombinedSVComputer computer_;
+        virtual void beginStream(edm::StreamID) override {}
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        virtual void endStream() override {}
+
+   // ----------member data ---------------------------
+        const edm::EDGetTokenT<std::vector<SVTag> > svSrc_;
+        CombinedSVComputer computer_;
 };
 
 //
