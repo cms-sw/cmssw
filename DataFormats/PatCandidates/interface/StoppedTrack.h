@@ -14,12 +14,7 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
-
-namespace pat {
-    class StoppedTrack;
-    typedef std::vector<StoppedTrack>  StoppedTrackCollection; 
-}
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 
 namespace pat {
@@ -27,23 +22,22 @@ namespace pat {
     class StoppedTrack : public reco::LeafCandidate {
 
       public:
-        typedef MiniIsolation Isolation;
 
         StoppedTrack() :
           LeafCandidate(0, LorentzVector(0,0,0,0)),
-          isolationDR03_({0.,0.,0.,0.}),
-          miniIsolation_(pat::MiniIsolation({0,0,0,0})),
+          pfIsolationDR03_(pat::PFIsolation()),
+          miniIsolation_(pat::PFIsolation()),
           dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           packedCandRef_(PackedCandidateRef()) {}
 
-        explicit StoppedTrack(Isolation iso, MiniIsolation miniiso, 
-                              LorentzVector p4, int charge, int id, 
+        explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso,
+                              const LorentzVector &p4, int charge, int id,
                               float dz, float dxy, float dzError, float dxyError,
-                              reco::HitPattern hp, float dEdxS, float dEdxP, int tkQual,
-                              PackedCandidateRef pcref) :
+                              const reco::HitPattern &hp, float dEdxS, float dEdxP, int tkQual,
+                              const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
-          isolationDR03_(iso),
+          pfIsolationDR03_(iso),
           miniIsolation_(miniiso),
           dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
           trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
@@ -52,29 +46,14 @@ namespace pat {
 
         ~StoppedTrack() {}
 
-        Isolation isolationDR03() const  { return isolationDR03_; }
-        float chargedHadronIso() const   { return isolationDR03_.chiso; }
-        float neutralHadronIso() const   { return isolationDR03_.nhiso; }
-        float photonIso() const          { return isolationDR03_.phiso; }
-        float puChargedHadronIso() const { return isolationDR03_.puiso; }
-        void setIsolationDR03(float ch, float nh, float ph, float pu){ isolationDR03_={ch, nh, ph, pu}; }
+        const PFIsolation& pfIsolationDR03() const  { return pfIsolationDR03_; }
 
-        MiniIsolation miniPFIsolation() const { return miniIsolation_; }
-        float chargedHadronMiniIso() const    { return miniIsolation_.chiso; }
-        float neutralHadronMiniIso() const    { return miniIsolation_.nhiso; }
-        float photonMiniIso() const           { return miniIsolation_.phiso; }
-        float puChargedHadronMiniIso() const  { return miniIsolation_.puiso; }
-        void setMiniPFIsolation(MiniIsolation iso){ miniIsolation_ = iso; }
+        const PFIsolation& miniPFIsolation() const { return miniIsolation_; }
 
         float dz() const { return dz_; }
-        void setDz(float dz){ dz_=dz; }
         float dzError() const { return dzError_; }
-        void setDzError(float dzError){ dzError_=dzError; }
-
         float dxy() const { return dxy_; }
-        void setDxy(float dxy){ dxy_=dxy; }        
         float dxyError() const { return dxyError_; }
-        void setDxyError(float dxyError){ dxyError_=dxyError; }
 
         bool isHighPurityTrack() const 
           {  return (trackQuality_ & (1 << reco::TrackBase::highPurity)) >> reco::TrackBase::highPurity; }
@@ -82,22 +61,17 @@ namespace pat {
           {  return (trackQuality_ & (1 << reco::TrackBase::tight)) >> reco::TrackBase::tight; }
         bool isLooseTrack() const 
           {  return (trackQuality_ & (1 << reco::TrackBase::loose)) >> reco::TrackBase::loose; }
-        void setTrackQuality(int tq) { trackQuality_ = tq; }
 
-        reco::HitPattern hitPattern() const { return hitPattern_; }
-        void setHitPattern(reco::HitPattern hp) { hitPattern_ = hp; }
+        const reco::HitPattern& hitPattern() const { return hitPattern_; }
         
         float dEdxStrip() const { return dEdxStrip_; }
-        void setDeDxStrip(float dEdxStrip) { dEdxStrip_ = dEdxStrip; }
         float dEdxPixel() const { return dEdxPixel_; }
-        void setDeDxPixel(float dEdxPixel) { dEdxPixel_ = dEdxPixel; }
 
-        PackedCandidateRef packedCandRef() const { return packedCandRef_; }
-        void setPackedCandRef(PackedCandidateRef ref){ packedCandRef_ = ref; }
+        const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
       protected:
-        Isolation isolationDR03_;
-        MiniIsolation miniIsolation_;
+        PFIsolation pfIsolationDR03_;
+        PFIsolation miniIsolation_;
         float dz_, dxy_, dzError_, dxyError_;        
         int trackQuality_;
         float dEdxStrip_, dEdxPixel_; //in MeV/mm
@@ -108,6 +82,11 @@ namespace pat {
 
     };
 
+}
+
+namespace pat {
+    typedef std::vector<StoppedTrack>  StoppedTrackCollection;
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 }
 
 
