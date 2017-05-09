@@ -99,7 +99,8 @@ namespace edm {
               e.addAdditionalInfo(ost.str());
             }
 	  }
-          throw e;
+          //throw will copy which will slice the object
+          e.raise();
       }
     }
 
@@ -228,7 +229,7 @@ namespace edm {
       try {
         std::rethrow_exception(*iException);
       } catch(cms::Exception& oldEx) {
-        pEx = std::make_unique<cms::Exception>(oldEx);
+        pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
       }
       try {
         std::ostringstream ost;

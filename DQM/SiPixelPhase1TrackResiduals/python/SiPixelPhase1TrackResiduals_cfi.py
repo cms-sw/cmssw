@@ -4,7 +4,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackResidualsResidualsX = DefaultHistoTrack.clone(
   name = "residual_x",
   title = "Track Residuals X",
-  range_min = -0.05, range_max = 0.05, range_nbins = 100,
+  range_min = -0.5, range_max = 0.5, range_nbins = 200,
   xlabel = "(x_rec - x_pred) [cm]",
   dimensions = 1,
   specs = VPSet(

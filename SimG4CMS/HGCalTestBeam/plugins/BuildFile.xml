@@ -9,6 +9,7 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4CMS/HGCalTestBeam"/>

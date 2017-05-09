@@ -312,6 +312,38 @@ testSolids( void )
   std::cout << "intsolid is an Intersection(Solid) of cone1 and cone2:" << std::endl;
   std::cout << DDSolid(DDName("intsolid", "testSolids")) << std::endl;
   std::cout << std::endl;
+  std::cout << "cuttubs is a Cut tubs solid:" << std::endl;
+  std::cout << DDSolid(DDName("cuttubs", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "extrudedpgon is an Extruded Polygone solid:" << std::endl;
+  std::cout << DDSolid(DDName("extrudedpgon", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "verify parameters interface\nx: ";
+  DDExtrudedPolygon extrPgon(DDSolid(DDName("extrudedpgon", "testSolids")));
+  std::vector<double> x = extrPgon.xVec();
+  std::vector<double> y = extrPgon.yVec();
+  std::vector<double> z = extrPgon.zVec();
+  std::vector<double> zx = extrPgon.zxVec();
+  std::vector<double> zy = extrPgon.zyVec();
+  std::vector<double> zs = extrPgon.zscaleVec();
+  for( auto i : x )
+    std::cout << i << ", ";
+  std::cout << "\ny: ";
+  for( auto i : y )
+    std::cout << i << ", ";
+  std::cout << "\nz: ";
+  for( auto i : z )
+    std::cout << i << ", ";
+  std::cout << "\nzx: ";
+  for( auto i : zx )
+    std::cout << i << ", ";
+  std::cout << "\nzy: ";
+  for( auto i : zy )
+    std::cout << i << ", ";
+  std::cout << "\nz scale: ";
+  for( auto i : zs )
+    std::cout << i << ", ";
+  std::cout << std::endl;
 }
 
 void

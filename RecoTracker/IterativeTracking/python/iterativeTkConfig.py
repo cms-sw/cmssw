@@ -70,9 +70,10 @@ _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
 ]
-#Phase2 : just muon Seed InOut is used in this moment
+#Phase2
 _iterations_muonSeeded_trackingPhase2PU140 = [
     "MuonSeededStepInOut",
+    "MuonSeededStepOutIn",
 ]
 _multipleSeedProducers = {
     "MixedTripletStep": ["A", "B"],
