@@ -6,9 +6,11 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <cstdlib>
 
 #include "TBenchmark.h"
 
@@ -18,6 +20,7 @@ using std::flush;
 using std::vector;
 using std::string;
 using std::setw;
+using std::ofstream;
 
 class testJetCorrectorParameters: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testJetCorrectorParameters);
@@ -34,6 +37,7 @@ public:
    void tearDown();
    void setupCorrector(bool is3D);
    void destroyCorrector();
+   void generateFiles();
 
    void benchmarkBinIndex(bool is3D);
    void benchmarkBinIndex1D() {benchmarkBinIndex(false);}
@@ -81,8 +85,11 @@ void testJetCorrectorParameters::setUp() {
 	for(unsigned int irho=1; irho<=50; irho++) {
 		vrho.push_back(irho);
 	}
-	vpt = {10,11,12,13,14,15,17,20,23,27,30,35,40,45,57,72,90,120,150,200,300,400,
-		   550,750,1000,1500,2000,2500,3000,3500,4000,4500,5000,5500,6000};
+	vpt = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,20,23,27,30,35,40,45,57,72,90,120,
+		   150,200,300,400,550,750,1000,1500,2000,2500,3000,3500,4000,4500,5000,5500,
+		   6000,6500};
+
+    generateFiles();
 }
 
 void testJetCorrectorParameters::tearDown() {
@@ -110,6 +117,45 @@ void testJetCorrectorParameters::setupCorrector(bool is3D) {
 void testJetCorrectorParameters::destroyCorrector() {
 	delete L1JetPar;
 	delete jetCorrector;
+}
+
+void testJetCorrectorParameters::generateFiles() {
+	string path = std::getenv("CMSSW_BASE");
+	path+="/src/CondFormats/JetMETObjects/data/";
+	string name1D = "testJetCorrectorParameters_1D_L1FastJet_AK4PFchs.txt";
+	string name3D = "testJetCorrectorParameters_3D_L1FastJet_AK4PFchs.txt";
+
+	ofstream txtFile1D;
+	txtFile1D.open((path+name1D).c_str());
+	CPPUNIT_ASSERT(txtFile1D.is_open());
+	txtFile1D << "{1 JetEta 3 Rho JetPt JetA 1 Correction L1FastJet}" << endl;
+	for(unsigned int ieta=0; ieta<veta.size()-1; ieta++) {
+		txtFile1D << std::setw(15) << veta[ieta] << std::setw(15) << veta[ieta+1] << std::setw(15) << "6" << std::setw(15)
+				  << "0" << std::setw(15) << "200" << std::setw(15) << "1" << std::setw(15) << "6500" << std::setw(15)
+				  << "0" << std::setw(15) << "10" << std::setw(15) << endl;
+	}
+	txtFile1D.close();
+
+    vector<float> ptbins = {4,8,10,13,16,19,22,25,30,35,40,45,60,75,100,160,230,330,440,600,820,1100,1400};
+	ofstream txtFile3D;
+	txtFile3D.open((path+name3D).c_str());
+	CPPUNIT_ASSERT(txtFile3D.is_open());
+	txtFile3D << "{3 JetEta Rho JetPt 1 JetPt 1 Correction L1FastJet}" << endl;
+	for(unsigned int ieta=0; ieta<veta.size()-1; ieta++) {
+		for(unsigned int irho=0; irho<vrho.size()-1; irho++) {
+			for(unsigned int ipt=0; ipt<ptbins.size()-1; ipt++) {
+				txtFile3D << std::setw(15) << veta[ieta] << std::setw(15) << veta[ieta+1]
+						  << std::setw(15) << vrho[irho] << std::setw(15);
+				if(vrho[irho+1]==50) txtFile3D << "200" << std::setw(15);
+				else 				 txtFile3D << vrho[irho+1] << std::setw(15);
+				txtFile3D << ptbins[ipt] << std::setw(15);
+				if(ipt+1==ptbins.size()-1) txtFile3D << "6500" << std::setw(15);
+				else                       txtFile3D << ptbins[ipt+1] << std::setw(15);
+				txtFile3D << "2" << std::setw(15) << ptbins[ipt] << std::setw(15) << ptbins[ipt+1] << std::setw(15) << endl;
+			}
+		}
+	}
+	txtFile3D.close();
 }
 
 void testJetCorrectorParameters::benchmarkBinIndex(bool is3D) {
