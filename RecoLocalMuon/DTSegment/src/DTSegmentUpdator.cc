@@ -123,15 +123,15 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
 
       // fit in-time Phi segments with the 2par fit and out-of-time segments with the 3par fit
       if (fabs(seg->phiSegment()->t0())<40.) {
-        fit(seg->phiSegment(),allow3par,1);
-        fit(seg->zSegment(),allow3par,1);      
-      } else {
         fit(seg->phiSegment(),allow3par,0);
         fit(seg->zSegment(),allow3par,0);      
+      } else {
+        fit(seg->phiSegment(),allow3par,1);
+        fit(seg->zSegment(),allow3par,1);      
       }
 
-    } else fit(seg->phiSegment(),allow3par,0);
-  } else fit(seg->zSegment(),allow3par,0);
+    } else fit(seg->phiSegment(),allow3par,1);
+  } else fit(seg->zSegment(),allow3par,1);
  
   const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
 
@@ -215,7 +215,7 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
 bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdebug) const {
 
 //  if (debug && fitdebug) cout << "[DTSegmentUpdator] Fit DTRecSegment2D" << endl;
-  if (!seg->good()) return false;
+//  if (!seg->good()) return false;
 
 //  DTSuperLayerId DTid = (DTSuperLayerId)seg->superLayer()->id();
 //  if (DTid.superlayer()==2)  
@@ -261,8 +261,7 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   fit(x,y,lfit,dist,sigy,pos,dir,cminf,vminf,covMat,chi2,allow3par);
   if (cminf!=0) t0_corr=-cminf/0.00543; // convert drift distance to time
 
-  if (debug && fitdebug) cout << "  DTcand chi2: " << chi2 << endl;
-  if (debug && fitdebug) cout << "  DTcand   t0: " << t0_corr << endl;
+  if (debug && fitdebug) cout << "  DTcand chi2: " << chi2 << "/" << x.size() << "   t0: " << t0_corr << endl;
 
   seg->setPosition(pos);
   seg->setDirection(dir);

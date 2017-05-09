@@ -276,7 +276,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::As
   }
 
   if (assHits.size()>maxfound) maxfound = assHits.size();
-  if (debug) cout << endl << "   Seg t0= " << t0_corrl << *seg<< endl;
+  if (debug) cout << endl << "   Seg t0= " << t0_corrl << endl << *seg<< endl;
   
   if (checkDoubleCandidates(result,seg.get())) {
     result.push_back(seg.release());
@@ -347,7 +347,7 @@ DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<DTSegment
 
   // for segments with no t0 information we impose a looser chi2 cut
   if (t0_corr==0) {
-    if (chi2<200.) return seg;
+    if (chi2<100.) return seg;
       else return nullptr; 
   }
 
@@ -366,7 +366,7 @@ DTMeantimerPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
     if (*(*cand)==*seg) return false;
     if (((*cand)->nHits()>=seg->nHits()) && ((*cand)->chi2ndof()<seg->chi2ndof()))
       if ((*cand)->nSharedHitPairs(*seg)>int(seg->nHits()-2)) return false;
-  }    
+  }
   return true;
 }
 
