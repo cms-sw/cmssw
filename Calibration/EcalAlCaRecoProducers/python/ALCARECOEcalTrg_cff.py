@@ -3,7 +3,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 
 ecalTrgHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #    eventSetupPathsKey='AlCa_EcalPhiSym*', # this is the HLT path that can be used                                                                                                          
-     eventSetupPathsKey='AlCaEcalTrg',
+     eventSetupPathsKey='EcalTrg',
 )
 
 seqALCARECOEcalTrg = cms.Sequence(ecalTrgHLT)
