@@ -68,10 +68,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   matchOccupancyEndcap_disk    = booker.book1D("MatchOccupancyEndcap_disk"   , "Matched hit occupancy", 9, -4.5, 4.5);
   matchOccupancyBarrel_station = booker.book1D("MatchOccupancyBarrel_station", "Matched hit occupancy", 4,  0.5, 4.5);
 
-  umOccupancyBarrel_wheel   = booker.book1D("UmOccupancyBarrel_wheel"  , "Un-matched hit occupancy", 5, -2.5, 2.5);
-  umOccupancyEndcap_disk    = booker.book1D("UmOccupancyEndcap_disk"   , "Un-matched hit occupancy", 9, -4.5, 4.5);
-  umOccupancyBarrel_station = booker.book1D("UmOccupancyBarrel_station", "Un-matched hit occupancy", 4,  0.5, 4.5);
-
   refHitOccupancyBarrel_wheel  ->getTH1()->SetMinimum(0);
   refHitOccupancyEndcap_disk   ->getTH1()->SetMinimum(0);
   refHitOccupancyBarrel_station->getTH1()->SetMinimum(0);
@@ -84,10 +80,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   matchOccupancyEndcap_disk   ->getTH1()->SetMinimum(0);
   matchOccupancyBarrel_station->getTH1()->SetMinimum(0);
                                
-  umOccupancyBarrel_wheel  ->getTH1()->SetMinimum(0);
-  umOccupancyEndcap_disk   ->getTH1()->SetMinimum(0);
-  umOccupancyBarrel_station->getTH1()->SetMinimum(0);
-
   // Occupancy 2D
   refHitOccupancyBarrel_wheel_station = booker.book2D("RefHitOccupancyBarrel_wheel_station", "Reference hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
   refHitOccupancyEndcap_disk_ring     = booker.book2D("RefHitOccupancyEndcap_disk_ring"    , "Reference hit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
@@ -98,9 +90,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   matchOccupancyBarrel_wheel_station = booker.book2D("MatchOccupancyBarrel_wheel_station", "Matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
   matchOccupancyEndcap_disk_ring     = booker.book2D("MatchOccupancyEndcap_disk_ring"    , "Matched hit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
 
-  umOccupancyBarrel_wheel_station = booker.book2D("UmOccupancyBarrel_wheel_station", "Un-matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  umOccupancyEndcap_disk_ring     = booker.book2D("UmOccupancyEndcap_disk_ring"    , "Un-matched hit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
-
   refHitOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
   refHitOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
 
@@ -109,9 +98,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
 
   matchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
   matchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
-
-  umOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
-  umOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
 
   // Residuals
   booker.setCurrentFolder(subDir+"/Residual");
@@ -155,8 +141,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
   matchOccupancyBarrel_wheel_station ->getTH2F()->SetOption("COLZ");
   matchOccupancyEndcap_disk_ring     ->getTH2F()->SetOption("COLZ");
-  umOccupancyBarrel_wheel_station    ->getTH2F()->SetOption("COLZ");
-  umOccupancyEndcap_disk_ring        ->getTH2F()->SetOption("COLZ");
 
   res_wheel_res  ->getTH2F()->SetOption("COLZ");
   res_disk_res   ->getTH2F()->SetOption("COLZ");
@@ -174,8 +158,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
   matchOccupancyBarrel_wheel_station ->getTH2F()->SetContour(10);
   matchOccupancyEndcap_disk_ring     ->getTH2F()->SetContour(10);
-  umOccupancyBarrel_wheel_station    ->getTH2F()->SetContour(10);
-  umOccupancyEndcap_disk_ring        ->getTH2F()->SetContour(10);
 
   res_wheel_res  ->getTH2F()->SetContour(10);
   res_disk_res   ->getTH2F()->SetContour(10);
@@ -193,8 +175,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
   recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
   matchOccupancyBarrel_wheel_station ->getTH2F()->SetStats(0);
   matchOccupancyEndcap_disk_ring     ->getTH2F()->SetStats(0);
-  umOccupancyBarrel_wheel_station    ->getTH2F()->SetStats(0);
-  umOccupancyEndcap_disk_ring        ->getTH2F()->SetStats(0);
 
   res_wheel_res  ->getTH2F()->SetStats(0);
   res_disk_res   ->getTH2F()->SetStats(0);
@@ -214,12 +194,10 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
     refHitOccupancyBarrel_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyBarrel_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     matchOccupancyBarrel_wheel ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umOccupancyBarrel_wheel    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     refHitOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     matchOccupancyBarrel_wheel_station ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umOccupancyBarrel_wheel_station    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     res_wheel_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_wheel_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -232,12 +210,10 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
     refHitOccupancyEndcap_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyEndcap_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     matchOccupancyEndcap_disk ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umOccupancyEndcap_disk    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     refHitOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     matchOccupancyEndcap_disk_ring ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umOccupancyEndcap_disk_ring    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     res_disk_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_disk_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -250,12 +226,10 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
     refHitOccupancyBarrel_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyBarrel_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
     matchOccupancyBarrel_station ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umOccupancyBarrel_station    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     refHitOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
     matchOccupancyBarrel_wheel_station ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    umOccupancyBarrel_wheel_station    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
 
     res_station_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_station_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -268,7 +242,6 @@ void RPCValidHistograms::bookHistograms(DQMStore::IBooker& booker, const std::st
     refHitOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
     recHitOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
     matchOccupancyEndcap_disk_ring ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    umOccupancyEndcap_disk_ring    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
   }
 
   booked_ = true;
