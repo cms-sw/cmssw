@@ -35,6 +35,14 @@ namespace cond {
     return new T;
   }
 
+  template <> inline std::string* createPayload<std::string>( const std::string& payloadTypeName ){
+    std::string userTypeName = demangledName( typeid(std::string) );
+    if( payloadTypeName != userTypeName && payloadTypeName != "std::string" )
+      throwException(std::string("Type mismatch, user type: \"std::string\", target type: \"")+payloadTypeName+"\"",
+		     "createPayload" );
+    return new std::string;
+  }
+
   class StreamerInfo {
   public:
     static constexpr char const* TECH_LABEL = "technology";
