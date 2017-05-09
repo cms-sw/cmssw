@@ -322,18 +322,18 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 	const DetLayer* GE21Fwd = gemForwardLayers[3];
 	tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
 	all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+	copy(tmp.begin(),tmp.end(),back_inserter(all));
       }
       const DetLayer* GE11Fwd = gemForwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
     if (me0ForwardLayers.size()){
       const DetLayer* ME0Fwd = me0ForwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
 
     tmp = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
@@ -413,12 +413,14 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list23 = me3;
 
   MuonRecHitContainer list12 = me2;
-  // add GE21 to ME2 
+  // add GE21 to ME2
+  list12.reserve(list12.size()+ge21.size());
   copy(ge21.begin(),ge21.end(),back_inserter(list12));
 
   MuonRecHitContainer list22 = me12;
   MuonRecHitContainer list21 = me11;
   // add GE11 and ME0 to ME1
+  list21.reserve(list21.size()+ge11.size()+me0.size());
   copy(ge11.begin(),ge11.end(),back_inserter(list21));
   copy(me0.begin(),me0.end(),back_inserter(list21));
 
