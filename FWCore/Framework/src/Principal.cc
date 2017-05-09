@@ -318,6 +318,14 @@ namespace edm {
     phb->unsafe_deleteProduct();
   }
   
+  void
+  Principal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
+      iResolver->setupUnscheduled(iConfigure);
+    });
+  }
+  
+
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist,
