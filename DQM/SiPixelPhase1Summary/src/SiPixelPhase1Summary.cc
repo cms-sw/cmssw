@@ -159,6 +159,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	else if (me->hasWarning()){
 	  summaryMap_[name]->setBinContent(i+1,j+1,0.5);
 	}
+	else summaryMap_[name]->setBinContent(i+1,j+1,1);
       }  
     }    
   }

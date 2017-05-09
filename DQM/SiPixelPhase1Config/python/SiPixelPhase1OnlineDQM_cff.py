@@ -74,7 +74,6 @@ DefaultHistoTrack.perLumiHarvesting = True
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
-SiPixelPhase1DigisAnalyzer.src = cms.InputTag("siPixelDigis") # adapt for real data
 
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *

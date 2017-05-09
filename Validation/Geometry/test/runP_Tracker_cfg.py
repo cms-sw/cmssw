@@ -20,7 +20,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # at the command line, e.g.: cmsRun runP_Tracker_cfg.py
 # label="XYZ"
 
-from plot_utils import _LABELS2COMPS
+from Validation.Geometry.plot_utils import _LABELS2COMPS
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 

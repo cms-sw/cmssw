@@ -18,11 +18,11 @@ class RPCLBLinkMapHandler
     : public popcon::PopConSourceHandler<RPCLBLinkMap>
 {
 public:
-    static RPCDetId getRPCDetId(int _region, int _disk_or_wheel, int _layer, int _sector
-                                , std::string _subsector_string, std::string _partition);
+    static RPCDetId getRPCDetId(int region, int disk_or_wheel, int layer, int sector
+                                , std::string subsector_string, std::string partition);
 
 public:
-    RPCLBLinkMapHandler(edm::ParameterSet const & _config);
+    RPCLBLinkMapHandler(edm::ParameterSet const & config);
     ~RPCLBLinkMapHandler();
 
     void getNewObjects();

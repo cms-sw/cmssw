@@ -30,7 +30,7 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return; 
-  bool hasDigis;
+  bool hasDigis=false;
 
   edm::DetSetVector<PixelDigi>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {

@@ -369,6 +369,7 @@ namespace edm {
       mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
       mutable std::atomic<bool> prefetchRequested_;
       mutable std::atomic<bool> skippingPrefetchRequested_;
+      mutable std::atomic<bool> recheckedAtEnd_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {

@@ -1,11 +1,3 @@
-/***************************************************************************
-                          testShapes.cpp  -  description
-                             -------------------
-    Author               : Michael Case
-    email                : case@physics.ucdavis.edu
-
-    Last Updated         : May 29, 2007
- ***************************************************************************/
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -40,10 +32,11 @@ int main(int /*argc*/, char **/*argv[]*/)
   ddShapeTypeNames.push_back("ddellipsoid");
   ddShapeTypeNames.push_back("ddparallelepiped");
   ddShapeTypeNames.push_back("ddcuttubs");
+  ddShapeTypeNames.push_back("ddextrudedpolygon");
 
   DDSolidShapesName ssn;
   DDSolidShape ish(dd_not_init);
-  for ( ; ish <= ddcuttubs; ish=DDSolidShape(ish+1) ) {
+  for ( ; ish <= ddextrudedpolygon; ish=DDSolidShape(ish+1) ) {
     switch (ish) {
     case 0:
       std::cout << ddShapeTypeNames[0] << " " << ssn.name(ish) << " " <<  dd_not_init;
@@ -113,6 +106,9 @@ int main(int /*argc*/, char **/*argv[]*/)
       break;
     case 22:
       std::cout << ddShapeTypeNames[22] << " " << ssn.name(ish) << " " <<  ddcuttubs;
+      break;
+    case 23:
+      std::cout << ddShapeTypeNames[23] << " " << ssn.name(ish) << " " <<  ddextrudedpolygon;
       break;
     default:
       std::cout << "ERROR! No such shape!";
