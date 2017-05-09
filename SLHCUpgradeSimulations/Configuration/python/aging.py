@@ -119,6 +119,29 @@ def ageEcal(process,lumi,instLumi):
         #these lines need to be further activiated by tuning on 'complete' aging for ecal 
         process.g4SimHits.ECalSD.InstLuminosity = cms.double(instLumi)
         process.g4SimHits.ECalSD.DelivLuminosity = cms.double(float(lumi))
+
+   # available conditions
+    ecal_lumis = [300,1000,3000,4500]
+    ecal_conditions = [
+        ['EcalIntercalibConstantsRcd','EcalIntercalibConstants_TL{:d}_upgrade_8deg_mc'],
+        ['EcalIntercalibConstantsMCRcd','EcalIntercalibConstantsMC_TL{:d}_upgrade_8deg_mc'],
+        ['EcalLaserAPDPNRatiosRcd','EcalLaserAPDPNRatios_TL{:d}_upgrade_8deg_mc'],
+        ['EcalPedestalsRcd','EcalPedestals_TL{:d}_upgradeTIA_8deg_mc'],
+        ['EcalTPGLinearizationConstRcd','EcalTPGLinearizationConst_TL{:d}_upgrade_8deg_mc'],
+    ]
+
+    # try to get conditions
+    if int(lumi) in ecal_lumis:
+        if not hasattr(process.GlobalTag,'toGet'):
+            process.GlobalTag.toGet=cms.VPSet()
+        for ecal_condition in ecal_conditions:
+            process.GlobalTag.toGet.append(cms.PSet(
+                record = cms.string(ecal_condition[0]),
+                tag = cms.string(ecal_condition[1].format(int(lumi))),
+                connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                )
+            )
+        
     return process
 
 def ecal_complete_aging(process):
