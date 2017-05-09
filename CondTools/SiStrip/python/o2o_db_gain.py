@@ -15,49 +15,47 @@ from sqlalchemy.ext.declarative import declared_attr
 
 class GainO2OPartitionDef(object):
     __tablename__ = 'STRIP_GAIN_O2O_PARTITION'
-    o2oid = sqlalchemy.Column(sqlalchemy.BIGINT, primary_key=True)
-    iovstart = sqlalchemy.Column(sqlalchemy.BIGINT, nullable=False)
+    o2oid = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True)
+    iovstart = sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False)
     o2otimestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, nullable=False)
     subDetector = sqlalchemy.Column(sqlalchemy.String(256), primary_key=True)
     partitionname = sqlalchemy.Column(sqlalchemy.String(256), nullable=False)
-    fecVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    fecVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    fedVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    fedVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    connectionVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    connectionVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    dcuInfoVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    dcuInfoVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    dcuPsuMapVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    dcuPsuMapVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    maskVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    maskVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    apvTimingVersionMajorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    apvTimingVersionMinorId = sqlalchemy.Column(sqlalchemy.INT, nullable=False)
-    timingRunNumber = sqlalchemy.Column(sqlalchemy.BIGINT, nullable=False)
+    fecVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    fecVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    fedVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    fedVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    connectionVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    connectionVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    dcuInfoVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    dcuInfoVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    dcuPsuMapVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    dcuPsuMapVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    maskVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    maskVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    apvTimingVersionMajorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    apvTimingVersionMinorId = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    timingRunNumber = sqlalchemy.Column(sqlalchemy.BigInteger, nullable=False)
 
 class GainO2OSkippedDevicesDef(object):
     __tablename__ = 'STRIP_GAIN_O2O_SKIPPED'
-    # FEC coordinates
-    fecCrate = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    fecSlot = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    fecRing = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    ccuAddr = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    ccuChan = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    lldChan = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    i2cAddr = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    # FED coordinates
-    fedId = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    feUnit = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    feChan = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    fedApv = sqlalchemy.Column(sqlalchemy.INT, nullable=True)
-    # detid
-    detid = sqlalchemy.Column(sqlalchemy.BIGINT, nullable=True)
     # o2o identifier
-    @declared_attr
-    def o2oid(cls):
-        return sqlalchemy.Column(sqlalchemy.BIGINT, sqlalchemy.ForeignKey('STRIP_GAIN_O2O_PARTITION.o2oid'), primary_key = True)
-    itemid = sqlalchemy.Column(sqlalchemy.BIGINT, primary_key = True)
+    o2oid = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True)
+    itemid = sqlalchemy.Column(sqlalchemy.BigInteger, primary_key=True)
+    # FEC coordinates
+    fecCrate = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    fecSlot = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    fecRing = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    ccuAddr = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    ccuChan = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    lldChan = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    i2cAddr = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    # FED coordinates
+    fedId = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    feUnit = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    feChan = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    fedApv = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    # detid
+    detid = sqlalchemy.Column(sqlalchemy.BigInteger, nullable=True)
 
 class DbManagerGain(DbManager):
     def __init__(self, db, authFile=None):
