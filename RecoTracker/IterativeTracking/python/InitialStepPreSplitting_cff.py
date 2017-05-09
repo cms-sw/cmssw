@@ -218,7 +218,7 @@ _InitialStepPreSplitting_trackingPhase1.replace(initialStepHitTripletsPreSplitti
 trackingPhase1.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1.copyAndExclude([initialStepHitTripletsPreSplitting]))
 trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1)
 
-# Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase1PU70
+# Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase2PU140
 # tracking, we use it to get siPixelClusters and siPixelRecHits
 # collections for non-splitted pixel clusters. All modules before
 # iterTracking sequence use siPixelClustersPreSplitting and
@@ -227,7 +227,7 @@ trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSpl
 # If siPixelClusters would be defined in
 # RecoLocalTracker.Configuration.RecoLocalTracker_cff, we would have a
 # situation where
-# - LowPU/Phase1PU70 has siPixelClusters defined in RecoLocalTracker_cff
+# - LowPU/Phase2PU140 has siPixelClusters defined in RecoLocalTracker_cff
 # - everything else has siPixelClusters defined here
 # and this leads to a mess. The way it is done here we have only
 # one place (within Reconstruction_cff) where siPixelClusters
@@ -235,16 +235,13 @@ trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSpl
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(siPixelClusters, _siPixelClusters)
-_InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
+_InitialStepPreSplitting_LowPU_Phase2PU140 = cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
     MeasurementTrackerEvent +
     siPixelClusterShapeCache
 )
-trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
-trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)
