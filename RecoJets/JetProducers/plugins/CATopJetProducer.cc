@@ -166,7 +166,6 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 	nCellBinsDefault.push_back(1.9);
 	nCellBinsDefault.push_back(1.9);
 	desc.add<vector<double>>("nCellBins", 	nCellBinsDefault); 	// Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
-	//desc.add<int32_t>("debugLevel", 0);
 	desc.add<bool>("useMaxTower", 	false); 			// use max tower in adjacency criterion, otherwise use centroid - NOT USED
 	desc.add<double>("sumEtEtaCut", 3.0); 				// eta for event SumEt - NOT USED                                                 
 	desc.add<double>("etFrac", 	0.7); 				// fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
