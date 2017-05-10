@@ -1,6 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
 ###########################################################
+## Working points for the 76X training
+###########################################################
+full_76x_chs_wp  = cms.PSet(
+    #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+    
+    #Tight Id            
+    Pt010_Tight    = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt1020_Tight   = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt2030_Tight   = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt3050_Tight   = cms.vdouble(0.52,-0.19,-0.06,-0.03),
+
+    #Medium Id
+    Pt010_Medium   = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt1020_Medium  = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt2030_Medium  = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt3050_Medium  = cms.vdouble(-0.20,-0.39,-0.24,-0.19),
+
+    #Loose Id
+    Pt010_Loose    = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt1020_Loose   = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt2030_Loose   = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt3050_Loose   = cms.vdouble(-0.93,-0.52,-0.39,-0.31)   
+)
+
+###########################################################
 ## Working points for the 74X training
 ###########################################################
 full_74x_chs_wp  = cms.PSet(

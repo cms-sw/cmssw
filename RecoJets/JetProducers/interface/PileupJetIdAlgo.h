@@ -64,8 +64,8 @@ protected:
 	PileupJetIdentifier internalId_;
 	variables_list_t variables_;
 
-	std::unique_ptr<TMVA::Reader> reader_, reader_jteta_0_2_, reader_jteta_2_2p5_, reader_jteta_2p5_3_, reader_jteta_3_5_;
-	std::string    tmvaWeights_, tmvaWeights_jteta_0_2_, tmvaWeights_jteta_2_2p5_, tmvaWeights_jteta_2p5_3_, tmvaWeights_jteta_3_5_, tmvaMethod_; 
+	std::unique_ptr<TMVA::Reader> reader_, reader_jteta_0_2p5_, reader_jteta_2p5_2p75_, reader_jteta_2p75_3_, reader_jteta_3_5_;
+	std::string    tmvaWeights_, tmvaWeights_jteta_0_2p5_, tmvaWeights_jteta_2p5_2p75_, tmvaWeights_jteta_2p75_3_, tmvaWeights_jteta_3_5_, tmvaMethod_; 
 	std::vector<std::string>  tmvaVariables_, tmvaVariables_jteta_0_3_, tmvaVariables_jteta_3_5_;
 	std::vector<std::string>  tmvaSpectators_;
 	std::map<std::string,std::string>  tmvaNames_;
