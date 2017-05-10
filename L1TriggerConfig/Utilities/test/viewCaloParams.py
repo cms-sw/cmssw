@@ -41,8 +41,8 @@ else :
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
-                 record = cms.string('L1TCaloStage2ParamsRcd'),
-                 tag = cms.string("L1TCaloParams_Stage2v0_hlt")
+                 record = cms.string('L1TCaloParamsRcd'),
+                 tag = cms.string("L1TCaloParams_Stage2v3_hlt")
             )
        )
    )
