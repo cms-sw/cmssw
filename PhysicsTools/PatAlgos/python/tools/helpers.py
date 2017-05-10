@@ -4,6 +4,25 @@ import sys
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
 
+def getPatAlgosToolsTask(process):
+    taskName = "patAlgosToolsTask"
+    if hasattr(process, taskName):
+        task = getattr(process, taskName)
+        if not isinstance(task, cms.Task):
+            raise Exception("patAlgosToolsTask does not have type Task")
+    else:
+        setattr(process, taskName, cms.Task())
+        task = getattr(process, taskName)
+    return task
+
+def associatePatAlgosToolsTask(process):
+    task = getPatAlgosToolsTask(process)
+    process.schedule.associate(task)
+
+def addToProcessAndTask(label, module, process, task):
+    setattr(process, label, module)
+    task.add(getattr(process, label))
+
 def addESProducers(process,config):
 	config = config.replace("/",".")
 	#import RecoBTag.Configuration.RecoBTag_cff as btag
@@ -15,63 +34,76 @@ def addESProducers(process,config):
 			if 'ESProducer' in item.type_():
 				setattr(process,name,item)
 
-def loadWithPrefix(process,moduleName,prefix=''):
-        loadWithPrePostfix(process,moduleName,prefix,'')
+def loadWithPrefix(process,moduleName,prefix='',loadedProducersAndFilters=None):
+        loadWithPrePostfix(process,moduleName,prefix,'',loadedProducersAndFilters)
 
-def loadWithPostfix(process,moduleName,postfix=''):
-        loadWithPrePostfix(process,moduleName,'',postfix)
+def loadWithPostfix(process,moduleName,postfix='',loadedProducersAndFilters=None):
+        loadWithPrePostfix(process,moduleName,'',postfix,loadedProducersAndFilters)
 
-def loadWithPrePostfix(process,moduleName,prefix='',postfix=''):
+def loadWithPrePostfix(process,moduleName,prefix='',postfix='',loadedProducersAndFilters=None):
 	moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
 	#print module.PatAlgos.patSequences_cff.patDefaultSequence
-        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix)
+        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix,loadedProducersAndFilters)
 
-def extendWithPrePostfix(process,other,prefix,postfix,items=()):
-        """Look in other and find types which we can use"""
-        # enable explicit check to avoid overwriting of existing objects
-        #__dict__['_Process__InExtendCall'] = True
+def addToTask(loadedProducersAndFilters, module):
+    if loadedProducersAndFilters:
+        if isinstance(module, cms.EDProducer) or isinstance(module, cms.EDFilter):
+            loadedProducersAndFilters.add(module)
 
-        seqs = dict()
-	sequence = cms.Sequence()
-	sequence._moduleLabels = []
-	sequence.setLabel('tempSequence')
-        for name in dir(other):
-            #'from XX import *' ignores these, and so should we.
-            	if name.startswith('_'):
-                	continue
-            	item = getattr(other,name)
-            	if name == "source" or name == "looper" or name == "subProcess":
-			continue
-            	elif isinstance(item,cms._ModuleSequenceType):
-			continue
-            	elif isinstance(item,cms.Schedule):
-			continue
-            	elif isinstance(item,cms.VPSet) or isinstance(item,cms.PSet):
-			continue
-            	elif isinstance(item,cms._Labelable):
-                	if not item.hasLabel_():
-                   		item.setLabel(name)
-			if prefix != '' or postfix != '':
-				newModule = item.clone()
-				if isinstance(item,cms.ESProducer):
-					newLabel = item.label()
-					newName =name
-				else:
-				        if 'TauDiscrimination' in name:
-				                       process.__setattr__(name,item)
-					newLabel = prefix+item.label()+postfix
-					newName = prefix+name+postfix
-				process.__setattr__(newName,newModule)
-				if isinstance(newModule, cms._Sequenceable) and not newName == name:
-					sequence +=getattr(process,newName)
-					sequence._moduleLabels.append(item.label())
-			else:
-				process.__setattr__(name,item)
+def extendWithPrePostfix(process,other,prefix,postfix,loadedProducersAndFilters=None):
+    """Look in other and find types which we can use"""
+    # enable explicit check to avoid overwriting of existing objects
+    #__dict__['_Process__InExtendCall'] = True
 
-	if prefix != '' or postfix != '':
-		for label in sequence._moduleLabels:
-			massSearchReplaceAnyInputTag(sequence, label, prefix+label+postfix,verbose=False,moduleLabelOnly=True)
+    if loadedProducersAndFilters:
+        task = getattr(process, loadedProducersAndFilters)
+        if not isinstance(task, cms.Task):
+            raise Exception("extendWithPrePostfix argument must be name of Task type object attached to the process or None")
+    else:
+        task = None
+
+    sequence = cms.Sequence()
+    sequence._moduleLabels = []
+    for name in dir(other):
+        #'from XX import *' ignores these, and so should we.
+        if name.startswith('_'):
+            continue
+        item = getattr(other,name)
+        if name == "source" or name == "looper" or name == "subProcess":
+            continue
+        elif isinstance(item,cms._ModuleSequenceType):
+            continue
+        elif isinstance(item,cms.Task):
+            continue
+        elif isinstance(item,cms.Schedule):
+            continue
+        elif isinstance(item,cms.VPSet) or isinstance(item,cms.PSet):
+            continue
+        elif isinstance(item,cms._Labelable):
+            if not item.hasLabel_():
+                item.setLabel(name)
+            if prefix != '' or postfix != '':
+                newModule = item.clone()
+                if isinstance(item,cms.ESProducer):
+                    newName =name
+                else:
+                    if 'TauDiscrimination' in name:
+                        process.__setattr__(name,item)
+                        addToTask(task, item)
+                    newName = prefix+name+postfix
+                process.__setattr__(newName,newModule)
+                addToTask(task, newModule)
+                if isinstance(newModule, cms._Sequenceable) and not newName == name:
+                    sequence +=getattr(process,newName)
+                    sequence._moduleLabels.append(item.label())
+            else:
+                process.__setattr__(name,item)
+                addToTask(task, item)
+
+    if prefix != '' or postfix != '':
+        for label in sequence._moduleLabels:
+            massSearchReplaceAnyInputTag(sequence, label, prefix+label+postfix,verbose=False,moduleLabelOnly=True)
 
 def applyPostfix(process, label, postfix):
     result = None
@@ -196,14 +228,17 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix="", noClones = []):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
         self._noClones = noClones
+        self._addToTask = addToTask
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
+        if addToTask:
+            self._patAlgosToolsTask = getPatAlgosToolsTask(process)
 
     def enter(self, visitee):
         if isinstance(visitee, cms._Module):
@@ -217,6 +252,8 @@ class CloneSequenceVisitor(object):
                 self._moduleLabels.append(label)
                 newModule = visitee.clone()
                 setattr(self._process, self._newLabel(label), newModule)
+                if self._addToTask:
+                    self._patAlgosToolsTask.add(getattr(self._process, self._newLabel(label)))
             self.__appendToTopSequence(newModule)
 
     def leave(self, visitee):
@@ -258,6 +295,16 @@ class MassSearchParamVisitor(object):
 def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue,verbose=False):
     sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue,verbose))
 
+def massReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
+    for s in process.paths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+    for s in process.endpaths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+    if process.schedule_() is not None:
+        for task in process.schedule_()._tasks:
+            massSearchReplaceParam(task, name, old, new, verbose)
+    return(process)
+
 def listModules(sequence):
     visitor = GatherAllModulesVisitor(gatheredInstance=cms._Module)
     sequence.visit(visitor)
@@ -271,6 +318,16 @@ def listSequences(sequence):
 def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False,skipLabelTest=False) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
     sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly,skipLabelTest=skipLabelTest))
+
+def massReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
+    for s in process.paths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+    for s in process.endpaths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+    if process.schedule_() is not None:
+        for task in process.schedule_()._tasks:
+            massSearchReplaceAnyInputTag(task, old, new, verbose, moduleLabelOnly, skipLabelTest)
+    return(process)
 
 def jetCollectionString(prefix='', algo='', type=''):
     """
@@ -312,7 +369,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = []):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False):
    """
    ------------------------------------------------------------------
    copy a sequence plus the modules and sequences therein
@@ -322,7 +379,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
    """
    result = sequence
    if not postfix == "":
-       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones)
+       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
        sequence.visit(visitor)
        result = visitor.clonedSequence()
    return result
@@ -339,8 +396,52 @@ if __name__=="__main__":
            p.b = cms.EDProducer("b", src=cms.InputTag("a"))
            p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
            p.s = cms.Sequence(p.a*p.b*p.c *p.a)
-           cloneProcessingSnippet(p, p.s, "New")
-           self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b","instance")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew","instance")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
+           cloneProcessingSnippet(p, p.s, "New", addToTask = True)
+           self.assertEqual(p.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+process.a = cms.EDProducer("a",
+    src = cms.InputTag("gen")
+)
+
+
+process.aNew = cms.EDProducer("a",
+    src = cms.InputTag("gen")
+)
+
+
+process.b = cms.EDProducer("b",
+    src = cms.InputTag("a")
+)
+
+
+process.bNew = cms.EDProducer("b",
+    src = cms.InputTag("aNew")
+)
+
+
+process.c = cms.EDProducer("c",
+    src = cms.InputTag("b","instance")
+)
+
+
+process.cNew = cms.EDProducer("c",
+    src = cms.InputTag("bNew","instance")
+)
+
+
+process.patAlgosToolsTask = cms.Task(process.aNew, process.bNew, process.cNew)
+
+
+process.s = cms.Sequence(process.a+process.b+process.c+process.a)
+
+
+process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
+
+
+""")
        def testContains(self):
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
@@ -351,8 +452,8 @@ if __name__=="__main__":
            self.assert_( contains(p.s1, "a") )
            self.assert_( not contains(p.s2, "a") )
        def testJetCollectionString(self):
-           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patFooBarJets')
-           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatFooBarJets')
+           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patJetsFooBar')
+           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatJetsFooBar')
        def testListModules(self):
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
@@ -394,4 +495,94 @@ if __name__=="__main__":
            self.assertNotEqual(cms.InputTag("new"), p.c.vec[2])
            self.assertNotEqual(cms.InputTag("new"), p.c.vec[3])
 
+       def testMassReplaceInputTag(self):
+           process1 = cms.Process("test")
+           massReplaceInputTag(process1, "a", "b", False, False, False)
+           self.assertEqual(process1.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+""")
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c")),
+                                nestedv = cms.VPSet(cms.PSet(src = cms.InputTag("a")), cms.PSet(src = cms.InputTag("d"))),
+                                vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d"))
+                               )
+           p.d = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.e = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.f = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.g = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.s1 = cms.Sequence(p.a*p.b*p.c)
+           p.path1 = cms.Path(p.s1)
+           p.s2 = cms.Sequence(p.d)
+           p.path2 = cms.Path(p.e)
+           p.s3 = cms.Sequence(p.f)
+           p.endpath1 = cms.EndPath(p.s3)
+           p.endpath2 = cms.EndPath(p.g)
+           p.t1 = cms.Task(p.h)
+           p.t2 = cms.Task(p.i)
+           p.schedule = cms.Schedule()
+           p.schedule.associate(p.t1, p.t2)
+           massReplaceInputTag(p, "a", "b", False, False, False)
+           self.assertEqual(cms.InputTag("b"), p.b.src)
+           self.assertEqual(cms.InputTag("b"), p.c.vec[0])
+           self.assertEqual(cms.InputTag("c"), p.c.vec[2])
+           self.assertEqual(cms.InputTag("a"), p.d.src)
+           self.assertEqual(cms.InputTag("b"), p.e.src)
+           self.assertEqual(cms.InputTag("b"), p.f.src)
+           self.assertEqual(cms.InputTag("b"), p.g.src)
+           self.assertEqual(cms.InputTag("b"), p.h.src)
+           self.assertEqual(cms.InputTag("b"), p.i.src)
+
+       def testMassReplaceParam(self):
+           process1 = cms.Process("test")
+           massReplaceParameter(process1, "src", cms.InputTag("a"), "b", False)
+           self.assertEqual(process1.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+""")
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c")),
+                                nestedv = cms.VPSet(cms.PSet(src = cms.InputTag("a")), cms.PSet(src = cms.InputTag("d"))),
+                                vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d"))
+                               )
+           p.d = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.e = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.f = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.g = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.s1 = cms.Sequence(p.a*p.b*p.c)
+           p.path1 = cms.Path(p.s1)
+           p.s2 = cms.Sequence(p.d)
+           p.path2 = cms.Path(p.e)
+           p.s3 = cms.Sequence(p.f)
+           p.endpath1 = cms.EndPath(p.s3)
+           p.endpath2 = cms.EndPath(p.g)
+           p.t1 = cms.Task(p.h)
+           p.t2 = cms.Task(p.i)
+           p.schedule = cms.Schedule()
+           p.schedule.associate(p.t1, p.t2)
+           massReplaceParameter(p, "src",cms.InputTag("a"), "b", False)
+           self.assertEqual(cms.InputTag("gen"), p.a.src)
+           self.assertEqual(cms.InputTag("b"), p.b.src)
+           self.assertEqual(cms.InputTag("a"), p.c.vec[0])
+           self.assertEqual(cms.InputTag("c"), p.c.vec[2])
+           self.assertEqual(cms.InputTag("a"), p.d.src)
+           self.assertEqual(cms.InputTag("b"), p.e.src)
+           self.assertEqual(cms.InputTag("b"), p.f.src)
+           self.assertEqual(cms.InputTag("b"), p.g.src)
+           self.assertEqual(cms.InputTag("b"), p.h.src)
+           self.assertEqual(cms.InputTag("b"), p.i.src)
    unittest.main()

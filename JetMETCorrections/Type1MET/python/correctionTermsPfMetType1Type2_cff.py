@@ -1,14 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain, \
-                                                              ak4PFCHSL1FastjetCorrector, \
-                                                              ak4PFCHSL2RelativeCorrector, \
-                                                              ak4PFCHSL3AbsoluteCorrector, \
-                                                              ak4PFCHSResidualCorrector, \
-                                                              ak4PFCHSL1FastL2L3ResidualCorrector, \
-                                                              ak4PFCHSL1FastL2L3CorrectorChain, \
-                                                              ak4PFCHSL1FastL2L3Corrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 ##____________________________________________________________________________||
 # select PFCandidates ("unclustered energy") not within jets
@@ -73,16 +66,16 @@ corrPfMetType2 = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-correctionTermsPfMetType1Type2 = cms.Sequence(
-    pfJetsPtrForMetCorr +
-    particleFlowPtrs +
-    pfCandsNotInJetsPtrForMetCorr +
-    pfCandsNotInJetsForMetCorr +
-    pfCandMETcorr +
-    ak4PFCHSL1FastL2L3ResidualCorrectorChain + #Data full chain
-    ak4PFCHSL1FastL2L3Corrector + #MC last corrector, previous are already in the data chain
-    corrPfMetType1 +
+correctionTermsPfMetType1Type2Task = cms.Task(
+    pfJetsPtrForMetCorr,
+    particleFlowPtrs,
+    pfCandsNotInJetsPtrForMetCorr,
+    pfCandsNotInJetsForMetCorr,
+    pfCandMETcorr,
+    ak4PFCHSL1FastL2L3ResidualCorrectorTask, #Data full chain
+    ak4PFCHSL1FastL2L3CorrectorTask, #MC last corrector, previous are already in the data chain
+    corrPfMetType1,
     corrPfMetType2
     )
 
-##____________________________________________________________________________||
+correctionTermsPfMetType1Type2 = cms.Sequence(correctionTermsPfMetType1Type2Task)
