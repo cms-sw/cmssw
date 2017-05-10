@@ -1,0 +1,19 @@
+###########################################################
+# Descriptor: [B0 -> J/psi(mu+ mu-) p+ p-)] + cc #
+###########################################################
+Alias      MyB0        B0
+Alias      Myanti-B0   anti-B0
+ChargeConj MyB0        Myanti-B0
+Alias      MyJpsi      J/psi
+ChargeConj MyJpsi      MyJpsi
+#
+Decay MyB0
+  1.000    MyJpsi       p+    anti-p-              PHSP;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyJpsi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+End
