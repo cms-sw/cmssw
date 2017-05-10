@@ -510,6 +510,8 @@ class Process(object):
         moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
         self.extend(sys.modules[moduleName])
+        for m in self.__modifiers:
+            m._applyAndRemoveProcessModifiers(self)
     def extend(self,other,items=()):
         """Look in other and find types that we can use"""
         # enable explicit check to avoid overwriting of existing objects
@@ -1162,6 +1164,12 @@ class Modifier(object):
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
     return ProcessModifier(self,func)
+  def toModifyProcess(self,func):
+    """ Creates a ProcessModifier and stores it. This can later be run using the _applyAndRemoveProcessModifiers
+        function. In this way config fragments will call toModifyProcess and once they have finished being loaded
+        the process object will apply the functions then remove them from the list.
+    """
+    self.__processModifiers.append( ProcessModifier(self,func) )
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
@@ -1208,6 +1216,11 @@ class Modifier(object):
   def _setChosen(self):
     """Should only be called by cms.Process instances"""
     self.__chosen = True
+  def _applyAndRemoveProcessModifiers(self,process):
+    """Should only be called by cms.Process instances"""
+    for processModifier in self.__processModifiers :
+        processModifier.apply(process)
+    self.__processModifiers = []
   def isChosen(self):
     return self.__chosen
   def __and__(self, other):
@@ -1230,6 +1243,10 @@ class ModifierChain(object):
         self.__chosen = True
         for m in self.__chain:
             m._setChosen()
+    def _applyAndRemoveProcessModifiers(self,process):
+        """Should only be called by cms.Process instances"""
+        for m in self.__chain:
+            m._applyAndRemoveProcessModifiers(process)
     def isChosen(self):
         return self.__chosen
 
