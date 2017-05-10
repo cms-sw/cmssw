@@ -205,6 +205,7 @@ void PixelCPEBase::fillDetParams()
 
     LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
     p.bz = Bfield.z();
+    p.bx = Bfield.x();
 
 
     // Compute the Lorentz shifts for this detector element

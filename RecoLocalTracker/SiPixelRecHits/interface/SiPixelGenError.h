@@ -1,10 +1,11 @@
 //
-//  SiPixelGenError.h (v1.00)
+//  SiPixelGenError.h (v2.00)
 //
 //  Object to contain Lorentz drift and error information for the Generic Algorithm
 //
 // Created by Morris Swartz on 1/10/2014.
 //
+// Update for Phase 1 FPix, M.S. 1/15/17
 //
  
 // Build the template storage structure from several pieces 
@@ -115,7 +116,7 @@ class SiPixelGenError {
   
 	
 // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm.
-  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
             float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
   // Overloaded method to provide only the LA parameters
   int qbin(int id);

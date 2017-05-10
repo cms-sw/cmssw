@@ -234,10 +234,11 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 
  
   float locBz = theDetParam.bz;
+  float locBx = theDetParam.bx;
     
   theClusterParam.ierr =
     PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
-		     locBz, 
+		     locBz, locBx,
 		     clusterPayload,
 		     templ,
 		     theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.templProbY_,
