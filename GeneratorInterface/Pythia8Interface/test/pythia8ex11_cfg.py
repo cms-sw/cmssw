@@ -17,6 +17,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     useEvtGenPlugin = cms.PSet(),
     #evtgenDecFile = cms.string("mydecfile"),
     #evtgenPdlFile = cms.string("mypdlfile"),
+    evtgenUserFile = cms.vstring('GeneratorInterface/Pythia8Interface/test/evtgen_userfile.dec'),
     PythiaParameters = cms.PSet(
         pythia8_example11 = cms.vstring('HardQCD:hardbbbar = on'),
         parameterSets = cms.vstring('pythia8_example11')
