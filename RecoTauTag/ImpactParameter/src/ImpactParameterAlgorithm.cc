@@ -4,6 +4,7 @@
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ImpactParameterAlgorithm::ImpactParameterAlgorithm(){
         ip_min   = -9999;
@@ -30,8 +31,7 @@ void ImpactParameterAlgorithm::setTransientTrackBuilder(const TransientTrackBuil
 std::pair<float,reco::TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const reco::IsolatedTauTagInfoRef & tauRef, const reco::Vertex & pv) {
 
 	if(transientTrackBuilder == 0){
-	     std::cout << "Transient track builder is 0. abort!" << std::endl;
-	     abort(); //FIXME: trow an exception here
+	  throw cms::Exception("NullTransientTrackBuilder") << "Transient track builder is 0. ";
 	}
 
         reco::TauImpactParameterInfo resultExtended;
@@ -52,7 +52,7 @@ std::pair<float,reco::TauImpactParameterInfo> ImpactParameterAlgorithm::tag(cons
 
 	  SignedImpactParameter3D signed_ip3D;
 	  Measurement1D ip3D = signed_ip3D.apply(transientTrack,direction,pv).second;
-	  //std::cout << "check pv,ip3d,track z " << pv.z() << " " << ip3D.value() << " " << transientTrack->dz() << std::endl;
+	  LogDebug("ImpactParameterAlgorithm::tag") << "check pv,ip3d " << pv.z() << " " << ip3D.value()  ;
 	  if(!use_sign){
 	    Measurement1D tmp2D(fabs(ip.value()),ip.error());
 	    ip = tmp2D;

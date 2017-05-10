@@ -51,7 +51,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin
 };
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
-  : RecoTauBuilderPlugin(pset,std::move(iC)),
+  : RecoTauBuilderPlugin(pset, std::move(iC)),
     qcuts_(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts")),
     isolationConeSize_(pset.getParameter<double>("isolationConeSize")) 
 {
@@ -104,11 +104,23 @@ namespace xclean
   }
 
   template<>
-  //inline void CrossCleanPtrs<ChargedHadronCombo::combo_iterator>::initialize(const ChargedHadronCombo::combo_iterator& chargedHadronsBegin, const ChargedHadronCombo::combo_iterator& chargedHadronsEnd) 
+  inline void CrossCleanPtrs<ChargedHadronCombo::combo_iterator>::initialize(const ChargedHadronCombo::combo_iterator& chargedHadronsBegin, const ChargedHadronCombo::combo_iterator& chargedHadronsEnd) 
+  {
+    //std::cout << "<CrossCleanPtrs<ChargedHadronCombo>::initialize>:" << std::endl;
+    for ( ChargedHadronCombo::combo_iterator chargedHadron = chargedHadronsBegin; chargedHadron != chargedHadronsEnd; ++chargedHadron ) {
+      const reco::CompositePtrCandidate::daughters& daughters = chargedHadron->daughterPtrVector();
+      for ( reco::CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
+	    daughter != daughters.end(); ++daughter ) {	
+	//std::cout << " adding PFCandidate = " << daughter->id() << ":" << daughter->key() << std::endl;
+	toRemove_.insert(reco::CandidatePtr(*daughter));
+      }
+    }
+  }
+
+  template<>
   inline void CrossCleanPtrs<ChargedHadronList::const_iterator>::initialize(const ChargedHadronList::const_iterator& chargedHadronsBegin, const ChargedHadronList::const_iterator& chargedHadronsEnd) 
   {
     //std::cout << "<CrossCleanPtrs<ChargedHadronList>::initialize>:" << std::endl;
-    //for ( ChargedHadronCombo::combo_iterator chargedHadron = chargedHadronsBegin; chargedHadron != chargedHadronsEnd; ++chargedHadron ) {
     for ( ChargedHadronList::const_iterator chargedHadron = chargedHadronsBegin; chargedHadron != chargedHadronsEnd; ++chargedHadron ) {
       const reco::CompositePtrCandidate::daughters& daughters = chargedHadron->daughterPtrVector();
       for ( reco::CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
@@ -211,6 +223,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     if ( verbosity_ ) {
       std::cout << "piZerosToBuild = " << piZerosToBuild << std::endl;
       std::cout << "tracksToBuild = " << tracksToBuild << std::endl;
+      std::cout << "#chargedHadrons = " << chargedHadrons.size() << std::endl;
     }
     
     // Skip decay mode if jet doesn't have the multiplicity to support it
@@ -321,22 +334,25 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         // Now build isolation collections
         // Load our isolation tools
         using namespace reco::tau::cone;
-        PFCandPtrDRFilter isolationConeFilter(tau.p4(), 0, isolationConeSize_);
+        PFCandPtrDRFilter isolationConeFilter(tau.p4(), -0.1, isolationConeSize_);
 
-        // Cross cleaning predicate.  Remove any PFCandidatePtrs that are
-        // contained within existing ChargedHadrons or PiZeros.  This predicate will return false
-        // for any object that overlaps with chargedHadrons or cleanPiZeros.
-	//xclean::CrossCleanPtrs<ChargedHadronCombo::combo_iterator> pfCandXCleaner_chargedHadrons(trackCombo->combo_begin(), trackCombo->combo_end());
-	xclean::CrossCleanPtrs<ChargedHadronList::const_iterator> pfCandXCleaner_chargedHadrons(chargedHadrons.begin(), chargedHadrons.end());
-	xclean::CrossCleanPtrs<PiZeroList::const_iterator> pfCandXCleaner_pizeros(cleanIsolationPiZeros.begin(), cleanIsolationPiZeros.end());
-	//typedef xclean::PredicateAND<xclean::CrossCleanPtrs<ChargedHadronCombo::combo_iterator>, xclean::CrossCleanPtrs<PiZeroList::const_iterator> > pfCandXCleanerType;
+        // Cross cleaning predicate: Remove any PFCandidatePtrs that are contained within existing ChargedHadrons or PiZeros.  
+	// The predicate will return false for any object that overlaps with chargedHadrons or cleanPiZeros.
+	//  1.) to select charged PFCandidates within jet that are not signalPFChargedHadrons 
+	typedef xclean::CrossCleanPtrs<ChargedHadronCombo::combo_iterator> pfChargedHadronXCleanerType;
+	pfChargedHadronXCleanerType pfChargedHadronXCleaner_comboChargedHadrons(trackCombo->combo_begin(), trackCombo->combo_end());
+	// And this cleaning filter predicate with our Iso cone filter
+        xclean::PredicateAND<PFCandPtrDRFilter, pfChargedHadronXCleanerType> pfCandFilter_comboChargedHadrons(isolationConeFilter, pfChargedHadronXCleaner_comboChargedHadrons);
+	//  2.) to select neutral PFCandidates within jet
+	xclean::CrossCleanPtrs<ChargedHadronList::const_iterator> pfChargedHadronXCleaner_allChargedHadrons(chargedHadrons.begin(), chargedHadrons.end());
+	xclean::CrossCleanPtrs<PiZeroList::const_iterator> piZeroXCleaner(cleanIsolationPiZeros.begin(), cleanIsolationPiZeros.end());
 	typedef xclean::PredicateAND<xclean::CrossCleanPtrs<ChargedHadronList::const_iterator>, xclean::CrossCleanPtrs<PiZeroList::const_iterator> > pfCandXCleanerType;
-        pfCandXCleanerType pfCandXCleaner(pfCandXCleaner_chargedHadrons, pfCandXCleaner_pizeros);
+        pfCandXCleanerType pfCandXCleaner_allChargedHadrons(pfChargedHadronXCleaner_allChargedHadrons, piZeroXCleaner);
         // And this cleaning filter predicate with our Iso cone filter
-        xclean::PredicateAND<PFCandPtrDRFilter, pfCandXCleanerType> pfCandFilter(isolationConeFilter, pfCandXCleaner);
+        xclean::PredicateAND<PFCandPtrDRFilter, pfCandXCleanerType> pfCandFilter_allChargedHadrons(isolationConeFilter, pfCandXCleaner_allChargedHadrons);
 
-	ChargedHadronDRFilter isolationConeFilterChargedHadron(tau.p4(), 0, isolationConeSize_);
-        PiZeroDRFilter isolationConeFilterPiZero(tau.p4(), 0, isolationConeSize_);
+	ChargedHadronDRFilter isolationConeFilterChargedHadron(tau.p4(), -0.1, isolationConeSize_);
+        PiZeroDRFilter isolationConeFilterPiZero(tau.p4(), -0.1, isolationConeSize_);
 
         // Additionally make predicates to select the different PF object types
         // of the regional junk objects to add
@@ -376,6 +392,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	// NOTE: isolation ChargedHadrons need to be added **after** signal and isolation PiZeros
 	//       to avoid double-counting PFGammas as part of PiZero and merged with ChargedHadron
 	//
+	if ( verbosity_ >= 2 ) {
+	  std::cout << "adding isolation PFChargedHadrons from trackCombo:" << std::endl;
+	}
         tau.addTauChargedHadrons(
             RecoTauConstructor::kIsolation,
             boost::make_filter_iterator(
@@ -387,16 +406,22 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
         // Add all the candidates that weren't included in the combinatoric
         // generation
+	if ( verbosity_ >= 2 ) {
+	  std::cout << "adding isolation PFChargedHadrons not considered in trackCombo:" << std::endl;
+	}
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
             boost::make_filter_iterator(
-                pfCandFilter,
+                pfCandFilter_comboChargedHadrons,
                 pfch_end, pfchs.end()),
             boost::make_filter_iterator(
-                pfCandFilter,
+                pfCandFilter_comboChargedHadrons,
                 pfchs.end(), pfchs.end()));
         // Add all charged candidates that are in the iso cone but weren't in the
         // original PFJet
+	if ( verbosity_ >= 2 ) {
+	  std::cout << "adding isolation PFChargedHadrons from 'regional junk':" << std::endl;
+	}
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
             boost::make_filter_iterator(
@@ -417,10 +442,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kNeutralHadron,
             boost::make_filter_iterator(
-                pfCandFilter,
+                pfCandFilter_allChargedHadrons,
                 pfnhs.begin(), pfnhs.end()),
             boost::make_filter_iterator(
-                pfCandFilter,
+                pfCandFilter_allChargedHadrons,
                 pfnhs.end(), pfnhs.end()));
         // Add all the neutral hadrons from the region collection that are in
         // the iso cone to the tau

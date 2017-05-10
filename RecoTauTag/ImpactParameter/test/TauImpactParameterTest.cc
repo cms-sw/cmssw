@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <string>
 
@@ -99,7 +99,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	iEvent.getByLabel(jetTagSrc,tauHandle);
 
 	const TauImpactParameterInfoCollection & tauIpInfo = *(tauHandle.product());
-	cout << "Found " << tauIpInfo.size() << " Tau candidates" << std::endl;
+	LogInfo("TauImpactParameterTest") << "Found " << tauIpInfo.size() << " Tau candidates" ;
 
 	TauImpactParameterInfoCollection::const_iterator iJet;
 	for (iJet = tauIpInfo.begin(); iJet != tauIpInfo.end(); iJet++) {
@@ -114,8 +114,8 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	      double discriminator = iJet->getIsolatedTauTag()->discriminator(Rmatch,Rsignal,Riso,pT_LT,pT_min);
 
 	      const Jet* theJet = iJet->getIsolatedTauTag()->jet().get();
-	      std::cout << "  Candidate jet Et = " << theJet->et() << std::endl;
-              std::cout << "    isolation discriminator = "<< discriminator <<std::endl;
+	      LogInfo("TauImpactParameterTest") << "  Candidate jet Et = " << theJet->et() ;
+              LogInfo("TauImpactParameterTest") << "    isolation discriminator = "<< discriminator ;
 
               if(discriminator == 0) continue;
               if(theJet->et() < 0 || theJet->et() > 150) continue;
@@ -136,14 +136,14 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 	      std::vector<TrackRef> tauTracks;
   	      for (iTrack = tracks.begin(); iTrack != tracks.end(); iTrack++){
 
-                  std::cout << "    track pt, eta "  << (*iTrack)->pt()  << " " 
+                  LogInfo("TauImpactParameterTest") << "    track pt, eta "  << (*iTrack)->pt()  << " " 
                                                 << (*iTrack)->eta() << " " 
                                                 << (*iTrack)->d0()  << " "
                                                 << (*iTrack)->d0Error()  << " "
                                                 << (*iTrack)->dz()  << " "
                                                 << (*iTrack)->dzError()  << " "
 						<< (*iTrack)->recHitsSize() << " "
-                                                << (*iTrack)->normalizedChi2() << std::endl;
+                                                << (*iTrack)->normalizedChi2() ;
 
 		  if((*iTrack)->pt() < 1.0) continue;
 		  tauTracks.push_back(*iTrack);
@@ -155,13 +155,12 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 		    Measurement1D tip = trackData->transverseIp;
 		    Measurement1D tzip = trackData->ip3D;
 
-                    std::cout << "          ip,sip,err " << tip.value()
+                    LogInfo("TauImpactParameterTest") << "          ip,sip,err " << tip.value()
                          << " "                     << tip.significance()
-                         << " "                     << tip.error() << std::endl;
-                    
-                    std::cout << "       3D ip,sip,err " << tzip.value()
+                         << " "                     << tip.error() ;
+                    LogInfo("TauImpactParameterTest") << "       3D ip,sip,err " << tzip.value()
                          << " "                     << tzip.significance()
-                         << " "                     << tzip.error() << std::endl;
+                         << " "                     << tzip.error() ;
 
 		    h_sip2d_leadingTrack->Fill(tip.significance());
                     h_sip3d_leadingTrack->Fill(tzip.significance());
@@ -190,17 +189,17 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 			ip3d = 10*tzip.value();
 			sip2d = tip.significance();
 			sip3d = tzip.significance();
-//std::cout << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d << std::endl;
+			LogDebug("TauImpactParameterTest") << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d ;
 			t_performance->Fill();
 		    }
                 }else{
-                    std::cout << "    track data = 0! " << std::endl;
+                    LogInfo("TauImpactParameterTest") << "    track data = 0! " ;
 		}
 	      }
 
 
 	    }catch ( std::exception & e){
-        	cout << "Genexception: " << e.what() << std::endl;
+	      LogInfo("TauImpactParameterTest") << "Genexception: " << e.what() ;
 	    }
 	}
 }
@@ -210,7 +209,7 @@ void TauImpactParameterTest::beginJob(){
 
 void TauImpactParameterTest::endJob(){
 
-	cout << " Events analysed " << nevents << std::endl;
+  LogInfo("TauImpactParameterTest") << " Events analysed " << nevents ;
 
 	// ip performance plot calculation
 	const int N = 50;
@@ -278,7 +277,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(1);
 	  gPad->SetLogy();
 	  h_ip2d_1prong->SetStats(0);
-	  std::cout << "1-prong taus: " << h_ip2d_1prong->GetEntries() << std::endl;
+	  LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip2d_1prong->GetEntries() ;
 	  if(h_ip2d_1prong->GetMaximum() > 0) h_ip2d_1prong->Scale(1/h_ip2d_1prong->GetMaximum());
           h_ip2d_1prong->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_1prong->Draw();
@@ -288,7 +287,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(2);
           gPad->SetLogy();
           h_ip2d_3prong_leadingTrack->SetStats(0);
-          std::cout << "3-prong taus: " << h_ip2d_3prong_leadingTrack->GetEntries() << std::endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong_leadingTrack->GetEntries() ;
           if(h_ip2d_3prong_leadingTrack->GetMaximum() > 0) h_ip2d_3prong_leadingTrack->Scale(1/h_ip2d_3prong_leadingTrack->GetMaximum());
           h_ip2d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_3prong_leadingTrack->Draw();
@@ -300,7 +299,7 @@ void TauImpactParameterTest::endJob(){
         tauip->cd(3);
           gPad->SetLogy();
 	  h_ip2d_3prong->SetStats(0);
-          std::cout << "3-prong taus: " << h_ip2d_3prong->GetEntries() << std::endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong->GetEntries() ;
           if(h_ip2d_3prong->GetMaximum() > 0) h_ip2d_3prong->Scale(1/h_ip2d_3prong->GetMaximum());
 	  h_ip2d_3prong->GetXaxis()->SetTitle("ip_{T} (mm)");
           h_ip2d_3prong->Draw();
@@ -359,7 +358,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(1);
           gPad->SetLogy();
           h_ip3d_1prong->SetStats(0);
-          std::cout << "1-prong taus: " << h_ip3d_1prong->GetEntries() << std::endl;
+          LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip3d_1prong->GetEntries() ;
           if(h_ip3d_1prong->GetMaximum() > 0) h_ip3d_1prong->Scale(1/h_ip3d_1prong->GetMaximum());
           h_ip3d_1prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_1prong->Draw();
@@ -369,7 +368,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(2);
           gPad->SetLogy();
           h_ip3d_3prong_leadingTrack->SetStats(0);
-          std::cout << "3-prong taus: " << h_ip3d_3prong_leadingTrack->GetEntries() << std::endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong_leadingTrack->GetEntries() ;
           if(h_ip3d_3prong_leadingTrack->GetMaximum() > 0) h_ip3d_3prong_leadingTrack->Scale(1/h_ip3d_3prong_leadingTrack->GetMaximum());
           h_ip3d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_3prong_leadingTrack->Draw();
@@ -381,7 +380,7 @@ void TauImpactParameterTest::endJob(){
         tauip3D->cd(3);
           gPad->SetLogy();
           h_ip3d_3prong->SetStats(0);
-          std::cout << "3-prong taus: " << h_ip3d_3prong->GetEntries() << std::endl;
+          LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong->GetEntries() ;
           if(h_ip3d_3prong->GetMaximum() > 0) h_ip3d_3prong->Scale(1/h_ip3d_3prong->GetMaximum());
           h_ip3d_3prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
           h_ip3d_3prong->Draw();
