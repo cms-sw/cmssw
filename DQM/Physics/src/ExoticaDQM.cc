@@ -192,6 +192,7 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
     dijet_deltaEtaPFJet1PFJet2.push_back(bei.book1D("dijet_deltaEtaPFJet1PFJet2", "#Delta#eta(Leading PFJet, Sub PFJet)", 40, -5., 5.));
     dijet_deltaRPFJet1PFJet2.push_back(bei.book1D("dijet_deltaRPFJet1PFJet2",   "#DeltaR(Leading PFJet, Sub PFJet)", 50, 0., 6.));
     dijet_invMassPFJet1PFJet2.push_back(bei.book1D("dijet_invMassPFJet1PFJet2", "Leading PFJet, SubLeading PFJet Invariant mass (GeV)", 50, 0. , 8000.));
+    dijet_invMassPFJet1PFJet2_Tail.push_back(bei.book1D("dijet_invMassPFJet1PFJet2_Tail", "Leading PFJet, SubLeading PFJet Invariant mass Tail (GeV)", 50, 4000. , 8000.));
     dijet_PFchef.push_back(bei.book1D("dijet_PFchef", "Leading PFJet CHEF", 50, 0.0 , 1.0));
     dijet_PFnhef.push_back(bei.book1D("dijet_PFnhef", "Leading PFJet NHEF", 50, 0.0 , 1.0));
     dijet_PFcemf.push_back(bei.book1D("dijet_PFcemf", "Leading PFJet CEMF", 50, 0.0 , 1.0));
@@ -200,31 +201,31 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   }
   //--- DiMuon
   bei.setCurrentFolder("Physics/Exotica/DiMuons");
-  dimuon_Muon_pt            = bei.book1D("dimuon_Muon_pt",  "Pt of Muon (GeV)", 50, 30.0 , 2000);
+  dimuon_Muon_pt            = bei.book1D("dimuon_Muon_pt",  "Pt of Muon (GeV)", 50, 30.0 , 2500);
   dimuon_Muon_eta           = bei.book1D("dimuon_Muon_eta", "#eta (Muon)", 50, -2.5, 2.5);
   dimuon_Muon_phi           = bei.book1D("dimuon_Muon_phi", "#phi (Muon)", 50, -3.14,3.14);
   dimuon_Charge              = bei.book1D("dimuon_Charge", "Charge of the Muon", 10, -5., 5.);
   dimuon_deltaEtaMuon1Muon2  = bei.book1D("dimuon_deltaEtaMuon1Muon2", "#Delta#eta(Leading Muon, Sub Muon)", 40, -5., 5.);
   dimuon_deltaPhiMuon1Muon2  = bei.book1D("dimuon_deltaPhiMuon1Muon2", "#Delta#phi(Leading Muon, Sub Muon)", 40, 0., 3.15);
   dimuon_deltaRMuon1Muon2    = bei.book1D("dimuon_deltaRMuon1Muon2",   "#DeltaR(Leading Muon, Sub Muon)", 50, 0., 6.);
-  dimuon_invMassMuon1Muon2   = bei.book1D("dimuon_invMassMuon1Muon2", "Leading Muon, SubLeading Muon Low Invariant mass (GeV)", 50, 1000. , 4000.);
+  dimuon_invMassMuon1Muon2   = bei.book1D("dimuon_invMassMuon1Muon2", "Leading Muon, SubLeading Muon Low Invariant mass (GeV)", 50, 1000. , 4500.);
   dimuon_MuonMulti           = bei.book1D("dimuon_MuonMulti", "No. of Muons", 10, 0., 10.);
   //--- DiElectrons
   bei.setCurrentFolder("Physics/Exotica/DiElectrons");
-  dielectron_Electron_pt            = bei.book1D("dielectron_Electron_pt",  "Pt of Electron (GeV)", 50, 30.0 , 2000);
+  dielectron_Electron_pt            = bei.book1D("dielectron_Electron_pt",  "Pt of Electron (GeV)", 50, 30.0 , 2500);
   dielectron_Electron_eta           = bei.book1D("dielectron_Electron_eta", "#eta (Electron)", 50, -2.5, 2.5);
   dielectron_Electron_phi           = bei.book1D("dielectron_Electron_phi", "#phi (Electron)", 50, -3.14,3.14);
   dielectron_Charge                 = bei.book1D("dielectron_Charge", "Charge of the Electron", 10, -5., 5.);
   dielectron_deltaEtaElectron1Electron2  = bei.book1D("dielectron_deltaEtaElectron1Electron2", "#Delta#eta(Leading Electron, Sub Electron)", 40, -5., 5.);
   dielectron_deltaPhiElectron1Electron2  = bei.book1D("dielectron_deltaPhiElectron1Electron2", "#Delta#phi(Leading Electron, Sub Electron)", 40, 0., 3.15);
   dielectron_deltaRElectron1Electron2    = bei.book1D("dielectron_deltaRElectron1Electron2",   "#DeltaR(Leading Electron, Sub Electron)", 50, 0., 6.);
-  dielectron_invMassElectron1Electron2   = bei.book1D("dielectron_invMassElectron1Electron2", "Leading Electron, SubLeading Electron Invariant mass (GeV)", 50, 1000. , 4000.);
+  dielectron_invMassElectron1Electron2   = bei.book1D("dielectron_invMassElectron1Electron2", "Leading Electron, SubLeading Electron Invariant mass (GeV)", 50, 1000. , 4500.);
   dielectron_ElectronMulti           = bei.book1D("dielectron_ElectronMulti", "No. of Electrons", 10, 0., 10.);
   //--- DiPhotons
   bei.setCurrentFolder("Physics/Exotica/DiPhotons");
   diphoton_Photon_energy        = bei.book1D("diphoton_Photon_energy",  "Energy of Photon (GeV)", 50, 30.0 , 300);
-  diphoton_Photon_et            = bei.book1D("diphoton_Photon_et",  "Et of Photon (GeV)", 50, 30.0 , 300);
-  diphoton_Photon_pt            = bei.book1D("diphoton_Photon_pt",  "Pt of Photon (GeV)", 50, 30.0 , 300);
+  diphoton_Photon_et            = bei.book1D("diphoton_Photon_et",  "Et of Photon (GeV)", 50, 200.0 , 3000.);
+  diphoton_Photon_pt            = bei.book1D("diphoton_Photon_pt",  "Pt of Photon (GeV)", 50, 200.0 , 3000.);
   diphoton_Photon_eta           = bei.book1D("diphoton_Photon_eta", "#eta (Photon)", 50, -2.5, 2.5);
   diphoton_Photon_etasc         = bei.book1D("diphoton_Photon_etasc", "#eta sc(Photon)", 50, -2.5, 2.5);
   diphoton_Photon_phi           = bei.book1D("diphoton_Photon_phi", "#phi (Photon)", 50, -3.14,3.14);
@@ -241,7 +242,7 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   diphoton_deltaEtaPhoton1Photon2  = bei.book1D("diphoton_deltaEtaPhoton1Photon2", "#Delta#eta(SubLeading Photon, Sub Photon)", 40, -5., 5.);
   diphoton_deltaPhiPhoton1Photon2  = bei.book1D("diphoton_deltaPhiPhoton1Photon2", "#Delta#phi(SubLeading Photon, Sub Photon)", 40, 0., 3.15);
   diphoton_deltaRPhoton1Photon2    = bei.book1D("diphoton_deltaRPhoton1Photon2",   "#DeltaR(SubLeading Photon, Sub Photon)", 50, 0., 6.);
-  diphoton_invMassPhoton1Photon2   = bei.book1D("diphoton_invMassPhoton1Photon2", "SubLeading Photon, SubSubLeading Photon Invariant mass (GeV)", 50, 100. , 150.);
+  diphoton_invMassPhoton1Photon2   = bei.book1D("diphoton_invMassPhoton1Photon2", "SubLeading Photon, SubSubLeading Photon Invariant mass (GeV)", 50, 1000. , 5000.);
   diphoton_PhotonMulti           = bei.book1D("diphoton_PhotonMulti", "No. of Photons", 10, 0., 10.);
   //--- MonoJet
   bei.setCurrentFolder("Physics/Exotica/MonoJet");
@@ -259,27 +260,31 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   monojet_PFJetMulti          = bei.book1D("monojet_PFJetMulti", "No. of PFJets", 10, 0., 10.);
   //--- MonoMuon
   bei.setCurrentFolder("Physics/Exotica/MonoMuon");
-  monomuon_Muon_pt            = bei.book1D("monomuon_Muon_pt",  "Pt of Monomuon (GeV)", 50, 30.0 , 2000);
+  monomuon_Muon_pt            = bei.book1D("monomuon_Muon_pt",  "Pt of Monomuon (GeV)", 50, 30.0 , 3000);
   monomuon_Muon_eta           = bei.book1D("monomuon_Muon_eta", "#eta(Monomuon)", 50, -2.5, 2.5);
   monomuon_Muon_phi           = bei.book1D("monomuon_Muon_phi", "#phi(Monomuon)", 50, -3.14,3.14);
   monomuon_Charge             = bei.book1D("monomuon_Charge", "Charge of the MonoMuon", 10, -5., 5.);
-  monomuon_PFMet              = bei.book1D("monomuon_PFMet",    "Pt of PFMET (GeV)", 40, 0.0 , 2000);
+  monomuon_PFMet              = bei.book1D("monomuon_PFMet",    "Pt of PFMET (GeV)", 40, 0.0 , 3000);
   monomuon_PFMet_phi          = bei.book1D("monomuon_PFMet_phi", "PFMET #phi", 50, -3.14,3.14);
   monomuon_MuonPtOverPFMet    = bei.book1D("monomuon_MuonPtOverPFMet",  "Pt of Monomuon/PFMet", 40, 0.0 , 5.);
   monomuon_deltaPhiMuonPFMet  = bei.book1D("monomuon_deltaPhiMuonPFMet", "#Delta#phi(Monomuon, PFMet)", 40, 0., 3.15);
-  monomuon_TransverseMass     = bei.book1D("monomuon_TransverseMass", "Transverse Mass M_{T} GeV", 40, 200., 3000.);
+  monomuon_TransverseMass     = bei.book1D("monomuon_TransverseMass", "Transverse Mass M_{T} GeV", 40, 200., 4000.);
+  monomuon_TransverseMassBarrel  = bei.book1D("monomuon_TransverseMassBarrel", "Transverse Mass M_{T} GeV, Barrel", 40, 200., 4000.);
+  monomuon_TransverseMassEndcap  = bei.book1D("monomuon_TransverseMassEndcap", "Transverse Mass M_{T} GeV, Endcap", 40, 200., 4000.);
   monomuon_MuonMulti          = bei.book1D("monomuon_MuonMulti", "No. of Muons", 10, 0., 10.);
   //--- MonoElectron
   bei.setCurrentFolder("Physics/Exotica/MonoElectron");
-  monoelectron_Electron_pt            = bei.book1D("monoelectron_Electron_pt",  "Pt of Monoelectron (GeV)", 50, 30.0 , 4000);
+  monoelectron_Electron_pt            = bei.book1D("monoelectron_Electron_pt",  "Pt of Monoelectron (GeV)", 50, 30.0 , 3000);
   monoelectron_Electron_eta           = bei.book1D("monoelectron_Electron_eta", "#eta(MonoElectron)", 50, -2.5, 2.5);
   monoelectron_Electron_phi           = bei.book1D("monoelectron_Electron_phi", "#phi(MonoElectron)", 50, -3.14,3.14);
   monoelectron_Charge                 = bei.book1D("monoelectron_Charge", "Charge of the MonoElectron", 10, -5., 5.);
-  monoelectron_PFMet                  = bei.book1D("monoelectron_PFMet",  "Pt of PFMET (GeV)", 40, 0.0 , 4000);
+  monoelectron_PFMet                  = bei.book1D("monoelectron_PFMet",  "Pt of PFMET (GeV)", 40, 0.0 , 3000);
   monoelectron_PFMet_phi              = bei.book1D("monoelectron_PFMet_phi",  "PFMET #phi", 50, -3.14,3.14);
   monoelectron_ElectronPtOverPFMet    = bei.book1D("monoelectron_ElectronPtOverPFMet",  "Pt of Monoelectron/PFMet", 40, 0.0 , 5.);
   monoelectron_deltaPhiElectronPFMet  = bei.book1D("monoelectron_deltaPhiElectronPFMet", "#Delta#phi(MonoElectron, PFMet)", 40, 0., 3.15);
   monoelectron_TransverseMass         = bei.book1D("monoelectron_TransverseMass", "Transverse Mass M_{T} GeV", 40, 200., 4000.);
+  monoelectron_TransverseMassBarrel   = bei.book1D("monoelectron_TransverseMassBarrel", "Transverse Mass M_{T} GeV, Barrel", 40, 200., 4000.);
+  monoelectron_TransverseMassEndcap   = bei.book1D("monoelectron_TransverseMassEndcap", "Transverse Mass M_{T} GeV, Endcap", 40, 200., 4000.);
   monoelectron_ElectronMulti          = bei.book1D("monoelectron_ElectronMulti", "No. of Electrons", 10, 0., 10.);
 
   //--- DiPhotons
@@ -529,6 +534,9 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   diphoton_countPhoton_ = 0.;
   reco::PhotonCollection::const_iterator photon_ = PhotonCollection_->begin();
   for(; photon_ != PhotonCollection_->end(); ++photon_){
+    if (fabs(photon_->eta()) < 1.442 && (photon_->sigmaIetaIeta() > 0.0105 || photon_->hadronicOverEm() > 0.05 )) continue;
+    if (fabs(photon_->eta()) > 1.442 && (photon_->sigmaIetaIeta() > 0.028  || photon_->hadronicOverEm() > 0.05 )) continue;
+    
     if(photon_->pt()>PhotonPt[0] ){
       PhotonEnergy[1] = PhotonEnergy[0];
       PhotonPt[1] = PhotonPt[0];
@@ -632,7 +640,7 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
       }else{}
        if(scale*DiJetpfjet_->pt()>dijet_PFJet1_pt_cut_) dijet_countPFJet_++;
     }
-    if(PFJetPt[0]> dijet_PFJet1_pt_cut_ && PFJetPt[1]> dijet_PFJet2_pt_cut_){
+    if(PFJetPt[0]> dijet_PFJet1_pt_cut_ && PFJetPt[1]> dijet_PFJet2_pt_cut_ && fabs(PFJetEta[0]-PFJetEta[1]) <1.3){
       dijet_PFJet_pt[icoll]->Fill(PFJetPt[0]);
       dijet_PFJet_eta[icoll]->Fill(PFJetEta[0]);
       dijet_PFJet_phi[icoll]->Fill(PFJetPhi[0]);
@@ -647,6 +655,7 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
       dijet_deltaEtaPFJet1PFJet2[icoll]->Fill(PFJetEta[0]-PFJetEta[1]);
       dijet_deltaRPFJet1PFJet2[icoll]->Fill(deltaR(PFJetEta[0],PFJetPhi[0],PFJetEta[1],PFJetPhi[1]));
       dijet_invMassPFJet1PFJet2[icoll]->Fill(sqrt(2*PFJetPt[0]*PFJetPt[1]*(cosh(PFJetEta[0]-PFJetEta[1])-cos(PFJetPhi[0]-PFJetPhi[1]))));
+      dijet_invMassPFJet1PFJet2_Tail[icoll]->Fill(sqrt(2*PFJetPt[0]*PFJetPt[1]*(cosh(PFJetEta[0]-PFJetEta[1])-cos(PFJetPhi[0]-PFJetPhi[1]))));
       dijet_PFchef[icoll]->Fill(PFJetCHEF[0]);
       dijet_PFnhef[icoll]->Fill(PFJetNHEF[0]);
       dijet_PFcemf[icoll]->Fill(PFJetCEMF[0]);
@@ -656,7 +665,7 @@ void ExoticaDQM::analyzeDiJets(const Event & iEvent){
   }
 }
 void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
-  if(MuonPt[0] > dimuon_Muon1_pt_cut_ && MuonPt[1]> dimuon_Muon2_pt_cut_ && MuonCharge[0]*MuonCharge[1] == -1){
+  if(MuonPt[0] > dimuon_Muon1_pt_cut_ && MuonPt[1]> dimuon_Muon2_pt_cut_ ){
     dimuon_Muon_pt->Fill(MuonPt[0]);
     dimuon_Muon_eta->Fill(MuonEta[0]);
     dimuon_Muon_phi->Fill(MuonPhi[0]);
@@ -673,7 +682,7 @@ void ExoticaDQM::analyzeDiMuons(const Event & iEvent){
   }
 }
 void ExoticaDQM::analyzeDiElectrons(const Event & iEvent){
-  if(ElectronPt[0] > dielectron_Electron1_pt_cut_ && ElectronPt[1]> dielectron_Electron2_pt_cut_ && ElectronCharge[0]*ElectronCharge[1] == -1.){
+  if(ElectronPt[0] > dielectron_Electron1_pt_cut_ && ElectronPt[1]> dielectron_Electron2_pt_cut_ ){
     dielectron_Electron_pt->Fill(ElectronPt[0]);
     dielectron_Electron_eta->Fill(ElectronEta[0]);
     dielectron_Electron_phi->Fill(ElectronPhi[0]);
@@ -769,6 +778,11 @@ void ExoticaDQM::analyzeMonoMuons(const Event & iEvent){
     monomuon_MuonPtOverPFMet->Fill(MuonPt[0]/pfmet.et());
     monomuon_deltaPhiMuonPFMet->Fill(deltaPhi(MuonPhi[0],pfmet.phi()));
     monomuon_TransverseMass->Fill(sqrt(2*MuonPt[0]*pfmet.et()*(1-cos(deltaPhi(MuonPhi[0],pfmet.phi())))));
+    if (fabs(MuonEta[0]) <1.2){ 
+      monomuon_TransverseMassBarrel->Fill(sqrt(2*MuonPt[0]*pfmet.et()*(1-cos(deltaPhi(MuonPhi[0],pfmet.phi())))));
+    }else{
+      monomuon_TransverseMassEndcap->Fill(sqrt(2*MuonPt[0]*pfmet.et()*(1-cos(deltaPhi(MuonPhi[0],pfmet.phi())))));
+    }
     monomuon_MuonMulti->Fill(monomuon_countMuon_);
   }
 }
@@ -785,6 +799,11 @@ void ExoticaDQM::analyzeMonoElectrons(const Event & iEvent){
     monoelectron_ElectronPtOverPFMet->Fill(ElectronPt[0]/pfmet.et());
     monoelectron_deltaPhiElectronPFMet->Fill(deltaPhi(ElectronPhi[0],pfmet.phi()));
     monoelectron_TransverseMass->Fill(sqrt(2*ElectronPt[0]*pfmet.et()*(1-cos(deltaPhi(ElectronPhi[0],pfmet.phi())))));
+    if (fabs(ElectronEta[0]) <1.2){ 
+      monoelectron_TransverseMassBarrel->Fill(sqrt(2*ElectronPt[0]*pfmet.et()*(1-cos(deltaPhi(ElectronPhi[0],pfmet.phi())))));
+    }else{
+      monoelectron_TransverseMassEndcap->Fill(sqrt(2*ElectronPt[0]*pfmet.et()*(1-cos(deltaPhi(ElectronPhi[0],pfmet.phi())))));
+    }
     monoelectron_ElectronMulti->Fill(monoelectron_countElectron_);
   }
 }
