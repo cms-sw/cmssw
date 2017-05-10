@@ -220,8 +220,18 @@ FWPFCandidateDetailView::build (const FWModelId &id, const reco::PFCandidate* ca
       if (ecalH.product()) voteMaxEtEVal(ecalH.product());
 
       edm::Handle<std::vector<reco::PFRecHit> > hcalH; 
-      event->getByLabel(edm::InputTag("particleFlowRecHitHBHEHO"),hcalH);
+      event->getByLabel(edm::InputTag("particleFlowRecHitHCAL"),hcalH);
       if (hcalH.product()) voteMaxEtEVal(hcalH.product());
+
+      edm::Handle<std::vector<reco::PFRecHit> > hoH; 
+      event->getByLabel(edm::InputTag("particleFlowRecHitHO"),hoH);
+      if (hoH.product()) voteMaxEtEVal(hoH.product());
+
+      edm::Handle<std::vector<reco::PFRecHit> > hfH; 
+      event->getByLabel(edm::InputTag("particleFlowRecHitHF"),hfH);
+      if (hfH.product()) voteMaxEtEVal(hfH.product());
+
+
    }
    catch(const cms::Exception& iE) {
       std::cerr << iE.what();
@@ -481,9 +491,9 @@ void FWPFCandidateDetailView::buildGLEventScene()
 
    if (m_rnrHcal) {
       try {
-         edm::Handle<std::vector<reco::PFRecHit> > ecalH; 
-         event->getByLabel(edm::InputTag("particleFlowRecHitHF"), ecalH);
-         addHits(ecalH.product());
+         edm::Handle<std::vector<reco::PFRecHit> > hfH; 
+         event->getByLabel(edm::InputTag("particleFlowRecHitHF"), hfH);
+         addHits(hfH.product());
       }
       catch(const cms::Exception& iE) {
          std::cerr << iE.what();
@@ -492,13 +502,22 @@ void FWPFCandidateDetailView::buildGLEventScene()
 
       try {
          edm::Handle<std::vector<reco::PFRecHit> > hcalH; 
-         event->getByLabel(edm::InputTag("particleFlowRecHitHBHEHO"),hcalH);
+         event->getByLabel(edm::InputTag("particleFlowRecHitHBHE"),hcalH);
          addHits(hcalH.product());
       }
-      catch (const cms::Exception& iE) {
+      catch(const cms::Exception& iE) {
          std::cerr << iE.what();
       }
 
+      try {
+         edm::Handle<std::vector<reco::PFRecHit> > hcalH; 
+         event->getByLabel(edm::InputTag("particleFlowRecHitHO"),hcalH);
+         addHits(hcalH.product());
+      }
+      catch(const cms::Exception& iE) {
+         std::cerr << iE.what();
+      
+      }
    }
 
 
@@ -512,6 +531,30 @@ void FWPFCandidateDetailView::buildGLEventScene()
    }
    catch (const cms::Exception& iE) {
       std::cerr << iE.what();
+   }
+
+   if (m_rnrHcal) {
+
+   try {
+      edm::Handle<std::vector<reco::PFCluster> > hcalClustersH;
+      event->getByLabel(edm::InputTag("particleFlowClusterHCAL"), hcalClustersH);
+      addClusters(hcalClustersH.product());
+   }
+   catch (const cms::Exception& iE) {
+      std::cerr << iE.what();
+   }
+
+   try {
+      edm::Handle<std::vector<reco::PFCluster> > hcalClustersH;
+      event->getByLabel(edm::InputTag("particleFlowClusterHO"), hcalClustersH);
+      addClusters(hcalClustersH.product());
+   }
+   catch (const cms::Exception& iE) {
+      std::cerr << iE.what();
+   }
+
+
+
    }
 
    //
