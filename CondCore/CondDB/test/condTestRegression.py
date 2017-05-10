@@ -45,7 +45,10 @@ class CondRegressionTester(object):
       @print_timing
       def __init__(self):
 
-          self.topDir = '/tmp/cmsCondRegTst-2015-08-13-16-14' # +time.strftime('%Y-%m-%d-%H-%M')
+          tmpBase = '/tmp'
+          if 'CMSSW_BASE' in os.environ:
+              tmpBase = os.path.join(os.environ['CMSSW_BASE'],'tmp')
+          self.topDir = os.path.join( tmpBase, 'cmsCondRegTst-'+time.strftime('%Y-%m-%d-%H-%M'))
           if not os.path.exists(self.topDir): os.makedirs(self.topDir)
           
           self.dbDir = os.path.join( self.topDir, 'dbDir' )
@@ -53,10 +56,10 @@ class CondRegressionTester(object):
           
           self.logDir = os.path.join( self.topDir, 'logs' )
           if not os.path.exists(self.logDir): 
-             os.makedirs(self.logDir)
+              os.makedirs(self.logDir)
           else:  # if it exists, remove the logDir and re-create it
-             shutil.rmtree(self.logDir, ignore_errors=True)
-             os.makedirs(self.logDir)
+              shutil.rmtree(self.logDir, ignore_errors=True)
+              os.makedirs(self.logDir)
 
           # add the IB/release itself:
 	  self.regTestSrcDir = os.path.join( os.environ['LOCALRT'], 'src', 'CondCore', 'CondDB', 'test' )
@@ -72,23 +75,23 @@ class CondRegressionTester(object):
 
       def summary(self, verbose=False, jsonOut=False):
           if verbose: 
-             radRe = re.compile('^(CMSSW_.*?)-(slc6_amd64_gcc\d\d\d)-(.*)$')
-             relArches = []
-             dbNames = []
-             for rad in self.status.keys():
-                 radMatch = radRe.match(rad)
-                 if not radMatch: print "NO match found for ", rad
-                 ra = radMatch.groups()[0]+'-'+radMatch.groups()[1] 
-                 if ra not in relArches: relArches.append( ra )
-                 if radMatch.groups()[2] not in dbNames : dbNames.append( radMatch.groups()[2] )
+              radRe = re.compile('^(CMSSW_.*?)-(slc\d_amd64_gcc\d\d\d)-(.*)$')
+              relArches = []
+              dbNames = []
+              for rad in self.status.keys():
+                  radMatch = radRe.match(rad)
+                  if not radMatch: print "NO match found for ", rad
+                  ra = radMatch.groups()[0]+'-'+radMatch.groups()[1] 
+                  if ra not in relArches: relArches.append( ra )
+                  if radMatch.groups()[2] not in dbNames : dbNames.append( radMatch.groups()[2] )
 
-             fmt =  ' %35s ' + '| %10s '*len(dbNames) + ' | '
-             print fmt % tuple([' rel ']+[x[:10] for x in dbNames])
-             for ra in sorted(relArches):
-                 res = []
-                 for db in dbNames:
-                    res.append( self.status[ra+'-'+db] )
-                 print fmt % tuple([ra.replace('slc6_amd64_', '')]+res)
+              fmt =  ' %35s ' + '| %10s '*len(dbNames) + ' | '
+              print fmt % tuple([' rel ']+[x[:10] for x in dbNames])
+              for ra in sorted(relArches):
+                  res = []
+                  for db in dbNames:
+                      res.append( self.status[ra+'-'+db] )
+                  print fmt % tuple([ra.replace('slc6_amd64_', '')]+res)
 
           if jsonOut:
               print json.dumps( self.status, sort_keys=True, indent=4 )
@@ -103,50 +106,32 @@ class CondRegressionTester(object):
 
           return overall
 
-
-      @print_timing
-      def setup(self, rel, arch):
-
-      	  # check if we need to do anything at all:
-      	  if os.path.exists( os.path.join( self.topDir, rel, 'test', arch, 'testReadWritePayloads' ) ): 
-             print "area for %s/%s already setup: found %s " % (rel, arch, os.path.join( self.topDir, rel, 'test', arch, 'testReadWritePayloads' ))
-          #    return
-
-          # prepare the devel area, if it does not yet exist:
-          if not os.path.exists( os.path.join( self.topDir, rel, 'src') ):
-             print "going to create devel area for %s/%s " % (rel, arch)
-             cmd = 'cd %s; export SCRAM_ARCH=%s; scram p CMSSW %s' % (self.topDir, arch, rel)
-             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-          
-          # check out the package and build the tests
-          print "going to build the test for %s/%s " % (rel, arch)
-          cmd = 'cd %s/%s/src; eval `scram run -sh`; ' % (self.topDir, rel, )
-          cmd += 'git cms-addpkg CondCore/CondDB 2>&1; cd CondCore/CondDB/test; '
-	  if not os.path.exists( os.path.join( self.topDir, rel, 'src', 'CondCore/CondDB/test/testReadWritePayloads.cpp') ):
-             print "copying over test source and BuildFile from devArea/IB ... "
-	     cmd += 'cp %s/BuildFile.xml .;' % (self.regTestSrcDir,)
-             cmd += 'cp %s/MyTestData.h .;' % (self.regTestSrcDir,)
-             cmd += 'cp %s/testReadWritePayloads.cpp .;' % (self.regTestSrcDir,)
-          cmd += 'scram b -j 10 2>&1 ;'
-          res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-          with open(os.path.join(self.logDir, rel+arch+'-build.log'), 'w') as logFile:
-             logFile.write( ''.join(res) )	
-
       @print_timing
       def run(self, rel, arch, readOrWrite, dbName):
 
           if readOrWrite == 'write':
               self.dbNameList.append( dbName )
 
-          cmd = 'cd %s/%s/src; eval `scram run -sh 2>/dev/null` ; ' % (self.topDir, rel, )
-          cmd += '../test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (arch, readOrWrite, self.dbDir, dbName)
+          cmd ="scram -a %s list -c %s | grep '\\b%s\\b' | head -1 | sed 's|.* ||'" %(arch,rel,rel)
+          out =check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+          ind = out.find( arch )
+          if ind == -1:
+              raise Exception('Could not locate the reference release %s with "%s" [ got %s ]' %(rel,cmd,out))
+
+          cmsPath = out[:ind-1]
+          # using wildcard to support the path for normal ( BASE/ARCH/cms/cmssw/RELEASE ) and patch releases ( BASE-PATCH/ARCH/cms/cmssw-patch/RELEASE )
+          releaseDir = '%s/%s/cms/*/%s' %(cmsPath,arch,rel)
+
+          cmd =  'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src ; eval `scram runtime -sh`; cd - ; ' %(cmsPath,arch,releaseDir)
+          cmd += "echo 'CMSSW_BASE='$CMSSW_BASE; echo 'RELEASE_BASE='$RELEASE_BASE; echo 'PATH='$PATH; echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH;"
+          cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (arch, readOrWrite, self.dbDir, dbName)
           
 	  try:
-             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+              #opening a process with a clean environment ( to avoid to inherit scram variables )
+              res = check_output(cmd, shell=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
           except Exception as e:
-             self.log( rel, arch, readOrWrite, str(e) )
-             raise e
+              self.log( rel, arch, readOrWrite, str(e) )
+              raise e
 
           self.log( rel, arch, readOrWrite, ''.join(res) )
 
@@ -155,11 +140,11 @@ class CondRegressionTester(object):
 
           dbName = self.dbName # set the default
           if dbNameIn : dbName = dbNameIn
-
+          
           # we run in the local environment, but need to make sure that we start "top-level" of the devel area
           # and we assume that the test was already built 
-          cmd = 'cd %s/src; eval `scram run -sh 2>/dev/null` ; ' % (os.environ['CMSSW_BASE'], )
-          cmd += '../test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
+          cmd = 'export SCRAM_ARCH=%s; cd %s/src; eval `scram runtime -sh 2>/dev/null` ; ' % (os.environ['SCRAM_ARCH'],os.environ['CMSSW_BASE'], )
+          cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
           
           try:
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -178,21 +163,12 @@ class CondRegressionTester(object):
       @print_timing
       def runAll(self):
 
-          map = { 'CMSSW_7_6_0_pre2'   : [ 'slc6_amd64_gcc493', 'ref760pre2-s6493.db'],
-                  'CMSSW_7_5_1'        : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
-                  'CMSSW_7_4_9'        : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
-                  'CMSSW_7_3_6_patch1' : [ 'slc6_amd64_gcc491', 'ref736p1-s6491.db'],
-		  'CMSSW_7_2_5'       : [ 'slc6_amd64_gcc481', 'ref729-s6481.db'],
-		  'CMSSW_7_1_19'       : [ 'slc6_amd64_gcc481', 'ref7119-s6481.db'],
+          map = { 'CMSSW_9_0_0_pre4'   : [ 'slc6_amd64_gcc620', 'ref900p4-s6620.db'],
+                  'CMSSW_8_1_0'        : [ 'slc6_amd64_gcc530', 'ref810-s6530.db'],
+		  'CMSSW_8_0_26'       : [ 'slc6_amd64_gcc530', 'ref8026-s6530.db'],
+		  'CMSSW_7_6_6'        : [ 'slc6_amd64_gcc493', 'ref766-s6493.db'],
           }
 
-          # set up the devel areas for the various reference releases
-          print '='*80
-          print "going to set up areas ..."
-          for rel, info in map.items():
-             arch, dbName = info
-             self.setup(rel, arch)
-          
           # write all DBs (including the one from this IB/devArea)
           print '='*80
           print "going to write DBs ..."
@@ -228,7 +204,7 @@ class CondRegressionTester(object):
 crt = CondRegressionTester()
 crt.runAll()
 status = crt.summary(verbose=True)
-print "\n==> overall status (ignoring results from 7.1.X): ", status
+print "\n==> overall status: ", status
 
 # return the overall result to the caller:
 if status: 
