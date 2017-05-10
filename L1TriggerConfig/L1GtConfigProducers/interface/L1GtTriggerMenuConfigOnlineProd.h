@@ -98,8 +98,9 @@ private:
         short countIndex;
         short countThreshold;
 
-        // FIXME - Oracle / Coral pretends that chargeCorrelation is bool in OMDS
-        //         can not be - it has three values...
+        // Oracle / Coral pretends that chargeCorrelation is bool in OMDS
+        //   can not be - it has three values...
+        //   but it reads/writes correctly the numerical value from OMDS (1, 2...)
         bool chargeCorrelation;
         std::string objectParameter1FK;
         std::string objectParameter2FK;
