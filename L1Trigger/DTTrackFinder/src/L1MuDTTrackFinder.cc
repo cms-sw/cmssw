@@ -57,9 +57,9 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
   // set configuration parameters
   if ( m_config == 0 ) m_config = new L1MuDTTFConfig(ps);
 
-  if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
-  if ( L1MuDTTFConfig::Debug(1) ) cout << "**** entering L1MuDTTrackFinder ****" << endl;
-  if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
+  if ( m_config->Debug(1) ) cout << endl;
+  if ( m_config->Debug(1) ) cout << "**** entering L1MuDTTrackFinder ****" << endl;
+  if ( m_config->Debug(1) ) cout << endl;
 
   m_spmap = new L1MuDTSecProcMap();
   m_epvec.reserve(12);
@@ -69,7 +69,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
 
-  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
+  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(m_config->getDTDigiInputTag());
 }
 
 
@@ -114,9 +114,9 @@ void L1MuDTTrackFinder::setup( edm::ConsumesCollector&& iC) {
 
   // build the barrel Muon Trigger Track Finder
 
-  if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
-  if ( L1MuDTTFConfig::Debug(1) ) cout << "**** L1MuDTTrackFinder building ****" << endl;
-  if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
+  if ( m_config->Debug(1) ) cout << endl;
+  if ( m_config->Debug(1) ) cout << "**** L1MuDTTrackFinder building ****" << endl;
+  if ( m_config->Debug(1) ) cout << endl;
 
   // create new sector processors
   for ( int wh = -3; wh <= 3; wh++ ) {
@@ -124,7 +124,7 @@ void L1MuDTTrackFinder::setup( edm::ConsumesCollector&& iC) {
     for ( int sc = 0; sc < 12; sc++ ) {
       L1MuDTSecProcId tmpspid(wh,sc);
       L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this,tmpspid,std::move(iC));
-      if ( L1MuDTTFConfig::Debug(2) ) cout << "creating " << tmpspid << endl;
+      if ( m_config->Debug(2) ) cout << "creating " << tmpspid << endl;
       m_spmap->insert(tmpspid,sp);
     }
   }
@@ -132,15 +132,15 @@ void L1MuDTTrackFinder::setup( edm::ConsumesCollector&& iC) {
   // create new eta processors and wedge sorters
   for ( int sc = 0; sc < 12; sc++ ) {
     L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this,sc,std::move(iC));
-    if ( L1MuDTTFConfig::Debug(2) ) cout << "creating Eta Processor " << sc << endl;
+    if ( m_config->Debug(2) ) cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
     L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this,sc);
-    if ( L1MuDTTFConfig::Debug(2) ) cout << "creating Wedge Sorter " << sc << endl;
+    if ( m_config->Debug(2) ) cout << "creating Wedge Sorter " << sc << endl;
     m_wsvec.push_back(ws);
   }
 
   // create new muon sorter
-  if ( L1MuDTTFConfig::Debug(2) ) cout << "creating DT Muon Sorter " << endl;
+  if ( m_config->Debug(2) ) cout << "creating DT Muon Sorter " << endl;
   m_ms = new L1MuDTMuonSorter(*this);
 
 }
@@ -157,18 +157,18 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(m_DTDigiToken,dttrig);
   if ( dttrig->getContainer()->size() == 0 ) return;
 
-  if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
-  if ( L1MuDTTFConfig::Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
-  if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
+  if ( m_config->Debug(2) ) cout << endl;
+  if ( m_config->Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
+  if ( m_config->Debug(2) ) cout << endl;
 
-  int bx_min = L1MuDTTFConfig::getBxMin();
-  int bx_max = L1MuDTTFConfig::getBxMax();
+  int bx_min = m_config->getBxMin();
+  int bx_max = m_config->getBxMax();
 
   for ( int bx = bx_min; bx <= bx_max; bx++ ) {
 
   if ( dttrig->bxEmpty(bx) ) continue;
 
-  if ( L1MuDTTFConfig::Debug(2) ) cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
+  if ( m_config->Debug(2) ) cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
 
     // reset MTTF
     reset();
@@ -176,27 +176,27 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // run sector processors
     L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
     while ( it_sp != m_spmap->end() ) {
-      if ( L1MuDTTFConfig::Debug(2) ) cout << "running " 
+      if ( m_config->Debug(2) ) cout << "running " 
                                            << (*it_sp).second->id() << endl;
       if ( (*it_sp).second ) (*it_sp).second->run(bx,e,c);
-      if ( L1MuDTTFConfig::Debug(2) && (*it_sp).second ) (*it_sp).second->print();
+      if ( m_config->Debug(2) && (*it_sp).second ) (*it_sp).second->print();
       it_sp++;
     } 
 
     // run eta processors
     vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
     while ( it_ep != m_epvec.end() ) {
-      if ( L1MuDTTFConfig::Debug(2) ) cout << "running Eta Processor "
+      if ( m_config->Debug(2) ) cout << "running Eta Processor "
                                        << (*it_ep)->id() << endl;
       if ( *it_ep ) (*it_ep)->run(bx,e,c);
-      if ( L1MuDTTFConfig::Debug(2) && *it_ep ) (*it_ep)->print();
+      if ( m_config->Debug(2) && *it_ep ) (*it_ep)->print();
       it_ep++;
     }
 
     // read sector processors
     it_sp = m_spmap->begin();
     while ( it_sp != m_spmap->end() ) {
-      if ( L1MuDTTFConfig::Debug(2) ) cout << "reading " 
+      if ( m_config->Debug(2) ) cout << "reading " 
                                            << (*it_sp).second->id() << endl;
       for ( int number = 0; number < 2; number++ ) {
         const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
@@ -210,17 +210,17 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     // run wedge sorters
     vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
     while ( it_ws != m_wsvec.end() ) {
-      if ( L1MuDTTFConfig::Debug(2) ) cout << "running Wedge Sorter " 
+      if ( m_config->Debug(2) ) cout << "running Wedge Sorter " 
                                            << (*it_ws)->id() << endl;
       if ( *it_ws ) (*it_ws)->run();
-      if ( L1MuDTTFConfig::Debug(2) && *it_ws ) (*it_ws)->print();
+      if ( m_config->Debug(2) && *it_ws ) (*it_ws)->print();
       it_ws++;
     }
 
     // run muon sorter
-    if ( L1MuDTTFConfig::Debug(2) ) cout << "running DT Muon Sorter" << endl;
+    if ( m_config->Debug(2) ) cout << "running DT Muon Sorter" << endl;
     if ( m_ms ) m_ms->run();
-    if ( L1MuDTTFConfig::Debug(2) && m_ms ) m_ms->print();
+    if ( m_config->Debug(2) && m_ms ) m_ms->print();
 
     // store found track candidates in container (cache)
     if ( m_ms->numberOfTracks() > 0 ) {
