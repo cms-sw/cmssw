@@ -27,6 +27,8 @@ class CustomParticleFactory {
 
   static bool loaded;
   static std::set<G4ParticleDefinition *> m_particles;
+
+  static std::string ToLower(std::string str);  
   
 };
 
