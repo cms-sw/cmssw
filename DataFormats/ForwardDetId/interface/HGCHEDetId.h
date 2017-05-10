@@ -1,4 +1,3 @@
-
 #ifndef DataFormats_ForwardDetId_HGCHEDetId_H
 #define DataFormats_ForwardDetId_HGCHEDetId_H 1
 
