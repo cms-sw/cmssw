@@ -18,9 +18,9 @@ from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
 from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaCalculator
 pA_2016.toModify(hiFJGridEmptyAreaCalculator, doCentrality = False)
 
-kt4PFJetsForRho = kt4PFJets.clone(doAreaFastjet = True,
-                                  jetPtMin = 0.0,
-                                  GhostArea = 0.005)
+kt4PFJetsForRho = kt4PFJets.clone(doAreaFastjet = cms.bool(True),
+                                  jetPtMin = cms.double(0.0),
+                                  GhostArea = cms.double(0.005))
 
 from RecoHI.HiCentralityAlgos.pACentrality_cfi import pACentrality
 pA_2016.toModify(pACentrality, producePixelTracks = False)
