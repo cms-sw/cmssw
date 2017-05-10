@@ -42,7 +42,7 @@ class OniaPhotonConversionProducer : public edm::EDProducer {
 
   virtual void produce(edm::Event& event, const edm::EventSetup& esetup);
   virtual void endJob() ;
-  void removeDuplicates(reco::ConversionCollection&, std::vector<int> &);
+  void removeDuplicates(reco::ConversionCollection&);
   bool checkTkVtxCompatibility(const reco::Conversion&, const reco::VertexCollection&);
   bool foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB); 
   bool HighpuritySubset(const reco::Conversion&, const reco::VertexCollection&);
