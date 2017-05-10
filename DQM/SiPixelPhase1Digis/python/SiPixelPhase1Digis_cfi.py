@@ -80,7 +80,8 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
                    .groupBy("Lumisection", "EXTEND_Y")
                    .groupBy("", "EXTEND_X")
                    .save()
-  )
+  ),
+  enabled=False
 )
 
 SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
