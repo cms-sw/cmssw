@@ -243,6 +243,9 @@
    <MaterialFraction fraction="0.010549802">
     <rMaterial name="materials:Hydrogen"/>
    </MaterialFraction>
+   <MaterialFraction fraction="0.001119">
+    <rMaterial name="materials:Water"/>
+   </MaterialFraction>   
   </CompositeMaterial>
   <CompositeMaterial name="Heavy Boron concrete" density="3.574*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.5192746">
