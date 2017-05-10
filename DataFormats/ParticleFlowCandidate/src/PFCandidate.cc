@@ -41,6 +41,7 @@ PFCandidate::PFCandidate() :
   flags_(0), 
   deltaP_(0.), 
   vertexType_(kCandVertex),
+  mva_Isolated_(bigMva_),
   mva_e_pi_(bigMva_),
   mva_e_mu_(bigMva_),
   mva_pi_mu_(bigMva_),
@@ -81,6 +82,7 @@ PFCandidate::PFCandidate( Charge charge,
   flags_(0),
   deltaP_(0.),
   vertexType_(kCandVertex),
+  mva_Isolated_(bigMva_),
   mva_e_pi_(bigMva_),
   mva_e_mu_(bigMva_),
   mva_pi_mu_(bigMva_),
@@ -139,6 +141,7 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   flags_(iOther.flags_), 
   deltaP_(iOther.deltaP_), 
   vertexType_(iOther.vertexType_),
+  mva_Isolated_(iOther.mva_Isolated_),
   mva_e_pi_(iOther.mva_e_pi_),
   mva_e_mu_(iOther.mva_e_mu_),
   mva_pi_mu_(iOther.mva_pi_mu_),
@@ -180,6 +183,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   flags_=iOther.flags_; 
   deltaP_=iOther.deltaP_; 
   vertexType_=iOther.vertexType_;
+  mva_Isolated_=iOther.mva_Isolated_;
   mva_e_pi_=iOther.mva_e_pi_;
   mva_e_mu_=iOther.mva_e_mu_;
   mva_pi_mu_=iOther.mva_pi_mu_;

@@ -114,7 +114,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
 
     ret.set(false);
 
-    double mva = electron.mva();
+    double mva = electron.mva_e_pi();
     double missingHits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits() ;
     double corr_d0 = electron.dB();
 
