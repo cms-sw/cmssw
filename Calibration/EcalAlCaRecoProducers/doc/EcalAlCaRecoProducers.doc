@@ -1,4 +1,3 @@
-
 /*!
 
 \page Calibration_EcalAlCaRecoProducers Package Calibration/EcalAlCaRecoProducers
@@ -73,13 +72,31 @@ cmsDriver.py reco -s ALCA:EcalCalZElectron -n 100 --data --conditions=auto:run2_
 \endverbatim
 
 \subsection rereco ECALELF rereco: EcalRecalElectron production from EcalUncalElectron files
+
+To make this work, go to cmssw/Configuration/StandardSequences/python/AlCaRecoStreams_cff.py, and uncomment lines matching *Recal*
+Also replace ecalLocalSequence by * 
+https://github.com/shervin86/cmssw/blob/toBeChecked/Calibration/EcalAlCaRecoProducers/python/ALCARECOEcalRecalIsolElectron_cff.py#L7
+
 \verbatim
 EcalUncalWElectronFile=files://$PWD/SingleElectron-Run2012D/EcalUncalWElectron.root
 cmsDriver.py reco -s ALCA:EcalRecalElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${EcalUncalWElectronFile} --dirout=SingleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal
 
-EcalUncalZElectronFile=files://$PWD/SingleElectron-Run2012D/EcalUncalZElectron.root
-cmsDriver.py reco -s ALCA:EcalRecalElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${EcalUncalWElectronFile --dirout=DoubleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal
-
+EcalUncalZElectronFile=files://$PWD/DoubleElectron-Run2012D/EcalUncalZElectron.root
+cmsDriver.py reco -s ALCA:EcalRecalElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${EcalUncalZElectronFile} --dirout=DoubleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal
+\endverbatim
+\subsection ntuple production and calibration
+Zntuples:
+\verbatim
+cmsRun EcalAlCaRecoProducers/python/alcaSkimming.py isCrab=0 skim=ZSkim maxEvents=100 type=ALCARECO files=${DoubleElectronRECOFile} doTree=3 tagFile=EcalAlCaRecoProducers/config/reRecoTags/test75x.py
+\endverbatim
+Wntuples:
+\verbatim
+cmsRun EcalAlCaRecoProducers/python/alcaSkimming.py isCrab=0 skim=WSkim maxEvents=100 type=ALCARECO files=${SingleElectronRECOFile} doTree=3 tagFile=EcalAlCaRecoProducers/config/reRecoTags/test75x.py
+\endverbatim
+Calibration with E / p:
+\verbatim
+ZFitter.exe -f data/validation/EoverPcalibration.dat --EOverPCalib --outputPath output/ --doEB --splitStat 0 --nLoops 15
+ZFitter.exe -f data/validation/EoverPcalibration.dat --EOverPCalib --outputPath output/ --doEE --splitStat 0 --nLoops 15
 \endverbatim
 
 \subsection interface Public interface

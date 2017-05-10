@@ -7,7 +7,7 @@ from PhysicsTools.PythonAnalysis import *
 
 #print_options.set_float_precision(4)
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+AutoLibraryLoader.enable()
 
 #import EcalDetId
 #from DataFormats.EcalDetId import *

@@ -151,7 +151,14 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   for (auto eleIt=eleViewHandle->begin(); eleIt!=eleViewHandle->end(); eleIt++) {
     const reco::SuperCluster& sc = *(eleIt->superCluster()) ;
     
-    if (fabs(sc.eta())<1.479) {
+    if (sc.seed()->seed().subdetId()==EcalBarrel) {
+		// Fixed from if (|sc.eta|<1.479)
+		// This is not case because in some rare cases the SC eta is > 1.479 for SCs
+		// in the EB collection. The reason for this is unclear and should be checked
+		// This caused a seg fault later on, because the corresponding rechits were
+		// injected into the EE collection rather than the EB collection.
+		// Checking teh subdetID should be safe, make sure to propagate to full CMSSW
+		// FIXME
       AddMiniRecHitCollection(sc, reducedRecHit_EBmap, caloTopology);
     } else { // endcap
       AddMiniRecHitCollection(sc, reducedRecHit_EEmap, caloTopology);
