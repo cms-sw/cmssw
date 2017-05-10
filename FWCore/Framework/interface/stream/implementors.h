@@ -55,6 +55,7 @@ namespace edm {
       class RunCacheHolder {
       public:
         RunCacheHolder() = default;
+        ~RunCacheHolder() noexcept(false);
         RunCacheHolder( RunCacheHolder<C> const&) = delete;
         RunCacheHolder<C>& operator=(RunCacheHolder<C> const&) = delete;
         void setRunCache(C const* iCache) { cache_=iCache; }

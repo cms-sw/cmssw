@@ -89,6 +89,7 @@ namespace edm {
       class RunCacheHolder : public virtual T {
       public:
         RunCacheHolder() = default;
+        ~RunCacheHolder() noexcept(false);
         RunCacheHolder( RunCacheHolder<T,C> const&) = delete;
         RunCacheHolder<T,C>& operator=(RunCacheHolder<T,C> const&) = delete;
         ~RunCacheHolder() noexcept(false) {};
