@@ -75,6 +75,7 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::string ecalselector_;
   std::string eventype_;
   std::string sign_;
+  std::string hep17_;
   std::string mc_;
   bool        famos_;
 
@@ -141,6 +142,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> emean_vs_ieta_HE;
   std::vector<MonitorElement*> emean_vs_ieta_HEM0;
   std::vector<MonitorElement*> emean_vs_ieta_HEM3;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M0;
+  std::vector<MonitorElement*> emean_vs_ieta_HEP17M3;
   std::vector<MonitorElement*> emean_vs_ieta_HF;
   MonitorElement              *emean_vs_ieta_HO;
 
@@ -180,6 +184,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meRecHitsEnergyHE;
   MonitorElement* meRecHitsEnergyHEM0;
   MonitorElement* meRecHitsEnergyHEM3;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M0;
+  std::vector<MonitorElement*> meRecHitsEnergyHEP17M3;
   MonitorElement* meRecHitsEnergyM2vM0HE;
   MonitorElement* meRecHitsEnergyM3vM0HE;
   MonitorElement* meRecHitsEnergyM3vM2HE;
