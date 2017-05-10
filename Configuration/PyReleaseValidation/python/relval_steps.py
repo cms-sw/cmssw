@@ -1503,7 +1503,7 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
                    '--secondfilein':'filelist:step1_dasquery.log'}
-                 
+
 steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
                               '--filtername':'RECOfromRECO',
                               '--process':'reRECO',
