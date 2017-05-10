@@ -46,6 +46,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <signal.h> /*CDJ DEBUG*/
+#include <iostream> /*CDJ DEBUG*/
 
 namespace edm {
 
@@ -397,6 +399,13 @@ namespace edm {
     // first before writing anything to the file about this event
     // NOTE: pEventAux_, pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
     // must be set before calling fillBranches since they get written out in that routine.
+    //CDJ DEBUG
+    if(pEventAux_->processHistoryID() != e.processHistoryID()) {
+      //force traceback
+      std::cout<<" FAILURE "<<pEventAux_->processHistoryID()<<" "<<e.processHistoryID()<<std::endl;
+      raise(15);
+    }
+
     assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
 
