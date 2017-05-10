@@ -1,0 +1,62 @@
+###################################################################
+# B0~ --> J/psi K*0~             B0 --> Generic                   #
+#         |    |                                                  #
+#         |    |-->K- pi+                                         #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# author :  Marc Verderi 06/05/2004                               #
+# made from original decay file:                                  #
+#            B0B0bar_JpsiKstar_chgd_RunIPol.dec                   #
+###################################################################
+#
+#
+#
+# Define the helicity amplitudes starting from the transversity amplitudes:
+# -------------------------------------------------------------------------
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Values measured by Babar run I+II (BAD#673/752):
+Define Hplus    0.6301
+Define Hzero    0.7523
+Define Hminus   0.1924
+Define phHplus  3.246
+Define phHzero  0.000
+Define phHminus 4.924
+#
+# Alias particles for specific decays
+Alias MyB0          B0
+Alias Myanti-B0     anti-B0
+Alias MyKstar0      K*0
+Alias MyantiKstar0  anti-K*0
+Alias MyJpsi        J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 MyJpsi  MyKstar0              SVV_HELAMP  Hplus phHplus    Hzero phHzero    Hminus phHminus;
+Enddecay
+#
+Decay MyKstar0
+1.000 K+   pi-             VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyJpsi  MyantiKstar0          SVV_HELAMP  Hminus phHminus   Hzero phHzero   Hplus phHplus;
+Enddecay
+#
+Decay MyantiKstar0
+1.000 K-   pi+             VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+End

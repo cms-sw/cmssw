@@ -1,0 +1,60 @@
+###################################################################
+# B0~ --> phi   K*             B0 --> Generic                     #
+#         |     |-->K0s pi0                                       #
+#         |         |                                             #
+#         |         |-->pi+pi-                                    #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: G. London       9/2/99                                  #
+# Mail: GLONDON@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+Define beta 0.39
+#
+#Define the transversity amplitudes
+Define Aplus  1.000
+Define Azero  1.000
+Define Aminus 1.000
+#
+Define phAplus  0.0
+Define phAzero  0.0
+Define phAminus 0.0
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK_S0 K_S0
+Alias MyKstar0 K*0
+Alias MyPhi  phi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 MyPhi  MyKstar0              SVV_CP beta dm 1.0 Aplus phAplus Azero phAzero Aminus phAminus;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyPhi  MyKstar0              SVV_CP beta dm 1.0 Aplus phAplus Azero phAzero Aminus phAminus;
+Enddecay
+#                                       psi --> e+e-/mu+mu- (100%) 
+Decay MyPhi
+1.00000 K+  K-                        VSS;
+Enddecay
+#                                       K* --> K0s pi0 (100%)  
+Decay MyKstar0
+1.0000 MyK_S0 pi0                        VSS;
+Enddecay
+#                                        Ks --> pi+ pi- (100%)
+Decay MyK_S0
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+End
+
+
+

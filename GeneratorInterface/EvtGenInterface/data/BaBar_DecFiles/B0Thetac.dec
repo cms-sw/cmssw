@@ -1,0 +1,84 @@
+
+#########################################################
+#                                                        #
+# Decay: B0 -> Thetac(Anti-Sigma_c0) anti-p- pi+         #
+#              D*(2010)- p+ anti-p- pi+,   anti-B0 -> X  #
+#              +-> anti-D0 pi-        (  BF  )  Relative #
+#                  +-> K+ pi-         ( 3.80%)  15.599%  #
+#                  +-> K+ pi- pi0     (13.1% )  53.777%  #
+#                  +-> K+ pi- pi- pi+ ( 7.46%)  30.624%  #
+#                      Sum            (24.36%) 100.000%  #
+# Author Valerie Halyo                                   #
+##########################################################
+
+#
+Alias MyB0      B0
+Alias Myanti-B0 anti-B0
+Alias MyD*-     D*-
+Alias MyD*+     D*+
+Alias Myanti-D0 anti-D0
+Alias MyD0      D0
+
+
+Particle Sigma_c0      3.099 0.001 
+Particle anti-Sigma_c0 3.099 0.001 
+
+ChangeMassMin anti-Sigma_c0 2.997  
+ChangeMassMin Sigma_c0 2.997
+  
+  
+ChangeMassMax anti-Sigma_c0 3.3  
+ChangeMassMax Sigma_c0 3.3  
+ 
+
+Alias Mythetac anti-Sigma_c0 
+Alias Myanti-thetac Sigma_c0 
+#
+# Always one B0 that decays to the signal 
+#     // Vector to Two Scalars with B0 mixing, dm=deltaM
+Decay Upsilon(4S)
+ 1.00000  B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#                                    // Phase Space model
+
+
+## 
+Decay Myanti-thetac
+1.000 MyD*+ anti-p- PHSP; 
+Enddecay 
+ 
+## 
+Decay Mythetac
+1.000 MyD*- p+ PHSP; 
+Enddecay 
+ 
+
+Decay MyB0
+ 1.00000  Mythetac anti-p- pi+          PHSP;
+Enddecay
+#
+Decay Myanti-B0
+ 1.00000  Myanti-thetac p+ pi-          PHSP;
+Enddecay
+#
+Decay MyD*-
+ 1.00000  Myanti-D0 pi-                 VSS;
+Enddecay
+#
+Decay MyD*+
+ 1.00000  MyD0 pi+                      VSS;
+Enddecay
+#
+Decay Myanti-D0
+ 0.15599  K+ pi-                        PHSP;
+ 0.53777  K+ pi- pi0                    D_DALITZ;
+ 0.30624  K+ pi- pi- pi+                PHSP;
+Enddecay
+#             // resonance structure in Dalitz modelled
+Decay MyD0
+ 0.15599  K- pi+                        PHSP;
+ 0.53777  K- pi+ pi0                    D_DALITZ;
+ 0.30624  K- pi+ pi+ pi-                PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,50 @@
+#################################################################
+#                                                               #
+# Decay: B- -> Dstar0 K- (Dstar0 ->D0 pi0 (D0 -> K- pi+ p0))   #  
+#        B+ -> X;   + cc                                        #
+#                                                               #
+# Author: Giampiero Mancinelli                                  #
+# Date:                    03/09/2001                           #
+#################################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD*0 D*0
+Alias Myanti-D*0  anti-D*0
+ChargeConj MyD*0 Myanti-D*0
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 Myanti-D*0 K+                      SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD*0 K-                           SVS;
+Enddecay
+#
+Decay MyD*0
+1.000  MyD0   pi0                         VSS;
+Enddecay
+#
+Decay Myanti-D*0
+1.000  Myanti-D0   pi0                    VSS;
+Enddecay
+#
+Decay MyD0
+1.000   K-  pi+  pi0                      D_DALITZ;
+Enddecay
+Decay Myanti-D0
+1.000   K+  pi-  pi0                      D_DALITZ;
+Enddecay
+#
+End

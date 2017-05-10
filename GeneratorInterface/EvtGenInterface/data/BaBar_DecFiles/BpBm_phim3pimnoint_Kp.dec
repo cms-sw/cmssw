@@ -1,0 +1,43 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> phi      K+,        B- -> X            #
+#                    |                                     #
+#                     -> pi+pi-pi0                         #
+#                                                          #
+# + cc				                           #
+#                                                          #
+# Three pi decay of phi as implemented at the moment       #
+# in DECAY.DEC, i.e., NO INTERFERENCE between rho pi       #
+# final states (this is in preparation...)                 #
+#                                                          #
+# Author: Thomas Schietinger                               #
+# e-mail: schieti@slac.stanford.edu                        #
+# Created:                   2001/07/10                    #
+############################################################
+
+Alias MyPhi phi
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyPhi  K+           SVS;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi  K-           SVS;
+Enddecay 
+#
+Decay MyPhi
+0.2800   rho+ pi-           VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.2800   rho0 pi0           VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.2800   rho- pi+           VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1600   pi+  pi- pi0       PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,39 @@
+############################################################
+#                                                          #
+# Decay:      B- -> J/psi      D pi,        B+ -> X        #
+#                   |-> e+e-                               #
+#                   |-> mu+mu-                             #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+# Author: D. Bernard                                       #
+# Created:                   27 Nov 02                     #
+############################################################
+#
+#
+Alias MyJ/psi J/psi
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+0.5000  MyJ/psi  D+ pi0              PHSP;
+0.5000  MyJ/psi  anti-D0 pi+              PHSP;
+Enddecay 
+#
+Decay MyB-
+0.5000  MyJ/psi  D- pi0              PHSP;
+0.5000  MyJ/psi  D0 pi-              PHSP;
+Enddecay 
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End

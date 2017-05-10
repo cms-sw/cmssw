@@ -1,0 +1,155 @@
+###################################################################
+# B+ --> J/psi Kst HR              B- --> Generic                 #
+#         |    |                                                  #
+#         |    |-->K+ rho0   or   Kst(892) pi+                    #
+#         |            |           |                              #
+#         |            |-----------|---> pi+ pi-                  #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# where Kst HR is one of the following:                           #
+#    K1(1270), K1(1400), K2(1430), K1(1270), K*(1410), K*(1680)   #
+# ...all with K+ pi+ pi- in the final state, with intermediate    #
+#    resonances rho0 or Kst0(892).                                #
+#                                                                 #
+#  ofte@fi.uib.no                                                 #
+#  kjetil@SLAC.stanford.edu                                       #
+###################################################################
+#
+#
+# Alias particles for specific decays
+Alias MyB+ B+
+Alias MyB- B-
+#
+Alias MyJpsi J/psi
+#
+# K*0(892)
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+#
+# K1(1270)
+Alias MyK_1+ K_1+
+Alias MyK_1- K_1-
+#
+# K1(1400)
+Alias MyK'_1+ K'_1+
+Alias MyK'_1- K'_1-
+#
+# K2(1430)
+Alias MyK_2*+ K_2*+
+Alias MyK_2*- K_2*-
+#
+# K*(1410)
+Alias MyK'*+ K'*+
+Alias MyK'*- K'*-
+#
+# K*(1680)
+Alias MyK''*+ K''*+
+Alias MyK''*- K''*-
+#
+#
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.0 MyJpsi MyK_1+                   PHSP;
+1.0 MyJpsi MyK'_1+                  PHSP;
+1.0 MyJpsi MyK_2*+                  PHSP;
+1.0 MyJpsi MyK'*+                   PHSP;
+1.0 MyJpsi MyK''*+                  PHSP;
+Enddecay
+#
+Decay MyB-
+1.0 MyJpsi MyK_1-                   PHSP;
+1.0 MyJpsi MyK'_1-                  PHSP;
+1.0 MyJpsi MyK_2*-                  PHSP;
+1.0 MyJpsi MyK'*-                   PHSP;
+1.0 MyJpsi MyK''*-                  PHSP;
+Enddecay
+#
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+#
+Decay MyK*0
+1.000  K+  pi-                        VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.000  K-  pi+                        VSS;
+Enddecay
+#
+#
+# K1(1270)
+Decay MyK_1+
+0.500  rho0  K+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  MyK*0   pi+                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK_1-
+0.500  rho0  K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  Myanti-K*0  pi-                  VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+# K1(1400)
+Decay MyK'_1+
+0.500  rho0  K+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  MyK*0   pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK'_1-
+0.500  rho0  K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  Myanti-K*0   pi-                  VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+# K2(1430)
+Decay MyK_2*+
+0.500  rho0  K+                         TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+0.500  MyK*0   pi+                      TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK_2*-
+0.500  rho0  K-                         TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+0.500  Myanti-K*0   pi-                 TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+# K*(1410)
+Decay MyK'*+
+0.500  rho0 K+                          VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  MyK*0   pi+                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK'*-
+0.500  rho0  K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  Myanti-K*0   pi-                 VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+# K*(1680)
+Decay MyK''*+
+0.500  rho0  K+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  MyK*0   pi+                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK''*-
+0.500  rho0  K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.500  Myanti-K*0   pi-                 VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+#
+End
+
+
+

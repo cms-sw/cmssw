@@ -1,0 +1,60 @@
+###################################################################
+# 
+#B0->Eta'D*0 Bbar -> X                                               ##     |
+#      --eta pi pi, D*0->D0pi0, D0->K- pi+
+#        |
+#         -gamma gamma
+#                  
+# Author: A.Hicheur           16 Feb 2000  
+# hicheur@lapp.in2p3.fr                                            #
+###################################################################
+#
+Define beta 0.39
+Define dm .464e12
+
+#
+Alias MyB0B anti-B0
+Alias MyB0 B0
+#ChargeConj MyB0 MyB0B
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+
+Decay MyB0B
+1. D*0 eta'          SVS;
+Enddecay
+
+Decay MyB0
+1. anti-D*0 eta'          SVS;
+Enddecay
+
+Decay eta'
+1.     pi+ pi- eta                      PHSP;
+Enddecay
+#
+
+Decay eta
+1.   gamma  gamma                       PHSP;
+
+Enddecay
+#
+
+Decay D*0
+1. D0 pi0  VSS;
+Enddecay
+
+Decay anti-D*0
+1. anti-D0 pi0  VSS;
+Enddecay
+#
+
+Decay D0
+1. K-     pi+       PHSP;
+Enddecay
+
+Decay anti-D0
+1. K+    pi-     PHSP;
+Enddecay
+
+End 

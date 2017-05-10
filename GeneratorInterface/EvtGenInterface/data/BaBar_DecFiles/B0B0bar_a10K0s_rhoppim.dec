@@ -1,0 +1,42 @@
+###################################################
+#                                                 #
+# B0 -> a10 K0s (a10 -> rho+ pi-)   + c.c.        #
+#        	                                  # 
+#                                                 #
+# Author: Daniel Walker dwalker@slac.stanford.edu #
+# Created: 23 Mar  2004                           #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> a10 K0s
+# using a simple (S)calar to (V)ector-(S)calar model.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mya_10 a_10
+Alias MyK_S0 K_S0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)  
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Mya_10 MyK_S0           SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Mya_10 MyK_S0           SVS;
+Enddecay
+#
+Decay Mya_10
+1.000 rho+ pi-		     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;	
+Enddecay       
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# B+ -> rho- rho+ K+   +cc                        #
+#                                                 #
+# Author:	G. Schott                         #
+# created:			30/05/03          #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+Decay MyB+
+1.0000     rho+ rho- K+      PHSP;
+1.0000     rho+ rho+ K-      PHSP;
+Enddecay
+
+Decay MyB-
+1.0000     rho- rho- K+      PHSP;
+1.0000     rho- rho+ K-      PHSP;
+Enddecay
+
+
+End
+

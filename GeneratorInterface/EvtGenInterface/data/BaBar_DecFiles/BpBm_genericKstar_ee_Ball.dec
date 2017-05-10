@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B+ -> K*+(generic) e+ e-      + c.c.            #
+#                                                 #
+#                                                 #
+#                                                 #
+# Author: S.Willocq (willocq@slac.stanford.edu)   #
+# created:                     1/Jun/03           #
+###################################################
+#
+Alias MyB+  B+
+Alias MyB-  B-
+#
+Decay Upsilon(4S)
+0.50 MyB+  B-   VSS;
+0.50 MyB-  B+   VSS;
+Enddecay
+#
+Decay MyB+
+1.00   K*+  e+   e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay MyB-
+1.00   K*-  e+   e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+End
+
+
+
+
+
+

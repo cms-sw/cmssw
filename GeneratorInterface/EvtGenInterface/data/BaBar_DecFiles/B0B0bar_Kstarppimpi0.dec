@@ -1,0 +1,40 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> Kstar+ pi- pi0 (non-resonant)       #
+#             B0bar -> generic                       +cc   #
+#                                                          #
+# Author: Haibo Li                                         #
+# e-mail: lihb@slac.stanford.edu                           #
+# Created:  05/20/2004                                     #
+#                                                          #
+############################################################
+#
+# Define my particles
+#
+Alias MyB0 B0
+Alias MyB0bar anti-B0
+Alias MyK*+ K*+
+Alias MyK*- K*-
+
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  MyK*+ pi- pi0          PHSP;
+Enddecay
+#
+Decay MyB0bar
+1.000  MyK*- pi+ pi0          PHSP;
+Enddecay
+#
+Decay MyK*+
+1.0000  K+ pi0              VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  K- pi0              VSS;
+Enddecay
+#
+End

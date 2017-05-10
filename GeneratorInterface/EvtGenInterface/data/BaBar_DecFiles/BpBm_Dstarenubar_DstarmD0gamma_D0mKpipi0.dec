@@ -1,0 +1,51 @@
+###################################################
+#                                                 #
+# Decay: B+ -> X 	B- ->D*0 e- anti-nu_e     #
+#                                |-> D0 pi0	  #
+#                                  |-> K- pi+ pi0 #
+# + CC 						  #
+#                                                 #
+# Comments: using default value for dm            #
+#                                                 #
+# Author: Kelly E Ford                            #
+# Created:                  07/May/03             #
+###################################################
+#
+Alias MyB+   B+
+Alias MyB-   B-
+Alias MyD*0  D*0
+Alias MyD*0b anti-D*0
+Alias MyD0   D0
+Alias MyD0b  anti-D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.0000   MyD*0b     e+   nu_e             ISGW2;
+Enddecay
+#
+Decay MyB-
+1.0000   MyD*0     e-   anti-nu_e         ISGW2;
+Enddecay
+#
+Decay MyD*0
+1.0000   MyD0 gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay MyD*0b
+1.0000   MyD0b gamma                      VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+1.0000  K- pi+ pi0                        PHSP;
+Enddecay
+#
+Decay MyD0b
+1.0000  K+ pi- pi0                        PHSP;
+Enddecay
+#
+
+End

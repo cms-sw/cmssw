@@ -1,0 +1,27 @@
+###################################################################
+#    Force the Ds decay into PhiPi and PhiRho modes
+#     Author: C.Voena                07 Jul 2001
+# Mail: CECILIA@SLAC.STANFORD.EDU
+###################################################################
+
+
+
+
+Alias MyPhi       phi
+
+ChargeConj D_s+ D_s-
+
+
+Decay D_s+ 
+0.01800   MyPhi pi+         SVS;           
+0.03350   MyPhi rho+        SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;   
+Enddecay
+CDecay D_s-
+
+
+Decay MyPhi
+1.0000 K+ K-              VSS;
+Enddecay
+
+
+End

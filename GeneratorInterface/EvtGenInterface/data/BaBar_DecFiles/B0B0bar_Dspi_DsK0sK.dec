@@ -1,0 +1,50 @@
+####################################################
+#                                                  #
+# Inclusive Ds*-Pi+ decay.dec #2                   #
+#                                                  #
+# DsD* signal from B0-antiB0 for SP3               #
+#                                                  #
+# Decay: anti-B0 -> Ds*- pi+, B0 -> X  +c.c.       #
+#                   |                              #
+#                   `-> K0s K-                     #
+#                       |                          #
+#                       `-> pi+ pi-                #
+# 05 Oct 00                                        #
+# Akram Khan                                       #
+####################################################
+#
+Define dm .464e12
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD_s- D_s-
+Alias MyD_s+ D_s+
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyD_s- pi+                       PHSP;
+Enddecay
+#
+Decay MyD_s-
+1.0000 MyK_S0 K-                        PHSP;
+Enddecay
+#
+Decay MyB0
+1.0000 MyD_s+ pi-                       PHSP;
+Enddecay
+#
+Decay MyD_s+
+1.0000 MyK_S0 K+                        PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+#
+End
+
+

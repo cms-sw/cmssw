@@ -1,0 +1,50 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> rho0 K*+ -> (pi+pi-)(K+pi0)            #
+#             B- -> generic                        +cc     #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  08/10/2000                                     #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+# 'Scalar -> Vector Vector'
+# SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+# Tansverse polarization: SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;  ***
+# Longitud. polarization: SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+#
+Decay MyB+
+1.0000  rho0 MyK*+      SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay 
+#
+Decay MyB-
+1.0000  rho0 MyK*-      SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;  
+Enddecay 
+#
+Decay MyK*+
+1.0000  K+ pi0              VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  K- pi0              VSS;
+Enddecay
+#
+End
+
+

@@ -1,0 +1,39 @@
+############################################################
+# Decay: B- -> chic(0)      pi-,      B+ -> X              #
+#                |-> pi+ pi-                               #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: Akram Khan                                       #
+# Created:                   26/July/02                    #
+# Mail: akram@SLAC.STANFORD.EDU                            #
+# Corrected chi_c0 -> MyChi0 use by John Back              #
+#       (28 Jan 2004, jback@slac.stanford.edu)             #
+############################################################
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyChi0 chi_c0
+#
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyChi0 pi+          PHSP;
+Enddecay
+#
+Decay MyB-
+1.0000  MyChi0 pi-          PHSP;
+Enddecay 
+#
+Decay MyChi0
+1.0000  pi+ pi-             PHSP;   
+Enddecay
+End
+
+
+

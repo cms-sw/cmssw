@@ -1,0 +1,46 @@
+###########################################################################
+# This is a DECAY.DEC file for B+(-) -> omega pi  :                       #
+#   Upsilon(4S) -> B+   B-                                   +CC          #
+#                  |    |                                                 #
+#                  |     ->  omega pi-                                    # 
+#                  |          |                                           #
+#                  |           -> pi+ pi- pi0                             #
+#                  |                                                      #
+#                   -> X                                                  #
+#                                                                         #
+#                                                                         #
+#   Jean Roy  (jroy@pizero.colorado.edu)       23-NOV-1999                #
+#                                                                         #
+###########################################################################
+# Create our own versions of B-, B+ which will decay to omega pi
+# and specify that they should be treated as antiparticles
+#
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+# Create our own omega to force it to decay to three pions
+#
+Alias myOmega  omega
+#
+Decay myOmega
+1.000    pi-  pi+  pi0         OMEGA_DALITZ;
+Enddecay
+#
+# force myB- and myB+ to always decay to myOmega pi
+#
+Decay myB-
+1.000    myOmega     pi-       SVS;
+Enddecay
+#
+Decay myB+
+1.000    myOmega     pi+       SVS;
+Enddecay
+#
+End

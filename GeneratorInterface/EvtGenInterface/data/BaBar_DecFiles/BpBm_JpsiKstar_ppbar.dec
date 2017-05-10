@@ -1,0 +1,76 @@
+###################################################################
+# B-  --> J/psi K*-              B- --> Generic                   #
+#         |    |                                                  #
+#         |    |-->KS pi-                                         #
+#         |        |--> pi+pi-                                    #
+#         |                                                       #
+#         |-->p+p-                                                #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# B decay should be according to CLEO                             #
+#                                                                 #
+# Author: G. London     9Feb99  				  #
+# updated to Jpsi->ppbar by thrynova@slac.stanford.edu            #	
+# 12 Dec 2003							  #
+###################################################################
+#
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes:
+#	Aplus  0.566
+#	Azero  1.02
+#	Aminus 0.4
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Note: Hzero following convention from Dunietz & al. To
+# be consistent with cleo measurements all phases should be == 0
+Define Hplus  0.683
+Define Hzero  0.721
+Define Hminus 0.117
+Define phHplus  0.0
+Define phHzero  0.0
+Define phHminus 0.0
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyKstar- K*-
+Alias MyKstar+ K*+
+Alias MyJpsi J/psi
+Alias MyK_S0 K_S0 
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB-
+1.000 MyJpsi  MyKstar-      SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyB+
+1.000 MyJpsi  MyKstar+      SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyJpsi
+1.000   p+ anti-p-                VLL;
+Enddecay
+#
+Decay MyKstar-
+0.5   MyK_S0   pi-            VSS;
+0.5   K-  pi0                 VSS;
+Enddecay
+#
+Decay MyKstar+
+0.5      MyK_S0  pi+                VSS;
+0.5      K+  pi0                    VSS;
+Enddecay
+#
+Decay MyK_S0
+1.000 pi+ pi-                PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,48 @@
+#######################################################
+#                                                     #
+#   Up(4S) -> B0  B0bar + CC                          #
+#             |   |                                   #       
+#             |    -> X                               #
+#             |                                       #
+#              -> D0bar p pbar                        #     
+#                  |                                  #
+#                   -> Ks pi+ pi-                     #
+#                                                     #
+# Author:  Haibo Li, Wisconsin                        #
+# Created: March 22 2004                              #
+#                                                     #
+#######################################################
+#
+Alias myB0            B0
+Alias myAntiB0   anti-B0
+ChargeConj myB0 myAntiB0
+Alias myD0            D0
+Alias myAntiD0   anti-D0
+ChargeConj myD0 myAntiD0
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myAntiB0   VSS_BMIX dm;
+Enddecay
+#
+Decay myB0
+1.000   myAntiD0 p+ anti-p-      PHSP;
+Enddecay
+#
+Decay myAntiB0
+1.000   myD0     p+ anti-p-      PHSP;
+Enddecay
+#
+Decay myD0
+1.000   MyK_S0 pi+ pi-           D_DALITZ;
+Enddecay
+#
+Decay myAntiD0
+1.000   MyK_S0 pi+ pi-           D_DALITZ;
+Enddecay
+#
+Decay MyK_S0
+1.000     pi+ pi-                PHSP;
+Enddecay
+#
+End

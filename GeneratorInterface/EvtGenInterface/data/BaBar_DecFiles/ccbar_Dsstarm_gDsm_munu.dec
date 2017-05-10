@@ -1,0 +1,25 @@
+#######################################################
+#                                                     #
+# Decay: ccbar -> Ds*- X 			      #
+#		  |->Ds- gamma			      #
+#		     |->mu- anti-nu_mu		      #
+# should go with the tcl file ccbar_Dsstr-.tcl	      #
+#                                                     #
+# Author: M.H. Schune + S. Plaszczynski               #
+# Mail: SCHUNEM@SLAC.STANFORD.EDU
+# Created:                  22/Feb/99                 #
+#######################################################
+#
+Decay vpho 
+1.00	JSCONT 4;
+Enddecay
+#
+Decay D_s*-
+1.00    D_s-  gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay  D_s-
+1.0000    mu-   anti-nu_mu        PHOTOS SLN;
+Enddecay
+#
+End

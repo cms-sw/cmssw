@@ -1,0 +1,70 @@
+####################################################
+# Decay: B- -> D-              K*0bar,  B+ -> X    #
+#              |-> K pi pi      |-> KS pi0         #
+#              |-> Ks pi        |-> K- pi+         #
+#                                                  #
+# + cc                                             #
+#                                                  #
+#                                                  #
+# Stephen Levy                                     #
+# August 15, 2002                                  #
+#                                                  #
+#                                                  #
+####################################################
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+Alias MyK*+ K*+
+Alias MyK*- K*-
+Alias MyD+ D+
+Alias MyD- D-
+Alias MyKs K_S0
+#
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.0000 MyK*0 MyD+                         SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 Myanti-K*0 MyD-                    SVS;
+Enddecay
+#
+Decay MyD+
+0.905  K- pi+ pi+                      D_DALITZ;
+0.095  MyKs pi+                        PHSP;
+Enddecay
+#
+Decay MyD-
+0.905  K+ pi- pi-                      D_DALITZ;
+0.095  MyKs pi-                        PHSP;
+Enddecay
+#
+Decay MyK*0
+0.7449 K+ pi-                           VSS;
+0.2551 MyKs pi0                         VSS;
+Enddecay
+#
+Decay Myanti-K*0
+0.7449 K- pi+                           VSS;
+0.2551 MyKs pi0                         VSS;
+Enddecay
+#
+Decay MyKs
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+#
+#
+End

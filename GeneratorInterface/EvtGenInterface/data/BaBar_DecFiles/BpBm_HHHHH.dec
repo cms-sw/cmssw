@@ -1,0 +1,55 @@
+###################################################
+#                                                 #
+# Decay: B+ -> h+ h+ h- h+ h-			  #
+#                                                 #
+# Author: 	G. Schott			  #
+# Created:                   30/5/03              #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+Decay MyB+
+1.0000 pi+ pi- pi+ pi- pi+		PHSP;
+1.0000 K+ pi- pi+ pi- pi+		PHSP;
+1.0000 pi+ K- pi+ pi- pi+		PHSP;
+
+1.0000 K+ K- pi+ pi- pi+		PHSP;
+1.0000 K+ pi- K+ pi- pi+		PHSP;
+1.0000 pi+ K- pi+ K- pi+		PHSP;
+
+#1.0000 pi+ K- K+ K- pi+		PHSP;
+#1.0000 K+ K- K+ pi- pi+		PHSP;
+#1.0000 K+ pi- K+ pi- K+		PHSP;
+#1.0000 K+ K- K+ K- pi+			PHSP;
+#1.0000 K+ K- K+ pi- K+			PHSP;
+#1.0000 K+ K- K+ K- K+			PHSP;
+Enddecay
+
+Decay MyB-
+1.0000 pi- pi- pi+ pi- pi+		PHSP;
+1.0000 K- pi- pi+ pi- pi+		PHSP;
+1.0000 pi- K+ pi- pi- pi+		PHSP;
+
+1.0000 K+ K- pi- pi- pi+		PHSP;
+1.0000 K+ pi- K+ pi- pi-		PHSP;
+1.0000 pi+ K- pi+ K- pi-		PHSP;
+
+#1.0000 pi- K- K+ K- pi+		PHSP;
+#1.0000 K+ K- K+ pi- pi-		PHSP;
+#1.0000 K- pi+ K- pi+ K-		PHSP;
+#1.0000 K+ K- K+ K- pi-			PHSP;
+#1.0000 K+ K- pi+ K- K-			PHSP;
+#1.0000 K+ K- K+ K- K-			PHSP;
+Enddecay
+
+
+End

@@ -1,0 +1,41 @@
+#################################################################
+#                                                               #
+# Decay: B0 -> D- K+ (D- -> Ks pi-)                             #  
+#        anti-B0 -> X;   + cc                                   #
+#                                                               #
+# Author: C.Voena                                               #
+# Date:                    03/09/2001                           #
+#################################################################
+#
+Alias MyB0  B0
+Alias Myanti-B0  anti-B0
+Alias MyD-      D-
+Alias MyD+      D+
+ChargeConj MyD+ MyD-
+Alias MyKs K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyD+ K-                           PHSP;
+Enddecay
+#
+Decay MyB0
+1.000 MyD- K+                           PHSP;
+Enddecay
+#
+Decay MyD-
+1.0000 MyKs pi-                         PHSP; 
+Enddecay
+#
+Decay MyD+
+1.0000 MyKs pi+                         PHSP;   
+Enddecay
+#
+Decay MyKs
+1.000     pi+ pi-                       PHSP;
+Enddecay
+#
+End

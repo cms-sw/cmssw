@@ -1,0 +1,29 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#                                                                             #
+#  Up(4S) -> B+   B-                 + CC                                     #
+#            |    |                                                           #
+#            |     ->  rho- gamma                                             #
+#            |                                                                #
+#             ->X                                                             #
+#                                                                             #
+###############################################################################
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+Decay myB+
+1.0000 rho+  gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+Decay myB-
+1.0000 rho-  gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+End
+
+

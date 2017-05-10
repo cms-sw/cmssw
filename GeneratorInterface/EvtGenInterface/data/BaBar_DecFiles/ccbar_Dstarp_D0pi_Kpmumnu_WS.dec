@@ -1,0 +1,23 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D0 pi+, D0 -> K+ mu- anti-nu_mu          #
+# MIXED WRONG-SIGN DECAY                          #
+# created: kflood aug2800                         #
+###################################################
+#
+Alias myD0 D0
+#
+Decay vpho
+1.00                        JSCONT 4;
+Enddecay
+#
+Decay D*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+Decay myD0
+1.00 K+ mu- anti-nu_mu     PHOTOS   ISGW2;
+Enddecay
+#
+End

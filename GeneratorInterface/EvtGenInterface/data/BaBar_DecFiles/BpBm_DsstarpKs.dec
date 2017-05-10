@@ -1,0 +1,59 @@
+######################################################
+#                                                    #
+# Decay: B+ -> Ds*+                 K0s,    B- -> X  #
+#              |-> Ds+      pi0,gamma                #
+#                  |-> K+ K0s                        #
+#                                                    #
+#  + c.c.                                            #
+#                                                    #
+# Author : Josh Thompson                             #
+# Created: 17 September 2003                         #
+######################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK_S0 K_S0
+
+Alias MyDs*+   D_s*+
+Alias MyDs*-   D_s*-
+Alias MyDs+    D_s+
+Alias MyDs-    D_s-
+
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000   MyDs*+  MyK_S0   PHSP;
+Enddecay
+#
+Decay MyB-
+1.000   MyDs*-  MyK_S0   PHSP;
+Enddecay
+#
+Decay MyDs*+
+0.058   MyDs+ pi0   PHSP;
+0.942   MyDs+ gamma   PHSP;
+Enddecay
+#
+Decay MyDs*-
+0.058   MyDs- pi0   PHSP;
+0.942   MyDs- gamma   PHSP;
+Enddecay
+#
+Decay MyDs+
+1.000   K+ MyK_S0   PHSP;
+Enddecay
+#
+Decay MyDs-
+1.000   K- MyK_S0   PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-            PHSP;                   
+Enddecay
+#
+End

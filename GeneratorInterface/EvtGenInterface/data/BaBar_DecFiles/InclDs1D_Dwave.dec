@@ -1,0 +1,80 @@
+####################################################
+#                                                  #
+# Inclusive DD* decay.dec #1                       #
+#                                                  #
+# DD* signal from B0-antiB0 for PRV0               #
+#                                                  #
+#                                                  #
+# Produces a mix of signal                         #
+#                                                  #
+# 100% signal:                                     #
+#                                                  #
+# Decay:                                           #
+# anti-B0 ->Ds_1-(2535)          D+, B0 -> X +c.c. #
+#           |-> anti-D*0 K-      |                 #
+#               |-> anti-D0 pi0  |                 #
+#               |-> X            |                 #
+#                                |-> K- pi+ pi+    #
+#                                          100%    #
+#                                                  #
+# 10 Mar 01                                        #
+# Roy Aleksan                                      #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyDs_1+ D_s1+
+Alias MyDs_1- D_s1-
+Alias MyD*+ D*+
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+Alias MyD*- D*-
+Alias MyD+ D+
+Alias MyD- D-
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyDs_1- MyD+                   SVS;
+Enddecay
+#
+Decay MyDs_1-
+1.0000    Myanti-D*0 K-               VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-D*0
+1.0000 anti-D0 pi0                    VSS;
+Enddecay
+#
+Decay MyD+
+1,0000 K- pi+ pi+                     D_DALITZ;
+Enddecay
+#
+Decay MyB0
+1.0000 MyDs_1+ MyD-                   SVS;
+Enddecay
+#
+Decay MyDs_1+
+1.0000    MyD*0 K+                    VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*0
+1.0000 D0 pi0                         VSS;
+Enddecay
+#
+Decay MyD-
+1.0000 K+ pi- pi-                     D_DALITZ;
+Enddecay
+#
+End
+
+

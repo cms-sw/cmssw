@@ -1,0 +1,51 @@
+###################################################################
+#     B+  --> x3872     K+           B+ --> Generic               #
+#              |                                                  #           
+#              |                                                  # 
+#              +-->rho0 pi0                                       #
+#                   |                                             #
+#                   |                                             #
+#                   +--> pi+ pi-                                  #
+#                                                                 #
+#  + cc                                                           #
+#                                                                 #
+# mode a5: CLEO values                                            #
+#                                                                 #
+# Author: Walter Toki October 27, 2003                            #
+#         Modified by Aidong Chen Nov. 10, 2003                   #
+###################################################################
+#
+# Define dm 0.464e12
+#
+#
+# Alias particles for specific decays
+#
+Particle dummy00_1 3.872 0.0
+Particle anti-dummy00_1 3.872 0.0
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyX dummy00_1
+Alias Myanti-X anti-dummy00_1
+#
+Decay Upsilon(4S)
+0.5000 MyB+     B-              VSS;
+0.5000 MyB-     B+              VSS;
+Enddecay
+#
+Decay MyX
+1.000  rho0 pi0  PHSP;
+Enddecay
+#
+Decay Myanti-X
+1.000  rho0 pi0  PHSP;
+Enddecay
+#
+Decay MyB+
+1.000 MyX K+      PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 Myanti-X K-     PHSP;
+Enddecay
+#
+End

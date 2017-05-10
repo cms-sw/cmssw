@@ -1,0 +1,71 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> X    Bbar0->D2(2460)*+ pi-             #
+#                           |->D*0 pi+                #
+#                               |-> D0 gamma          #
+#                                   |-> Ks pi+ pi-    #
+#                                                     #
+#                       +CC                           #
+#                                                     #
+# onno@slac.stanford.edu                              #
+# 04.15.03                                            #
+#######################################################
+#
+Alias MyB0  B0
+Alias MyAntiB0 anti-B0
+Alias MyD_2*- D_2*-
+Alias MyD_2*+ D_2*+
+Alias MyAntiD*0 anti-D*0
+Alias MyD*0 D*0
+Alias MyAntiD0 anti-D0
+Alias MyD0  D0
+Alias MyK0  K0  
+Alias MyAntiK0 anti-K0
+#
+Decay Upsilon(4S)
+0.50000 B0  MyAntiB0                   VSS_BMIX dm;
+0.50000 anti-B0  MyB0                  VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000   MyD_2*- pi+                   STS;
+Enddecay
+#
+Decay MyAntiB0
+1.0000   MyD_2*+ pi-                   STS;
+Enddecay
+#
+Decay MyD_2*-
+1.0000    MyAntiD*0 pi-                TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD_2*+
+1.0000    MyD*0 pi+                    TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyAntiD*0
+1.0000    MyAntiD0  gamma              VSP_PWAVE;
+Enddecay
+#
+Decay MyD*0
+1.0000    MyD0  gamma                  VSP_PWAVE; 
+Enddecay
+#
+Decay MyD0
+1.0000   MyAntiK0  pi+ pi-             D_DALITZ;
+Enddecay
+#
+Decay MyAntiD0
+1.0000   MyK0  pi- pi+                 D_DALITZ;
+Enddecay
+
+Decay MyAntiK0
+1.0000 K_S0                            PHSP;
+Enddecay
+
+Decay MyK0
+1.0000 K_S0                            PHSP;
+Enddecay
+#
+#
+End

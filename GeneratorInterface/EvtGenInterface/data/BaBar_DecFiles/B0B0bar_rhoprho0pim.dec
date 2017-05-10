@@ -1,0 +1,28 @@
+###################################################
+#                                                 #
+# Decay: B0 -> rho+ rho0 pi- + cc                 #
+#                                                 #
+# Author: I. Forster                              #
+# Created:                   13/05/03             #
+###################################################
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+#
+Decay Myanti-B0
+1.0000 rho+ rho0 pi-                   PHSP;
+1.0000 rho- rho0 pi+                   PHSP;
+Enddecay 
+#
+Decay MyB0
+1.0000 rho0 rho+ pi-                   PHSP ;
+1.0000 rho0 rho- pi+                   PHSP;
+Enddecay 
+#
+End

@@ -1,0 +1,50 @@
+#############################################################
+#                                                           #
+# Decay: B0 -> D*(2010)-    D0 K+,       anti-B0 -> X       # 
+#              |-> D0B pi-   |-> K- Pi+                     #
+#                   |-> K+ pi-                              #
+#                                                           #
+#                                                           #
+# Author: M. H. Schune			                             		    #
+# Created:                26/Jan/99			                      #
+# Modifification for dm: G.London 10/Feb/99                 #
+#############################################################
+#
+#
+Alias MyB0  B0
+Alias MyB0B  anti-B0
+Alias MyD*- D*-
+Alias MyD*+ D*+
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyD*- MyD0  K+                    PHSP;
+Enddecay
+#
+Decay MyB0B
+1.0000  MyD*+ MyD0B  K-                    PHSP;
+Enddecay
+#
+Decay MyD*-
+1.0000  MyD0B  pi-                        VSS;
+Enddecay
+#
+Decay MyD*+
+1.0000  MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD0
+0.0391 K- pi+                           PHSP;
+Enddecay
+#
+Decay MyD0B
+0.0391 K+ pi-                           PHSP;
+Enddecay
+#
+End
+

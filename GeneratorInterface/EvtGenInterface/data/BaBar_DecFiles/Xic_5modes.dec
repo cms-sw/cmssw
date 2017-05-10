@@ -1,0 +1,41 @@
+############################################################
+#                                                          #
+# From ccbar:                                              #
+# Xi_c0 -> Xi- (rho+, pi+, pi+pi+pi-, pi+pi0)              #
+#           and                                            #
+# Xi_c+ -> Xi- pi+ pi+                                     #
+#  using phase space.                                      #
+#                                                          #
+# created: S-J Lee Mar08-02                                #
+#          slee@slac.stanford.edu                          #
+#                                                          #
+############################################################
+#
+# Alias my-Xi_c0   Xi_c0
+# Alias my-Xi-     Xi- 
+# Alias my-Lambda0 Lambda0
+
+Decay Xi_c0
+0.250     Xi-       rho+                    PHSP;
+0.250     Xi-       pi+                     PHSP;
+0.250     Xi-       pi+	    pi+    pi-      PHSP;
+0.250     Xi-       pi+     pi0             PHSP;
+Enddecay
+#
+Decay anti-Xi_c0
+0.250     anti-Xi+     rho-                 PHSP;
+0.250     anti-Xi+     pi-                  PHSP;
+0.250     anti-Xi+     pi-     pi-    pi+   PHSP;
+0.250     anti-Xi+     pi-     pi0          PHSP;
+Enddecay
+#
+Decay Xi_c+
+1.000     Xi-       pi+	    pi+             PHSP;
+Enddecay
+#
+Decay anti-Xi_c-
+1.000     anti-Xi+  pi-	    pi-             PHSP;
+Enddecay
+#
+End
+

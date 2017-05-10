@@ -1,0 +1,29 @@
+#############################################################
+#                                                           #
+# tau- production                                           #
+# tau- -> K- K0s rho0 nu_tau, Ks -> pi+ pi-, rho0 -> pi+pi- #
+#                                                           #
+# created: hnichols april 10, 2000                          #
+#############################################################
+#
+Alias mytau- tau-
+Alias myK_S0 K_S0
+Alias myrho0 rho0
+#
+Decay vpho
+1.00 tau- tau+ VLL;
+Enddecay
+#
+Decay tau-
+1.00 K- myK_S0 myrho0 nu_tau PHSP;
+Enddecay
+#
+Decay myK_S0
+1.00 pi+ pi- PHSP;
+Enddecay
+#
+Decay myrho0
+1.00 pi+ pi- VSS;
+Enddecay
+#
+End

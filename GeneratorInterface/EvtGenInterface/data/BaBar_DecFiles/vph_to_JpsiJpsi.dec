@@ -1,0 +1,24 @@
+###########################################################
+#							  #
+#	vph --> J/psi J/psi			          #
+#                 |	| --> cocktail			  #
+#                 |					  #
+#                 | --> ee mumu				  #
+#							  #
+# Author Glenn Williams        williamg@utdallas.edu	  #
+#							  #
+###########################################################
+
+
+ Alias myJ/psi J/psi
+
+ Decay vpho
+ 1.00 myJ/psi J/psi 		PHSP;
+ Enddecay
+
+ Decay myJ/psi
+ 0.500 e+ e-			VLL;
+ 0.500 mu+ mu-			VLL;
+ Enddecay
+ 
+ End

@@ -1,0 +1,45 @@
+####################################################
+#                                                  #
+# Inclusive D*rho decay.dec #1                     #
+#                                                  #
+# D*rho signal from B0-antiB0 for SP2              #
+#                                                  #
+# Decay: anti-B0 -> D*+ rho-, B0 -> X       +c.c.  #
+#                   |-> D0 pi+                     #
+#                       |-> X                      #
+#                                                  #
+#                                                  #
+# 11.11.99 S.Xella  (IHB AWG)                      #
+# dm modified: g.london 17/2  			   #
+#contact Abi abi@slac	                    	   #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyD*+ rho-               SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19; 
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                   VSS;
+Enddecay
+#
+Decay MyB0
+1.000 MyD*- rho+               SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19; 
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-              VSS;
+Enddecay
+#
+
+End

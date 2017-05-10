@@ -1,0 +1,82 @@
+############################################################
+#                                                          #
+# Decay: B0 -> X      anti-B0 -> D*0 pi+ l nu              #
+#                                |-> D*0 pi0               #
+#                                    |-> D0 pi0/gamma      #
+#                                        |-> K- pi+        #
+#                                                          #
+# with l = e or mu                                         #
+#                                                          #
+#                                                          #
+#   + CC                                                   #
+#                                                          #
+#                                                          #
+# Author:           Jens Schubert                          #
+# Created:            18/May/2004                          #
+# Mail: jschubi@SLAC.STANFORD.EDU                          #
+############################################################
+#
+#
+Alias myB0          B0
+Alias myanti-B0     anti-B0
+#
+Alias myanti-D*0    anti-D*0
+Alias myD*0         D*0
+#
+Alias myanti-D0     anti-D0
+Alias myD0          D0
+#
+
+
+#
+#  Y
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+
+
+#
+#  B
+#
+Decay myanti-B0
+0.5000   myD*0  pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+0.5000   myD*0  pi+   mu-  anti-nu_mu     PHOTOS  GOITY_ROBERTS;
+Enddecay
+#
+Decay myB0
+0.5000   myanti-D*0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+0.5000   myanti-D*0  pi-   mu+  nu_mu      PHOTOS GOITY_ROBERTS;
+Enddecay
+
+
+#
+#   D*  -> D0 pi0/gamma
+#
+
+Decay myD*0
+0.6190    myD0  pi0                        VSS;
+0.3810    myD0  gamma                      VSP_PWAVE;
+Enddecay
+Decay myanti-D*0
+0.6190    myanti-D0  pi0                       VSS;
+0.3810    myanti-D0  gamma                      VSP_PWAVE;
+Enddecay
+
+
+
+#
+#  D Meson
+#
+Decay myD0
+1.0000   K-  pi+                         PHSP;
+Enddecay
+Decay myanti-D0
+1.0000   K+  pi-                         PHSP;
+Enddecay
+
+
+
+
+End

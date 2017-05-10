@@ -1,0 +1,20 @@
+###################################################
+#                                                 #
+# Signal Monte Carlo for D0->K-K+ decays          #
+# without D* tag requirement                      #
+#                                                 #
+# $Id: ccbar_D0_K+K-.dec,v 1.1 2002/12/14 00:52:33 davidw Exp $                                            #
+###################################################
+#
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+Decay D0
+1.0   K- K+                                PHSP;
+Enddecay
+
+         
+End

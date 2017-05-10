@@ -1,0 +1,35 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> p+ anti-p-,     B0 -> X       # 
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Joe Izen                                #
+# Date:                    11/July/00             #
+# Initial version modified from B0Bar_pipi-.dec   #
+# Note that SSS_CP balks at p pbar.               #
+# Use phase space for now                         #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+#
+Decay MyB0
+#1.0000 p+ anti-p-                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+1.0000 p+ anti-p-                    PHSP;
+Enddecay 
+#
+Decay Myanti-B0
+#1.0000 p+ anti-p-                    SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+1.0000 p+ anti-p-                    PHSP;
+Enddecay 
+#
+End
+

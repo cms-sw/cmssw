@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# B0 -> K*0 K0s   + c.c.                          #
+#        |                                        #
+#        `--> K+ pi-                              # 
+#                                                 #
+# Author: John Back     jback@slac.stanford.edu   #
+# Created: 15 Sept 2000                           #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K*0 K0s
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The K*0 decays to K+ pi- (using a simple VSS model).
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  MyK*0 K_S0            SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myanti-K*0 K_S0       SVS;
+Enddecay
+#
+Decay MyK*0
+1.000  K+ pi-                VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.000  K- pi+                VSS;
+Enddecay
+#
+End

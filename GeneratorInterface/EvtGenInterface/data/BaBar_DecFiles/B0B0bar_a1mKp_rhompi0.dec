@@ -1,0 +1,44 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> a1- K+  + cc                  #
+#  a1-  to rho- pi0                                                 #
+# Author: Vincenzo Lombardo, Gabriele Dell'Aglio  #
+# INFN - Milano                                   #
+# Date:                    4 March 2004           #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 mya_1- K+                        SVS;
+Enddecay 
+#
+Decay mya_1-
+1.0000   rho- pi0                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyB0
+1.0000 mya_1+ K-                        SVS;
+Enddecay 
+#
+Decay mya_1+
+1.0000   rho+ pi0                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+
+End              
+
+
+
+
+
+

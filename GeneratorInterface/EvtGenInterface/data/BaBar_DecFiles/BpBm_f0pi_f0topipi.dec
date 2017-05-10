@@ -1,0 +1,49 @@
+###################################################
+#                                                 #
+# B+ -> f0(980) pi+           + C.C.              #
+#        |                                        # 
+#        `--> pi+ pi-                             #
+#                                                 #
+# John Back (jback@slac.stanford.edu)             #
+# Created: 21st Jan 2004                          #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> f0(980) pi+ using phase space.
+# The f0(980) decays to pi+ pi-.
+# Note that the results from the ordinary BW fit
+# are used and not those from the coupled
+# channel BW, which is not in EvtGen.
+#
+# Mass and width taken from:
+#    Ds+->pi+pi+pi- fit [E791 hep-ex/0007027]
+#    E791 quotes: m(f0) = 0.975 +- 0.003 GeV/c^2
+#                 G(f0) = 0.044 +- 0.002 +- 0.002 GeV/c^2
+#
+Particle f_0 0.975 0.044
+#
+ChangeMassMin f_0 0.40
+ChangeMassMax f_0 1.30
+#
+Alias MyB+  B+
+Alias MyB-  B-
+Alias Myf_0 f_0
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000   Myf_0 pi+            PHSP;
+Enddecay
+#
+Decay MyB-
+1.000   Myf_0 pi-            PHSP;
+Enddecay
+#
+Decay Myf_0
+1.000    pi+ pi-              PHSP;
+Enddecay
+#
+End

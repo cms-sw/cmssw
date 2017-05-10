@@ -1,0 +1,31 @@
+############################################################
+#
+# Author:  A. Snyder
+# Created: July 2008
+# Modified by: Arafat Gabareen Mokhtar
+#            : Oct/29/2008 
+#         
+# e+e- -> Ups(3S), Ups(3S) -> gamma Higgs (A0) -> gamma tau+ tau-
+# A fat Higgs 
+############################################################
+#
+# Upsilon3S to Higgs, 
+Particle Higgs0 6.0 100.0
+ChangeMassMin Higgs0 2.0
+ChangeMassMax Higgs0 11.0
+Alias myX Higgs0
+#
+#
+Decay  Upsilon(3S)
+1.0000    myX gamma    VSP_PWAVE;
+Enddecay
+#
+#
+Decay  myX
+1.0000     tau+ tau-      PHSP;
+Enddecay
+#
+#
+End
+
+

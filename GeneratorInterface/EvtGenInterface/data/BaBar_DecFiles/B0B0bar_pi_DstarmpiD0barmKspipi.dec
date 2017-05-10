@@ -1,0 +1,74 @@
+#####################################################
+#                                                   #
+# Decay: B0 -> D*(2010)- pi+   anti-B0 -> X  	    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |-> D0bar pi-			    #
+#		   |-> Ks pi+ pi-		    #
+#			|-> pi+ pi-		    #
+#                                                   #
+# + cc                                              #
+#                                                   #
+# Author: J Chauveau                                #
+# created: 26 Oct 99 				    #
+# 						    #
+#####################################################
+#
+#
+#
+Alias MyB0 		 B0
+Alias Myanti-B0 	 anti-B0
+Alias MyD*- 		D*-
+Alias MyD*+ 		D*+
+Alias MyD0  		D0
+Alias Myanti-D0		anti-D0
+Alias MyKs		K_S0
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00	MyD*- pi+      			SVS;
+Enddecay 
+#
+Decay Myanti-B0
+1.00	MyD*+ pi-		     	SVS;
+Enddecay 
+#
+Decay MyD*-
+1.0000  Myanti-D0   pi-			VSS;
+Enddecay
+#
+Decay MyD*+
+1.0000  MyD0   pi+                      VSS;
+Enddecay
+#
+Decay Myanti-D0
+1.00	MyK0  pi- pi+ 			D_DALITZ;
+Enddecay
+#
+Decay MyD0
+1.00	Myanti-K0  pi+ pi-		D_DALITZ;
+Enddecay
+#
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00	pi+ pi-				PHSP;
+Enddecay
+#
+
+#
+End
+

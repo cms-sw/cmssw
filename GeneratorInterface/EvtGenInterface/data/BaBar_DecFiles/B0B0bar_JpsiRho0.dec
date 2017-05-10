@@ -1,0 +1,93 @@
+###################################################################
+# B0~ --> J/psi rho0             B0 --> Generic                   #
+#         |    |                                                  #
+#         |    |-->pi- pi+                                        #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+# helicity amplitudes all set as 1                                #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: Jamie Boyd 25 Jul 2000                                  #
+###################################################################
+#
+#
+#Define dm 0.464e12
+# this is ripped from the j/psi kstar0 mode
+#
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes:
+#	Aplus  0.566
+#	Azero  1.02
+#	Aminus 0.4
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Note: Hzero following convention from Dunietz & al. To
+# be consistent with cleo measurements all phases should be == 0
+
+# put all the amplitudes in the same for now ??
+# not sure what they should be yet.
+Define Hplus  0.577
+Define Hzero  0.577
+Define Hminus 0.577
+Define phHplus  0.0
+Define phHzero  0.0
+Define phHminus 0.0
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyRho0 rho0
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 MyJpsi  MyRho0              SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyRho0
+1.000 pi+   pi-             VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyJpsi  MyRho0          SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,102 @@
+############################################################
+#                                                          #
+# Exclusive DD decay.dec #2                                #
+#                                                          #
+# D*D . from B+ B- for SP3                                 #
+#                                                          #
+# Decay: B+ -> anti-D*0(2007) D+       B- -> X             #
+#              |             |                             #
+#              |->recon-     |-> recon-                    #
+#                 structible     structible                #
+#                 modes          modes                     #
+#                                                          #
+#              Dstar0D-_D0g_KpiKpipi.dec                   #
+# 					                   #
+#                                                          #
+# Author: J. Schieck    	16/08/00  	           #
+#         V. Lillard            20/08/00                   #
+############################################################
+#
+#
+Define beta 0.39
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD*+      D*+
+Alias MyD*-      D*-
+Alias MyD*0      D*0
+Alias Myanti-D*0 anti-D*0 
+Alias MyD0       D0
+Alias Myanti-D0  anti-D0
+Alias MyD+       D+
+Alias MyD-       D-
+Alias MyD_s*+   D_s*+
+Alias MyD_s*-   D_s*-
+Alias MyD_s+    D_s+
+Alias MyD_s-    D_s-
+#
+Alias Mya_1+ a_1+
+Alias MyK*0B anti-K*0
+Alias MyK_1- K_1-
+Alias Mya_1- a_1-
+Alias MyK*0  K*0
+Alias MyK_1+ K_1+
+#
+Alias My2ndK*0B anti-K*0
+Alias My2ndK_1- K_1-
+Alias My2ndK*0  K*0
+Alias My2ndK_1+ K_1+
+Alias Myphi     phi
+Alias Myeta     eta
+Alias Myomega   omega
+Alias MyK_10    K_10
+Alias MyK_10B   anti-K_10
+Alias MyK*-     K*-
+Alias MyK*+     K*+
+#
+
+ChargeConj  MyB+ MyB-
+ChargeConj  MyD*+ MyD*-
+ChargeConj  MyD+ MyD-
+ChargeConj  MyD0 Myanti-D0   
+ChargeConj  MyD*0  Myanti-D*0 
+ChargeConj  MyD0 Myanti-D0
+ChargeConj  MyD_s*+ MyD_s*-
+ChargeConj  MyD_s+ MyD_s-
+
+Decay Upsilon(4S)
+0.5 MyB+  B-                     VSS;
+0.5 MyB-  B+                     VSS;
+Enddecay
+
+#
+Decay MyB+
+1.0000  Myanti-D*0   MyD+       SVS;
+Enddecay 
+#
+Decay MyD*0
+1.0000  MyD0    gamma                    VSP_PWAVE;
+Enddecay
+#
+
+Decay MyD0
+1.0000   K-   pi+                         PHSP;
+Enddecay
+#
+Decay MyD+
+1.0000   K-   pi+  pi+                    D_DALITZ;
+Enddecay
+#
+
+
+#CDecay  MyD*-
+CDecay  MyD-
+CDecay  Myanti-D*0
+CDecay  Myanti-D0   
+CDecay  MyB-
+
+#
+#
+#
+End
+

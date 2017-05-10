@@ -1,0 +1,50 @@
+###################################################
+#                                                 #
+# B+ -> a1+ K0s   + c.c.                          #  
+#    a1+ to rho0 pi+, K0s to pi+ pi-                                #
+#created 20/03/04 F. Palombo (palombo@mi.infn.it) #
+#                                                 #
+#                                                 #
+###################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+Alias myK_S0  K_S0
+#
+# include 
+Decay Upsilon(4S)  
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000  mya_1+ myK_S0           SVS;
+Enddecay
+#
+Decay MyB-
+1.000  mya_1- myK_S0           SVS;
+Enddecay
+
+#
+Decay mya_1+
+1.0000   rho0 pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+#
+Decay mya_1-
+1.0000   rho0 pi-                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+
+Decay myK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+
+End       
+
+
+
+

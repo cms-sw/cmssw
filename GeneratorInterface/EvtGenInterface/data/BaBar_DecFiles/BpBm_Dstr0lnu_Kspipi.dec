@@ -1,0 +1,63 @@
+######################################################
+#                                                 #
+# Decay: B+ -> X    B- ->D*0 l- anti-nu_l         #
+#                        |-> D0 pi0               #
+#                            D0 gamma             #
+#                                |-> Ks pi+ pi-   #
+#                                                 #
+#       l = e or mu                               #
+#                       +CC                       #
+#                                                 #
+# Authors: Mousumi Datta and Steve Sekula         #
+# Created: 30 January 2002                        #  
+# Mail: dattam@slac.stanford.edu                  # 
+#       sekula@slac.stanford.edu                  #
+######################################################
+
+
+Alias MyB-  B-
+Alias MyD*0 D*0
+Alias MyD0  D0
+Alias MyB+  B+
+Alias MyD*0B anti-D*0
+Alias MyD0B  anti-D0
+Alias MyKs   K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+0.5000   MyD*0B    e+   nu_e         PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*0B    mu+  nu_mu        PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyB-
+0.5000   MyD*0    e-   anti-nu_e         PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*0    mu-  anti-nu_mu        PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyD*0
+0.6190    MyD0  pi0                        VSS;
+0.3810    MyD0  gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay MyD*0B
+0.6190    MyD0B  pi0                        VSS;
+0.3810    MyD0B  gamma                       VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+1.0000  MyKs   pi+  pi-                PHSP;  
+Enddecay
+#
+Decay MyD0B
+1.0000  MyKs   pi+  pi-                PHSP;
+Enddecay
+#
+Decay MyKs
+1.0000  pi+    pi-                     PHSP;
+Enddecay
+#
+End

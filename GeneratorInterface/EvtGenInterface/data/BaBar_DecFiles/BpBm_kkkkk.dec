@@ -1,0 +1,37 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> K+K-K+K- K                          #
+#             B0bar -> generic                             #
+#                                                          #
+# Author: Prafulla Kumar Behera                            #
+# e-mail: behera@slac.stanford.edu                         #
+# Created:  04/29/2004                                     #
+#                                                          #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+# 
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  K+ K- K+ K- K+               PHSP;
+Enddecay 
+#
+Decay MyB-
+1.0000  K+ K- K- K+ K-               PHSP;
+Enddecay 
+#
+
+End
+
+

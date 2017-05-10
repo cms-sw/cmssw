@@ -1,0 +1,35 @@
+###################################################################
+#inclusive etap production from B's
+#B->EtapX X , Bbar -> X                                               
+#      --eta pi pi
+#        |
+#         -gamma gamma
+#                  
+# Author: A.Hicheur           23 Nov 2000  
+# hicheur@lapp.in2p3.fr                                            #
+###################################################################
+#
+Define beta 0.39
+#Define dm .464e12
+
+#
+
+Decay Upsilon(4S)
+0.500   B0       anti-B0                  VSS;
+0.500   B+       B-                       VSS;
+Enddecay
+
+
+
+Decay eta'
+1.     pi+ pi- eta                      PHSP;
+Enddecay
+#
+
+Decay eta
+1.   gamma  gamma                       PHSP;
+Enddecay
+#
+
+
+End 

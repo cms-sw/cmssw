@@ -1,0 +1,30 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> pi0 pi0          #
+#                                                 #
+# created: U. Egede 27/10/99                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+0.0009   pi0 pi0                         PHSP;
+Enddecay
+#
+End

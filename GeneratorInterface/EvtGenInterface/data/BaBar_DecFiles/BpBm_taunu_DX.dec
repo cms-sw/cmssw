@@ -1,0 +1,332 @@
+#Define the B0B0bar mass difference
+Define dm 0.464e12
+# define the values of the CKM angles  (alpha=70, beta=40)
+Define alpha 1.365
+Define beta  0.39
+Define gamma 1.387
+#
+#JetSet parameter modifications
+#
+# O.Long : March 30, 2000
+#  Change from using Peterson fragmentation to Lund fragmentation
+#  with the default parameters (A=0.30, B=0.58)
+#
+#(Very important that there are no blank spaces in the parameter string!)
+# Number of flavor produced. 4 = udsc production (was 5 before)
+JetSetPar MSTJ(104)=5
+# turn on initial state radiation (was off before)
+JetSetPar MSTJ(107)=1
+#use Lund fragmentation with default parameters
+JetSetPar MSTJ(11)=4
+# Lund symmetric fragmentation function parameter a 
+JetSetPar PARJ(41)=.30
+# Lund symmetric fragmentation function parameter b 
+JetSetPar PARJ(42)=.58
+# Lund symmetric fragmentation function parameter a 
+JetSetPar PARJ(43)=.50
+# Lund symmetric fragmentation function parameter b 
+JetSetPar PARJ(44)=.90
+#eps_c   from CLEO 8/97
+JetSetPar PARJ(54)=-.040
+# eps_b
+JetSetPar PARJ(55)=-.004
+#Turn of B0-B0B mixing in JetSet:
+JetSetPar MSTJ(26)=0
+# control of L=1 mesons (in order: J1S0 J0S1 J1S1 J2S1
+JetSetPar PARJ(14)=0.05
+JetSetPar PARJ(15)=0.05
+JetSetPar PARJ(16)=0.05
+JetSetPar PARJ(17)=0.05
+#cut-off parameter used to stop fragmentation process (was .4, CLEO uses.3)
+JetSetPar PARJ(33)=0.3
+#
+#
+Decay vpho
+1.000                     JSCONT   0;
+Enddecay
+#
+# use new VSS_BMIX mixing decay model (DK,28-Oct-1999)
+Decay Upsilon(4S)
+1.000 B+  B-                          VSS;
+Enddecay
+#
+#
+Decay B-
+#
+#  B -> D(*) X  Exclusive Modes
+#
+0.0046   D*0 pi-                        SVS;
+0.0053   D0   pi-                       PHSP;
+0.0134   D0   rho-                      PHSP;
+0.0155   D*0  rho-               SVV_HELAMP 0.228 0.95 0.283 1.13 0.932 0;
+0.0015   D_10 pi-                       PHSP;
+0.0007   D_10 rho-                      PHSP;
+0.0005   D0  pi0  pi-                   PHSP;
+0.0005   D*0 pi0  pi-                   PHSP;
+0.0005   D+  pi-  pi-                   PHSP;
+0.0021   D*+ pi-  pi-                   PHSP;
+#
+0.0050   a_1- D0                         SVS;
+0.0042   D0  rho0 pi-                   PHSP;
+0.0050   D0  pi+  pi-  pi-              PHSP;
+0.0190   D*0 a_1-                        PHSP;
+0.0005   D*0 rho0 pi-                   PHSP;
+0.0009   D*0 pi+  pi-  pi-              PHSP;
+#
+0.0020   D+  rho-  pi-                  PHSP;
+0.0020   D+  pi0   pi-  pi-             PHSP;
+0.0020   D*+ rho-  pi-                  PHSP;
+0.0150   D*+ pi0   pi-  pi-             PHSP;
+0.0005   D*0 rho-  pi0                  PHSP;
+0.0005   D*0 pi-   pi0  pi0             PHSP;
+#
+Enddecay
+#
+Decay B+
+#
+#   b -> l nu
+#
+0.000050   tau+ nu_tau                     SLN;
+0.000000   mu+  nu_mu                     SLN;
+0.000000   e+   nu_e                     SLN;
+#
+Enddecay
+#
+#
+# The tau branching fractions needs to be looked over!
+#
+Decay tau+
+0.1781         e+   nu_e  anti-nu_tau              TAULNUNU;
+0.1737         mu+  nu_mu  anti-nu_tau              TAULNUNU;
+0.1108         pi+ anti-nu_tau                     TAUSCALARNU;
+0.2515         rho+ anti-nu_tau                     TAUVECTORNU;
+0.1790         a_1+ anti-nu_tau                     TAUVECTORNU;
+0.0071         K+   anti-nu_tau                     TAUSCALARNU;
+0.0134         K*+  anti-nu_tau                     TAUVECTORNU;
+0.0450         anti-nu_tau     pi+     pi-     pi+     pi0     JETSET    41;
+0.0100         anti-nu_tau     pi+     pi0     pi0     pi0     JETSET    41;
+0.0015         anti-nu_tau     K-      pi+     K+              JETSET    41;
+0.0015         anti-nu_tau     K0      pi+     anti-K0         JETSET    41;
+0.0015         anti-nu_tau     K+      pi0     K0              JETSET    41;
+0.0005         anti-nu_tau     K+      pi0     pi0             JETSET    41;
+0.0050         anti-nu_tau     K+      pi+     pi-             JETSET    41;
+0.0055         anti-nu_tau     pi+     anti-K0 pi0             JETSET    41;
+0.0017         anti-nu_tau     eta     pi+     pi0             JETSET    41;
+0.0013         anti-nu_tau     gamma   pi+     pi0             JETSET    41;
+0.0009         anti-nu_tau     pi+     pi-     pi+  pi0  pi0   PHSP;
+0.0008         anti-nu_tau     pi+     pi-     pi-  pi+  pi+   PHSP;
+0.0003         anti-nu_tau     pi+     pi-     pi-  pi+  pi+  pi0 PHSP;
+0.0005         anti-nu_tau     pi+     pi-     pi+  pi0  pi0  pi0 PHSP;
+0.0010         anti-nu_tau     pi+     pi0     pi0  pi0  pi0      PHSP;
+0.0039         anti-nu_tau     pi+     omega   pi0           JETSET    41;
+0.0010         anti-nu_tau     K+      K0                      JETSET    41;
+0.0010         anti-nu_tau     K+      omega                   JETSET    41;
+Enddecay
+#
+#
+#   Vector Mesons
+#
+Decay D*+
+0.6830    D0  pi+                        VSS;
+0.3060    D+  pi0                        VSS;
+0.0110    D+  gamma                       VSP_PWAVE;
+Enddecay
+Decay D*0
+0.6190    D0  pi0                        VSS;
+0.3810    D0  gamma                       VSP_PWAVE;
+Enddecay
+#
+#   D+ Meson
+#
+Decay D+
+#
+0.0289   anti-K0   pi+                         PHSP;
+0.0800   a_1+ anti-K0                           SVS;
+0.0210   anti-K*0  rho+                  SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+#
+# the Dalitz mode below includes K*bar(892)0 pi+, 
+# K*bar(1430)0 pi+, and K*bar(1680)0 pi+ resonances.
+0.0900   K-  pi+  pi+                    D_DALITZ;
+# the Dalitz mode below includes K0bar rho+, 
+# and K*bar(892)0 pi+ resonances
+0.0970   anti-K0   pi+  pi0              D_DALITZ;
+0.0100   anti-K0   eta  pi+                    PHSP;
+0.0420   anti-K0   rho0  pi+                   PHSP;
+0.0031   anti-K0   omega  pi+                   PHSP;
+0.0110   K-  rho+  pi+                   PHSP;
+0.0200   K*- pi+  pi+                    PHSP;
+0.0420   anti-K*0 pi0  pi+                    PHSP;
+0.0100   anti-K*0 eta  pi+                    PHSP;
+0.0029   anti-K*0 rho0  pi+                   PHSP;
+0.0031   anti-K*0 omega  pi+                   PHSP;
+0.0100   K*- rho+  pi+                   PHSP;
+#
+0.0640   K-  pi+  pi+   pi0              PHSP;
+0.0700   anti-K0   pi+  pi+   pi-              PHSP;
+0.0188   anti-K0   pi+  pi0   pi0              PHSP;
+0.0072   K-  pi+  pi+   pi+   pi-        PHSP;
+0.0220   K-  pi+  pi+   pi0   pi0        PHSP;
+0.0540   anti-K0   pi+  pi+   pi-   pi0        PHSP;
+0.0035   anti-K0   pi+  pi0   pi0   pi0        PHSP;
+#
+Enddecay
+#
+Decay D0
+#
+0.0385   K-  pi+                         PHSP;
+0.0212   anti-K0   pi0                         PHSP;
+0.0071   anti-K0   eta                         PHSP;
+0.0172   anti-K0   eta'                        PHSP;
+0.0210   omega anti-K0                          SVS;
+0.0190   anti-K*0 eta                         SVS;
+0.0020   anti-K*0 eta'                        SVS;
+0.0730   a_1+ K-                          SVS;
+0.0610   K*- rho+                        SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0147   anti-K*0 rho0                   SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0110   anti-K*0 omega                  SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+# the Dalitz mode below includes K*bar(892)0 pi0, 
+# K*(892)- pi+, and K- rho(770)+ resonances
+0.1390   K-  pi+  pi0                    D_DALITZ;
+#0.0085   K*BR pi0                        SVS;
+#0.0107   K_1- pi+                         SVS;
+#0.0071   anti-K_10 pi0                         SVS;
+#
+# the Dalitz mode below includes K*(892)- pi+ and Kbar0 rho(770)0 resonances
+0.0540   anti-K0   pi+  pi-                    D_DALITZ;
+0.0145   anti-K0   pi0  pi0                    PHSP;
+0.0150   anti-K*0 pi+  pi-                    PHSP;
+0.0116   anti-K*0 pi0  pi0                    PHSP;
+0.0100   K*- pi+  pi0                    PHSP;
+0.0068   K-  rho+ pi0                    PHSP;
+0.0060   K-  pi+  rho0                   PHSP;
+0.0303   K-  pi+  omega                   PHSP;
+0.0100   K-  pi+  eta                    PHSP;
+0.0075   K-  pi+  eta'                   PHSP;
+0.0143   K-  pi+  pi+   pi-              PHSP;
+0.0407   anti-K0   pi+  pi-   pi0              PHSP;
+0.0630   K-  pi+  pi0   pi0              PHSP;
+0.0200   anti-K0   pi0  pi0   pi0              PHSP;
+0.0038   K-  pi+  pi+   pi-   pi0        PHSP;
+0.0038   K-  pi+  pi0   pi0   pi0        PHSP;
+0.0038   anti-K0   pi+  pi-   pi+   pi-        PHSP;
+0.0038   anti-K0   pi+  pi-   pi0   pi0        PHSP;
+#
+Enddecay
+#
+#
+#   D**
+#
+Decay D_10
+0.3333    D*0 pi0                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+0.6667    D*+ pi-                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#  Strange Mesons
+#
+#
+Decay K_S0
+0.6861    pi+  pi-                          PHSP;
+0.3139    pi0  pi0                          PHSP;
+Enddecay
+#
+#  K_L0 is decayed in GEANT
+#
+Decay K0
+0.500     K_L0                              PHSP;
+0.500     K_S0                              PHSP;
+Enddecay
+Decay anti-K0
+0.500     K_L0                              PHSP;
+0.500     K_S0                              PHSP;
+Enddecay
+#
+Decay K*0
+0.6657      K+  pi-                        VSS;
+0.3323      K0  pi0                        VSS;
+0.0020      K0  gamma                       VSP_PWAVE;
+Enddecay
+Decay anti-K*0
+0.6657      K-  pi+                        VSS;
+0.3323      anti-K0   pi0                        VSS;
+0.0020      anti-K0   gamma                       VSP_PWAVE;
+Enddecay
+Decay K*+
+0.6660      K0  pi+                        VSS;
+0.3330      K+  pi0                        VSS;
+0.0010      K+  gamma                       VSP_PWAVE;
+Enddecay
+Decay K*-
+0.6660      anti-K0   pi-                        VSS;
+0.3330      K-  pi0                        VSS;
+0.0010      K-  gamma                       VSP_PWAVE;
+Enddecay
+#
+#  Light Mesons
+#
+Decay pi0
+0.9880    gamma gamma                      PHSP;
+0.0120    e+  e- gamma                     PI0_DALITZ;
+Enddecay
+#
+Decay eta
+0.3925    gamma gamma                      PHSP;
+0.3210    pi0 pi0 pi0                    PHSP;
+0.2320    pi- pi+ pi0                    ETA_DALITZ;
+0.0478    gamma pi- pi+                   PHSP;
+0.0049    gamma e+  e-                    PHSP;
+0.0003    gamma mu+ mu-                   PHSP;
+0.0007    gamma gamma pi0                  PHSP;
+0.0013    pi+ pi- e+  e-                 PHSP;
+Enddecay
+#
+Decay rho0
+1.000    pi+ pi-                         VSS;
+Enddecay
+Decay rho+
+1.000    pi+ pi0                         VSS;
+Enddecay
+Decay rho-
+1.000    pi- pi0                         VSS;
+Enddecay
+#
+Decay omega
+0.8880    pi-  pi+  pi0                  OMEGA_DALITZ;
+0.0850    pi0  gamma                      VSP_PWAVE;
+0.0221    pi-  pi+                       VSS;
+0.0008    eta  gamma                      VSP_PWAVE;
+0.0006    pi0  e+  e-                    PHSP;
+0.0001    pi0  mu+ mu-                   PHSP;
+0.0020    pi+  pi- gamma                  PHSP;
+0.0004    pi0  pi0 gamma                  PHSP;
+0.0010    pi+ pi- pi+ pi-                PHSP;
+Enddecay
+#
+Decay eta'
+0.4370     pi+ pi- eta                   PHSP;
+0.2080     pi0 pi0 eta                   PHSP;
+0.3020     rho0  gamma                   SVP_HELAMP  1.0 0.0 1.0 0.0;
+0.0302     omega gamma                   SVP_HELAMP  1.0 0.0 1.0 0.0;
+0.0212     gamma gamma                     PHSP;
+0.0015     pi0 pi0 pi0                   PHSP;
+0.0001     gamma mu- mu+                  PHSP;
+Enddecay
+#
+Decay a_1+
+0.4920   rho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.5080   rho+ pi0                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+Decay a_10
+0.5000   rho- pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.5000   rho+ pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+Decay a_1-
+0.4920   rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.5080   rho- pi0                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End
+
+
+
+
+
+

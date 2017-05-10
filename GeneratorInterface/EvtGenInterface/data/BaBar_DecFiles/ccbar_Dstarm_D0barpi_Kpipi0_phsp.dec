@@ -1,0 +1,28 @@
+###########################################################
+#                                                         #
+# ccbar -> D*- X                                          #
+#          D*- -> D0bar pi-                               #
+#                 D0bar -> K+ pi- pi0                     #
+# D0bar decays through phase space                        #
+#                                                         #
+# created: 09/25/01 - pompili@slac.stanford.edu           #
+#                                                         #
+# 02/06/02: use filter_D0bar_from_Dstarminus_pstarcut.tcl #
+###########################################################
+#
+Alias my-anti-D0 anti-D0
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+#
+Decay D*-
+1.0     my-anti-D0  pi-                   VSS;
+Enddecay
+#
+Decay my-anti-D0
+1.0     K+ pi- pi0                       PHSP;
+Enddecay
+#         
+End
+

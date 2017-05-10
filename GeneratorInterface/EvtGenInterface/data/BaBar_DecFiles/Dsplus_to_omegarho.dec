@@ -1,0 +1,19 @@
+###################################################
+#                                                 #
+# Decay: D_s+ ->     omega rho+                   # 
+#                                                 #
+# Author: Ping Wang, IHEP, Beijing                #
+# Mail :wangp@SLAC.stanford.edu                   #
+# Date: 20/Nov/2000                               #
+###################################################
+#
+#
+# set virtual photons to go to ccbar 
+Decay vpho
+1.000                     JSCONT   4;
+Enddecay
+Decay D_s+ 
+1.0       omega   rho+       SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+End

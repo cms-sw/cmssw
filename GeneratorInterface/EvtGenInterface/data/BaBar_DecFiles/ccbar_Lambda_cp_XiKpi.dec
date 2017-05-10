@@ -1,0 +1,32 @@
+###################################################
+# ccbar continum production                       #
+# Lambda_c+ -> Xi- K+ pi+                         #
+#              Xi-  -> Lambda0 pi-                #
+#                      Lambda0 -> p+ pi-          #
+#                                                 #
+# created: 07/18/03 -  M A Saeed                  #
+#                      saeed@slac.stanford.edu    #
+#                                                 #
+###################################################
+#
+Alias MyXi-  Xi-
+Alias MyLambda0  Lambda0
+
+Decay vpho
+1.0     JSCONT  4;
+Enddecay
+#
+Decay Lambda_c+
+1.000   MyXi-  K+    pi+       PHSP;
+Enddecay 
+#
+Decay MyXi-
+1.000   MyLambda0    pi-       PHSP; 
+Enddecay
+#
+Decay MyLambda0
+1.000   p+    pi-              PHSP; 
+Enddecay
+End
+#
+

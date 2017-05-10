@@ -1,0 +1,28 @@
+###################################################
+#                                                 #
+# Decay: B0 -> K+ pi-,     anti-B0 -> nu nubar    # 
+#                                                 #
+# Comments: No mixing, for reco  work             #
+#                                                 #
+# Author: A. Hasan                                #
+# created:                    12/April/98         #
+# modified/corrected:         10/May/98           #
+###################################################
+#
+#
+Alias MyB0  B0
+Alias Myanti-B0   anti-B0
+#
+Decay Upsilon(4S)
+1.0000 MyB0  Myanti-B0                VSS;
+Enddecay
+#
+Decay MyB0
+1.0000 K+ pi-                    PHSP;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 nu_e anti-nu_e            PHSP;
+Enddecay
+#
+End

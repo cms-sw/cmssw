@@ -1,0 +1,44 @@
+###################################################################
+#                                                                 #
+# Decay: B0 -> D*- K+ (D*- -> anti-D0 pi- (anti-D0 -> K+ pi- pi0))#            
+#        anti-B0 -> X;   + cc                                     #
+#                                                                 #
+# Author: Giampiero Mancinelli                                    #
+# Date:                    03/09/2001                             #
+###################################################################
+#
+Alias MyB0  B0
+Alias Myanti-B0  anti-B0
+Alias MyD*+     D*+
+Alias MyD*-     D*-
+Alias MyD0      D0
+Alias Myanti-D0  anti-D0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyD*+ K-                            PHSP;
+Enddecay
+#
+Decay MyB0
+1.000 MyD*- K+                            PHSP;
+Enddecay
+#
+Decay MyD*+
+1.000  MyD0    pi+                        VSS;
+Enddecay
+#
+Decay MyD*-
+1.000  Myanti-D0    pi-                   VSS;
+Enddecay
+#
+Decay MyD0
+1.000   K-  pi+  pi0                      D_DALITZ;
+Enddecay
+Decay Myanti-D0
+1.000   K+  pi-  pi0                      D_DALITZ;
+Enddecay
+#
+End

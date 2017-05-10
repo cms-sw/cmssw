@@ -1,0 +1,53 @@
+####################################################
+#                                                  #
+# Exclusive Ds-pi+ decay.dec #1                    #
+#                                                  #
+# DsD* signal from B0-antiB0 for SP3               #
+#                                                  #
+# Decay: anti-B0 -> Ds+ K, B0 -> X  +c.c.          #
+#                   |                              #
+#                   `-> Ks K+                      #
+#                       |                          #
+#                       `-> K pi                   #
+# 1 01                                             #
+# Cecilia Voena                                    #
+# modified by Sh. Rahatlou 4 May 2001              #
+#    removed the definition of dm in order to      #
+#    use the default.                              #
+####################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD_s- D_s-
+Alias MyD_s+ D_s+
+Alias MyK_S0 K_S0
+
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyD_s+ K-                        PHSP;
+Enddecay
+#
+Decay MyD_s+
+1.0000 MyK_S0 K+                        PHSP;
+Enddecay
+#
+Decay MyB0
+1.0000 MyD_s- K+                        PHSP;
+Enddecay
+#
+Decay MyD_s-
+1.0000 MyK_S0 K-                        PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000 pi+ pi-                          PHSP;
+Enddecay
+#
+
+End
+
+

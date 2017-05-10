@@ -1,0 +1,28 @@
+###################################################
+#                                                 #
+# B0 -> pi0 e+ e-                                 #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Jeffrey Berryhill (berryhil)            #
+# created:                     5/Sep/03           #
+################################################### 
+#
+# B0 -> pi0 e+ e-
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0 pi0  e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay Myanti-B0
+1.0 pi0  e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+End

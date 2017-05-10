@@ -1,0 +1,46 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D0 pi-   B+ -> X  	   	    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |->  K- pi+ pi0			    #
+#                                                   #
+# + cc                                              #
+#                                                   #
+# Author: J Chauveau                                #
+# created: 26 Oct 99 				    #
+# 						    #
+#####################################################
+#
+#
+Alias MyB- 		B-
+Alias MyB+	 	B+
+Alias MyD0 		D0
+Alias Myanti-D0 	anti-D0
+#
+Decay Upsilon(4S)
+0.5	MyB- B+				VSS;
+0.5	B- MyB+				VSS;
+Enddecay
+#
+Decay MyB-
+1.00	MyD0 pi-      			PHSP;
+Enddecay 
+#
+Decay MyB+
+1.00	Myanti-D0 pi+		     	PHSP;
+Enddecay 
+#
+Decay Myanti-D0
+1.00	K+ pi- pi0			D_DALITZ;
+Enddecay
+#
+Decay MyD0
+1.00	K- pi+ pi0			D_DALITZ;
+Enddecay
+
+#
+End
+

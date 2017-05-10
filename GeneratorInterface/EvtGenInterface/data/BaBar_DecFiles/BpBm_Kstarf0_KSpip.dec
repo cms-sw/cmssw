@@ -1,0 +1,78 @@
+############################################################
+#                                                          #
+# Decay:      B+    -> f0 K*+ -> (pi+pi-)(Ks0pi+)          #
+#                                         Ks0->pi+pi-      #
+#             B-    -> generic                       +cc   #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  12/16/2003                                     #
+#                                                          #
+# patch by Andreas Hoecker (26-Jan-04)                     #
+# patch by Andrei Gritsan  (01-Mar-04) back to Ks0->pi+pi- #
+#                                                          #
+############################################################
+#
+# BEGIN sp5 patch 
+# (
+#    note: the results from the ordinary BW fit
+#          are used and not those from the coupled
+#          channel BW, which is not in EvtGen
+#    note: no CPV generated - assumed to be done by 
+#          reweighting after selection
+#
+#    mass and width taken from: 
+#    Ds+->pi+pi+pi- fit [E791 hep-ex/0007027]
+#    E791 quotes: m(f0) = 0.975 +- 0.003 GeV/c^2
+#                 G(f0) = 0.044 +- 0.002 +- 0.002 GeV/c^2
+# )
+#
+Particle f_0 0.975 0.044
+#
+ChangeMassMin f_0 0.40
+ChangeMassMax f_0 1.50
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+Alias Myf_0 f_0
+Alias MyK_S0 K_S0
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.0000  MyK*+ Myf_0         SVS;  
+Enddecay 
+#
+Decay MyB-
+1.0000  MyK*- Myf_0         SVS;  
+Enddecay 
+#
+Decay MyK*+
+1.0000  MyK_S0 pi+          VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  MyK_S0 pi-          VSS;
+Enddecay
+#
+# not generic decay of KS
+#
+Decay MyK_S0
+1.000   pi+ pi-             PHSP;
+Enddecay
+#
+Decay Myf_0
+1.0000   pi+ pi-            PHSP;
+Enddecay
+#
+End

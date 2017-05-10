@@ -1,0 +1,28 @@
+###################################################
+#                                                 #
+# B0 -> K*0(generic) e+ e-        + c.c.          #
+#                                                 #
+#                                                 #
+#                                                 #
+# Author: S.Willocq (willocq@slac.stanford.edu)   #
+# created:                     1/Jun/03           #
+###################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+# Will clean up lines below when new VSS_BMIX is available
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00     K*0       e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay Myanti-B0
+1.00     anti-K*0  e+  e-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+End

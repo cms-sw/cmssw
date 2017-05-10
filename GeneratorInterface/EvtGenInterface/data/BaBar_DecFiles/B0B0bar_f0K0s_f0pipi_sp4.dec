@@ -1,0 +1,56 @@
+###################################################
+#                                                 #
+# B0 -> f0(980) K0s   + c.c.                      #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             # 
+#                                                 #
+# Author: John Back     jback@slac.stanford.edu   # 
+# Created: 02/Oct/02                              #
+#                                                 #
+# patch by Andreas Hoecker (06-Jan-04)            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> f0(980) K0s using phase space.
+# The f0(980) decays to pi+ pi-.
+#
+# BEGIN sp5 patch 
+# (
+#    note: the results from the ordinary BW fit
+#          are used and not those from the coupled
+#          channel BW, which is not in EvtGen
+#    note: no CPV generated - assumed to be done by 
+#          reweighting after selection
+#
+#    mass and width taken from: 
+#    Ds+->pi+pi+pi- fit [E791 hep-ex/0007027]
+#    E791 quotes: m(f0) = 0.975 +- 0.003 GeV/c^2
+#                 G(f0) = 0.044 +- 0.002 +- 0.002 GeV/c^2
+# )
+#
+Particle f_0 0.975 0.044
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf0 f_0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myf0 K_S0             PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myf0 K_S0             PHSP;
+Enddecay
+#
+Decay Myf0
+1.000  pi+ pi-               PHSP;
+Enddecay
+End
+
+

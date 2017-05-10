@@ -1,0 +1,31 @@
+###################################################
+#                                                 #
+# B+ ->  a_1+ pi0                                 # 
+#                                                 #
+# Author:  Richard Sloane                         #
+# Email:   sloane@slac.stanford.edu               #
+# Created: 20 Jan 2003                            #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> a_1+ pi0
+# using a Scalar to Vector Scalar Model (SVS)
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500 MyB+  B-               VSS;
+0.500 MyB-  B+               VSS;
+Enddecay
+#
+Decay MyB+
+1.000  a_1+  pi0             SVS;
+Enddecay
+#
+Decay MyB-
+1.000  a_1-  pi0             SVS;
+Enddecay
+#
+End

@@ -1,0 +1,16 @@
+# Single particle Ks uniform in cos theta in 
+# the centre of mass frame between 0.0 and 4.0 GeV
+#
+# Gerhard Raven (Gerhard.Raven@slac.stanford.edu)
+#
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 MyK_S0	SINGLE 0.0 4.0 ;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+End

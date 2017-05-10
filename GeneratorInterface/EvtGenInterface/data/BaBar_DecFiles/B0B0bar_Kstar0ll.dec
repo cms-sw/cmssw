@@ -1,0 +1,41 @@
+###################################################################
+# B0 --> e+e-/mu+mu- Kstar0         B0bar -> generic              #
+#                     |-->generic                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+#                                                                 #
+# +cc                                                             #
+#                                                                 #
+# Author: P. Reinertsen   8/11/99                                 #
+# Mail: PLASSE@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+#
+Decay MyB0
+0.5000 K*0 e+ e-                        PHOTOS PHSP ;
+0.5000 K*0 mu+ mu-                      PHOTOS PHSP ;
+Enddecay
+#
+Decay Myanti-B0
+0.5000 K*0 e+ e-                        PHOTOS PHSP ;
+0.5000 K*0 mu+ mu-                      PHOTOS PHSP ;
+Enddecay
+#
+# 
+#
+End
+
+
+

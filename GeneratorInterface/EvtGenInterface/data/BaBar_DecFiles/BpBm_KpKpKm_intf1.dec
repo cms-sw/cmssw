@@ -1,0 +1,108 @@
+# Author: 	Alexei Dvoretskii
+# Created:	12 June 2003
+#
+# Upsilon(4S) -> B+ B-
+#                |  |-> generic
+#                |
+#                |-> K+ K+ K- 
+#
+# charge conjugation assumed 
+#
+# The decay into the K+ K+ K- final state proceeds
+# via multiple interfering subchannels. They are summarized in the 
+# table below. The contribution of each channel is roughly proportional 
+# to magnitude squared of the complex coefficient for that channel times 
+# the integral of the amplitude squared term.
+#
+#SCAN 10000 2.004391
+#Total: 325.313764
+#   Channel        I      |c|  |c|^2*I    Fract
+#        NR   293.72     0.50    73.43     0.22
+#       phi     4.50     5.00   112.38     0.34
+#       phi     4.51     5.00   112.75     0.34
+#      f'_2    14.58     1.00    14.58     0.04
+#      f'_2    14.32     1.00    14.32     0.04
+
+Alias MyB+ B+
+Alias MyB- B-
+
+Decay Upsilon(4S)
+0.5 MyB+ B-	VSS;
+0.5 MyB- B+	VSS;
+Enddecay
+
+
+Decay MyB+
+1.0 K+ K+ K- PTO3P       
+	
+	MAXPDF 2.4
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# KK RESONANCES	
+        
+	AMPLITUDE	RESONANCE	CA	phi	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	1.0
+	
+	AMPLITUDE	RESONANCE	BC	phi	
+	ANGULAR		CA
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	1.0
+
+	AMPLITUDE	RESONANCE	CA	f'_2	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	2.0
+
+	AMPLITUDE	RESONANCE	BC	f'_2	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	2.0
+
+	;
+
+Enddecay
+
+
+Decay MyB-
+1.0 K- K- K+ PTO3P       
+	
+	MAXPDF 2.4
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# KK RESONANCES	
+        
+	AMPLITUDE	RESONANCE	CA	phi	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	1.0
+	
+	AMPLITUDE	RESONANCE	BC	phi	
+	ANGULAR		CA
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	1.0
+
+	AMPLITUDE	RESONANCE	CA	f'_2	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	2.0
+
+	AMPLITUDE	RESONANCE	BC	f'_2	
+	ANGULAR		CA
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	2.0
+
+	;
+
+Enddecay
+
+End

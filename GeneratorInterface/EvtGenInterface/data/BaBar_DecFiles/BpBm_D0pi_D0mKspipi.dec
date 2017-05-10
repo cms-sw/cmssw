@@ -1,0 +1,38 @@
+#################################################################
+#                                                               #
+# Decay: B- -> D0 pi-        , B+ -> X                          #
+#              |                                                #
+#              ----> K0s pi+ pi-                                #
+#                                                + c.c.         #
+#                                                               #
+# Author: Kelly E Ford                                          #
+# Date:   7 May 2003                                            #
+#################################################################
+#
+Alias MyB+  B+
+Alias MyB-  B-
+Alias MyD0  D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Decay Upsilon(4S)
+1.000 B- B+ MyB- MyB+ VSS_BMIX dm;
+Enddecay
+#
+Decay MyB-
+1.000 MyD0 pi-                           PHSP;
+Enddecay
+#
+Decay MyB+
+1.000 Myanti-D0 pi+                      PHSP;
+Enddecay
+#
+Decay MyD0
+1.0000  K_S0 pi- pi+                     PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.0000  K_S0 pi+ pi-                     PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,51 @@
+####################################################
+#                                                  #
+# Inclusive B- -> D'_10 a1- decay.dec              #
+#                                                  #
+# Decay:      B- -> D'_10 a1-, B0 -> X    +c.c.    #
+#                   |-> D*+ pi-                    #
+#                       |-> D0 pi+                 #
+#                           |-> X                  #
+#                                                  #
+#                                                  #
+#  18 jun 01 Fabrizio Salvatore  (IHB AWG)         #
+####################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD'_10 D'_10
+Alias MyantiD'_10 anti-D'_10
+Alias MyD*+ D*+
+Alias MyD*- D*-
+#
+Decay Upsilon(4S)
+0.50000 MyB+  B-                          VSS;
+0.50000 B+    MyB-                        VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 MyantiD'_10 a_1+   	  	  PHSP;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD'_10 a_1- 			  PHSP;
+Enddecay
+#
+Decay MyD'_10
+0.6667    MyD*+ pi-                        VVS_PWAVE  1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyantiD'_10
+0.6667    MyD*- pi+                        VVS_PWAVE  1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                   VSS;
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-              VSS;
+Enddecay
+#
+
+End

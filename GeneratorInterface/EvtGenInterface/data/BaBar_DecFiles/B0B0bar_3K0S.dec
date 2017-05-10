@@ -1,0 +1,35 @@
+###################################################
+#                                                 #
+# B0 -> K+ K- pi0 (non-resonant)   + c.c.         #
+#                                                 #
+# Author: A. Snyder   snyder@slac.stanford.edu    #
+# Thu Mar 30 10:54:30 PST 2000                    #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K+ K- pi0 (non-resonant) 
+# using phase space
+#
+#
+#
+Alias my-K_S0 K_S0
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  my-K_S0 my-K_S0 my-K_S0          PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000  my-K_S0 my-K_S0 my-K_S0          PHSP;
+Enddecay
+End
+
+Decay my-K_S0
+1.000    pi+  pi-                          PHSP;
+Enddecay

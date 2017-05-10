@@ -1,0 +1,62 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> f0 K*0 -> (K+K-)(Ks0pi0)            #
+#                                       Ks0->pi+pi-        #
+#             B0bar -> generic                       +cc   #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  12/16/2003                                     #
+#                                                          #
+# patch by Andrei Gritsan (01-Mar-04):                     #
+#          Ks0->pi+pi- and ChangeMassMin f_0               #
+#                                                          #
+############################################################
+#
+# patch f_0 -> K+K- mass cut off
+ChangeMassMin f_0 0.9874
+#
+# Define my particles
+#
+Alias MyB0 B0
+Alias MyB0bar anti-B0
+Alias MyK*0    K*0
+Alias MyK*0bar anti-K*0
+Alias MyK_S0 K_S0
+Alias Myf_0 f_0
+Define dm .464e12
+Define beta 0.39
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+# use a CP model similar to B->phiKs0, also S->VS
+#
+Decay MyB0
+1.0000  MyK*0 Myf_0          SVS_CP beta  dm -1  1.0 0.0 1.0 0.0 ;    
+Enddecay 
+#
+Decay MyB0bar
+1.0000  MyK*0bar Myf_0       SVS_CP beta  dm -1  1.0 0.0 1.0 0.0 ;    
+Enddecay 
+#
+Decay MyK*0
+1.0000  MyK_S0 pi0          VSS;
+Enddecay
+#
+Decay MyK*0bar
+1.0000  MyK_S0 pi0          VSS;
+Enddecay
+#
+Decay Myf_0
+1.0000   K+   K-            PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.000   pi+ pi-             PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,23 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*+ -> D0 pi+, D0 -> pi- e+ nu_e                #
+#                                                 #
+# created: weaver 15Jun00                         #
+###################################################
+#
+Alias myD0 D0
+#
+Decay vpho
+1.00                        JSCONT 4;
+Enddecay
+#
+Decay D*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+Decay myD0
+1.00 pi- e+ nu_e            ISGW2;
+Enddecay
+#
+End

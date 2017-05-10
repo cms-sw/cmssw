@@ -1,0 +1,59 @@
+# 
+# Mark Williams' non-resonant B->Xs,gamma penguin decays where the
+# B is a B0, anti-B0, B+ or B- and the Xs is Xsd, anti-Xsd, Xsu or
+# anti-Xsu, respectively. It uses the new BTOXSGAMMA model.
+# The mode for JETSET decays is 11 which gives phase-space production
+# of hadrons from the available quarks.
+# (Note that this could be modified for use with B_s->Xss,gamma decays
+# as the BTOXSGAMMA model already allows for B_s radiative penguins.) 
+#
+
+# Reset some Jetset parameters here rather than recompiling
+
+#   Xsd meson  (sbar-d system, introduced for b->s gamma decays)
+# Set Xsd 3*Charge:
+JetSetPar KCHG(455,1)=0
+# Set Xsd color information:
+JetSetPar KCHG(455,2)=0
+# Set Xsd particle/antiparticle distinction:
+JetSetPar KCHG(455,3)=1
+# Set Xsd mass:
+JetSetPar PMAS(455,1)=1.600
+# Set Xsd width (sigma):
+JetSetPar PMAS(455,2)=0.500
+# Set Xsd truncation:
+JetSetPar PMAS(455,3)=2.000
+# Set Xsd name:
+JetSetPar CHAF(455)=Xsd
+# Set Xsd so it can decay:
+JetSetPar MDCY(455,1)=1
+# Set decay table entry pt for Xsd: 
+JetSetPar MDCY(455,2)=1154
+# Number of decay channels for Xsd:                
+JetSetPar MDCY(455,3)=1
+# Switch on Xsd decay
+JetSetPar MDME(1154,1)=1
+# Phase space decays into hadrons from available quarks
+JetSetPar MDME(1154,2)=11
+# Xsd decays into two quarks a d and an anti-s
+JetSetPar KFDP(1154,1)=-3
+JetSetPar KFDP(1154,2)=1
+
+Alias myB0 B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+
+Decay myB0
+1.00000      Xsd    gamma     BTOXSGAMMA 2 1 5.2794 4.8 4.8 -0.2 0.9 0.0484 100 80;
+Enddecay
+
+Decay myantiB0
+1.00000     anti-Xsd    gamma     BTOXSGAMMA 2 1 5.2794 4.8 4.8 -0.2 0.9 0.0484 100 80;
+Enddecay
+
+End
+

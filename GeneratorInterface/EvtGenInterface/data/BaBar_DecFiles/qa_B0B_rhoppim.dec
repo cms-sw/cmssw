@@ -1,0 +1,23 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> rho+ pi-,    B0 -> X          # 
+#                                                 #
+# Comments: No mixing, for reco work              #
+#                                                 #
+# Author: A. Hasan                                #
+# created:               12/April/98              #
+# modified/corrected:    10/May/98                #
+###################################################
+#
+#
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.0000 B0  Myanti-B0               VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 rho+ pi-                    SVS;
+Enddecay 
+#
+End

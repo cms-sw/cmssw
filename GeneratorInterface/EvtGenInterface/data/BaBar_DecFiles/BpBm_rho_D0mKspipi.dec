@@ -1,0 +1,65 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D0 rho-   B+ -> X  	   	    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |                                    #
+#              |->  Ks pi+ pi-			    #
+#                   |-> pi+ pi-                     #
+# + cc                                              #
+#                                                   #
+# Author: J Chauveau                                #
+# created: 26 Oct 99 				    #
+# 						    #
+#####################################################
+#
+#
+Alias MyB- 		B-
+Alias MyB+	 	B+
+Alias MyD0 		D0
+Alias Myanti-D0 	anti-D0
+Alias MyKs		K_S0
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+#
+Decay Upsilon(4S)
+0.5	MyB- B+				VSS;
+0.5	B- MyB+				VSS;
+Enddecay
+#
+Decay MyB-
+1.00	rho- MyD0      			SVS;
+Enddecay 
+#
+Decay MyB+
+1.00	rho+ Myanti-D0	 	     	SVS;
+Enddecay 
+#
+#
+Decay Myanti-D0
+1.00	MyK0  pi- pi+ 			D_DALITZ;
+Enddecay
+#
+Decay MyD0
+1.00	Myanti-K0  pi+ pi- 			D_DALITZ;
+Enddecay
+# 
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00	pi+ pi-				PHSP;
+Enddecay
+#
+
+#
+End
+
+
+

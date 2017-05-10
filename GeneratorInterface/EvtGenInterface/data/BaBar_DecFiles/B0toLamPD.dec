@@ -1,0 +1,53 @@
+###############################################################################
+#                                                                             #
+# continuum production:           
+#                                 
+# B0->anti Lambda D- p  (AKA) pentaquark state
+#                    
+#           All particles are decayed isotropically                           #
+#                                                                             #
+#  Valerie Halyo Jan 1 04
+#                                                                             #
+###############################################################################
+# The MyB list 
+#######################################################
+Alias MyB0  B0
+Alias MyB0B anti-B0
+Alias myLambda0 Lambda0
+Alias myanti-Lambda0 anti-Lambda0
+Alias MyD-       D-
+Alias MyD+       D+
+
+###################################################################
+#Branching Fractions now 
+###################################################################
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+##
+Decay MyB0
+  1.   myanti-Lambda0 MyD-  p+     PHSP;
+Enddecay
+##
+Decay MyB0B
+  1.   myLambda0 MyD+ anti-p-    PHSP;
+Enddecay
+##
+##
+Decay myLambda0
+1.000 p+ pi- PHSP;
+Enddecay
+##
+Decay myanti-Lambda0
+1.000 anti-p- pi+ PHSP;
+Enddecay
+#
+Decay MyD-
+  1.  K+ pi- pi-             D_DALITZ;
+Enddecay
+#
+Decay MyD+
+  1.  K- pi+ pi+             D_DALITZ;
+Enddecay
+#
+End

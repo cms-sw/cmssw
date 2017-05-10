@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B- -> KS  pi-                                   #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Wah	                                  #
+# from the Ks->pi+pi- by Olsen and London 	  #
+###################################################
+#
+# Decay table for B- -> Ks pi- using a simple (S)calar to (S)calar-(S)calar
+# model.  The Ks decays to pi0 pi0.
+#
+Alias     myKs    K_S0
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.00     myKs     pi+    PHSP;
+Enddecay
+#
+Decay MyB-
+1.00     myKs     pi-    PHSP;
+Enddecay
+#
+Decay myKs
+1.00     pi0      pi0    PHSP;
+Enddecay
+#
+#
+End

@@ -1,0 +1,46 @@
+############################################################
+#                                                          #
+# Decay:      B- -> chi1c      K-,        B+ -> X          #
+#                     |                                    #
+#                     |                                    #
+#                     |                                    #
+#                J/psi gam                                 #
+#                   |-> e+e-                               #
+#                   |-> mu+mu-                             #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+# Author: R. Faccini         RFACCINI@SLAC.STANFORD.EDU    #
+# Created:                   11 Mar 00                     #
+############################################################
+#
+#
+Alias Mychi_c1 chi_c1
+Alias MyJ/psi J/psi
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  Mychi_c1  K+               SVS;
+Enddecay 
+#
+Decay MyB-
+1.0000  Mychi_c1  K-               SVS;
+Enddecay 
+#
+Decay Mychi_c1
+1.000  MyJ/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay 
+
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+End

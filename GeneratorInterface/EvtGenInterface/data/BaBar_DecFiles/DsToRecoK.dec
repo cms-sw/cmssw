@@ -1,0 +1,46 @@
+###################################################################
+#    Force the Ds decay into KK*,KKs modes
+#     Author: C.Voena                07 Jul 2001
+# Mail: CECILIA@SLAC.STANFORD.EDU
+###################################################################
+
+
+
+
+
+Alias Myanti-K*0  anti-K*0
+Alias MyK*0       K*0
+Alias MyK0        K0
+Alias Myanti-K0   anti-K0
+Alias MyK_S0      K_S0
+
+ChargeConj D_s+ D_s-
+ChargeConj Myanti-K*0 MyK*0 
+ChargeConj Myanti-K0  MyK0 
+
+
+Decay D_s+ 
+0.02244   Myanti-K*0 K+     SVS;
+0.01224   Myanti-K0  K+     PHSP;
+Enddecay
+CDecay D_s-
+
+Decay Myanti-K0
+1.0000 MyK_S0            PHSP;
+Enddecay
+CDecay MyK0
+#
+Decay MyK_S0
+1.0000   pi+ pi-          PHSP;
+Enddecay
+
+
+Decay Myanti-K*0
+1.0000      K-  pi+       VSS;
+Enddecay
+CDecay MyK*0
+
+
+
+
+End

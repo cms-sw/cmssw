@@ -1,0 +1,30 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> a_1- pi+				   #
+#             B0bar -> generic              +cc            #
+#	      a_1-  -> rho- pi0 or rho0 pi-		   #
+#							   #
+# Author: Sandrine Emery                                   #
+# e-mail: emery@slac.stanford.edu                          #
+# Created:  23/07/2003                                     #
+#                                                          #
+############################################################
+#
+# Define my particles
+#
+Alias MyB0 B0
+Alias MyB0bar anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  a_1- pi+          SVS;
+Enddecay
+#
+Decay MyB0bar
+1.000  a_1+ pi-          SVS;
+Enddecay
+#
+End

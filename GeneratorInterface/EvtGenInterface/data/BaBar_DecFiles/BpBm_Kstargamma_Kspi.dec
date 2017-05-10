@@ -1,0 +1,61 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#                                                                             #
+#  Up(4S) -> B+   B-                          + CC                            # 
+#            |    |                                                           #
+#            |     ->K*-  gamma                                               #
+#            |       |  	                                              #
+#            |       |                                                        #
+#             ->X     ->K_s0 pi-                                              #  
+#                        |                                                    #
+#                         -> pi+ pi-                                          #
+#                                                                             # 
+###############################################################################
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Alias myK*+ K*+
+Alias myK*- K*-
+ChargeConj myK*+ myK*-
+#
+# and for K_S0
+#
+Alias myK_S0 K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+#force B- to always decay to K*- gamma
+#
+Decay myB-
+1.0000 myK*-  gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+Decay myB+
+1.0000 myK*+  gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+#
+# force K*- to go to Ks0 pi-
+#
+Decay myK*-
+1.0000      myK_S0   pi-                    VSS;
+Enddecay
+Decay myK*+
+1.0000      myK_S0   pi+                    VSS;
+Enddecay
+#
+# finally, force K0 to always decay to pi+ pi-
+#
+Decay myK_S0
+1.0000  pi+  pi-                            PHSP;
+Enddecay
+End
+
+
+
+
+
+

@@ -1,0 +1,101 @@
+########################################################################
+#                                                                      #
+# Decay: B0 -> Ds+ a2-       B0bar     -> X                            #
+#              |                                                       #
+#              |-> 5 modes (see below)                                 #
+# + c.c.                                                               #
+#                                                                      #
+# Author: V. Eyges  31/Jan/2004                                        # 
+#                                                                      #
+# Ds+      -> phi pi+, phi rho+, anti-K0 K+, anti-K*0 K+, K*+ anti-K0  #
+# a2+(1320)-> eta pi+                                                  #
+# eta      -> gamma gamma, pi+ pi- pi0                                 #
+#                                                                      #
+########################################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Alias MyD_s+    D_s+
+Alias MyD_s-    D_s-
+#
+Alias MyK*+  K*+
+Alias MyK*-  K*-
+#
+Alias MyK*0  K*0
+Alias Myanti-K*0 anti-K*0
+#
+Alias Myphi     phi
+Alias MyK0      K0
+Alias MyK_S0    K_S0
+Alias MyK0bar   anti-K0
+#
+Alias Mya_2+       a_2+
+Alias Mya_2-       a_2-
+Alias Myeta        eta
+#
+ChargeConj MyB0 Myanti-B0
+#
+ChargeConj MyD_s+ MyD_s-
+#
+ChargeConj MyK*0 Myanti-K*0
+ChargeConj MyK*+ MyK*-
+ChargeConj MyK0bar MyK0
+#
+ChargeConj Mya_2- Mya_2+
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0        VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000   Mya_2- MyD_s+       	 STS;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyD_s+
+0.1670 Myphi       pi+           SVS;
+0.3120 Myphi       rho+          SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+0.1530 Myanti-K*0  K+            SVS;
+0.2000 MyK*+       MyK0bar       SVS;
+0.1680 MyK0bar     K+            PHSP;
+Enddecay
+CDecay MyD_s-
+#
+Decay MyK0bar
+1.0000 K_S0                         PHSP;
+Enddecay
+CDecay MyK0
+#
+Decay MyK_S0
+1.0000   pi+ pi-                    PHSP;
+Enddecay
+#
+Decay MyK*0
+1.0000   K+  pi-	                 VSS;
+Enddecay
+CDecay Myanti-K*0
+#
+Decay MyK*+
+0.6700   MyK0  pi+	                 VSS;
+0.3300   K+    pi0	                 VSS;
+Enddecay
+CDecay MyK*-
+#
+Decay Myphi
+1.0000   K+  K-		              VSS;
+Enddecay
+#
+Decay Mya_2+
+1.0000 Myeta pi+                        PHSP;
+Enddecay
+CDecay Mya_2-
+#
+Decay Myeta
+0.6070 gamma gamma                      PHSP;
+0.3930 pi+ pi- pi0                      PHSP;
+Enddecay
+#
+End
+                                                   
+

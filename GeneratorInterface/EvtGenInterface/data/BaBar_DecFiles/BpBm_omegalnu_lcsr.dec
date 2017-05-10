@@ -1,0 +1,36 @@
+###########################################################################
+# This is a DECAY.DEC file for B+(-) -> omega l nu:                       #
+#   Up(4S) -> B+   B-                                   +CC               #
+#             |    |                                                      #
+#             |     ->  omega l- nu_bar (l = e or mu)                     # 
+#             |                                                           #
+#              -> X                                                       #
+#                                                                         #
+# LCSR model
+###########################################################################
+# Create our own versions of B-, B+ which will decay to omega l nu
+# and specify that they should be treated as antiparticles
+#
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+#
+#
+Decay Upsilon(4S)
+0.5000 B+  myB-                          VSS;
+0.5000 B-  myB+                          VSS;
+Enddecay
+#
+# force B- to always decay to omega l nu
+#
+Decay myB-
+0.5000 omega   e-    anti-nu_e         PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+0.5000 omega   mu-   anti-nu_mu        PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+Enddecay
+#
+Decay myB+
+0.5000 omega   e+    nu_e          PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+0.5000 omega   mu+   nu_mu         PHOTOS   SLPOLE 0.261 -0.29 -0.415 1.0 0.223 -0.93 -0.092 1.0 0.338 -1.37 0.315 1.0 0.372 -1.40 0.437 1.0;
+Enddecay
+#
+End

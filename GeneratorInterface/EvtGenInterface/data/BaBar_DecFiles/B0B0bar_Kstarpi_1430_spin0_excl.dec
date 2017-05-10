@@ -1,0 +1,58 @@
+###################################################
+#                                                 #
+# B0 -> K_0*+ pi-     (66.67 %)     + c.c.        #
+#    |   |_ K+ pi-                                #
+#    |                                            #
+#    -> K_0*0 pi0     (33.33 %)                   # 
+#        |_ K+ pi0                                #
+# Author:  Zhitang Yu     yuzt@slac.stanford.edu  #
+# Created: 01/12/2004                             #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K_0* pi
+# using a simple phase-space model.
+# The K_0* decays to a charged K and a pion.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyK_0*+ K_0*+
+Alias MyK_0*- K_0*-
+Alias MyK_0*0 K_0*0
+Alias Myanti-K_0*0 anti-K_0*0
+
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.0000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.6667 MyK_0*+ pi-             PHSP;
+0.3333 MyK_0*0 pi0             PHSP;
+Enddecay
+#
+Decay Myanti-B0
+0.6667 MyK_0*- pi+             PHSP;
+0.3333 Myanti-K_0*0 pi0        PHSP;
+Enddecay
+
+Decay MyK_0*+
+1.0000 K+ pi0                  PHSP;
+Enddecay
+#
+Decay MyK_0*-
+1.0000 K- pi0                  PHSP;
+Enddecay
+#
+Decay MyK_0*0
+1.0000 K+ pi-                  PHSP;
+Enddecay
+#
+Decay Myanti-K_0*0
+1.0000 K- pi+                  PHSP;
+Enddecay
+#
+End

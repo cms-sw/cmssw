@@ -1,0 +1,58 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> X       anti-B0->D*+ l- anti-nu_l      #
+#                               |->D0 pi+             #
+#                                  |-> K- pi+ pi+ pi- #
+#                                                     #
+# with l = e or mu 				      #
+#				+ CC		      #
+# Comments: using default value for dm                #
+#                                                     #
+# Author: M.H. Schune + S. Plaszczynski               #
+# Created:                  09/Feb/99                 #
+# Modified by Rowan Hamilton                          #
+# Mail: METZLER@SLAC.STANFORD.EDU
+#######################################################
+#
+
+#
+Alias MyB0B  anti-B0
+Alias MyB0  B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD0B  anti-D0
+Alias MyD0  D0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+#
+#
+Decay MyB0B
+0.5000   MyD*+    e-   anti-nu_e          PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*+    mu-  anti-nu_mu         PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyB0
+0.5000   MyD*-    e+   nu_e          PHOTOS  HQET 0.92 1.18 0.72;
+0.5000   MyD*-    mu+  nu_mu         PHOTOS  HQET 0.92 1.18 0.72;
+Enddecay
+#
+Decay MyD*+
+1.0000    MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD*-
+1.0000    MyD0B  pi-                        VSS;
+Enddecay
+#
+#
+Decay MyD0
+0.0129   K-  pi+  pi+   pi-              PHSP;
+Enddecay
+Decay MyD0B
+0.0129   K+  pi-  pi-   pi+              PHSP;
+Enddecay
+#
+#
+End

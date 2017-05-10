@@ -1,0 +1,27 @@
+#
+Alias MyB0 B0 
+Alias Myanti-B0 anti-B0
+Alias myK_S0  K_S0
+Alias mypi0   pi0
+#
+Decay pi0
+1    gamma gamma                      PHSP;
+Enddecay
+#
+Decay myK_S0
+1.00    pi+  pi-                          PHSP;
+Enddecay
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0  MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00  myK_S0 mypi0  SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.00  myK_S0 mypi0   SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+Enddecay
+#
+End

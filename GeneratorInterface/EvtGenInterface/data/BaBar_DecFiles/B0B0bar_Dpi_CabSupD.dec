@@ -1,0 +1,69 @@
+###################################################
+#                                                 #
+# B0 -> D- pi+   + c.c.                           #
+#       |                                         #
+#       |                                         #
+#       ---> cabibbo suppressed decay of D-       #
+#                                                 #
+# Author: Shahram Rahatlou, UCSD                  #
+# Created: 3 July 2003                            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> D- pi+ using phase space
+# with D- -> pi+ pi-
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD- D-
+Alias MyD+ D+
+Alias MyK*0  K*0
+Alias Myanti-K*0  anti-K*0
+Alias MyKs K_S0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000     MyD-   pi+        PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000     MyD+   pi-        PHSP;
+Enddecay
+#
+Decay MyD-
+0.0074   MyKs  K-                          PHSP;
+0.0042   MyK*0  K-                         SVS;
+0.0010   K-  MyKs  pi0                     PHSP;
+0.0010   K-  MyK*0 pi0                     PHSP;
+0.0010   K-  MyKs  pi+ pi-                 PHSP;
+0.0010   K-  MyK*0 pi+ pi-                 PHSP;
+Enddecay
+#
+Decay MyD+
+0.0074   MyKs  K+                          PHSP;
+0.0042   Myanti-K*0  K+                         SVS;
+0.0010   K+  MyKs  pi0                     PHSP;
+0.0010   K+  Myanti-K*0 pi0                     PHSP;
+0.0010   K+  MyKs  pi+ pi-                 PHSP;
+0.0010   K+  Myanti-K*0 pi+ pi-                 PHSP;
+Enddecay
+#
+Decay MyKs
+1.000     pi+ pi-            PHSP;
+Enddecay
+#
+Decay MyK*0
+1.0000  K+ pi-                          VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.0000  K- pi+                          VSS;
+Enddecay
+#
+End

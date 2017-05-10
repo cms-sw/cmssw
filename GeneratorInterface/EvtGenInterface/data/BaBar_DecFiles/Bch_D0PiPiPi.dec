@@ -1,0 +1,56 @@
+#########################################################
+# Decay: B- -> D0 (3pi)-;   B+ -> X; + cc               #
+#               \   \                                   #
+#                \   \____pipipi, rho0pi, a1-;          #
+#                 \                                     #
+#                  \__Kpi                               #
+#                                                       #
+# Author: Haiwen Zhao                                   #
+# Date:   04/26/2003                                    #
+#########################################################
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+Alias Mya_1+ a_1+
+Alias Mya_1- a_1-
+Alias Myrho0 rho0
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                      VSS;
+0.500 MyB- B+                      VSS;
+Enddecay
+#
+Decay MyB-
+0.40   MyD0    pi+  pi-  pi-       PHSP;
+0.40   MyD0    Myrho0  pi-         PHSP;
+0.20   Mya_1-  MyD0                SVS;
+Enddecay
+#
+Decay MyB+
+0.40   Myanti-D0  pi-  pi+  pi+    PHSP;
+0.40   Myanti-D0  Myrho0  pi+      PHSP;
+0.20   Mya_1+     Myanti-D0        SVS;
+Enddecay
+#
+Decay MyD0
+1.0        K-  pi+                 PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.0        K+  pi-                 PHSP;
+Enddecay
+#
+Decay Mya_1+
+1.0000  Myrho0 pi+                 VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_1-
+1.0000  Myrho0 pi-                 VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myrho0
+1.0000  pi+ pi-                    VSS;
+Enddecay
+
+End

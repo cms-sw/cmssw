@@ -1,0 +1,47 @@
+###################################################
+#                                                 #
+# B+ -> K*+ f_0             + c.c.                #
+#       |   |                                     #
+#       |   -> pi+ pi-                            #
+#       |                                         #
+#       -> K+ pi0                                 #
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 12/Sep/2002                            #
+#                                                 #
+###################################################
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+Alias Myf_0 f_0
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 MyK*+ Myf_0          SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 MyK*- Myf_0          SVS;
+Enddecay
+#
+#
+Decay MyK*+
+1.0000  K+ pi0              VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  K- pi0              VSS;
+Enddecay
+#
+#
+Decay Myf_0
+1.0000 pi+ pi-              PHSP;
+Enddecay
+End

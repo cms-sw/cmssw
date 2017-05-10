@@ -1,0 +1,32 @@
+#######################################################
+# ccbar continum production                           #
+# Lambda_c+ -> Lambda0    rho+                        #
+#              Lambda0 -> pi+ pi-                     #
+#               rho+->pi+ pi0                         #
+#                                                     #
+# created: 07/18/03 -  M A Saeed                      #
+#                      saeed@slac.stanford.edu        #
+#                                                     #
+#######################################################
+#
+Alias MyLambda0  Lambda0
+Alias Myrho+     rho+
+#
+Decay vpho
+1.0     JSCONT  4;
+Enddecay
+#
+Decay Lambda_c+
+1.000   MyLambda0   rho+                  PHSP;
+Enddecay 
+#
+Decay MyLambda0
+1.000   p+      pi-                       PHSP; 
+Enddecay
+#
+Decay Myrho+
+1.000   pi+     pi0                       PHSP; 
+Enddecay
+End
+#
+

@@ -1,0 +1,27 @@
+###################################################
+# ccbar continum production                       #
+# Lambda_c- -> P+ K_S0 pi+ pi-                    #
+#              K_S0 -> pi+ pi-                    #
+#                                                 #
+#                                                 #
+# created: 07/18/03 -  M A Saeed                  #
+#                      saeed@slac.stanford.edu    #
+#                                                 #
+###################################################
+#
+Alias MyK0 K_S0
+#
+Decay vpho
+1.0     JSCONT  4;
+Enddecay
+#
+Decay anti-Lambda_c-
+1.000  anti-p- MyK0 pi- pi+        PHSP;
+Enddecay 
+#
+Decay MyK0
+1.000   pi+ pi-                PHSP; 
+Enddecay
+End
+#
+

@@ -1,0 +1,71 @@
+###################################################
+#                                                 #
+# Decay: B0 -> D-        a0+,       anti-B0 -> X  # 
+#                        |			  #
+#                        -->eta (gg) pi+          # 
+#                                                 #
+#                                                 #
+# Author: H. Snoek                                #
+# Date:   13/jan/04	                          #
+###################################################
+#
+Alias MyB0         B0
+Alias Myanti-B0    anti-B0
+
+Alias MyD+        D+
+Alias MyD-        D-
+
+Alias MyKs	   K_S0
+
+Alias Mya_0+       a_0+
+Alias Mya_0-       a_0-
+Alias Myeta        eta
+Alias Myomega      omega
+#
+# Always one B0 to the signal channel
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00000 MyD-  Mya_0+		      PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.00000 MyD+  Mya_0-                  PHSP;
+Enddecay
+#
+Decay MyD-
+0.589  K+ pi- pi-                      D_DALITZ;
+0.317  MyKs pi- pi0                    D_DALITZ;
+0.094  MyKs pi-                        PHSP;
+Enddecay
+#
+Decay MyD+
+0.589  K- pi+ pi+                      D_DALITZ;
+0.317  MyKs pi+ pi0                    D_DALITZ;
+0.094  MyKs pi+                        PHSP;
+Enddecay
+#
+Decay MyKs
+1.000 pi+ pi-				PHSP;
+Enddecay
+#
+Decay Mya_0-
+1.000 Myeta pi-				PHSP;
+Enddecay
+#
+Decay Mya_0+
+1.0000 Myeta pi+			PHSP;
+Enddecay
+#
+Decay Myomega
+1.0000  pi- pi+                         VSS;
+Enddecay
+#
+Decay Myeta
+1.0000 gamma gamma			PHSP;
+Enddecay
+#
+End

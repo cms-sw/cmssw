@@ -1,0 +1,63 @@
+# 
+# Mark Williams' non-resonant B->Xs,gamma penguin decays where the
+# B is a B0, anti-B0, B+ or B- and the Xs is Xsd, anti-Xsd, Xsu or
+# anti-Xsu, respectively. It uses the new BTOXSGAMMA model.
+# The mode for JETSET decays is 11 which gives phase-space production
+# of hadrons from the available quarks.
+# (Note that this could be modified for use with B_s->Xss,gamma decays
+# as the BTOXSGAMMA model already allows for B_s radiative penguins.) 
+#
+
+# Reset some Jetset parameters here rather than recompiling
+# Restore JetSet default value for probability that a strange meson
+# has spin 1
+JetSetPar PARJ(12)=0.6
+
+#   Xsu meson  (sbar-u system, introduced for b->s gamma decays)
+# Set Xsu 3*Charge:
+JetSetPar KCHG(456,1)=3
+# Set Xsu color information:
+JetSetPar KCHG(456,2)=0
+# Set Xsu particle/antiparticle distinction:
+JetSetPar KCHG(456,3)=1
+# Set Xsu mass:
+JetSetPar PMAS(456,1)=1.600
+# Set Xsu width (sigma):
+JetSetPar PMAS(456,2)=0.500
+# Set Xsu truncation:
+JetSetPar PMAS(456,3)=2.000
+# Set Xsu name:
+JetSetPar CHAF(456)=Xsu 
+# Set Xsu so it can decay:
+JetSetPar MDCY(456,1)=1
+# Set decay table entry pt for Xsu: 
+JetSetPar MDCY(456,2)=1155
+# Number of decay channels for Xsu:                
+JetSetPar MDCY(456,3)=1
+# Switch on Xsu decay                                  
+JetSetPar MDME(1155,1)=1 
+# Phase space decays into hadrons from available quarks
+JetSetPar MDME(1155,2)=11
+# Xsu decays into two quarks a u and an anti-s
+JetSetPar KFDP(1155,1)=-3
+JetSetPar KFDP(1155,2)=2
+
+Alias myB+ B+
+Alias myB- B-
+ChargeConj myB+ myB-
+
+Decay Upsilon(4S)
+0.5 myB+ B- VSS;
+0.5 myB- B+ VSS;
+Enddecay
+
+Decay myB+
+1.00000     Xsu    gamma     BTOXSGAMMA 2 1 5.279 4.80 4.80 -0.3 0.9 0.0484 100 80 2.0 2.2;
+Enddecay
+
+Decay myB-
+1.00000     anti-Xsu    gamma     BTOXSGAMMA 2 1 5.279 4.80 4.80 -0.3 0.9 0.0484 100 80 2.0 2.2;
+Enddecay
+
+End
+

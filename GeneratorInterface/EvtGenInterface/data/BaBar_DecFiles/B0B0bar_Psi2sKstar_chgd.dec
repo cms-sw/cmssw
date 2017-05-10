@@ -1,0 +1,76 @@
+###################################################################
+# B0~ --> psi2s K*0~             B0 --> Generic                   #
+#         |     |-->K- pi+                                        #
+#         |                                                       #
+#         |-->mu+mu-/e+e-                                         #
+#         |                                                       #
+#         |-->J/psi pi+pi-                                        #
+#              |                                                  #
+#              |-->mu+mu-/e+e-                                    #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: G. London       28/1/99                                 #
+# Mail: GLONDON@SLAC.STANFORD.EDU                                 #
+# Modified: P. Grenier 17/12/2002   GRENIER@SLAC.STANFORD.EDU     #
+###################################################################
+#
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes:
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# put the values measured by Babar (see BAD #35 and #154)
+Define Hplus  0.159
+Define Hzero  0.775
+Define Hminus 0.612
+Define phHplus  1.563
+Define phHzero  0.0
+Define phHminus 2.712
+#
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mypsi(2S) psi(2S)
+Alias MyJ/psi   J/psi
+Alias MyKstar0 K*0
+Alias Myanti-Kstar0 anti-K*0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 Mypsi(2S)  MyKstar0              SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay Myanti-B0
+1.000 Mypsi(2S)  Myanti-Kstar0          SVV_HELAMP Hminus phHminus Hzero phHzero Hplus phHplus;
+Enddecay
+#                                       psi2s --> jpsipi+pi-/e+e-/mu+mu- (100%)
+Decay Mypsi(2S)
+#0.700  MyJ/psi  pi+ pi-         PHSP;
+0.700  MyJ/psi  pi+ pi-         VVPIPI;
+0.150    e+   e-                PHOTOS  VLL;
+0.150   mu+  mu-                PHOTOS VLL;
+Enddecay 
+#                                       psi --> e+e-/mu+mu- (100%) 
+Decay MyJ/psi
+0.50000 mu+   mu-                    PHOTOS  VLL;
+0.50000 e+   e-                      PHOTOS VLL;
+Enddecay
+#                                       K* --> K+ pi- (100%)  
+Decay MyKstar0
+1.0000 K+ pi-                     VSS;
+Enddecay
+#
+Decay Myanti-Kstar0
+1.0000 K- pi+                     VSS;
+Enddecay
+#
+End
+
+
+

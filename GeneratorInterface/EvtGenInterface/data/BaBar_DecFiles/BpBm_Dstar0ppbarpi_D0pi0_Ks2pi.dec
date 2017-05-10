@@ -1,0 +1,64 @@
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#                                                        #
+# Decay: B+ -> D*(2007)0bar p anti-p pi+   B- -> X       #
+#              +->  D0bar pi0                            #
+#                  ->  K0 pi+ pi-                        #
+#                                                        #
+# Author: Haibo Li, Wisconsin                            #
+# Date:   June 4  2004                                   #
+#                                                        #
+#:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*:::*#
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+Alias MyD*0      D*0
+Alias Myanti-D*0 anti-D*0
+Alias Myanti-D0  anti-D0
+Alias MyD0       D0
+Alias MyKs       K_S0
+Alias MyK0       K0
+Alias Myanti-K0  anti-K0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#                                    // Phase Space model
+Decay MyB+
+ 1.00000  Myanti-D*0 p+ anti-p- pi+            PHSP;
+Enddecay
+#
+Decay MyB-
+ 1.00000  MyD*0 p+ anti-p- pi-                 PHSP;
+Enddecay
+#
+Decay Myanti-D*0
+ 1.00000  Myanti-D0 pi0                     VSS;
+Enddecay
+#
+Decay MyD*0
+ 1.00000  MyD0 pi0                          VSS;
+Enddecay
+#   // resonance structure in Dalitz modelled
+Decay Myanti-D0
+1.0000   MyK0  pi-   pi+                D_DALITZ;
+Enddecay
+#             // resonance structure in Dalitz modelled
+Decay MyD0
+1.0000   Myanti-K0  pi+  pi-            D_DALITZ;
+Enddecay
+#
+Decay MyK0
+1.0000    MyKs                          PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.0000    MyKs                          PHSP;
+Enddecay
+#
+Decay MyKs
+1.0000    pi+ pi-                       PHSP;
+Enddecay
+#
+End

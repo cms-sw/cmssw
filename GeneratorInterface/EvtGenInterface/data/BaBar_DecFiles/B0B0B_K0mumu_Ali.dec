@@ -1,0 +1,26 @@
+###################################################
+#                                                 #
+# B0 -> K0 mu+ mu-                                #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: S.Willocq (willocq@slac.stanford.edu)   #
+# created:                     2/Jul/03           #
+################################################### 
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0 K0  mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay Myanti-B0
+1.0 anti-K0  mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+End

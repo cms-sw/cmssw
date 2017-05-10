@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B0 -> rho0 K0s   + c.c.                         #
+#        |                                        #
+#        ---> pi+ pi-                             #
+#                                                 #
+#  CP violation included                          #
+#                                                 #
+# Author: Jim Smith   jgsmith@pizero.colorado.edu #
+# Created: 16 July 2004                           #
+#                                                 #
+###################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myrho0 rho0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myrho0 K_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myrho0 K_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;
+Enddecay
+#
+Decay Myrho0
+1.000  pi+ pi-               VSS;
+Enddecay
+End

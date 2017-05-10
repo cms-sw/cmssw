@@ -1,0 +1,35 @@
+######################################
+# ccbar -> D*- X, D*- -> D0bar pi-   #
+#          D0bar -> K+ pi- eta'      #
+#          eta' -> pi+ pi- eta       #
+#          eta -> gamma gamma        #         
+# D0bar decays through phase space   #
+# created: 08/23/03                  #
+# pompili@slac.stanford.edu          #
+######################################
+#
+Alias my-anti-D0 anti-D0
+Alias my-eta' eta'
+Alias my-eta eta
+#
+Decay vpho
+1.00 JSCONT 4;
+Enddecay
+#
+Decay D*-
+1.0 my-anti-D0 pi- VSS;
+Enddecay
+#
+Decay my-anti-D0
+1.0 K+ pi- my-eta' PHSP;
+Enddecay
+#
+Decay my-eta'
+1.0 pi+ pi- my-eta PHSP;
+Enddecay
+#
+Decay my-eta
+1.0 gamma gamma PHSP;
+Enddecay
+#
+End

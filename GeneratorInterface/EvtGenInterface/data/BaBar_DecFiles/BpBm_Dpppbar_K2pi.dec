@@ -1,0 +1,44 @@
+#######################################################
+#                                                     #
+#   Up(4S) -> B+  B-    + CC                          #
+#             |   |                                   #       
+#             |    -> X                               #
+#             |                                       #
+#              -> D+ p pbar                           #     
+#                  |                                  #
+#                   -> K- pi+ pi+                     #
+#                                                     #
+# Author:  Ilya Narsky, Caltech                       #
+# Created: March 18 2004                              #
+#                                                     #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+Alias MyD-  D-
+Alias MyD+  D+
+ChargeConj MyD+ MyD-
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                 VSS;
+0.50000 B-  MyB+                 VSS;
+Enddecay
+#
+Decay MyB+
+1.000   MyD+   p+ anti-p-        PHSP;
+Enddecay
+#
+Decay MyB-
+1.000   MyD-   p+ anti-p-        PHSP;
+Enddecay
+#
+Decay MyD+
+1.000   K-  pi+  pi+             D_DALITZ;
+Enddecay
+#
+Decay MyD-
+1.000   K+  pi-  pi-             D_DALITZ;
+Enddecay
+#
+End

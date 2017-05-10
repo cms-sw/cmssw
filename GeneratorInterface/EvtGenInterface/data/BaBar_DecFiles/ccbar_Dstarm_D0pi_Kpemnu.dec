@@ -1,0 +1,23 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> K+ e- anti-nu_e  #
+#                                                 #
+# created: kflood nov0499                         #
+###################################################
+#
+Alias myD0bar anti-D0
+#
+Decay vpho
+1.00                        JSCONT 4;
+Enddecay
+#
+Decay D*-
+1.00 myD0bar pi-               VSS;
+Enddecay
+#
+Decay myD0bar
+1.00 K+ e- anti-nu_e             ISGW2;
+Enddecay
+#
+End

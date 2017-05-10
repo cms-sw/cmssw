@@ -1,0 +1,31 @@
+#######################################################
+#                                                     #
+#   Up(4S) -> B0  B0bar + CC                          #
+#             |   |                                   #       
+#             |    -> X                               #
+#             |                                       #
+#              -> p pbar K+ pi-                       #     
+#						      #	
+# Author:  Tetiana Hrynova, SLAC		      #	 
+#			(thrynova@slac.stanford.edu)  #
+# Created: 30 June 03                                 #
+#                                                     #
+#######################################################
+#
+Alias myB0            B0
+Alias myAntiB0   anti-B0
+ChargeConj myB0 myAntiB0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myAntiB0 VSS_BMIX dm;
+Enddecay
+#
+Decay myB0
+1.000   p+ anti-p-  K+ pi-        PHSP;
+Enddecay
+#
+Decay myAntiB0
+1.000   p+ anti-p-  K- pi+       PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,40 @@
+###################################################
+#                                                 #
+# Decay: B0 -> KS  pi0 + cc                       #
+#                                                 #
+# Author: Jim Olsen (jolsen@slac.stanford.edu)    #
+# Created:  (Amir Farbin)    2/2/99               #
+# Modified for pi0->2gamma:(Jim Olsen) 2/17/00    #
+#						  #
+# Simple neutral B decays to KsPi0 without mixing #
+# and with Ks->pi+pi- and Pi0->2gamma.            #
+###################################################
+#
+#
+Alias myPi0 pi0
+Alias myKs K_S0
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+0.5000 MyB0  anti-B0                     VSS;
+0.5000 Myanti-B0  B0                     VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 myKs myPi0          PHSP;         
+Enddecay 
+#
+Decay MyB0
+1.0000 myKs myPi0          PHSP;         
+Enddecay
+#
+Decay myKs
+1.00     pi+      pi-    PHSP;
+Enddecay
+#
+Decay myPi0
+1.00	gamma	gamma 	PHSP;
+Enddecay
+
+End

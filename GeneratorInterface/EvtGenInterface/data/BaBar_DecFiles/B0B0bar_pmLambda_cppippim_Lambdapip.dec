@@ -1,0 +1,52 @@
+##############################################################
+#                                                            #
+# Decay: B0 -> Lambda_c- proton pi+pi-,  anti-B0->X          #
+#                   |                                        #
+#                   |-> Lambdabar pi- (100%)                 #
+#                             |                              #
+#                             |-> anti-proton pi+ (100%)     #
+# Comments:                                                  #
+# Author: Haibo Li, Wisconsin                                #
+# Date:   April 11 2004                                      #
+# Use phase space for now                                    #
+##############################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyLc Lambda_c+
+Alias Myanti-Lc anti-Lambda_c-
+Alias My-anti-Lambda0 anti-Lambda0
+Alias My-Lambda0 Lambda0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+#                     // Phase Space model
+Decay MyB0
+ 1.00000  Myanti-Lc p+ pi+ pi-         PHSP;
+Enddecay
+#   // phase space here
+Decay Myanti-B0
+ 1.00000  MyLc anti-p- pi+ pi-         PHSP;
+Enddecay
+#   
+Decay MyLc         
+ 1.00000  My-Lambda0 pi+               PHSP;
+Enddecay
+#
+Decay Myanti-Lc
+ 1.00000  My-anti-Lambda0 pi-          PHSP;
+Enddecay
+#
+Decay My-Lambda0
+ 1.00000   p+ pi-                       PHSP;
+Enddecay
+#
+Decay My-anti-Lambda0
+ 1.00000   anti-p- pi+                  PHSP;
+Enddecay
+#
+End
+
+ 

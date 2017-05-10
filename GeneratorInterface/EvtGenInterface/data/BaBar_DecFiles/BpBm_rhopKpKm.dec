@@ -1,0 +1,32 @@
+############################################################
+#                                                          #
+# Decay:      B+  -> rho+ K+ K- (non-resonant)             #
+#             B-  -> generic                       +cc     #
+#                                                          #
+# Author: Sandrine Emery                                   #
+# e-mail: emery@slac.stanford.edu                          #
+# Created:  23/07/2003                                     #
+#                                                          #
+############################################################
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.000  rho+ K+ K-          PHSP;
+Enddecay
+#
+Decay MyB-
+1.000  rho- K- K+          PHSP;
+Enddecay
+#
+End

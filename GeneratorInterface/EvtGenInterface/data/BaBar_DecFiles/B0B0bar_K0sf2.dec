@@ -1,0 +1,41 @@
+###################################################
+#                                                 #
+# B0 -> f2(1270) pi0  + c.c.                      #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             #
+#                                                 #
+# Author: Andreas Hoecker                         # 
+# Created: 19-Jan-2004                            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> f2(1270) K0s using the SSD_CP model
+# (scalar -> tensor scalar with CP interference)
+# The f2 decays to pi+ pi- using the TSS model
+# f2(1270) resonance parameters unchanged (seem ok in pdg.table)
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf2 f_2
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myf2 K_S0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myf2 K_S0            SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay
+#
+Decay Myf2
+1.000  pi- pi+              TSS;
+Enddecay
+End
+
+
+

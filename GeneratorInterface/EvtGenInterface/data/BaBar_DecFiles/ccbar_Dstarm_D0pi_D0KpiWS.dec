@@ -1,0 +1,32 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> K- pi+           #
+#                                                 #
+# Note this is the Wrong sign decay!              #
+#                                                 #
+# created: U. Egede 13/03/00                      #
+#          U.Egede@rl.ac.uk                       #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+0.0385   K-  pi+                         PHSP;
+Enddecay
+#
+End

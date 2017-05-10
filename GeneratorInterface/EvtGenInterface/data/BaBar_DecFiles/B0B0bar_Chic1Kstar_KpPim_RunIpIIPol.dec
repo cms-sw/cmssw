@@ -1,0 +1,96 @@
+###################################################################
+# B0~ --> chi1c K*0~           B0 --> Generic                     #
+#           |    |                                                #
+#           |    |-->K- pi+                                       #
+#           |                                                     #
+#           J/psi gam                                             #
+#              |                                                  #
+#              |-->mu+mu-/e+e- 				          #
+# + cc                                                            #
+#                                                                 #
+# Author: G. London       28/1/99                                 #
+# Modified: S. T'Jampens  07/03/2000                              # 
+# Mail: TJAMPENS@SLAC.STANFORD.EDU                                #
+# Modified: P. Grenier 17/12/2002   GRENIER@SLAC.STANFORD.EDU     #
+# Copied from B0B0bar_Chi1cKstar_chgd_sp3.dec and updated with    #
+# runI+II polarisation. Marc Verderi, Philippe Grenier 01 Jun 2004#
+###################################################################
+#
+#
+#
+# Define the helicity amplitudes starting from the transversity amplitudes: (J/PsiK* amplitudes)
+# -------------------------------------------------------------------------
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Values measured by Babar run I+II (BAD#673/752):
+Define Hplus    0.6301
+Define Hzero    0.7523
+Define Hminus   0.1924
+Define phHplus  3.246
+Define phHzero  0.000
+Define phHminus 4.924
+#
+#
+#
+####################################################################
+# Define Chi_c1 -> J/Psi gamma amplitudes
+# Parity invariance between the amplitudes implies:
+# Bpp = Bmm;  B0p = B0m; phBmm = phBpp + pi; phB0m = phB0p + pi
+#
+# put the values measured by the Crystal Barrel Experiment
+# see M. Oreglia et al., Phys Rev D25, 2259, (1982)
+#
+# modulus
+#
+Define Bpp 0.70711
+Define B0p 0.70711
+Define Bmm 0.70711
+Define B0m 0.70711
+#
+# phases
+#
+Define phBpp 0.0
+Define phBmm 3.141592654
+Define phB0p 0.0
+Define phB0m 3.141592654
+#
+####################################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mychi_c1 chi_c1
+Alias MyJ/psi J/psi
+Alias MyKstar0 K*0
+Alias MyantiKstar0 anti-K*0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 Mychi_c1  MyKstar0                SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay Myanti-B0
+1.000 Mychi_c1  MyantiKstar0            SVV_HELAMP Hminus phHminus Hzero phHzero Hplus phHplus;
+Enddecay
+#
+Decay Mychi_c1
+1.000  MyJ/psi  gamma                   HELAMP Bpp phBpp B0p phB0p B0m phB0m Bmm phBmm;
+Enddecay 
+# 
+Decay MyJ/psi
+0.5000    mu+  mu-                      PHOTOS  VLL;
+0.5000    e+   e-                       PHOTOS  VLL;
+Enddecay 
+#                                       K* --> K+ pi- (100%)  
+Decay MyKstar0
+1.0000 K+ pi-                           VSS;
+Enddecay
+#
+Decay MyantiKstar0
+1.0000 K- pi+                           VSS;
+Enddecay
+# 
+End 

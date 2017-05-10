@@ -1,0 +1,33 @@
+####################################################
+#                                                  #
+# Inclusive Drho decay.dec #1                      #
+#                                                  #
+# D rho signal from B0-antiB0 for SP2              #
+#                                                  #
+# Decay: anti-B0 -> D+ rho-, B0 -> X         +c.c. #
+#                   |-> X                          #
+#                                                  #
+# 25 Oct 99                                        #
+# Roy Aleksan  (IHB AWG)                           #
+# dm modified: g.london 17/2                       #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 rho- D+                  SVS;
+Enddecay
+#
+Decay MyB0
+1.0000 rho+ D-                  SVS;
+Enddecay
+#
+End
+

@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# B0 -> rho-(1450) pi+  + c.c.                    #
+#        |                                        #
+#        |                                        #
+#        ---> pi- pi0                             # 
+#                                                 #
+# Author: John Back     jback@slac.stanford.edu   #
+# Created: 07/Aug/01                              #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> rho-(1450) pi+
+# using a simple (S)calar to (V)ector-(S)calar model.
+# The rho+ decays to pi+ pi0 (using a simple VSS model).
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myrho+ rho(2S)+
+Alias Myrho- rho(2S)-
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myrho- pi+            SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myrho+ pi-            SVS;
+Enddecay
+#
+Decay Myrho+
+1.000  pi+ pi0               VSS;
+Enddecay
+#
+Decay Myrho-
+1.000  pi- pi0               VSS;
+Enddecay
+End

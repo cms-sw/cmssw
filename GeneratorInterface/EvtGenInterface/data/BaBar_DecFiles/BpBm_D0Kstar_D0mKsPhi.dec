@@ -1,0 +1,83 @@
+###############################################################################
+#                                                                             #
+# Decay: B- -> D0 K*- (D0 -> Ks(Pi+Pi-) Phi(K+K-))  B+ -> X;   + cc           #
+#                     		(50% : K*- -> Ks(Pi+Pi-) Pi-)                 #
+#                     		(50% : K*- -> K- Pi0        )                 #
+# Author:                  Guillaume Therin                                   #
+# Date:                    December 18, 2002                                  #
+###############################################################################
+#
+Alias MyB-      B-
+Alias MyB+      B+
+Alias MyK*+     K*+
+Alias MyK*-     K*-
+Alias MyD0      D0
+Alias MyD0B     anti-D0
+Alias MyK0      K0
+Alias MyK0B     anti-K0
+Alias MyKs      K_S0
+Alias MyPhi     phi
+#
+ChargeConj MyB+ MyB-
+ChargeConj MyD0 MyD0B
+#
+Decay Upsilon(4S)
+0.5000  MyB+   B-                            VSS;
+0.5000  MyB-   B+                            VSS;
+Enddecay
+#
+###########################################
+# B- -> D0 K*                             #
+###########################################
+#
+Decay MyB+
+1.000   MyK*+  MyD0B                         SVS;
+Enddecay
+Decay MyB-
+1.000   MyK*-  MyD0                          SVS;
+Enddecay
+#
+###########################################
+# D0 -> K0B Phi                           #
+###########################################
+#
+Decay MyD0
+1.000   MyPhi  MyK0B                         SVS;
+Enddecay
+Decay MyD0B
+1.000   MyPhi  MyK0                          SVS;
+Enddecay
+#
+Decay MyPhi
+1.000   K+     K-                            VSS;
+Enddecay
+#
+###########################################
+# K*- -> 50% Ks(Pi+Pi-) Pi-, 50% K- Pi0   #
+###########################################
+#
+Decay MyK*+
+0.5000  MyKs   pi+                           VSS;
+0.5000  K+     pi0                           VSS;
+Enddecay
+Decay MyK*-
+0.5000  MyKs   pi-                           VSS;
+0.5000  K-     pi0                           VSS;
+Enddecay
+#
+###########################################
+# K0 and K0B -> 100% && Ks -> 100% Pi+Pi- #
+###########################################
+#
+Decay MyK0
+1.000   MyKs                                 PHSP;
+Enddecay
+Decay MyK0B
+1.000   MyKs                                 PHSP;
+Enddecay
+#
+Decay MyKs
+1.000   pi+    pi-                           PHSP;
+Enddecay
+#
+End

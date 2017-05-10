@@ -1,0 +1,30 @@
+############################################################
+#
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Dec 17, 1999
+#
+# Ds+ -> tau nu, tau-> e nu nu
+# Ds- is unaffected.
+#
+############################################################
+
+# set virtual photons to go to ccbar 
+Decay vpho
+1.000                     JSCONT   4;
+Enddecay
+
+#Set up forced decay aliases
+Alias mytau+ tau+
+
+# The hadronic tag mode
+Decay D_s+
+1.0    mytau+        nu_tau                     SLN;
+Enddecay
+
+Decay mytau+
+1.0 e+   nu_e   anti-nu_tau         PHOTOS     TAULNUNU;
+Enddecay
+
+End
+

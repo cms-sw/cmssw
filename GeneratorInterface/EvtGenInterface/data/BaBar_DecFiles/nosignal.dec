@@ -1,0 +1,21 @@
+###################################################
+#                                                 #
+#  Upsilon(4S)->   nu_e  anti-nu_e     + c.c.     #
+#   						  #
+# This Decay file is written for the              #
+# simulation upgrade                              #
+#                                                 #
+#  author Valerie Halyo                           #
+#  created   Tue Jun  5 2001                      #
+###################################################
+#
+#
+#
+Decay Upsilon(4S)
+1 nu_e  anti-nu_e  PHSP;
+Enddecay
+#
+End
+
+
+

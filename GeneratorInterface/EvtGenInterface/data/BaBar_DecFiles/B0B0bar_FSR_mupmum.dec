@@ -1,0 +1,31 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> mu+ mu-,      B0->X             # 
+#        FSR + SLL                                #
+# + cc                                            #
+#                                                 #
+# Author:    Valerie H. & Urs L.                  #
+# Date:                    Jan 22, 2002           #
+###################################################
+#
+#
+Define alpha 1.365
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+#
+Decay MyB0
+1.0000 mu+ mu-                   PHOTOS SLL;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 mu+ mu-                   PHOTOS SLL;
+Enddecay 
+#
+End
+

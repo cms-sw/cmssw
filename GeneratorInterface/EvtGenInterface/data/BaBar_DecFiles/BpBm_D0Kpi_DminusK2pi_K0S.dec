@@ -1,0 +1,38 @@
+#######################################################
+#                                                     #
+# Decay: B0 -> D0 D- K0s                              #
+#              D0->Kpi, D-->K+pi-pi-, K0s->pi+pi-     #
+# Author: Jean-Pierre Lees                            #
+# Created:                  22/March/99               #
+#######################################################
+#
+
+#
+Alias MyB-  B-
+Alias MyD- D-
+Alias MyD0  D0
+Alias myKs   K_S0
+#
+Decay Upsilon(4S)
+1.000   B+       MyB-                        VSS;
+Enddecay
+#
+Decay MyB-
+# modes DDK
+0.1000   MyD0  MyD-    myKs                PHSP;
+Enddecay
+#
+Decay MyD-
+# the Dalitz mode below includes K*(892)0 pi-, K*(1430)0 pi-, and K*(1680)0 pi- resonances.
+0.0910   K+  pi-  pi-                    D_DALITZ;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+Enddecay
+#
+Decay myKs
+1.00     pi+    pi-   PHSP;
+Enddecay
+#
+End

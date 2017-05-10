@@ -1,0 +1,39 @@
+############################################################
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Dec 19, 2002
+#
+# e+e- -> ISRgamma Psi/Psi(2S), Psi(2S) -> pi+ pi- Psi, Psi -> l+ l-
+#
+############################################################
+Alias psiee  J/psi
+Alias psimm  J/psi
+Alias psipee psi(2S)
+Alias psipmm psi(2S)
+
+Decay vpho
+0.25  psiee  gamma VECTORISR 1. 1. ;
+0.25  psimm  gamma VECTORISR 1. 1. ;
+0.25  psipee  gamma VECTORISR 1. 1. ;
+0.25  psipmm  gamma VECTORISR 1. 1. ;
+Enddecay
+
+Decay psiee
+1.0    e+   e-                PHOTOS  VLL;
+Enddecay
+
+Decay psimm
+1.0    mu+   mu-                PHOTOS  VLL;
+Enddecay
+
+Decay psipee
+1.0    psiee  pi+ pi-          VVPIPI;
+Enddecay
+
+Decay psipmm
+1.0    psimm  pi+ pi-          VVPIPI;
+Enddecay
+
+End
+
+

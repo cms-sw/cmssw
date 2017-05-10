@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# Decay: B+ -> h+ h+ h- pi0 pi0			  #
+#                                                 #
+# Author: 	G. Schott			  #
+# Created:                   30/5/03              #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+Decay MyB+
+1.0000 pi+ pi- pi+ pi0 pi0		PHSP;
+1.0000 K+ pi- pi+ pi0 pi0		PHSP;
+1.0000 pi+ K- pi+ pi0 pi0		PHSP;
+
+1.0000 K+ pi- K+ pi0 pi0		PHSP;
+1.0000 K+ K- pi+ pi0 pi0		PHSP;
+
+#1.0000 K+ K- K+ pi0 pi0		PHSP;
+Enddecay
+
+Decay MyB-
+1.0000 pi+ pi- pi- pi0 pi0		PHSP;
+1.0000 K+ pi- pi- pi0 pi0		PHSP;
+1.0000 pi+ K- pi- pi0 pi0		PHSP;
+
+1.0000 K+ pi- K- pi0 pi0		PHSP;
+1.0000 K- K- pi+ pi0 pi0		PHSP;
+
+#1.0000 K+ K- K- pi0 pi0		PHSP;
+Enddecay
+
+
+End

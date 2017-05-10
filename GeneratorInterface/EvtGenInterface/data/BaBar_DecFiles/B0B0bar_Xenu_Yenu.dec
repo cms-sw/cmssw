@@ -1,0 +1,163 @@
+###############################################################################
+# Decay file for Y(4S) -> B0 B0bar (mixed)
+#                         |   |
+#                         |    -> X e nu
+#                          -----> Y e nu
+#
+# Prepared by D. Kirkby (kirkby@hep.stanford.edu)
+# Modified C. Bozzi (bozzi@fe.infn.it): cut B_no-SL aliases (Jetset problem)
+# Last change 15 Oct 2000
+###############################################################################
+
+## use the world average value reported at the Lepton-Photon 99 conference:
+## ( http://www.cern.ch/LEPBOSC/combined_results/stanford_1999/ )
+##
+##  delta(m) = 0.473 +- 0.016 /ps
+
+
+## define aliases with restricted decay modes (which are specified below)
+
+Alias B0-SL-e   B0
+Alias B0-SL-mu  B0
+
+Alias anti-B0-SL-e   anti-B0
+Alias anti-B0-SL-mu  anti-B0
+
+## define charge conjugate relationships between aliases
+
+ChargeConj B0-SL-e  anti-B0-SL-e
+ChargeConj B0-SL-mu anti-B0-SL-mu
+
+## Y(4S) decays only to B0 B0bar, with mixing but no CP violation
+
+Decay Upsilon(4S)
+  0.823578  B0-SL-e       anti-B0-SL-e    VSS_MIX dm;
+  0.088211  anti-B0-SL-e  anti-B0-SL-e    VSS_MIX dm;
+  0.088211  B0-SL-e       B0-SL-e         VSS_MIX dm;
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B0 which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B0-SL-e
+
+# b -> c e+ nu (10.4%)
+
+  0.0490   D*-    e+   nu_e           PHOTOS HQET 0.92 1.18 0.72;
+  0.0210   D-     e+   nu_e           PHOTOS ISGW2;
+  0.0040   D_1-   e+   nu_e           PHOTOS ISGW2;
+  0.0040   D_0*-   e+   nu_e           PHOTOS ISGW2;
+  0.0070   D'_1-   e+   nu_e           PHOTOS ISGW2;
+  0.0070   D_2*-   e+   nu_e           PHOTOS ISGW2;
+  0.0010   D*-  pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0020   anti-D*0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0030   D-   pi0   e+   nu_e       PHOTOS GOITY_ROBERTS;
+  0.0060   anti-D0  pi-   e+   nu_e       PHOTOS GOITY_ROBERTS;
+
+# b -> u e+ nu (0.0806%)
+
+  0.000064   pi-    e+   nu_e        PHOTOS  ISGW2;
+  0.000250   rho-   e+   nu_e        PHOTOS  ISGW2;
+  0.000274   a_1-    e+   nu_e        PHOTOS  ISGW2;
+  0.000170   b_1-    e+   nu_e        PHOTOS  ISGW2;
+  0.000024   a_0-    e+   nu_e        PHOTOS  ISGW2;
+  0.000024   a_2-    e+   nu_e        PHOTOS  ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define a B0 which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay B0-SL-mu
+
+# b -> c mu+ nu (10.4%)
+
+  0.0490   D*-    mu+  nu_mu         PHOTOS   HQET 0.92 1.18 0.72;
+  0.0210   D-     mu+  nu_mu         PHOTOS   ISGW2;
+  0.0040   D_1-   mu+  nu_mu         PHOTOS   ISGW2;
+  0.0040   D_0*-   mu+  nu_mu        PHOTOS    ISGW2;
+  0.0070   D'_1-   mu+  nu_mu        PHOTOS    ISGW2;
+  0.0070   D_2*-   mu+  nu_mu        PHOTOS    ISGW2;
+  0.0010   D*-  pi0   mu+  nu_mu     PHOTOS   GOITY_ROBERTS;
+  0.0020   anti-D*0  pi-   mu+  nu_mu  PHOTOS      GOITY_ROBERTS;
+  0.0030   D-   pi0   mu+  nu_mu      PHOTOS  GOITY_ROBERTS;
+  0.0060   anti-D0  pi-   mu+  nu_mu  PHOTOS      GOITY_ROBERTS;
+
+# b -> u mu+ nu (0.0806%)
+
+  0.000064   pi-    mu+  nu_mu       PHOTOS   ISGW2;
+  0.000250   rho-   mu+  nu_mu       PHOTOS   ISGW2;
+  0.000274   a_1-    mu+  nu_mu      PHOTOS    ISGW2;
+  0.000170   b_1-    mu+  nu_mu      PHOTOS    ISGW2;
+  0.000024   a_0-    mu+  nu_mu      PHOTOS    ISGW2;
+  0.000024   a_2-    mu+  nu_mu      PHOTOS    ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define an anti-B0 which is forced to decay semileptonically into an
+## electron (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay anti-B0-SL-e
+
+# b -> c e- nu (10.4%)
+
+  0.0490   D*+    e-   anti-nu_e          PHOTOS  HQET 0.92 1.18 0.72;
+  0.0210   D+     e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0040   D_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0040   D_0*+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0070   D'_1+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0070   D_2*+   e-   anti-nu_e          PHOTOS  ISGW2;
+  0.0010   D*+  pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0020   D*0  pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0030   D+   pi0   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+  0.0060   D0   pi+   e-   anti-nu_e      PHOTOS  GOITY_ROBERTS;
+
+# b -> u e- nu (0.0806%)
+
+  0.000064   pi+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000250   rho+   e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000274   a_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000170   b_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000024   a_0+    e-   anti-nu_e        PHOTOS   ISGW2;
+  0.000024   a_2+    e-   anti-nu_e        PHOTOS   ISGW2;
+
+Enddecay
+
+##-----------------------------------------------------------------------------
+## define an anti-B0 which is forced to decay semileptonically into a
+## muon (10.5% of all decays)
+##-----------------------------------------------------------------------------
+
+Decay anti-B0-SL-mu
+
+# b -> c mu- nu (10.4%)
+
+  0.0490   D*+    mu-  anti-nu_mu        PHOTOS   HQET 0.92 1.18 0.72;
+  0.0210   D+     mu-  anti-nu_mu        PHOTOS   ISGW2;
+  0.0040   D_1+   mu-  anti-nu_mu        PHOTOS   ISGW2;
+  0.0040   D_0*+   mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.0070   D'_1+   mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.0070   D_2*+   mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.0010   D*+  pi0   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+  0.0020   D*0  pi+   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+  0.0030   D+   pi0   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+  0.0060   D0   pi+   mu-  anti-nu_mu    PHOTOS   GOITY_ROBERTS;
+
+# b -> u mu- nu (0.0806%)
+
+  0.000064   pi+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.000250   rho+   mu-  anti-nu_mu       PHOTOS    ISGW2;
+  0.000274   a_1+    mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.000170   b_1+    mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.000024   a_0+    mu-  anti-nu_mu      PHOTOS     ISGW2;
+  0.000024   a_2+    mu-  anti-nu_mu      PHOTOS     ISGW2;
+
+Enddecay
+
+End

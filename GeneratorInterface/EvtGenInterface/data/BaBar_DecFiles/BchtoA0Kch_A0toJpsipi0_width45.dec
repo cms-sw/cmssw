@@ -1,0 +1,54 @@
+###################################################################
+# B+  --> A0  K+            B- --> Generic  xx                    #
+#         |                                                       #
+#         |-- With a width of 45 MeV                              #
+#         |-->J/psi pi0                                           #
+#             |                                                   #
+#             |--> e+e-, mu+mu-                                   #
+#               						  # 
+#  + charge conjugate                                             #
+#                                                                 #
+#                                                                 #
+# Author: Arafat Gabareen Mokhtar (Colorado State University)     #
+#         mokhtar@slac.stanford.edu                               #
+###################################################################
+#
+#
+#
+# Alias particles for specific decays
+# Particle <name> <mass> <width>
+Particle dummy00_1 4.430 0.045
+ChangeMassMin  dummy00_1 3.2
+ChangeMassMax  dummy00_1 4.8
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyA0        dummy00_1
+Alias MyJpsi      J/psi
+Alias Mypi0       pi0
+Alias MyK+      K+
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-   VSS;
+0.500 MyB- B+   VSS;
+Enddecay
+#
+Decay MyB+
+1.000 MyA0 K+ PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyA0 K- PHSP;
+Enddecay
+#
+Decay MyA0
+1.000  MyJpsi  Mypi0        PHSP;
+Enddecay
+#
+#
+Decay MyJpsi
+0.500 e+   e-                PHOTOS VLL;
+0.500 mu+  mu-               VLL;
+Enddecay
+#
+#
+End

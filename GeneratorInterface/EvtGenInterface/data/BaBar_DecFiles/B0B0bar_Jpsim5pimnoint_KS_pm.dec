@@ -1,0 +1,95 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> Jpsi      K0s,        B0 -> X          #
+#                    |        |-> pi+pi-                   #
+#                     -> pi+pi-pi+pi-pi0                   #
+#                                                          #
+# + cc				                           #
+#                                                          #
+# Jpsi decay to final state pi+pi-pi+pi-pi0 according to   #
+# PDG2000. Caution: NO INTERFERENCES between the various   #
+# resonances are implemented!                              #
+#                                                          #
+# Author: Thomas Schietinger                               #
+# e-mail: schieti@slac.stanford.edu                        #
+# Created:                   2001/07/17                    #
+############################################################
+
+Alias MyJ/psi J/psi
+Alias MyK_S0  K_S0   
+Alias Mya_20  a_20  
+Alias Mya_2+  a_2+  
+Alias Mya_2-  a_2-  
+Alias Myb_10  b_10  
+Alias Myb_1+  b_1+  
+Alias Myb_1-  b_1-  
+Alias Myf_2   f_2   
+Alias Myomega omega 
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyJ/psi  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay Myanti-B0
+1.0000  MyJ/psi  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay MyJ/psi
+0.0755    Mya_20  rho0         PHSP;
+0.0756    Mya_2+  rho-         PHSP;
+0.0756    Mya_2-  rho+         PHSP;
+0.0607    Myb_10  rho0         PHSP;
+0.0790    Myb_1+  rho-         PHSP;
+0.0790    Myb_1-  rho+         PHSP;
+0.0641    Myomega Myf_2        PHSP;
+0.1258    Myomega pi+ pi-      PHSP;
+0.3647    pi+ pi- pi+ pi- pi0  PHSP;
+Enddecay
+#
+Decay Mya_20
+0.500   rho+ pi-               TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+0.500   rho- pi+               TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_2+
+0.500   rho0 pi+              TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+0.500   rho+ pi0              TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_2-
+0.500   rho0 pi-               TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+0.500   rho- pi0               TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myb_10
+1.0     Myomega pi0            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myb_1+
+1.0     Myomega pi+            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myb_1-
+1.0     Myomega pi-            VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myf_2
+1.0     pi+  pi-               TSS;
+Enddecay
+#
+Decay Myomega
+1.0     pi-  pi+  pi0          OMEGA_DALITZ;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+End

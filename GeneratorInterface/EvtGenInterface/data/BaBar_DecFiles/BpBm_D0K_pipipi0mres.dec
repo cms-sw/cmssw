@@ -1,0 +1,57 @@
+#####################################################
+#                                                   #
+# Decay: B- -> D0 K-          B+ -> D0bar K+        #
+#              |                    |               #
+#              |->   rho+    pi-  <-|               #
+#              |->   rho-    pi+  <-|               #
+#              |->   rho0    pi0  <-|               #
+#              |->   pi+ pi- pi0  <-|               #
+#                                                   #
+#                                                   #
+# Author: Abi Soffer                                #
+# created: 3 June 2004    			    #
+# 						    #
+#####################################################
+#
+#
+Alias MyB- 		B-
+Alias MyB+	 	B+
+
+Alias MyD0 		D0
+Alias Myanti-D0 	anti-D0
+ 
+Decay Upsilon(4S)
+0.5	MyB- B+			VSS;
+0.5	MyB+ B-			VSS;
+Enddecay
+
+# write the B decays as b->c:
+#
+Decay MyB-
+1.00	MyD0 K-		PHSP;
+Enddecay 
+
+Decay MyB+
+1.00	Myanti-D0 K+     	PHSP;
+Enddecay 
+
+
+# Use CLEO BR's (hep-ex/0306048, fit fractions on page 6):
+Decay MyD0
+0.765 rho+ pi- 		SVS;
+0.239 rho0 pi0 		SVS;
+0.323 rho- pi+ 		SVS;
+0.027 pi+  pi- pi0  	PHSP;
+Enddecay
+
+Decay Myanti-D0
+0.323 rho- pi+ 		SVS;
+0.239 rho0 pi0 		SVS;
+0.765 rho+ pi- 		SVS;
+0.027 pi+  pi- pi0  	PHSP;
+Enddecay
+
+
+End
+
+

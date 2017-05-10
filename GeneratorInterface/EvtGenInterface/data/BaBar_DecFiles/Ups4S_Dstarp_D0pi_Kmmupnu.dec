@@ -1,0 +1,20 @@
+###################################################
+#                                                 #
+# Upsilon(4S) production                          #
+# D*+ -> D0 pi+, D0 -> K- mu+ nu_mu               #
+#                                                 #
+# created: kflood nov0499                         #
+# Mail: KFLOOD@SLAC.STANFORD.EDU
+###################################################
+#
+Alias myD0 D0
+#
+Decay D*+
+1.00 myD0 pi+               VSS;
+Enddecay
+#
+Decay myD0
+1.00 K- mu+ nu_mu             ISGW2;
+Enddecay
+#
+End

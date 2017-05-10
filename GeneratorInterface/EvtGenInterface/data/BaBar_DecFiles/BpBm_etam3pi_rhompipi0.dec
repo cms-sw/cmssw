@@ -1,0 +1,45 @@
+###################################################
+#                                                 #
+# B+-> eta      rho+  , B0~ -> X  + c.c.          #
+#                 |-> pi+pi0                      #
+#       |-> 3pi                                   #
+# Author: Mirna van Hoek		          #
+# e-mail: mirna@slac.stanford.edu                 #
+# Created: 2001/05/29                             #
+###################################################
+Alias Myeta eta
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyRho+ rho+
+Alias MyRho- rho-
+ChargeConj MyB+  MyB-
+ChargeConj MyRho+  MyRho-
+#
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                     VSS;
+0.500   B+       MyB-                     VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     MyRho-   Myeta                 SVS;
+Enddecay
+#
+Decay MyB+
+1.0000     MyRho+   Myeta                 SVS;
+Enddecay
+#
+Decay Myeta
+1.0000    pi+ pi- pi0                     ETA_DALITZ;
+Enddecay
+#
+Decay MyRho+
+1.000 pi+   pi0                            VSS;
+Enddecay
+#
+Decay MyRho-
+1.000 pi-   pi0                            VSS;
+Enddecay
+#
+End
+

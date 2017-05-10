@@ -1,0 +1,27 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> rho+ pi-,    B0 -> nu nubar   # 
+#                                                 #
+# Comments: No mixing, for QA work                #
+#                                                 #
+# Author: D. Aston                                #
+# created:               20/December/1999         #
+###################################################
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.0000 MyB0  Myanti-B0             VSS;
+Enddecay
+#
+Decay MyB0
+1.0000 nu_e anti-nu_e             PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 rho+ pi-                    SVS;
+Enddecay 
+#
+End

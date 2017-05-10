@@ -1,0 +1,40 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> a1+ pi-,     B0 -> X          #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Gian Gopal                              #
+# Date:                    19/March/99            #
+# Modified; G.London 22/March/99                  #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+ChargeConj mya_1+ mya_1-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 mya_1+ pi-                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_1+
+1.0000   rho0 pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyB0
+1.0000 mya_1- pi+                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_1-
+1.0000   rho0 pi-                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End                                                                                                                                                                                 d

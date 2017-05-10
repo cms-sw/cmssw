@@ -1,0 +1,46 @@
+###################################################
+#                                                 #
+# B+ -> a_1+ pi0 +cc (a_1+ -> rho0 pi+)		  #
+#                    (a_1- -> rho0 pi-)           #
+#                                                 #
+# Author: D. Walker                               #
+# Date:	10/02/04 			          #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+
+Alias Mya_1+ a_1+
+Alias Mya_1- a_1-
+Alias Myrho0 rho0
+ChargeConj Mya_1+ Mya_1-
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              	VSS;
+0.5000 MyB- B+              	VSS;
+Enddecay
+
+Decay MyB+
+1.0000    Mya_1+ pi0      	SVS;
+Enddecay
+
+Decay MyB-
+1.0000    Mya_1- pi0      	SVS;
+Enddecay
+
+Decay Mya_1+
+1.000 Myrho0 pi+		VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay Mya_1-
+1.0000 Myrho0 pi-		VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
+Decay Myrho0
+1.000 pi+ pi-			VSS;
+Enddecay
+
+End
+
+

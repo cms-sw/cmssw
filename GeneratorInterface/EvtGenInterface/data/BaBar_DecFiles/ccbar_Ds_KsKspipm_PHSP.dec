@@ -1,0 +1,39 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# Make a lot of Ds-> K0s K0s pi+-  decays         #
+#                               K0s -> pi+ pi-    #
+#                                                 #
+# created: H. Schmuecker Tue Dec 16 2000          #
+#          helmut@slac.stanford.edu               #
+###################################################
+
+
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyK_S0 K_S0
+#
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D_s-
+1.000 MyK0 Myanti-K0 pi-                PHSP;
+Enddecay
+#
+Decay D_s+
+1.000 MyK0 Myanti-K0 pi+                PHSP;
+Enddecay
+#
+Decay MyK0
+1.0000 MyK_S0                  PHSP;
+Enddecay  
+#
+Decay Myanti-K0
+1.0000 MyK_S0                  PHSP;
+Enddecay  
+#
+Decay MyK_S0
+1.0000 pi+ pi-                 PHSP;
+Enddecay   
+End

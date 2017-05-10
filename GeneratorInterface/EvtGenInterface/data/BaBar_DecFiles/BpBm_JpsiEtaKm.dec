@@ -1,0 +1,45 @@
+###################################################################
+#  B+ -> J/psi Eta K+, B- -> X (50%); + C.C. (50%)
+#          |    |
+#          |     -> Gamma Gamma (50%), Pi+ Pi- Pi0 (50%)
+#          |
+#           -> e+e- (50%), mu+mu- (50%)
+#      
+#         Eric Eckhart
+###################################################################
+#
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyEta eta
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              VLL;
+Enddecay
+#
+Decay MyEta
+0.5000    gamma gamma                      PHSP;
+0.5000    pi- pi+ pi0                    ETA_DALITZ;
+Enddecay
+#
+
+Decay MyB-
+1.000 MyJpsi  MyEta  K-   PHSP;
+Enddecay
+#
+
+Decay MyB+
+1.000 MyJpsi  MyEta  K+   PHSP;
+Enddecay
+
+#
+End

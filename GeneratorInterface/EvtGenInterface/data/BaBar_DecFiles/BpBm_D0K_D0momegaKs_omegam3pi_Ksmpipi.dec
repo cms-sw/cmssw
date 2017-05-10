@@ -1,0 +1,57 @@
+#################################################################
+#                                                   		#
+# Decay: B- -> D0 K-, B+ -> X    + c.c.      		       	#
+#               |                                  		#
+#               `-> omega K_S0                       		#
+#                     |     | 					#
+#                     |     `-> pi+ pi-                         #  	  
+#		      |						#
+#		      `--> pi+ pi- pi0                 		#
+#                                                   		#
+#                                                   		#
+#                                                   		#
+# Author: Giovanni Marchiori                        		#
+# Date:   03/15/02                                   		#
+#################################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Alias Myomega omega
+Alias MyK_S0  K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                        VSS;
+0.50000 B-  MyB+                        VSS;
+Enddecay
+#
+Decay MyB+
+1.000   Myanti-D0  K+                   PHSP;
+Enddecay
+#
+Decay MyB-
+1.000   MyD0  K-                        PHSP;
+Enddecay
+#
+Decay MyD0
+1.000   Myomega MyK_S0             	SVS;
+Enddecay
+#
+Decay Myanti-D0
+1.000   Myomega MyK_S0                  SVS;
+Enddecay
+#
+Decay Myomega
+1.0000    pi+ pi- pi0  	                OMEGA_DALITZ;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   	PHSP;
+Enddecay
+#
+End

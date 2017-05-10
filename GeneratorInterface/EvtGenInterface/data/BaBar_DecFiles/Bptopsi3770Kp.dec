@@ -1,0 +1,39 @@
+#######################################################
+#                                                     #
+# Decay: B+->PSI(3370) K+ ,   B-->X                   #
+# +cc         |                                       #
+#             |                                       #
+#             D0D0bar                                 #
+#             |  |                                    #
+#             |  k-pi+                                #
+#             k+pi-                                   #
+# Author: Prafulla Kumar Behera                       #
+# Created:                  23/September/02           #
+#######################################################
+#
+Alias MyB-       B-
+Alias MyB+       B+
+Alias MyD0       D0
+Alias MyAnti-D0      anti-D0
+#
+Decay Upsilon(4S)
+1.000 MyB+ MyB-               VSS;
+Enddecay
+#
+Decay MyB+ 
+1.000 psi(3770) K+            SVS;
+Enddecay
+#
+Decay  psi(3770)
+1.000  MyD0  MyAnti-D0        VSS;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+              PHSP;
+Enddecay
+#
+Decay MyAnti-D0 
+0.0391   K+  pi-              PHSP;
+Enddecay
+#
+End

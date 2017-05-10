@@ -1,0 +1,30 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#   Up(4S) -> B0  B0bar                    + CC                               #
+#             |    |                                                          #
+#             |     -> K*0bar(1273) gamma                                     #
+#             |                                                               #
+#              -> X                                                           #
+#                                                                             #
+# 02/25/00 - Pete Sanders -                                                   #
+# this is B0B0bar_Kst_1273_gamma.dec except the B0s decay 100% to K_10       #
+# instead of 50%. The first one must have been a mistake.                     #
+#                                                                             #
+# Mail: PSA@SLAC.STANFORD.EDU
+###############################################################################
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 myB0 myantiB0 VSS_BMIX dm;
+Enddecay
+#
+#
+Decay myB0
+1.0000  K_10 gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+Decay myantiB0
+1.0000 anti-K_10  gamma                     SVP_HELAMP 1.0 0.0 1.0 0.0;
+Enddecay
+End

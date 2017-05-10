@@ -1,0 +1,48 @@
+#####################################################
+#        _                                          #
+#  B+ -> K_1(1270) K+      (100%)           + C.C.  #
+#  _                                                #
+#  K_1(1270) -> rho+ K-    (100%)           + C.C.  #
+#                                                   # 
+#  rho+ -> pi0 pi+         (100%)           + C.C.  #
+#                                                   #
+#  Author:  J. P. Burke    phjpb@SLAC.Stanford.EDU  #
+#  Created: 12-Dec-2003                             #
+#                                                   #
+#####################################################
+#
+Alias MyB+                 B+
+Alias MyB-                 B-
+Alias myK*0                K_10
+Alias myantiK*0            anti-K_10
+Alias myRho+               rho+
+Alias myRho-               rho-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-             VSS;
+0.5000 MyB- B+             VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 myantiK*0 K+        SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 myK*0 K-            SVS;
+Enddecay
+#
+Decay myK*0
+1.0000 myRho- K+           VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay myantiK*0
+1.0000 myRho+ K-           VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay myRho-
+1.0000 pi- pi0             VSS;
+Enddecay
+Decay myRho+
+1.0000 pi+ pi0             VSS;
+Enddecay
+End

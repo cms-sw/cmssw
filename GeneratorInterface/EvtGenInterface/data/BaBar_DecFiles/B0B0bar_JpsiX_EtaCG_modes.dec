@@ -1,0 +1,54 @@
+###################################################################
+#         J/psi X                                                 #
+#         |                                                       #
+#         |-> EtaC gam                                            #
+#              |                                                  #
+#              |-> 4K                                             #
+#              |-> 2phi                                           #
+#              |-> 2K2pi                                          #
+#              |-> 4pi                                            #
+#              |-> KsKpi                                          #
+#              |-> K+K-pi0                                        #
+#              |-> eta2pi                                         #
+#                                                                 #
+# with equal weights to study each channel                        #
+#                                                                 #
+# Author: G. London 26/5/2000                                     #
+# Adaptation: R.Faccini 05/26/00        
+#                                                                 #
+#    adapted from .dec for J/psi->L+L-                            #
+#                 Author: ?                                       #
+#                 Corrections: G.London 1/2/99                    #
+###################################################################
+Alias MyEta_C eta_c
+Alias MyPhi phi
+Alias MyEta eta
+Alias MyK_S0 K_S0
+
+Decay J/psi
+0.013  MyEta_C gamma              VSP_PWAVE;
+Enddecay
+Decay MyEta_C
+1.00  K+ K- K+ K-               PHSP;
+1.00  MyPhi MyPhi               PHSP;
+1.00  K+ pi- K- pi+             PHSP;
+1.00  pi+ pi- pi+ pi-           PHSP;
+1.00  MyK_S0 K+ pi-             PHSP;
+1.00  MyK_S0 K- pi+             PHSP;
+1.00  K+ K- pi0                 PHSP;
+1.00  MyEta pi+ pi-             PHSP;
+Enddecay
+#
+Decay MyPhi
+1.0000  K+ K-                     VSS;
+Enddecay
+#
+Decay MyEta
+1.0000  gamma gamma               PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;                   
+Enddecay
+#
+End

@@ -1,0 +1,62 @@
+###################################################
+#                                                 #
+# B0 -> D0 Ks    + c.c.                           #
+#          |                                      #
+#          |                                      #
+#           ---> pi+ pi-                          #
+#                                                 #
+# Author: S.Prell (UC San Diego)		  #	
+#	  S.Rahatlou (UC San Diego)		  #
+#     						  #
+# Date:   July 2002				  #
+#						  #
+# Comment:The time evolution as given in Kayser & #
+#         London (PRD 61, 116013) is not 	  #
+#	  implemented, yet. This needs to be      #
+#	  added for time-dependent CP-violation   #
+#	  studies. 			          #
+###################################################
+#
+Alias MyB0bar anti-B0
+Alias MyB0 B0
+
+Alias MyD0 D0
+Alias MyD0bar anti-D0
+
+Alias MyKs K_S0
+#
+Define dm 0.0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.500     MyD0   MyKs             PHSP;
+0.500     MyD0bar  MyKs           PHSP;
+Enddecay
+#
+Decay MyB0bar
+0.500     MyD0   MyKs             PHSP;
+0.500     MyD0bar  MyKs           PHSP;
+Enddecay
+#
+Decay MyD0
+0.0828  K- pi+                     PHSP;
+#0.1620  K- pi+ pi+ pi-             PHSP;
+#0.3010  K- pi+ pi0                 D_DALITZ;
+#0.4540  K_S0 pi+   pi-             D_DALITZ;
+Enddecay
+#
+Decay MyD0bar
+0.0828  K+ pi-                     PHSP;
+#0.1620  K+ pi- pi- pi+             PHSP;
+#0.3010  K+ pi- pi0                 D_DALITZ;
+#0.4540  K_S0 pi-  pi+              D_DALITZ;
+Enddecay
+#
+Decay MyKs
+1.0    pi+ pi-                    PHSP;
+Enddecay
+#
+End

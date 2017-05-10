@@ -1,0 +1,41 @@
+####################################################
+#                                                  #
+# Inclusive D*a1 decay.dec                         #
+#                                                  #
+# D*a1 signal from B0-antiB0 for SP3               #
+#                                                  #
+# Decay: anti-B0 -> D*+ a_1-, B0 -> X       +c.c.  #
+#                   |-> D0 pi+                     #
+#                       |-> X                      #
+#                                                  #
+#                                                  #
+#  6 sep 00 Abi Soffer  (IHB AWG)                  #
+####################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.0130   D*-  a_1+                     SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                   VSS;
+Enddecay
+#
+Decay Myanti-B0
+0.0130   D*+  a_1-                     SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-              VSS;
+Enddecay
+#
+
+End

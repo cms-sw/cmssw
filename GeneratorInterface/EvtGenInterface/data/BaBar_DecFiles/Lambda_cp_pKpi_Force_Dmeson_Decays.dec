@@ -1,0 +1,82 @@
+# FILE:  Lambda_c+_pKpi_Force_Dmeson_Decays.dec
+# PURPOSE:  force Lambda_c to decay to pKpi using Phase Space only 
+#           (no resonances)
+#           force D0->Kpi; Dc->Kpipi; Ds->phipi,phi->KK
+#           Also make Upsilon decay to only B pairs without mixing,
+#           add make the continuum virtual photon (vpho) go to ccbar
+#           (quark #4).
+#
+#   This was meant to be used in either continuum or Upsilon(4S)
+#   generation to study the plain phase space of the Lambda_c
+#   decay to p K pi, and the distribution of D mesons in events
+#   with Lambda_c.  The easiest D modes to reconstruct are forced.
+#
+#   Only one Lambda_c per event was wanted, since all decays forced to pKpi,
+#   and it is unlikely that one ever wanted events with 2 Lambda_c, both
+#   going to p K pi.
+#
+#   The filter then can ask for a Lambda_c+ or an anti-Lambda_c-.  If
+#   mixing was allowed, then you would get events with 2 Lambda_c+s
+#   if one B mixed and both Bs decayed to Lambda_c.  
+#
+# AUTHOR: Chris Roat croat@stanford.edu
+
+#
+# Decay 4S with no mixing, equal amounts of B+B- and B0B0bar
+#
+Decay Upsilon(4S)
+0.50000	B+	B-	VSS;
+0.50000	B0	anti-B0	VSS;
+Enddecay
+
+#
+# Force the vpho fragmentation to produce a ccbar pair
+#
+Decay vpho
+1.0	JSCONT	4;
+Enddecay
+
+#
+# Force all Lambda_c decays to p K pi, using phase space
+# 
+
+Decay Lambda_c+
+1.000	p+	K-	pi+	PHSP;
+Enddecay
+
+CDecay anti-Lambda_c-
+
+
+# D decay distributions are identical to DECAY.DEC
+
+# the Dalitz mode below includes K*bar(892)0 pi+, 
+# K*bar(1430)0 pi+, and K*bar(1680)0 pi+ resonances.
+Decay D+
+1.000   K-  pi+  pi+            D_DALITZ;
+Enddecay
+
+CDecay D-
+
+
+Decay D0
+1.000   K-  pi+                 PHSP;
+Enddecay
+
+CDecay anti-D0
+
+Alias myphi phi
+
+Decay D_s+
+1.000   myphi   pi+             SVS;
+Enddecay
+
+Decay D_s-
+1.000   myphi   pi-             SVS;
+Enddecay
+
+Decay myphi
+1.000   K+   K-                 VSS;
+Enddecay
+
+
+End

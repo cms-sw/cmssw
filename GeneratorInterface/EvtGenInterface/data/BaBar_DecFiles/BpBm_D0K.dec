@@ -1,0 +1,38 @@
+###################################################
+#                                                 #
+# Decay: B+ -> anti-D0 K+,     B- -> X;   + cc    #
+#                                                 #
+# Author: Natalia Kuznetsova                      #
+# Date:                    11/25/99               #
+###################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Myanti-D0  K+          PHSP;
+Enddecay
+Decay MyB-
+1.000   MyD0  K-          PHSP;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+0.1307   K-  pi+  pi0                    D_DALITZ;
+Enddecay
+Decay Myanti-D0
+0.0391   K+  pi-                         PHSP;
+0.1307   K+  pi-  pi0                    D_DALITZ;
+Enddecay
+#
+End

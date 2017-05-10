@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B0 -> K_2*+ pi-     (66.67 %)     + c.c.        #
+#    |                                            #
+#    |                                            #
+#    -> K_2*0 pi0     (33.33 %)                   # 
+#                                                 #
+# Author:  Jan Stark     stark@in2p3.fr           #
+# Created: 12/Sep/2002                            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> K_2* pi
+# using a simple (S)calar to (T)ensor-(S)calar model.
+# The K_2* decays according to the official DECAY.DEC file.
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.0000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+0.6667 K_2*+ pi-             STS;
+0.3333 K_2*0 pi0             STS;
+Enddecay
+#
+Decay Myanti-B0
+0.6667 K_2*- pi+             STS;
+0.3333 anti-K_2*0 pi0        STS;
+Enddecay
+End

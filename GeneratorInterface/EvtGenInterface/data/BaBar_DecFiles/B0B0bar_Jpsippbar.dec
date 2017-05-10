@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B0 -> J/psi anti-p- p+                          #
+#        |                                        #
+#        ->l+l-                                   #
+#                                                 #
+# Contact: Christopher Hearty                     #
+# hearty@triumf.ca                                #
+# Created July 11, 2002                           #
+###################################################
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyJ/psi J/psi
+#
+ChargeConj MyB0 Myanti-B0
+#
+Decay Upsilon(4S)
+1.00 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.00 MyJ/psi anti-p- p+                 PHSP;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   PHOTOS VLL;
+Enddecay
+#
+CDecay Myanti-B0
+End

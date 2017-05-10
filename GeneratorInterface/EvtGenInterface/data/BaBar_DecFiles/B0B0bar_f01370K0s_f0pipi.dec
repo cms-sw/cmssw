@@ -1,0 +1,52 @@
+###################################################
+#                                                 #
+# B0 -> f0(1370) K0s   + c.c.                     #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi-                             # 
+#                                                 #
+# Author: Andreas Hoecker                         # 
+# Created: 06-Jan-04                              #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> f0(1370) K0s using phase space.
+# The f0(1370) decays to pi+ pi-.
+#
+# BEGIN sp5 patch 
+# (
+#    note: no CPV generated - assumed to be done by 
+#          reweighting after selection
+#
+#    mass and width taken from: 
+#    Ds+->pi+pi+pi- fit [E791 hep-ex/0007027]
+#    E791 quotes: m(f0-1370) = 1.434 +- 0.018 GeV/c^2
+#                 G(f0-1370) = 0.173 +- 0.032 GeV/c^2
+# )
+#
+Particle f'_0 1.434 0.173
+#
+ChangeMassMin f'_0 0.40
+ChangeMassMax f'_0 2.50
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Myf'0 f'_0
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  Myf'0 K_S0            PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.000  Myf'0 K_S0            PHSP;
+Enddecay
+#
+Decay Myf'0
+1.000  pi+ pi-               PHSP;
+Enddecay
+End

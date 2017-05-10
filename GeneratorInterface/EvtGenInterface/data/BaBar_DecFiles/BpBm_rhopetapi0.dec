@@ -1,0 +1,36 @@
+###################################################
+#                                                 #
+# B+ -> rho+  eta  pi0  + c.c.                    #
+#        |                                        #
+#        |                                        #
+#        ---> pi+ pi0                             # 
+#                                                 #
+#                                                 #
+# Author: Richard Sloane                          #
+# Created: 20 Jan 2003                            #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> rho+ eta pi0
+# using a phase space model (PHSP)
+# The rho+ decays to pi+ pi0 (using a simple VSS model).
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500 MyB+  B-               VSS;
+0.500 MyB-  B+               VSS;
+Enddecay
+#
+Decay MyB+
+1.000 rho+ pi0 eta           PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 rho- pi0 eta           PHSP;
+Enddecay
+#
+End

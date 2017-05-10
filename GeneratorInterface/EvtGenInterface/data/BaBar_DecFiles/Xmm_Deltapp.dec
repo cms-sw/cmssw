@@ -1,0 +1,142 @@
+###############################################################################
+#                                                                             #
+# continuum production:           
+#                                 
+# Delta++ (AKA) pentaquark state
+#                    Xi- pi-
+#           All particles are decayed isotropically                           #
+#                                                                             #
+# Valerie Halyo Jan 1 04 
+#                                                                             #
+###############################################################################
+#
+
+Alias myXi- Xi-
+Alias myanti-Xi+ anti-Xi+
+Alias myLambda0 Lambda0
+Alias myanti-Lambda0 anti-Lambda0
+
+Particle  Delta++     1.862 0.001
+Particle  anti-Delta-- 1.862 0.001
+
+##
+Decay vpho 
+0.1    JSCONT 1;
+0.4    JSCONT 2;
+0.1    JSCONT 3;
+0.4    JSCONT 4;
+Enddecay
+
+##
+Decay Delta++
+1.000 myanti-Xi+ pi+ PHSP;
+Enddecay
+
+##
+Decay anti-Delta--
+1.000 myXi- pi- PHSP;
+Enddecay
+
+##
+Decay myanti-Xi+
+1.000  myanti-Lambda0 pi+ PHSP; 
+Enddecay
+
+##
+Decay myXi-
+1.000  myLambda0 pi- PHSP; 
+Enddecay
+
+##
+Decay myLambda0
+1.000 p+ pi- PHSP;
+Enddecay
+
+##
+Decay myanti-Lambda0
+1.000 anti-p- pi+ PHSP;
+Enddecay
+############
+
+#   Charm Baryons
+#
+Decay Lambda_c+
+0.01800         e+      nu_e    Lambda0         JETSET         42;
+0.00500         e+      nu_e    Sigma0  JETSET         42;
+0.00500         e+      nu_e    Sigma*0         JETSET         42;
+0.00300         e+      nu_e    n0      JETSET         42;
+0.00200         e+      nu_e    Delta0  JETSET         42;
+0.00600         e+      nu_e    p+      pi-     JETSET         42;
+0.00600         e+      nu_e    n0      pi0     JETSET         42;
+0.01800         mu+     nu_mu   Lambda0         JETSET         42;
+0.00500         mu+     nu_mu   Sigma0  JETSET         42;
+0.00500         mu+     nu_mu   Sigma*0         JETSET         42;
+0.00300         mu+     nu_mu   n0      JETSET         42;
+0.00200         mu+     nu_mu   Delta0  JETSET         42;
+0.00600         mu+     nu_mu   p+      pi-     JETSET         42;
+0.00600         mu+     nu_mu   n0      pi0     JETSET         42;
+0.02300         p+      anti-K0         JETSET         0;
+0.04000         p+      anti-K*0        JETSET         0;
+0.00500         Delta+          anti-K0         JETSET         0;
+0.00500         Delta+  anti-K*0        JETSET         0;
+0.00580         Lambda0         pi+     JETSET         0;
+0.00500         Lambda0         rho+    JETSET         0;
+0.00550         Sigma0  pi+     JETSET         0;
+0.00400         Sigma0          rho+    JETSET         0;
+0.00400         Sigma*0         pi+     JETSET         0;
+0.00400         Sigma*0         rho+    JETSET         0;
+0.00400         Sigma+          pi0     JETSET         0;
+0.00200         Sigma+          eta     JETSET         0;
+0.00200         Sigma+  eta'    JETSET         0;
+0.00400         Sigma+          rho0    JETSET         0;
+0.00400         Sigma+          omega   JETSET         0;
+0.00300         Sigma*+         pi0     JETSET         0;
+0.00200         Sigma*+         eta     JETSET         0;
+0.00300         Sigma*+         rho0    JETSET         0;
+0.00300         Sigma*+         omega   JETSET         0;
+0.00200         Xi0     K+      JETSET         0;
+0.00200         Xi0     K*+     JETSET         0;
+0.00200         Xi*0    K+      JETSET         0;
+0.00200         p+      pi0     JETSET         0;
+0.00100         p+      eta     JETSET         0;
+0.00100         p+      eta'    JETSET         0;
+0.00200         p+      rho0    JETSET         0;
+0.00200         p+      omega   JETSET         0;
+0.00130         p+      phi     JETSET         0;
+0.00180         p+      f_0     JETSET         0;
+0.00100         Delta+          pi0     JETSET         0;
+0.00100         Delta+          eta     JETSET         0;
+0.00100         Delta+  eta'    JETSET         0;
+0.00100         Delta+          rho0    JETSET         0;
+0.00100         Delta+          omega   JETSET         0;
+0.00300         n0      pi+     JETSET         0;
+0.00300         n0      rho+    JETSET         0;
+0.00300         Delta0  pi+     JETSET         0;
+0.00300         Delta0          rho+    JETSET         0;
+0.00500         Lambda0         K+      JETSET         0;
+0.00500         Lambda0         K*+     JETSET         0;
+0.00200         Sigma0          K+      JETSET         0;
+0.00200         Sigma0          K*+     JETSET         0;
+0.00100         Sigma*0         K+      JETSET         0;
+0.00100         Sigma*0         K*+     JETSET         0;
+0.00200         Sigma+          K0      JETSET         0;
+0.00200         Sigma+          K*0     JETSET         0;
+0.00100         Sigma*+         K0      JETSET         0;
+0.00100         Sigma*+         K*0     JETSET         0;
+0.13000         u       anti-d          d       su_0    JETSET         13;
+0.05700         u       anti-d          d       su_1    JETSET         13;
+0.03500         u       anti-s          d       su_0    JETSET         13;
+0.03500         u       anti-d          d       ud_0    JETSET         13;
+0.09500         s       uu_1    JETSET         13;
+0.14000         u       su_0    JETSET         13;
+0.14000         u       su_1    JETSET         13;
+0.03000         d       uu_1    JETSET         13;
+0.01500         u       ud_0    JETSET         13;
+0.01500         u       ud_1    JETSET         13;
+Enddecay
+CDecay anti-Lambda_c-
+#
+
+End
+
+

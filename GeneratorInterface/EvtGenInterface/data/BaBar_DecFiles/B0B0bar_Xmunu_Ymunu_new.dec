@@ -1,0 +1,87 @@
+###############################################################################
+# Decay file for Y(4S) -> B0 B0bar (mixed)
+#                         |   |
+#                         |    -> X mu nu
+#                          -----> Y mu nu
+#
+# Prepared by D. Kirkby (kirkby@hep.stanford.edu)
+# Modified C. Bozzi (bozzi@fe.infn.it): cut B_no-SL aliases (Jetset problem)
+# Modified D. Best  (best@fe.infn.it): remove all aliases (BMIX problem)
+# Modified D. Best  (best@fe.infn.it): update some branching ratios
+# Last change: 07 May 2003
+###############################################################################
+
+Decay Upsilon(4S)
+  1.00  B0 anti-B0 VSS_BMIX dm;
+Enddecay
+
+
+Decay B0
+
+# b -> c mu+ nu (10.4%)
+
+  # from PDG 2002 with ell nu, but e and mu taken to be the same
+  0.0460   D*-             mu+  nu_mu     PHOTOS    HQET 0.92 1.18 0.72;
+  0.0211   D-              mu+  nu_mu     PHOTOS    ISGW2;
+
+  # source of those unknown
+  0.0040   D_1-            mu+  nu_mu     PHOTOS    ISGW2;
+  0.0040   D_0*-           mu+  nu_mu     PHOTOS    ISGW2;
+  0.0070   D'_1-           mu+  nu_mu     PHOTOS    ISGW2;
+  0.0070   D_2*-           mu+  nu_mu     PHOTOS    ISGW2;
+  0.0010   D*-      pi0    mu+  nu_mu     PHOTOS    GOITY_ROBERTS;
+  0.0020   anti-D*0 pi-    mu+  nu_mu     PHOTOS    GOITY_ROBERTS;
+  0.0030   D-       pi0    mu+  nu_mu     PHOTOS    GOITY_ROBERTS;
+  0.0060   anti-D0  pi-    mu+  nu_mu     PHOTOS    GOITY_ROBERTS;
+
+# b -> u mu+ nu (0.0806%)
+
+  # from PDG 2002 with ell nu,  but e and mu taken to be the same
+  0.00018    pi-           mu+  nu_mu     PHOTOS    ISGW2;
+  0.00026    rho-          mu+  nu_mu     PHOTOS    ISGW2;
+
+  # sources for those unknown
+  0.000274   a_1-          mu+  nu_mu     PHOTOS     ISGW2;
+  0.000170   b_1-          mu+  nu_mu     PHOTOS     ISGW2;
+  0.000024   a_0-          mu+  nu_mu     PHOTOS     ISGW2;
+  0.000024   a_2-          mu+  nu_mu     PHOTOS     ISGW2;
+
+Enddecay
+
+
+
+Decay anti-B0
+
+# b -> c mu- nu (10.4%)
+
+  # from PDG 2002 with ell nu, but e and mu taken to be the same
+  0.0460   D*+             mu-   anti-nu_mu          PHOTOS  HQET 0.92 1.18 0.72;
+  0.0211   D+              mu-   anti-nu_mu          PHOTOS  ISGW2;
+
+  # sources for those unknown
+  0.0040   D_1+            mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.0040   D_0*+           mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.0070   D'_1+           mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.0070   D_2*+           mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.0010   D*+  pi0        mu-   anti-nu_mu          PHOTOS  GOITY_ROBERTS;
+  0.0020   D*0  pi+        mu-   anti-nu_mu          PHOTOS  GOITY_ROBERTS;
+  0.0030   D+   pi0        mu-   anti-nu_mu          PHOTOS  GOITY_ROBERTS;
+  0.0060   D0   pi+        mu-   anti-nu_mu          PHOTOS  GOITY_ROBERTS;
+
+# b -> u mu- nu (0.0806%)
+
+  # from PDG 2002 with ell nu,  but e and mu taken to be the same
+  0.00018    pi+           mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.00026    rho+          mu-   anti-nu_mu          PHOTOS  ISGW2;
+
+  # sources for those unknown
+  0.000274   a_1+          mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.000170   b_1+          mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.000024   a_0+          mu-   anti-nu_mu          PHOTOS  ISGW2;
+  0.000024   a_2+          mu-   anti-nu_mu          PHOTOS  ISGW2;
+
+Enddecay
+
+End
+
+

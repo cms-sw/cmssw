@@ -1,0 +1,44 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> a2- pi+  + cc                 #
+#                                                 #
+# Author: Vincenzo Lombardo(Milano)               #
+# Date:                              11 July 2004 #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias mya_2+ a_2+
+Alias mya_2- a_2-
+Alias Myrho0 rho0
+ChargeConj mya_2+ mya_2-
+
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 mya_2- pi+                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_2-
+1.0000   Myrho0 pi-                     TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyB0
+1.0000 mya_2+ pi-                       SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay mya_2+
+1.0000   Myrho0 pi+                     TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myrho0
+1.000  pi+ pi-                          VSS;
+Enddecay
+#
+End              
+

@@ -1,0 +1,29 @@
+###################################################
+#                                                 #
+# B+ -> pi+ K0S pi0 (non-resonant)   + c.c.       #
+#                                                 #
+# Author: John Back    jback@slac.stanford.edu    #
+# Created: 26/April/00                            #
+#                                                 #
+###################################################
+#
+# Decay table for B + -> pi+ K0S pi0 (non-resonant) 
+# using phase space
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+#
+Decay MyB+
+1.000   pi+ K_S0 pi0         PHSP;
+Enddecay
+#
+Decay MyB-
+1.000  pi- K_S0 pi0          PHSP;
+Enddecay
+#
+End

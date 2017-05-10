@@ -1,0 +1,33 @@
+###################################################
+#                                                 #
+# B+ -> omega pi+ pi0 +cc (omega -> pi+ pi- pi0)  #
+#                                                 #
+# Author:	S. EMERY                          #
+# created:			23/07/03          #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyOm omega
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+Decay MyB+
+1.0000     MyOm pi+ pi0      	PHSP;
+Enddecay
+
+Decay MyB-
+1.0000     MyOm pi- pi0      	PHSP;
+Enddecay
+
+
+Decay MyOm
+1.0000  pi+ pi- pi0             OMEGA_DALITZ;
+Enddecay
+
+End
+

@@ -1,0 +1,21 @@
+############################################
+#  eta_c                                   #
+#    |                                     #
+#    |--> K+ K- pi0                        #
+#                                          #
+# Author: Georges London 26/7/2001         #
+#         london@hep.saclay.cea.fr         #
+############################################
+
+ Alias MyPi0 pi0
+ 
+Decay eta_c
+ 1.00  K+ K- MyPi0               PHSP;
+Enddecay
+
+ Decay MyPi0
+ 1.0000  gamma gamma              PHSP;
+ Enddecay
+
+End
+

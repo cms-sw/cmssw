@@ -1,0 +1,697 @@
+#######################################################################################
+#
+# Author:  Joe Izen, University of Texas at Dallas
+# Created: Jun 21, 2002                Copyright 2002
+#
+# Produce e+e- -> ISRgamma CharmBaryon D(*) neutron pi0 + CC using VectorISR with
+# effective Ecm of     5.1 5.2 5.3 5.4 5.5 5.6 5.7 5.8 5.9 
+#                  6.0 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9
+#                  7.0 
+#
+# Charm Baryons may be Lambda_c+, 
+#                      Sigma_c0,  Sigma_c+,  Sigma_c++,
+#                      Sigma_c*0, Sigma_c*+, Sigma_c*++,
+#
+# Need 5.3 GeV to make Lc  D  n pi0
+# Need 5.4 GeV to make Lc  D* n pi0
+# Need 5.4 GeV to make Sc  D  n pi0
+# Need 5.6 GeV to make Sc  D* n pi0
+# Need 5.5 GeV to make Sc* D  n pi0
+# Need 5.7 GeV to make Sc* D* n pi0
+#
+# All Sigma_c and Sigma_c* -> pi Lamda_c 100%
+# In SP4, all Sigma_c and Sigma_c* have 0 width.
+# The Lambda_c is forced to pKpi
+# D0 is forced to Kpi
+# D+ is forced to Kpipi
+#
+# For SP4:
+# Anticipates a bug in EvtGen decay of forced Lambda(1520)0 decay (see note below)
+# This should be resolved for SP5, so this file will need to be rewritten
+# Be sure to run with a generator level filter such as 
+# ProdDecayFiles/one_Lc_pKpi_SP4.tcl,  two_Lc_pKpi_SP4.tcl,  zero_Lc_pKpi_SP4.tcl
+# which will catch phony decays created to avoid an assert.
+#
+###############################################################################
+#
+#
+########
+
+#Alias of all redefinable vector particles with no max_Dm in PDT/pdt.table
+Alias CbaryonDnpi0_1  eta_b2(2D)
+Alias CbaryonDnpi0_2  Upsilon(5S)
+Alias CbaryonDnpi0_3  chi_b1(2P)
+Alias CbaryonDnpi0_4  chi_b1(3P)
+Alias CbaryonDnpi0_5  Upsilon_1(1D)
+Alias CbaryonDnpi0_6  Upsilon_1(2D)
+Alias CbaryonDnpi0_7  chi_b1
+Alias CbaryonDnpi0_8  Z'0
+Alias CbaryonDnpi0_9  Z''0
+Alias CbaryonDnpi0_10 R0
+Alias CbaryonDnpi0_11 anti-R0
+Alias CbaryonDnpi0_12 D*(2S)0
+Alias CbaryonDnpi0_13 anti-D*(2S)0
+Alias CbaryonDnpi0_14 B*0
+Alias CbaryonDnpi0_15 anti-B*0
+Alias CbaryonDnpi0_16 B_s*0
+Alias CbaryonDnpi0_17 anti-B_s*0
+Alias CbaryonDnpi0_18 h_b
+Alias CbaryonDnpi0_19 h_b(2P)
+Alias CbaryonDnpi0_20 h_b(3P)
+Alias CbaryonDnpi0_21 eta_b2(1D)
+
+Alias Lambda_c+_pKpi Lambda_c+  
+Alias anti-Lambda_c-_pKpi anti-Lambda_c-  
+ChargeConj Lambda_c+_pKpi anti-Lambda_c-_pKpi
+
+Alias Sigma_c0_pKpi Sigma_c0  
+Alias anti-Sigma_c0_pKpi anti-Sigma_c0  
+ChargeConj Sigma_c0_pKpi anti-Sigma_c0_pKpi
+
+Alias Sigma_c+_pKpi Sigma_c+  
+Alias anti-Sigma_c-_pKpi anti-Sigma_c-  
+ChargeConj Sigma_c+_pKpi anti-Sigma_c-_pKpi
+
+Alias Sigma_c++_pKpi Sigma_c++  
+Alias anti-Sigma_c--_pKpi anti-Sigma_c--  
+ChargeConj Sigma_c++_pKpi anti-Sigma_c--_pKpi
+
+Alias Sigma_c*0_pKpi Sigma_c*0  
+Alias anti-Sigma_c*0_pKpi anti-Sigma_c*0  
+ChargeConj Sigma_c*0_pKpi anti-Sigma_c*0_pKpi
+
+Alias Sigma_c*+_pKpi Sigma_c*+  
+Alias anti-Sigma_c*-_pKpi anti-Sigma_c*-  
+ChargeConj Sigma_c*+_pKpi anti-Sigma_c*-_pKpi
+
+Alias Sigma_c*++_pKpi Sigma_c*++  
+Alias anti-Sigma_c*--_pKpi anti-Sigma_c*--  
+ChargeConj Sigma_c*++_pKpi anti-Sigma_c*--_pKpi
+
+Alias K*0_Kpi      K*0
+Alias anti-K*0_Kpi anti-K*0
+ChargeConj  K*0_Kpi  anti-K*0_Kpi
+
+Alias Lambda(1520)0_pK Lambda(1520)0
+Alias anti-Lambda(1520)0_pK anti-Lambda(1520)0
+ChargeConj  Lambda(1520)0_pK anti-Lambda(1520)0_pK
+
+# Change particle masses and widths 
+Particle CbaryonDnpi0_1         5.0 0.
+Particle CbaryonDnpi0_2         5.1 0.
+Particle CbaryonDnpi0_3         5.2 0.
+Particle CbaryonDnpi0_4         5.3 0.
+Particle CbaryonDnpi0_5         5.4 0.
+Particle CbaryonDnpi0_6         5.5 0.
+Particle CbaryonDnpi0_7         5.6 0.
+Particle CbaryonDnpi0_8         5.7 0.
+Particle CbaryonDnpi0_9         5.8 0.
+Particle CbaryonDnpi0_10        5.9 0.
+Particle CbaryonDnpi0_11        6.0 0.
+Particle CbaryonDnpi0_12        6.1 0.
+Particle CbaryonDnpi0_13        6.2 0.
+Particle CbaryonDnpi0_14        6.3 0.
+Particle CbaryonDnpi0_15        6.4 0.
+Particle CbaryonDnpi0_16        6.5 0.
+Particle CbaryonDnpi0_17        6.6 0.
+Particle CbaryonDnpi0_18        6.7 0.
+Particle CbaryonDnpi0_19        6.8 0.
+Particle CbaryonDnpi0_20        6.9 0.
+Particle CbaryonDnpi0_21        7.0 0.
+
+#Decay of JP = 1- to 2 spin 1/2, P = + states must have orb ang L=1 to conserve parity
+
+# 5.0 GeV
+Decay CbaryonDnpi0_1
+Enddecay
+
+# 5.1 GeV
+Decay CbaryonDnpi0_2
+Enddecay
+
+# 5.2 GeV
+Decay CbaryonDnpi0_3
+Enddecay
+
+# 5.3 GeV
+Decay CbaryonDnpi0_4
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+Enddecay
+
+# 5.4 GeV
+Decay CbaryonDnpi0_5
+1. Sigma_c+_pKpi  D-       anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+# 5.5 GeV
+Decay CbaryonDnpi0_6
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+# 5.6 GeV
+Decay CbaryonDnpi0_7
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_8
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_9
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_10
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_11
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_12
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_13
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_14
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_15
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_16
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_17
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_18
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_19
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_20
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+Decay CbaryonDnpi0_21
+1. Sigma_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Sigma_c+_pKpi  D*- anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D-  anti-n0 pi0 PHSP;
+1. Sigma_c*+_pKpi D*- anti-n0 pi0 PHSP;
+
+1. Sigma_c0_pKpi  anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c0_pKpi  anti-D*0 anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D0  anti-n0 pi0 PHSP;
+1. Sigma_c*0_pKpi anti-D*0 anti-n0 pi0 PHSP;
+
+1. Lambda_c+_pKpi  D-  anti-n0 pi0 PHSP;
+1. Lambda_c+_pKpi  D*- anti-n0 pi0 PHSP;
+
+1. anti-Sigma_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Sigma_c-_pKpi  D*+ n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D+  n0 pi0 PHSP;
+1. anti-Sigma_c*-_pKpi D*+ n0 pi0 PHSP;
+
+1. anti-Sigma_c0_pKpi  D0  n0 pi0 PHSP;
+1. anti-Sigma_c0_pKpi  D*0 n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D0  n0 pi0 PHSP;
+1. anti-Sigma_c*0_pKpi D*0 n0 pi0 PHSP;
+
+1. anti-Lambda_c-_pKpi  D+  n0 pi0 PHSP;
+1. anti-Lambda_c-_pKpi  D*+ n0 pi0 PHSP;
+Enddecay
+
+
+
+# Forced decays of Lc daughters leading to a pKpi final state
+
+Decay K*0_Kpi
+0.6657      K+  pi-                        VSS;
+Enddecay
+CDecay anti-K*0_Kpi
+
+# There is an EvtGen bug which will crash pK if the 1520 mass is too low
+# give it an excape valve mode which is removed by an event level filter
+# The excape valve is used for (2.82 +/- 0.01)% of the time
+Decay Lambda(1520)0_pK
+0.23   p+     K-    PHSP;
+0.000001   nu_e nu_tau    PHSP;
+Enddecay
+CDecay anti-Lambda(1520)0_pK
+
+# use PDG 2000 BF's  Unfortunately, JETSET decays not allowed for aliased particles as of SP4
+Decay Lambda_c+_pKpi
+# force anti-K*0 -> K- pi+ 
+0.016          p+      anti-K*0_Kpi  PHSP;
+# Delta -> p+ pi 100%
+0.0086         Delta++         K-   PHSP;
+# force Lambda(1520)0 -> p+ K-  
+# SP4: Lambda(1520) decay will abort 2.82% of time so increase BF to compensate
+#Use a generator level filter to remove the aborts which have nu_tau
+#0.0059         Lambda(1520)0_pK         pi+  PHSP;
+0.00607         Lambda(1520)0_pK         pi+  PHSP;
+0.028          p+ K- pi+  PHSP;
+Enddecay
+CDecay anti-Lambda_c-_pKpi 
+
+Decay Sigma_c0_pKpi
+1.0000    Lambda_c+_pKpi  pi-                     PHSP;
+Enddecay
+CDecay anti-Sigma_c0_pKpi 
+
+Decay Sigma_c+_pKpi
+1.0000    Lambda_c+_pKpi  pi0                     PHSP;
+Enddecay
+CDecay anti-Sigma_c-_pKpi 
+
+Decay Sigma_c++_pKpi
+1.0000    Lambda_c+_pKpi  pi+                     PHSP;
+Enddecay
+CDecay anti-Sigma_c--_pKpi 
+
+Decay Sigma_c*0_pKpi
+1.0000    Lambda_c+_pKpi  pi-                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*0_pKpi 
+
+Decay Sigma_c*+_pKpi
+1.0000    Lambda_c+_pKpi  pi0                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*-_pKpi 
+
+Decay Sigma_c*++_pKpi
+1.0000    Lambda_c+_pKpi  pi+                     PHSP;
+Enddecay
+CDecay anti-Sigma_c*--_pKpi 
+
+Decay D0
+1.0000    K-  pi+                     PHSP;
+Enddecay
+CDecay anti-D0
+
+Decay D+
+# the Dalitz mode below includes K*bar(892)0 pi+, 
+# K*bar(1430)0 pi+, and K*bar(1680)0 pi+ resonances.
+0.0900   K-  pi+  pi+                    D_DALITZ;
+Enddecay
+CDecay D-
+
+Decay vpho
+#1.  CbaryonDnpi0_1  gamma VECTORISR 0.999999 0.999999; Below Threshold
+#1.  CbaryonDnpi0_2  gamma VECTORISR 0.999999 0.999999;
+#1.  CbaryonDnpi0_3  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_4  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_5  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_6  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_7  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_8  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_9  gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_10 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_11 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_12 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_13 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_14 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_15 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_16 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_17 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_18 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_19 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_20 gamma VECTORISR 0.999999 0.999999;
+1.  CbaryonDnpi0_21 gamma VECTORISR 0.999999 0.999999;
+Enddecay
+
+End
+
+

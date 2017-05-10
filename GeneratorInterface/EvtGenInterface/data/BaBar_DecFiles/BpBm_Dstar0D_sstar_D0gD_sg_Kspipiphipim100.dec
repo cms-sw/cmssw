@@ -1,0 +1,155 @@
+############################################################
+#                                                          #
+# Exclusive D(*)D(*) decay.dec                             #
+##
+# D*D* . from B+ B- for SP5                                #
+#                                                          #
+# Decay: B+ -> D(*)0         D*+           B- -> X         #
+#              |             |                             #
+#              |->recon-     |-> recon-                    #
+#                 structible     structible                #
+#                 modes          modes                     #
+# + cc                                                     #
+#                                                          #
+#         T. Piatenko            03/20/03  (created)        #
+############################################################
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD*+_1     D*+
+Alias MyD*-_1     D*-
+Alias MyD*+_2     D*+
+Alias MyD*-_2     D*-
+Alias MyD*0_1      D*0
+Alias Myanti-D*0_1 anti-D*0 
+Alias MyD*0_2      D*0
+Alias Myanti-D*0_2 anti-D*0 
+Alias MyD0_1      D0
+Alias Myanti-D0_1   anti-D0
+Alias MyD0_2      D0
+Alias Myanti-D0_2   anti-D0
+Alias MyD+_1      D+
+Alias MyD-_1      D-
+Alias MyD+_2      D+
+Alias MyD-_2      D-
+Alias MyD_s*+_1     D_s*+
+Alias MyD_s*-_1     D_s*-
+Alias MyD_s*+_2     D_s*+
+Alias MyD_s*-_2     D_s*-
+Alias MyD_s+_1     D_s+
+Alias MyD_s-_1     D_s-
+Alias MyD_s+_2     D_s+
+Alias MyD_s-_2     D_s-
+#
+Alias Mya_1+ a_1+
+Alias Mya_1- a_1-
+Alias MyK*0  K*0
+Alias Myanti-K*0 anti-K*0
+Alias MyK_1- K_1-
+Alias MyK_1+ K_1+
+#
+Alias My2ndK*0B anti-K*0
+Alias My2ndK_1- K_1-
+Alias My2ndK*0  K*0
+Alias My2ndK_1+ K_1+
+Alias Myphi     phi
+Alias Myeta     eta
+Alias Myomega   omega
+Alias MyK_10    K_10
+Alias MyK_10B   anti-K_10
+Alias MyK*-     K*-
+Alias MyK*+     K*+
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+Alias MyK_S0    K_S0
+#
+
+#
+ChargeConj MyB+ MyB-
+ChargeConj MyD*+_1 MyD*-_1
+ChargeConj MyD*+_2 MyD*-_2
+ChargeConj MyD*0_1  Myanti-D*0_1 
+ChargeConj MyD*0_2  Myanti-D*0_2 
+
+ChargeConj MyD0_1 Myanti-D0_1
+ChargeConj MyD0_2 Myanti-D0_2
+ChargeConj MyD+_1 MyD-_1
+ChargeConj MyD+_2 MyD-_2
+
+ChargeConj MyD_s*+_1 MyD_s*-_1
+ChargeConj MyD_s*+_2 MyD_s*-_2
+ChargeConj MyD_s+_1 MyD_s-_1
+ChargeConj MyD_s+_2 MyD_s-_2
+
+ChargeConj Mya_1- Mya_1+
+ChargeConj Myanti-K*0 MyK*0
+ChargeConj MyK_1- MyK_1+
+ChargeConj MyK0 Myanti-K0
+
+ChargeConj Myphi Myphi
+#
+#
+Decay Upsilon(4S)
+0.5 MyB+  B-                     VSS;
+0.5 MyB-  B+                     VSS;
+Enddecay
+#
+#
+Decay MyB+
+1.000  MyD_s*+_2   Myanti-D*0_1       SVV_HELAMP 1.0 0.0 0.0 0.0 0.0 0.0 ;
+Enddecay 
+#
+
+#
+CDecay MyB-
+#
+#
+Decay MyD*0_1
+1.0000  MyD0_1   gamma                    VSP_PWAVE;
+Enddecay
+
+CDecay Myanti-D*0_1 
+#
+#
+Decay MyD0_1 
+1.0000   Myanti-K0  pi+ pi-                     D_DALITZ;
+Enddecay
+
+CDecay Myanti-D0_1 
+#
+
+#
+Decay MyD_s*+_2
+1.0000  MyD_s+_2   gamma                    VSP_PWAVE;
+Enddecay
+
+CDecay MyD_s*-_2 
+#
+#
+Decay MyD_s+_2
+1.0000   Myphi pi+                        SVS;
+Enddecay
+#
+CDecay MyD_s-_2 
+
+#
+
+#
+Decay MyK0
+1.0000  MyK_S0                         PHSP;
+Enddecay
+
+CDecay Myanti-K0
+
+Decay MyK_S0
+1.0000   pi+ pi-                          PHSP;
+Enddecay
+#
+Decay Myphi
+1.0000   K+ K-                     VSS;
+Enddecay
+
+
+End

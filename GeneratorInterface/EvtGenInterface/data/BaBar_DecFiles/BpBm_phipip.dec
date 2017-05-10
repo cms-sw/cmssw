@@ -1,0 +1,35 @@
+############################################################
+#                                                          #
+# Decay:      B- -> phi      K-,        B+ -> X            #
+#                   |-> K+K-                               #
+#                                                          #
+# + cc				                           #
+#                                                          #
+# Author: Paul C. Bloom                                    #	
+# e-mail: bloom@slac.stanford.edu                          #
+# Created:                   2000/08/02                    #
+############################################################
+
+Alias MyPhi phi
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyPhi  pi+               SVS;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi  pi-               SVS;
+Enddecay 
+#
+Decay MyPhi
+1.0000  K+ K-			VSS;			
+Enddecay
+#
+End

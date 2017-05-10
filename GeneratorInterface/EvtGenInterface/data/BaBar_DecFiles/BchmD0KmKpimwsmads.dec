@@ -1,0 +1,110 @@
+#
+#  $Id: Bch-D0K-Kpi-ws-ads.dec,v 1.1 2003/10/30 23:16:33 owen Exp $
+#
+#  O. Long / UCSB
+#
+#  This decay file generates the two decay chains (B- CF with D0 DCS
+#  and B- DCS with D0bar CF) independently, so no interference between
+#  the amplitudes (i.e. no direct CPV).
+#
+#  In the end, all that will be seen is B- --> (K+pi-) K- anyway, so
+#  you won't be able to distinguish the different decay chains (except
+#  with MC truth), which is the whole point of all of this.
+#
+#  Assumed amplitudes
+#
+#    B-  -->   D0    K- (CF)    =   A lambda^3
+#    B-  -->   D0bar K- (DCS)   =   A lambda^3 |rho-ieta| (1/3)
+#                               =   A lambda^3 Ru / 3
+#
+#        where 1/3 is naive color suppression factor.
+#
+#
+#    D0  -->   K- pi+   (CF)    =   1
+#    D0  -->   K+ pi-   (DCS)   =   lambda^2
+#
+#
+#    A(B- --> D0   (K+pi-) K-)  =   A lambda^3  lambda^2
+#    A(B- --> D0bar(K+pi-) K-)  =   A lambda^3  Ru / 3
+#
+#
+#  Ratio of B- branching factions
+#
+#    BF(D0bar K-) / BF(D0 K-)   =  ( Ru / 3 )^2
+#                               =  ( 0.4 / 3 )^2
+#                               =  0.018
+#
+#
+#  Ratio of D0 branching fractions
+#
+#    BF(K+pi-) / BF(K-pi+)      =   lambda^4
+#                               =   0.0023
+#
+#    measured value             =   ( 0.000148 / 0.0038 )
+#                               =   0.0039
+#
+#
+#  This means the relative rates will be
+#
+#   BR( B- --> CF, D0 --> DCS ) / BR( B- --> DCS, D0bar --> CF ) =
+#   BR( B- --> D0(K+pi-) K- )   / BR( B- --> D0bar(K+pi-) K- )   =   0.0039 / 0.018
+#                                                                =   0.22
+#
+#
+#
+Alias MyB+--CF         B+
+Alias MyB+--DCS        B+
+Alias MyB---CF         B-
+Alias MyB---DCS        B-
+Alias MyD0--CF         D0
+Alias MyD0--DCS        D0
+Alias Myanti-D0--CF    anti-D0
+Alias Myanti-D0--DCS   anti-D0
+#
+#
+# NB: The relative rates in the Upsilon(4S) decays below are for
+#       the WHOLE decay chain, since the whole decay chain is
+#       determined by how the B+/- decays.
+#
+Decay Upsilon(4S)
+0.11 MyB+--CF  B-          VSS;
+0.39 MyB+--DCS B-          VSS;
+0.11 MyB---CF  B+          VSS;
+0.39 MyB---DCS B+          VSS;
+Enddecay
+#
+#
+Decay MyB---CF
+1.0    K- MyD0--DCS         PHSP;
+Enddecay
+#
+Decay MyB---DCS
+1.0    K- Myanti-D0--CF     PHSP;
+Enddecay
+#
+Decay MyB+--CF
+1.0    K+ Myanti-D0--DCS    PHSP;
+Enddecay
+#
+Decay MyB+--DCS
+1.0    K+ MyD0--CF          PHSP;
+Enddecay
+#
+Decay MyD0--CF
+1.0    K-  pi+              PHSP;
+Enddecay
+#
+Decay MyD0--DCS
+1.0    K+  pi-              PHSP;
+Enddecay
+#
+Decay Myanti-D0--CF
+1.0    K+  pi-              PHSP;
+Enddecay
+#
+Decay Myanti-D0--DCS
+1.0    K-  pi+              PHSP;
+Enddecay
+#
+#
+End

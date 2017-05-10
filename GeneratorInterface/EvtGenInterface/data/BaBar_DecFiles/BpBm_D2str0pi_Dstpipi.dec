@@ -1,0 +1,88 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X    B- ->D2(2460)*0 pi-               #
+#			 |->D*+ pi-		      #
+#                           |-> D0 pi+		      #
+#                               |-> K- pi+            #
+#                               |-> K- pi+ pi0        #
+#                               |-> K- pi+ pi+ pi-    #
+#                               |-> Ks pi+ pi-        #
+#                                    |-> pi+ pi-      #
+#			+CC			      #
+#                                                     #
+# Contacts:                                           #
+# jong@slac.stanford.edu                              #
+# December 2002					      #
+#                                                     #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD_2*0 D_2*0
+Alias MyD*+ D*+
+Alias MyD0  D0
+Alias MyB+  B+
+Alias Myanti-D_2*0 anti-D_2*0
+Alias MyD*- D*-
+Alias Myanti-D0  anti-D0
+Alias MyK0              K0
+Alias Myanti-K0         anti-K0
+Alias MyKs              K_S0
+#
+Decay Upsilon(4S)
+0.50000 B-  MyB+                          VSS;
+0.50000 B+  MyB-                          VSS;
+Enddecay
+#
+Decay MyB+
+1.0000   Myanti-D_2*0   pi+		  STS;
+Enddecay
+#
+Decay MyB-
+1.0000   MyD_2*0   pi- 			  STS;
+Enddecay
+#
+Decay Myanti-D_2*0
+1.0000    MyD*- pi+                        TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD_2*0
+1.0000    MyD*+ pi-                        TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*-
+1.000    Myanti-D0  pi-                   VSS;
+Enddecay
+#
+Decay MyD*+
+1.000    MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD0
+0.0391   K-  pi+                         PHSP;
+0.1307   K-  pi+  pi0                    D_DALITZ;
+0.0129   K-  pi+  pi+   pi-              PHSP;
+0.0540   Myanti-K0 pi+  pi-              D_DALITZ;
+Enddecay
+#
+Decay Myanti-D0
+0.0391   K+  pi-                         PHSP;
+0.1307   K+  pi-  pi0                    D_DALITZ;
+0.0129   K+  pi-  pi-   pi+              PHSP;
+0.0540   MyK0 pi-  pi+                   D_DALITZ;
+Enddecay
+#
+Decay MyK0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.00    MyKs                            PHSP;
+Enddecay
+#
+Decay MyKs
+1.00   	pi+ pi- 			PHSP;
+Enddecay
+#
+#
+End
+

@@ -1,0 +1,79 @@
+#################################################################
+#                                                   		#
+# Decay: B- -> Dstar0 pi-,    B+ -> X;    + cc                  #
+#              Dstar0 -> D0 gamma                               #
+#              D0                                               #
+#               |                                  		#
+#               `-> eta'  K_S0                       		#
+#                    |      | 					#
+#                    |      `-> pi+ pi-                       	#  	  
+#		     | 						#
+#		     `-> rho0 gamma 				#
+#                         |               			#
+#                         `-> pi+ pi-		      		#
+#								#
+# Author: Steve Schrenk, based on file from                     #
+#         Steve Schrenk based on file from.                     #
+#         Giovanni Marchiori                        		#
+# Date:   29 Aug 2003                                           #
+#################################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+ChargeConj MyD*0 Myanti-D*0
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Alias Myeta'  eta'
+Alias Myrho0  rho0
+Alias MyK_S0  K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                        VSS;
+0.50000 B-  MyB+                        VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 Myanti-D*0 pi+                      SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 MyD*0 pi-                           SVS;
+Enddecay
+#
+#
+Decay MyD*0
+1.000  MyD0   gamma                         VSP_PWAVE;
+Enddecay
+#
+Decay Myanti-D*0
+1.000  Myanti-D0   gamma                    VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+1.000 	MyK_S0 Myeta'  		        PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.000 	MyK_S0 Myeta'                  	PHSP;
+Enddecay
+#
+Decay Myeta'
+1.000 Myrho0 gamma 			SVP_HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myrho0
+1.000  pi+   pi-                     	VSS;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   	PHSP;
+Enddecay
+#
+End

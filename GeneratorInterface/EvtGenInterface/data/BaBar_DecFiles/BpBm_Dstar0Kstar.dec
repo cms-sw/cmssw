@@ -1,0 +1,73 @@
+###################################################
+#                                                 #
+# Decay: B+ -> anti-D*0 K*+,     B- -> X;   + cc  #
+#                                                 #
+# Author: Tania McMahon                           #
+# Date:                    05/30/02               #
+###################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+ChargeConj MyB+ MyB-
+#
+Alias MyD*0 D*0
+Alias Myanti-D*0  anti-D*0
+ChargeConj MyD*0 Myanti-D*0
+#
+Alias MyD0 D0
+Alias Myanti-D0  anti-D0
+ChargeConj MyD0 Myanti-D0
+#
+Alias MyK*+ K*+
+Alias MyK*- K*-
+ChargeConj MyK*+  MyK*-
+#
+Alias MyK_S0   K_S0
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-                          VSS;
+0.50000 B-  MyB+                          VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Myanti-D*0  MyK*+           SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+Decay MyB-
+1.000   MyD*0  MyK*-               SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-D*0
+0.6190  Myanti-D0    pi0                       VSS;
+0.3810  Myanti-D0    gamma                     VSP_PWAVE;
+Enddecay
+#
+Decay MyD*0
+0.6190  MyD0    pi0                       VSS;
+0.3810  MyD0    gamma                     VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+0.0383   K-  pi+                         PHSP;
+0.1390   K-  pi+  pi0                    D_DALITZ;
+0.0749   K-  pi+  pi+   pi-              PHSP;
+Enddecay
+Decay Myanti-D0
+0.0383   K+  pi-                         PHSP;
+0.1390   K+  pi-  pi0                    D_DALITZ;
+0.0749   K+  pi-  pi+   pi-              PHSP;
+Enddecay
+#
+Decay MyK*+
+0.2265      MyK_S0  pi+                        VSS;
+0.3330      K+  pi0                        VSS;
+Enddecay
+Decay MyK*-
+0.2265      MyK_S0   pi-                        VSS;
+0.3330      K-  pi0                        VSS;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                         PHSP;
+Enddecay
+#
+End

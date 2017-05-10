@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# B0 -> rho+  D-                                  #
+#             |                                   #
+#             ----> pi0 e- anti-nu_e              #
+#                                                 #
+# Author:  Richard Sloane                         #
+# Email:   sloane@slac.stanford.edu               #
+# Created: 20 Jan 2003                            #
+#                                                 #
+###################################################
+#
+# Decay table for B0 -> pi0 e- nu_e
+# using Scalar to Vector Scalar model (SVS)
+# forcing D- -> pi0 e- nu_e
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD- D-
+Alias MyD+ D+
+#
+# include B0 B0bar mixing
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000   rho+ MyD-             SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.000   rho- MyD+             SVS;
+Enddecay
+#
+Decay MyD-
+1.000   pi0  e-  anti-nu_e    PHOTOS    ISGW2;
+Enddecay
+#
+Decay MyD+
+1.000   pi0  e+  nu_e         PHOTOS    ISGW2;
+Enddecay
+#
+End

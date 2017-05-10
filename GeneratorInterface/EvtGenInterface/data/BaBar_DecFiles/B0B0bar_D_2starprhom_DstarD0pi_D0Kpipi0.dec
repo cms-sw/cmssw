@@ -1,0 +1,59 @@
+####################################################
+#                                                  #
+# Inclusive B0bar -> D_2*+ rho- decay.dec          #
+#                                                  #
+# Decay:    B0b -> D_2*+ eho-, B0 -> X      +c.c.  #
+#                   |-> D*+ pi0                    #
+#                       |-> D0 pi+                 #
+#                           |-> X                  #
+#                                                  #
+#                                                  #
+#  6 sep 00 Abi Soffer  (IHB AWG)                  #
+####################################################
+#
+Alias Myanti-B0 anti-B0
+Alias MyB0 B0
+Alias MyD_2*+ D_2*+
+Alias MyD_2*- D_2*-
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD0        D0
+Alias Myanti-D0    anti-D0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 MyD_2*- rho+ 			  PHSP;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyD_2*+ rho- 			  PHSP;
+Enddecay
+#
+Decay MyD_2*+
+0.1030    MyD*+ pi0                        TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD_2*-
+0.1030    MyD*- pi0                        TVS_PWAVE  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000 MyD0 pi+                   VSS;
+Enddecay
+#
+Decay MyD*-
+1.0000 Myanti-D0 pi-              VSS;
+Enddecay
+#
+Decay MyD0
+0.1307   K- pi+ pi0             D_DALITZ;
+Enddecay
+#
+Decay Myanti-D0
+0.1307   K+ pi- pi0             D_DALITZ;
+Enddecay
+#
+End

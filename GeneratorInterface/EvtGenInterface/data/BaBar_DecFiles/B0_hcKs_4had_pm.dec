@@ -1,0 +1,50 @@
+############################################################
+#                                                          #
+# Decay:      B0 -> h_c        Ks,        B0bar -> X       #
+#                   |          |                           #
+#                   ->4 mesons ->pi+ pi-                   #
+#                                                          #
+#             + cc                                         #
+#                                                          #
+# Author: S. Tosi        18/06/01                          #
+############################################################
+#
+Define beta 0.34
+Define minusTwoBeta -0.68
+#
+Alias MyB0 B0
+Alias MyAnti-B0 anti-B0
+Alias MyK_S0 K_S0
+Alias MyH_c h_c
+#
+Decay Upsilon(4S)
+  1.0000  B0 anti-B0 MyB0 MyAnti-B0  VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+  1.000  MyH_c MyK_S0        SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyAnti-B0
+  1.000  MyH_c MyK_S0        SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyH_c
+  0.33333  pi+ pi- K+ K-          PHSP;
+  0.33333  K+ K- K+ K-          PHSP;
+  0.33333  pi+ pi- pi+ pi-          PHSP;
+Enddecay 
+# 
+Decay MyK_S0
+  1.00000 pi+ pi-            PHSP;
+Enddecay
+End
+
+
+
+
+
+
+
+
+

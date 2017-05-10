@@ -1,0 +1,36 @@
+########################################################
+#                                                      #
+#  ccbar -> Ds*+ X                                     #
+#            |                                         #
+#            +---> Ds+ gamma                           #
+#                   |                                  #
+#                   +---> phi pi+                      #
+#                          |                           #
+#                          +---> K+ K-                 #
+#                                                      #
+#  Author: Martin Dickopp <dickopp@slac.stanford.edu>  #
+#                                                      #
+########################################################
+#
+Alias myD_s+         D_s+
+Alias myphi          phi
+#
+#
+#
+Decay vpho
+1.0000                           JSCONT 4;
+Enddecay
+#
+Decay D_s*+
+1.0000 myD_s+ gamma              VSP_PWAVE;
+Enddecay
+#
+Decay myD_s+
+1.0000 myphi pi+                 SVS;
+Enddecay
+#
+Decay myphi
+1.0000 K+ K-                     VSS;
+Enddecay
+#
+End

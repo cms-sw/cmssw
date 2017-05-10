@@ -1,0 +1,34 @@
+###################################################
+#                                                 #
+# B- -> rho- mu+ mu-                              #
+#                                                 #
+# + cc                                            #
+#                                                 #
+# Author: Jeffrey Berryhill (berryhil)            #
+# created:                     5/Sep/03           #
+###################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.00     rho+     mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+Decay MyB-
+1.00     rho-     mu+  mu-    PHOTOS BTOSLLBALL;
+Enddecay
+#
+#
+End
+
+
+
+
+
+

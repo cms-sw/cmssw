@@ -1,0 +1,26 @@
+#######################################################
+#                                                     #
+# Decay: B-->ppbarpi-     B+->X                       #
+# +cc                                                 #
+#                                                     #
+# Author: Tetiana Hrynova                             #
+# Created:                  30 June 2003              #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+#
+Decay Upsilon(4S)
+0.500   B+       MyB-                        VSS;
+0.500   B-       MyB+                        VSS;
+Enddecay
+#
+Decay MyB-
+1.000   p+ anti-p-  pi-                PHSP;
+Enddecay
+#
+Decay MyB+
+1.000   p+ anti-p-  pi+                PHSP;
+Enddecay
+#
+End

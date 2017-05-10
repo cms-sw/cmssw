@@ -1,0 +1,48 @@
+# FILE:  Lambda_c+_pKpi.dec
+# PURPOSE:  force Lambda_c to decay to pKpi using Phase Space only 
+#           (no resonances)
+#           Also make Upsilon decay to only B pairs without mixing,
+#           add make the continuum virtual photon (vpho) go to ccbar
+#           (quark #4).
+#
+#   This was meant to be used in either continuum or Upsilon(4S)
+#   generation to study the plain phase space of the Lambda_c
+#   decay to p K pi.  Since Lambda_c are not produced in uds,
+#   only charm quarks need to be produced from continuum.
+#
+#   Only one Lambda_c per event was wanted, since all decays forced to pKpi,
+#   and it is unlikely that one ever wanted events with 2 Lambda_c, both
+#   going to p K pi. Hence so no mixing was allowed.
+#
+#   The filter then can ask for a Lambda_c+ or an anti-Lambda_c-.  If
+#   mixing was allowed, then you would get events with 2 Lambda_c+s
+#   if one B mixed and both Bs decayed to Lambda_c.  
+#
+# AUTHOR: Chris Roat croat@stanford.edu
+
+#
+# Decay 4S with no mixing, equal amounts of B+B- and B0B0bar
+#
+Decay Upsilon(4S)
+0.50000	B+	B-	VSS;
+0.50000	B0	anti-B0	VSS;
+Enddecay
+
+#
+# Force the vpho fragmentation to produce a ccbar pair
+#
+Decay vpho
+1.0	JSCONT	4;
+Enddecay
+
+#
+# Force all Lambda_c decays to p K pi, using phase space
+# 
+
+Decay Lambda_c+
+1.000	p+	K-	pi+	PHSP;
+Enddecay
+
+CDecay anti-Lambda_c-
+
+End

@@ -1,0 +1,47 @@
+############################################################
+#                                                          #
+# Decay: B- -> X3872        K-,       B+ -> X              #
+#                |-> Jpsi gamma                            #
+#                                                          #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author:   D. Bernard                                     #
+# Created:  Thu Feb 26 MET 2004                            #
+#                                                          #
+############################################################
+#
+#
+Particle dummy00_1 3.872 0.0
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyX dummy00_1
+Alias MyJpsi J/psi
+#
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyX K+               PHSP;   
+Enddecay 
+#
+Decay MyB-
+1.0000  MyX K-               PHSP;   
+Enddecay 
+
+Decay MyX
+1.0    gamma MyJpsi                       PHSP; 
+Enddecay 
+
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+End
+
+
+

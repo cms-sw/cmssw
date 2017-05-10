@@ -1,0 +1,39 @@
+###################################################
+#                                                 #
+# Decay: B+ -> a_00   K+ + cc                     #
+#               |                                 #
+#               |                                 #
+#                --------> eta pi0 -> 3pi pi0     #  
+#                                                 #
+# Author: Paul C. Bloom                           #
+# Date:                    26 December 2002       #
+###################################################
+
+Alias MyB+ B+
+Alias MyB- B-
+Alias Mya_00 a_00
+Alias Myeta eta
+
+Decay Upsilon(4S)
+0.500 MyB+ B-                VSS;
+0.500 MyB- B+                VSS;
+Enddecay
+
+Decay MyB+
+1.000  Mya_00 K+          PHSP;
+Enddecay
+
+Decay MyB-
+1.000  Mya_00 K-          PHSP;
+Enddecay
+
+Decay Mya_00    
+1.0000 Myeta pi0             PHSP;
+Enddecay 
+
+Decay Myeta
+1.0000      pi+ pi- pi0     ETA_DALITZ;
+Enddecay
+
+End
+

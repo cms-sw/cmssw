@@ -1,0 +1,32 @@
+
+####################################################
+#                                                  #
+# Inclusive D*pi decay.dec #2                      #
+#                                                  #
+# D*pi      from B+B- for SP2                      #
+#                                                  #
+# Decay: B+ -> D*0(2007) pi+, B- -> X   +c.c.      #
+#               |-> X                              #
+#                                                  #
+# 5 Feb 99                                         #
+# Philip Hart (IHB AWG)                            #
+####################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 anti-D*0 pi+         SVS;
+Enddecay
+#
+Decay MyB-
+1.0000 D*0 pi-              SVS;
+Enddecay
+#
+End
+

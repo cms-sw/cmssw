@@ -1,0 +1,15 @@
+############################################
+#  eta_c                                   #
+#    |                                     #
+#    |--> p+ anti-p-                       #
+#                                          #
+# Author: Georges London 26/7/2001         #
+#         london@hep.saclay.cea.fr         #
+############################################
+
+Decay eta_c
+ 1.00  p+ anti-p-                PHSP;
+Enddecay
+
+End
+

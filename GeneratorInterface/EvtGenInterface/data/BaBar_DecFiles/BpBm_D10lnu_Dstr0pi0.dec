@@ -1,0 +1,103 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X      B- -> D** l nu                  #
+#                                                     #
+# with D**                                            #
+#    D_10    ->  D*0 pi0                              #
+#                                                     #
+# with D*0 -> D0 pi0                                  #
+#                                                     #
+# with D0 -> K- pi+                                   #
+#                                                     #
+# with l = e or mu                                    #
+#                                                     #
+#                                                     #
+#   + CC                                              #
+#                                                     #
+#                                                     #
+# Author: Armin Hauke                                 #
+#                                                     #
+# Created:                  11/Dec/01                 #
+# Mail: hauke@SLAC.STANFORD.EDU                       #
+#######################################################
+#
+#
+Alias myB-          B-
+Alias myB+          B+
+#
+Alias myD_10        D_10 
+Alias myanti-D_10   anti-D_10 
+#
+Alias myanti-D*0    anti-D*0
+Alias myD*0         D*0
+#
+Alias myanti-D0     anti-D0
+Alias myD0          D0
+#
+
+
+#
+#  Y
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+
+
+#
+#  B
+#
+Decay myB+
+0.5000   myanti-D_10         e+    nu_e         PHOTOS  ISGW2;
+0.5000   myanti-D_10         mu+   nu_mu        PHOTOS  ISGW2;
+Enddecay
+#
+Decay myB-
+0.5000   myD_10         e-    anti-nu_e         PHOTOS  ISGW2;
+0.5000   myD_10         mu-   anti-nu_mu        PHOTOS  ISGW2;
+Enddecay
+
+
+
+#
+#   D**
+#
+Decay myD_10
+1.0000    myD*0 pi0                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay myanti-D_10
+1.0000    myanti-D*0 pi0                   VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+
+
+
+#
+#   D*  -> D0 pi0
+#
+
+Decay myD*0
+1.0000    myD0  pi0                        VSS;
+Enddecay
+Decay myanti-D*0
+1.0000    myanti-D0  pi0                   VSS;
+Enddecay
+
+
+
+#
+#  D Meson
+#
+Decay myD0
+1.0000   K-  pi+                         PHSP;
+Enddecay
+Decay myanti-D0
+1.0000   K+  pi-                         PHSP;
+Enddecay
+
+
+
+
+End

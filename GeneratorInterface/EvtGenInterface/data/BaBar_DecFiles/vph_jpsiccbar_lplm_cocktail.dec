@@ -1,0 +1,56 @@
+#############################################################################
+#								   	    #
+#     vpho -> J/psi eta_c(2S)						    #
+#          -> J/psi eta_c						    #	
+#          -> J/psi chi_c0						    #	
+#          -> J/psi chi_c1						    #
+#          -> J/psi chi_c2						    #
+#                                          williamg@utdallas.edu	    #
+#                                                                           #
+# --Shuwei YE, July-24, 2003                                                #
+#      comment out the JETSET mode of eta_c(2S) because JETSET does not it  #
+#                                                                           #
+#############################################################################
+
+
+Decay vpho 
+0.200 J/psi eta_c(2S)                      PARTWAVE 0.0 0.0 1.0 0.0 0.0 0.0 ;
+0.200 J/psi eta_c                          PARTWAVE 0.0 0.0 1.0 0.0 0.0 0.0 ;
+0.200 J/psi chi_c0			   PHSP;
+0.200 J/psi chi_c1                         PHSP;
+0.200 J/psi chi_c2                         PHSP;	
+
+Enddecay
+
+Decay J/psi
+0.500 e+ e- 				   VLL;
+0.500 mu+ mu- 				   VLL;
+Enddecay
+
+Decay eta_c(2S)				
+ 0.0012    p+  anti-p-                    PHSP;
+ 0.04 pi+ pi- eta_c                       PHSP;
+ 0.02 pi0 pi0 eta_c                       PHSP;
+ 0.0071    phi phi                        PHSP;
+ 0.0087    rho0 rho0                      PHSP;
+ 0.0173    rho+ rho-                      PHSP;
+ 0.0120    pi+ pi- pi+ pi-                PHSP;
+ 0.0210    K+  K-  K+ K-                  PHSP;
+ 0.0200    K+  K-  pi+ pi-                PHSP;
+ 0.0327    eta  pi+ pi-                   PHSP;
+ 0.0163    eta  pi0 pi0                   PHSP;
+ 0.0273    eta' pi+ pi-                   PHSP;
+ 0.0137    eta' pi0 pi0                   PHSP;
+ 0.0092    pi0  K+  K-                    PHSP;
+ 0.0184    K+ anti-K0  pi-                PHSP;
+ 0.0184    K- K0 pi+                      PHSP;
+ 0.0092    K0 anti-K0 pi0                 PHSP;
+ 0.0043    K*+ K*-                        PHSP;
+ 0.0042    K*0 anti-K*0                   PHSP;
+ 0.0100    K*0 K- pi+                     PHSP;
+ 0.0100    anti-K*0 K+ pi-                PHSP;
+# 0.7390    rndmflav      anti-rndmflav   JETSET         12;
+# !! JETSET doesn't know eta_c(2S)
+Enddecay
+
+End

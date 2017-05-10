@@ -1,0 +1,135 @@
+# Author: 	Alexei Dvoretskii
+# Created:	12 June 2003
+#
+# Upsilon(4S) -> B+ B-
+#                |  |-> generic
+#                |
+#                |-> K+ pi+ K- 
+#
+# charge conjugation assumed 
+#
+# The decay into the K+ pi+ K- final state proceeds
+# via multiple interfering subchannels. They are summarized in the 
+# table below. The contribution of each channel is roughly proportional 
+# to magnitude squared of the complex coefficient for that channel times 
+# the integral of the amplitude squared term.
+#
+#SCAN 10000 4.579823
+#Total: 272.893283
+#   Channel        I      |c|  |c|^2*I    Fract
+#        NR   320.74     0.50    80.19     0.28
+#       phi     4.55     5.00   113.84     0.40
+#       K*0    38.97     1.00    38.97     0.14
+#     K_0*0   151.71     0.30    13.65     0.05
+#     K_2*0    16.03     1.00    16.03     0.06
+#     K''*0    24.79     1.00    24.79     0.09
+
+Alias MyB+ B+
+Alias MyB- B-
+
+Decay Upsilon(4S)
+0.5 MyB+ B-	VSS;
+0.5 MyB- B+	VSS;
+Enddecay
+
+
+Decay MyB+
+1.0 K+ pi+ K- PTO3P       
+
+	MAXPDF 5.7
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# KK RESONANCES	
+        
+	AMPLITUDE	RESONANCE	CA	phi	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	0.0
+
+	AMPLITUDE	RESONANCE	CA	f'_2	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+
+	# KPI RESONANCES
+
+        AMPLITUDE	RESONANCE	BC	K*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+        AMPLITUDE	RESONANCE	BC	K_0*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	0.3	0.0
+
+        AMPLITUDE	RESONANCE	BC	K_2*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+        AMPLITUDE	RESONANCE	BC	K''*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+	;
+
+Enddecay
+
+
+Decay MyB-
+1.0 K- pi- K+ PTO3P       
+
+	MAXPDF 5.7
+	#SCANPDF 10000 
+
+	# Non-resonant
+	AMPLITUDE	PHASESPACE	
+	COEFFICIENT 	POLAR_RAD	0.5	0.0
+
+	# KK RESONANCES	
+        
+	AMPLITUDE	RESONANCE	CA	phi	
+	ANGULAR		BC
+	TYPE		NBW
+	COEFFICIENT 	POLAR_RAD	5.0 	0.0
+
+	AMPLITUDE	RESONANCE	CA	f'_2	
+	ANGULAR		BC
+	TYPE		RBW_ZEMACH
+	COEFFICIENT 	POLAR_RAD	1.0 	0.0
+
+
+	# KPI RESONANCES
+
+        AMPLITUDE	RESONANCE	BC	K*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+        AMPLITUDE	RESONANCE	BC	K_0*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	0.3	0.0
+
+        AMPLITUDE	RESONANCE	BC	K_2*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+        AMPLITUDE	RESONANCE	BC	K''*0
+	ANGULAR		CA	
+	TYPE		RBW_ZEMACH
+	COEFFICIENT	POLAR_DEG	1.0	0.0
+
+	;
+
+Enddecay
+
+End

@@ -1,0 +1,38 @@
+############################################################
+#                                                          #
+# Decay:      B0    -> a1+ rho- -> (rho+ pi0)(rho-)        #
+#             B0bar -> generic                       +cc   #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  07/06/2003                                     #
+#                                                          #
+############################################################
+#
+Alias MyB0 B0
+Alias MyB0bar anti-B0
+Alias mya_1+ a_1+
+Alias mya_1- a_1-
+ChargeConj mya_1+ mya_1-
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0bar VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 mya_1+ rho-         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay MyB0bar
+1.0000 mya_1- rho+         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay mya_1+
+1.0000   rho+ pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay mya_1-
+1.0000   rho- pi0                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End 

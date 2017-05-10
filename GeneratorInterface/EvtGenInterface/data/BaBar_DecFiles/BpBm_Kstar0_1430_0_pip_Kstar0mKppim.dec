@@ -1,0 +1,34 @@
+###############################################################################
+# This is a DECAY.DEC file for the following modes:                           #
+#   Up(4S) -> B-  B+                       + CC                               #
+#             |    |                                                          #
+#             |     -> K*0(1430)0 pi+                                         #
+#             |         |                                                     #
+#              -> X      -> K+ pi-                                            #
+#                                                                             #
+#                                                                             #
+# Mail: keford@slac.stanford.edu					      #
+###############################################################################
+Alias myB+  B+
+Alias myB-  B-
+#
+Decay Upsilon(4S)
+0.50000 B+  myB-                          VSS;
+0.50000 B-  myB+                          VSS;
+Enddecay
+#
+#
+Decay myB+
+1.0000  K_0*0 pi+                     PHSP;
+Enddecay
+Decay myB-
+1.0000  anti-K_0*0 pi-                PHSP;
+Enddecay
+Decay K_0*0 
+1.0000 K+ pi-			      PHSP;
+Enddecay
+Decay anti-K_0*0 
+1.0000 K- pi+			      PHSP;
+Enddecay
+
+End

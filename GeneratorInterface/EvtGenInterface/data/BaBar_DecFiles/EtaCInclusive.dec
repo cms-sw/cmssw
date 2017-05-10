@@ -1,0 +1,34 @@
+############################################
+#  eta_c                                   #
+#    |                                     #
+#    |--> K+ K- K- K+                      #
+#    |                                     #
+#    |--> phi phi --> K+ K- K- K+          #
+#    |                                     #
+#    |--> p+ anti-p-                       #
+#                                          #
+# Author: Gautier Hamel de Monchenault     #
+############################################
+
+Alias MyPhi phi
+ 
+Decay eta_c
+1.00  K+ K- K- K+               PHSP;
+1.00  MyPhi MyPhi               SVV_HELAMP 1.0 0.0 0.0 0.0 -1.0 0.0;
+1.00  p+ anti-p-                PHSP;
+#0.00  K+ pi- K- pi+             PHSP;
+#0.00  pi+ pi- pi+ pi-           PHSP;
+#0.00  MyK_S0 K+ pi-             PHSP;
+#0.00  MyK_S0 K- pi+             PHSP;
+#0.00  K+ K- pi0                 PHSP;
+#0.00  MyEta pi+ pi-             PHSP;
+Enddecay
+
+Decay MyPhi
+1.0000    K+   K-   VSS;
+Enddecay 
+
+End
+
+
+

@@ -1,0 +1,82 @@
+# 
+# Author: Adlene Hicheur (LAPP), Date: Nov,2001
+ 
+# resonant B->eta' K4*(2045) penguin decay 
+
+############################################################################
+Alias MyB0B anti-B0
+Alias MyB0 B0
+Alias MyBplus B+
+Alias MyBminus B-
+############################################################################
+
+############################################################################
+Alias Myetap eta'
+Alias Myeta eta
+############################################################################
+Alias MyKstar4- K_4*-
+Alias MyKstar4+ K_4*+ 
+############################################################################
+Alias MyKstar4_0 K_4*0
+Alias MyantiKstar4_0 anti-K_4*0
+############################################################################
+
+ChargeConj MyKstar4- MyKstar4+
+ChargeConj MyantiKstar4_0  MyKstar4_0
+
+Decay Upsilon(4S)
+
+0.250   MyB0       anti-B0                  VSS;
+0.250   B0       MyB0B                  VSS;
+0.250   MyBplus       B-                       VSS;
+0.250   B+   MyBminus             VSS;
+
+Enddecay
+
+Decay MyB0B
+0.15  MyantiKstar4_0 Myetap PHSP;
+Enddecay
+
+Decay MyB0
+0.1  MyKstar4_0 Myetap PHSP;
+Enddecay
+
+Decay MyBminus
+0.1  MyKstar4- Myetap PHSP;
+Enddecay
+
+Decay MyBplus
+0.1 MyKstar4+ Myetap PHSP;
+Enddecay
+
+Decay MyantiKstar4_0
+0.099 K- pi+   PHSP;
+0.09 anti-K*0 pi+ pi-  PHSP;
+0.07 anti-K*0 pi+ pi- pi0  PHSP;
+
+Enddecay
+CDecay MyKstar4_0
+
+Decay MyKstar4-
+0.099 K- pi0  PHSP;
+0.09 K*- pi+ pi- PHSP;
+0.07 K*- pi+ pi- pi0 PHSP;
+
+Enddecay
+CDecay MyKstar4+
+
+
+Decay Myetap
+
+1. pi+ pi- Myeta   PHSP;
+
+Enddecay
+
+Decay Myeta
+
+1. gamma gamma   PHSP;
+
+Enddecay
+
+
+End

@@ -1,0 +1,38 @@
+##############################################################
+#                                                            #
+# Decay:      B+ -> f_1 K+, f_1(1285) -> K+K-pi0             #
+#             B- -> generic                        +cc       #
+#                                                            #
+# Author: Andrei Gritsan                                     #
+# e-mail: gritsan@slac.stanford.edu                          #
+# Created:  07/30/2001                                       #
+#                                                            #
+##############################################################
+#                                                            #
+#               id  mass/GeV width/GeV max_Dm/GeV  spin      #
+# Meson f_1  20223  1.2822     0.0248  0.05	   1         #
+#                                                            #
+##############################################################
+#
+Alias Myetap f_1
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                       VSS;
+0.500   B+       MyB-                       VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     Myetap  K-                       SVS;
+Enddecay
+#
+Decay MyB+
+1.0000     Myetap  K+                       SVS;
+Enddecay
+#
+Decay Myetap
+1.0000       K+ K- pi0                 PHSP;
+Enddecay
+#
+End

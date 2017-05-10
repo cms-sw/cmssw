@@ -1,0 +1,53 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> J/psi   Omega,         B0 -> X         #
+#                   |-> e+e-   |->pi+pi-pi0                #
+#                   |-> mu+mu- |->pi0 gamma                #
+#                              |->pi+ pi-                  #
+# + cc                                                     #
+#                                                          #
+# Author: J. Blouw                                         #
+# Created:                   19/September/2000             #
+############################################################
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyJ/psi J/psi
+Alias MyOmega omega
+Define beta 0.39
+#Define the transversity amplitudes
+#supposed to be CLEO measurement
+Define Aplus  0.566
+Define Azero  1.02
+Define Aminus 0.4
+#
+Define phAplus  0.0
+Define phAzero  0.0
+Define phAminus 0.0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyJ/psi  MyOmega           SVV_CP beta  dm 1.0 Aplus phAplus Azero phAzero Aminus phAminus;
+Enddecay
+#
+Decay Myanti-B0
+1.0000  MyJ/psi  MyOmega           SVV_CP beta  dm 1.0 Aplus phAplus Azero phAzero Aminus phAminus;
+Enddecay
+#
+Decay MyJ/psi
+0.5000  e+ e-                     PHOTOS VLL;
+0.5000  mu+ mu-                   VLL;
+Enddecay
+#
+Decay MyOmega
+0.8880    pi-  pi+  pi0                  OMEGA_DALITZ;
+0.0850    pi0  gamma                      VSP_PWAVE;
+Enddecay
+#
+End
+
+
+

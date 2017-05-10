@@ -1,0 +1,38 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> a10 rho+ -> (rho+ pi-)(rho+)           #
+#             B- -> generic                          +cc   #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  07/06/2003                                     #
+#                                                          #
+############################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias mya_10 a_10
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.0000 mya_10 rho+         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay MyB-
+1.0000 mya_10 rho-         SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+Decay mya_10
+0.5000   rho- pi+          VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.5000   rho+ pi-          VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+End   
+
+
+
+

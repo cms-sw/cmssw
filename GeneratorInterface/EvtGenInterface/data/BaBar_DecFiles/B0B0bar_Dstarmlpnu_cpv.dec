@@ -1,0 +1,52 @@
+#######################################################
+#                                                     #
+# Decay: B0                  100%cpv                  #
+#      20% |-> D*pi-                                  #
+#      20% |-> D*+rho-                                #
+#      20% |-> D+rho-                                 #
+#      20% |-> D*+a1-                                 #
+#      20% |-> D+a1-                                  #
+#######################################################
+
+
+
+
+Alias myB0 B0
+Alias myD*- D*-
+Alias myD*+ D*+
+ChargeConj myD*- myD*+
+
+Decay Upsilon(4S)
+1.0 myB0 anti-B0 VSS;
+Enddecay
+
+Decay myB0
+
+#D* pi (100% cp viol)(d'=0,7)
+0.2 myD*- pi+ SVS_NONCPEIGEN 1.1 dm 0.5 1. 0. 1.0 0.7;
+
+
+#D* rho decay (100% cp viol)(d'[H+]= -0.15, d'[H0]= -0.1, d'[H-]= -0.2 )(hel.ampl. from hep-ex/0301028)
+0.2 myD*- rho+               SVV_NONCPEIGEN dm beta gamma 0.107 1.42 0.941 0 0.322 0.31  0.107 1.27 0.941 -0.1 0.322 0.11; 
+
+#D rho (100% cp viol)(d'=0,0)
+0.2 rho+ D- SVS_NONCPEIGEN 1.1 dm 0.5 1 0 1. 0.0;
+
+#D* a1(100% cp viol)(d'[H+]= 0.2, d'[H0]= 0.15, d'[H-]= 0.25) 
+0.2 myD*- a_1+               SVV_NONCPEIGEN dm beta gamma 0.336 0.0 0.88 0.0 0.336 0.0   0.336 0.2 0.88 0.15 0.336 0.25 ; 
+
+#D a1 (100% cp viol)(d'=2.5)
+0.2 a_1+  D- SVS_NONCPEIGEN 1.1 dm 0.5 1 0 1. 2.5;
+Enddecay
+
+
+
+Decay myD*-
+1.0 anti-D0 pi- VSS;
+Enddecay
+
+Decay myD*+
+1.0 D0 pi+ VSS;
+Enddecay
+                             
+End

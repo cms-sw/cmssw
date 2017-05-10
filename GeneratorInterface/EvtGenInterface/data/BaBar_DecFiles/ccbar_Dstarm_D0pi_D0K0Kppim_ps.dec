@@ -1,0 +1,43 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> K0s K+ pi-        #
+#                               K0s -> pi+ pi-    #
+# D0 decays via Phase Space                       #
+#                                                 #
+# created: A. Palano 7/11/00                      #
+#          antimo@ba.infn.it                      #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+Alias my-K0 K0
+Alias my-K_S0 K_S0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+# D0 decays via Phase space
+0.005   my-K0  pi-  K+                        PHSP;
+Enddecay
+#
+#
+Decay my-K0
+0.500     my-K_S0                              PHSP;
+Enddecay
+#
+Decay my-K_S0
+0.6861    pi+  pi-                          PHSP;
+Enddecay
+
+End

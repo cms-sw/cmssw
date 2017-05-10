@@ -1,0 +1,33 @@
+#######################################################
+#                                                     #
+# ccbar -> D*+ X                                      #
+#          D*+ -> D0 pi+                              #
+#                 D0 -> K- pi+ eta                    #
+#                              eta -> gamma gamma     #
+# D0 decays through phase space                       #
+#                                                     #
+# created: 09/25/01 - pompili@slac.stanford.edu       #
+#                                                     #
+# 02/06/02: use filter_D0_from_Dstarplus_pstarcut.tcl #
+#######################################################
+#
+Alias my-D0 D0
+Alias my-eta eta
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+#
+Decay D*+
+1.0     my-D0  pi+                        VSS;
+Enddecay
+#
+Decay my-D0
+1.0     K- pi+ my-eta                    PHSP;
+Enddecay
+# 
+Decay my-eta
+1.0     gamma gamma                      PHSP;
+Enddecay
+#         
+End

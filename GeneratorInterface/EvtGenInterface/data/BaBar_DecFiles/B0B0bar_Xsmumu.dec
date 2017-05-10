@@ -1,0 +1,58 @@
+############################################################
+#                                                          #
+# Decay: B0 -> Xsd mu+ mu-,  anti-B0 -> X   +  c.c.        #
+#                                                          #
+#        Xsd is non-resonant (s-bar d) hadronic system     #
+#            fragmented by Jetset                          #
+#                                                          #
+# Author:  Stephane Willocq  (willocq@slac.stanford.edu)   #
+# Created: 30 March 2001                                   #
+############################################################
+#
+# Xsd meson  (s-bar d system, introduced for b->s gamma decays)
+# Set Xsd 3*Charge:
+JetSetPar KCHG(455,1)=0
+# Set Xsd color information:
+JetSetPar KCHG(455,2)=0
+# Set Xsd particle/antiparticle distinction:
+JetSetPar KCHG(455,3)=1
+# Set Xsd mass:
+JetSetPar PMAS(455,1)=1.600
+# Set Xsd width (sigma):
+JetSetPar PMAS(455,2)=0.500
+# Set Xsd truncation:
+JetSetPar PMAS(455,3)=2.000
+# Set Xsd name:
+JetSetPar CHAF(455)=Xsd
+# Set Xsd so it can decay:
+JetSetPar MDCY(455,1)=1
+# Set decay table entry pt for Xsd: 
+JetSetPar MDCY(455,2)=1154
+# Number of decay channels for Xsd:                
+JetSetPar MDCY(455,3)=1
+# Switch on Xsd decay
+JetSetPar MDME(1154,1)=1
+# Phase space decays into hadrons from available quarks
+JetSetPar MDME(1154,2)=11
+# Xsd decays into two quarks a d and an anti-s
+JetSetPar KFDP(1154,1)=-3
+JetSetPar KFDP(1154,2)=1
+
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+
+Decay Upsilon(4S)
+ 1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+
+Decay MyB0
+ 1.0000 Xsd   mu+   mu-    PHOTOS BTOXSLL;
+Enddecay
+
+Decay Myanti-B0
+ 1.0000 anti-Xsd    mu+    mu-   PHOTOS  BTOXSLL;
+Enddecay
+
+End
+
+

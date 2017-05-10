@@ -1,0 +1,65 @@
+#######################################################
+#                                                     #
+# Decay: B+ -> X    B- ->D1(2420)0 l- anti-nu_l       #
+#			 |->D*+ pi-		      #
+#                           |-> D0 pi+		      #
+#                               |-> K- pi+            #
+# 	l = e or mu 				      #
+#				+CC		      #
+#                                                     #
+#                                                     #
+# Author:  Shahram Rahatlou, UCSD                     #
+# Mail: RAHATLOU@SLAC.STANFORD.EDU                    #
+# Created: January 21, 2000                           #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyD_10 D_10
+Alias MyD*+ D*+
+Alias MyD0  D0
+Alias MyB+  B+
+Alias Myanti-D_10 anti-D_10
+Alias MyD*- D*-
+Alias Myanti-D0  anti-D0
+#
+Decay Upsilon(4S)
+0.50000 B-  MyB+                          VSS;
+0.50000 B+  MyB-                          VSS;
+Enddecay
+#
+Decay MyB+
+0.5000   Myanti-D_10   e+   nu_e         PHOTOS  ISGW2;
+0.5000   Myanti-D_10   mu+  nu_mu        PHOTOS  ISGW2;
+Enddecay
+#
+Decay MyB-
+0.5000   MyD_10   e-   anti-nu_e         PHOTOS  ISGW2;
+0.5000   MyD_10   mu-  anti-nu_mu        PHOTOS  ISGW2;
+Enddecay
+#
+Decay Myanti-D_10
+1.0000    MyD*- pi+                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD_10
+1.0000    MyD*+ pi-                        VVS_PWAVE  0.0 0.0 0.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyD*-
+1.000    Myanti-D0  pi-                   VSS;
+Enddecay
+#
+Decay MyD*+
+1.000    MyD0  pi+                        VSS;
+Enddecay
+#
+Decay MyD0
+1.000   K-  pi+                         PHSP;
+Enddecay
+#
+Decay Myanti-D0
+1.000   K+  pi-                         PHSP;
+Enddecay
+#
+End
+

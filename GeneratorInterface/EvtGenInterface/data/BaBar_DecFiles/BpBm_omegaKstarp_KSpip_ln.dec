@@ -1,0 +1,59 @@
+############################################################
+#                                                          #
+# Decay:      B+   -> omega K*0+ -> (pi+pi-pi0)(Kspi+)     #
+#             B-   -> generic                    +cc       #
+#                                                          #
+# Author: Qinghua Guo                                      #
+# e-mail: ppenn@slac.stanford.edu                          #
+# Created:  03/22/2001                                     #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+    K*+
+Alias MyK*-    K*-
+Alias Myomega  omega
+Alias MyK_S0   K_S0
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+
+#
+# 'Scalar -> Vector Vector'
+# SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+# Tansverse polarization: SVV_HELAMP 1.0 0.0 0.0 0.0 1.0 0.0;  
+# Longitud. polarization: SVV_HELAMP 0.0 0.0 1.0 0.0 0.0 0.0;  
+#
+Decay MyB+
+1.0000  Myomega MyK*+      SVV_HELAMP  0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay 
+#
+
+Decay MyB-
+1.0000  Myomega MyK*-      SVV_HELAMP   0.0 0.0 1.0 0.0 0.0 0.0;  
+Enddecay 
+#
+Decay MyK*+
+1.0000  MyK_S0 pi+             VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  MyK_S0 pi-          VSS;
+Enddecay
+#
+Decay MyK_S0
+1.0000 pi+ pi-              PHSP;
+Enddecay
+
+Decay Myomega
+1.0000    pi-  pi+  pi0                  OMEGA_DALITZ;
+Enddecay
+#
+End

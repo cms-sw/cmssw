@@ -1,0 +1,78 @@
+############################################################
+#                                                          #
+# Decay:      B+ -> phi K*+ -> (K+K-)(K0pi+)               #
+#             B- -> generic                        +cc     #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  12/16/2003                                     #
+# Patched:  03/24/2004 (change order A+ and A- for B)      #
+#                                                          #
+############################################################
+#
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyK*+ K*+
+Alias MyK*- K*-
+Alias MyPhi phi
+Alias MyK_S0 K_S0
+#
+# Define helicity amplitudes which could be different
+# for B (1) and Bbar (2) decays
+#
+# put f_L = 0.6000, f_perp = 0.2500, 
+# phi_perp = -0.2000, phi_paral = 2.5000
+# all Acp = 0
+#
+Define Hplus1  0.1579
+Define Hzero1  0.7746
+Define Hminus1 0.6124
+Define phHplus1  0.6350
+Define phHzero1  0.0
+Define phHminus1 2.7493
+#
+Define Hplus2  0.1579
+Define Hzero2  0.7746
+Define Hminus2 0.6124
+Define phHplus2  0.6350
+Define phHzero2  0.0
+Define phHminus2 2.7493
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+# 'Scalar -> Vector Vector'
+#
+Decay MyB+
+1.0000  MyPhi MyK*+      SVV_HELAMP Hminus1 phHminus1 Hzero1 phHzero1 Hplus1 phHplus1;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyPhi MyK*-      SVV_HELAMP Hplus2 phHplus2 Hzero2 phHzero2 Hminus2 phHminus2;  
+Enddecay 
+#
+Decay MyK*+
+1.0000  MyK_S0 pi+          VSS;
+Enddecay
+#
+Decay MyK*-
+1.0000  MyK_S0 pi-          VSS;
+Enddecay
+#
+Decay MyK_S0
+1.000   pi+ pi-             PHSP;
+Enddecay
+#
+Decay MyPhi
+1.0000  K+ K-               VSS;                    
+Enddecay
+#
+End
+

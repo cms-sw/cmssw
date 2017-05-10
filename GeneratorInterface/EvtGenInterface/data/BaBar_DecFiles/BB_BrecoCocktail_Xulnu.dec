@@ -1,0 +1,662 @@
+##
+## BB_BrecoCocktail_Xulnu.dec
+##
+##
+## one side B->Xulnu, other side Breco cocktail for B0/+ mesons
+##
+## (from B_Xulnu.dec and BrecoCocktail [adjusted])
+##
+## Author Daniele del Re 
+##
+######################################################################
+#
+#
+# Vub side
+Alias myB-  B-
+Alias myB+  B+
+ChargeConj myB+ myB-
+
+Alias myB0  B0
+Alias myantiB0 anti-B0
+ChargeConj myB0 myantiB0
+#
+#
+# Breco side
+
+Alias CmyB-  B-
+Alias CmyB+  B+
+
+Alias CmyB0  B0
+Alias CmyantiB0 anti-B0
+
+Alias MyD*0 D*0
+Alias Myanti-D*0 anti-D*0
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+Alias Mya_1+ a_1+
+Alias Mya_1- a_1-
+Alias MyK_1+ K_1+
+Alias MyK_1- K_1-
+Alias MyK*0  K*0
+Alias Myanti-K*0 anti-K*0
+Alias Myomega omega
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyKs K_S0
+Alias MyD*-             D*-
+Alias MyD*+             D*+
+Alias MyD-              D-
+Alias MyD+              D+
+#
+Alias my2-K*0 K*0
+Alias my2-anti-K*0 anti-K*0
+#
+Alias my-K_0*0 K_0*0
+Alias my-anti-K_0*0 anti-K_0*0
+#
+Alias my-K''*0 K''*0
+Alias my-anti-K''*0 anti-K''*0
+#
+Alias my-K'_10 K'_10
+Alias my-anti-K'_10 anti-K'_10
+#
+Alias my2-K'_10 K'_10
+Alias my2-anti-K'_10 anti-K'_10
+#
+Alias my-K*+ K*+
+Alias my-K*- K*-
+#
+Alias my2-K*+ K*+
+Alias my2-K*- K*-
+#
+
+# Y(4S)
+#
+Decay Upsilon(4S)
+0.25000 myB+  CmyB-                          VSS;
+0.25000 myB-  CmyB+                          VSS;
+0.21000 myB0 CmyantiB0                       VSS_MIX  dm;
+0.21000 CmyB0 myantiB0                       VSS_MIX  dm;
+0.04000 myantiB0 CmyantiB0                  VSS_MIX  dm;
+0.04000 myB0 CmyB0                           VSS_MIX dm;
+Enddecay
+#
+#
+#
+# Vub side
+#
+Decay myantiB0
+#                    b -> u l nu
+#
+# 03/28/01 S.Menke included inclusive B -> X_u l nu decays for m(X_u) > 1.26 GeV.
+#                  with some thresholds to gradually switch from excl. to incl.
+#                  modeling without big jumps keeping the better known excl.
+#                  Brs at their actual values and constrain the incl. Br and 
+#                  weights in a way that ~40% of the total BR belongs to 
+#                  the mass region > 1.5 GeV
+#
+0.000180   pi+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000260   rho+   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000165   a_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000102   b_1+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000014   a_0+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000014   a_2+    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   rho(2S)+ e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D(2S)+ e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D*(2S)+ e-   anti-nu_e        PHOTOS   ISGW2;
+0.001365   Xu+  e-  anti-nu_e          PHOTOS   VUB 4.8 1.29 0.22 20 
+0.00 0.55 1.20 0.61 1.26 0.85 1.34 1.08 1.41 1.21 1.48 1.30 1.55 1.30 1.61 1.33 1.67 1.36 1.73 1.39 1.79 1.33 1.84 1.42 1.90 1.39 1.95 1.39 2.00 1.37 2.50 1.30 3.00 0.74 3.50 0.99 4.00 1.09 4.50 1.00;
+
+0.000180   pi+    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000260   rho+   mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000165   a_1+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000102   b_1+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000014   a_0+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000014   a_2+    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000000   rho(2S)+ mu-  anti-nu_mu      PHOTOS     ISGW2;
+0.000000   D(2S)+ mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000000   D*(2S)+ mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.001365   Xu+  mu-  anti-nu_e          PHOTOS   VUB 4.8 1.29 0.22 20 
+0.00 0.55 1.20 0.61 1.26 0.85 1.34 1.08 1.41 1.21 1.48 1.30 1.55 1.30 1.61 1.33 1.67 1.36 1.73 1.39 1.79 1.33 1.84 1.42 1.90 1.39 1.95 1.39 2.00 1.37 2.50 1.30 3.00 0.74 3.50 0.99 4.00 1.09 4.50 1.00;
+#
+0.000060   pi+    tau- anti-nu_tau                 ISGW2;
+0.000083   rho+   tau- anti-nu_tau                 ISGW2;
+0.000090   a_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   b_1+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_0+    tau- anti-nu_tau                 ISGW2;
+0.000008   a_2+    tau- anti-nu_tau                 ISGW2;
+0.000000   rho(2S)+ tau- anti-nu_tau                 ISGW2;
+0.000000   D(2S)+ tau- anti-nu_tau                 ISGW2;
+0.000000   D*(2S)+ tau- anti-nu_tau                 ISGW2;
+#
+Enddecay
+#
+#
+Decay myB0
+#                    b -> u l nu
+#
+0.000180   pi-    e+   nu_e        PHOTOS  ISGW2;
+0.000260   rho-   e+   nu_e        PHOTOS  ISGW2;
+0.000165   a_1-    e+   nu_e        PHOTOS  ISGW2;
+0.000102   b_1-    e+   nu_e        PHOTOS  ISGW2;
+0.000014   a_0-    e+   nu_e        PHOTOS  ISGW2;
+0.000014   a_2-    e+   nu_e        PHOTOS  ISGW2;
+0.000000   rho(2S)- e+   nu_e        PHOTOS  ISGW2;
+0.000000   D(2S)- e+   nu_e        PHOTOS  ISGW2;
+0.000000   D*(2S)- e+   nu_e        PHOTOS  ISGW2;
+0.001365   Xu-  e+  nu_e          PHOTOS   VUB 4.8 1.29 0.22 20 
+0.00 0.55 1.20 0.61 1.26 0.85 1.34 1.08 1.41 1.21 1.48 1.30 1.55 1.30 1.61 1.33 1.67 1.36 1.73 1.39 1.79 1.33 1.84 1.42 1.90 1.39 1.95 1.39 2.00 1.37 2.50 1.30 3.00 0.74 3.50 0.99 4.00 1.09 4.50 1.00;
+0.000180   pi-    mu+  nu_mu        PHOTOS  ISGW2;
+0.000260   rho-   mu+  nu_mu        PHOTOS  ISGW2;
+0.000165   a_1-    mu+  nu_mu       PHOTOS   ISGW2;
+0.000102   b_1-    mu+  nu_mu       PHOTOS   ISGW2;
+0.000014   a_0-    mu+  nu_mu       PHOTOS   ISGW2;
+0.000014   a_2-    mu+  nu_mu       PHOTOS   ISGW2;
+0.000000   rho(2S)- mu+  nu_mu      PHOTOS    ISGW2;
+0.000000   D(2S)- mu+  nu_mu        PHOTOS  ISGW2;
+0.000000   D*(2S)- mu+  nu_mu       PHOTOS   ISGW2;
+0.001365   Xu-  mu+  anti-nu_e          PHOTOS   VUB 4.8 1.29 0.22 20 
+0.00 0.55 1.20 0.61 1.26 0.85 1.34 1.08 1.41 1.21 1.48 1.30 1.55 1.30 1.61 1.33 1.67 1.36 1.73 1.39 1.79 1.33 1.84 1.42 1.90 1.39 1.95 1.39 2.00 1.37 2.50 1.30 3.00 0.74 3.50 0.99 4.00 1.09 4.50 1.00;
+#
+#
+0.000060   pi-    tau+ nu_tau                ISGW2;
+0.000083   rho-   tau+ nu_tau                ISGW2;
+0.000090   a_1-    tau+ nu_tau                ISGW2;
+0.000008   b_1-    tau+ nu_tau                ISGW2;
+0.000008   a_0-    tau+ nu_tau                ISGW2;
+0.000008   a_2-    tau+ nu_tau                ISGW2;
+0.000000   rho(2S)- tau+ nu_tau                ISGW2;
+0.000000   D(2S)- tau+ nu_tau                ISGW2;
+0.000000   D*(2S)- tau+ nu_tau                ISGW2;
+#
+#
+Enddecay
+#
+#
+# force B- to always decay to X_u l nu
+#
+Decay myB-
+#
+0.000090   pi0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000030   eta    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000130   rho0   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000130   omega   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000060   eta'   e-   anti-nu_e        PHOTOS   ISGW2;
+0.000082   a_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000007   a_20    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000048   b_10    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000007   a_00    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f_0     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f'_0    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000041   f_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000041   f'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000024   h_1     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000024   h'_1    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f_2     e-   anti-nu_e        PHOTOS   ISGW2;
+0.000004   f'_2    e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D(2S)0 e-   anti-nu_e        PHOTOS   ISGW2;
+0.000000   D*(2S)0 e-   anti-nu_e        PHOTOS   ISGW2;
+0.001365   Xu0   e-  anti-nu_e        PHOTOS VUB 4.8 1.29 0.22 20
+0.00 0.54 1.20 0.95 1.26 0.78 1.34 0.98 1.41 0.91 1.48 1.23 1.55 1.36 1.61 1.39 1.67 1.38 1.73 1.43 1.79 1.41 1.84 1.42 1.90 1.45 1.95 1.40 2.00 1.42 2.50 1.31 3.00 1.36 3.50 1.15 4.00 1.01 4.50 1.51;
+#
+0.000090   pi0    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000030   eta    mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000130   rho0   mu-  anti-nu_mu        PHOTOS    ISGW2;
+0.000130   omega   mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000060   eta'   mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000082   a_10    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000007   a_20    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000048   b_10    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000007   a_00    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f_0     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f'_0    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000041   f_1     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000041   f'_1    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000024   h_1     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000024   h'_1    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f_2     mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000004   f'_2    mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.000000   D(2S)0 mu-  anti-nu_mu        PHOTOS   ISGW2;
+0.000000   D*(2S)0 mu-  anti-nu_mu       PHOTOS    ISGW2;
+0.001365   Xu0   mu-  anti-nu_mu        PHOTOS VUB 4.8 1.29 0.22 20
+0.00 0.54 1.20 0.95 1.26 0.78 1.34 0.98 1.41 0.91 1.48 1.23 1.55 1.36 1.61 1.39 1.67 1.38 1.73 1.43 1.79 1.41 1.84 1.42 1.90 1.45 1.95 1.40 2.00 1.42 2.50 1.31 3.00 1.36 3.50 1.15 4.00 1.01 4.50 1.51;
+#
+0.000030   pi0    tau- anti-nu_tau                 ISGW2;
+0.000012   eta    tau- anti-nu_tau                 ISGW2;
+0.000042   rho0   tau- anti-nu_tau                 ISGW2;
+0.000042   omega   tau- anti-nu_tau                 ISGW2;
+0.000018   eta'   tau- anti-nu_tau                 ISGW2;
+0.000046   a_10    tau- anti-nu_tau                 ISGW2;
+0.000027   b_10    tau- anti-nu_tau                 ISGW2;
+0.000004   a_00    tau- anti-nu_tau                 ISGW2;
+0.000002   f_0     tau- anti-nu_tau                 ISGW2;
+0.000002   f'_0    tau- anti-nu_tau                 ISGW2;
+0.000023   f_1     tau- anti-nu_tau                 ISGW2;
+0.000023   f'_1    tau- anti-nu_tau                 ISGW2;
+0.000013   h_1     tau- anti-nu_tau                 ISGW2;
+0.000013   h'_1    tau- anti-nu_tau                 ISGW2;
+0.000020   f_2     tau- anti-nu_tau                 ISGW2;
+0.000020   f'_2    tau- anti-nu_tau                 ISGW2;
+0.000000   D(2S)0 tau- anti-nu_tau                 ISGW2;
+0.000000   D*(2S)0 tau- anti-nu_tau                 ISGW2;
+#
+Enddecay
+#
+Decay myB+
+#                   b -> u l nu
+#
+0.000090   pi0    e+   nu_e      PHOTOS  ISGW2;
+0.000030   eta    e+   nu_e      PHOTOS  ISGW2;
+0.000130   rho0   e+   nu_e      PHOTOS  ISGW2;
+0.000130   omega   e+   nu_e      PHOTOS  ISGW2;
+0.000060   eta'   e+   nu_e      PHOTOS  ISGW2;
+0.000082   a_10    e+   nu_e      PHOTOS  ISGW2;
+0.000007   a_20    e+   nu_e      PHOTOS  ISGW2;
+0.000048   b_10    e+   nu_e      PHOTOS  ISGW2;
+0.000007   a_00    e+   nu_e      PHOTOS  ISGW2;
+0.000004   f_0     e+   nu_e      PHOTOS  ISGW2;
+0.000004   f'_0    e+   nu_e      PHOTOS  ISGW2;
+0.000041   f_1     e+   nu_e      PHOTOS  ISGW2;
+0.000041   f'_1    e+   nu_e      PHOTOS  ISGW2;
+0.000024   h_1     e+   nu_e      PHOTOS  ISGW2;
+0.000024   h'_1    e+   nu_e      PHOTOS  ISGW2;
+0.000004   f_2     e+   nu_e      PHOTOS  ISGW2;
+0.000004   f'_2    e+   nu_e      PHOTOS  ISGW2;
+0.000000   anti-D(2S)0 e+   nu_e      PHOTOS  ISGW2;
+0.000000   anti-D*(2S)0 e+   nu_e      PHOTOS  ISGW2;
+0.001365   Xu0   e+  nu_e        PHOTOS VUB 4.8 1.29 0.22 20
+0.00 0.54 1.20 0.95 1.26 0.78 1.34 0.98 1.41 0.91 1.48 1.23 1.55 1.36 1.61 1.39 1.67 1.38 1.73 1.43 1.79 1.41 1.84 1.42 1.90 1.45 1.95 1.40 2.00 1.42 2.50 1.31 3.00 1.36 3.50 1.15 4.00 1.01 4.50 1.51;
+
+#
+0.000090   pi0    mu+  nu_mu      PHOTOS  ISGW2;
+0.000030   eta    mu+  nu_mu      PHOTOS  ISGW2;
+0.000130   rho0   mu+  nu_mu      PHOTOS  ISGW2;
+0.000130   omega   mu+  nu_mu     PHOTOS   ISGW2;
+0.000060   eta'   mu+  nu_mu      PHOTOS  ISGW2;
+0.000082   a_10    mu+  nu_mu     PHOTOS   ISGW2;
+0.000007   a_20    mu+  nu_mu     PHOTOS   ISGW2;
+0.000048   b_10    mu+  nu_mu     PHOTOS   ISGW2;
+0.000007   a_00    mu+  nu_mu     PHOTOS   ISGW2;
+0.000004   f_0     mu+  nu_mu     PHOTOS   ISGW2;
+0.000004   f'_0    mu+  nu_mu     PHOTOS   ISGW2;
+0.000041   f_1     mu+  nu_mu     PHOTOS   ISGW2;
+0.000041   f'_1    mu+  nu_mu     PHOTOS   ISGW2;
+0.000024   h_1     mu+  nu_mu     PHOTOS   ISGW2;
+0.000024   h'_1    mu+  nu_mu     PHOTOS   ISGW2;
+0.000004   f_2     mu+  nu_mu     PHOTOS   ISGW2;
+0.000004   f'_2    mu+  nu_mu     PHOTOS   ISGW2;
+0.000000   anti-D(2S)0 mu+  nu_mu  PHOTOS      ISGW2;
+0.000000   anti-D*(2S)0 mu+  nu_mu  PHOTOS      ISGW2;
+0.001365   Xu0   mu+  nu_mu        PHOTOS VUB 4.8 1.29 0.22 20
+0.00 0.54 1.20 0.95 1.26 0.78 1.34 0.98 1.41 0.91 1.48 1.23 1.55 1.36 1.61 1.39 1.67 1.38 1.73 1.43 1.79 1.41 1.84 1.42 1.90 1.45 1.95 1.40 2.00 1.42 2.50 1.31 3.00 1.36 3.50 1.15 4.00 1.01 4.50 1.51;
+#
+0.000030   pi0    tau+ nu_tau              ISGW2;
+0.000012   eta    tau+ nu_tau              ISGW2;
+0.000042   rho0   tau+ nu_tau              ISGW2;
+0.000042   omega   tau+ nu_tau              ISGW2;
+0.000018   eta'   tau+ nu_tau              ISGW2;
+0.000046   a_10    tau+ nu_tau              ISGW2;
+0.000027   b_10    tau+ nu_tau              ISGW2;
+0.000004   a_00    tau+ nu_tau              ISGW2;
+0.000002   f_0     tau+ nu_tau              ISGW2;
+0.000002   f'_0    tau+ nu_tau              ISGW2;
+0.000023   f_1     tau+ nu_tau              ISGW2;
+0.000023   f'_1    tau+ nu_tau              ISGW2;
+0.000013   h_1     tau+ nu_tau              ISGW2;
+0.000013   h'_1    tau+ nu_tau              ISGW2;
+0.000020   f_2     tau+ nu_tau              ISGW2;
+0.000020   f'_2    tau+ nu_tau              ISGW2;
+0.000000   anti-D(2S)0 tau+ nu_tau              ISGW2;
+0.000000   anti-D*(2S)0 tau+ nu_tau              ISGW2;
+#
+Enddecay
+#
+#
+#
+# Reco side
+#
+#
+Decay CmyB- 
+#
+0.0046   MyD*0 pi-                        SVS;
+0.0053   MyD0   pi-                       PHSP;
+0.0134   rho-   MyD0                      SVS;
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.0155   MyD*0  rho-               SVV_HELAMP 0.228 0.95 0.283 1.13 0.932 0;
+#
+0.0005   MyD0  pi0  pi-                   PHSP;
+0.0005   MyD*0 pi0  pi-                   PHSP;
+#
+0.0050   Mya_1- MyD0                         SVS;
+0.0021   MyD0  rho0 pi-                   PHSP;
+0.0050   MyD0  pi+  pi-  pi-              PHSP;
+#
+# SVV_HELAMP from factorization, recommendation
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.0190   MyD*0 Mya_1-                      SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+#
+0.0005   MyD*0 rho0 pi-                   PHSP;
+0.0005   MyD*0 pi+  pi-  pi-              PHSP;
+#
+0.0005   MyD*0 rho-  pi0                  PHSP;
+0.0005   MyD*0 pi- pi0  pi0               PHSP;
+#
+Enddecay
+#
+#
+#
+Decay CmyB+
+#
+0.0046   Myanti-D*0  pi+                       SVS;
+0.0053   Myanti-D0  pi+                        PHSP;
+0.0134   rho+  Myanti-D0                       SVS;
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.0155   Myanti-D*0  rho+              SVV_HELAMP 0.228 0.95 0.283 1.13 0.932 0;
+#
+0.0005   Myanti-D0  pi0  pi+                   PHSP;
+0.0005   Myanti-D*0  pi0  pi+                  PHSP;
+#
+0.0050   Mya_1+ Myanti-D0                        SVS;
+0.0021   Myanti-D0 rho0 pi+                   PHSP;
+0.0050   Myanti-D0 pi-  pi+  pi+              PHSP;
+#
+# SVV_HELAMP from factorization, recommendation
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.0190   Myanti-D*0 Mya_1+               SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+#
+0.0005   Myanti-D*0 rho0 pi+                   PHSP;
+0.0005   Myanti-D*0 pi-  pi+  pi+              PHSP;
+#
+0.0005   Myanti-D*0 rho+  pi0                  PHSP;
+0.0005   Myanti-D*0 pi+   pi0  pi0             PHSP;
+Enddecay
+#
+#
+#
+Decay CmyB0
+#
+0.0027   MyD*- pi+                        SVS;
+0.0030   MyD-  pi+                        PHSP;
+0.0082   rho+ MyD-                        SVS;
+#
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.0068   rho+ MyD*-                 SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19; 
+0.0010   MyD-  pi+  pi0                   PHSP;
+0.0070   MyD*- pi+  pi0                   PHSP;
+#
+0.0060   Mya_1+ MyD-                         SVS;
+0.0011   MyD-  rho0  pi+                  PHSP;
+0.0011   MyD-  rho+  pi0                  PHSP;
+0.0022   MyD-  pi-  pi+  pi+              PHSP;
+0.0010   MyD-  pi0  pi+  pi0              PHSP;
+#
+# SVV_HELAMP for D* a1 taken from factorization. Recommandation 
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.0130   MyD*-  Mya_1+                     SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+#
+0.0010   MyD*-  rho0  pi+                 PHSP;
+0.0010   MyD*-  rho+  pi0                 PHSP;
+0.0000   MyD*-  pi-  pi+  pi+             PHSP;
+0.0010   MyD*-  pi0  pi+  pi0             PHSP;
+Enddecay
+#
+#
+#
+Decay CmyantiB0
+#
+0.0027   MyD*+ pi-                        SVS;
+0.0030   MyD+  pi-                        PHSP;
+0.0082   rho- MyD+                        SVS;
+#
+# D* rho HELAMP parameters taken from ICHEP 98-852.
+0.0068   rho- MyD*+                 SVV_HELAMP 0.152 1.47 0.936 0 0.317 0.19; 
+0.0010   MyD+  pi-  pi0                   PHSP;
+0.0070   MyD*+ pi-  pi0                   PHSP;
+#
+0.0060   Mya_1- MyD+                         SVS;
+0.0011   MyD+  rho0  pi-                  PHSP;
+0.0011   MyD+  rho-  pi0                  PHSP;
+0.0022   MyD+  pi+  pi-  pi-              PHSP;
+0.0010   MyD+  pi0  pi-  pi0              PHSP;
+#
+# SVV_HELAMP for D* a1 taken from factorization. Recommandation 
+# http://babar-hn.slac.stanford.edu:5090/HyperNews/get/event_gen/168.html:
+0.0130   MyD*+  Mya_1-                     SVV_HELAMP 0.336 0.0 0.88 0.0 0.336 0.0;
+#
+0.0010   MyD*+  rho0  pi-                 PHSP;
+0.0010   MyD*+  rho-  pi0                 PHSP;
+0.0000   MyD*+  pi+  pi-  pi-             PHSP;
+0.0010   MyD*+  pi0  pi-  pi0             PHSP;
+Enddecay 
+#
+Decay MyD*-
+0.688  Myanti-D0   pi-                 VSS;
+0.312  MyD-  pi0                       VSS;
+Enddecay
+#
+Decay MyD*+
+0.688  MyD0   pi+                      VSS;
+0.312  MyD+   pi0                      VSS;
+Enddecay
+#
+Decay MyD-
+#
+# Ks pi
+0.0098   MyK0   pi-                     PHSP;
+#
+# K+  pi-  pi-      
+# Dalitz here, PDG modes (commented) just below
+0.0900   K+  pi-  pi-                    D_DALITZ; 
+#
+# Ks  pi+  pi0      
+# these 3 modes below are K0 rho+, 
+# K*bar(892)0 pi+, Ks pi pi0 non res
+0.0224   rho- MyK0                       SVS;
+0.0021   K_0*0N  pi-                     PHSP;       
+0.0042   MyK0   pi-  pi0                PHSP;
+#
+# K+  pi- pi- pi0  
+# these 6 modes below are K*bar(892)0 rho+, K1(1400)0 pi+, K- rho+ pi+,
+# K*bar(892)0 pi pi0, K*bar(892)- pi pi, Ks  pi+  pi0 non res
+0.0140   MyK*0 rho-                      SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0220   my-K'_10 pi-                    SVS;
+0.0110   K+  rho-  pi-                   PHSP;   
+0.0280   MyK*0 pi0  pi-                  PHSP;   
+0.0070   my-K*+ pi-  pi-                 PHSP;      
+0.0120   K+  pi-  pi-   pi0              PHSP;  
+#
+# Ks  pi+ pi+ pi-
+# these 5 modes are Ks a1, K1(1400)0 pi+,   K*bar(892)- pi pi, 
+# Ks rho0 pi+, Ks pi+ pi+ pi- non res
+0.0136   Mya_1- MyK0                    SVS;  
+0.0074   my2-K'_10 pi-                   SVS;
+0.0048   my2-K*+ pi-  pi-                PHSP;   
+0.0017   MyK0  rho0  pi-                 PHSP;   
+0.0027   MyK0   pi-  pi-   pi+           PHSP;   
+Enddecay
+#
+Decay MyD+
+#
+# Ks pi
+0.0098   Myanti-K0   pi+                PHSP;
+#
+# K-  pi+  pi+      
+# Dalitz here, PDG modes (commented) just below
+0.0900   K-  pi+  pi+                    D_DALITZ; 
+#
+# Ks  pi+  pi0      
+# these 3 modes below are K0 rho+, 
+# K*bar(892)0 pi+, Ks pi pi0 non res
+0.0224   rho+    Myanti-K0              SVS;
+0.0021   anti-K_0*0N  pi+                PHSP;       
+0.0042   Myanti-K0   pi+  pi0           PHSP;
+#
+# K  pi+ pi+ pi0  
+# these 6 modes below are K*bar(892)0 rho+, K1(1400)0 pi+, K- rho+ pi+,
+# K*bar(892)0 pi pi0, K*bar(892)- pi pi, Ks  pi+  pi0 non res
+0.0140   Myanti-K*0 rho+                SVV_HELAMP  1.0 0.0 1.0 0.0 1.0 0.0;
+0.0220   my-anti-K'_10 pi+               SVS;
+0.0110   K-  rho+  pi+                   PHSP;    
+0.0280   Myanti-K*0 pi0  pi+            PHSP;    
+0.0070   my-K*- pi+  pi+                 PHSP;      
+0.0120   K-  pi+  pi+   pi0              PHSP;  
+#
+# Ks  pi+ pi+ pi-
+# these 5 modes are Ks a1, K1(1400)0 pi+,   K*bar(892)- pi pi, 
+# Ks rho0 pi+, Ks pi+ pi+ pi- non res
+0.0123   Mya_1+ Myanti-K0              SVS;  
+0.0074   my2-anti-K'_10 pi+              SVS;
+0.0048   my2-K*- pi+  pi+                PHSP;   
+0.0017   Myanti-K0  rho0  pi+           PHSP;    
+0.0027   Myanti-K0   pi+  pi+   pi-     PHSP;   
+Enddecay
+#
+#
+Decay MyD*0
+0.619     MyD0   pi0         VSS;
+0.381     MyD0   gamma       VSP_PWAVE;
+Enddecay
+#
+Decay Myanti-D*0
+0.619     Myanti-D0   pi0    VSS;
+0.381     Myanti-D0   gamma  VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+0.142     K-  pi+            PHSP;
+0.513     K-  pi+  pi0   	    D_DALITZ;
+0.068     Myanti-K0 pi+ pi-       D_DALITZ;
+## K 3pi  (0.277 total)
+0.1270    Mya_1+ K-                       SVS;
+0.0123    MyK_1- pi+                      SVS;
+0.0375    Myanti-K*0 pi+ pi-              PHSP;
+0.0194    K- pi+ rho0                     PHSP;
+0.0462    K- pi+ pi+ pi-                  PHSP;
+0.0346    Myanti-K*0 rho0                 SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay Myanti-D0
+0.142     K+    pi-          PHSP;
+0.513     K+    pi-  pi0     D_DALITZ;
+0.068     MyK0 pi- pi+       D_DALITZ;
+## K 3pi  (0.277 total)
+0.1270    Mya_1- K+                       SVS;
+0.0123    MyK_1+ pi-                      SVS;
+0.0375    MyK*0 pi- pi+                   PHSP;
+0.0194    K+ pi- rho0                     PHSP;
+0.0462    K+ pi- pi- pi+                  PHSP;
+0.0346    MyK*0 rho0                      SVV_HELAMP 1.0 0.0 1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyK0
+1.000     MyKs                              PHSP;
+Enddecay
+#
+Decay Myanti-K0
+1.000     MyKs                              PHSP;
+Enddecay
+#
+Decay MyKs
+1.000     pi+ pi-            PHSP;
+Enddecay
+#
+Decay Mya_1+
+1.0000  rho0 pi+                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Mya_1-
+1.0000  rho0 pi-                        VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyK_1+
+0.3913  rho0 K+                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1984  MyK*0 pi+                       VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0067  Myomega K+                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.4036  K+ pi- pi+                      PHSP;
+Enddecay
+#
+Decay MyK_1-
+0.3913  rho0 K-                         VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.1984  Myanti-K*0 pi-                  VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.0067  Myomega K-                      VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.4036  K- pi+ pi-                      PHSP;
+Enddecay
+#
+Decay MyK*0
+1.0000  K+ pi-                          VSS;
+Enddecay
+#
+Decay Myanti-K*0
+1.0000  K- pi+                          VSS;
+Enddecay
+#
+Decay my2-K*0				
+0.3323      MyK0  pi0                   VSS;
+Enddecay			
+#					
+Decay my2-anti-K*0			
+0.3323      Myanti-K0  pi0              VSS;
+Enddecay				
+#					
+#					
+Decay my-K_0*0				
+0.6667      K+  pi-                      PHSP;
+Enddecay				
+#					
+Decay my-anti-K_0*0			
+0.6667      K-  pi+                      PHSP;
+Enddecay				
+#					
+#					
+Decay my-K''*0                		
+0.2580   K+  pi-                         VSS;
+Enddecay				
+#					
+Decay my-anti-K''*0              	
+0.2580   K-  pi+                         VSS;
+Enddecay				
+#	
+#				
+Decay my-K'_10				
+0.6300   my-K*+  pi-                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.3100   MyK*0  pi0                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#					
+Decay my-anti-K'_10			
+0.6300   my-K*-  pi+                     VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+0.3100   Myanti-K*0  pi0                VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#	
+#				
+Decay my2-K'_10				
+0.6300   my2-K*+  pi-                    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#					
+Decay my2-anti-K'_10			
+0.6300   my2-K*-  pi+                    VVS_PWAVE 1.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay				
+#			
+#				
+Decay my-K*+				
+0.3330      K+  pi0                      VSS;
+Enddecay				
+#					
+Decay my-K*-				
+0.3330      K-  pi0                      VSS;
+Enddecay				
+#
+#
+Decay my2-K*+				
+0.6660      MyK0  pi+                   VSS;
+Enddecay				
+#					
+Decay my2-K*-				
+0.6660      Myanti-K0  pi-              VSS;
+Enddecay
+#
+Decay Myomega
+1.0000  pi- pi+                         VSS;
+Enddecay
+
+End
+

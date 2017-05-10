@@ -1,0 +1,61 @@
+            ####################################################
+           #                                                   #
+           # Decay: B- -> eta' K-     B+ -> X    + c.c.        #
+           #               |                                   #
+           #               |                                   #
+           #               |-> eta pi+ pi-                     #
+           #                    |                              #
+	   #                    |                              #
+           #                    |-> pi+ pi- pi0                #
+           #                                                   #
+           # Author: F. Palombo                                #
+           # Created:                14/March/00               #
+           # Submitted by F. Palombo ( palombo@mi.infn.it)     #
+           #                                                   #      
+           #####################################################
+
+
+#
+#
+
+Alias Myeta' eta'
+Alias Myeta eta
+Alias MyB+ B+
+Alias MyB- B-
+#
+Decay Upsilon(4S)
+0.500   MyB+       B-                       VSS;
+0.500   B+       MyB-                       VSS;
+Enddecay
+#
+Decay MyB-
+1.0000     Myeta'  K-                      PHSP;
+Enddecay
+#
+Decay MyB+
+1.0000     Myeta'  K+                      PHSP;
+Enddecay
+#
+Decay Myeta'
+1.0000    pi+ pi- Myeta                    PHSP;
+Enddecay
+#
+Decay Myeta
+1.0000    pi+ pi- pi0                       ETA_DALITZ;
+Enddecay
+#
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+

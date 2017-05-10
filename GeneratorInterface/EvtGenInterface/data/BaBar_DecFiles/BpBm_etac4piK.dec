@@ -1,0 +1,35 @@
+############################################################
+#                                                          #
+# Decay:      B- -> Eta_c      K-,        B+ -> X          #
+#                   |                                      #
+#                   |                                      #
+#                   |-> 4pi                                #
+#                                                          #
+# + cc                                                     #
+#                                                          #
+# Author: G. London  M.Langer                              #
+# Created:                   25/Oktober/00                 #
+############################################################
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyEta_c eta_c
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-               VSS;
+0.5000 MyB- B+               VSS;
+Enddecay
+#
+Decay MyB+
+1.0000  MyEta_c  K+          PHSP;
+Enddecay 
+#
+Decay MyB-
+1.0000  MyEta_c  K-          PHSP;
+Enddecay 
+#
+Decay MyEta_c
+0.0120  pi+ pi- pi+ pi-          PHSP;
+Enddecay
+#
+End

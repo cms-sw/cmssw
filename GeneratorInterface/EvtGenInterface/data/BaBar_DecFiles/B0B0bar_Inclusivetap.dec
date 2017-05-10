@@ -1,0 +1,30 @@
+###################################################################
+# Inclusive etap production from B's                              #
+# Author: Y.Karyotakis        22 Oct 2000                         #
+###################################################################
+#
+Define beta 0.39
+Define dm .464e12
+
+Alias MyB0B  anti-B0
+Alias MyB0  B0
+#
+
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyB0B VSS_BMIX dm;
+Enddecay
+
+Decay eta'
+0.3622     pi+ pi- eta                      PHSP;
+0.6378     gamma rho0                         PHSP;
+Enddecay
+#
+
+Decay eta
+0.63   gamma  gamma                       PHSP;
+0.37   pi+ pi- pi0			  PHSP;
+Enddecay
+#
+
+
+End 

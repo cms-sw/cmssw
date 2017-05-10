@@ -1,0 +1,82 @@
+#########################################################
+#                                                       #
+# Decay: B- -> D0 K*- 									#
+#		(D0 -> Ks0 Eta 100%)							#
+#		(Ks -> Pi+ Pi- 100%)							#
+#		(Eta -> pi+pi-pi0 50% Or gg 50%)				#
+#		(K*- -> Ks Pi- 50% Or Pi0 K- 50% )				# 
+#		B+ -> X											#
+# And Charge Conjugates									#
+#														#
+# Author: Paul Stephen Jackson							#
+# Date: 14/Oct/2003										#
+#														#
+#########################################################
+
+Alias MyB-      	B-
+Alias MyB+      	B+
+Alias MyD0      	D0
+Alias Myanti-D0     anti-D0
+Alias MyKstar+      K*+
+Alias MyKstar-      K*-
+Alias MyK_S0  		K_S0
+Alias MyEta 		eta
+
+#################
+#	  U(4s)		#
+#################
+Decay Upsilon(4S)
+0.50    MyB- B+					VSS;
+0.50    MyB+ B-					VSS;
+Enddecay
+
+#################
+#	   B+		#
+#################
+Decay MyB-
+1.00    MyKstar-  MyD0          SVS;
+Enddecay
+
+Decay MyB+
+1.00    MyKstar+  Myanti-D0     SVS;
+Enddecay
+
+#################
+#	  Kstar		#
+#################
+Decay MyKstar-
+1.00    MyK_S0 pi-              VSS;
+Enddecay
+
+Decay MyKstar+
+1.00    MyK_S0 pi+              VSS;
+Enddecay
+
+#################
+#	   D0		#
+#################
+Decay MyD0
+1.00 MyEta    MyK_S0          	PHSP;
+Enddecay
+
+Decay Myanti-D0
+1.00  MyEta    MyK_S0          	PHSP;
+Enddecay
+
+#################
+#	   Ks		#
+#################
+Decay MyK_S0
+1.0000  pi+ pi-                 PHSP;
+Enddecay
+
+#################
+#	  Eta		#
+#################
+Decay MyEta
+0.50    pi+ pi- pi0             ETA_DALITZ;
+0.50    gamma gamma             PHSP;
+Enddecay
+
+End
+

@@ -1,0 +1,30 @@
+###################################################
+#                                                 #
+# ccbar continuum production                      #
+# D*- -> anti-D0 pi-, anti-D0 -> pi+ pi- pi+ pi-  #
+#                                                 #
+# created: Francisco Yumiceva 07/10/01            #
+#          yumiceva@beauty.physics.sc.edu         #
+###################################################
+#
+
+Alias my-anti-D0 anti-D0
+
+#
+Decay vpho 
+1.00    JSCONT 4;
+Enddecay
+
+#
+#   Vector Mesons
+#
+Decay D*-
+0.6830    my-anti-D0  pi-                        VSS;
+Enddecay
+#
+Decay my-anti-D0
+#
+0.0074   pi+ pi+ pi- pi-                 PHSP;
+Enddecay
+#
+End

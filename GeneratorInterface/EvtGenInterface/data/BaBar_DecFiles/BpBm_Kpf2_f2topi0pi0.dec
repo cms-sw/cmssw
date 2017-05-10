@@ -1,0 +1,21 @@
+Alias MyB+ B+
+Alias MyB- B-
+Alias Myf2 f_2
+#
+Decay Upsilon(4S)
+0.50000 B+  MyB-             VSS;
+0.50000 B-  MyB+             VSS;
+Enddecay
+#
+Decay MyB+
+1.000  Myf2 K+               STS;
+Enddecay
+#
+Decay MyB-
+1.000  Myf2 K-               STS;
+Enddecay
+#
+Decay Myf2
+1.000  pi0 pi0               TSS;
+Enddecay
+End

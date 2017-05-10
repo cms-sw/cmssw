@@ -1,0 +1,52 @@
+####################################################
+#                                                  #
+# Inclusive D*rho decay.dec #1                     #
+#                                                  #
+# D*rho signal from B+ B-                          #
+#                                                  #
+# Decay: B- -> D*0 pi--,      B0 -> X       +c.c.  #
+#               |-> D0 gamma                       #
+#                   |-> Ks pi0                     #
+#                                                  #
+# 06 May 2003  Kelly E Ford                        #
+#                                                  #
+####################################################
+#
+#
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyD*0 D*0
+Alias MyD*0bar anti-D*0
+Alias MyD0 D0
+Alias Myanti-D0 anti-D0
+#
+Decay Upsilon(4S)
+1.000 B+ B- MyB+ MyB- VSS_BMIX dm;
+Enddecay
+#
+Decay MyB+
+1.000 MyD*0 pi+               SVS;
+Enddecay
+#
+Decay MyD*0
+1.0000 MyD0 gamma             VSP_PWAVE;
+Enddecay
+#
+Decay MyD0
+1.0000 K_S0 pi0               PHSP;
+Enddecay
+#
+Decay MyB-
+1.000 MyD*0bar pi-            SVS;
+Enddecay
+#
+Decay MyD*0bar
+1.0000 Myanti-D0 gamma        VSP_PWAVE;
+Enddecay
+#
+Decay Myanti-D0
+1.0000 K_S0 pi0               PHSP;
+Enddecay
+#
+End

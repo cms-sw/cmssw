@@ -1,0 +1,35 @@
+Alias MyDs+ D_s+
+Alias MyDs- D_s-
+Alias phiKK phi
+
+#
+# The following parameters attempt to harden the p* distribution
+# to better match data
+#
+JetSetPar PARJ(41)=.10
+JetSetPar PARJ(42)=.73
+
+#
+# Redefinition of D'_s1+, to match that of SP6, for
+# SP5 compatibility
+#
+Particle D'_s1+ 2.53535  0.001
+Particle D'_s1- 2.53535  0.001
+
+Decay vpho
+1.0  JSCONT 4;
+Enddecay
+#
+Decay D'_s1-
+1.000 MyDs- pi+ pi-     PHSP;
+Enddecay
+#
+Decay MyDs-
+1.000 phiKK pi- 	SVS;
+Enddecay
+#
+Decay phiKK
+1.000 K+ K-		VSS;
+Enddecay
+#
+End

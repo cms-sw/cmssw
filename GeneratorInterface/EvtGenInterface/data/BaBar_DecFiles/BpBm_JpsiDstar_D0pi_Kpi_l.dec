@@ -1,0 +1,63 @@
+###################################################################
+# B-  --> J/psi D*-              B+ --> Generic                   #
+#         |     |                                                 #
+#         |     |-->D0bar pi-                                     #
+#         |         |                                             #
+#         |         |-->K+ pi-                                    #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         # 
+#                                                                 #
+# + c. c.                                                         #
+#                                                                 #
+#  Using Longitudinal Helicity Amp                                #
+#                                                                 #
+#  Author: E. Robutti (adapted from V. Halyo)                     #
+###################################################################
+#
+#
+#
+# Alias particles for specific decays
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyDstar- D*-
+Alias MyDstar+ D*+
+Alias MyD0 D0
+Alias MyAnti-D0 anti-D0
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+Decay MyB-
+1.000 MyJpsi  MyDstar-      SVV_HELAMP 0. 0. 1. 0. 0. 0.;
+Enddecay
+#
+Decay MyDstar-
+1.000  MyAnti-D0  pi-       VSS;
+Enddecay
+#
+Decay MyAnti-D0
+1.000   K+  pi-             PHSP;
+Enddecay
+#
+Decay MyB+
+1.000 MyJpsi  MyDstar+      SVV_HELAMP 0. 0. 1. 0. 0. 0.;
+Enddecay
+#
+Decay MyDstar+
+1.000  D0  pi+              VSS;
+Enddecay
+#
+Decay MyD0
+1.000   K-  pi+             PHSP;
+Enddecay
+#
+End

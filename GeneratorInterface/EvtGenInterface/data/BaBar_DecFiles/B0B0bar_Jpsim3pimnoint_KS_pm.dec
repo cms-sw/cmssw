@@ -1,0 +1,45 @@
+############################################################
+#                                                          #
+# Decay: anti-B0 -> Jpsi      K0s,        B0 -> X          #
+#                    |        |-> pi+pi-                   #
+#                     -> pi+pi-pi0                         #
+#                                                          #
+# + cc				                           #
+#                                                          #
+# Jpsi decay to final state pi+pi-pi0 according to         #
+# PDG2000. Caution: NO INTERFERENCE between rho pi final   #
+# states are implemented!                                  #
+#                                                          #
+# Author: Thomas Schietinger                               #
+#         Jonathon Coleman -changed decay to purly phsp    #  
+# e-mail: schieti@slac.stanford.edu                        #
+# Created:                   2001/07/17                    #
+############################################################
+
+Alias MyJ/psi J/psi
+Alias MyK_S0  K_S0   
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000  MyJ/psi  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay Myanti-B0
+1.0000  MyJ/psi  MyK_S0           SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 0.0 -1.0 0.0;    
+Enddecay 
+#
+Decay MyJ/psi
+1.0000   pi+  pi- pi0       PHSP;
+Enddecay
+#
+Decay MyK_S0
+1.0000  pi+ pi-                   PHSP;
+Enddecay
+#
+End

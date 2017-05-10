@@ -1,0 +1,37 @@
+############################################################
+#                                                          #
+# Decay:      B+  -> phi K+ pi0 (non-resonant)             #
+#             B-  -> generic                       +cc     #
+#                                                          #
+# Author: Andrei Gritsan                                   #
+# e-mail: gritsan@slac.stanford.edu                        #
+# Created:  03/30/2001                                     #
+#                                                          #
+############################################################
+#
+# Define my particles
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyPhi phi
+#
+# 'Vector -> Scalar + Scalar'
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.000  MyPhi K+ pi0          PHSP;
+Enddecay
+#
+Decay MyB-
+1.000  MyPhi K- pi0          PHSP;
+Enddecay
+#
+Decay MyPhi
+1.0000  K+ K-               VSS;                    
+Enddecay
+#
+End

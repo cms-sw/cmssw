@@ -1,0 +1,60 @@
+            ####################################################
+           #                                                   #
+           # Decay: B0 -> eta K*0     B0bar -> X    + c.c.     #
+           #               |  |                                #
+           #               |   -> K0_S pi0                     #
+           #               |       |                           #
+           #               |        ->pi0 pi0                  #
+           #               |                                   #
+           #                -> gamma gamma                     #
+           #                                                   #
+           #                                                   #
+           # Author: K.Ulmer         19/March/04               #
+           #         (keith.ulmer@colorado.edu)                #
+           #                                                   #
+           #####################################################
+
+
+#
+#
+Alias Myeta eta
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyKstar0 K*0
+Alias Myanti-Kstar0 anti-K*0
+Alias MyK_S0         K_S0
+ChargeConj MyB0  Myanti-B0
+ChargeConj MyKstar0  Myanti-Kstar0
+#
+#
+#
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000    MyKstar0   Myeta                SVS;
+Enddecay
+#
+Decay Myanti-B0
+1.0000    Myanti-Kstar0   Myeta           SVS;
+Enddecay
+#
+Decay Myeta
+1.0000     gamma  gamma                   PHSP;
+Enddecay
+#
+Decay MyKstar0
+1.000  MyK_S0   pi0                  VSS;
+Enddecay
+#                                       
+Decay Myanti-Kstar0
+1.000  MyK_S0   pi0                  VSS;
+Enddecay
+#                                    
+Decay MyK_S0
+1.000  pi0   pi0                     PHSP;
+Enddecay
+#
+End

@@ -1,0 +1,38 @@
+###################################################
+#                                                 #
+# B+ ->  a_1+ f0, f0->pi+pi-                      #
+#                                                 #
+# Author:  Pierre-François Giraud                 #
+# Created: 2004-04-07                             #
+#                                                 #
+###################################################
+#
+# Decay table for B+ -> a_1+ pi0
+# using a Scalar to Vector Scalar Model (SVS)
+#
+Particle f_0 0.975 0.044
+#
+ChangeMassMin f_0 0.40
+ChangeMassMax f_0 1.30
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias Myf_0 f_0
+#
+Decay Upsilon(4S)
+0.500 MyB+  B-               VSS;
+0.500 MyB-  B+               VSS;
+Enddecay
+#
+Decay MyB+
+1.000  a_1+  Myf_0             SVS;
+Enddecay
+#
+Decay MyB-
+1.000  a_1-  Myf_0             SVS;
+Enddecay
+#
+Decay Myf_0
+1.0000 pi+ pi-              PHSP;
+Enddecay
+End

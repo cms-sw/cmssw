@@ -1,0 +1,47 @@
+###################################################
+#                                                 #
+# Decay: anti-B0 -> a_00 Rho0 + cc                #
+#                   |                             #
+#                   -->eta(gg) pi0                #
+#                                                 #
+# Author: Vasia Shelkov(vasia@slac.stanford.edu)  #
+# Date:                    21 March 2001          #
+###################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias Mya_00 a_00
+Alias Myrho0 rho0
+Alias Myeta eta
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.0000 Myrho0 Mya_00                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Myanti-B0
+1.0000 Myrho0 Mya_00                SSD_CP dm 0.0 1.0 minusTwoBeta 1.0 gamma 1.0 minusGamma;
+Enddecay 
+#
+Decay Myrho0
+1.000  pi- pi+                       VSS;
+Enddecay
+#
+Decay Mya_00    
+1.0000 Myeta pi0                    PHSP;
+Enddecay 
+#
+Decay Myeta
+1.0000     gamma  gamma             PHSP;
+Enddecay
+#
+
+End
+
+
+

@@ -1,0 +1,23 @@
+Alias myB0 B0
+
+Alias myD*- D*-
+Alias myD*+ D*+
+ChargeConj myD*- myD*+
+
+Decay Upsilon(4S)
+1.0 myB0 anti-B0 VSS;
+Enddecay
+
+Decay myB0
+1.0 myD*- pi+ SVS_NONCPEIGEN 1.1 dm 0.5 1 0 0.1 0.3;
+Enddecay
+
+Decay myD*-
+1.0 anti-D0 pi- VSS;
+Enddecay
+
+Decay myD*+
+1.0 D0 pi+ VSS;
+Enddecay
+                             
+End

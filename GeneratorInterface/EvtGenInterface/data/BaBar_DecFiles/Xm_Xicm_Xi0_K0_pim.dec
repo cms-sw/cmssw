@@ -1,0 +1,67 @@
+###############################################################################
+#                                                                             #
+# continuum production:           
+#                                 
+# anti-Xi_c- (AKA) pentaquark state
+#                Pss_5^- ->   Xi0 K0 pi-
+#           All particles are decayed isotropically                           #
+#                                                                             #
+#  William Ruddick May 5 04
+#                                                                             #
+###############################################################################
+#
+
+Alias myXi0 Xi0
+Alias myanti-Xi0 anti-Xi0
+Alias myLambda0 Lambda0
+Alias myanti-Lambda0 anti-Lambda0
+
+Particle anti-Xi_c-       2.770 0.001
+Particle Xi_c+  2.770 0.001
+
+ChangeMassMin Xi_c+ 2.3
+ChangeMassMin anti-Xi_c- 2.3
+                  
+ChangeMassMax Xi_c+ 3.5
+ChangeMassMax anti-Xi_c- 3.5
+
+##
+Decay vpho 
+0.1    JSCONT 1;
+0.4    JSCONT 2;
+0.1    JSCONT 3;
+0.4    JSCONT 4;
+Enddecay
+
+##
+Decay Xi_c+
+1.000 myanti-Xi0 anti-K0 pi+ PHSP;
+Enddecay
+
+##
+Decay anti-Xi_c-
+1.000 myXi0 K0 pi- PHSP;
+Enddecay
+
+##
+Decay myanti-Xi0
+1.000  myanti-Lambda0 pi0 PHSP; 
+Enddecay
+
+##
+Decay myXi0
+1.000  myLambda0 pi0 PHSP; 
+Enddecay
+
+##
+Decay myLambda0
+1.000 p+ pi- PHSP;
+Enddecay
+
+##
+Decay myanti-Lambda0
+1.000 anti-p- pi+ PHSP;
+Enddecay
+
+End
+

@@ -1,0 +1,69 @@
+###################################################################
+# B0~ --> J/psi K*0~             B0 --> Generic                   #
+#         |    |                                                  #
+#         |    |-->K- pi+                                         #
+#         |                                                       #
+#         |-->e+e-/mu+mu-                                         #
+#                                                                 #
+# mode a5: CLEO values                                            #
+#                                                                 #
+# + cc                                                            #
+#                                                                 #
+# Author: ?                                                       #
+# Modified: G.london    10/Feb/99                                 #
+# modified: J. Cohen-Tanugi 03/13/00: new name		          #
+# Mail: COHEN@SLAC.STANFORD.EDU
+###################################################################
+#
+#
+#
+#Define the helicity amplitudes starting
+#from the transversity amplitudes:
+#	Aplus  0.566
+#	Azero  1.02
+#	Aminus 0.4
+# Hplus  = (Aplus + Aminus) / sqrt(2)
+# Hzero  =  Azero/sqrt(2)
+# Hminus = (Aplus - Aminus) / sqrt(2)
+# Note: Hzero following convention from Dunietz & al. To
+# be consistent with cleo measurements all phases should be == 0
+Define Hplus  0.683
+Define Hzero  0.721
+Define Hminus 0.117
+Define phHplus  0.0
+Define phHzero  0.0
+Define phHminus 0.0
+#
+# Alias particles for specific decays
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyKstar0 K*0
+Alias MyantiKstar0 anti-K*0
+Alias MyJpsi J/psi
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000 MyJpsi  MyKstar0              SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyKstar0
+1.000 K+   pi-             VSS;
+Enddecay
+#
+Decay Myanti-B0
+1.000 MyJpsi  MyantiKstar0          SVV_HELAMP Hplus phHplus Hzero phHzero Hminus phHminus;
+Enddecay
+#
+Decay MyantiKstar0
+1.000 K-   pi+             VSS;
+Enddecay
+#
+Decay MyJpsi
+0.500 e+   e-               PHOTOS VLL;
+0.500 mu+  mu-              PHOTOS VLL;
+Enddecay
+#
+End

@@ -1,0 +1,32 @@
+###################################################
+# ccbar continum production                       #
+# Anti_Lambda_c- ->Anti_Lambda0 rho-              #
+#                 Anti_Lambda0 ->anti-p- pi+      #
+#                     rho- ->pi- pi0              #
+#                                                 #
+# created: 07/18/03 -  M A Saeed                  #
+#                      saeed@slac.stanford.edu    #
+#                                                 #
+###################################################
+#
+Alias my-anti-Lambda0 anti-Lambda0
+Alias myrho- rho- 
+Decay vpho
+1.0     JSCONT  4;
+Enddecay
+#
+Decay anti-Lambda_c-
+1.000  my-anti-Lambda0   rho-              PHSP;
+Enddecay 
+#
+Decay my-anti-Lambda0
+1.000   anti-p-  pi+                       PHSP; 
+Enddecay
+#
+Decay myrho-
+1.000  pi- pi0                             PHSP; 
+Enddecay
+End
+#
+
+

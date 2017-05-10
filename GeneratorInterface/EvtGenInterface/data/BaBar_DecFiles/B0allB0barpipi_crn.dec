@@ -1,0 +1,21 @@
+###################################################
+#                                                 #
+# Decay: B0 -> X 	anti-B0->Pi Pi		  #
+#                                                 #
+# Comments: Cornelius training NO mixing          #
+#                                                 #
+# Author: M.H. Schune + S. Plaszczynski           #
+# Created:                  21/Feb/99             #
+###################################################
+#
+Alias MyB0B  anti-B0
+#
+Decay Upsilon(4S)
+1.000   B0       MyB0B                  VSS_MIX dm;
+Enddecay
+#
+Decay MyB0B
+1.0000 pi+ pi-                    PHSP;
+Enddecay
+#
+End

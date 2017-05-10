@@ -1,0 +1,61 @@
+           #####################################################
+           #                                                   #
+           # Decay: anti-B0 (B0)-> eta' K*      TheOtherB0-> X #
+           #                    |       |                      #
+           #                    |       |-> K+ pi- / K- pi+    #
+           #                    |                              #
+           #                    |-> rho gamma                  #
+           #                          |                        #
+           #                          |-> pi+ pi-              #
+           #                                                   #  
+           #                                                   #
+           # Author: N. Berger                                 #
+           # Created:                13/November/99            #
+           #                                                   #
+           #####################################################
+
+#
+
+Alias MyB0           B0
+Alias MyAnti-B0      anti-B0
+Alias MyEta'         eta'
+Alias MyEta          eta
+Alias MyKstar0       K*0
+Alias MyAnti-Kstar0  anti-K*0   
+Alias MyRho0         rho0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 MyAnti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay MyB0
+1.000  MyKstar0       MyEta'      SVS;
+Enddecay
+#
+Decay MyAnti-B0
+1.000  MyAnti-Kstar0  MyEta'      SVS;
+Enddecay
+#
+Decay MyEta'
+1.000  rho0    gamma              SVP_HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay MyRho0
+1.000 pi+  pi-                    VSS;
+Enddecay
+#
+Decay MyKstar0
+1.000  K+   pi-                   VSS;
+Enddecay
+#
+Decay MyAnti-Kstar0
+1.000  K-   pi+                   VSS;
+Enddecay
+#
+End
+
+
+
+
+
+

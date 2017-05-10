@@ -1,0 +1,26 @@
+#######################################################
+#                                                     #
+# Decay: B-->ppbarK-      B+->X                       #
+# +cc                                                 #
+#                                                     #
+# Author: Roy Aleksan                                 #
+# Created:                  04/February/02            #
+#######################################################
+#
+Alias MyB-  B-
+Alias MyB+  B+
+#
+Decay Upsilon(4S)
+0.500   B+       MyB-                        VSS;
+0.500   B-       MyB+                        VSS;
+Enddecay
+#
+Decay MyB-
+1.000   p+ anti-p-  K-                PHSP;
+Enddecay
+#
+Decay MyB+
+1.000   p+ anti-p-  K+                PHSP;
+Enddecay
+#
+End

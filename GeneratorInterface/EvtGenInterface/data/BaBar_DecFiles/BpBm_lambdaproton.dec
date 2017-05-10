@@ -1,0 +1,38 @@
+###################################################
+#                                                 #
+# B- -> Lambda pbar   +cc                         #
+#                                                 #
+# Author: Aaron Roodman                           #
+# created:                    26/Aug/02           #
+###################################################
+#
+# Decay table for B- -> pi- pi0 using a simple PHSP
+# model.
+#
+Alias MyB+ B+
+Alias MyB- B-
+Alias MyLambda0 Lambda0
+Alias Myanti-Lambda0 anti-Lambda0
+#
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+#
+Decay MyB+
+1.00     Myanti-Lambda0  p+    PHSP;
+Enddecay
+#
+Decay MyB-
+1.00     MyLambda0  anti-p-    PHSP;
+Enddecay
+#
+Decay MyLambda0
+1.00 p+ pi-                  PHSP;
+Enddecay
+#
+Decay Myanti-Lambda0
+1.00 anti-p- pi+             PHSP;
+Enddecay
+#
+End

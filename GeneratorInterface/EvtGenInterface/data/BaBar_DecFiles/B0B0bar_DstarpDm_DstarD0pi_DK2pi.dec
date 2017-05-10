@@ -1,0 +1,67 @@
+####################################################
+#                                                  #
+# Inclusive DD* decay.dec #1                       #
+#                                                  #
+# DD* signal from B0-antiB0 for PRV0               #
+#                                                  #
+#                                                  #
+# Produces a mix of signal                         #
+#                                                  #
+# 100% signal:                                     #
+#                                                  #
+# Decay: anti-B0 -> D*(2010)+ D-, B0 -> X  +c.c.   #
+#                   |-> D0 pi+ |                   #
+#                       |-> X  |                   #
+#                              |-> K+ pi- pi- 100% #
+#                                                  #
+# 12 Feb 00                                        #
+# Roy Aleksan                                      #
+# dm modified: g.london 17/2                       #
+####################################################
+#
+#
+#
+Alias MyB0 B0
+Alias Myanti-B0 anti-B0
+Alias MyD*+ D*+
+Alias MyD*- D*-
+Alias MyD+ D+
+Alias MyD- D-
+Alias MyK*0 K*0
+Alias Myanti-K*0 anti-K*0
+Alias MyK0 K0
+Alias Myanti-K0 anti-K0
+Alias MyK_S0 K_S0
+#
+Decay Upsilon(4S)
+1.000 B0 anti-B0 MyB0 Myanti-B0 VSS_BMIX dm;
+Enddecay
+#
+Decay Myanti-B0
+1.0000 MyD*+ MyD-                  SVS;
+Enddecay
+#
+Decay MyD*+
+1.0000 D0 pi+                      VSS;
+Enddecay
+#
+Decay MyD-
+1,0000 K+ pi- pi-                  D_DALITZ;
+Enddecay
+#
+Decay MyB0
+1.0000 MyD*- MyD+                  SVS;
+Enddecay
+#
+Decay MyD*-
+1.0000 anti-D0 pi-                 VSS;
+Enddecay
+#
+Decay MyD+
+1.0000 K- pi+ pi+                  D_DALITZ;
+Enddecay
+#
+End
+
+
+

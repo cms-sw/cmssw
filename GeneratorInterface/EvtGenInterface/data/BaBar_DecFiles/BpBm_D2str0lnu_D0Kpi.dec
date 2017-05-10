@@ -1,0 +1,69 @@
+###################################################################
+#                                                                 #
+#  Decay: B+ -> X            B- -> D_2*0  l- anti-nu_l            #
+#                                   |-> D*+  pi-                  #            
+#                                       |-> D0 pi+                #
+#                                            |-> K- pi+           #
+#                                                                 #
+#                                                                 #  
+#      with l= e or mu                                            #
+#                                                                 #
+#                                       +CC                       #
+#                                                                 #
+#  Mail: VSHARMA@SLAC.STANFORD.EDU                                #
+#                                                                 #
+###################################################################
+
+
+Alias MyB-            B-
+Alias MyB+            B+
+Alias MyD_2*0         D_2*0
+Alias Myanti-D_2*0    anti-D_2*0
+Alias MyD*+           D*+
+Alias MyD*-           D*-
+Alias MyD0            D0 
+Alias MyantiD0        anti-D0
+
+
+#
+Decay Upsilon(4S)
+0.5000   MyB-               B+                   VSS;
+0.5000   B-                 MyB+                 VSS;
+Enddecay
+#
+#
+Decay MyB-
+0.5000   MyD_2*0            e-  anti-nu_e        PHOTOS ISGW2;
+0.5000   MyD_2*0            mu- anti-nu_mu       PHOTOS ISGW2;
+Enddecay
+#
+Decay MyB+
+0.5000   Myanti-D_2*0       e+  nu_e             PHOTOS ISGW2;
+0.5000   Myanti-D_2*0       mu+ nu_mu            PHOTOS ISGW2;
+Enddecay                 
+#
+Decay MyD_2*0 
+1.0000   MyD*+     pi-                 TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay Myanti-D_2*0
+1.0000   MyD*-     pi+                 TVS_PWAVE 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+#
+Decay MyD*+
+1.0000   MyD0      pi+                 VSS;
+Enddecay
+#
+Decay MyD*-
+1.0000   MyantiD0  pi-                 VSS;
+Enddecay
+#
+Decay MyD0
+1.0000   K-        pi+                 PHSP;
+Enddecay
+#
+Decay MyantiD0
+1.0000   K+        pi-                 PHSP;
+Enddecay
+#
+End

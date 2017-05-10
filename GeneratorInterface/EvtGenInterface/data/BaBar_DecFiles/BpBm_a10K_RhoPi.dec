@@ -1,0 +1,27 @@
+###################################################
+#                                                 #
+# B+ -> a_10 K+ +cc (a_10-> rho+ pi-, rho- pi+)   #
+#                                                 #
+# Author:	D.Walker                          #
+# created:			12/04/03          #
+###################################################
+
+
+Alias MyB+ B+
+Alias MyB- B-
+
+Decay Upsilon(4S)
+0.5000 MyB+ B-              VSS;
+0.5000 MyB- B+              VSS;
+Enddecay
+
+Decay MyB+
+1.0000    a_10 K+      SVS;
+Enddecay
+
+Decay MyB-
+1.0000    a_10 K-      SVS;
+Enddecay
+
+End
+
