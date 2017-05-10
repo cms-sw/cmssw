@@ -81,7 +81,7 @@ private:
                             TauSpinner::SimpleParticle &tau2,
                             std::vector<TauSpinner::SimpleParticle> &tau_daughters,
                             std::vector<TauSpinner::SimpleParticle> &tau2_daughters);
-  void GetLastSelf(const reco::GenParticle *Particle);
+  void GetLastSelf(const reco::GenParticle*  &Particle);
   void GetRecoDaughters(const reco::GenParticle *Particle,
                         std::vector<TauSpinner::SimpleParticle> &daughters,
                         int parentpdgid);
