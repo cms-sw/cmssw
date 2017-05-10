@@ -15,15 +15,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TOverlapWriter : public edm::EDAnalyzer {
+class L1TMuonOverlapWriter : public edm::EDAnalyzer {
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    explicit L1TOverlapWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TOverlapWriter(void){}
+    explicit L1TMuonOverlapWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
+    virtual ~L1TMuonOverlapWriter(void){}
 };
 
-void L1TOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TMuonOverlapParams> handle1;
     evSetup.get<L1TMuonOverlapParamsRcd>().get( handle1 ) ;
@@ -41,5 +41,5 @@ void L1TOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TOverlapWriter);
+DEFINE_FWK_MODULE(L1TMuonOverlapWriter);
 
