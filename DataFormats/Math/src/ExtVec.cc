@@ -11,9 +11,6 @@ std::ostream & operator<<(std::ostream & out,  Vec4D const & v) {
 std::ostream & operator<<(std::ostream & out,  Vec2F const & v) {
   return out << '(' << v[0] <<", " << v[1] <<')';
 }
-std::ostream & operator<<(std::ostream & out,  Vec2D const & v) {
-  return out << '(' << v[0] <<", " << v[1] <<')';
-}
 
 std::ostream & operator<<(std::ostream & out, ::As3D<Vec4F> const & v) {
   return out << '(' << v.v[0] <<", " << v.v[1] <<", "<< v.v[2] <<')';
