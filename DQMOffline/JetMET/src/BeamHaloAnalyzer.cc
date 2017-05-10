@@ -36,32 +36,34 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   IT_L1MuGMTReadout = iConfig.getParameter<edm::InputTag>("L1MuGMTReadoutLabel");
   
   //RecHit Level
-  IT_CSCRecHit   = iConfig.getParameter<edm::InputTag>("CSCRecHitLabel");
-  IT_EBRecHit    = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
-  IT_EERecHit    = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
-  IT_ESRecHit    = iConfig.getParameter<edm::InputTag>("ESRecHitLabel");
-  IT_HBHERecHit  = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
-  IT_HFRecHit    = iConfig.getParameter<edm::InputTag>("HFRecHitLabel");
-  IT_HORecHit    = iConfig.getParameter<edm::InputTag>("HORecHitLabel");
+  IT_CSCRecHit   = consumes<CSCRecHit2DCollection > (iConfig.getParameter<edm::InputTag>("CSCRecHitLabel"));
+  IT_EBRecHit    = consumes<EBRecHitCollection > (iConfig.getParameter<edm::InputTag>("EBRecHitLabel"));
+  IT_EERecHit    = consumes<EERecHitCollection > (iConfig.getParameter<edm::InputTag>("EERecHitLabel"));
+  IT_ESRecHit    = consumes<ESRecHitCollection > (iConfig.getParameter<edm::InputTag>("ESRecHitLabel"));
+  IT_HBHERecHit  = consumes<HBHERecHitCollection > (iConfig.getParameter<edm::InputTag>("HBHERecHitLabel"));
+  IT_HFRecHit    = consumes<HFRecHitCollection > (iConfig.getParameter<edm::InputTag>("HFRecHitLabel"));
+  IT_HORecHit    = consumes<HORecHitCollection > (iConfig.getParameter<edm::InputTag>("HORecHitLabel"));
 
   //Higher Level Reco 
-  IT_CSCSegment = iConfig.getParameter<edm::InputTag>("CSCSegmentLabel");  
-  IT_CosmicStandAloneMuon = iConfig.getParameter<edm::InputTag>("CosmicStandAloneMuonLabel"); 
-  IT_BeamHaloMuon = iConfig.getParameter<edm::InputTag>("BeamHaloMuonLabel");
-  IT_CollisionMuon = iConfig.getParameter<edm::InputTag>("CollisionMuonLabel");
-  IT_CollisionStandAloneMuon  = iConfig.getParameter<edm::InputTag>("CollisionStandAloneMuonLabel"); 
-  IT_met = iConfig.getParameter<edm::InputTag>("metLabel");
-  IT_CaloTower = iConfig.getParameter<edm::InputTag>("CaloTowerLabel");
-  IT_SuperCluster = iConfig.getParameter<edm::InputTag>("SuperClusterLabel");
-  IT_Photon = iConfig.getParameter<edm::InputTag>("PhotonLabel") ;
+  IT_CSCSegment              = consumes<CSCSegmentCollection > (iConfig.getParameter<edm::InputTag>("CSCSegmentLabel"));  
+  IT_CosmicStandAloneMuon    = consumes<reco::MuonCollection > (iConfig.getParameter<edm::InputTag>("CosmicStandAloneMuonLabel")); 
+  IT_BeamHaloMuon            = consumes<reco::MuonCollection > (iConfig.getParameter<edm::InputTag>("BeamHaloMuonLabel"));
+  IT_CollisionMuon           = consumes<reco::MuonCollection > (iConfig.getParameter<edm::InputTag>("CollisionMuonLabel"));
+  IT_CollisionStandAloneMuon = consumes<reco::MuonCollection > (iConfig.getParameter<edm::InputTag>("CollisionStandAloneMuonLabel")); 
+  IT_met                     = consumes<reco::CaloMETCollection > (iConfig.getParameter<edm::InputTag>("metLabel"));
+  IT_CaloTower               = consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("CaloTowerLabel"));
+  IT_SuperCluster            = consumes<SuperClusterCollection > (iConfig.getParameter<edm::InputTag>("SuperClusterLabel"));
+  IT_Photon                  = consumes<reco::PhotonCollection > (iConfig.getParameter<edm::InputTag>("PhotonLabel"));
   
   //Halo Data
-  IT_CSCHaloData = iConfig.getParameter<edm::InputTag> ("CSCHaloDataLabel");
-  IT_EcalHaloData = iConfig.getParameter<edm::InputTag>("EcalHaloDataLabel");
-  IT_HcalHaloData = iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel");
-  IT_GlobalHaloData = iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel");
-  IT_BeamHaloSummary = iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  IT_CSCHaloData     = consumes<reco::CSCHaloData > (iConfig.getParameter<edm::InputTag> ("CSCHaloDataLabel"));
+  IT_EcalHaloData    = consumes<reco::EcalHaloData > (iConfig.getParameter<edm::InputTag>("EcalHaloDataLabel"));
+  IT_HcalHaloData    = consumes<reco::HcalHaloData > (iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel"));
+  IT_GlobalHaloData  = consumes<reco::GlobalHaloData > (iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel"));
+  IT_BeamHaloSummary = consumes<BeamHaloSummary > (iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
 
+  edm::InputTag CosmicSAMuonLabel = iConfig.getParameter<edm::InputTag>("CosmicStandAloneMuonLabel");
+  IT_CSCTimeMapToken              = consumes<reco::MuonTimeExtraMap > (edm::InputTag(CosmicSAMuonLabel.label(),std::string("csc"))); 
   FolderName = iConfig.getParameter<std::string>("folderName");
   DumpMET = iConfig.getParameter<double>("DumpMET");
 
@@ -320,9 +322,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
   edm::Handle< reco::MuonCollection > TheCosmics;
-  iEvent.getByLabel(IT_CosmicStandAloneMuon, TheCosmics);
+  iEvent.getByToken(IT_CosmicStandAloneMuon, TheCosmics);
   edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap;
-  iEvent.getByLabel(IT_CosmicStandAloneMuon.label(),"csc",TheCSCTimeMap);
+  iEvent.getByToken(IT_CSCTimeMapToken,TheCSCTimeMap);
   bool CSCTrackPlus = false; bool CSCTrackMinus = false;
   int imucount=0;
   if( TheCosmics.isValid() )
@@ -449,7 +451,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   //Get CSC Segments
   edm::Handle<CSCSegmentCollection> TheCSCSegments;
-  iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
+  iEvent.getByToken(IT_CSCSegment, TheCSCSegments);
 
   // Group segments according to endcaps
   std::vector< CSCSegment> vCSCSegments_Plus;
@@ -475,7 +477,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get CSC RecHits
   Handle<CSCRecHit2DCollection> TheCSCRecHits;
-  iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
+  iEvent.getByToken(IT_CSCRecHit, TheCSCRecHits);
   bool CSCRecHitPlus = false; 
   bool CSCRecHitMinus = false;
   if( TheCSCRecHits.isValid() )
@@ -496,7 +498,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
-  iEvent.getByLabel(IT_EBRecHit, TheEBRecHits);
+  iEvent.getByToken(IT_EBRecHit, TheEBRecHits);
   int EBHits=0;
   if( TheEBRecHits.isValid() )
     {
@@ -515,7 +517,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get HB/HE RecHits
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
-  iEvent.getByLabel(IT_HBHERecHit, TheHBHERecHits);
+  iEvent.getByToken(IT_HBHERecHit, TheHBHERecHits);
   if( TheHBHERecHits.isValid() )
     {
       for( HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++)  
@@ -529,11 +531,11 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get MET
   edm::Handle< reco::CaloMETCollection > TheCaloMET;
-  iEvent.getByLabel(IT_met, TheCaloMET);
+  iEvent.getByToken(IT_met, TheCaloMET);
 
   //Get CSCHaloData
   edm::Handle<reco::CSCHaloData> TheCSCDataHandle;
-  iEvent.getByLabel(IT_CSCHaloData,TheCSCDataHandle);
+  iEvent.getByToken(IT_CSCHaloData,TheCSCDataHandle);
   int TheHaloOrigin = 0;
   if (TheCSCDataHandle.isValid())
     {
@@ -584,7 +586,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get EcalHaloData 
   edm::Handle<reco::EcalHaloData> TheEcalHaloData;
-  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData );
+  iEvent.getByToken(IT_EcalHaloData, TheEcalHaloData );
   if( TheEcalHaloData.isValid() ) 
     {
       const EcalHaloData EcalData = (*TheEcalHaloData.product()); 
@@ -627,7 +629,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get HcalHaloData
   edm::Handle<reco::HcalHaloData> TheHcalHaloData;
-  iEvent.getByLabel(IT_HcalHaloData ,TheHcalHaloData );
+  iEvent.getByToken(IT_HcalHaloData ,TheHcalHaloData );
   if( TheHcalHaloData.isValid( ) )
     {
       const HcalHaloData HcalData = (*TheHcalHaloData.product());                                                                
@@ -655,7 +657,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     {
       //Get GlobalHaloData
       edm::Handle<reco::GlobalHaloData> TheGlobalHaloData;
-      iEvent.getByLabel(IT_GlobalHaloData, TheGlobalHaloData );
+      iEvent.getByToken(IT_GlobalHaloData, TheGlobalHaloData );
       if( TheGlobalHaloData.isValid() ) 
 	{
 	  const GlobalHaloData GlobalData =(*TheGlobalHaloData.product());                                                           
@@ -735,7 +737,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // Get BeamHaloSummary 
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(IT_BeamHaloSummary, TheBeamHaloSummary) ;
+  iEvent.getByToken(IT_BeamHaloSummary, TheBeamHaloSummary) ;
   if( TheBeamHaloSummary.isValid() ) 
     {
       const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
