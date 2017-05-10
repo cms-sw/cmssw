@@ -129,8 +129,21 @@ process.convStepSelector.vertices = 'pixelVertices'
 # following all the places in which they are effectively used in
 # release. The RunI-like tracking already uses CCCNone: this will
 # be useful mainly for conversions.
-process.SiStripClusterChargeCutTight.value = -1.
-process.SiStripClusterChargeCutLoose.value = -1
+#process.SiStripClusterChargeCutTight.value = -1.
+#process.SiStripClusterChargeCutLoose.value = -1.
+#process.SiStripClusterChargeCutTiny.value = -1.
+#process.SiStripClusterChargeCutNone.value = -1.
+
+process.SiStripClusterChargeCutTight = cms.PSet( value = cms.double( -1. ))
+process.SiStripClusterChargeCutLoose = cms.PSet( value = cms.double( -1. ))
+process.SiStripClusterChargeCutTiny = cms.PSet( value = cms.double( -1. ))
+process.SiStripClusterChargeCutNone = cms.PSet( value = cms.double( -1. ))
+
+#process.HLTSiStripClusterChargeCutTight = cms.PSet( value = cms.double( -1. ))
+#process.HLTSiStripClusterChargeCutLoose = cms.PSet( value = cms.double( -1. ))
+#process.HLTSiStripClusterChargeCutTiny = cms.PSet( value = cms.double( -1. ))
+#process.HLTSiStripClusterChargeCutNone = cms.PSet( value = cms.double( -1. ))
+
 
 # Defaults are ok here ...
 # process.earlyMuons.TrackAssociatorParameters.useMuon      = cms.bool(True)
@@ -162,6 +175,7 @@ process.load("RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi")
 
 
 ### Can we do also Muon Global Reco? ###
+process.load("RecoMuon.Configuration.RecoMuon_cff")
 ########################################
 # process.load("RecoVertex.Configuration.RecoVertex_cff")
 # process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
@@ -285,6 +299,10 @@ process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMea
 process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
 process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
 
+#### Customization for global muons to include me0 Id
+##process.muonIdProducerSequence.muons1stStep.doME0 = cms.bool(True)
+#process.muons.InputMuons.doME0=cms.bool(True)
+process.muons1stStep.doME0=cms.bool(True)
 
 ### Bare minimum for global muons, globalMuons, from RecoMuon/Configuration/python/RecoMuonPPonly_cff.py
 process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.globalMuons)

@@ -1,6 +1,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 using namespace reco;
 
@@ -57,6 +58,19 @@ int Muon::numberOfChambersNoRPC() const
   return total;
 }
 
+
+int Muon::numberOfChambersNoME0() const
+{
+  int total = 0;
+  int nAll = numberOfChambers();
+  for (int iC = 0; iC < nAll; ++iC){
+    if (matches()[iC].detector() == MuonSubdetId::ME0) continue;
+    total++;
+  }
+
+  return total;
+}
+
 int Muon::numberOfMatches( ArbitrationType type ) const
 {
    int matches(0);
@@ -67,6 +81,12 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          if(chamberMatch->rpcMatches.empty()) continue;
          matches += chamberMatch->rpcMatches.size();
          continue;
+      }
+      
+      if(type == ME0SegmentAndTrackArbitration) {
+	//If ME0SegmentAndTrackArbitration, check only for ME0 chambers, and add segment matches (will be 0 or 1)
+	if (chamberMatch->id.subdetId() == MuonSubdetId::ME0) matches+= chamberMatch->segmentMatches.size();
+	continue;
       }
 
       if(chamberMatch->segmentMatches.empty()) continue;
@@ -147,6 +167,15 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
          continue;
       }
 
+      if(type == ME0SegmentAndTrackArbitration) {
+	//DTs from 0-3, CSCs from 4-7, so ME0 will be 8 (there is only 1 ME0 station)
+	curMask = 1<<8;
+	// do not double count
+	if(!(totMask & curMask))
+	  totMask += curMask;
+	continue;
+      }
+
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
@@ -212,6 +241,7 @@ int Muon::numberOfMatchedRPCLayers( ArbitrationType type ) const
 
    return layers;
 }
+
 
 unsigned int Muon::RPClayerMask( ArbitrationType type ) const
 {

@@ -68,6 +68,9 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     # calo muons
     minCaloCompatibility = cms.double(0.6),
 
+    # me0 muons
+    doME0 = cms.bool(False),
+
     # arbitration cleaning                       
     runArbitrationCleaner = cms.bool(True),
     arbitrationCleanerOptions = cms.PSet( ME1a = cms.bool(True),
