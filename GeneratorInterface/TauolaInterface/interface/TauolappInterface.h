@@ -59,7 +59,9 @@ namespace gen {
       int selectLeptonic();
       int selectHadronic();
       double flat();
-      
+      bool isLastTauInChain(const HepMC::GenParticle* tau);
+      void setLifeTimeInDecays(HepMC::GenParticle* p,double vx, double vy, double vz, double vt);
+
       //
       CLHEP::HepRandomEngine*                  fRandomEngine;            
       bool                                     fPolarization;      
@@ -75,6 +77,7 @@ namespace gen {
       std::vector<double>                      fScaledHadronBrRatios;
       
       static TauolappInterface*                  fInstance;
+      double lifetime;
        
    };
 
