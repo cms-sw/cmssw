@@ -218,7 +218,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           phiAtVtx = ctrack->phi();
           int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
           if (nlost == 0) { 
-            if (ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
+            if (ctrack->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
               lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
             }
           } else {

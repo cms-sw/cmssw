@@ -745,7 +745,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 			} else {
 				LogDebug("DAClusterizerinZ_vectorized")  << "  ";
 			}
-			if (tks.tt[i]->track().hitPattern().hasValidHitInFirstPixelBarrel()) {
+			if (tks.tt[i]->track().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
 				LogDebug("DAClusterizerinZ_vectorized")  << "+";
 			} else {
 				LogDebug("DAClusterizerinZ_vectorized")  << "-";
