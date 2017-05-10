@@ -9,6 +9,9 @@
   <version ClassVersion="10" checksum="3025325436"/>
  </class>
  <enum name="edmtest::TheEnumProduct"/>
+ <class name="edmtest::ArrayProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="3635152897"/>
+ </class>
  <class name="edmtest::TransientIntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="304339852"/>
  </class>

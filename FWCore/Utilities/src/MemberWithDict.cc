@@ -2,6 +2,8 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include <ostream>
+#include <sstream>
 
 namespace edm {
 
@@ -30,12 +32,27 @@ namespace edm {
 
   TypeWithDict
   MemberWithDict::typeOf() const {
+    if(isArray()) {
+      std::ostringstream name;
+      name << dataMember_->GetTypeName();
+      for(int i = 0; i < dataMember_->GetArrayDim(); ++i) {
+        name << '[';
+        name << dataMember_->GetMaxIndex(i);
+        name << ']';
+        return TypeWithDict::byName(name.str(), dataMember_->Property());
+      }
+    } 
     return TypeWithDict::byName(dataMember_->GetTypeName(), dataMember_->Property());
   }
 
   TypeWithDict
   MemberWithDict::declaringType() const {
     return TypeWithDict(dataMember_->GetClass(), dataMember_->Property());
+  }
+
+  bool
+  MemberWithDict::isArray() const {
+    return dataMember_->Property() & kIsArray;
   }
 
   bool

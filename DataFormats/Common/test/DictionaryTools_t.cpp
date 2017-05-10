@@ -152,6 +152,7 @@ namespace {
     checkIt<edm::Wrapper<T> >();
     checkIt<edm::Wrapper<std::vector<T> > >();
     checkIt<T>();
+    checkIt<T[1]>();
   }
 }
 
