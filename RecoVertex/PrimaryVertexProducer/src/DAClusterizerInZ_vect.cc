@@ -304,6 +304,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t & y) const {
 
 bool 
 DAClusterizerInZ_vect::purge(vertex_t & y, track_t & tks, double & rho0, const double beta) const {
+  constexpr int maxUnique = 2;
   // eliminate clusters with only one significant/unique track
   const unsigned int nv = y.GetSize();
   const unsigned int nt = tks.GetSize();
@@ -314,25 +315,26 @@ DAClusterizerInZ_vect::purge(vertex_t & y, track_t & tks, double & rho0, const d
   double sumpmin = nt;
   unsigned int k0 = nv;
   
-  for (unsigned int k = 0; k < nv; k++) {
+  const double rho0exp = rho0 * local_exp(-beta * dzCutOff_* dzCutOff_);
+
+  for (unsigned int k = 0; k < nv; ++k) {
     
     int nUnique = 0;
     double sump = 0;
-    double pmax = y._pk[k] / (y._pk[k] + rho0 * local_exp(-beta * dzCutOff_* dzCutOff_));
+    double pmax = y._pk[k] / (y._pk[k] + rho0exp);
     
-    for (unsigned int i = 0; i < nt; i++) {
+    for (unsigned int i = 0; i < nt; ++i) {
       
       if (tks._Z_sum[i] > 0) {
 	//double p=pik(beta,tks[i],*k);
 	double p = y._pk[k] * local_exp(-beta * Eik(tks._z[i], y._z[k], tks._dz2[i])) / tks._Z_sum[i];
 	sump += p;
-	if ((p > 0.9 * pmax) && (tks._pi[i] > 0)) {
-	  nUnique++;
-	}
-			}
+	if((p > 0.9 * pmax) && (tks._pi[i] > 0)) { ++nUnique; }
+	if(nUnique >= maxUnique) { break; }
+      }
     }
     
-    if ((nUnique < 2) && (sump < sumpmin)) {
+    if ((nUnique < maxUnique) && (sump < sumpmin)) {
       sumpmin = sump;
       k0 = k;
     }
