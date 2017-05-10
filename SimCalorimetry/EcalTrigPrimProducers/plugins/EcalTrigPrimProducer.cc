@@ -64,12 +64,14 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
   debug_(iConfig.getParameter<bool>("Debug")),
   famos_(iConfig.getParameter<bool>("Famos")),
-  label_(iConfig.getParameter<std::string>("Label")),
-  instanceNameEB_(iConfig.getParameter<std::string>("InstanceEB")),
-  instanceNameEE_(iConfig.getParameter<std::string>("InstanceEE")),
+  EBtag_(iConfig.getParameter<edm::InputTag>("EBlabel")),
+  EEtag_(iConfig.getParameter<edm::InputTag>("EElabel")),
+  Eblabel_(consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("EBlabel"))),
+  Eelabel_(consumes<EEDigiCollection>(iConfig.getParameter<edm::InputTag>("EElabel"))),
   binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
   fillBinOfMaximumFromHistory_(-1==binOfMaximum_)
 {  
+  
   //register your products
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
@@ -216,18 +218,19 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   bool endcap=true;
   if (barrelOnly_) endcap=false;
 
-  if (!e.getByLabel(label_,instanceNameEB_,ebDigis)) {
+  if (!e.getByToken(Eblabel_,ebDigis)) {
     barrel=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_<<"!!!";
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<< EBtag_ <<"!!!";
   }
   if (!barrelOnly_) {
-    if (!e.getByLabel(label_,instanceNameEE_,eeDigis)) {
+    if (!e.getByToken(Eelabel_,eeDigis)) {
       endcap=false;
-      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_<<"!!!";
+      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<< EEtag_ <<"!!!";
     }
   }
   if (!barrel && !endcap) {
-    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<<" found in input!!\n";
+    // throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<<" found in input!!\n";
+    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<< EBtag_ << "(" << EEtag_ << ")"<< " found in input!!\n";
   }
 
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
@@ -273,15 +276,13 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
 void 
 EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<bool>("BarrelOnly",false);
   desc.add<bool>("TcpOutput",false);
   desc.add<bool>("Debug",false);
   desc.add<bool>("Famos",false);
-  desc.add<std::string>("Label","simEcalUnsuppressedDigis");
-  desc.add<std::string>("InstanceEB","");
-  desc.add<std::string>("InstanceEE","");
+  desc.add<edm::InputTag>("EBlabel",edm::InputTag("simEcalUnsuppressedDigis",""));
+  desc.add<edm::InputTag>("EElabel",edm::InputTag("simEcalUnsuppressedDigis",""));
   const std::string kComment("A value of -1 will make the module lookup the value of 'binOfMaximum' from the module 'ecalUnsuppressedDigis' from the process history. Allowed values are -1 and from 1-10."); 
   //The code before the existence of fillDescriptions did something special if 'binOfMaximum' was missing. This replicates that behavior.
   desc.add<int>("binOfMaximum",-1)->setComment(kComment);

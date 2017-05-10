@@ -73,12 +73,12 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
   }
 
   recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
-  label_=iConfig.getParameter<edm::InputTag>("inputTP");
+  label_=consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
   if (recHits_) {
     hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
     hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
-    rechits_labelEB_=iConfig.getParameter<edm::InputTag>("inputRecHitsEB");
-    rechits_labelEE_=iConfig.getParameter<edm::InputTag>("inputRecHitsEE");
+    rechits_labelEB_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputRecHitsEB"));
+    rechits_labelEE_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputRecHitsEE"));
   }
 }
 
@@ -108,7 +108,7 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByLabel(label_,tp);
+  iEvent.getByToken(label_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     int subdet=d.id().subDet()-1;
@@ -129,10 +129,10 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // comparison with RecHits
   edm::Handle<EcalRecHitCollection> rechit_EB_col;
-  iEvent.getByLabel(rechits_labelEB_,rechit_EB_col);
+  iEvent.getByToken(rechits_labelEB_,rechit_EB_col);
 
   edm::Handle<EcalRecHitCollection> rechit_EE_col;
-  iEvent.getByLabel(rechits_labelEE_,rechit_EE_col);
+  iEvent.getByToken(rechits_labelEE_,rechit_EE_col);
   
 
   edm::ESHandle<CaloGeometry> theGeometry;

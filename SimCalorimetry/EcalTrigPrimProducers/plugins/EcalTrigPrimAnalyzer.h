@@ -19,6 +19,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -59,10 +61,10 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   int iphi_, ieta_ , tpgADC_, ttf_, fg_ ;
   float eRec_, tpgGeV_ ;
 
-  edm::InputTag label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> label_;
 
-  edm::InputTag rechits_labelEB_;
-  edm::InputTag rechits_labelEE_;
+  edm::EDGetTokenT<EcalRecHitCollection> rechits_labelEB_;
+  edm::EDGetTokenT<EcalRecHitCollection> rechits_labelEE_;
 
   bool recHits_;
 };

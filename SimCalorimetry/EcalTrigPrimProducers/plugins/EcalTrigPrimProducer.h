@@ -24,7 +24,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
  
 #include "DataFormats/Common/interface/Handle.h"
- 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
 class EcalTrigPrimFunctionalAlgo;
@@ -49,10 +50,11 @@ class EcalTrigPrimProducer : public edm::stream::EDProducer<>
   bool tcpFormat_;
   bool debug_;
   bool famos_;
-  std::string label_;
-  std::string instanceNameEB_;
-  std::string instanceNameEE_;
-
+  edm::InputTag EBtag_;
+  edm::InputTag EEtag_;
+  edm::EDGetTokenT<EBDigiCollection> Eblabel_;
+  edm::EDGetTokenT<EEDigiCollection> Eelabel_;
+  
   int binOfMaximum_;
   bool fillBinOfMaximumFromHistory_;
 

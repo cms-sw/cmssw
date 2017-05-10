@@ -52,9 +52,12 @@ EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet& iConfig)
 //     sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
 //     ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
 //   }
-   producer_= iConfig.getParameter<std::string>("Producer");
-   ebLabel_= iConfig.getParameter<std::string>("EBLabel");
-   eeLabel_= iConfig.getParameter<std::string>("EELabel");
+
+   EBtag_ = iConfig.getParameter<edm::InputTag>("ProducerEblabel"); 
+   EEtag_ = iConfig.getParameter<edm::InputTag>("ProducerEelabel");
+   producerEblabel_= consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("ProducerEblabel"));
+   producerEelabel_= consumes<EEDigiCollection>(iConfig.getParameter<edm::InputTag>("ProducerEelabel"));
+      
 }
 
 
@@ -84,14 +87,15 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool barrel=true;
   edm::Handle<EBDigiCollection> ebDigis;
   edm::Handle<EEDigiCollection> eeDigis;
-  if (!iEvent.getByLabel(producer_,ebLabel_,ebDigis)) {
+  if (!iEvent.getByToken(producerEblabel_,ebDigis)) {
     barrel=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<<producer_<<" and label: "<<ebLabel_;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<< EBtag_;
+
   }
   bool endcap=true;
-  if (!iEvent.getByLabel(producer_,eeLabel_,eeDigis)) {
+  if (!iEvent.getByToken(producerEelabel_,eeDigis)) {
     endcap=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<<producer_<<" and label: "<<eeLabel_;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<< EEtag_;
   }
   //barrel
   if (barrel) {
@@ -121,7 +125,7 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 //   // Get input
 //   edm::Handle<EcalTrigPrimDigiCollection> tp;
-//   iEvent.getByLabel(label_,producer_,tp);
+//   iEvent.getByToken(label_,producer_,tp);
 //   for (unsigned int i=0;i<tp.product()->size();i++) {
 //     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
 //     int subdet=d.id().subDet()-1;
