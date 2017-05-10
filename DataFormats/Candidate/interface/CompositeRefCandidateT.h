@@ -12,6 +12,7 @@
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace reco {
 
