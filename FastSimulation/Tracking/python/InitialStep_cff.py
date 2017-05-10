@@ -12,9 +12,7 @@ initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectory
         maxZ0 = -1,
         ),
     minLayersCrossed = 3,
-    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
-    ptMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
     layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value()
     )
 

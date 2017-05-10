@@ -36,6 +36,11 @@
 
 #include <unordered_set>
 
+// lv
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -48,7 +53,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
     testPrimaryVertexCompatibility(false),
-    primaryVertices(nullptr)
+    primaryVertices(nullptr),
+    theRegionProducer(nullptr)
 {  
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
@@ -141,6 +147,16 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
+
+    // lv
+    if(conf.exists("RegionFactoryPSet")){
+      edm::ParameterSet regfactoryPSet = 
+	conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+    }
+
+
 }
 
 void
@@ -235,6 +251,9 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
     const GlobalPoint& globalHitPos2 = hit2.globalPosition();
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
+    if (theRegionProducer){
+      return testWithRegions(globalHitPos1,globalHitPos2);
+    }
     if (testBeamspotCompatibility)
       {
 	return compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
@@ -469,6 +488,11 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
             The implementation has been chosen such that the tree only needs to be build once upon construction.
         */
+	// lv
+	regions.clear();
+	if(theRegionProducer){
+	  regions = theRegionProducer->regions(e,es);
+	}
 
         std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
@@ -519,7 +543,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
             int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
             initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
             output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-
+	    
         }
     } //end loop over simtracks
     
@@ -527,7 +551,51 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(output);
 }
 
+bool
+TrajectorySeedProducer::testWithRegions(const GlobalPoint& gpos1, 
+					const GlobalPoint& gpos2) const{
+  
 
+    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+      
+      TrackingRegion * region = *ir;
+      // parameter transformation: take region's center as (0,0,0) 
+      XYZTLorentzVector thePos1(gpos1.x() - region->origin().x(),gpos1.y() - region->origin().y(),gpos1.z() - region->origin().z(),0.);
+      XYZTLorentzVector thePos2(gpos2.x() - region->origin().x(),gpos2.y() - region->origin().y(),gpos2.z() - region->origin().z(),0.);
+
+
+      // create a particle with following properties
+      //  - charge = +1
+      //  - vertex at second rechit
+      //  - momentum direction: from first to second rechit
+      //  - magnitude of momentum: nonsense (distance between 1st and 2nd rechit)  
+      ParticlePropagator myPart(thePos2 - thePos1,thePos2,1.,magneticFieldMap);
+
+      /*
+	propagateToBeamCylinder does the following
+	- check there exists a track through the 2 hits and through a
+	cylinder with radius "originRadius" centered around the CMS axis
+	- if such tracks exists, pick the one with maximum pt
+	- track vertex z coordinate is z coordinate of closest approach of
+	track to (x,y) = (0,0)
+	- the particle gets the charge that allows the highest pt
+      */
+      bool intersect = myPart.propagateToBeamCylinder(thePos1,region->originRBound());
+      if ( !intersect ) continue;
+      
+      
+      // Check if the constraints are satisfied
+      // 1. pT at cylinder with radius originRadius
+      else if ( myPart.Pt() < region->ptMin() ) continue;
+      
+      // 2. Z compatible with region center ? 
+      else if ( fabs(myPart.Z()) > region->originZBound() ) continue;
+
+      return true;
+    }
+    return true;
+
+}
 
 bool
 TrajectorySeedProducer::compatibleWithBeamSpot(
