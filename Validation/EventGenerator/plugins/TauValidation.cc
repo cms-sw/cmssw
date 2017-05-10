@@ -684,7 +684,7 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, do
 
      // compute the acoplanarity
      double Acoplanarity=acos(n_plus.Dot(n_minus)/(n_plus.Mag()*n_minus.Mag()));
-     if(pi_rhominus.Vect().Dot(n_plus)>0){Acoplanarity*=-1;Acoplanarity+=2*TMath::Pi();}
+     if(pi_rhominusb.Vect().Dot(n_plus)>0){Acoplanarity*=-1;Acoplanarity+=2*TMath::Pi();}
 
      // now boost to tau frame
      pi_rhoplus.Boost(-1*taup.BoostVector());
@@ -716,7 +716,7 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, do
        TauSpinEffectsH_pipiAcollinearityzoom->Fill(acos(pi_plus.Vect().Dot(pi_minus.Vect())/(pi_plus.P()*pi_minus.P())));
      }
 
-     double proj_m=taum.Vect().Dot(pi_minus.Vect())/(taum.P()*taup.P());
+     double proj_m=taum.Vect().Dot(pi_minus.Vect())/(taum.P()*taum.P());
      double proj_p=taup.Vect().Dot(pi_plus.Vect())/(taup.P()*taup.P());
      TVector3 Tau_m=taum.Vect();
      TVector3 Tau_p=taup.Vect();
