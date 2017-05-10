@@ -31,14 +31,30 @@ process.trackerGeom = cms.ESSource("PoolDBESSource",
 										record = cms.string('TrackerAlignmentErrorRcd'),
 										tag = cms.string('AlignmentErrors')
 								)),
-				connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs_v2.db')
+				connect = cms.string('sqlite_file:inputdbfile.db')
 )
 										
 											
 # input
 process.load("Alignment.TrackerAlignment.TrackerSystematicMisalignments_cfi")
 process.TrackerSystematicMisalignments.fromDBGeom = True
-process.TrackerSystematicMisalignments.radialEpsilon = 5e-4 # default 5e-4 ~ 600 um
+
+#uncomment one or more of these to apply the misalignment(s)
+
+#process.TrackerSystematicMisalignments.radialEpsilon     = 5.00e-4 # default 5e-4 ~ 600 um
+#process.TrackerSystematicMisalignments.telescopeEpsilon  = 5.00e-4 # default 5e-4 ~ 600 um
+#process.TrackerSystematicMisalignments.layerRotEpsilon   = 9.43e-6 # 9.43e-6
+#process.TrackerSystematicMisalignments.bowingEpsilon     = 6.77e-9 # 6.77e-9
+#process.TrackerSystematicMisalignments.zExpEpsilon       = 2.02e-4 # 2.02e-4
+#process.TrackerSystematicMisalignments.twistEpsilon      = 2.04e-6 # 2.04e-6
+#process.TrackerSystematicMisalignments.ellipticalEpsilon = 5.00e-4 # 5e-4
+#process.TrackerSystematicMisalignments.skewEpsilon       = 5.5e-2 # 5.5e-2
+#process.TrackerSystematicMisalignments.sagittaEpsilon    = 5.00e-4 # 5.0e-4
+
+#misalignment phases
+process.TrackerSystematicMisalignments.ellipticalDelta   = 0
+process.TrackerSystematicMisalignments.skewDelta         = 0
+process.TrackerSystematicMisalignments.sagittaDelta      = 0
 	
 # output
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -51,7 +67,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 																	 record = cms.string('TrackerAlignmentErrorRcd'),
 																	 tag = cms.string('AlignmentErrors')
 																	 )),
-										  connect = cms.string('sqlite_file:test.db')
+										  connect = cms.string('sqlite_file:outputdbfile.db')
 )
 
 process.p = cms.Path( process.TrackerSystematicMisalignments )
