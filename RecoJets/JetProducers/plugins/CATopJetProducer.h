@@ -49,6 +49,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -79,6 +81,7 @@ namespace cms
     CATopJetProducer(const edm::ParameterSet& ps);
 
     virtual ~CATopJetProducer() {}
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
