@@ -29,6 +29,9 @@
 #include <fstream>
 #include <iomanip>
 
+#include <TFile.h>
+#include <TH1F.h>
+
 //#define DebugLog
 //#define plotDebug
 
@@ -384,32 +387,42 @@ HCalSD::~HCalSD() {
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
-
-  NaNTrap( aStep ) ;
   
+  NaNTrap( aStep ) ;
+    
   if (aStep == NULL) {
     return true;
   } else {
     G4LogicalVolume* lv =
-      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+    aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
     G4String nameVolume = lv->GetName();
-    if (isItHF(aStep)) {
+    if (isItHF(aStep))
+    {
       G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-      double weight(1.0);
-      if (m_HFDarkening != 0) {
-	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-	double r = hitPoint.perp()/CLHEP::cm;
-	double z = std::abs(hitPoint.z())/CLHEP::cm;
-	float dose_acquired = 0.;
-	if (z>=1100 && z <= 1300) {
-	  int hfZLayer = (int)((z - 1100)/20);
-	  if (hfZLayer > 9) hfZLayer = 9;
-	  float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
-	  for (int i = hfZLayer; i <= 9; ++i) {
-	    dose_acquired = m_HFDarkening->dose(i,r);
-	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
-	  }
-	}
+      double weight = 1.0;
+      if (m_HFDarkening != 0)
+      {
+        G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+        double r = hitPoint.perp()/CLHEP::cm;
+        double z = std::abs(hitPoint.z())/CLHEP::cm;
+        float dose_acquired = 0.;
+        if (z>=1115 && z <= 1280)
+        {
+          int hfZLayer = (int)((z - 1115)/5);
+          if (hfZLayer > 32) hfZLayer = 32;
+          float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
+#ifdef DebugLog
+          edm::LogInfo("HcalSim") << "HCalSD: NEW HIT" << std::endl;
+#endif
+          for (int i = hfZLayer; i <= 32; ++i)
+          {
+            dose_acquired = m_HFDarkening->dose(i,r);
+            weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
+#ifdef DebugLog
+            edm::LogInfo("HcalSim") << "HCalSD: R: " << r << " Z: " << hfZLayer << " Dose Aqcuired: " << dose_acquired << " Weight: " << weight << " Dose " << deliveredLumi << " Lumi: " << normalized_lumi << std::endl;
+#endif
+          }
+        }
 #ifdef DebugLog
 	LogDebug("HcalSim") << "HCalSD: HFLumiDarkening at r = " << r 
 			    << ", z = " << z << " Dose " << dose_acquired 
