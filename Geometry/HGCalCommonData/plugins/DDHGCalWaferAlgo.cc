@@ -13,7 +13,7 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalWaferAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 DDHGCalWaferAlgo::DDHGCalWaferAlgo() {
 #ifdef EDM_ML_DEBUG
