@@ -424,6 +424,10 @@ class SerializationCodeGenerator(object):
 	   cpp_flags = self.cleanFlags( scramFlags )
 	   cxx_flags = []
 
+        # drop -march and -mtune flags
+        cpp_flags = [ flag for flag in cpp_flags if not flag.startswith(('-march', '-mtune')) ]
+        cxx_flags = [ flag for flag in cxx_flags if not flag.startswith(('-march', '-mtune')) ]
+
         std_flags = get_default_gcc_search_paths()
         log_flags('cpp_flags', cpp_flags)
         log_flags('cxx_flags', cxx_flags)
