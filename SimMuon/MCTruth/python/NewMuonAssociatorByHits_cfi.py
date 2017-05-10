@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-muonAssociatorByHitsCommonParameters = cms.PSet(
+NewMuonAssociatorByHitsCommonParameters = cms.PSet(
     dumpInputCollections = cms.untracked.bool(False),
     #
     #....... general input parameters
@@ -10,7 +10,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     includeZeroHitMuons = cms.bool(True),
     #
     # accept to match only tracker/muon stub of globalMuons
-    acceptOneStubMatchings = cms.bool(True),
+    acceptOneStubMatchings = cms.bool(False),
     #
     # switches to be set according to the input Track collection
     UseTracker = cms.bool(True),
@@ -89,7 +89,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
         'TrackerHitsPixelEndcapLowTof', 
         'TrackerHitsPixelEndcapHighTof'),
     #
-    # to associate to reco::Muon segments (3.5.X only)
+    # to associate to reco::Muon segments 
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
@@ -98,7 +98,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
 #if True:
-    obj = muonAssociatorByHitsCommonParameters
+    obj = NewMuonAssociatorByHitsCommonParameters
     obj.simtracksTag = "famosSimHits"
     obj.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
     obj.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
@@ -110,9 +110,9 @@ if fastSim.isChosen():
     obj.ROUList = ['famosSimHitsTrackerHits']
 
   
-muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
+NewMuonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
-    muonAssociatorByHitsCommonParameters,
+    NewMuonAssociatorByHitsCommonParameters,
     # for Muon Track association
     #
     #     input collections
@@ -142,7 +142,7 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
+run3_GEM.toModify( NewMuonAssociatorByHits, useGEMs = cms.bool(True) )
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( muonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
-phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
+phase2_tracker.toModify( NewMuonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
+phase2_tracker.toModify( NewMuonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
