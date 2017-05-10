@@ -115,7 +115,13 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack')),
     cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
 #    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.))
+#    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.)),
+#    cms.PSet(mapName=cms.untracked.string('ClusterCharge'),mapMax=cms.untracked.double(-1.)),
+    cms.PSet(mapName=cms.untracked.string('NumberMissingHits')),
+    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack')),
+#    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromOrigin')),
+    cms.PSet(mapName=cms.untracked.string('NumberValidHits')),
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'))
     )
 )
 
