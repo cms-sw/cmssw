@@ -22,7 +22,7 @@
     CastorShowerEvent();
     ~CastorShowerEvent();
     
-    void Clear();
+    void ClearB();
     
 //  private:
   

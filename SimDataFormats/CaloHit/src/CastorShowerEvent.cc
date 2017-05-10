@@ -9,7 +9,7 @@ CastorShowerEvent::CastorShowerEvent() {
 CastorShowerEvent::~CastorShowerEvent() {}
 
     
-void CastorShowerEvent::Clear() {
+void CastorShowerEvent::ClearB() {
    nhit = 0;
    detID.clear();
    hitPosition.clear();
