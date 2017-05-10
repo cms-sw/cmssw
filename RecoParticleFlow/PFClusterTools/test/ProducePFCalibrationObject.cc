@@ -20,7 +20,7 @@
 
 
 #include "TF1.h"
-
+#include <RVersion.h>
 
 using namespace std;
 using namespace edm;
@@ -97,7 +97,11 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
 
       // write them in the containers for the storage
       limitsToWrite.push_back(limits);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+      formulasToWrite.push_back(string(function->GetFormula()->GetExpFormula("P").Data()));
+#else
       formulasToWrite.push_back(string(function->GetExpFormula("p").Data()));
+#endif
       resToWrite.push_back(functType[fType]);
 
     }

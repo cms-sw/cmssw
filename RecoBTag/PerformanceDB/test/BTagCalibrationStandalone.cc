@@ -114,8 +114,13 @@ throw std::exception();
   }
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+BTagEntry::BTagEntry(TF1* func, BTagEntry::Parameters p):
+  formula(std::string(func->GetFormula()->GetExpFormula("P").Data())),
+#else
 BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p):
   formula(std::string(func->GetExpFormula("p").Data())),
+#endif
   params(p)
 {
   if (func->IsZombie()) {

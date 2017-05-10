@@ -18,6 +18,7 @@
 #include <string>
 #include <TF1.h>
 #include <TH1.h>
+#include <RVersion.h>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
@@ -67,7 +68,11 @@ public:
   BTagEntry() {}
   BTagEntry(const std::string &csvLine);
   BTagEntry(const std::string &func, Parameters p);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+  BTagEntry(TF1* func, Parameters p);
+#else
   BTagEntry(const TF1* func, Parameters p);
+#endif
   BTagEntry(const TH1* histo, Parameters p);
   ~BTagEntry() {}
   static std::string makeCSVHeader();
