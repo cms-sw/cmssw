@@ -12,10 +12,10 @@ class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchm
  public:
   
   MatchMETBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
-  
+
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginJob() ;
-  void endJob();
+  void beginJob(){};
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  protected:
   edm::EDGetTokenT< edm::View<reco::MET> > myColl_;

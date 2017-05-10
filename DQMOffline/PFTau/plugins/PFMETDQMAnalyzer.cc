@@ -14,6 +14,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+
 //
 // -- Constructor
 //
@@ -29,25 +31,38 @@ PFMETDQMAnalyzer::PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet)
 
   myMET_ = consumes< edm::View<reco::MET> >(inputLabel_);
   myMatchedMET_ = consumes< edm::View<reco::MET> >(matchLabel_);
-}
-//
-// -- BeginJob
-//
-void PFMETDQMAnalyzer::beginJob() {
 
-  Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
-  // part of the following could be put in the base class
-  std::string path = "ParticleFlow/" + benchmarkLabel_;
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  edm::LogInfo("PFJMETDQMAnalyzer") << " PFMETDQMAnalyzer::beginJob " <<"Histogram Folder path set to "<< path;
-  pfMETMonitor_.setup(pSet_);  
+
+  std::string folder = benchmarkLabel_ ;
+
+  subsystemname_ = "ParticleFlow" ;
+  eventInfoFolder_ = subsystemname_ + "/" + folder ;
+
   nBadEvents_ = 0;
+
 }
+
+
+//
+// -- BookHistograms
+//
+void PFMETDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & /* iRun */,
+					    edm::EventSetup const & /* iSetup */ )
+{
+  ibooker.setCurrentFolder(eventInfoFolder_) ;
+
+  edm::LogInfo("PFMETDQMAnalyzer") << " PFMETDQMAnalyzer::bookHistograms " << "Histogram Folder path set to " << eventInfoFolder_;
+
+  pfMETMonitor_.setup(ibooker, pSet_);
+}
+
+
 //
 // -- Analyze
 //
 void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
-				      edm::EventSetup const& iSetup) {
+			       edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
   iEvent.getByToken(myMET_, metCollection);   
   
@@ -58,39 +73,10 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
     float maxRes = 0.0;
     float minRes = 99.99;
     pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
-    //pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes, pSet_);    
-    edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
-    if ( (skimPS.getParameter<bool>("switchOn")) && 
-         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	storeBadEvents(iEvent,minRes);
-        nBadEvents_++;
-      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-        nBadEvents_++;
-	storeBadEvents(iEvent,maxRes);
-      }
-    }
+
   }
 }
-void PFMETDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
-  unsigned int runNb  = iEvent.id().run();
-  unsigned int evtNb  = iEvent.id().event();
-  unsigned int lumiNb = iEvent.id().luminosityBlock();
-  
-  std::string path = "ParticleFlow/" + benchmarkLabel_ + "/BadEvents";
-  Benchmark::DQM_->setCurrentFolder(path.c_str());
-  std::ostringstream eventid_str;
-  eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
-  MonitorElement* me = Benchmark::DQM_->get(path + "/" + eventid_str.str());
-  if (me) me->Reset();
-  else me = Benchmark::DQM_->bookFloat(eventid_str.str());
-  me->Fill(val);  
-}
 
-//
-// -- EndJob
-// 
-void PFMETDQMAnalyzer::endJob() {
-}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (PFMETDQMAnalyzer) ;
