@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -132,7 +132,7 @@ HcalDDDRecConstantsTemp::getThickActive(const int type) const {
   else           return actHE;
 }
 
-class HcalHBHEMuonAnalyzer : public edm::EDAnalyzer {
+class HcalHBHEMuonAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit HcalHBHEMuonAnalyzer(const edm::ParameterSet&);
@@ -144,10 +144,8 @@ private:
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
   virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   void   clearVectors();
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
@@ -200,6 +198,9 @@ private:
  };
 
 HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
+
+  usesResource("TFileService");
+
   //now do what ever initialization is needed
   HLTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
   labelVtx_         = iConfig.getParameter<std::string>("LabelVertex");
@@ -604,7 +605,8 @@ void HcalHBHEMuonAnalyzer::beginJob() {
 void HcalHBHEMuonAnalyzer::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
-void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, 
+				    edm::EventSetup const& iSetup) {
 
   /*   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
        iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
@@ -650,12 +652,6 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
 
 // ------------ method called when ending the processing of a run  ------------
 void HcalHBHEMuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) { }
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void HcalHBHEMuonAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void HcalHBHEMuonAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HcalHBHEMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

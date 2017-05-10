@@ -69,8 +69,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
 process.HcalIsoTrkAnalyzer.ProcessName  = 'HLTNew1'
-process.HcalIsoTrkAnalyzer.ProducerName = 'ALCAISOTRACK'
-process.HcalIsoTrkAnalyzer.ModuleName   = 'IsoProd'
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
         'file:/afs/cern.ch/work/g/gwalia/calib/dqm/test_29_04/CMSSW_7_5_0_pre2/src/Calibration/HcalCalibAlgos/test/PoolOutput.root'
