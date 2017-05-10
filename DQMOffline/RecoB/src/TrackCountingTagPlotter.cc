@@ -82,13 +82,14 @@ TrackCountingTagPlotter::~TrackCountingTagPlotter ()
   }
 }
 
-void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, 
 	const int & jetFlavour)
 {
   analyzeTag(baseTagInfo,jetFlavour,1.);
 }
 
 void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+					  const double & jec, 
 					  const int & jetFlavour,
 					  const float & w)
 {

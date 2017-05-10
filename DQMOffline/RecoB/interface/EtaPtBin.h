@@ -43,7 +43,7 @@ class EtaPtBin {
 
   /// Check if jet/parton are within rapidity/pt cuts.
   bool inBin(const double & eta , const double & pt) const;
-  bool inBin(const reco::Jet & jet) const;
+  bool inBin(const reco::Jet & jet, const double jec) const;
 //   bool inBin(const BTagMCTools::JetFlavour & jetFlavour) const;
 
  private:

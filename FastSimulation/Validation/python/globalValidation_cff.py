@@ -30,7 +30,7 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 globalAssociation = cms.Sequence(recoMuonAssociationFastSim
                                  + simHitTPAssocProducer
                                  + tracksValidationSelectors
-                                 + prebTagSequence)
+                                 + prebTagSequenceMC)
 
 globalValidation = cms.Sequence(trackingTruthValid
                                 +tracksValidationFS

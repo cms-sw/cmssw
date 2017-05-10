@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 #define you jet ID
-jetID = cms.InputTag("ak5PFJets")
-
+jetID = cms.InputTag("ak5PFJetsCHS")
+corr = 'ak5PFCHSL1FastL2L3'
 #JTA for your jets
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 myak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -42,15 +42,21 @@ bTagHLT  = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPath
 #for the  use of JEC, could change with time : be careful if recommandations change for the correctors
 #define you sequence like  process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
 JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99")
+#JetCut=cms.string("chargedEmEnergyFraction < 99999")
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
-ak5PFJetsJEC = ak5PFJetsL2L3.clone(
-        src = 'ak5PFJets',
-        correctors = ['ak5PFL2L3']
-        )
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+ak5PFCHSL1Fastjet.algorithm = 'AK5PFchs'
+ak5PFCHSL2Relative.algorithm = 'AK5PFchs'
+ak5PFCHSL3Absolute.algorithm = 'AK5PFchs'
+ak5PFCHSResidual.algorithm = 'AK5PFchs'
+
+ak5JetsJEC = ak5PFJetsL2L3.clone(
+        src = jetID,
+        correctors = [corr]        )
 
 PFJetsFilter = cms.EDFilter("PFJetSelector",
-                            src = cms.InputTag("ak5PFJetsJEC"),
+                            src = cms.InputTag("ak5JetsJEC"),
                             cut = JetCut,
                             filter = cms.bool(True)
                             )

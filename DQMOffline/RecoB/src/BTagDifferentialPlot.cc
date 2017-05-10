@@ -31,7 +31,8 @@ BTagDifferentialPlot::BTagDifferentialPlot (const double& bEff, const ConstVarTy
 	theDifferentialHistoB_g    ( 0 ) ,
 	theDifferentialHistoB_ni   ( 0 ) ,
 	theDifferentialHistoB_dus  ( 0 ) ,
-	theDifferentialHistoB_dusg ( 0 )  {}
+	theDifferentialHistoB_dusg ( 0 ) ,
+	theDifferentialHistoB_pu   ( 0 ) {}
 
 
 BTagDifferentialPlot::~BTagDifferentialPlot () {
@@ -259,6 +260,7 @@ void BTagDifferentialPlot::bookHisto () {
   theDifferentialHistoB_ni   = (prov.book1D ( "NI_"   + commonName , "NI_"   + commonName , nBins , binArray )) ;
   theDifferentialHistoB_dus  = (prov.book1D ( "DUS_"  + commonName , "DUS_"  + commonName , nBins , binArray )) ;
   theDifferentialHistoB_dusg = (prov.book1D ( "DUSG_" + commonName , "DUSG_" + commonName , nBins , binArray )) ;
+  theDifferentialHistoB_pu   = (prov.book1D ( "PU_"   + commonName , "PU_"   + commonName , nBins , binArray )) ;
 }
 
 
@@ -304,6 +306,7 @@ void BTagDifferentialPlot::fillHisto () {
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_ni()   , theDifferentialHistoB_ni ->getTH1F()  ) ) ;
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dus()  , theDifferentialHistoB_dus->getTH1F()  ) ) ;
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dusg() , theDifferentialHistoB_dusg->getTH1F() ) ) ;
+    effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_pu()   , theDifferentialHistoB_pu->getTH1F()   ) ) ;
 
     for ( vector< pair<TH1F*,TH1F*> >::const_iterator itP  = effPurDifferentialPairs.begin() ;
 	                                              itP != effPurDifferentialPairs.end()   ; ++itP ) {
