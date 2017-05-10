@@ -270,7 +270,10 @@ namespace edm {
     workerManager_.resetAll();
     
     ParentContext parentContext(globalContext.get());
-
+    //make sure the ProductResolvers know about their
+    // workers to allow proper data dependency handling
+    workerManager_.setupOnDemandSystem(ep,es);
+    
     //make sure the task doesn't get run until all workers have beens started
     WaitingTaskHolder holdForLoop(doneTask);
     for(auto& worker: boost::adaptors::reverse((allWorkers()))) {
