@@ -55,55 +55,52 @@ MuonAlignment::MuonAlignment(const edm::ParameterSet& pSet) {
 MuonAlignment::~MuonAlignment() { 
 }
 
-
-void MuonAlignment::beginJob() {
-
-
+void MuonAlignment::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
     LogTrace(metname)<<"[MuonAlignment] Parameters initialization";
   
+    hLocalPositionDT = nullptr;
+
     if(!(doDT || doCSC) ) { 
         edm::LogError("MuonAlignment") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << std::endl;
         edm::LogError("MuonAlignment") <<" Please enable doDT or doCSC to True in your python cfg file!!!" << std::endl;
         exit(1);
     }
   
-    dbe = edm::Service<DQMStore>().operator->();
-
     if (doSummary){
         if (doDT){
-            dbe->setCurrentFolder(topFolder.str()+"/DT");
-            hLocalPositionDT=dbe->book2D("hLocalPositionDT","Local DT position (cm) absolute MEAN residuals;Sector;;cm", 14,1, 15,40,0,40);
-            hLocalAngleDT=dbe->book2D("hLocalAngleDT","Local DT angle (rad) absolute MEAN residuals;Sector;;rad", 14,1, 15,40,0,40); 
-            hLocalPositionRmsDT=dbe->book2D("hLocalPositionRmsDT","Local DT position (cm) RMS residuals;Sector;;cm", 14,1, 15,40,0,40);
-            hLocalAngleRmsDT=dbe->book2D("hLocalAngleRmsDT","Local DT angle (rad) RMS residuals;Sector;;rad", 14,1, 15,40,0,40); 
+            iBooker.setCurrentFolder(topFolder.str()+"/DT");
+            hLocalPositionDT=iBooker.book2D("hLocalPositionDT","Local DT position (cm) absolute MEAN residuals;Sector;;cm", 14,1, 15,40,0,40);
+            hLocalAngleDT=iBooker.book2D("hLocalAngleDT","Local DT angle (rad) absolute MEAN residuals;Sector;;rad", 14,1, 15,40,0,40); 
+            hLocalPositionRmsDT=iBooker.book2D("hLocalPositionRmsDT","Local DT position (cm) RMS residuals;Sector;;cm", 14,1, 15,40,0,40);
+            hLocalAngleRmsDT=iBooker.book2D("hLocalAngleRmsDT","Local DT angle (rad) RMS residuals;Sector;;rad", 14,1, 15,40,0,40); 
 
-            hLocalXMeanDT=dbe->book1D("hLocalXMeanDT","Distribution of absolute MEAN Local X (cm) residuals for DT;<X> (cm);number of chambers",100,0,meanPositionRange);
-            hLocalXRmsDT=dbe->book1D("hLocalXRmsDT","Distribution of RMS Local X (cm) residuals for DT;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
-            hLocalYMeanDT=dbe->book1D("hLocalYMeanDT","Distribution of absolute MEAN Local Y (cm) residuals for DT;<Y> (cm);number of chambers", 100,0,meanPositionRange);
-            hLocalYRmsDT=dbe->book1D("hLocalYRmsDT","Distribution of RMS Local Y (cm) residuals for DT;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
+            hLocalXMeanDT=iBooker.book1D("hLocalXMeanDT","Distribution of absolute MEAN Local X (cm) residuals for DT;<X> (cm);number of chambers",100,0,meanPositionRange);
+            hLocalXRmsDT=iBooker.book1D("hLocalXRmsDT","Distribution of RMS Local X (cm) residuals for DT;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
+            hLocalYMeanDT=iBooker.book1D("hLocalYMeanDT","Distribution of absolute MEAN Local Y (cm) residuals for DT;<Y> (cm);number of chambers", 100,0,meanPositionRange);
+            hLocalYRmsDT=iBooker.book1D("hLocalYRmsDT","Distribution of RMS Local Y (cm) residuals for DT;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
 
-            hLocalPhiMeanDT=dbe->book1D("hLocalPhiMeanDT","Distribution of MEAN #phi (rad) residuals for DT;<#phi>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
-            hLocalPhiRmsDT=dbe->book1D("hLocalPhiRmsDT","Distribution of RMS #phi (rad) residuals for DT;#phi RMS (rad);number of chambers", 100,0,rmsAngleRange);
-            hLocalThetaMeanDT=dbe->book1D("hLocalThetaMeanDT","Distribution of MEAN #theta (rad) residuals for DT;<#theta>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
-            hLocalThetaRmsDT=dbe->book1D("hLocalThetaRmsDT","Distribution of RMS #theta (rad) residuals for DT;#theta RMS (rad);number of chambers",100,0,rmsAngleRange);
+            hLocalPhiMeanDT=iBooker.book1D("hLocalPhiMeanDT","Distribution of MEAN #phi (rad) residuals for DT;<#phi>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
+            hLocalPhiRmsDT=iBooker.book1D("hLocalPhiRmsDT","Distribution of RMS #phi (rad) residuals for DT;#phi RMS (rad);number of chambers", 100,0,rmsAngleRange);
+            hLocalThetaMeanDT=iBooker.book1D("hLocalThetaMeanDT","Distribution of MEAN #theta (rad) residuals for DT;<#theta>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
+            hLocalThetaRmsDT=iBooker.book1D("hLocalThetaRmsDT","Distribution of RMS #theta (rad) residuals for DT;#theta RMS (rad);number of chambers",100,0,rmsAngleRange);
         }
 	
         if (doCSC){
-            dbe->setCurrentFolder(topFolder.str()+"/CSC");
-            hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,40,0,40);
-            hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,40,0,40); 
-            hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,40,0,40);
-            hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,40,0,40); 
+            iBooker.setCurrentFolder(topFolder.str()+"/CSC");
+            hLocalPositionCSC=iBooker.book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,40,0,40);
+            hLocalAngleCSC=iBooker.book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,40,0,40); 
+            hLocalPositionRmsCSC=iBooker.book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,40,0,40);
+            hLocalAngleRmsCSC=iBooker.book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,40,0,40); 
 	
-            hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of absolute MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,0,meanPositionRange);
-            hLocalXRmsCSC=dbe->book1D("hLocalXRmsCSC","Distribution of RMS Local X (cm) residuals for CSC;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
-            hLocalYMeanCSC=dbe->book1D("hLocalYMeanCSC","Distribution of absolute MEAN Local Y (cm) residuals for CSC;<Y> (cm);number of chambers", 100,0,meanPositionRange);
-            hLocalYRmsCSC=dbe->book1D("hLocalYRmsCSC","Distribution of RMS Local Y (cm) residuals for CSC;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
+            hLocalXMeanCSC=iBooker.book1D("hLocalXMeanCSC","Distribution of absolute MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,0,meanPositionRange);
+            hLocalXRmsCSC=iBooker.book1D("hLocalXRmsCSC","Distribution of RMS Local X (cm) residuals for CSC;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
+            hLocalYMeanCSC=iBooker.book1D("hLocalYMeanCSC","Distribution of absolute MEAN Local Y (cm) residuals for CSC;<Y> (cm);number of chambers", 100,0,meanPositionRange);
+            hLocalYRmsCSC=iBooker.book1D("hLocalYRmsCSC","Distribution of RMS Local Y (cm) residuals for CSC;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
 
-            hLocalPhiMeanCSC=dbe->book1D("hLocalPhiMeanCSC","Distribution of absolute MEAN #phi (rad) residuals for CSC;<#phi>(rad);number of chambers", 100,0,meanAngleRange);
-            hLocalPhiRmsCSC=dbe->book1D("hLocalPhiRmsCSC","Distribution of RMS #phi (rad) residuals for CSC;#phi RMS (rad);number of chambers", 100,0,rmsAngleRange);
-            hLocalThetaMeanCSC=dbe->book1D("hLocalThetaMeanCSC","Distribution of absolute MEAN #theta (rad) residuals for CSC;<#theta>(rad);number of chambers", 100,0,meanAngleRange);
-            hLocalThetaRmsCSC=dbe->book1D("hLocalThetaRmsCSC","Distribution of RMS #theta (rad) residuals for CSC;#theta RMS (rad);number of chambers",100,0,rmsAngleRange);
+            hLocalPhiMeanCSC=iBooker.book1D("hLocalPhiMeanCSC","Distribution of absolute MEAN #phi (rad) residuals for CSC;<#phi>(rad);number of chambers", 100,0,meanAngleRange);
+            hLocalPhiRmsCSC=iBooker.book1D("hLocalPhiRmsCSC","Distribution of RMS #phi (rad) residuals for CSC;#phi RMS (rad);number of chambers", 100,0,rmsAngleRange);
+            hLocalThetaMeanCSC=iBooker.book1D("hLocalThetaMeanCSC","Distribution of absolute MEAN #theta (rad) residuals for CSC;<#theta>(rad);number of chambers", 100,0,meanAngleRange);
+            hLocalThetaRmsCSC=iBooker.book1D("hLocalThetaRmsCSC","Distribution of RMS #theta (rad) residuals for CSC;#theta RMS (rad);number of chambers",100,0,rmsAngleRange);
         }
     }
 
@@ -152,20 +149,20 @@ void MuonAlignment::beginJob() {
                             nameOfHistoLocalTheta= "ResidualLocalTheta_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
                             nameOfHistoLocalY= "ResidualLocalY_W"+Wheel.str()+"MB"+Station.str()+"S"+Sector.str();
                                                                                
-                            dbe->setCurrentFolder(topFolder.str()+
+                            iBooker.setCurrentFolder(topFolder.str()+
                                                   "/DT/Wheel"+Wheel.str()+
                                                   "/Station"+Station.str()+
                                                   "/Sector"+Sector.str());
 
                             //Create ME and push histos into their respective vectors
 
-                            MonitorElement *histoLocalX = dbe->book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
+                            MonitorElement *histoLocalX = iBooker.book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
                             unitsLocalX.push_back(histoLocalX);
-                            MonitorElement *histoLocalPhi = dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
+                            MonitorElement *histoLocalPhi = iBooker.book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
                             unitsLocalPhi.push_back(histoLocalPhi);
-                            MonitorElement *histoLocalTheta = dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
+                            MonitorElement *histoLocalTheta = iBooker.book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
                             unitsLocalTheta.push_back(histoLocalTheta);
-                            MonitorElement *histoLocalY = dbe->book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+                            MonitorElement *histoLocalY = iBooker.book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
                             unitsLocalY.push_back(histoLocalY);
 				    	}
                     }
@@ -191,20 +188,20 @@ void MuonAlignment::beginJob() {
                             nameOfHistoLocalTheta= "ResidualLocalTheta_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
                             nameOfHistoLocalY= "ResidualLocalY_ME"+Station.str()+"R"+Ring.str()+"C"+Chamber.str();
                                                                                
-                            dbe->setCurrentFolder(topFolder.str()+
+                            iBooker.setCurrentFolder(topFolder.str()+
                                                   "/CSC/Station"+Station.str()+
                                                   "/Ring"+Ring.str()+
                                                   "/Chamber"+Chamber.str());
 
                             //Create ME and push histos into their respective vectors
 
-                            MonitorElement *histoLocalX = dbe->book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
+                            MonitorElement *histoLocalX = iBooker.book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
                             unitsLocalX.push_back(histoLocalX);
-                            MonitorElement *histoLocalPhi = dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
+                            MonitorElement *histoLocalPhi = iBooker.book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
                             unitsLocalPhi.push_back(histoLocalPhi);
-                            MonitorElement *histoLocalTheta = dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
+                            MonitorElement *histoLocalTheta = iBooker.book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
                             unitsLocalTheta.push_back(histoLocalTheta);
-                            MonitorElement *histoLocalY = dbe->book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+                            MonitorElement *histoLocalY = iBooker.book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
                             unitsLocalY.push_back(histoLocalY);
 
                         }
@@ -586,13 +583,7 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
 
 
 
-void MuonAlignment::endJob(void) {
-
-
-    LogTrace(metname)<<"[MuonAlignment] Saving the histos";
-    bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-    std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-
+void MuonAlignment::endStream(void) {
     edm::LogInfo("MuonAlignment")  << "Number of Tracks considered for residuals: " << numberOfTracks << std::endl << std::endl;
     edm::LogInfo("MuonAlignment")  << "Number of Hits considered for residuals: " << numberOfHits << std::endl << std::endl;
 
@@ -600,12 +591,7 @@ void MuonAlignment::endJob(void) {
         char binLabel[15];
 
 	// check if ME still there (and not killed by MEtoEDM for memory saving)
-	if( dbe )
-	  {
-	    // check existence of first histo in the list
-	    if (! dbe->get(topFolder.str()+"/DT/hLocalPositionDT")) return;
-	  }
-	else 
+	if (hLocalPositionDT == nullptr)
 	  return;
 	
 
@@ -824,12 +810,5 @@ void MuonAlignment::endJob(void) {
             } // check in # entries
         } // loop on vector of histos
     } //doSummary
-    
-    if(outputMEsInRootFile){
-//    dbe->showDirStructure();
-        dbe->save(outputFileName);
-    }
-
-
 }
 
