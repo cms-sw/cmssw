@@ -11,11 +11,16 @@
   <Constant name="zmaxEE"      value="45.0*cm"/>
   <Constant name="rminHE"      value="0.0*fm"/>
   <Constant name="rmaxHE"      value="19.0*cm"/>
-  <Constant name="zminHE"      value="[zminEE]"/>
-  <Constant name="zmaxHE"      value="([zminHE]+60.0*cm)"/>
+  <Constant name="zminHE"      value="0.0*fm"/>
+  <Constant name="zmaxHE"      value="60.0*cm"/>
+  <Constant name="rminAH"      value="0.0*fm"/>
+  <Constant name="rmaxAH"      value="30.0*cm"/>
+  <Constant name="zminAH"      value="0.0*fm"/>
+  <Constant name="zmaxAH"      value="35.0*cm"/>
   <Constant name="zposCalo"    value="1210.0*cm"/>
   <Constant name="zposEE"      value="-[zCalor]"/>
-  <Constant name="zposHE"      value="[zposEE]"/>
+  <Constant name="zposHE"      value="[zposEE]+[zmaxEE]"/>
+  <Constant name="zposAH"      value="[zposHE]+[zmaxHE]"/>
   <Constant name="WaferW"      value="123.7*mm"/>
 </ConstantsSection>
 
@@ -40,6 +45,10 @@
     <ZSection z="[zminHE]" rMin="[rminHE]" rMax="[rmaxHE]"/>
     <ZSection z="[zmaxHE]" rMin="[rminHE]" rMax="[rmaxHE]"/>
   </Polycone>
+  <Polycone name="HGCalAH" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zminAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
+    <ZSection z="[zmaxAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
+  </Polycone>
  </SolidSection>
 
 <LogicalPartSection label="hgcal.xml">
@@ -53,6 +62,10 @@
   </LogicalPart>
   <LogicalPart name="HGCalHE" category="unspecified">
     <rSolid name="HGCalHE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalAH" category="unspecified">
+    <rSolid name="HGCalAH"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
 </LogicalPartSection>
@@ -73,6 +86,12 @@
     <rParent name="hgcal:HGCal"/>
     <rChild name="hgcal:HGCalHE"/>
     <Translation x="0*fm" y="0*fm" z="[zposHE]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalAH"/>
+    <Translation x="0*fm" y="0*fm" z="[zposAH]"/>
     <rRotation name="rotations:000D"/>
   </PosPart>
 </PosPartSection>
