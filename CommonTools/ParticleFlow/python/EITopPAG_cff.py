@@ -17,7 +17,7 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
 
 # b-tagging
-from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertex
+from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertexPF
 from RecoBTag.ImpactParameter.impactParameterTagInfos_cfi import impactParameterTagInfos
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import secondaryVertexTagInfos
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import combinedSecondaryVertexBJetTags
@@ -108,13 +108,13 @@ pfNoElectronJME.bottomCollection = 'pfNoMuonJME'
 
 #### Jets ####
 
-pfJetsEI = pfJets.clone()
-pfJetsPtrsEI = pfJetsPtrs.clone(src=cms.InputTag("pfJetsEI"))
+ak4PFJetsCHSEI = jetAlgo('AK4')
+ak4PFJetsCHSEIPtrs = pfJetsPtrs.clone(src=cms.InputTag("ak4PFJetsCHSEI"))
 
-pfJetSequenceEI = cms.Sequence( pfJetsEI+ pfJetsPtrsEI )
+ak4PFJetsCHSEISequence = cms.Sequence( ak4PFJetsCHSEI + ak4PFJetsCHSEIPtrs )
 
 pfNoJetEI = pfNoJet.clone(
-    topCollection = 'pfJetsPtrsEI',
+    topCollection = 'ak4PFJetsCHSEIPtrs',
     bottomCollection = 'pfNoElectronJME'
     )
 
@@ -123,7 +123,7 @@ pfTausEI = pfTaus.clone()
 pfTausPtrsEI = pfTausPtrs.clone(src=cms.InputTag("pfTausEI") )
 pfNoTauEI = pfNoTau.clone(
     topCollection = cms.InputTag('pfTausPtrsEI'),
-    bottomCollection = cms.InputTag('pfJetsPtrsEI')
+    bottomCollection = cms.InputTag('ak4PFJetsCHSEIPtrs')
     )
 
 pfTauEISequence = cms.Sequence(
@@ -134,11 +134,11 @@ pfTauEISequence = cms.Sequence(
     )
 
 #### B-tagging ####
-pfJetTrackAssociatorEI = ak4JetTracksAssociatorAtVertex.clone (
-    src = cms.InputTag("pfJetsEI")
+ak4JetTracksAssociatorAtVertexPFEI = ak4JetTracksAssociatorAtVertexPF.clone (
+    jets = cms.InputTag("ak4PFJetsCHSEI")
     )
 impactParameterTagInfosEI = impactParameterTagInfos.clone(
-    jetTracks = cms.InputTag( 'pfJetTrackAssociatorEI' )
+    jetTracks = cms.InputTag( 'ak4JetTracksAssociatorAtVertexPFEI' )
     )
 secondaryVertexTagInfosEI = secondaryVertexTagInfos.clone(
     trackIPTagInfos = cms.InputTag( 'impactParameterTagInfosEI' )
@@ -151,7 +151,7 @@ combinedSecondaryVertexBJetTagsEI = combinedSecondaryVertexBJetTags.clone(
 
 
 #### MET ####
-pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
+pfMetEI = pfMET.clone(jets=cms.InputTag("ak4PFJetsCHSEI"))
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(
@@ -169,12 +169,12 @@ EIsequence = cms.Sequence(
     pfIsolatedElectronsEI +
     pfNoElectron +
     pfNoElectronJME +
-    pfJetSequenceEI +
+    ak4PFJetsCHSEISequence +
     pfNoJetEI +
     pfTauEISequence +
     pfNoTauEI +
     pfMetEI+
-    pfJetTrackAssociatorEI+
+    ak4JetTracksAssociatorAtVertexPFEI+
     impactParameterTagInfosEI+
     secondaryVertexTagInfosEI+
     combinedSecondaryVertexBJetTagsEI

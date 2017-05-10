@@ -8,9 +8,9 @@ EITopPAGEventContent = cms.PSet(
     'keep *_pfIsolatedElectronsEI_*_*',
     'keep *_pfIsolatedMuonsEI_*_*',
     # jets
-    'keep recoPFJets_pfJetsEI_*_*',
+    'keep recoPFJets_ak4PFJetsCHSEI_*_*',
     # btags
-    'keep *_pfJetTrackAssociatorEI_*_*',
+    'keep *_ak4JetTracksAssociatorAtVertexPFEI_*_*',
     'keep *_impactParameterTagInfosEI_*_*',
     'keep *_secondaryVertexTagInfosEI_*_*',
     'keep *_combinedSecondaryVertexBJetTagsEI_*_*',
