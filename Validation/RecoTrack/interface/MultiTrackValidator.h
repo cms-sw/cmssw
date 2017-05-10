@@ -47,6 +47,10 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> associatormapStRs;
   std::vector<edm::EDGetTokenT<reco::RecoToSimCollection>> associatormapRtSs;
 
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNLayersToken_;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNPixelLayersToken_;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNStripStereoLayersToken_;
+
   std::string dirName_;
 
   bool useGsf;
