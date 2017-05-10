@@ -10,13 +10,18 @@ OutALCARECOTkAlCosmics0T_noDrop = cms.PSet(
             'pathALCARECOTkAlCosmicsRegional0T')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOTkAlCosmics*0T_*_*',
+        #'keep *_ALCARECOTkAlCosmics*0T_*_*',
+        'keep *_ALCARECOTkAlCosmicsCTF0T_*_*',
+        'keep *_ALCARECOTkAlCosmicsCosmicTF0T_*_*',
+        'keep *_ALCARECOTkAlCosmicsRegional0T_*_*',
         'keep siStripDigis_DetIdCollection_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
-        'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+        #'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+        'keep Si*Cluster*_siPixelClusters_*_*',
+        'keep Si*Cluster*_siStripClusters_*_*',
         'keep recoMuons_muons1Leg_*_*') # save muons as timing info is needed for BP corrections in deconvolution
 )
 
