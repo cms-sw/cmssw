@@ -8,8 +8,11 @@ from DQMOffline.JetMET.caloTowers_cff       import *
 from DQMOffline.JetMET.BeamHaloAnalyzer_cfi import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
+from RecoJets.JetProducers.PileupJetID_cfi  import *
+
 AnalyzeBeamHalo.StandardDQM = cms.bool(True)
-
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
+pileupJetIdProducer.jets = cms.InputTag("ak4PFJets")
+pileupJetIdProducer.algos = cms.VPSet(full_5x_chs,cutbased)
 
-jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*analyzecaloTowersDQM*AnalyzeSUSYDQM*jetDQMAnalyzerSequence*METDQMAnalyzerSequence)
+jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*analyzecaloTowersDQM*AnalyzeSUSYDQM*pileupJetIdProducer*jetDQMAnalyzerSequence*METDQMAnalyzerSequence)

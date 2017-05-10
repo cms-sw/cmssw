@@ -1,7 +1,7 @@
-#ifndef METAnalyzer_H
-#define METAnalyzer_H
+#ifndef METAnalyzerMiniAOD_H
+#define METAnalyzerMiniAOD_H
 
-/** \class JetMETAnalyzer
+/** \class JetMETAnalyzerMiniAOD
  *
  *  DQM jetMET analysis monitoring
  *
@@ -32,13 +32,14 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 //
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/JPTJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -54,17 +55,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -82,14 +75,14 @@
 
 
 
-class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
+class METAnalyzerMiniAOD : public thread_unsafe::DQMEDAnalyzer{
  public:
 
   /// Constructor
-  METAnalyzer(const edm::ParameterSet&);
+  METAnalyzerMiniAOD(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~METAnalyzer();
+  virtual ~METAnalyzerMiniAOD();
 
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
@@ -109,8 +102,8 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool);
+  void fillMESet(const edm::Event&, std::string, const pat::MET&,std::map<std::string,MonitorElement*>&);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const pat::MET&, std::map<std::string,MonitorElement*>&,bool);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -146,48 +139,17 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
 
   edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
-  //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
+  edm::EDGetTokenT< edm::View<pat::Jet> >        patJetsToken_;
 
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
   edm::EDGetTokenT<reco::BeamHaloSummary>         beamHaloSummaryToken_;
-
-  //edm::EDGetTokenT<reco::METCollection>           tcMetToken_; 
-  edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
-  edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
-  edm::EDGetTokenT<reco::HcalNoiseRBXCollection>  HcalNoiseRBXToken_; 
-
-  //edm::InputTag inputTrackLabel_;
-  //edm::InputTag inputMuonLabel_;
-  //edm::InputTag inputElectronLabel_;
-  //edm::InputTag inputBeamSpotLabel_;
-  //edm::InputTag inputTCMETValueMap_;
-
-  //edm::EDGetTokenT<edm::View <reco::Track> >        TrackToken_;
-  //edm::EDGetTokenT<reco::MuonCollection>            MuonToken_;
-  //edm::EDGetTokenT<edm::View <reco::GsfElectron> >  ElectronToken_;
-  //edm::EDGetTokenT<reco::BeamSpot>                  BeamspotToken_;
-
-  edm::InputTag inputJetIDValueMap;
-  edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
+  edm::EDGetTokenT<pat::METCollection>        patMETToken_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > patCandToken_;
 
   JetIDSelectionFunctor jetIDFunctorLoose;
   PFJetIDSelectionFunctor pfjetIDFunctorLoose;
 
-  std::string jetCorrectionService_;
-
   double ptThreshold_;
-
- 
-
-  //edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETValueMapToken_;
-  //edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMetValueMapHandle_;
-
-  //edm::Handle< reco::MuonCollection >           muonHandle_;
-  //edm::Handle< edm::View<reco::Track> >         trackHandle_;
-  //edm::Handle< edm::View<reco::GsfElectron > >  electronHandle_;
-  //edm::Handle< reco::BeamSpot >                 beamSpotHandle_;
 
   HLTConfigProvider hltConfig_;
   edm::InputTag                         triggerResultsLabel_;
@@ -203,30 +165,6 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   std::vector<std::vector<std::string> >  triggerFolderExpr_;
   std::vector<std::string >               triggerFolderLabels_;
   std::vector<int>                        triggerFolderDecisions_;
-//  std::vector<MonitorElement* >           triggerFolderME_;
-
-//  GenericTriggerEventFlag * highPtJetEventFlag_;
-//  GenericTriggerEventFlag * lowPtJetEventFlag_;
-//  GenericTriggerEventFlag * minBiasEventFlag_;
-//  GenericTriggerEventFlag * highMETEventFlag_;
-////GenericTriggerEventFlag * lowMETEventFlag_;
-//  GenericTriggerEventFlag * eleEventFlag_;
-//  GenericTriggerEventFlag * muonEventFlag_;
-//
-//  std::vector<std::string> highPtJetExpr_;
-//  std::vector<std::string> lowPtJetExpr_;
-//  std::vector<std::string> highMETExpr_;
-//  //  std::vector<std::string> lowMETExpr_;
-//  std::vector<std::string> muonExpr_;
-//  std::vector<std::string> elecExpr_;
-//  std::vector<std::string> minbiasExpr_;
-//  MonitorElement* hTriggerName_HighPtJet;
-//  MonitorElement* hTriggerName_LowPtJet;
-//  MonitorElement* hTriggerName_MinBias;
-//  MonitorElement* hTriggerName_HighMET;
-//  //  MonitorElement* hTriggerName_LowMET;
-//  MonitorElement* hTriggerName_Ele;
-//  MonitorElement* hTriggerName_Muon;
   MonitorElement* hMETRate;
 
   edm::ParameterSet cleaningParameters_;
@@ -245,22 +183,6 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   bool bypassAllPVChecks_;
   bool bypassAllDCSChecks_;
   bool runcosmics_;
-
-
-//  int trigJetMB_;
-//  int trigHighPtJet_;
-//  int trigLowPtJet_;
-//  int trigMinBias_;
-//  int trigHighMET_;
-////int trigLowMET_;
-//  int trigEle_;
-//  int trigMuon_;
-//  int trigPhysDec_;
-
-//  double highPtJetThreshold_;
-//  double lowPtJetThreshold_;
-//  double highMETThreshold_;
-
   int numPV_;
   // Et threshold for MET plots
 //  double etThreshold_;
@@ -274,7 +196,6 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
 
   std::vector<std::string> folderNames_;
   //
-  math::XYZPoint beamSpot_;
 
   //trigger histos
   // lines commented out have been removed to improve the bin usage of JetMET DQM
@@ -335,77 +256,15 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* hCaloHaMETPhi;
   //MonitorElement* hCaloHaSumET;
 
-  //remove muon MET
-  //MonitorElement* hCalomuPt;
-  //MonitorElement* hCalomuEta;
-  //MonitorElement* hCalomuNhits;
-  //MonitorElement* hCalomuChi2;
-  //MonitorElement* hCalomuD0;
-  //MonitorElement* hCaloMExCorrection;
-  //MonitorElement* hCaloMEyCorrection;
-  //MonitorElement* hCaloMuonCorrectionFlag;
-
-
-  //is filled for TCMET
-  //MonitorElement* htrkPt;
-  //MonitorElement* htrkEta;
-  //MonitorElement* htrkNhits;
-  //MonitorElement* htrkChi2;
-  //MonitorElement* htrkD0;
-  //MonitorElement* helePt;
-  //MonitorElement* heleEta;
-  //MonitorElement* heleHoE;
-  //MonitorElement* hmuPt;
-  //MonitorElement* hmuEta;
-  //MonitorElement* hmuNhits;
-  //MonitorElement* hmuChi2;
-  //MonitorElement* hmuD0;
-
-  //MonitorElement* hMExCorrection;
-  //MonitorElement* hMEyCorrection;
-  //MonitorElement* hMuonCorrectionFlag;
-
   //now PF only things
   MonitorElement* mePhotonEtFraction;
-  MonitorElement* mePhotonEt;
   MonitorElement* meNeutralHadronEtFraction;
-  MonitorElement* meNeutralHadronEt;
   MonitorElement* meElectronEtFraction;
-  MonitorElement* meElectronEt;
   MonitorElement* meChargedHadronEtFraction;
-  MonitorElement* meChargedHadronEt;
   MonitorElement* meMuonEtFraction;
-  MonitorElement* meMuonEt;
   MonitorElement* meHFHadronEtFraction;
-  MonitorElement* meHFHadronEt;
   MonitorElement* meHFEMEtFraction;
-  MonitorElement* meHFEMEt;
-
-  double ptMinCand_;
-
-  // Smallest raw HCAL energy linked to the track
-  double hcalMin_;
-  //MonitorElement* mProfileIsoPFChHad_HadEn;
-  //MonitorElement* mProfileIsoPFChHad_EMEn;
-  MonitorElement* mProfileIsoPFChHad_HadPtCentral;
-  MonitorElement* mProfileIsoPFChHad_HadPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_EMPtCentral;
-  MonitorElement* mProfileIsoPFChHad_EMPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackPt;
-
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackOccupancy;
-
-  //PFcandidate maps
-  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,energyPFCand_,ptPFCand_,multiplicityPFCand_;
-  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,energyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
-  std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
-  std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
  
-  edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
 
   // NPV profiles --> 
   //----------------------------------------------------------------------------
@@ -415,24 +274,20 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* meSumET_profile;
 
   MonitorElement* mePhotonEtFraction_profile;
-  MonitorElement* mePhotonEt_profile;
   MonitorElement* meNeutralHadronEtFraction_profile;
-  MonitorElement* meNeutralHadronEt_profile;
   MonitorElement* meElectronEtFraction_profile;
-  MonitorElement* meElectronEt_profile;
   MonitorElement* meChargedHadronEtFraction_profile;
-  MonitorElement* meChargedHadronEt_profile;
   MonitorElement* meMuonEtFraction_profile;
-  MonitorElement* meMuonEt_profile;
   MonitorElement* meHFHadronEtFraction_profile;
-  MonitorElement* meHFHadronEt_profile;
   MonitorElement* meHFEMEtFraction_profile;
-  MonitorElement* meHFEMEt_profile;
 
+  //PFcandidate maps
+  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,energyPFCand_,ptPFCand_,multiplicityPFCand_;
+  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,energyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
+  std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
+  std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
 
   std::map< std::string,MonitorElement* >map_dijet_MEs;
-  std::vector<unsigned int> nCh;
-  std::vector<unsigned int> nEv;
 
   bool isCaloMet_;
   //bool isTCMet_;

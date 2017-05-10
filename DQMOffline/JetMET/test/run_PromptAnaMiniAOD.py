@@ -53,7 +53,7 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-  '/store/relval/CMSSW_7_2_0_pre7/JetHT/RECO/PRE_R_72_V6A_RelVal_jet2012C-v1/00000/06015A26-884B-E411-BFEF-002618943898.root'
+'/store/relval/CMSSW_7_2_0_pre5/JetHT/MINIAOD/GR_R_72_V2_RelVal_jet2012D-v1/00000/682028D7-DE30-E411-A544-002618943874.root'
 )
 print 'List of input files'
 print inputfiles
@@ -81,15 +81,18 @@ from Configuration.Geometry.GeometryIdeal_cff import *
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+#process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
+#process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
-#for data in 720pre7
-process.GlobalTag.globaltag ='PRE_R_72_V6A::All'
+#process.GlobalTag.globaltag ='GR_P_V14::All'
+#process.GlobalTag.globaltag ='GR_R_52_V3::All'
+process.GlobalTag.globaltag ='GR_70_V2_AN1::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 else:
-  process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
+  process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceMiniAOD_cff")
 
 #change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
 process.jetDQMAnalyzerAk4CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
@@ -134,11 +137,27 @@ process.caloMetDQMAnalyzer.processname = cms.string(trigger_set)
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
+# for igprof
+#process.IgProfService = cms.Service("IgProfService",
+#  reportFirstEvent            = cms.untracked.int32(0),
+#  reportEventInterval         = cms.untracked.int32(25),
+#  reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > igdqm.%I.gz")
+#)
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(inputfiles))
+#
+# /Wmunu/Summer09-MC_31X_V3-v1/GEN-SIM-RECO
+
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring() 
+process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+readFiles.extend( ['/store/relval/CMSSW_7_2_0_pre5/JetHT/MINIAOD/GR_R_72_V2_RelVal_jet2012D-v1/00000/682028D7-DE30-E411-A544-002618943874.root'] );
 
 
+
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(inputfiles))
+
+#
 process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
 
 #
@@ -147,7 +166,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.Timing = cms.Service("Timing")
 
- # Comment this out or reconfigure to see error messages 
+## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('caloMetDQMAnalyzer'),
     cout = cms.untracked.PSet(
@@ -175,7 +194,6 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/JetMET/'+str(cmssw_version)+'/Harvesting'
 process.dqmSaver.workflow = Workflow
 
-#process.load('RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi')
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -188,24 +206,24 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)  #default is false
+    wantSummary = cms.untracked.bool(True) ## default is false
 
 )
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 if iscosmics=="True":
-  process.p = cms.Path(#process.dump
-                    process.jetMETDQMOfflineSourceCosmic
-                     * process.dqmStoreStats
-#                     * process.MEtoEDMConverter
+  process.p = cms.Path(#process.BeamHaloId
+#                       process.fixedGridRhoFastjetAllCalo
+                    #process.dump
+                    #process.jetMETDQMOfflineSourceCosmic
+                    #* process.dqmStoreStats
+###                     * process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(
-                     #process.dump*
                      process.jetMETDQMOfflineSource*
                      process.dqmStoreStats* process.dqmSaver
-#                       * process.MEtoEDMConverter
                      )
 
 process.outpath = cms.EndPath(process.FEVT)
