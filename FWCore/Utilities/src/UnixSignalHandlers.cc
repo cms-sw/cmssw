@@ -55,6 +55,10 @@ namespace edm {
       tmpact.sa_handler = SIG_IGN;
 
       for(int num = SIGRTMIN; num <= SIGRTMAX; ++num) {
+          if (num == 38) {
+              // Intel VTune uses signal 38 to collect data
+              continue;
+          }
 	  MUST_BE_ZERO(sigaddset(&myset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }
