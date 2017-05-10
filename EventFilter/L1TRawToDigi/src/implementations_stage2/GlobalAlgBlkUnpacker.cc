@@ -37,7 +37,7 @@ namespace stage2 {
      auto res_ = static_cast<GTCollections*>(coll)->getAlgs();
      res_->setBXRange(firstBX, lastBX);
 
-     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
+     LogDebug("L1T")  << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
      // Loop over multiple BX and then number of EG cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
@@ -55,18 +55,29 @@ namespace stage2 {
        GlobalAlgBlk alg = res_->at(bx,0);
 
        //Determine offset of algorithm bits based on block.ID
-       // ID=0 offset = 0;  ID=3 offset=192;  ID=5 offset=384=2*192;
-       int algOffset = (block.header().getID()/2)*192;
+       // ID=1  offset = 0;  ID=3  offset=192;  ID=5  offset=384=2*192; (before prescale)
+       // ID=7  offset = 0;  ID=9  offset=192;  ID=11 offset=384=2*192; (after prescale)
+       // ID=13 offset = 0;  ID=15 offset=192;  ID=17 offset=384=2*192; (after mask (Final))
+       int algOffset = block.header().getID()/2;
+       algOffset = (algOffset%3)*192;
 
        for(unsigned int wd=0;  wd<block.header().getSize(); wd++) {
          uint32_t raw_data = block.payload()[wd];
 	 LogDebug("L1T") << " payload word " << wd << " 0x" << hex << raw_data << " offset=" << algOffset;
 
          //parse these 32 bits into algorithm bits (perhaps needs a more efficient way of doing this?
-         if(block.header().getID()!=5 || wd<4) {
+         if( (block.header().getID()!=5 && block.header().getID()!=11 && block.header().getID()!=17 ) || wd<4) {
            for(unsigned int bt=0; bt<32; bt++) {
 	     int val = ((raw_data >> bt) & 0x1);
-             if(val==1) alg.setAlgoDecisionFinal(bt+wd*32+algOffset,true);
+             if(val==1) {
+	        if(block.header().getID()<6) {
+		  alg.setAlgoDecisionInitial(bt+wd*32+algOffset,true);
+		} else if(block.header().getID()<12) {  
+		  alg.setAlgoDecisionPreScaled(bt+wd*32+algOffset,true);
+		} else {  
+		  alg.setAlgoDecisionFinal(bt+wd*32+algOffset,true);
+		}  
+	     }
            }
 	 } else if(block.header().getID()==5 && wd==4) {
            //This is the FINOR

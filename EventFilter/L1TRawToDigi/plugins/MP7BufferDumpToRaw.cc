@@ -134,8 +134,8 @@ private:
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
-    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), 1, 0),
-    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("nHeaderFrames", 0), 0),
+    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), iConfig.getUntrackedParameter<int>("rxHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("rxKeyLink", 0)),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("txHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("txKeyLink", 0)),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
@@ -395,6 +395,8 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   // TODO this is an empty word to be replaced with a proper MP7
   // header containing at least the firmware version
   load32.push_back(0);
+  load32.push_back(fwVer_);
+
   for (const auto& block: blocks) {
     LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
     auto load = block.payload();
@@ -407,7 +409,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
     LogDebug("L1T") << s.str();
 #endif
     
-    load32.push_back(block.header().raw());
+    load32.push_back(block.header().raw(MP7));
     load32.insert(load32.end(), load.begin(), load.end());
   }
   

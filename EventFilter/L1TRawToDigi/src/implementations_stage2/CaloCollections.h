@@ -22,7 +22,9 @@ namespace l1t {
                jets_(new JetBxCollection()),
                taus_(new TauBxCollection()),
                mp_etsums_(new EtSumBxCollection()),
-               mp_jets_(new JetBxCollection()) {};
+	       mp_jets_(new JetBxCollection()),
+		 mp_egammas_(new EGammaBxCollection()),
+	       mp_taus_(new TauBxCollection()) {};
 
             virtual ~CaloCollections();
 
@@ -34,6 +36,8 @@ namespace l1t {
 
             inline EtSumBxCollection* getMPEtSums() { return mp_etsums_.get(); };
             inline JetBxCollection* getMPJets() { return mp_jets_.get(); };
+	    inline EGammaBxCollection* getMPEGammas() { return mp_egammas_.get(); };
+	    inline TauBxCollection* getMPTaus() { return mp_taus_.get(); };
 
          private:
             std::auto_ptr<CaloTowerBxCollection> towers_;
@@ -44,6 +48,8 @@ namespace l1t {
 
             std::auto_ptr<EtSumBxCollection> mp_etsums_;
             std::auto_ptr<JetBxCollection> mp_jets_;
+	    std::auto_ptr<EGammaBxCollection> mp_egammas_;
+	    std::auto_ptr<TauBxCollection> mp_taus_;
       };
    }
 }

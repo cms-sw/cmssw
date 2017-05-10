@@ -5,6 +5,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -18,6 +19,7 @@ namespace l1t {
          public:
             GTCollections(edm::Event& e) :
                  L1TObjectCollections(e),
+		 muons_(new MuonBxCollection()),
 		 egammas_(new EGammaBxCollection()),
 		 etsums_(new EtSumBxCollection()),
 		 jets_(new JetBxCollection()),
@@ -27,6 +29,7 @@ namespace l1t {
 
             virtual ~GTCollections();
             
+	    inline MuonBxCollection* getMuons() override { return muons_.get(); };
 	    inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };
             inline EtSumBxCollection* getEtSums() override { return etsums_.get(); };
             inline JetBxCollection* getJets() override { return jets_.get(); };
@@ -38,6 +41,7 @@ namespace l1t {
 
          private:
 	    
+	    std::auto_ptr<MuonBxCollection> muons_;
 	    std::auto_ptr<EGammaBxCollection> egammas_;
 	    std::auto_ptr<EtSumBxCollection> etsums_;
 	    std::auto_ptr<JetBxCollection> jets_;

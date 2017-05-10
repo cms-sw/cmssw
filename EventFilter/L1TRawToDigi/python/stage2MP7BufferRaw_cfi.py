@@ -21,8 +21,8 @@ mpblocks = cms.untracked.PSet(
                                             40,40,40,40, # q16 64-67
                                             40,40,40,40), # q17 68-71
 
-    txBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
-                                            40,40,0,0, # q1 4-7
+    txBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3
+                                            0,0,0,0, # q1 4-7
                                             0,0,0,0, # q2 8-11
                                             0,0,0,0, # q3 12-15
                                             0,0,0,0, # q4 16-19
@@ -36,8 +36,8 @@ mpblocks = cms.untracked.PSet(
                                             0,0,0,0, # q12 48-51
                                             0,0,0,0, # q13 52-55
                                             0,0,0,0, # q14 56-59
-                                            0,0,0,0, # q15 60-63
-                                            0,0,0,0, # q16 64-67
+                                            6,6,6,6, # q15 60-63
+                                            6,6,0,0, # q16 64-67
                                             0,0,0,0) # q17 68-71
 )
 
@@ -48,11 +48,13 @@ stage2MPRaw = cms.EDProducer(
 
     # input file type
     packetisedData   = cms.untracked.bool(True),
+    rxKeyLink    = cms.untracked.int32(0),
+    txKeyLink    = cms.untracked.int32(0),
 
     # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(40),
-    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
-    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
+    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0),#,0,0),
+    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0),#,0,0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(1360),
@@ -62,7 +64,7 @@ stage2MPRaw = cms.EDProducer(
     lenSlinkTrailer  = cms.untracked.int32(8),
 
     # HW parameters
-    boardId          = cms.untracked.vint32( 0,1,2,3,4,5,6,7,8,9,10 ),
+    boardId          = cms.untracked.vint32( 0,1,2,3,4,5,6,7,8 ),#,9,10 ),
     mux              = cms.untracked.bool(True),
     muxOffset        = cms.untracked.int32(0),
 
@@ -80,8 +82,8 @@ stage2MPRaw = cms.EDProducer(
         mpblocks,
         mpblocks,
         mpblocks,
-        mpblocks,
-        mpblocks,
+        #mpblocks,
+        #mpblocks,
     )
 
 )

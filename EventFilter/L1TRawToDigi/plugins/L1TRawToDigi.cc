@@ -173,7 +173,7 @@ namespace l1t {
          // FIXME Hard-coded firmware version for first 74x MC campaigns.
          // Will account for differences in the AMC payload, MP7 payload,
          // and unpacker setup.
-         bool legacy_mc = fwOverride_ && ((fwId_ >> 24) == 0xff);
+         bool legacy_mc = fwOverride_ && (fwId_ & 0xff000000);
 
          amc13::Packet packet;
          if (!packet.parse(
@@ -200,7 +200,7 @@ namespace l1t {
                LogDebug("L1T") << "Using CTP7 mode";
                payload.reset(new CTP7Payload(start, end));
             } else {
-               LogDebug("L1T") << "Using MP7 mode; legacy MC bit: " << legacy_mc;
+               LogDebug("L1T") << "Using MP7 mode";
                payload.reset(new MP7Payload(start, end, legacy_mc));
             }
             unsigned fw = payload->getAlgorithmFWVersion();
@@ -222,10 +222,10 @@ namespace l1t {
                      << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
                      << " (ID " << block->header().getID() << ", size " << block->header().getSize()
                      << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
-                     << ")" << std::dec << std::endl;
+			    << ")" << std::dec << std::endl;
                   for (const auto& word: block->payload()) {
-                     std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
-                  }
+		    std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
+		  }
                }
 
                auto unpacker = unpackers.find(block->header().getID());

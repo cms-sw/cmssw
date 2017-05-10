@@ -42,8 +42,8 @@ namespace stage2 {
      // Loop over multiple BX and then number of EG cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
-        // If this is the first block, instantiate GlobalAlg so it is there to fill from mult. blocks
-       if(block.header().getID()==1) {
+        // If this is the first block, instantiate GlobalExt so it is there to fill from mult. blocks
+       if(block.header().getID()==24) {
 
 	  LogDebug("L1T") << "Creating GT External Block for BX =" << bx;
           GlobalExtBlk tExt = GlobalExtBlk();
@@ -54,9 +54,21 @@ namespace stage2 {
        //fetch from collection
        GlobalExtBlk ext = res_->at(bx,0);
 
+       //Determine offset of algorithm bits based on block.ID
+       // ID=24  offset = 0;  ID=26  offset=64;  ID=28  offset=128=2*64; ID=30 offset=3*64=192 
+       int algOffset = ((block.header().getID()-24)/2)*64;
+
        for(unsigned int wd=0;  wd<block.header().getSize(); wd++) {
          uint32_t raw_data = block.payload()[wd];
 	 LogDebug("L1T") << " payload word " << wd << " 0x" << hex << raw_data;
+
+         if(wd < 2) {
+           for(unsigned int bt=0; bt<32; bt++) {
+	     int val = ((raw_data >> bt) & 0x1);
+	     if(val==1) ext.setExternalDecision(bt+wd*32+algOffset,true);
+           }
+	 }  
+	 
        }
 
        // Put the object back into place (Must be better way???)

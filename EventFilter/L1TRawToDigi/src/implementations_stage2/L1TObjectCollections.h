@@ -5,6 +5,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
@@ -16,10 +17,11 @@ namespace l1t {
            UnpackerCollections(e) { };
 	 virtual ~L1TObjectCollections() ;
 
-	 virtual EGammaBxCollection* getEGammas() = 0;
-	 virtual EtSumBxCollection* getEtSums() = 0;
-	 virtual JetBxCollection* getJets() = 0;
-	 virtual TauBxCollection* getTaus() = 0;
+         virtual MuonBxCollection* getMuons() { return  0;}
+	 virtual EGammaBxCollection* getEGammas() { return 0;} //= 0;
+	 virtual EtSumBxCollection* getEtSums() { return 0;}
+	 virtual JetBxCollection* getJets() {return 0; }
+	 virtual TauBxCollection* getTaus() {return 0; }
 	 
       };
    }
