@@ -19,6 +19,8 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   EBHitsCollection(ps.getParameter<std::string>("EBHitsCollection")),
   ValidationCollection(ps.getParameter<std::string>("ValidationCollection")){   
 
+  EBHitsToken               = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EBHitsCollection)));
+  ValidationCollectionToken = consumes <PEcalValidInfo>         (edm::InputTag(std::string(g4InfoLabel),std::string(ValidationCollection)));
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
@@ -159,13 +161,13 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::PCaloHitContainer> EcalHitsEB;
-  e.getByLabel(g4InfoLabel,EBHitsCollection,EcalHitsEB);
+  e.getByToken(EBHitsToken,EcalHitsEB);
 
   // Do nothing if no Barrel data available
   if( ! EcalHitsEB.isValid() ) return;
 
   edm::Handle<PEcalValidInfo> MyPEcalValidInfo;
-  e.getByLabel(g4InfoLabel,ValidationCollection,MyPEcalValidInfo);
+  e.getByToken(ValidationCollectionToken,MyPEcalValidInfo);
 
   std::vector<PCaloHit> theEBCaloHits;
   theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
