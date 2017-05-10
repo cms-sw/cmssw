@@ -76,13 +76,5 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
       nBin = cms.int32(3),
       xMin = cms.double(-1.5),
       xMax = cms.double(1.5)
-    ),
-# parameter for event skim
-    SkimParameter = cms.PSet(
-      switchOn = cms.bool(False),
-      maximumNumberToBeStored = cms.int32(100),
-      minimumJetpT = cms.double(100),
-      lowerCutOffOnResolution = cms.double(-0.2),
-      upperCutOffOnResolution = cms.double(0.2)
     )
 )

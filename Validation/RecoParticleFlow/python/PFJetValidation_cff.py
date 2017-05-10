@@ -12,7 +12,6 @@ pfJetValidation2 = pfJetDQMAnalyzer.clone()
 pfJetValidation2.InputCollection = cms.InputTag('ak4PFJets')
 pfJetValidation2.MatchCollection = cms.InputTag('ak4CaloJets')
 pfJetValidation2.BenchmarkLabel  = cms.string('PFJetValidation/CompWithCaloJet')
-pfJetValidation2.SkimParameter.switchOn  = cms.bool(False)
 
 pfJetValidationSequence = cms.Sequence( pfJetValidation1 * pfJetValidation2 )
 
