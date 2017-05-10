@@ -36,6 +36,8 @@ process.poolDBESSource = cms.ESSource(
 
 process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
                                                   ReduceGranularity = cms.bool(False),
+                                                  PrintDebugOutput = cms.bool(False),
+                                                  UseEmptyRunInfo = cms.bool(False),
                                                   ListOfRecordToMerge = cms.VPSet(cms.PSet(record = cms.string('SiStripBadChannelRcd'),
                                                                                            tag = cms.string('')
                                                                                            )
