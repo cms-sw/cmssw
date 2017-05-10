@@ -24,9 +24,13 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 //   edm::Handle< edmNew::DetSetVector<SiStripDigi> >  inputNew;  
 
   algorithm->initialize(es);  
+  refiner_iniEvent(event, es);
 
   BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
-    if(      findInput( token, inputOld, event) ) algorithm->clusterize(*inputOld, *output); 
+    if(      findInput( token, inputOld, event) ) {
+      algorithm->clusterize(*inputOld, *output);
+      refineCluster(inputOld, output);
+    } 
 //     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
     else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;
   }
