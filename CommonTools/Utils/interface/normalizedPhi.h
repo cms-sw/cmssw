@@ -3,5 +3,5 @@
 /* return a value of phi into interval [-pi,+pi]
  *
  */
-#include "DataFormats/Math/include/normalizedPhi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #endif
