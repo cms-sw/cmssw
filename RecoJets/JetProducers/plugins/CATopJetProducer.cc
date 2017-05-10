@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CATopJetProducer.h"
+#include "RecoJets/JetProducers/plugins/CATopJetProducer.h"
 
 
 using namespace edm;
@@ -128,5 +128,137 @@ void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& 
 	}
   }
 } 
+
+void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription desc;
+	/// Cambridge-Aachen top jet producer parameters
+	desc.add<int>("tagAlgo",	0); 			// choice of top tagging algorithm
+    	desc.add<double>("centralEtaCut", 	2.5 );        	// eta for defining "central" jets                                     
+    	desc.add<bool >("verbose", 	false );        	
+	desc.add<string>("jetCollInstanceName",	"caTopSubJets"); 	// subjet collection
+	desc.add<int>("algorithm",	1); 			// 0 = KT, 1 = CA, 2 = anti-KT
+	desc.add<int>("useAdjacency", 	2); 			// veto adjacent subjets: 
+								// 0,	no adjacency
+								//  1,	deltar adjacency 
+								//  2,	modified adjacency
+								//  3,	calotower neirest neigbor based adjacency (untested)
+	vector<double>  sumEtBinsDefault;
+	sumEtBinsDefault.push_back(0);
+	sumEtBinsDefault.push_back(1600);
+	sumEtBinsDefault.push_back(2600);
+	desc.add<vector<double>>("sumEtBins",	sumEtBinsDefault); 	// sumEt bins over which cuts vary. vector={bin 0 lower bound, bin 1 lower bound, ...} 
+	vector<double>  rBinsDefault;
+	rBinsDefault.push_back(0.8);
+	rBinsDefault.push_back(0.8);
+	rBinsDefault.push_back(0.8);
+	desc.add<vector<double>>("rBins", 	rBinsDefault); 		// Jet distance paramter R. R values depend on sumEt bins.
+	vector<double>  ptFracBinsDefault;
+	ptFracBinsDefault.push_back(0.05);
+	ptFracBinsDefault.push_back(0.05);
+	ptFracBinsDefault.push_back(0.05);
+	desc.add<vector<double>>("ptFracBins", 	ptFracBinsDefault); 	// minimum fraction of central jet pt for subjets (deltap)
+	vector<double>  deltarBinsDefault;
+	deltarBinsDefault.push_back(0.019);
+	deltarBinsDefault.push_back(0.019);
+	deltarBinsDefault.push_back(0.019);
+	desc.add<vector<double>>("deltarBins",	deltarBinsDefault); 	// Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
+	vector<double>  nCellBinsDefault;
+	nCellBinsDefault.push_back(1.9);
+	nCellBinsDefault.push_back(1.9);
+	nCellBinsDefault.push_back(1.9);
+	desc.add<vector<double>>("nCellBins", 	nCellBinsDefault); 	// Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
+	desc.add<bool>("useMaxTower", 	false); 			// use max tower in adjacency criterion, otherwise use centroid - NOT USED
+	desc.add<double>("sumEtEtaCut", 3.0); 				// eta for event SumEt - NOT USED                                                 
+	desc.add<double>("etFrac", 	0.7); 				// fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
+	desc.add<double>("ptFrac", 	0.05); 
+	desc.add<double>("rFrac", 	0); 
+	desc.add<double>("adjacencyParam", 	0); 
+	desc.add<double>("deltaRCut", 	0.19); 
+	desc.add<double>("cosThetaWMax", 	0.7); 
+	desc.add<double>("tau2Cut", 	0); 
+	desc.add<double>("cosThetaSCut", 	0); 
+	desc.add<bool>("useExclusive", 	false); 
+
+	////// From FastjetJetProducer
+	desc.add<bool>("useMassDropTagger",	false);
+	desc.add<bool>("useFiltering",	false);
+	desc.add<bool>("useDynamicFiltering",	false);
+	desc.add<bool>("useTrimming",	false);
+	desc.add<bool>("usePruning",	false);
+	desc.add<bool>("useCMSBoostedTauSeedingAlgorithm",	false);
+	desc.add<bool>("useKtPruning",	false);
+	desc.add<bool>("useConstituentSubtraction",	false);
+	desc.add<bool>("useSoftDrop",	false);
+	desc.add<bool>("correctShape",	false);
+	desc.add<bool>("UseOnlyVertexTracks",	false);
+	desc.add<bool>("UseOnlyOnePV",	false);
+	desc.add<double>("muCut",	-1.0);
+	desc.add<double>("yCut",	-1.0);
+	desc.add<double>("rFilt",	-1.0);
+	desc.add<double>("rFiltFactor",	-1.0);
+	desc.add<double>("trimPtFracMin",	-1.0);
+	desc.add<double>("zcut",	-1.0);
+	desc.add<double>("rcut_factor",	-1.0);
+	desc.add<double>("csRho_EtaMax",	-1.0);
+	desc.add<double>("csRParam",	-1.0);
+	desc.add<double>("beta",	-1.0);
+	desc.add<double>("R0",	-1.0);
+	desc.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
+	desc.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
+	desc.add<double>("DzTrVtxMax",	999999.);  
+	desc.add<double>("DxyTrVtxMax",	999999.);  
+	desc.add<double>("MaxVtxZ",	15.0);  
+	desc.add<double>("subjetPtMin",	-1.0);
+	desc.add<double>("muMin",	-1.0);
+	desc.add<double>("muMax",	-1.0);
+	desc.add<double>("yMin",	-1.0);
+	desc.add<double>("yMax",	-1.0);
+	desc.add<double>("dRMin",	-1.0);
+	desc.add<double>("dRMax",	-1.0);
+	desc.add<int>("maxDepth",	-1);
+	desc.add<int>("nFilt",	-1);
+	desc.add<int>("MinVtxNdof",	5);
+	///// From VirtualJetProducer
+	desc.add<string> ("@module_label",	"" );
+	desc.add<InputTag>("src",	InputTag("particleFlow") );
+	desc.add<bool>("doAreaFastjet",	false );
+	desc.add<double>("Rho_EtaMax", 	4.4 	);
+	desc.add<double>("rParam",		0.4 );
+	desc.add<string>("jetAlgorithm",	"AntiKt" );
+	desc.add<InputTag>("srcPVs",	InputTag("") );
+	desc.add<string>("jetType",		"PFJet" );
+	desc.add<double>("inputEtMin", 	0.0 );
+	desc.add<double>("inputEMin",		0.0 );
+	desc.add<double>("jetPtMin",		5. );
+	desc.add<bool>("doPVCorrection",	false );
+	desc.add<bool>("doRhoFastjet",	false );
+	desc.add<bool>("doPUOffsetCorr", 	false	);
+	desc.add<string>("subtractorName", 	""	);
+	desc.add<bool>("useExplicitGhosts", 	false	);
+	desc.add<bool>("doAreaDiskApprox", 	false 	);
+	desc.add<double>("voronoiRfact", 	-0.9 	);
+	desc.add<double>("Ghost_EtaMax",	5. 	);
+	desc.add<int>("Active_Area_Repeats",	1 	);
+	desc.add<double>("GhostArea",	 	0.01 	);
+	desc.add<bool>("restrictInputs", 	false 	);
+	desc.add<unsigned int>("maxInputs", 	1 	);
+	desc.add<bool>("writeCompound", 	false 	);
+	desc.add<bool>("doFastJetNonUniform", false 	);
+	desc.add<bool>("useDeterministicSeed",false 	);
+	desc.add<unsigned int>("minSeed", 	14327 	);
+	desc.add<int>("verbosity", 		0 	);
+	desc.add<double>("puWidth",	 	0. 	);
+	desc.add<unsigned int>("nExclude", 	0 	);
+	desc.add<unsigned int>("maxBadEcalCells", 	9999999	);
+	desc.add<unsigned int>("maxBadHcalCells",	9999999 );
+	desc.add<unsigned int>("maxProblematicEcalCells",	9999999 );
+	desc.add<unsigned int>("maxProblematicHcalCells",	9999999 );
+	desc.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
+	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	/////////////////////
+	descriptions.addDefault(desc);
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(CATopJetProducer);
