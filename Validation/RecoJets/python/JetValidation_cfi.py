@@ -157,3 +157,26 @@ JetAnalyzerAk4PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
                                   RThreshold                     = cms.double(0.3)
                                   )
 
+JetAnalyzerAk4PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
+                                  JetType = cms.untracked.string('miniaod'),
+                                  src            = cms.InputTag("slimmedJetsPuppi"),
+                                  srcGen         = cms.InputTag("slimmedGenJets"),
+                                  JetCorrections = cms.InputTag(""),#not called for MiniAOD
+                                  primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                  recoJetPtThreshold = cms.double(40),
+                                  matchGenPtThreshold                 = cms.double(20.0),
+                                  RThreshold                     = cms.double(0.3)
+                                  )
+
+JetAnalyzerAk8PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
+                                  JetType = cms.untracked.string('miniaod'),
+                                  src            = cms.InputTag("slimmedJetsAK8"),
+                                  srcGen         = cms.InputTag("slimmedGenJetsAK8"),
+                                  JetCorrections = cms.InputTag(""),#not called for MiniAOD
+                                  primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                  recoJetPtThreshold = cms.double(40),
+                                  matchGenPtThreshold                 = cms.double(20.0),
+                                  RThreshold                     = cms.double(0.3)
+                                  )
+
+

@@ -253,6 +253,11 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   HOEnergy = 0;
   /// HOEnergyFraction (relative to corrected jet energy)
   HOEnergyFraction = 0;
+
+  hadronFlavor=0;
+  partonFlavor=0;
+  genPartonPDGID=0;
+
 }
 
 void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
@@ -289,7 +294,12 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mMass         = ibooker.book1D("Mass",         "Mass",         100,    0,  200); 
     mConstituents = ibooker.book1D("Constituents", "Constituents", 100,    0,  100); 
     mJetArea      = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
-
+    //jet flavors contained in MiniAOD
+    if (isMiniAODJet){
+      hadronFlavor=ibooker.book1D("HadronFlavor",  "HadronFlavor",  44,  -22, 22);
+      partonFlavor=ibooker.book1D("PartonFlavor",  "PartonFlavor",  44,  -22, 22);
+      genPartonPDGID=ibooker.book1D("genPartonPDGID",  "genPartonPDGID",  44,  -22, 22);
+    }
     // Corrected jets
     if (isMiniAODJet || !mJetCorrector.label().empty())	{//if correction label is filled, but fill also for MiniAOD though
       mCorrJetPt  = ibooker.book1D("CorrJetPt",  "CorrJetPt",  150,    0, 1500);
@@ -358,6 +368,32 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mPtRecoOverGen_B_3500      = ibooker.book1D("PtRecoOverGen_B_3500",      "genpt>3500",      90, 0, 2);
     mPtRecoOverGen_E_3500      = ibooker.book1D("PtRecoOverGen_E_3500",      "genpt>3500",      90, 0, 2);
     mPtRecoOverGen_F_3500      = ibooker.book1D("PtRecoOverGen_F_3500",      "genpt>3500",      90, 0, 2);
+
+    mMassRecoOverGen_B_20_40    = ibooker.book1D("MassRecoOverGen_B_20_40",    "20<genpt<40",    90, 0, 3);
+    mMassRecoOverGen_E_20_40    = ibooker.book1D("MassRecoOverGen_E_20_40",    "20<genpt<40",    90, 0, 3);
+    mMassRecoOverGen_F_20_40    = ibooker.book1D("MassRecoOverGen_F_20_40",    "20<genpt<40",    90, 0, 3);
+    mMassRecoOverGen_B_40_200    = ibooker.book1D("MassRecoOverGen_B_40_200",    "40<genpt<200",    90, 0, 3);
+    mMassRecoOverGen_E_40_200    = ibooker.book1D("MassRecoOverGen_E_40_200",    "40<genpt<200",    90, 0, 3);
+    mMassRecoOverGen_F_40_200    = ibooker.book1D("MassRecoOverGen_F_40_200",    "40<genpt<200",    90, 0, 3);
+    mMassRecoOverGen_B_200_500    = ibooker.book1D("MassRecoOverGen_B_200_500",    "200<genpt<500",    90, 0, 3);
+    mMassRecoOverGen_E_200_500    = ibooker.book1D("MassRecoOverGen_E_200_500",    "200<genpt<500",    90, 0, 3);
+    mMassRecoOverGen_F_200_500    = ibooker.book1D("MassRecoOverGen_F_200_500",    "200<genpt<500",    90, 0, 3);
+    mMassRecoOverGen_B_500_750    = ibooker.book1D("MassRecoOverGen_B_500_750",    "500<genpt<750",    90, 0, 3);
+    mMassRecoOverGen_E_500_750    = ibooker.book1D("MassRecoOverGen_E_500_750",    "500<genpt<750",    90, 0, 3);
+    mMassRecoOverGen_F_500_750    = ibooker.book1D("MassRecoOverGen_F_500_750",    "500<genpt<750",    90, 0, 3);
+    mMassRecoOverGen_B_750_1000    = ibooker.book1D("MassRecoOverGen_B_750_1000",    "750<genpt<1000",    90, 0, 3);
+    mMassRecoOverGen_E_750_1000    = ibooker.book1D("MassRecoOverGen_E_750_1000",    "750<genpt<1000",    90, 0, 3);
+    mMassRecoOverGen_F_750_1000    = ibooker.book1D("MassRecoOverGen_F_750_1000",    "750<genpt<1000",    90, 0, 3);
+    mMassRecoOverGen_B_1000_1500    = ibooker.book1D("MassRecoOverGen_B_1000_1500",    "1000<genpt<1500",    90, 0, 3);
+    mMassRecoOverGen_E_1000_1500    = ibooker.book1D("MassRecoOverGen_E_1000_1500",    "1000<genpt<1500",    90, 0, 3);
+    mMassRecoOverGen_F_1000_1500    = ibooker.book1D("MassRecoOverGen_F_1000_1500",    "1000<genpt<1500",    90, 0, 3);
+    mMassRecoOverGen_B_1500_3500    = ibooker.book1D("MassRecoOverGen_B_1500_3500",    "1500<genpt<3500",    90, 0, 3);
+    mMassRecoOverGen_E_1500_3500    = ibooker.book1D("MassRecoOverGen_E_1500_3500",    "1500<genpt<3500",    90, 0, 3);
+    mMassRecoOverGen_F_1500         = ibooker.book1D("MassRecoOverGen_F_1500",         "genpt>1500",    90, 0, 3);
+    mMassRecoOverGen_B_3500_5000    = ibooker.book1D("MassRecoOverGen_B_3500_5000",    "3500<genpt<5000",    90, 0, 3);
+    mMassRecoOverGen_E_3500_5000    = ibooker.book1D("MassRecoOverGen_E_3500_5000",    "3500<genpt<5000",    90, 0, 3);
+    mMassRecoOverGen_B_5000         = ibooker.book1D("MassRecoOverGen_B_5000",    "genpt>5000",    90, 0, 3);
+    mMassRecoOverGen_E_5000         = ibooker.book1D("MassRecoOverGen_E_5000",    "genpt>5000",    90, 0, 3);
 
     // Generation profiles
     mPtRecoOverGen_GenPt_B          = ibooker.bookProfile("PtRecoOverGen_GenPt_B",          "0<|eta|<1.5",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
@@ -791,6 +827,13 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       }
       
       if (correctedJet.pt() < 20) continue;
+
+      if (isMiniAODJet){
+	if(hadronFlavor)hadronFlavor->Fill((*patJets)[ijet].hadronFlavour());
+	if(partonFlavor)partonFlavor->Fill((*patJets)[ijet].partonFlavour());
+	if(genPartonPDGID && (*patJets)[ijet].genParton()!=NULL)genPartonPDGID->Fill((*patJets)[ijet].genParton()->pdgId());
+      }
+
       
       mCorrJetEta->Fill(correctedJet.eta());
       mCorrJetPhi->Fill(correctedJet.phi());
@@ -873,6 +916,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	int iMatch    =   -1;
 	double CorrdeltaRBest = 999;
 	double CorrJetPtBest  =   0;
+	double CorrJetMassBest  =   0;
 	for (unsigned ijet=0; ijet<recoJets.size(); ++ijet) {
 	  Jet correctedJet = recoJets[ijet];
 	  if(pass_correction_flag && !isMiniAODJet){
@@ -884,6 +928,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	  if (CorrJetPt > 10) {
 	    double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
 	    if (CorrdR < CorrdeltaRBest) {
+	      CorrJetMassBest = correctedJet.mass();
 	      CorrdeltaRBest = CorrdR;
 	      CorrJetPtBest  = CorrJetPt;
 	      iMatch = ijet;
@@ -891,10 +936,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	  }
 	}
 	if (iMatch<0) continue;
+	//use mass after jet energy correction -> for MiniAOD that is the case per default
 	if(!isMiniAODJet){
-	    fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), recoJets[iMatch].eta(), recoJets[iMatch].phi(),  recoJets[iMatch].pt());
-	  }else{
-	  fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), (*patJets)[iMatch].eta(), (*patJets)[iMatch].phi(),(*patJets)[iMatch].pt()*(*patJets)[iMatch].jecFactor("Uncorrected"));
+	  fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), gjet->mass(), recoJets[iMatch].eta(), recoJets[iMatch].phi(),  recoJets[iMatch].pt(),CorrJetMassBest);
+	}else{
+	  fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(),  gjet->mass(), (*patJets)[iMatch].eta(), (*patJets)[iMatch].phi(),(*patJets)[iMatch].pt()*(*patJets)[iMatch].jecFactor("Uncorrected"),recoJets[iMatch].mass());
 	}
         if (pass_correction_flag) {//fill only for corrected jets
 	  if (CorrdeltaRBest < mRThreshold) {
@@ -928,9 +974,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 void JetTester::fillMatchHists(const double GenEta,
 			       const double GenPhi,
 			       const double GenPt,
+			       const double GenMass,
 			       const double RecoEta,
 			       const double RecoPhi,
-			       const double RecoPt) 
+			       const double RecoPt,
+			       const double RecoMass) 
 {
   if (GenPt > mMatchGenPtThreshold) {
     mDeltaEta->Fill(GenEta - RecoEta);
@@ -943,6 +991,16 @@ void JetTester::fillMatchHists(const double GenEta,
       mPtRecoOverGen_GenPt_B ->Fill(log10(GenPt),  RecoPt / GenPt);
       mPtRecoOverGen_GenPhi_B->Fill(GenPhi, RecoPt / GenPt);
     
+      if (GenPt > 20 && GenPt < 40) mMassRecoOverGen_B_20_40     ->Fill(RecoMass / GenMass);
+      else if (GenPt < 200)         mMassRecoOverGen_B_40_200    ->Fill(RecoMass / GenMass);
+      else if (GenPt < 500)         mMassRecoOverGen_B_200_500   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 750)         mMassRecoOverGen_B_500_750   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1000)        mMassRecoOverGen_B_750_1000  ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1500)        mMassRecoOverGen_B_1000_1500 ->Fill(RecoMass / GenMass);
+      else if (GenPt < 3500)        mMassRecoOverGen_B_1500_3500 ->Fill(RecoMass / GenMass);
+      else if (GenPt < 5000)        mMassRecoOverGen_B_3500_5000 ->Fill(RecoMass / GenMass);
+      else if (GenPt >= 5000)       mMassRecoOverGen_B_5000      ->Fill(RecoMass / GenMass);
+
       if (GenPt > 20 && GenPt < 40) mPtRecoOverGen_B_20_40   ->Fill(RecoPt / GenPt);
       else if (GenPt <  200)         mPtRecoOverGen_B_40_200  ->Fill(RecoPt / GenPt);
       else if (GenPt <  600)         mPtRecoOverGen_B_200_600  ->Fill(RecoPt / GenPt);
@@ -965,6 +1023,17 @@ void JetTester::fillMatchHists(const double GenEta,
       else if (GenPt < 5000)         mPtRecoOverGen_E_3500_5000->Fill(RecoPt / GenPt);
       else if (GenPt < 6500)         mPtRecoOverGen_E_5000_6500->Fill(RecoPt / GenPt);
       if (GenPt>3500)         mPtRecoOverGen_E_3500->Fill(RecoPt / GenPt);
+
+      if (GenPt > 20 && GenPt < 40) mMassRecoOverGen_E_20_40     ->Fill(RecoMass / GenMass);
+      else if (GenPt < 200)         mMassRecoOverGen_E_40_200    ->Fill(RecoMass / GenMass);
+      else if (GenPt < 500)         mMassRecoOverGen_E_200_500   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 750)         mMassRecoOverGen_E_500_750   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1000)        mMassRecoOverGen_E_750_1000  ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1500)        mMassRecoOverGen_E_1000_1500 ->Fill(RecoMass / GenMass);
+      else if (GenPt < 3500)        mMassRecoOverGen_E_1500_3500 ->Fill(RecoMass / GenMass);
+      else if (GenPt < 5000)        mMassRecoOverGen_E_3500_5000 ->Fill(RecoMass / GenMass);
+      else if (GenPt >= 5000)       mMassRecoOverGen_E_5000      ->Fill(RecoMass / GenMass);
+
     }
   else if (fabs(GenEta) < 6.0)
     {
@@ -977,6 +1046,14 @@ void JetTester::fillMatchHists(const double GenEta,
       else if (GenPt < 1500)         mPtRecoOverGen_F_600_1500 ->Fill(RecoPt / GenPt);
       else if (GenPt < 3500)         mPtRecoOverGen_F_1500_3500->Fill(RecoPt / GenPt);
       if (GenPt>3500)                mPtRecoOverGen_F_3500->Fill(RecoPt / GenPt);
+
+      if (GenPt > 20 && GenPt < 40) mMassRecoOverGen_F_20_40     ->Fill(RecoMass / GenMass);
+      else if (GenPt < 200)         mMassRecoOverGen_F_40_200    ->Fill(RecoMass / GenMass);
+      else if (GenPt < 500)         mMassRecoOverGen_F_200_500   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 750)         mMassRecoOverGen_F_500_750   ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1000)        mMassRecoOverGen_F_750_1000  ->Fill(RecoMass / GenMass);
+      else if (GenPt < 1500)        mMassRecoOverGen_F_1000_1500 ->Fill(RecoMass / GenMass);
+      else if (GenPt >=1500)        mMassRecoOverGen_F_1500      ->Fill(RecoMass / GenMass);
     }
 
   if (GenPt > 20 && GenPt < 40) mPtRecoOverGen_GenEta_20_40   ->Fill(GenEta, RecoPt / GenPt);

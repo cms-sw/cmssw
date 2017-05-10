@@ -25,7 +25,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
  public: // interface
 
-  enum Version_t { FIRSTDATA, N_VERSIONS };
+  enum Version_t { FIRSTDATA, RUNIISTARTUP, N_VERSIONS };
   enum Quality_t { LOOSE, TIGHT, N_QUALITY};
 
   PFJetIDSelectionFunctor() {}
@@ -43,8 +43,9 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
    if ( versionStr == "FIRSTDATA" )
      version_ = FIRSTDATA;
-   else
-     version_ = FIRSTDATA;  /// will have other options eventually, most likely
+   else if( versionStr == "RUNIISTARTUP" ) 
+     version_ = RUNIISTARTUP;  
+   else version_ = RUNIISTARTUP;//set RUNII STARTUP 50 ns points as default
 
    if      ( qualityStr == "LOOSE") quality_ = LOOSE;
    else if ( qualityStr == "TIGHT") quality_ = TIGHT;
@@ -56,6 +57,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
+    if(version_ == RUNIISTARTUP){
+      push_back("NEF_FW");
+      push_back("nNeutrals_FW");
+    }
 
 
     // Set some default cuts for LOOSE, TIGHT
@@ -66,6 +71,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NEF", 0.99);
       set("NCH", 0);
       set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
@@ -73,6 +82,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
     }
 
 
@@ -82,7 +95,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( params.exists("CEF") ) set("CEF", params.getParameter<double>("CEF") );
     if ( params.exists("NEF") ) set("NEF", params.getParameter<double>("NEF") );
     if ( params.exists("NCH") ) set("NCH", params.getParameter<int>   ("NCH") );
-    if ( params.exists("nConstuents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
+    if ( params.exists("nConstituents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
+    if(version_ == RUNIISTARTUP){
+      if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
+      if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
+    }
 
     if ( params.exists("cutsToIgnore") )
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
@@ -94,6 +111,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     indexCEF_ = index_type (&bits_, "CEF");
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
+    if(version_ == RUNIISTARTUP){
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+    }
 
     retInternal_ = getBitTemplate();
 
@@ -111,7 +132,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
-
+    if(version_ == RUNIISTARTUP){
+      push_back("NEF_FW");
+      push_back("nNeutrals_FW");
+    }
 
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
@@ -121,6 +145,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NEF", 0.99);
       set("NCH", 0);
       set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
@@ -128,6 +156,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
     }
 
 
@@ -137,6 +169,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     indexCEF_ = index_type (&bits_, "CEF");
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
+    if(version_ == RUNIISTARTUP){
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+    }
 
     retInternal_ = getBitTemplate();
  }
@@ -147,11 +183,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )
   {
-    if ( version_ == FIRSTDATA ) {
+    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP ) {
       if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() )
-	return firstDataCuts( jet, ret );
+	return firstDataCuts( jet, ret, version_);
       else
-	return firstDataCuts( jet.correctedJet("Uncorrected"), ret );
+	return firstDataCuts( jet.correctedJet("Uncorrected"), ret, version_ );
     }
     else {
       return false;
@@ -165,7 +201,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   bool operator()( const reco::PFJet & jet, pat::strbitset & ret )
   {
-    if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
+    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP ){ return firstDataCuts( jet, ret, version_);
+    }
     else {
       return false;
     }
@@ -183,7 +220,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // cuts based on craft 08 analysis.
   //
   bool firstDataCuts( reco::Jet const & jet,
-		      pat::strbitset & ret)
+		      pat::strbitset & ret, Version_t version_)
   {
     ret.set(false);
 
@@ -194,6 +231,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     double nef = 0.0;
     int    nch = 0;
     int    nconstituents = 0;
+    int    nneutrals = 0;
 
     // Have to do this because pat::Jet inherits from reco::Jet but not reco::PFJet
     reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>(&jet);
@@ -208,6 +246,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	nef = patJet->neutralEmEnergyFraction();
 	nch = patJet->chargedMultiplicity();
 	nconstituents = patJet->numberOfDaughters();
+	nneutrals = patJet->neutralMultiplicity();
       }
       // Handle the special case where this is a composed jet for
       // subjet analyses
@@ -218,6 +257,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	double e_nef = 0.0;
 	nch = 0;
 	nconstituents = 0;
+	nneutrals = 0;
 
 	for ( reco::Jet::const_iterator ibegin = patJet->begin(),
 		iend = patJet->end(), isub = ibegin;
@@ -229,6 +269,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	  e_nef += pfsub->neutralEmEnergy();
 	  nch += pfsub->chargedMultiplicity();
 	  nconstituents += pfsub->numberOfDaughters();
+	  nneutrals += pfsub->neutralMultiplicity();
 	}
 	double e = patJet->energy();
 	if ( e > 0.000001 ) {
@@ -258,6 +299,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       }
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
+      nneutrals = pfJet->neutralMultiplicity();
     } // end if PF jet
     // Handle the special case where this is a composed jet for
     // subjet analyses
@@ -278,6 +320,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	e_nef += pfsub->neutralEmEnergy();
 	nch += pfsub->chargedMultiplicity();
 	nconstituents += pfsub->numberOfDaughters();
+	nneutrals += pfsub->neutralMultiplicity();
       }
       double e = basicJet->energy();
       if ( e > 0.000001 ) {
@@ -289,15 +332,25 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     } // end if basic jet
 
 
-    // Cuts for all |eta|:
-    if ( ignoreCut(indexNConstituents_) || nconstituents > cut(indexNConstituents_, int() ) ) passCut( ret, indexNConstituents_);
-    if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double()) ) ) passCut( ret, indexNEF_);
-    if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double()) ) ) passCut( ret, indexNHF_);
-    // Cuts for |eta| < 2.4:
+
+   // Cuts for |eta| < 2.4 for FIRSTDATA and RUNIISTARTUP
     if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
     if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);
 
+    if(version_ == FIRSTDATA){// Cuts for all eta for FIRSTDATA
+      if ( ignoreCut(indexNConstituents_) || ( nconstituents > cut(indexNConstituents_, int()) ) ) passCut( ret, indexNConstituents_);
+      if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double()) ) ) passCut( ret, indexNEF_);
+      if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double()) ) ) passCut( ret, indexNHF_);
+    }else if(version_ == RUNIISTARTUP){
+      // Cuts for |eta| <= 3.0 for RUNIISTARTUP scenario
+      if ( ignoreCut(indexNConstituents_) || ( nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 3.0 ) ) passCut( ret, indexNConstituents_);
+      if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double())  || std::abs(jet.eta()) > 3.0 ) ) passCut( ret, indexNEF_);
+      if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double())  || std::abs(jet.eta()) > 3.0 ) ) passCut( ret, indexNHF_);
+      // Cuts for |eta| > 3.0 for RUNIISTARTUP scenario
+      if ( ignoreCut(indexNEF_FW_)           || ( nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNEF_FW_);
+      if ( ignoreCut(indexNNeutrals_FW_) || ( nneutrals > cut(indexNNeutrals_FW_, int())    || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNNeutrals_FW_);
+    }
     //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
     //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
     //ret.print(std::cout);
@@ -317,6 +370,9 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   index_type indexCEF_;
   index_type indexCHF_;
   index_type indexNCH_;
+
+  index_type indexNEF_FW_;
+  index_type indexNNeutrals_FW_;
 
 };
 

@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import math
 
-
-multPhiCorr_METDiagnostics = cms.VPSet(
+multPhiCorr_METDiagnosticsMiniAOD = cms.VPSet(
     cms.PSet(
         name=cms.string("h"),
-        type=cms.int32(1),
+        type=cms.int32(211),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(7500),
@@ -18,7 +17,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     cms.PSet(
         name=cms.string("h0Barrel"),
-        type=cms.int32(5),
+        type=cms.int32(130),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(250),
@@ -31,7 +30,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     #cms.PSet(
         #name=cms.string("h0EndcapPlus"),
-        #type=cms.int32(5),
+        #type=cms.int32(130),
         #nbins=cms.double(250),
         #nMin=cms.int32(0),
         #nMax=cms.int32(250),
@@ -44,7 +43,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         #),
     cms.PSet(
         name=cms.string("h0Endcap"),
-        type=cms.int32(5),
+        type=cms.int32(130),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(250),
@@ -57,11 +56,11 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     cms.PSet(
         name=cms.string("gammaBarrel"),
-        type=cms.int32(4),
+        type=cms.int32(22),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(2500),
-        etaNBins=cms.int32(75),
+        etaNBins=cms.int32(170),
         etaMin=cms.double(-1.479),
         etaMax=cms.double(1.479),
         phiNBins=cms.int32(120),
@@ -70,7 +69,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     #cms.PSet(
         #name=cms.string("gammaEndcapPlus"),
-        #type=cms.int32(4),
+        #type=cms.int32(22),
         #nbins=cms.double(125),
         #nMin=cms.int32(0),
         #nMax=cms.int32(750),
@@ -83,7 +82,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         #),
     cms.PSet(
         name=cms.string("gammaEndcap"),
-        type=cms.int32(4),
+        type=cms.int32(22),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(750),
@@ -96,7 +95,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     #cms.PSet(
         #name=cms.string("gammaForwardPlus"),
-        #type=cms.int32(4),
+        #type=cms.int32(22),
         #nbins=cms.double(50),
         #nMin=cms.int32(0),
         #nMax=cms.int32(50),
@@ -109,7 +108,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         #),
     cms.PSet(
         name=cms.string("gammaForward"),
-        type=cms.int32(4),
+        type=cms.int32(22),
         nbins=cms.double(50),
         nMin=cms.int32(0),
         nMax=cms.int32(50),
@@ -122,7 +121,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     cms.PSet(
         name=cms.string("e"),
-        type=cms.int32(2),
+        type=cms.int32(11),
         nbins=cms.double(50),
         nMin=cms.int32(0),
         nMax=cms.int32(50),
@@ -135,7 +134,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     cms.PSet(
         name=cms.string("mu"),
-        type=cms.int32(3),
+        type=cms.int32(13),
         nbins=cms.double(50),
         nMin=cms.int32(0),
         nMax=cms.int32(50),
@@ -148,7 +147,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     cms.PSet(
         name=cms.string("hHF"),
-        type=cms.int32(6),
+        type=cms.int32(1),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(1250),
@@ -161,7 +160,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     #cms.PSet(
         #name=cms.string("hHFPlus"),
-        #type=cms.int32(6),
+        #type=cms.int32(1),
         #nbins=cms.double(125),
         #nMin=cms.int32(0),
         #nMax=cms.int32(1250),
@@ -174,7 +173,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         #),
     cms.PSet(
         name=cms.string("egammaHF"),
-        type=cms.int32(7),
+        type=cms.int32(2),
         nbins=cms.double(125),
         nMin=cms.int32(0),
         nMax=cms.int32(1250),
@@ -187,7 +186,7 @@ multPhiCorr_METDiagnostics = cms.VPSet(
         ),
     #cms.PSet(
         #name=cms.string("egammaHFPlus"),
-        #type=cms.int32(7),
+        #type=cms.int32(2),
         #nbins=cms.double(125),
         #nMin=cms.int32(0),
         #nMax=cms.int32(1250),

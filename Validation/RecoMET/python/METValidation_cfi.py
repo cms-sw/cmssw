@@ -146,4 +146,9 @@ pfType1CorrectedMetAnalyzerMiniAOD = cms.EDAnalyzer(
    PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
    )
 
-
+pfPuppiMetAnalyzerMiniAOD = cms.EDAnalyzer(
+   "METTester",
+   InputMETLabel = cms.InputTag("slimmedMETsPuppi"),
+   METType = cms.untracked.string("miniaod"),
+   PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+   )

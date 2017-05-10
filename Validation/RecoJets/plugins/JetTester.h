@@ -51,8 +51,8 @@ class JetTester : public DQMEDAnalyzer {
 
  private:
   
-  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt,
-		      const double RecoEta, const double RecoPhi, const double RecoPt);
+  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt, const double GenMass,
+		      const double RecoEta, const double RecoPhi, const double RecoPt, const double RecoMass);
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;
@@ -138,11 +138,39 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* mPtRecoOverGen_B_1500_3500;
   MonitorElement* mPtRecoOverGen_E_1500_3500;
   MonitorElement* mPtRecoOverGen_F_1500_3500;
-
   MonitorElement* mPtRecoOverGen_B_3500_5000;
   MonitorElement* mPtRecoOverGen_E_3500_5000;
   MonitorElement* mPtRecoOverGen_B_5000_6500;
   MonitorElement* mPtRecoOverGen_E_5000_6500;
+
+  //jet mass resolution as function of gen-pt
+  MonitorElement* mMassRecoOverGen_B_20_40;
+  MonitorElement* mMassRecoOverGen_E_20_40;
+  MonitorElement* mMassRecoOverGen_F_20_40;
+  MonitorElement* mMassRecoOverGen_B_40_200;
+  MonitorElement* mMassRecoOverGen_E_40_200;
+  MonitorElement* mMassRecoOverGen_F_40_200;
+  MonitorElement* mMassRecoOverGen_B_200_500;
+  MonitorElement* mMassRecoOverGen_E_200_500;
+  MonitorElement* mMassRecoOverGen_F_200_500;
+  MonitorElement* mMassRecoOverGen_B_500_750;
+  MonitorElement* mMassRecoOverGen_E_500_750;
+  MonitorElement* mMassRecoOverGen_F_500_750;
+  MonitorElement* mMassRecoOverGen_B_750_1000;
+  MonitorElement* mMassRecoOverGen_E_750_1000;
+  MonitorElement* mMassRecoOverGen_F_750_1000;
+  MonitorElement* mMassRecoOverGen_B_1000_1500;
+  MonitorElement* mMassRecoOverGen_E_1000_1500;
+  MonitorElement* mMassRecoOverGen_F_1000_1500;
+  MonitorElement* mMassRecoOverGen_B_1500_3500;
+  MonitorElement* mMassRecoOverGen_E_1500_3500;
+  MonitorElement* mMassRecoOverGen_F_1500;
+  MonitorElement* mMassRecoOverGen_B_3500_5000;
+  MonitorElement* mMassRecoOverGen_E_3500_5000;
+  MonitorElement* mMassRecoOverGen_B_5000;
+  MonitorElement* mMassRecoOverGen_E_5000;
+
+
   MonitorElement* mPtRecoOverGen_B_3500;
   MonitorElement* mPtRecoOverGen_E_3500;
   MonitorElement* mPtRecoOverGen_F_3500;
@@ -227,6 +255,11 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* neutralMultiplicity;
   MonitorElement* HOEnergy;
   MonitorElement* HOEnergyFraction;
+
+  //contained in MiniAOD
+  MonitorElement* hadronFlavor;
+  MonitorElement* partonFlavor;
+  MonitorElement* genPartonPDGID;
 
   // Parameters
   double          mRecoJetPtThreshold;
