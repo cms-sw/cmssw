@@ -347,6 +347,9 @@ steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDa
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['WpM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['ZMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
+steps['ZMM_13_reHLTINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+
 steps['ZMM_13_HIINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13_HI/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['ZEEMM_13_HIINPUT']={'INPUT':InputInfo(dataSet='/RelValZEEMM_13_HI/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['ZpMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZpMM_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -546,6 +549,7 @@ steps['WE_13']=gen2015('WE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['ZMM_13']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
+steps['ZMM_13_reHLT']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZEEMM_13']=gen2015('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))
 steps['ZpMM_13']=gen2015('ZpMM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 
@@ -927,6 +931,17 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval25ns'
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_'+autoHLT['relval50ns'],'--era':'Run2_50ns'},step2Upg2015Defaults])
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
+
+steps['DIGIUP15_reHLT']={'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW',
+                 '--conditions'  :'auto:run2_mc_'+autoHLT['relval25ns'],
+                 '--datatier'    :'FEVTDEBUGHLT',
+                 '--eventcontent':'FEVTDEBUGHLT',
+                 '--era'         :'Run2_25ns',
+                 '-n'            :'10'
+                  }
+
+
+
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval25ns','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
@@ -1126,6 +1141,27 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 #step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
 
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
+
+steps['RECOUP15_reHLT'] = {
+    '-s':'RAW2DIGI,L1Reco,RECO,EI',
+    '--runUnscheduled':'',
+    '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+    '-n':'10',
+    '--datatier':'FEVTDEBUGHLT',
+    '--eventcontent':'FEVTDEBUGHLT',
+    '--era' : 'Run2_25ns'
+    }
+
+steps['REHLTUP15_reHLT'] = {
+      '-s':'L1REPACK:GT2,HLT:@relval25ns',
+      '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+      '--datatier':'FEVTDEBUGHLT',
+      '--eventcontent':'FEVTDEBUGHLT',
+      '--era' : 'Run2_25ns',
+      '-n':'10',
+     }
+
+
 steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP from label
 
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
@@ -1376,6 +1412,14 @@ steps['HARVESTUP15']={
     '--filetype':'DQM',
     }
 
+steps['HARVESTMINIAODUP15_reHLT']={
+    '-s':'HARVESTING:@miniAODValidation+@triggerValidation+@miniAODDQM+@triggerDQM',
+    '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+    '--mc':'',
+    '--era' : 'Run2_25ns',
+    '--filetype':'DQM',
+    }
+
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
@@ -1503,6 +1547,18 @@ steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
 #steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon','--era':'Run2_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},steps['MINIAODMCUP15FS']])
+
+
+steps['MINIAODUP15_reHLT'] = {
+                 '--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
+                 '-s':'PAT,DQM:@miniAODDQM+@triggerDQM,VALIDATION:@miniAODValidation+@triggerValidation',
+                 '--runUnscheduled':'',
+                 '--datatier' : 'MINIAODSIM,DQMIO',
+                 '--eventcontent':'MINIAODSIM,DQM',
+                 '--era' : 'Run2_25ns',
+                 '--mc' : '',
+                 '-n' : '10',
+                 }
 
 ## re-miniAOD for Prod tests
 steps['REMINIAOD'] = merge([{'--conditions':'auto:run2_mc_'+autoHLT['relval25ns'],
