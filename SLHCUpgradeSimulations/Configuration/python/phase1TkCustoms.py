@@ -58,16 +58,27 @@ def customise_Digi(process):
     if eras.phase1Pixel.isChosen():
         return process
 
-    process.mix.digitizers.pixel.MissCalibrate = False
-    process.mix.digitizers.pixel.LorentzAngle_DB = False
-    process.mix.digitizers.pixel.killModules = False
-    process.mix.digitizers.pixel.useDB = False
-    process.mix.digitizers.pixel.DeadModules_DB = False
+    #process.mix.digitizers.pixel.MissCalibrate = False
+    #process.mix.digitizers.pixel.LorentzAngle_DB = False
+    #process.mix.digitizers.pixel.killModules = False
+    #process.mix.digitizers.pixel.useDB = False
+    #process.mix.digitizers.pixel.DeadModules_DB = False
     process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(4)
     process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(3)
     process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
+    # new thresholds
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
+    # new ROC response 
+    process.mix.digitizers.pixel.FPix_SignalResponse_p0 = cms.double(0.00171)
+    process.mix.digitizers.pixel.FPix_SignalResponse_p1 = cms.double(0.711)
+    process.mix.digitizers.pixel.FPix_SignalResponse_p2 = cms.double(203.)
+    process.mix.digitizers.pixel.FPix_SignalResponse_p3 = cms.double(148.)
+    process.mix.digitizers.pixel.BPix_SignalResponse_p0 = cms.double(0.00171)
+    process.mix.digitizers.pixel.BPix_SignalResponse_p1 = cms.double(0.711)
+    process.mix.digitizers.pixel.BPix_SignalResponse_p2 = cms.double(203.)
+    process.mix.digitizers.pixel.BPix_SignalResponse_p3 = cms.double(148.) 
+    # no ineffi
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(0.999)
@@ -553,9 +564,11 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
-    process.templates.DoLorentz=False
-    process.templates.LoadTemplatesFromDB = cms.bool(False)
-    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+
+    # use defaults d.k. 2/16
+    #process.templates.DoLorentz=False
+    #process.templates.LoadTemplatesFromDB = cms.bool(False)
+    #process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
 
     # This probably breaks badly the "displaced muon" reconstruction,
     # but let's do it for now, until the upgrade tracking sequences
