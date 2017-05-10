@@ -21,16 +21,23 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
     std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
     fNAlgos = lAlgos.size();
     for(unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
-        PuppiAlgo pPuppiConfig(lAlgos[i0]);
-        fPuppiAlgo.push_back(pPuppiConfig);
+      fPuppiAlgo.emplace_back(lAlgos[i0]);
     }
 }
 
 void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //Clear everything
     fRecoParticles.resize(0);
+    fPFParticlesNodes.resize(0);
+    fPFParticlesRap.resize(0);
+    fPFParticlesPhi.resize(0);
     fPFParticles  .resize(0);
+    fPFParticlesTree.clear();
+    fChargedPVNodes.resize(0);
+    fChargedPVRap.resize(0);
+    fChargedPVPhi.resize(0);
     fChargedPV    .resize(0);
+    fChargedPVTree.clear();
     fPupParticles .resize(0);
     fWeights      .resize(0);
     fVals.resize(0);
@@ -42,9 +49,13 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     fPVFrac = 0.;
     fNPV    = 1.;
     fRecoParticles = iRecoObjects;
-    for (unsigned int i = 0; i < fRecoParticles.size(); i++){
+
+    std::array<float,2> minpos({ {0.0f,0.0f} }), maxpos({ {0.0f,0.0f} });
+    std::array<float,2> chminpos({ {0.0f,0.0f} }), chmaxpos({ {0.0f,0.0f} });
+
+    for (unsigned int i = 0; i < fRecoParticles.size(); ++i){
         fastjet::PseudoJet curPseudoJet;
-        auto fRecoParticle = fRecoParticles[i];
+        const auto& fRecoParticle = fRecoParticles[i];
         // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
         // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
         // float rapidity = log(nom/denom);//hacked
@@ -60,9 +71,44 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
         if(fRecoParticle.id == 2 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge+5; // from NPV use the charge as key +5 as key
         curPseudoJet.set_user_info( new PuppiUserInfo( puppi_register ) );
         // fill vector of pseudojets for internal references
-        fPFParticles.push_back(curPseudoJet);
+	const double rap = curPseudoJet.rapidity();
+	double phi = curPseudoJet.phi();
+	if( phi > M_PI ) phi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
+        fPFParticlesNodes.emplace_back(i,(float)rap,(float)phi);
+	fPFParticlesNodes.emplace_back(i,(float)rap,(float)(phi+2*M_PI));
+	fPFParticlesNodes.emplace_back(i,(float)rap,(float)(phi-2*M_PI));
+	fPFParticles.push_back(curPseudoJet);
+	fPFParticlesRap.push_back(rap);
+	fPFParticlesPhi.push_back(phi);
+	
+	if( i == 0 ) {
+	  minpos[0] = rap; minpos[1] = phi-2*M_PI;
+	  maxpos[0] = rap; maxpos[1] = phi+2*M_PI;
+	} else {
+	  minpos[0] = std::min((float)rap,minpos[0]);
+	  minpos[1] = std::min((float)(phi-2*M_PI),minpos[1]);
+	  maxpos[0] = std::max((float)rap,maxpos[0]);
+	  maxpos[1] = std::max((float)(phi+2*M_PI),maxpos[1]);	  
+	}
+	
         //Take Charged particles associated to PV
-        if(std::abs(fRecoParticle.id) == 1) fChargedPV.push_back(curPseudoJet);
+        if(std::abs(fRecoParticle.id) == 1) { 
+	  if( fChargedPV.size() == 0 ) {
+	    chminpos[0] = rap; chminpos[1] = phi-2*M_PI;
+	    chmaxpos[0] = rap; chmaxpos[1] = phi+2*M_PI;
+	  } else {
+	    chminpos[0] = std::min((float)rap,chminpos[0]);
+	    chminpos[1] = std::min((float)(phi-2*M_PI),chminpos[1]);
+	    chmaxpos[0] = std::max((float)rap,chmaxpos[0]);
+	    chmaxpos[1] = std::max((float)(phi+2*M_PI),chmaxpos[1]);	  
+	  }
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)phi);
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)(phi+2*M_PI));
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)(phi-2*M_PI));
+	  fChargedPV.push_back(curPseudoJet);
+	  fChargedPVRap.push_back(rap);
+	  fChargedPVPhi.push_back(phi);
+	}
         if(std::abs(fRecoParticle.id) >= 1 ) fPVFrac+=1.;
         //if((fRecoParticle.id == 0) && (inParticles[i].id == 2))  _genParticles.push_back( curPseudoJet);
         //if(fRecoParticle.id <= 2 && !(inParticles[i].pt < fNeutralMinE && fRecoParticle.id < 2)) _pfchsParticles.push_back(curPseudoJet);
@@ -71,6 +117,15 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     }
     if (fPVFrac != 0) fPVFrac = double(fChargedPV.size())/fPVFrac;
     else fPVFrac = 0;
+
+    KDTreeBox bounds(minpos[0],maxpos[0],
+                     minpos[1],maxpos[1]);
+    KDTreeBox chbounds(chminpos[0],chmaxpos[0],
+		       chminpos[1],chmaxpos[1]);
+
+    fPFParticlesTree.build(fPFParticlesNodes,bounds);
+    fChargedPVTree.build(fChargedPVNodes,chbounds);
+
 }
 PuppiContainer::~PuppiContainer(){}
 
@@ -89,29 +144,56 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     //the original code used Selector infrastructure: it is too heavy here
     //logic of SelectorCircle is preserved below
 
-    vector<double > near_dR2s;     near_dR2s.reserve(std::min(50UL, particles.size()));
-    vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
-    for (auto const& part : particles){
-      if ( part.squared_distance(centre) < R*R ){
-	near_dR2s.push_back(reco::deltaR2(part, centre));
-	near_pts.push_back(part.pt());
+    const double Rprime = R + 0.001; // make sure there is no roundoff in kd-tree search
+    const double R2 = R*R;
+
+    std::vector<KDNode> found;
+    const double centreRap = centre.rapidity();
+    double centrePhi = centre.phi();
+    if( centrePhi > M_PI ) centrePhi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
+    KDTreeBox bounds((float)(centreRap - Rprime), (float)(centreRap + Rprime),
+		     (float)(centrePhi - Rprime), (float)(centrePhi + Rprime));
+
+    if( &particles == &fPFParticles ) {
+      fPFParticlesTree.search(bounds,found);
+    } else if( &particles == &fChargedPV ) {
+      fChargedPVTree.search(bounds,found);
+    } else {
+      throw cms::Exception("InvalidParticleCollection")
+	<< "var_within_R passed a collection that is not fPFParticles or fChargedPV!";
+    }
+    
+    double var = 0;
+    for( auto const& node : found ) {
+      double pt(std::numeric_limits<double>::max()), dr2(std::numeric_limits<double>::max());
+      if( &particles == &fPFParticles ) {
+	dr2 = reco::deltaR2(centreRap,centrePhi,fPFParticlesRap[node.data],fPFParticlesPhi[node.data]); 
+      } else if( &particles == &fChargedPV ) {
+	dr2 = reco::deltaR2(centreRap,centrePhi,fChargedPVRap[node.data],fChargedPVPhi[node.data]); 
+      }
+      
+      if( dr2 >= R2 || dr2  <  0.0001 ) continue;
+      
+      switch(iId) {
+      case 0:
+	var += (pt / dr2);
+	break;
+      case 1:
+      case 4:
+	var += pt;
+	break;
+      case 2:
+      case 3:
+	var += (1.0/dr2);
+	break;
+      case 5:
+	var += (pt * pt / dr2);
+	break;
+      default:
+	break;
       }
     }
-    double var = 0;
-    //double lSumPt = 0;
-    //if(iId == 1) for(auto  pt : near_pts) lSumPt += pt;
-    auto nParts = near_dR2s.size();
-    for(auto i = 0UL; i < nParts; ++i){
-        auto dr2 = near_dR2s[i];
-        auto pt  = near_pts[i];
-        if(dr2  <  0.0001) continue;
-        if(iId == 0) var += (pt/dr2);
-        else if(iId == 1) var += pt;
-        else if(iId == 2) var += (1./dr2);
-        else if(iId == 3) var += (1./dr2);
-        else if(iId == 4) var += pt;
-        else if(iId == 5) var += (pt * pt/dr2);
-    }
+        
     if(iId == 1) var += centre.pt(); //Sum in a cone
     else if(iId == 0 && var != 0) var = log(var);
     else if(iId == 3 && var != 0) var = log(var);

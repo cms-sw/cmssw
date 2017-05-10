@@ -22,7 +22,7 @@
 #include <set>
 
 
-#include "KDTreeLinkerAlgoT.h"
+#include "CommonTools/UtilAlgos/interface/KDTreeLinkerAlgoT.h"
 
 
 template <typename T>

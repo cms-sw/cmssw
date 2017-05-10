@@ -8,11 +8,14 @@
 
 //FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
 
+#include "CommonTools/UtilAlgos/interface/KDTreeLinkerAlgoT.h"
 
 //......................
 class PuppiContainer{
 public:
   
+  typedef KDTreeLinkerAlgo<unsigned,2> KDTree;
+  typedef KDTreeNodeInfoT<unsigned,2> KDNode;
 
   // Helper class designed to store Puppi information inside of fastjet pseudojets.
   // In CMSSW we use the user_index to refer to the index of the input collection, 
@@ -52,17 +55,38 @@ public:
     std::vector<fastjet::PseudoJet> const & puppiParticles() const { return fPupParticles;}
 
 protected:
-    double  goodVar      (fastjet::PseudoJet const &iPart,std::vector<fastjet::PseudoJet> const &iParts, int iOpt,const double iRCone);
-    void    getRMSAvg    (int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargeParticles);
-    void    getRawAlphas    (int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargeParticles);
-    double  getChi2FromdZ(double iDZ);
-    int     getPuppiId   ( float iPt, float iEta);
-    double  var_within_R (int iId, const std::vector<fastjet::PseudoJet> & particles, const fastjet::PseudoJet& centre, const double R);  
+    
+
+    double  goodVar( fastjet::PseudoJet const &iPart,
+		     std::vector<fastjet::PseudoJet> const &iParts, 
+		     int iOpt,
+		     const double iRCone );
+    
+    void    getRMSAvg( int iOpt, 
+		       std::vector<fastjet::PseudoJet> const &iConstits, 
+		       std::vector<fastjet::PseudoJet> const &iParticles, 
+		       std::vector<fastjet::PseudoJet> const &iChargeParticles );
+    
+    void    getRawAlphas( int iOpt,
+			  std::vector<fastjet::PseudoJet> const &iConstits,
+			  std::vector<fastjet::PseudoJet> const &iParticles,
+			  std::vector<fastjet::PseudoJet> const &iChargeParticles );
+    
+    double  getChi2FromdZ( double iDZ );
+    int     getPuppiId   ( float iPt, float iEta );
+    double  var_within_R ( int iId, 
+			   const std::vector<fastjet::PseudoJet> & particles, 
+			   const fastjet::PseudoJet& centre, 
+			   const double R );  
     
     bool      fPuppiDiagnostics;
     std::vector<RecoObj>   fRecoParticles;
     std::vector<fastjet::PseudoJet> fPFParticles;
+    std::vector<KDNode> fPFParticlesNodes;
+    KDTree fPFParticlesTree;
     std::vector<fastjet::PseudoJet> fChargedPV;
+    std::vector<KDNode> fChargedPVNodes;
+    KDTree fChargedPVTree;
     std::vector<fastjet::PseudoJet> fPupParticles;
     std::vector<double>    fWeights;
     std::vector<double>    fVals;
@@ -80,6 +104,9 @@ protected:
     int    fNPV;
     double fPVFrac;
     std::vector<PuppiAlgo> fPuppiAlgo;
+
+    std::vector<double> fPFParticlesRap, fChargedPVRap;
+    std::vector<double> fPFParticlesPhi, fChargedPVPhi;
 };
 #endif
 

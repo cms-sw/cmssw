@@ -1,5 +1,5 @@
-#ifndef KDTreeLinkerToolsTemplated_h
-#define KDTreeLinkerToolsTemplated_h
+#ifndef CommonTools_UtilAlgos_KDTreeLinkerToolsTemplated_h
+#define CommonTools_UtilAlgos_KDTreeLinkerToolsTemplated_h
 
 #include <array>
 

@@ -1,7 +1,7 @@
-#ifndef KDTreeLinkerAlgoTemplated_h
-#define KDTreeLinkerAlgoTemplated_h
+#ifndef CommonTools_UtilAlgos_KDTreeLinkerAlgoTemplated_h
+#define CommonTools_UtilAlgos_KDTreeLinkerAlgoTemplated_h
 
-#include "KDTreeLinkerToolsT.h"
+#include "CommonTools/UtilAlgos/interface/KDTreeLinkerToolsT.h"
 
 #include <cassert>
 #include <vector>
