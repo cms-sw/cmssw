@@ -4,15 +4,27 @@
 L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
     : muonToken1(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonCollection1"))),
       muonToken2(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonCollection2"))),
-      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      muonColl1Title(ps.getUntrackedParameter<std::string>("muonCollection1Title", "Muon collection 1")),
-      muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title", "Muon collection 2")),
-      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle", "Summary")),
-      verbose(ps.getUntrackedParameter<bool>("verbose", false))
+      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
+      muonColl1Title(ps.getUntrackedParameter<std::string>("muonCollection1Title")),
+      muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title")),
+      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle")),
+      verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
 }
 
 L1TStage2MuonComp::~L1TStage2MuonComp() {}
+
+void L1TStage2MuonComp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muonCollection1")->setComment("L1T Muon collection 1");
+  desc.add<edm::InputTag>("muonCollection2")->setComment("L1T Muon collection 2");
+  desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
+  desc.addUntracked<std::string>("muonCollection1Title", "Muon collection 1")->setComment("Histogram title for first collection.");
+  desc.addUntracked<std::string>("muonCollection2Title", "Muon collection 2")->setComment("Histogram title for second collection.");
+  desc.addUntracked<std::string>("summaryTitle", "Summary")->setComment("Title of summary histogram.");
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("l1tStage2MuonComp", desc);
+}
 
 void L1TStage2MuonComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
