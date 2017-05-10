@@ -20,8 +20,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
-
 namespace pat {
   
   class PATMuonSlimmer : public edm::stream::EDProducer<> {
@@ -36,12 +34,9 @@ namespace pat {
     const edm::EDGetTokenT<pat::MuonCollection> src_;
     std::vector<edm::EDGetTokenT<reco::PFCandidateCollection>> pf_;
     std::vector<edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> pf2pc_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection> pc_;
-    std::vector<double> miniIsoParams;
     const bool linkToPackedPF_;
     const StringCutObjectSelector<pat::Muon> saveTeVMuons_;
     const bool modifyMuon_;
-    const bool computeMiniIso_;
     std::unique_ptr<pat::ObjectModifier<pat::Muon> > muonModifier_;
   };
 
@@ -51,8 +46,7 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveTeVMuons_(iConfig.getParameter<std::string>("saveTeVMuons")),
-    modifyMuon_(iConfig.getParameter<bool>("modifyMuons")),
-    computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso"))
+    modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
 {
     if (linkToPackedPF_) {
       const std::vector<edm::InputTag> & pf = iConfig.getParameter<std::vector<edm::InputTag>>("pfCandidates");
@@ -61,9 +55,6 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
         for (const edm::InputTag &tag : pf) pf_.push_back(consumes<reco::PFCandidateCollection>(tag));
         for (const edm::InputTag &tag : pf2pc) pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
     }
-
-    pc_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
-    miniIsoParams = iConfig.getParameter<std::vector<double> >("miniIsoParams");
 
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyMuon_ ) {
@@ -110,22 +101,10 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
     }
 
-    Handle<pat::PackedCandidateCollection> pc_h;
-    if(computeMiniIso_){
-        iEvent.getByToken(pc_, pc_h);
-    }
     for (vector<pat::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Muon & mu = out->back();
         
-        if(computeMiniIso_){
-            pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc_h.product(), mu.p4(),
-                                                                 miniIsoParams[0], miniIsoParams[1], miniIsoParams[2],
-                                                                 miniIsoParams[3], miniIsoParams[4], miniIsoParams[5],
-                                                                 miniIsoParams[6], miniIsoParams[7], miniIsoParams[8]);
-            mu.setMiniPFIsolation(miniiso);
-        }
-
         if( modifyMuon_ ) { muonModifier_->modify(mu); }
 
 	if (saveTeVMuons_(mu)){mu.embedPickyMuon(); mu.embedTpfmsMuon(); mu.embedDytMuon();}
