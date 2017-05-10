@@ -112,6 +112,7 @@ addMixingScenario("FS_E7TeV_Fall2011_Reprocess_inTimeOnly",{'file': 'FastSimulat
 addMixingScenario("FS_E7TeV_ProbDist_2011Data_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_ProbDist_2011Data_inTimeOnly_cff'})
 addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
+addMixingScenario("FS_2012_Summer_inTimeOnly13TeV",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly13TeV_cff'})
 addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
 addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
