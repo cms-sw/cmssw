@@ -9,6 +9,7 @@
 #include <cstring>
 
 #include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -531,10 +532,10 @@ std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const
 	const LHERunInfo::Header *header = 0;
 	for(std::vector<Header>::const_iterator iter = headers.begin();
 	    iter != headers.end(); ++iter) {
-		if (iter->tag() == tag)
+		if (boost::iequals(iter->tag(), tag))
 			return std::vector<std::string>(iter->begin(),
 			                                iter->end());
-		if (iter->tag() == "header")
+		if (boost::iequals(iter->tag(), "header"))
 			header = &*iter;
 	}
 
@@ -549,7 +550,7 @@ std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const
 	    iter; iter = iter->getNextSibling()) {
 		if (iter->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
-		if (tag == (const char*)XMLSimpleStr(iter->getNodeName()))
+		if (boost::iequals(tag, (std::string) XMLSimpleStr(iter->getNodeName())))
 			return domToLines(iter);
 	}
 
