@@ -7,6 +7,7 @@ from Validation.Configuration.postValidation_cff import *
 from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 
 dqmHarvesting = cms.Path(DQMOfflineCosmics_SecondStep*DQMOfflineCosmics_Certification)
+DQMOfflineCosmics_SecondStep_PrePOG.remove(fsqClient)
 dqmHarvestingPOG = cms.Path(DQMOfflineCosmics_SecondStep_PrePOG)
 
 validationHarvesting = cms.Path(postValidation*hltpostvalidation)
