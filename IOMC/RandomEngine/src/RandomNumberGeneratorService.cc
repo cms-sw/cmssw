@@ -191,6 +191,8 @@ namespace edm {
         }
       }
 
+      activityRegistry.watchPreSourceConstruction(this, &RandomNumberGeneratorService::preModule);
+
       activityRegistry.watchPostBeginLumi(this, &RandomNumberGeneratorService::postBeginLumi);
 
       activityRegistry.watchPreModuleConstruction(this, &RandomNumberGeneratorService::preModuleConstruction);
