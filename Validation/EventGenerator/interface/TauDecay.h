@@ -5,7 +5,7 @@
 // 
 /**\class TauDecay TauDecay.cc TauDataFormat/TauNtuple/src/TauDecay.cc
 
- Description: This class reconstructs the JAK modes of the Tauola decays and provides a bit mask of the decay structure for the tau
+ Description: This class reconstructs the MODE modes of the Tauola decays and provides a bit mask of the decay structure for the tau
 
 */
 //
@@ -16,9 +16,11 @@
 #ifndef TauDecay_h
 #define TauDecay_h
 
+#include <string>
+
 class TauDecay {
  public:
-  // TAUOLA list of decay modes avalible presently available in Tauola are (JAK):  
+  // TAUOLA list of decay modes avalible presently available in Tauola are (MODE):  
   //                                                              
   // * DEC    BRTAU    NORMAL    ROUTINE    CHANNEL         * 
   // *   1  0.17810  0.17810     DADMEL     ELECTRON        * 
@@ -41,33 +43,88 @@ class TauDecay {
   // *  18  0.00230  0.00230     DADMPK     K+ PI- PI+      *
   // *  19  0.00390  0.00390     DADMPK     K0 PI0 PI+      * 
   // *  20  0.00170  0.00170     DADMPK     ET PI- PI0      * 
-  // *  21  0.00160  0.00160     DADMPK     PI-PI0 GAM      *
-  // *  22  0.00160  0.00160     DADMPK     K- K0B GAM      *
+  // *  21  0.00160  0.00160     DADMPK     PI-PI0 GAM      * (obsolete ... merged with 4 do to pythia and photos radiation)
+  // *  22  0.00160  0.00160     DADMPK     K- K0B GAM      * (ignore photon?)
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // List of Pythia8 Modes
+  //    3        0     0   0.1076825 1521       16     -211
+  //    6        1     0   0.0069601 1521       16     -321
+  //    1        2     0   0.1772832 1531       16       11      -12
+  //    2        3     0   0.1731072 1531       16       13      -14
+  //    4        4     0   0.2537447 1532       16      111     -211
+  //    22       5     0   0.0015809 1532       16      311     -321
+  //    Keta     6     0   0.0001511 1532       16      221     -321
+  //    7        7     0   0.0083521 1533       16     -211     -311
+  //    7        8     0   0.0042655 1533       16      111     -321
+  //    5      0   0.0924697 1541       16      111      111     -211
+  //    5    10     1   0.0925691 1543       16     -211     -211      211
+  //    19      11     0   0.0039772 1542       16      111     -211     -311
+  //    18      12     0   0.0034701 1542       16     -211      211     -321
+  //    14      13     0   0.0014318 1542       16     -211     -321      321
+  //    16      14     0   0.0015809 1542       16      111      311     -321
+  //    15      15     0   0.0011932 1542       16      130     -211      310
+  //    17      16     0   0.0006463 1542       16      111      111     -321
+  //    15      17     0   0.0002386 1542       16      130      130     -211
+  //    15      18     0   0.0002386 1542       16     -211      310      310
+  //    20      19     0   0.0013821 1543       16      111     -211      221
+  //    21->4   20     0   0.0017520 1544       16       22      111     -211 (obsolete ... merged with 4 do to pythia and photos radiation)
+  //    8       21     0   0.0459365 1551       16      111     -211     -211      211
+  //    9       22     0   0.0104401 1551       16      111      111      111     -211
+  //    10      23     0   0.0049069 1561       16      111      111     -211     -211      211
+  //    25      24     0   0.0009515 1561       16      111      111      111      111     -211
+  //    11      25     0   0.0008342 1561       16     -211     -211     -211      211      211
+  //    26      26     0   0.0001631    0       16     -211     -211      211      221
+  //    27      27     0   0.0001491    0       16      111      111     -211      221
+  //    28      28     0   0.0001392    0       16      111      111     -211      223
+  //    29      29     0   0.0001193    0       16     -211     -211      211      223
+  //    30      30     0   0.0004077    0       16      223     -321
+  //    31      31     0   0.0004773    0       16      111      111      111     -321
+  //    32      32     0   0.0003052    0       16      111     -211      211     -321
+  //    33      33     0   0.0002784    0       16      221     -323
+  //    34      34     0   0.0002366    0       16      111      111     -211     -311
+  //    35      35     0   0.0002237    0       16     -211     -211      211     -311
+  //    36      36     0   0.0002953    0       16      111     -211     -311      311
+  //    37      37     0   0.0000590    0       16      111     -211     -321      321
         
-  enum JAK{JAK_UNKNOWN=0,
-	   JAK_ELECTRON=1,
-	   JAK_MUON=2,
-	   JAK_PION=3,
-	   JAK_RHO_PIPI0=4,
-	   JAK_A1_3PI=5,
-	   JAK_KAON=6,
-	   JAK_KSTAR=7,
-	   JAK_3PIPI0=8,
-	   JAK_PI3PI0=9,
-	   JAK_3PI2PI0=10,
-	   JAK_5PI=11,
-	   JAK_5PIPI0=12,
-	   JAK_3PI3PI0=13,
-	   JAK_KPIK=14,
-	   JAK_K0BK0PI=15,
-	   JAK_KK0BPI0=16,
-	   JAK_K2PI0=17,
-	   JAK_KPIPI=18,
-	   JAK_PIK0PI0=19,
-	   JAK_ETAPIPI0=20,
-	   JAK_PIPI0GAM=21,
-	   JAK_KK0B=22,
-	   NJAKID=23
+  enum MODE{MODE_UNKNOWN=0,
+	    MODE_ELECTRON,
+	    MODE_MUON,
+	    MODE_PION,
+	    MODE_PIPI0,
+	    MODE_3PI,
+            MODE_PI2PI0,
+	    MODE_KAON,
+	    MODE_K0PI,
+	    MODE_KPI0,
+	    MODE_3PIPI0,
+	    MODE_PI3PI0,
+	    MODE_3PI2PI0,
+	    MODE_5PI,
+	    MODE_5PIPI0,
+	    MODE_3PI3PI0,
+	    MODE_KPIK,
+	    MODE_K0BK0PI,
+	    MODE_KK0BPI0,
+	    MODE_K2PI0,
+	    MODE_KPIPI,
+	    MODE_PIK0PI0,
+	    MODE_ETAPIPI0,
+	    MODE_PIPI0GAM,
+	    MODE_KK0B,
+	    MODE_PI4PI0,
+	    MODE_3PIETA,
+	    MODE_PI2PI0ETA,
+	    MODE_PI2PI0OMEGA,
+	    MODE_3PIOMEGA,
+	    MODE_KOMEGA,
+	    MODE_K3PI0,
+	    MODE_K2PIPI0,
+	    MODE_KETA,
+	    MODE_K0PI2PI0,
+	    MODE_K03PI,
+	    MODE_2K0PIPI0,
+	    MODE_KPIKPI0,
+	    NMODEID
   };
   
   
@@ -96,11 +153,12 @@ class TauDecay {
   bool isTauFinalStateParticle(int pdgid);
   bool isTauParticleCounter(int pdgid);
   bool isTauResonanceCounter(int pdgid);
-  void ClassifyDecayMode(unsigned int &JAK_ID,unsigned int &TauBitMask);
+  void ClassifyDecayMode(unsigned int &MODE_ID,unsigned int &TauBitMask);
   unsigned int nProng(unsigned int &TauBitMask);
   unsigned int nPi0(unsigned int &TauBitMask);
   bool hasResonance(unsigned int &TauBitMask, int pdgid);
-  
+  static std::string DecayMode(unsigned int &MODE_ID);
+ 
  private:
   // Functions
   void ClassifyDecayResonance(unsigned int &TauBitMask);
