@@ -109,7 +109,7 @@ if options.dataSource.find('recoFiles') != -1:
       myFile = "Validation.RecoTau.sources.EventSource_%s_RECO_cff" % options.eventType
       #myFile = os.path.join(ReleaseBase, "Validation/RecoTau/test", "EventSource_%s_RECO_cff.py" % options.eventType)
    LoadDataCffFile(myFile)
-   if len(process.source.fileNames) == 0:
+   if len(process.source.fileNames) == 0 and not options.gridJob:
       import Validation.RecoTau.DBSApi_cff as mydbs
       if os.path.isfile('SourcesDatabase.xml'):
          print "Trying to retrieve the input files from SourcesDatabase.xml..."
@@ -263,7 +263,7 @@ TauTagValOutputCommands = cms.PSet(
       outputCommands = cms.untracked.vstring('drop *',
          'keep recoPFCandidates_*_*_*',
          'keep *_genParticles*_*_*',
-         'keep *_iterativeCone5GenJets_*_*',
+         'keep *_ak5GenJets_*_*',
          'keep *_tauGenJets*_*_*',
          'keep *_selectedGenTauDecays*_*_*'
          )

@@ -261,7 +261,7 @@ TauTagValOutputCommands = cms.PSet(
       outputCommands = cms.untracked.vstring('drop *',
          'keep recoPFCandidates_*_*_*',
          'keep *_genParticles*_*_*',
-         'keep *_iterativeCone5GenJets_*_*',
+         'keep *_ak5GenJets_*_*',
          'keep *_tauGenJets*_*_*',
          'keep *_selectedGenTauDecays*_*_*'
          )
