@@ -2,5 +2,6 @@
 #define FWCore_PythonParameterSet_BoostPython_h
 // avoids compiler warning
 #undef _POSIX_C_SOURCE
+#include <iostream>
 #include <boost/python.hpp>
 #endif
