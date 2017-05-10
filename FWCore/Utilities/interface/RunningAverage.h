@@ -4,10 +4,20 @@
 #include <algorithm>
 #include <array>
 
+// Function for testing RunningAverage
+namespace test {
+  namespace RunningAverage {
+    int test();
+  }
+}
+
 namespace edm {
 // keeps the running average of the last N entries
 // thread safe, fast: does not garantee precise update in case of collision
   class RunningAverage {
+    // For tests
+    friend int ::test::RunningAverage::test();
+
   public:
     static constexpr int N = 16;  // better be a power of 2
     explicit RunningAverage(unsigned int k=4) : m_mean(N*k), m_curr(0) {
