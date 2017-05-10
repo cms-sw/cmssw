@@ -1,18 +1,25 @@
 #########################
 #
 # Configuration file for simple MBias events
-# production in tracker only (Tilted)
+# production in tracker only
 # Produces 100 minbias events, to be used as an input in
-# SLHC_PU_TkOnly_TILTED_81X.py
+# SLHC_PU_TkOnly_90X.py (of course with the same geometry)
 #
 # UE tuning is UE_P8M1
 #
 # Author: S.Viret (viret@in2p3.fr)
-# Date  : 29/06/2016
+# Date        : 16/02/2017
 #
-# Script tested with release CMSSW_8_1_0_pre7
+# Script tested with release CMSSW_9_0_0_pre4
 #
 #########################
+#
+# Here you choose if you want flat (True) or tilted (False) geometry
+#
+
+flat=False
+
+###################
 
 import FWCore.ParameterSet.Config as cms
 
@@ -26,7 +33,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
+process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -34,6 +41,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+
+if flat:
+	print 'You choose the flat geometry'
+	process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
+else:
+	print 'You choose the tilted geometry'
+	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -48,7 +62,7 @@ process.source = cms.Source("EmptySource")
 # Global tag for PromptReco
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # Random seeds
 process.RandomNumberGeneratorService.generator.initialSeed      = 1
@@ -90,7 +104,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('MBias_100_TkOnly_TILTED.root'),
+    fileName = cms.untracked.string('MBias_100_TkOnly.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM')
@@ -114,9 +128,4 @@ for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 	
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-process = cust_2023tilted(process)
-# End of customisation functions	
 
