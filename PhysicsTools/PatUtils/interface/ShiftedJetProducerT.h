@@ -30,8 +30,6 @@
 
 #include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
 
-#include <TMath.h>
-
 #include <string>
 
 template <typename T, typename Textractor>
@@ -143,7 +141,7 @@ class ShiftedJetProducerT : public edm::EDProducer
 	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
 	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
-	    shift = TMath::Sqrt(shift*shift + residualJES*residualJES);
+	    shift = sqrt(shift*shift + residualJES*residualJES);
 	  }
 	}
       }

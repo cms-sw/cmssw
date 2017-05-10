@@ -39,7 +39,6 @@
 #include <TFile.h>
 #include <TFormula.h>
 #include <TH2.h>
-#include <TMath.h>
 #include <TRandom3.h>
 #include <TString.h>
 
@@ -239,7 +238,7 @@ class SmearedJetProducerT : public edm::EDProducer
       }
 
       double smearFactor = 1.;
-      double x = TMath::Abs(corrJetP4.eta());
+      double x = std::abs(corrJetP4.eta());
       double y = corrJetP4.pt();
       if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	   y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
@@ -256,7 +255,7 @@ class SmearedJetProducerT : public edm::EDProducer
       }
 
       double smearedJetEn = jet.energy();
-      double sigmaEn = jetResolutionExtractor_(jet)*TMath::Sqrt(smearFactor*smearFactor - 1.);
+      double sigmaEn = jetResolutionExtractor_(jet)*sqrt(smearFactor*smearFactor - 1.);
       const reco::GenJet* genJet = genJetMatcher_(jet, &evt);
       bool isGenMatched = false;
       if ( genJet ) {
@@ -273,7 +272,7 @@ class SmearedJetProducerT : public edm::EDProducer
 	    std::cout << "corrJetEn = " << corrJetP4.E() << ", genJetEn = " << genJet->energy() << " --> dEn = " << dEn << std::endl;
 	  }
 
-	  smearedJetEn = jet.energy()*(1. + (smearFactor - 1.)*dEn/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	  smearedJetEn = jet.energy()*(1. + (smearFactor - 1.)*dEn/std::max( rawJetP4.E(), corrJetP4.E()));
 	  isGenMatched = true;
 	}
       }
@@ -293,7 +292,7 @@ class SmearedJetProducerT : public edm::EDProducer
 	  //     Take maximum(rawJetEn, corrJetEn) to avoid pathological cases
 	  //    (e.g. corrJetEn << rawJetEn, due to L1Fastjet corrections)
 
-	  smearedJetEn = jet.energy()*(1. + rnd_.Gaus(0., sigmaEn)/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	  smearedJetEn = jet.energy()*(1. + rnd_.Gaus(0., sigmaEn)/std::max( rawJetP4.E(), corrJetP4.E()) );
 	}
       }
 

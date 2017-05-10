@@ -1,0 +1,21 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="RecoMET/METAlgorithms"/>
+<use   name="RecoJets/JetProducers"/>
+<use   name="JetMETCorrections/Algorithms"/>
+<use   name="root"/>
+<export>
+  <lib   name="1"/>
+</export>
