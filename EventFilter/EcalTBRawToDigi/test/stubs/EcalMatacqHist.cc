@@ -1,5 +1,6 @@
 #include "EcalMatacqHist.h"
 
+#include "TDirectory.h"
 #include "TProfile.h"
 #include <sstream>
 #include <iostream>
@@ -91,13 +92,15 @@ EcalMatacqHist:: analyze( const edm::Event & e, const  edm::EventSetup& c){
 		<< " profile";
       std::stringstream profileName;
       profileName << "matacq" << digis.chId();
-      profiles.push_back(TProfile(profileName.str().c_str(),
-				  profTitle.str().c_str(),
-				  digis.size(),
-				  -.5,
-				  -.5+digis.size(),
-				  "I"));
-      profiles.back().SetDirectory(0);//mem. management done by std::vector
+      {
+        TDirectory::TContext context(nullptr);//mem. management done by std::vector
+        profiles.emplace_back(profileName.str().c_str(),
+                              profTitle.str().c_str(),
+                              digis.size(),
+                              -.5,
+                              -.5+digis.size(),
+                              "I");
+      }
       profChId.push_back(digis.chId());
     }
     

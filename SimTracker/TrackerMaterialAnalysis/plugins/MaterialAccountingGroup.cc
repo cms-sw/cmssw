@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 
+#include "TDirectory.h"
 #include <TFile.h>
 #include <TH1F.h>
 #include <TProfile.h>
@@ -47,22 +48,17 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_boundingbox.grow(s_tolerance);
 
   // initialize the histograms 
-  m_dedx_spectrum   = new TH1F((m_name + "_dedx_spectrum").c_str(),     "Energy loss spectrum",       1000,    0,   1);
-  m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(),   "Radiation lengths spectrum", 1000,    0,   1);
-  m_dedx_vs_eta     = new TProfile((m_name + "_dedx_vs_eta").c_str(),   "Energy loss vs. eta",         600,   -3,   3);
-  m_dedx_vs_z       = new TProfile((m_name + "_dedx_vs_z").c_str(),     "Energy loss vs. Z",          6000, -300, 300);
-  m_dedx_vs_r       = new TProfile((m_name + "_dedx_vs_r").c_str(),     "Energy loss vs. R",          1200,    0, 120);
-  m_radlen_vs_eta   = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta",   600,   -3,   3);
-  m_radlen_vs_z     = new TProfile((m_name + "_radlen_vs_z").c_str(),   "Radiation lengths vs. Z",    6000, -300, 300);
-  m_radlen_vs_r     = new TProfile((m_name + "_radlen_vs_r").c_str(),   "Radiation lengths vs. R",    1200,    0, 120);
-  m_dedx_spectrum->SetDirectory( 0 );
-  m_radlen_spectrum->SetDirectory( 0 );
-  m_dedx_vs_eta->SetDirectory( 0 );
-  m_dedx_vs_z->SetDirectory( 0 );
-  m_dedx_vs_r->SetDirectory( 0 );
-  m_radlen_vs_eta->SetDirectory( 0 );
-  m_radlen_vs_z->SetDirectory( 0 );
-  m_radlen_vs_r->SetDirectory( 0 );
+  {
+    TDirectory::TContext context(nullptr);
+    m_dedx_spectrum   = new TH1F((m_name + "_dedx_spectrum").c_str(),     "Energy loss spectrum",       1000,    0,   1);
+    m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(),   "Radiation lengths spectrum", 1000,    0,   1);
+    m_dedx_vs_eta     = new TProfile((m_name + "_dedx_vs_eta").c_str(),   "Energy loss vs. eta",         600,   -3,   3);
+    m_dedx_vs_z       = new TProfile((m_name + "_dedx_vs_z").c_str(),     "Energy loss vs. Z",          6000, -300, 300);
+    m_dedx_vs_r       = new TProfile((m_name + "_dedx_vs_r").c_str(),     "Energy loss vs. R",          1200,    0, 120);
+    m_radlen_vs_eta   = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta",   600,   -3,   3);
+    m_radlen_vs_z     = new TProfile((m_name + "_radlen_vs_z").c_str(),   "Radiation lengths vs. Z",    6000, -300, 300);
+    m_radlen_vs_r     = new TProfile((m_name + "_radlen_vs_r").c_str(),   "Radiation lengths vs. R",    1200,    0, 120);
+  }
 }
 
 MaterialAccountingGroup::~MaterialAccountingGroup(void)

@@ -2,6 +2,7 @@
 #include "HtrXmlPatternToolParameters.h"
 #include "HtrXmlPatternSet.h"
 #include "HtrXmlPatternWriter.h"
+#include "TDirectory.h"
 #include "TFile.h"
 #include "TH1.h"
 #include <iostream>
@@ -216,18 +217,21 @@ void HtrXmlPatternTool::createHists() {
 	for (int chan=1; chan<=24; chan++) {
 	  ChannelPattern* cp=hd->getPattern(chan);
 	  char hname[128];
-	  sprintf(hname,"Exact fC Cr%d,%d%s-%d",crate,slot,
-		  ((tb==1)?("t"):("b")),chan);
-	  TH1* hp=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  hp->SetDirectory(0);
-	  sprintf(hname,"Quantized fC Cr%d,%d%s-%d",crate,slot,
-		  ((tb==1)?("t"):("b")),chan);
-	  TH1* hq=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  hp->SetDirectory(0);
-	  sprintf(hname,"Encoded fC Cr%d,%d%s-%d",crate,slot,
-		  ((tb==1)?("t"):("b")),chan);
-	  TH1* ha=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  ha->SetDirectory(0);
+          TH1* hp;
+          TH1* hq;
+          TH1* ha;
+          {
+            TDirectory::TContext context(nullptr);
+            sprintf(hname,"Exact fC Cr%d,%d%s-%d",crate,slot,
+                    ((tb==1)?("t"):("b")),chan);
+            hp=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
+            sprintf(hname,"Quantized fC Cr%d,%d%s-%d",crate,slot,
+                    ((tb==1)?("t"):("b")),chan);
+            hq=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
+            sprintf(hname,"Encoded fC Cr%d,%d%s-%d",crate,slot,
+                    ((tb==1)?("t"):("b")),chan);
+            ha=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
+          }
 	  for (int i=0; i<ChannelPattern::SAMPLES; i++) {
 	    hp->Fill(i*1.0,(*cp)[i]);
 	    hq->Fill(i*1.0,cp->getQuantized(i));

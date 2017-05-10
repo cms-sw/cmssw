@@ -129,9 +129,10 @@ TH1F* CommonAnalyzer::getBinomialRatio(const CommonAnalyzer& denom, const char* 
       denreb = (TH1F*)den->Rebin(rebin,"denrebinned");
       numreb = (TH1F*)num->Rebin(rebin,"numrebinned");
     }
-    
-    ratio = new TH1F(*numreb);
-    ratio->SetDirectory(0);
+    {
+      TDirectory::TContext context(nullptr);
+      ratio = new TH1F(*numreb);
+    }
     ratio->Reset();
     ratio->Sumw2();
     ratio->Divide(numreb,denreb,1,1,"B");

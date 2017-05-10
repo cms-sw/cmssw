@@ -26,6 +26,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
+#include "TDirectory.h"
 
 using namespace std;
 using namespace edm;
@@ -1216,11 +1217,12 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     double VzBins[nVzBin + 1];
     for (int i = 0; i <= nVzBin; i++)
       VzBins[i] = (double)i * 20.0 / (double)nVzBin - 10.0;
-
-    AlphaTracklets12_ = new TH3F(
+    {
+      TDirectory::TContext context(nullptr);
+      AlphaTracklets12_ = new TH3F(
         "hAlphaTracklets12", "Alpha for tracklets12;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets12_->SetDirectory(0);
+    }
 
     AlphaTracklets12_->SetBinContent(2, 1, 7, 3.55991);
     AlphaTracklets12_->SetBinContent(2, 1, 8, 2.40439);
@@ -2471,10 +2473,12 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     for (int i = 0; i <= nVzBin; i++)
       VzBins[i] = (double)i * 20.0 / (double)nVzBin - 10.0;
 
-    AlphaTracklets13_ = new TH3F(
+    {
+      TDirectory::TContext context(nullptr);
+      AlphaTracklets13_ = new TH3F(
         "hAlphaTracklets13", "Alpha for tracklets13;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets13_->SetDirectory(0);
+    }
 
     AlphaTracklets13_->SetBinContent(3, 1, 5, 3.29862);
     AlphaTracklets13_->SetBinContent(3, 1, 6, 2.40246);
@@ -3501,10 +3505,12 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which) {
     for (int i = 0; i <= nVzBin; i++)
       VzBins[i] = (double)i * 20.0 / (double)nVzBin - 10.0;
 
-    AlphaTracklets23_ = new TH3F(
+    {
+      TDirectory::TContext context(nullptr);
+      AlphaTracklets23_ = new TH3F(
         "hAlphaTracklets23", "Alpha for tracklets23;#eta;#hits;vz [cm]",
         nEtaBin, EtaBins, nHitBin, HitBins, nVzBin, VzBins);
-    AlphaTracklets23_->SetDirectory(0);
+    }
 
     AlphaTracklets23_->SetBinContent(3, 1, 5, 3.38308);
     AlphaTracklets23_->SetBinContent(3, 1, 6, 2.34772);
