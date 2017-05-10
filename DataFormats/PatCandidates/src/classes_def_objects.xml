@@ -290,7 +290,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="29">
+  <class name="pat::PackedCandidate" ClassVersion="30">
+   <version ClassVersion="30" checksum="3338823671"/>
    <version ClassVersion="29" checksum="649303924"/>
    <version ClassVersion="28" checksum="1956349111"/>
     <version ClassVersion="27" checksum="2418936168"/>
