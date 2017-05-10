@@ -29,8 +29,8 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = "L1T2016EMU"
-process.dqmSaver.tag = "L1T2016EMU"
+process.dqmEnv.subSystemFolder = "L1TEMU"
+process.dqmSaver.tag = "L1TEMU"
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
 
 process.dqmEndPath = cms.EndPath(
