@@ -49,7 +49,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     
     /// destructor
     ///
-    ~FastTrackerRecHit() {}
+    virtual ~FastTrackerRecHit() {}
     
     /// constructor
     /// requires a position with error in local detector coordinates,
