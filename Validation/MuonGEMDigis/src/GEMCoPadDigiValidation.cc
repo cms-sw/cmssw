@@ -146,9 +146,11 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       LogDebug("GEMCoPadDigiValidation")<<" copad #1 pad : "<<pad1<<"  bx : "<<bx1;
       LogDebug("GEMCoPadDigiValidation")<<" copad #2 pad : "<<pad2<<"  bx : "<<bx2;
 
+      /*
       // Filtered using BX
       if ( bx1 < (Short_t)minBXGEM_ || bx1 > (Short_t)maxBXGEM_) continue;
       if ( bx2 < (Short_t)minBXGEM_ || bx2 > (Short_t)maxBXGEM_) continue;
+      */
 
       LocalPoint lp1 = roll->centreOfPad(pad1);
       LocalPoint lp2 = roll->centreOfPad(pad2);

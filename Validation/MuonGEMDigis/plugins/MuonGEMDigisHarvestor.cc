@@ -162,6 +162,48 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   }
   */
 
+  if ( ig.get( "sim_dcEta_trk_r-1_st1") != nullptr) {
+    for( Int_t region  = -1; region <=1 ; region= region+2) {
+      for( Int_t station = 1 ; station <=2 ; station++) {
+        TH2F* simHit_trk     = (TH2F*)ig.get(TString::Format("sim_dcEta_trk_r%d_st%d",  region, station).Data())->getTH2F()->Clone();
+        TH2F* stripHit_trk   = (TH2F*)ig.get(TString::Format("strip_dcEta_trk_r%d_st%d",region, station).Data())->getTH2F()->Clone();
+        TH2F* padHit_trk     = (TH2F*)ig.get(TString::Format("pad_dcEta_trk_r%d_st%d",  region, station).Data())->getTH2F()->Clone();
+        TH2F* copadHit_trk   = (TH2F*)ig.get(TString::Format("copad_dcEta_trk_r%d_st%d",region, station).Data())->getTH2F()->Clone();
+
+        stripHit_trk->Divide( simHit_trk);
+        padHit_trk  ->Divide( simHit_trk);
+        copadHit_trk->Divide( simHit_trk);
+        TH2F* eff_stripHit_trk = (TH2F*)stripHit_trk->Clone();
+        TH2F* eff_padHit_trk = (TH2F*)padHit_trk->Clone();
+        TH2F* eff_copadHit_trk = (TH2F*)copadHit_trk->Clone();
+
+        TString title_strip = TString::Format("eff_strip_dcEta_trk_r%d_st%d", region, station);
+        TString title_pad = TString::Format("eff_pad_dcEta_trk_r%d_st%d", region, station);
+        TString title_copad = TString::Format("eff_copad_dcEta_trk_r%d_st%d", region, station);
+
+        TString histname_strip = TString::Format("Simple Eff. for strip vs simhit at Region%d Station%d", region, station);
+        TString histname_pad = TString::Format("Simple Eff. for pad vs simhit at Region%d Station%d", region, station);
+        TString histname_copad = TString::Format("Simple Eff. for copad vs simhit at Region%d Station%d", region, station);
+
+        eff_stripHit_trk->SetName(histname_strip.Data());
+        eff_padHit_trk->SetName(histname_pad.Data());
+        eff_copadHit_trk->SetName(histname_copad.Data());
+
+        eff_stripHit_trk->SetTitle(title_strip.Data());
+        eff_padHit_trk->SetTitle(title_pad.Data());
+        eff_copadHit_trk->SetTitle(title_copad.Data());
+
+        ibooker.book2D( eff_stripHit_trk->GetName(), eff_stripHit_trk->GetTitle(), eff_stripHit_trk );
+        ibooker.book2D( eff_padHit_trk->GetName(), eff_padHit_trk->GetTitle(), eff_padHit_trk );
+        ibooker.book2D( eff_copadHit_trk->GetName(), eff_copadHit_trk->GetTitle(), eff_copadHit_trk );
+      }
+    }
+  }
+  else{
+    std::cout<<"Failed to get histograms"<<std::endl;
+  }
+
+
   // detailPlots
   for( int i = 0 ; i < 3 ; i++) {
     TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];

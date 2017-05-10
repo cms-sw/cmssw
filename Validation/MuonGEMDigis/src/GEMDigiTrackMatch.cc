@@ -24,15 +24,62 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatc
 }
 
 void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const & iSetup){
-
+  const GEMGeometry* geom = nullptr;
+  try {
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
-  const GEMGeometry& geom = *hGeom;
-  setGeometry(geom);
+  geom = &*hGeom;
+  setGeometry(*geom);
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("GEMDigiTrackMatch") << "+++ Error : GEM geometry is unavailable on histogram booking. +++\n";
+    return;
+  }
 
   const float PI=TMath::Pi();
 
-  nstation = geom.regions()[0]->stations().size();
+  nstation = geom->regions()[0]->stations().size();
+  for( auto& region : geom->regions() ){
+    int region_num = region->region();
+    TString title_suffix = TString::Format(" at Region%d", region_num);
+    TString histname_suffix = TString::Format("_r%d", region_num);
+    for( auto& station : region->stations() ){
+      if( station->station()==2 ) continue;
+      int station_num = (station->station()==1) ? 1 : 2;
+      TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
+      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
+
+      TString dcEta_title_sim = TString::Format("SimHit Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
+      TString dcEta_histname_sim = TString::Format("sim_dcEta_trk%s", histname_suffix2.Data());
+      TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
+      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix2.Data());
+      TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
+      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix2.Data());
+      TString dcEta_title_copad = TString::Format("CoPad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
+      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix2.Data());
+
+      int nXbins = station->rings()[0]->nSuperChambers()*2;
+      int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
+      int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
+      int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2;
+
+      theSim_dcEta[ dcEta_histname_sim.Hash() ] = ibooker.book2D(dcEta_histname_sim, dcEta_title_strip, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+      theStrip_dcEta[ dcEta_histname_strip.Hash() ] = ibooker.book2D(dcEta_histname_strip, dcEta_title_strip, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+      thePad_dcEta[ dcEta_histname_pad.Hash() ] = ibooker.book2D(dcEta_histname_pad, dcEta_title_pad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+      theCoPad_dcEta[ dcEta_histname_copad.Hash() ] = ibooker.book2D(dcEta_histname_copad, dcEta_title_copad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+      int idx = 0;
+      for(unsigned int sCh=1; sCh <= station->superChambers().size(); sCh++ ){
+        for(unsigned int Ch=1; Ch<=2; Ch++){
+          idx++;
+          TString label = TString::Format("ch%d_la%d", sCh, Ch);
+          theSim_dcEta[ dcEta_histname_sim.Hash() ]->setBinLabel(idx, label.Data());
+          theStrip_dcEta[ dcEta_histname_strip.Hash() ]->setBinLabel(idx, label.Data());
+          thePad_dcEta[ dcEta_histname_pad.Hash() ]->setBinLabel(idx, label.Data());
+          theCoPad_dcEta[ dcEta_histname_copad.Hash() ]->setBinLabel(idx, label.Data());
+        }
+      }
+    }
+  }
   if ( detailPlot_) { 
     for( unsigned int j=0 ; j<nstation ; j++) {
       string track_eta_name  = string("track_eta")+s_suffix[j];
@@ -91,6 +138,23 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
 
 GEMDigiTrackMatch::~GEMDigiTrackMatch() {  }
 
+
+void GEMDigiTrackMatch::fillMatchedHitID( const char* hTitle_prefix, std::unordered_map< UInt_t , MonitorElement* >& hist_map, const GEMDetId id){
+      int binX = (id.chamber()-1)*2 + (id.layer()-1);
+      int binY = id.roll();
+      Int_t station = id.station();
+      bool copad = true ; 
+      if ( std::string(hTitle_prefix).find("copad") == string::npos ) {  
+        copad = false;
+      }
+      if ( 2== station ) return; // remove st2_short hits.
+      if ( 3== station ) station=2 ; // Just to labeling.
+      TString histname = TString::Format("%s_r%d_st%d", hTitle_prefix, id.region(), station);
+      LogDebug("GEMDigiTrackMatch")<<histname;
+      hist_map[histname.Hash()]->Fill(binX, binY);
+      if ( copad ) hist_map[histname.Hash()]->Fill(binX+1, binY); 
+}
+
 void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<GEMGeometry> hGeom;
@@ -105,16 +169,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(simVerticesToken_, sim_vertices);
   if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
-  if ( detailPlot_) {
-
-    edm::Handle<edm::PSimHitContainer> simhits;
-    edm::Handle<edm::SimTrackContainer> sim_tracks;
-    edm::Handle<edm::SimVertexContainer> sim_vertices;
-    iEvent.getByToken(simHitsToken_, simhits);
-    iEvent.getByToken(simTracksToken_, sim_tracks);
-    iEvent.getByToken(simVerticesToken_, sim_vertices);
-    if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
-
+  // Simple Plot //
     //const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
     const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
     MySimTrack track_; 
@@ -141,7 +196,20 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
           track_.gem_pad[i][j] = false;
         }
       }
+ 
+      // Simple plots for efficiency
+      const auto gem_sh_ids = match_sh.detIdsGEM(); 
+      const auto gem_strip_ids = match_gd.detIds(); 
+      const auto gem_pad_ids = match_gd.detIdsForPad(); 
+      const auto gem_copad_ids = match_gd.detIdsForCoPad(); 
 
+      for(auto d: gem_sh_ids )    { fillMatchedHitID( "sim_dcEta_trk"  , theSim_dcEta   , GEMDetId(d)); }
+      for(auto d: gem_strip_ids ) { fillMatchedHitID( "strip_dcEta_trk", theStrip_dcEta , GEMDetId(d)); }
+      for(auto d: gem_pad_ids )   { fillMatchedHitID( "pad_dcEta_trk",   thePad_dcEta   , GEMDetId(d)); }
+      for(auto d: gem_copad_ids ) { fillMatchedHitID( "copad_dcEta_trk", theCoPad_dcEta , GEMDetId(d)); }
+
+      // Detail plots 
+      if ( detailPlot_ ) {
       // ** GEM SimHits ** //
       const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
       for(auto d: gem_sh_ids_ch)
@@ -170,23 +238,21 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
 
 
-      FillWithTrigger( track_eta, fabs(track_.eta)) ;
-      FillWithTrigger( track_phi, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
+      //FillWithTrigger( track_eta, fabs(track_.eta)) ;
+      //FillWithTrigger( track_phi, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
 
 
-      FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
-      FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
-      FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
-      FillWithTrigger( copad_eta,   track_.gem_pad , fabs( track_.eta) );
+        FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
+        FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
+        FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
+        FillWithTrigger( copad_eta,   track_.gem_pad , fabs( track_.eta) );
 
-      // Separate station.
+        // Separate station.
 
-      FillWithTrigger( dg_sh_phi, track_.gem_sh  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
-      FillWithTrigger( dg_phi,    track_.gem_dg  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
-      FillWithTrigger( pad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
-      FillWithTrigger( copad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
-
-
+        FillWithTrigger( dg_sh_phi, track_.gem_sh  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
+        FillWithTrigger( dg_phi,    track_.gem_dg  ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
+        FillWithTrigger( pad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
+        FillWithTrigger( copad_phi,   track_.gem_pad ,fabs(track_.eta), track_.phi , track_.hitOdd, track_.hitEven);
     }
   }
 }

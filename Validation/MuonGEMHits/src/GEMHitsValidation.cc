@@ -8,6 +8,7 @@ GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseVali
 {
   InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
+  nBinXY_ = cfg.getUntrackedParameter<int>("nBinGlobalXY");
 }
 
 

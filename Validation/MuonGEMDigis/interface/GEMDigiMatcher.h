@@ -42,6 +42,8 @@ public:
 
   // partition GEM detIds with digis
   std::set<unsigned int> detIds() const;
+  std::set<unsigned int> detIdsForPad() const;
+  std::set<unsigned int> detIdsForCoPad() const;
 
   // chamber detIds with digis
   std::set<unsigned int> chamberIds() const;

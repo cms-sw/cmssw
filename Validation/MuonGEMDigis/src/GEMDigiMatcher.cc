@@ -125,13 +125,19 @@ GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection& co_pads)
   for (auto id: det_ids)
   {
     GEMDetId p_id(id);
+    // In strip or pad, station3 means st2_long but in copad, station2 is st2_long.
+    Int_t station = p_id.station();
     GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
+    if( 3== station) station=2;
+    GEMDetId p_id_roll_removed(p_id.region(), p_id.ring(), station, p_id.layer(), p_id.chamber(), 0);
+
     auto hit_co_pads = simhit_matcher_.hitCoPadsInDetId(id);
-    auto co_pads_in_det = co_pads.get(p_id);
+    auto co_pads_in_det = co_pads.get(p_id_roll_removed);
 
     for (auto pad = co_pads_in_det.first; pad != co_pads_in_det.second; ++pad)
     {
+      if ( pad->roll() != p_id.roll() ) continue;
       // check that the pad BX is within the range
       if (pad->bx(1) < minBXGEM_ || pad->bx(1) > maxBXGEM_) continue;
       if (pad->bx(2) < minBXGEM_ || pad->bx(2) > maxBXGEM_) continue;
@@ -153,6 +159,20 @@ GEMDigiMatcher::detIds() const
 {
   std::set<unsigned int> result;
   for (auto& p: detid_to_digis_) result.insert(p.first);
+  return result;
+}
+std::set<unsigned int>
+GEMDigiMatcher::detIdsForPad() const
+{
+  std::set<unsigned int> result;
+  for (auto& p: detid_to_pads_) result.insert(p.first);
+  return result;
+}
+std::set<unsigned int>
+GEMDigiMatcher::detIdsForCoPad() const
+{
+  std::set<unsigned int> result;
+  for (auto& p: detid_to_copads_) result.insert(p.first);
   return result;
 }
 

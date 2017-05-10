@@ -135,6 +135,34 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
       }
     }
   }
+
+  //Simple efficiency.
+/*  if ( ig.get( "sim_dcEta_trk_r-1_st1") != nullptr) {
+    for( Int_t region  = -1; region <=1 ; region= region+2) 
+      for( Int_t station = 1 ; station <=2 ; station++) {
+        TH2F* simHit_trk     = (TH2F*)ig.get(TString::Format("sim_dcEta_trk_r%d_st%d",  region, station).Data())->getTH2F()->Clone();
+        TH2F* stripHit_trk   = (TH2F*)ig.get(TString::Format("strip_dcEta_trk_r%d_st%d",region, station).Data())->getTH2F()->Clone();
+        TH2F* padHit_trk     = (TH2F*)ig.get(TString::Format("pad_dcEta_trk_r%d_st%d",  region, station).Data())->getTH2F()->Clone();
+        TH2F* copadHit_trk   = (TH2F*)ig.get(TString::Format("copad_dcEta_trk_r%d_st%d",region, station).Data())->getTH2F()->Clone();
+
+        stripHit_trk->Divide( simHit_trk);
+        padHit_trk  ->Divide( simHit_trk);
+        copadHit_trk->Divide( simHit_trk);
+
+        TString title_strip = TString::Format("eff_strip_dcEta_trk_r%d_st%d", region, station);
+        TString title_pad = TString::Format("eff_pad_dcEta_trk_r%d_st%d", region, station);
+        TString title_copad = TString::Format("eff_copad_dcEta_trk_r%d_st%d", region, station);
+
+        stripHit_trk->SetName(title_strip.Data());
+        padHit_trk->SetName(title_pad.Data());
+        copadHit_trk->SetName(title_copad.Data());
+
+        ibooker.book2D( string("Simple Eff. of strip vs simhit"), stripHit_trk );
+        ibooker.book2D( string("Simple Eff. of pad vs simhit"),   padHit_trk   );
+        ibooker.book2D( string("Simple Eff. of copad vs simhit"), copadHit_trk );
+      }
+  }*/
+
 }
 
 

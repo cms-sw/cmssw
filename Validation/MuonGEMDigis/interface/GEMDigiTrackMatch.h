@@ -19,6 +19,7 @@ public:
   ~GEMDigiTrackMatch();
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
+  void fillMatchedHitID( const char* hTitle_prefix, std::unordered_map< UInt_t , MonitorElement* >& hist_map, const GEMDetId id);
  private:
 
   MonitorElement* track_eta[3];
@@ -38,9 +39,10 @@ public:
   edm::EDGetToken gem_padToken_;
   edm::EDGetToken gem_copadToken_;
 
-//  std::map< UInt_t , MonitorElement* > theStrip_dcEta;
-//  std::map< UInt_t , MonitorElement* > thePad_dcEta;
-//  std::map< UInt_t , MonitorElement* > theCoPad_dcEta; 
+  std::unordered_map< UInt_t , MonitorElement* > theSim_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > theStrip_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > thePad_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > theCoPad_dcEta; 
 };
 
 #endif
