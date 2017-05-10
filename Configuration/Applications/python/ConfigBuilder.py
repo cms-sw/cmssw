@@ -79,6 +79,7 @@ defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
+defaultOptions.mcType = 'MT'
 
 # some helper routines
 def dumpPython(process,name):
@@ -2190,6 +2191,12 @@ class ConfigBuilder(object):
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	if self._options.mcType!='MT':
+		self.pythonCfgCode += '\nfor label, prod in process.producers_().iteritems():\n'
+		self.pythonCfgCode += '        if prod.type_() == ''"OscarMTProducer''"'':\n'
+                self.pythonCfgCode += '                prod.__dict__[''"_TypedParameterizable__type''"] = "OscarProducer"\n'
+
 
 	if self._options.runUnscheduled:	
 		# prune and delete paths

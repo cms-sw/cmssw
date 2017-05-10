@@ -387,3 +387,9 @@ expertSettings.add_option("--nThreads",
                           default="1",
                           dest='nThreads'
                           )
+
+expertSettings.add_option("--mcType",
+                          help="Choice between sequential and MT SIM (default is MT)",
+                          default="MT",
+                          dest='mcType'
+                          )
