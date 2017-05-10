@@ -23,3 +23,9 @@
         <use name="lhapdf"/>
         <flags EDM_PLUGIN="1"/>
 </library>
+<library name="GeneratorInterfaceLHESlimmedWeightsProducer" file="LHESlimmedWeightsProducer.cc">
+        <use name="FWCore/Framework"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
+        <use name="lhapdf"/>
+        <flags EDM_PLUGIN="1"/>
+</library>

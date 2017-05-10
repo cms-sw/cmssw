@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProductLite.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
@@ -63,10 +64,11 @@ namespace SimDataFormats_GeneratorProducts {
 		// LHE products
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
-	        gen::WeightsInfo wwgtinfo;
-	        std::vector<gen::WeightsInfo> wvwgtinfo;
+	    gen::WeightsInfo wwgtinfo;
+	    std::vector<gen::WeightsInfo> wvwgtinfo;
 		edm::Wrapper<LHEEventProduct>	wevent;
-                edm::Wrapper<LHEXMLStringProduct> wstring;
+        edm::Wrapper<LHEXMLStringProduct> wstring;
+        edm::Wrapper<LHEEventProductLite>   weventlite;
 	};
 }
 
