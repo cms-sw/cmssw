@@ -33,7 +33,7 @@ hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.
 hiRegitMuInitialStepHitDoublets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitDoublets.clone(
     seedingLayers = "hiRegitMuInitialStepSeedLayers",
     trackingRegions = "hiRegitMuInitialStepTrackingRegions",
-    clusterCheck = "hiRegitMuClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck"
 )
 hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
     doublets = "hiRegitMuInitialStepHitDoublets"
@@ -80,7 +80,7 @@ import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuInitialStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('HIMVASelectorIter4'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
@@ -92,14 +92,14 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
             min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
+            useMVA = cms.bool(False),
             minMVA = cms.double(-0.38)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
             min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
+            useMVA = cms.bool(False),
             minMVA = cms.double(-0.77)
             ),
         ) #end of vpset
