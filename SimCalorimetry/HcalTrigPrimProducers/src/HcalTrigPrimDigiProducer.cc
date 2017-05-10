@@ -19,7 +19,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "TH2.h"
 #include <algorithm>
 
 HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
@@ -27,7 +27,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   theAlgo_(ps.getParameter<bool>("peakFilter"),
 	  ps.getParameter<std::vector<double> >("weights"),
 	  ps.getParameter<int>("latency"),
-	  ps.getParameter<uint32_t>("FG_threshold"),
+	  ps.getParameter<uint32_t>("FG_threshold1"),
+          ps.getParameter<uint32_t>("FG_threshold2"),
           ps.getParameter<uint32_t>("ZS_threshold"),
 	  ps.getParameter<int>("numberOfSamples"),
 	  ps.getParameter<int>("numberOfPresamples"),
@@ -145,6 +146,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if (runZS_) theAlgo_.runZS(*result);
 
   //  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
+
 
   // Step D: Put outputs into event
   iEvent.put(result);
