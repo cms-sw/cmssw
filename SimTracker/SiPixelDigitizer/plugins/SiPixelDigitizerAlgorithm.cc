@@ -496,7 +496,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 //============================================================================
 void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puInfo){
   //Instlumi scalefactor calculating for dynamic inefficiency
-  
+  _eventPileUp = false;    
   if (puInfo) {
     
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
@@ -514,9 +514,10 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
       pui++;
     }
     
-    if (pu0!=bunchCrossing.end()) {        
+    if (pu0!=bunchCrossing.end()) {
+      double instlumi = TrueInteractionList[p]*221.95;
+      if (instlumi > 0.) _eventPileUp = true;         
       for (size_t i=0; i<3; i++) {
-	double instlumi = TrueInteractionList.at(p)*221.95;
 	double instlumi_pow=1.;
 	_pu_scale[i] = 0;
 	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
@@ -1361,7 +1362,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
        int module=tTopo->pxbModule(detID);
        if (module<=4) module=5-module;
        else module-=4;
-       
+       if (_eventPileUp)       
        columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
     }
   } else {                // forward disks

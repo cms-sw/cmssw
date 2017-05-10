@@ -252,6 +252,7 @@ class SiPixelDigitizerAlgorithm  {
    // Needed by dynamic inefficiency 
    // 0-3 BPix, 4-5 FPix
    double _pu_scale[20];
+   bool _eventPileUp;
 
     // Internal typedefs
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
