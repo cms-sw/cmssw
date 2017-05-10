@@ -7,7 +7,7 @@ from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
 from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
-caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
+caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbhereco'))
 ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'), src= cms.InputTag('caloTowerForTrk'))
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
@@ -30,7 +30,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-                            #'BPix2+TIB1','BPix2+TIB2',
+                            'BPix2+TIB1','BPix2+TIB2',
                             'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
