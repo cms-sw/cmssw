@@ -17,6 +17,7 @@
  */
 
 
+template <class T1, class T2>
 class PixelForwardLayerBuilder {  
  public:
   PixelForwardLayerBuilder(){};
