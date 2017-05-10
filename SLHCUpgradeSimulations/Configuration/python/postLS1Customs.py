@@ -141,6 +141,50 @@ def customise_DQM_25ns(process):
     # Switch the default decision of the HCAL noise filter
     if hasattr(process,'HBHENoiseFilterResultProducer'):
         process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
+
+    # Switch to Stage1 Digi
+    process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+    process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
+    if hasattr(process, 'RawToDigi'):
+        process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+        process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
+
+    process.load('DQMOffline.L1Trigger.L1TriggerDqmOffline_cff')
+
+    if hasattr(process, 'l1tMonitorStage1Online'):
+        process.l1tRct.rctSource = 'caloStage1Digis'
+        process.l1tRctfromRCT.rctSource = 'rctDigis'
+        process.l1tPUM.regionSource = cms.InputTag("rctDigis")
+        process.l1tStage1Layer2.stage1_layer2_ = cms.bool(True)
+        process.l1tStage1Layer2.gctCentralJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
+        process.l1tStage1Layer2.gctForwardJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
+        process.l1tStage1Layer2.gctTauJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+        process.l1tStage1Layer2.gctIsoTauJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets")
+        process.l1tStage1Layer2.gctEnergySumsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+        process.l1tStage1Layer2.gctIsoEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm")
+        process.l1tStage1Layer2.gctNonIsoEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm")
+        process.dqmL1ExtraParticlesStage1.etTotalSource = 'caloStage1LegacyFormatDigis'
+        process.dqmL1ExtraParticlesStage1.nonIsolatedEmSource = 'caloStage1LegacyFormatDigis:nonIsoEm'
+        process.dqmL1ExtraParticlesStage1.etMissSource = 'caloStage1LegacyFormatDigis'
+        process.dqmL1ExtraParticlesStage1.htMissSource = 'caloStage1LegacyFormatDigis'
+        process.dqmL1ExtraParticlesStage1.forwardJetSource = 'caloStage1LegacyFormatDigis:forJets'
+        process.dqmL1ExtraParticlesStage1.centralJetSource = 'caloStage1LegacyFormatDigis:cenJets'
+        process.dqmL1ExtraParticlesStage1.tauJetSource = 'caloStage1LegacyFormatDigis:tauJets'
+        process.dqmL1ExtraParticlesStage1.isolatedEmSource = 'caloStage1LegacyFormatDigis:isoEm'
+        process.dqmL1ExtraParticlesStage1.etHadSource = 'caloStage1LegacyFormatDigis'
+        process.dqmL1ExtraParticlesStage1.hfRingEtSumsSource = 'caloStage1LegacyFormatDigis'
+        process.dqmL1ExtraParticlesStage1.hfRingBitCountsSource = 'caloStage1LegacyFormatDigis'
+        process.l1ExtraDQMStage1.stage1_layer2_ = cms.bool(True)
+        process.l1ExtraDQMStage1.L1ExtraIsoTauJetSource_ = cms.InputTag("dqmL1ExtraParticlesStage1", "IsoTau")
+
+    if hasattr(process, 'l1Stage1HwValEmulatorMonitor'):    
+        process.l1TdeRCT.rctSourceData = 'caloStage1Digis'
+        process.l1TdeRCTfromRCT.rctSourceData = 'rctDigis'
+        process.l1compareforstage1.GCTsourceData = cms.InputTag("caloStage1LegacyFormatDigis")
+        process.l1compareforstage1.GCTsourceEmul = cms.InputTag("valCaloStage1LegacyFormatDigis")
+        process.l1compareforstage1.stage1_layer2_ = cms.bool(True)
+        process.valStage1GtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
+
     return process
 
 

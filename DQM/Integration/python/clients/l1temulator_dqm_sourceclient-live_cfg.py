@@ -70,10 +70,10 @@ process.RawToDigi.remove("castorDigis")
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
 
-if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#else:
+#process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 # for RCT at P5, read FED vector from OMDS
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
@@ -89,7 +89,7 @@ process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,
-                                process.l1EmulatorMonitorClientPath,
+                                #process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
 
 #---------------------------------------------
@@ -100,7 +100,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove a module from hardware validation
 # cff file: L1Trigger.HardwareValidation.L1HardwareValidation_cff
 #
-# process.L1HardwareValidation.remove(process.deCsctf)
+process.l1HwValEmulatorMonitorPath.remove(process.l1TdeCSCTF)
 #
 process.L1HardwareValidation.remove(process.deDt)
 
@@ -111,7 +111,15 @@ process.L1HardwareValidation.remove(process.l1TdeRCTRun1)
 #
 # process.l1compare.COMPARE_COLLS = [0, 0, 1, 1,  0, 1, 0, 0, 1, 0, 1, 0]
 #
+process.l1compare.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 
+process.l1demon.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+
+process.l1demon.HistFolder = cms.untracked.string('L1TEMU/Legacy')
+
+process.l1TdeGCT.HistFolder = cms.untracked.string('L1TEMU/Legacy/GCTexpert')
+
+process.l1GtHwValidation.DirName = cms.untracked.string("L1TEMU/Legacy/GTexpert")
 
 #
 # remove an expert module for L1 trigger system

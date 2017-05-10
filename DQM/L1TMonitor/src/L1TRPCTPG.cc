@@ -54,8 +54,6 @@ void L1TRPCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm:
   nev_ = 0;
   
   ibooker.setCurrentFolder("L1T/L1TRPCTPG");
-  runId_=ibooker.bookInt("iRun");
-  lumisecId_=ibooker.bookInt("iLumi");
   
   rpctpgbx = ibooker.book1D("RPCTPG_bx", 
        "RPC digis bx - all events", 9, -4.5, 4.5 ) ;

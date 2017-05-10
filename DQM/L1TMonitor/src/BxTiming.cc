@@ -56,10 +56,6 @@ BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Event
 {
   ibooker.setCurrentFolder(histFolder_);
 
-  runId_=ibooker.bookInt("iRun");
-  runId_->Fill(-1);
-  runStartTimeStamp_=ibooker.bookFloat("eventTimeStamp");
-
   /// initialize counters  
   for(int i=0; i<nfed_;i++) {
     nBxDiff[i][0]=0; nBxDiff[i][1]=nbig_; nBxDiff[i][2]=-1*nbig_;
