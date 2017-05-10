@@ -32,6 +32,9 @@ process.maxEvents = cms.untracked.PSet(
 ### Configuration to select map based on recorded current in the DB
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag,'auto:phase1_2017_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
 process.AutoMagneticFieldESProducer.valueOverride = 18000
