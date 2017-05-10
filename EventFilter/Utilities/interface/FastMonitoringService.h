@@ -46,6 +46,10 @@
 
 */
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 namespace evf{
 
   class FastMonitoringService : public MicroStateService
@@ -111,6 +115,7 @@ namespace evf{
       static const std::string nopath_;
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~FastMonitoringService();
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
      
       std::string makePathLegendaJson();
       std::string makeModuleLegendaJson();
