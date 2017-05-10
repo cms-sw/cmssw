@@ -484,3 +484,6 @@ if(dbe_)
   }
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ValidationHcalIsoTrackAlCaReco);
+

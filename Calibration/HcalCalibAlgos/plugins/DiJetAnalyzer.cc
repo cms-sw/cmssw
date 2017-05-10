@@ -4,7 +4,7 @@
 // description: Create an ntuple necessary for dijet balance calibration for the HCAL
 //
 
-#include "Calibration/HcalCalibAlgos/interface/DiJetAnalyzer.h"
+#include "Calibration/HcalCalibAlgos/plugins/DiJetAnalyzer.h"
 
 DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
 {

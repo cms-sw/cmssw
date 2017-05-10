@@ -32,7 +32,7 @@ to the actual calibration code in "endJob()".
 
 // user include files
 
-#include "Calibration/HcalCalibAlgos/interface/HcalCalibrator.h"
+#include "Calibration/HcalCalibAlgos/plugins/HcalCalibrator.h"
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

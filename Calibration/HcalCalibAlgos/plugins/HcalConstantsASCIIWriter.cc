@@ -5,7 +5,7 @@
 
 // user include files
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Calibration/HcalCalibAlgos/interface/HcalConstantsASCIIWriter.h"
+#include "Calibration/HcalCalibAlgos/plugins/HcalConstantsASCIIWriter.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -165,5 +165,10 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 }
 //define this as a plug-in
-//DEFINE_FWK_MODULE(HcalConstantsASCIIWriter)
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+using cms::HcalConstantsASCIIWriter;
+DEFINE_FWK_MODULE(HcalConstantsASCIIWriter);
+
 

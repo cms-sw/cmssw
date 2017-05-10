@@ -5,7 +5,7 @@
 
 // user include files
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Calibration/HcalCalibAlgos/interface/Analyzer_minbias.h"
+#include "Calibration/HcalCalibAlgos/plugins/Analyzer_minbias.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -771,4 +771,8 @@ namespace cms{
   }
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 
+using cms::Analyzer_minbias;
+
+DEFINE_FWK_MODULE(Analyzer_minbias);
