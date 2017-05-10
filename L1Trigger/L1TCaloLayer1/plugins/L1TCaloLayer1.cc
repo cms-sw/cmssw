@@ -81,7 +81,7 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   std::string hcalTPSourceLabel;
   
-  // calibrations in bins of pt, eta, and phi
+  // towers ( x sides) x phi.  in case of hf no separation by side.
   std::vector< std::vector< std::vector< std::vector < uint32_t > > > > ecalLUT;
   std::vector< std::vector< std::vector< std::vector < uint32_t > > > > hcalLUT;
   std::vector< std::vector< std::vector< uint32_t > > > hfLUT;
@@ -312,6 +312,7 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
+    // towers ( x sides) x phi.  in case of hf no separation by side.
     ecalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
     hcalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
     hfLUT.push_back(std::vector< std::vector< uint32_t > >(12, std::vector< uint32_t >(256)));
