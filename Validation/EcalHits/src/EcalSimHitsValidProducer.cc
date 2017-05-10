@@ -1,12 +1,18 @@
 #include "Validation/EcalHits/interface/EcalSimHitsValidProducer.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "G4Step.hh"
@@ -14,8 +20,7 @@
 #include "G4PrimaryParticle.hh"
 #include "G4PrimaryVertex.hh"
 
-#include <iostream>
-
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet& iPSet) :
      ee1(0.0),ee4(0.0),ee9(0.0),ee16(0.0),ee25(0.0),
@@ -652,3 +657,4 @@ uint32_t EcalSimHitsValidProducer::getUnitWithMaxEnergy(MapType& themap) {
   return unitWithMaxEnergy;
 }
 
+DEFINE_SIMWATCHER (EcalSimHitsValidProducer);

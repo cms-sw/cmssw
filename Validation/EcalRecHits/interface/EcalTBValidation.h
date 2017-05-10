@@ -16,24 +16,19 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-//#include "TFile.h" 
-//#include "TH1.h"
-//#include "TH2.h"
-
-class EcalTBValidation : public edm::EDAnalyzer {
+class EcalTBValidation : public DQMEDAnalyzer {
  public:
   explicit EcalTBValidation( const edm::ParameterSet& );
   ~EcalTBValidation();
   
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
   
  private:
 
   bool verbose_;
-  DQMStore* dbe_;
 
   int data_;
   int xtalInBeam_;

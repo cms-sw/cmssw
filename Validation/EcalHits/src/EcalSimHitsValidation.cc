@@ -5,102 +5,68 @@
  *
 */
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-#include <DataFormats/EcalDetId/interface/ESDetId.h>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Validation/EcalHits/interface/EcalSimHitsValidation.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
-  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-  HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC")))
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps)
 {
+  HepMCToken = consumes<edm::HepMCProduct>(edm::InputTag(ps.getParameter<std::string>("moduleLabelMC")));
+
+  std::string g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4"));
   EBHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EBHitsCollection")));
   EEHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
   ESHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
 
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
- 
-  if ( outputFile_.size() != 0 ) {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
-  } else {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
-  }
- 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  // DQMServices                                                        
-  dbe_ = 0;
-
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();           
-  if ( dbe_ ) {
-    if ( verbose_ ) { dbe_->setVerbose(1); } 
-    else            { dbe_->setVerbose(0); }
-  }
-                                                                                                            
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
- 
   meGunEnergy_ = 0;
   meGunEta_    = 0;   
   meGunPhi_    = 0;   
   meEBEnergyFraction_  = 0;
   meEEEnergyFraction_  = 0;
   meESEnergyFraction_  = 0;
-
-  Char_t histo[200];
- 
-  
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
-  
-    sprintf (histo, "EcalSimHitsValidation Gun Momentum" ) ;
-    meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
-  
-    sprintf (histo, "EcalSimHitsValidation Gun Eta" ) ;
-    meGunEta_ = dbe_->book1D(histo, histo, 700, -3.5, 3.5);
-  
-    sprintf (histo, "EcalSimHitsValidation Gun Phi" ) ;
-    meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);
-
-    sprintf (histo, "EcalSimHitsValidation Barrel fraction of energy" ) ;
-    meEBEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
-  
-    sprintf (histo, "EcalSimHitsValidation Endcap fraction of energy" ) ;
-    meEEEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
-  
-    sprintf (histo, "EcalSimHitsValidation Preshower fraction of energy" ) ;
-    meESEnergyFraction_ = dbe_->book1D(histo, histo, 60 , 0. , 0.001);
-  }
- 
 }
 
-EcalSimHitsValidation::~EcalSimHitsValidation(){
- 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
+EcalSimHitsValidation::~EcalSimHitsValidation()
+{
 }
 
-void EcalSimHitsValidation::beginJob(){
+void
+EcalSimHitsValidation::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const&)
+{
+  _ibooker.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
 
+  std::string name;
+  
+  name = "EcalSimHitsValidation Gun Momentum";
+  meGunEnergy_ = _ibooker.book1D(name, name, 100, 0., 1000.);
+  
+  name = "EcalSimHitsValidation Gun Eta";
+  meGunEta_ = _ibooker.book1D(name, name, 700, -3.5, 3.5);
+  
+  name = "EcalSimHitsValidation Gun Phi";
+  meGunPhi_ = _ibooker.book1D(name, name, 360, 0., 360.);
+
+  name = "EcalSimHitsValidation Barrel fraction of energy";
+  meEBEnergyFraction_ = _ibooker.book1D(name, name, 100 , 0. , 1.1);
+  
+  name = "EcalSimHitsValidation Endcap fraction of energy";
+  meEEEnergyFraction_ = _ibooker.book1D(name, name, 100 , 0. , 1.1);
+  
+  name = "EcalSimHitsValidation Preshower fraction of energy";
+  meESEnergyFraction_ = _ibooker.book1D(name, name, 60 , 0. , 0.001);
 }
 
-void EcalSimHitsValidation::endJob(){
-
-}
-
-void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
-
+void
+EcalSimHitsValidation::analyze(edm::Event const& e, edm::EventSetup const&)
+{
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   std::vector<PCaloHit>  theEBCaloHits;
@@ -182,3 +148,4 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
   if (meESEnergyFraction_) meESEnergyFraction_->Fill(fracES);
 }
 
+DEFINE_FWK_MODULE(EcalSimHitsValidation);

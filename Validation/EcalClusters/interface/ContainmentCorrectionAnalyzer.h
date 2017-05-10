@@ -45,11 +45,6 @@ class TFile;
 
 class EcalSimPhotonMCTruth;
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
  public:
   explicit ContainmentCorrectionAnalyzer( const edm::ParameterSet& );
@@ -65,10 +60,10 @@ class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
   std::vector<EcalSimPhotonMCTruth> findMcTruth(std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);
   void fillMcTruth(std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);  
 
-  edm::EDGetTokenT<SimTrackContainer> SimTrackCollection_;
-  edm::EDGetTokenT<SimVertexContainer> SimVertexCollection_;
-  edm::EDGetTokenT<SuperClusterCollection> BarrelSuperClusterCollection_;
-  edm::EDGetTokenT<SuperClusterCollection> EndcapSuperClusterCollection_;
+  edm::EDGetTokenT<edm::SimTrackContainer> SimTrackCollection_;
+  edm::EDGetTokenT<edm::SimVertexContainer> SimVertexCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> BarrelSuperClusterCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> EndcapSuperClusterCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollection_;
   
@@ -97,3 +92,4 @@ class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
 
 };
 #endif
+

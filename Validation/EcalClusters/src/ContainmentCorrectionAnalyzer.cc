@@ -1,10 +1,12 @@
 /*\class to compute not containment parameter */
 
 #include "Validation/EcalClusters/interface/ContainmentCorrectionAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace cms;
 using namespace edm;
 using namespace std;
+using namespace reco;
 
 ContainmentCorrectionAnalyzer::ContainmentCorrectionAnalyzer( const ParameterSet& ps ) {
 
@@ -444,3 +446,4 @@ void ContainmentCorrectionAnalyzer::fillMcTruth(std::vector<SimTrack>& simTracks
   }  
 }
 
+DEFINE_FWK_MODULE(ContainmentCorrectionAnalyzer);
