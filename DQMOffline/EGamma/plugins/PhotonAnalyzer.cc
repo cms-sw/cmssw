@@ -61,25 +61,33 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 
     parameters_ = pset;
 
-    histo_index_photons_ = 0;
-    histo_index_conversions_ = 0;
-    histo_index_efficiency_ = 0;
-    histo_index_invMass_ = 0;
+
+
 }
 
 
 
 PhotonAnalyzer::~PhotonAnalyzer() {}
 
+void PhotonAnalyzer::dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) {
 
-void PhotonAnalyzer::beginJob()
+    histo_index_photons_ = 0;
+    histo_index_conversions_ = 0;
+    histo_index_efficiency_ = 0;
+    histo_index_invMass_ = 0;
+
+    nEvt_=0;
+    nEntry_=0;
+    
+    dbe_ = 0;
+    dbe_ = edm::Service<DQMStore>().operator->();
+    
+
+
+}
+
+void PhotonAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & es)
 {
-
-  nEvt_=0;
-  nEntry_=0;
-
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
 
 
 
@@ -172,37 +180,38 @@ void PhotonAnalyzer::beginJob()
 
   if (dbe_) {
 
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/");
+
+    iBooker.setCurrentFolder("Egamma/"+fName_+"/");
 
     //int values stored in MEs to keep track of how many histograms are in each folder
-    totalNumberOfHistos_efficiencyFolder =  dbe_->bookInt("numberOfHistogramsInEfficiencyFolder");
-    totalNumberOfHistos_photonsFolder =     dbe_->bookInt("numberOfHistogramsInPhotonsFolder");
-    totalNumberOfHistos_conversionsFolder = dbe_->bookInt("numberOfHistogramsInConversionsFolder");
-    totalNumberOfHistos_invMassFolder =     dbe_->bookInt("numberOfHistogramsInInvMassFolder");
+    totalNumberOfHistos_efficiencyFolder =  iBooker.bookInt("numberOfHistogramsInEfficiencyFolder");
+    totalNumberOfHistos_photonsFolder =     iBooker.bookInt("numberOfHistogramsInPhotonsFolder");
+    totalNumberOfHistos_conversionsFolder = iBooker.bookInt("numberOfHistogramsInConversionsFolder");
+    totalNumberOfHistos_invMassFolder =     iBooker.bookInt("numberOfHistogramsInInvMassFolder");
 
 
     //Efficiency histograms
 
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/Efficiencies");
+    iBooker.setCurrentFolder("Egamma/"+fName_+"/Efficiencies");
 
     //don't number these histograms with the "bookHisto" method, since they'll be erased in the offline client
-    h_phoEta_Loose_ = dbe_->book1D("phoEtaLoose","Loose Photon #eta",etaBin,etaMin,etaMax);
-    h_phoEta_Tight_ = dbe_->book1D("phoEtaTight","Tight Photon #eta",etaBin,etaMin,etaMax);
-    h_phoEt_Loose_  = dbe_->book1D("phoEtLoose", "Loose Photon E_{T}",etBin,etMin,etMax);
-    h_phoEt_Tight_  = dbe_->book1D("phoEtTight", "Tight Photon E_{T}",etBin,etMin,etMax);
+    h_phoEta_Loose_ = iBooker.book1D("phoEtaLoose","Loose Photon #eta",etaBin,etaMin,etaMax);
+    h_phoEta_Tight_ = iBooker.book1D("phoEtaTight","Tight Photon #eta",etaBin,etaMin,etaMax);
+    h_phoEt_Loose_  = iBooker.book1D("phoEtLoose", "Loose Photon E_{T}",etBin,etMin,etMax);
+    h_phoEt_Tight_  = iBooker.book1D("phoEtTight", "Tight Photon E_{T}",etBin,etMin,etMax);
 
 
-    h_phoEta_preHLT_  = dbe_->book1D("phoEtaPreHLT", "Photon #eta: before HLT",etaBin,etaMin,etaMax);
-    h_phoEta_postHLT_ = dbe_->book1D("phoEtaPostHLT","Photon #eta: after HLT",etaBin,etaMin,etaMax);
-    h_phoEt_preHLT_   = dbe_->book1D("phoEtPreHLT",  "Photon E_{T}: before HLT",etBin,etMin,etMax);
-    h_phoEt_postHLT_  = dbe_->book1D("phoEtPostHLT", "Photon E_{T}: after HLT",etBin,etMin,etMax);
+    h_phoEta_preHLT_  = iBooker.book1D("phoEtaPreHLT", "Photon #eta: before HLT",etaBin,etaMin,etaMax);
+    h_phoEta_postHLT_ = iBooker.book1D("phoEtaPostHLT","Photon #eta: after HLT",etaBin,etaMin,etaMax);
+    h_phoEt_preHLT_   = iBooker.book1D("phoEtPreHLT",  "Photon E_{T}: before HLT",etBin,etMin,etMax);
+    h_phoEt_postHLT_  = iBooker.book1D("phoEtPostHLT", "Photon E_{T}: after HLT",etBin,etMin,etMax);
 
-    h_convEta_Loose_ = dbe_->book1D("convEtaLoose","Converted Loose Photon #eta",etaBin,etaMin,etaMax);
-    h_convEta_Tight_ = dbe_->book1D("convEtaTight","Converted Tight Photon #eta",etaBin,etaMin,etaMax);
-    h_convEt_Loose_  = dbe_->book1D("convEtLoose", "Converted Loose Photon E_{T}",etBin,etMin,etMax);
-    h_convEt_Tight_  = dbe_->book1D("convEtTight", "Converted Tight Photon E_{T}",etBin,etMin,etMax);
+    h_convEta_Loose_ = iBooker.book1D("convEtaLoose","Converted Loose Photon #eta",etaBin,etaMin,etaMax);
+    h_convEta_Tight_ = iBooker.book1D("convEtaTight","Converted Tight Photon #eta",etaBin,etaMin,etaMax);
+    h_convEt_Loose_  = iBooker.book1D("convEtLoose", "Converted Loose Photon E_{T}",etBin,etMin,etMax);
+    h_convEt_Tight_  = iBooker.book1D("convEtTight", "Converted Tight Photon E_{T}",etBin,etMin,etMax);
 
-    h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex","Converted Photons before valid vertex cut: #eta",etaBin,etaMin,etaMax);
+    h_phoEta_Vertex_ = iBooker.book1D("phoEtaVertex","Converted Photons before valid vertex cut: #eta",etaBin,etaMin,etaMax);
 
 
     vector<MonitorElement*> temp1DVectorEta;
@@ -214,11 +223,11 @@ void PhotonAnalyzer::beginJob()
       for(uint type=0;type!=types_.size();++type){  //looping over isolation type
 	currentFolder_.str("");
 	currentFolder_ << "Egamma/"+fName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV/Conversions";
-	dbe_->setCurrentFolder(currentFolder_.str());
+	iBooker.setCurrentFolder(currentFolder_.str());
 
-	temp1DVectorEta.push_back(dbe_->book1D("phoConvEtaForEfficiency","Converted Photon #eta;#eta",etaBin,etaMin,etaMax));
+	temp1DVectorEta.push_back(iBooker.book1D("phoConvEtaForEfficiency","Converted Photon #eta;#eta",etaBin,etaMin,etaMax));
 	for(uint part=0;part!=parts_.size();++part){
-	  temp1DVectorPhi.push_back(dbe_->book1D("phoConvPhiForEfficiency"+parts_[part],"Converted Photon #phi;#phi",phiBin,phiMin,phiMax));
+	  temp1DVectorPhi.push_back(iBooker.book1D("phoConvPhiForEfficiency"+parts_[part],"Converted Photon #phi;#phi",phiBin,phiMin,phiMax));
 	}
 	temp2DVectorPhi.push_back(temp1DVectorPhi);
 	temp1DVectorPhi.clear();
@@ -234,211 +243,208 @@ void PhotonAnalyzer::beginJob()
 
     //Invariant mass plots
 
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/InvMass");
+    iBooker.setCurrentFolder("Egamma/"+fName_+"/InvMass");
 
-    h_invMassAllPhotons_    = bookHisto("invMassAllIsolatedPhotons","Two photon invariant mass: All isolated photons;M (GeV)",etBin,etMin,etMax);
-    h_invMassPhotonsEBarrel_    = bookHisto("invMassIsoPhotonsEBarrel", "Two photon invariant mass: isolated photons in barrel; M (GeV)",etBin,etMin,etMax);
-    h_invMassPhotonsEEndcap_    = bookHisto("invMassIsoPhotonsEEndcap", "Two photon invariant mass: isolated photons in endcap; M (GeV)",etBin,etMin,etMax);
+    h_invMassAllPhotons_    = bookHisto(iBooker, "invMassAllIsolatedPhotons","Two photon invariant mass: All isolated photons;M (GeV)",etBin,etMin,etMax);
+    h_invMassPhotonsEBarrel_    = bookHisto(iBooker, "invMassIsoPhotonsEBarrel", "Two photon invariant mass: isolated photons in barrel; M (GeV)",etBin,etMin,etMax);
+    h_invMassPhotonsEEndcap_    = bookHisto(iBooker,"invMassIsoPhotonsEEndcap", "Two photon invariant mass: isolated photons in endcap; M (GeV)",etBin,etMin,etMax);
     
-    h_invMassZeroWithTracks_= bookHisto("invMassZeroWithTracks",    "Two photon invariant mass: Neither has tracks;M (GeV)",  etBin,etMin,etMax);
-    h_invMassOneWithTracks_ = bookHisto("invMassOneWithTracks",     "Two photon invariant mass: Only one has tracks;M (GeV)", etBin,etMin,etMax);
-    h_invMassTwoWithTracks_ = bookHisto("invMassTwoWithTracks",     "Two photon invariant mass: Both have tracks;M (GeV)",    etBin,etMin,etMax);
+    h_invMassZeroWithTracks_= bookHisto(iBooker,"invMassZeroWithTracks",    "Two photon invariant mass: Neither has tracks;M (GeV)",  etBin,etMin,etMax);
+    h_invMassOneWithTracks_ = bookHisto(iBooker,"invMassOneWithTracks",     "Two photon invariant mass: Only one has tracks;M (GeV)", etBin,etMin,etMax);
+    h_invMassTwoWithTracks_ = bookHisto(iBooker,"invMassTwoWithTracks",     "Two photon invariant mass: Both have tracks;M (GeV)",    etBin,etMin,etMax);
 
 
-    h_nRecoVtx_ =  bookHisto("nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);    
+    h_nRecoVtx_ =  bookHisto(iBooker, "nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);    
 
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
     //ENERGY VARIABLES
 
-    book3DHistoVector(h_phoE_, "1D","phoE","Energy;E (GeV)",eBin,eMin,eMax);
-    book3DHistoVector(h_phoSigmaEoverE_, "1D","phoSigmaEoverE","#sigma_{E}/E; #sigma_{E}/E", 100,0.,0.08);
-    book3DHistoVector(p_phoSigmaEoverEvsNVtx_, "Profile","phoSigmaEoverEvsNVtx","#sigma_{E}/E vs NVtx; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08);
-    book3DHistoVector(h_phoEt_, "1D","phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
+    book3DHistoVector(iBooker,h_phoE_, "1D","phoE","Energy;E (GeV)",eBin,eMin,eMax);
+    book3DHistoVector(iBooker,h_phoSigmaEoverE_, "1D","phoSigmaEoverE","#sigma_{E}/E; #sigma_{E}/E", 100,0.,0.08);
+    book3DHistoVector(iBooker,p_phoSigmaEoverEvsNVtx_, "Profile","phoSigmaEoverEvsNVtx","#sigma_{E}/E vs NVtx; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08);
+    book3DHistoVector(iBooker,h_phoEt_, "1D","phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
 
 
     //NUMBER OF PHOTONS
 
-    book3DHistoVector(h_nPho_, "1D","nPho","Number of Photons per Event;# #gamma",numberBin,numberMin,numberMax);
+    book3DHistoVector(iBooker,h_nPho_, "1D","nPho","Number of Photons per Event;# #gamma",numberBin,numberMin,numberMax);
 
     //GEOMETRICAL VARIABLES
 
     //photon eta/phi
-    book2DHistoVector(h_phoEta_, "1D","phoEta","#eta;#eta",etaBin,etaMin,etaMax) ;
-    book3DHistoVector(h_phoPhi_, "1D","phoPhi","#phi;#phi",phiBin,phiMin,phiMax) ;
+    book2DHistoVector(iBooker,h_phoEta_, "1D","phoEta","#eta;#eta",etaBin,etaMin,etaMax) ;
+    book3DHistoVector(iBooker,h_phoPhi_, "1D","phoPhi","#phi;#phi",phiBin,phiMin,phiMax) ;
 
     //supercluster eta/phi
-    book2DHistoVector(h_scEta_, "1D","scEta","SuperCluster #eta;#eta",etaBin,etaMin,etaMax) ;
-    book3DHistoVector(h_scPhi_, "1D","scPhi","SuperCluster #phi;#phi",phiBin,phiMin,phiMax) ;
+    book2DHistoVector(iBooker,h_scEta_, "1D","scEta","SuperCluster #eta;#eta",etaBin,etaMin,etaMax) ;
+    book3DHistoVector(iBooker,h_scPhi_, "1D","scPhi","SuperCluster #phi;#phi",phiBin,phiMin,phiMax) ;
 
     //SHOWER SHAPE VARIABLES
 
     //r9
-    book3DHistoVector(h_r9_, "1D","r9","R9;R9",r9Bin,r9Min, r9Max);
-    if (standAlone_)     book2DHistoVector(h_r9VsEt_, "2D","r9VsEt2D","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(p_r9VsEt_, "Profile","r9VsEt","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-    if (standAlone_)  book2DHistoVector(h_r9VsEta_, "2D","r9VsEta2D","R9 vs #eta;#eta;R9",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(p_r9VsEta_, "Profile","r9VsEta","Avg R9 vs #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+    book3DHistoVector(iBooker,h_r9_, "1D","r9","R9;R9",r9Bin,r9Min, r9Max);
+    if (standAlone_)     book2DHistoVector(iBooker,h_r9VsEt_, "2D","r9VsEt2D","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector(iBooker,p_r9VsEt_, "Profile","r9VsEt","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+    if (standAlone_)  book2DHistoVector(iBooker,h_r9VsEta_, "2D","r9VsEta2D","R9 vs #eta;#eta;R9",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector(iBooker,p_r9VsEta_, "Profile","r9VsEta","Avg R9 vs #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
 
     //sigma ieta ieta
-    book3DHistoVector(h_phoSigmaIetaIeta_,   "1D","phoSigmaIetaIeta","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
-     if (standAlone_)  book2DHistoVector(h_sigmaIetaIetaVsEta_, "2D","sigmaIetaIetaVsEta2D","#sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",reducedEtaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
-    book2DHistoVector(p_sigmaIetaIetaVsEta_, "Profile","sigmaIetaIetaVsEta","Avg #sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+    book3DHistoVector(iBooker,h_phoSigmaIetaIeta_,   "1D","phoSigmaIetaIeta","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+     if (standAlone_)  book2DHistoVector(iBooker,h_sigmaIetaIetaVsEta_, "2D","sigmaIetaIetaVsEta2D","#sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",reducedEtaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+    book2DHistoVector(iBooker,p_sigmaIetaIetaVsEta_, "Profile","sigmaIetaIetaVsEta","Avg #sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
 
     //e1x5
-     if (standAlone_)  book2DHistoVector(h_e1x5VsEt_,  "2D","e1x5VsEt2D","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-    book2DHistoVector(p_e1x5VsEt_,  "Profile","e1x5VsEt","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-     if (standAlone_)  book2DHistoVector(h_e1x5VsEta_, "2D","e1x5VsEta2D","E1x5 vs #eta;#eta;E1X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
-    book2DHistoVector(p_e1x5VsEta_, "Profile","e1x5VsEta","Avg E1x5 vs #eta;#eta;E1X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
+     if (standAlone_)  book2DHistoVector(iBooker,h_e1x5VsEt_,  "2D","e1x5VsEt2D","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+    book2DHistoVector(iBooker,p_e1x5VsEt_,  "Profile","e1x5VsEt","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+     if (standAlone_)  book2DHistoVector(iBooker,h_e1x5VsEta_, "2D","e1x5VsEta2D","E1x5 vs #eta;#eta;E1X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
+    book2DHistoVector(iBooker,p_e1x5VsEta_, "Profile","e1x5VsEta","Avg E1x5 vs #eta;#eta;E1X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
 
     //e2x5
-     if (standAlone_)  book2DHistoVector(h_e2x5VsEt_,  "2D","e2x5VsEt2D","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-    book2DHistoVector(p_e2x5VsEt_,  "Profile","e2x5VsEt","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-    if (standAlone_)  book2DHistoVector(h_e2x5VsEta_, "2D","e2x5VsEta2D","E2x5 vs #eta;#eta;E2X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
-    book2DHistoVector(p_e2x5VsEta_, "Profile","e2x5VsEta","Avg E2x5 vs #eta;#eta;E2X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
+     if (standAlone_)  book2DHistoVector(iBooker,h_e2x5VsEt_,  "2D","e2x5VsEt2D","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+    book2DHistoVector(iBooker,p_e2x5VsEt_,  "Profile","e2x5VsEt","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+    if (standAlone_)  book2DHistoVector(iBooker,h_e2x5VsEta_, "2D","e2x5VsEta2D","E2x5 vs #eta;#eta;E2X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
+    book2DHistoVector(iBooker,p_e2x5VsEta_, "Profile","e2x5VsEta","Avg E2x5 vs #eta;#eta;E2X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
 
     //r1x5
-    if (standAlone_)     book2DHistoVector(h_r1x5VsEt_,  "2D","r1x5VsEt2D","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(p_r1x5VsEt_,  "Profile","r1x5VsEt","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-     if (standAlone_)  book2DHistoVector(h_r1x5VsEta_, "2D","r1x5VsEta2D","R1x5 vs #eta;#eta;R1X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(p_r1x5VsEta_, "Profile","r1x5VsEta","Avg R1x5 vs #eta;#eta;R1X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+    if (standAlone_)     book2DHistoVector(iBooker,h_r1x5VsEt_,  "2D","r1x5VsEt2D","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector(iBooker,p_r1x5VsEt_,  "Profile","r1x5VsEt","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+     if (standAlone_)  book2DHistoVector(iBooker,h_r1x5VsEta_, "2D","r1x5VsEta2D","R1x5 vs #eta;#eta;R1X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector(iBooker,p_r1x5VsEta_, "Profile","r1x5VsEta","Avg R1x5 vs #eta;#eta;R1X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
 
     //r2x5
-    if (standAlone_)  book2DHistoVector(    h_r2x5VsEt_  ,"2D","r2x5VsEt2D","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(    p_r2x5VsEt_  ,"Profile","r2x5VsEt","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-     if (standAlone_)  book2DHistoVector(    h_r2x5VsEta_ ,"2D","r2x5VsEta2D","R2x5 vs #eta;#eta;R2X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
-    book2DHistoVector(    p_r2x5VsEta_ ,"Profile","r2x5VsEta","Avg R2x5 vs #eta;#eta;R2X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+    if (standAlone_)  book2DHistoVector( iBooker, h_r2x5VsEt_  ,"2D","r2x5VsEt2D","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector( iBooker, p_r2x5VsEt_  ,"Profile","r2x5VsEt","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+     if (standAlone_)  book2DHistoVector(iBooker, h_r2x5VsEta_ ,"2D","r2x5VsEta2D","R2x5 vs #eta;#eta;R2X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+    book2DHistoVector( iBooker, p_r2x5VsEta_ ,"Profile","r2x5VsEta","Avg R2x5 vs #eta;#eta;R2X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
 
     //maxEXtalOver3x3
-    if (standAlone_)  book2DHistoVector(    h_maxEXtalOver3x3VsEt_  ,"2D","maxEXtalOver3x3VsEt2D","(Max Xtal E)/E3x3 vs E_{T};E_{T} (GeV);(Max Xtal E)/E3x3",reducedEtBin,etMin,etMax,r9Bin,r9Min,r9Max);
-    book2DHistoVector(    p_maxEXtalOver3x3VsEt_  ,"Profile","maxEXtalOver3x3VsEt","Avg (Max Xtal E)/E3x3 vs E_{T};E_{T} (GeV);(Max Xtal E)/E3x3",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-    if (standAlone_)  book2DHistoVector(    h_maxEXtalOver3x3VsEta_ ,"2D","maxEXtalOver3x3VsEta2D","(Max Xtal E)/E3x3 vs #eta;#eta;(Max Xtal E)/E3x3",reducedEtaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
-    book2DHistoVector(    p_maxEXtalOver3x3VsEta_ ,"Profile","maxEXtalOver3x3VsEta","Avg (Max Xtal E)/E3x3 vs #eta;#eta;(Max Xtal E)/E3x3",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_maxEXtalOver3x3VsEt_  ,"2D","maxEXtalOver3x3VsEt2D","(Max Xtal E)/E3x3 vs E_{T};E_{T} (GeV);(Max Xtal E)/E3x3",reducedEtBin,etMin,etMax,r9Bin,r9Min,r9Max);
+    book2DHistoVector( iBooker,   p_maxEXtalOver3x3VsEt_  ,"Profile","maxEXtalOver3x3VsEt","Avg (Max Xtal E)/E3x3 vs E_{T};E_{T} (GeV);(Max Xtal E)/E3x3",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_maxEXtalOver3x3VsEta_ ,"2D","maxEXtalOver3x3VsEta2D","(Max Xtal E)/E3x3 vs #eta;#eta;(Max Xtal E)/E3x3",reducedEtaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+    book2DHistoVector(iBooker,    p_maxEXtalOver3x3VsEta_ ,"Profile","maxEXtalOver3x3VsEta","Avg (Max Xtal E)/E3x3 vs #eta;#eta;(Max Xtal E)/E3x3",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
 
     //TRACK ISOLATION VARIABLES
     //nTrackIsolSolid
-    book2DHistoVector(    h_nTrackIsolSolid_       ,"1D","nIsoTracksSolid","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
-    if (standAlone_)  book2DHistoVector(    h_nTrackIsolSolidVsEt_   ,"2D","nIsoTracksSolidVsEt2D","Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
-    book2DHistoVector(    p_nTrackIsolSolidVsEt_   ,"Profile","nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-    if (standAlone_)  book2DHistoVector(    h_nTrackIsolSolidVsEta_  ,"2D","nIsoTracksSolidVsEta2D","Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
-    book2DHistoVector(    p_nTrackIsolSolidVsEta_  ,"Profile","nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+    book2DHistoVector( iBooker,   h_nTrackIsolSolid_       ,"1D","nIsoTracksSolid","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_nTrackIsolSolidVsEt_   ,"2D","nIsoTracksSolidVsEt2D","Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
+    book2DHistoVector( iBooker,   p_nTrackIsolSolidVsEt_   ,"Profile","nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_nTrackIsolSolidVsEta_  ,"2D","nIsoTracksSolidVsEta2D","Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+    book2DHistoVector(  iBooker,  p_nTrackIsolSolidVsEta_  ,"Profile","nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
 
     //nTrackIsolHollow
-    book2DHistoVector(    h_nTrackIsolHollow_      ,"1D","nIsoTracksHollow","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
-    if (standAlone_)  book2DHistoVector(    h_nTrackIsolHollowVsEt_  ,"2D","nIsoTracksHollowVsEt2D","Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
-    book2DHistoVector(    p_nTrackIsolHollowVsEt_  ,"Profile","nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-    if (standAlone_)  book2DHistoVector(    h_nTrackIsolHollowVsEta_ ,"2D","nIsoTracksHollowVsEta2D","Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
-    book2DHistoVector(    p_nTrackIsolHollowVsEta_ ,"Profile","nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+    book2DHistoVector( iBooker,   h_nTrackIsolHollow_      ,"1D","nIsoTracksHollow","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_nTrackIsolHollowVsEt_  ,"2D","nIsoTracksHollowVsEt2D","Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
+    book2DHistoVector( iBooker,   p_nTrackIsolHollowVsEt_  ,"Profile","nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_nTrackIsolHollowVsEta_ ,"2D","nIsoTracksHollowVsEta2D","Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+    book2DHistoVector( iBooker,   p_nTrackIsolHollowVsEta_ ,"Profile","nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
 
     //trackPtSumSolid
-    book2DHistoVector(    h_trackPtSumSolid_       ,"1D","isoPtSumSolid","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_trackPtSumSolidVsEt_   ,"2D","isoPtSumSolidVsEt2D","Track P_{T} Sum in the Solid Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_trackPtSumSolidVsEt_   ,"Profile","isoPtSumSolidVsEt","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_trackPtSumSolidVsEta_  ,"2D","isoPtSumSolidVsEta2D","Track P_{T} Sum in the Solid Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_trackPtSumSolidVsEta_  ,"Profile","isoPtSumSolidVsEta","Avg Track P_{T} Sum in the Solid Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_trackPtSumSolid_       ,"1D","isoPtSumSolid","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_trackPtSumSolidVsEt_   ,"2D","isoPtSumSolidVsEt2D","Track P_{T} Sum in the Solid Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_trackPtSumSolidVsEt_   ,"Profile","isoPtSumSolidVsEt","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_trackPtSumSolidVsEta_  ,"2D","isoPtSumSolidVsEta2D","Track P_{T} Sum in the Solid Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_trackPtSumSolidVsEta_  ,"Profile","isoPtSumSolidVsEta","Avg Track P_{T} Sum in the Solid Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
 
     //trackPtSumHollow
-    book2DHistoVector(    h_trackPtSumHollow_      ,"1D","isoPtSumHollow","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_trackPtSumHollowVsEt_  ,"2D","isoPtSumHollowVsEt2D","Track P_{T} Sum in the Hollow Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_trackPtSumHollowVsEt_  ,"Profile","isoPtSumHollowVsEt","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_trackPtSumHollowVsEta_ ,"2D","isoPtSumHollowVsEta2D","Track P_{T} Sum in the Hollow Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_trackPtSumHollowVsEta_ ,"Profile","isoPtSumHollowVsEta","Avg Track P_{T} Sum in the Hollow Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+    book2DHistoVector(  iBooker,  h_trackPtSumHollow_      ,"1D","isoPtSumHollow","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_trackPtSumHollowVsEt_  ,"2D","isoPtSumHollowVsEt2D","Track P_{T} Sum in the Hollow Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_trackPtSumHollowVsEt_  ,"Profile","isoPtSumHollowVsEt","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_trackPtSumHollowVsEta_ ,"2D","isoPtSumHollowVsEta2D","Track P_{T} Sum in the Hollow Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_trackPtSumHollowVsEta_ ,"Profile","isoPtSumHollowVsEta","Avg Track P_{T} Sum in the Hollow Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
 
 
     //CALORIMETER ISOLATION VARIABLES
 
     //ecal sum
-    book2DHistoVector(    h_ecalSum_      ,"1D","ecalSum","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-    book2DHistoVector(    h_ecalSumEBarrel_,"1D","ecalSumEBarrel","Ecal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
-    book2DHistoVector(    h_ecalSumEEndcap_,"1D","ecalSumEEndcap","Ecal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_ecalSumVsEt_  ,"2D","ecalSumVsEt2D","Ecal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-    book3DHistoVector(    p_ecalSumVsEt_  ,"Profile","ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_ecalSumVsEta_ ,"2D","ecalSumVsEta2D","Ecal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_ecalSumVsEta_ ,"Profile","ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_ecalSum_      ,"1D","ecalSum","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_ecalSumEBarrel_,"1D","ecalSumEBarrel","Ecal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_ecalSumEEndcap_,"1D","ecalSumEEndcap","Ecal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_ecalSumVsEt_  ,"2D","ecalSumVsEt2D","Ecal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+    book3DHistoVector( iBooker,   p_ecalSumVsEt_  ,"Profile","ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_ecalSumVsEta_ ,"2D","ecalSumVsEta2D","Ecal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_ecalSumVsEta_ ,"Profile","ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
 
     //hcal sum
-    book2DHistoVector(    h_hcalSum_      ,"1D","hcalSum","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-    book2DHistoVector(    h_hcalSumEBarrel_,"1D","hcalSumEBarrel","Hcal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
-    book2DHistoVector(    h_hcalSumEEndcap_,"1D","hcalSumEEndcap","Hcal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_hcalSumVsEt_  ,"2D","hcalSumVsEt2D","Hcal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-    book3DHistoVector(    p_hcalSumVsEt_  ,"Profile","hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-    if (standAlone_)  book2DHistoVector(    h_hcalSumVsEta_ ,"2D","hcalSumVsEta2D","Hcal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
-    book2DHistoVector(    p_hcalSumVsEta_ ,"Profile","hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_hcalSum_      ,"1D","hcalSum","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_hcalSumEBarrel_,"1D","hcalSumEBarrel","Hcal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   h_hcalSumEEndcap_,"1D","hcalSumEEndcap","Hcal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_hcalSumVsEt_  ,"2D","hcalSumVsEt2D","Hcal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+    book3DHistoVector( iBooker,   p_hcalSumVsEt_  ,"Profile","hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+    if (standAlone_)  book2DHistoVector( iBooker,   h_hcalSumVsEta_ ,"2D","hcalSumVsEta2D","Hcal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+    book2DHistoVector( iBooker,   p_hcalSumVsEta_ ,"Profile","hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
 
     //h over e
-    book3DHistoVector(    h_hOverE_       ,"1D","hOverE","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
-    book2DHistoVector(    p_hOverEVsEt_   ,"Profile","hOverEVsEt","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
-    book2DHistoVector(    p_hOverEVsEta_  ,"Profile","hOverEVsEta","Avg H/E vs #eta;#eta;H/E",etaBin,etaMin,etaMax,hOverEBin,hOverEMin,hOverEMax);
-    book3DHistoVector(    h_h1OverE_      ,"1D","h1OverE","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
-    book3DHistoVector(    h_h2OverE_      ,"1D","h2OverE","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
+    book3DHistoVector( iBooker,   h_hOverE_       ,"1D","hOverE","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
+    book2DHistoVector( iBooker,   p_hOverEVsEt_   ,"Profile","hOverEVsEt","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
+    book2DHistoVector( iBooker,   p_hOverEVsEta_  ,"Profile","hOverEVsEta","Avg H/E vs #eta;#eta;H/E",etaBin,etaMin,etaMax,hOverEBin,hOverEMin,hOverEMax);
+    book3DHistoVector( iBooker,   h_h1OverE_      ,"1D","h1OverE","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
+    book3DHistoVector( iBooker,   h_h2OverE_      ,"1D","h2OverE","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
 
     // pf isolation
-    book2DHistoVector(  h_phoIsoBarrel_,"1D","phoIsoBarrel","PF photon iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
-    book2DHistoVector(  h_phoIsoEndcap_,"1D","phoIsoEndcap","PF photon iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
-    book2DHistoVector(  h_chHadIsoBarrel_,"1D","chHadIsoBarrel","PF charged Had iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
-    book2DHistoVector(  h_chHadIsoEndcap_,"1D","chHadIsoEndcap","PF charged Had iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
-    book2DHistoVector(  h_nHadIsoBarrel_,"1D","neutralHadIsoBarrel","PF neutral Had iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
-    book2DHistoVector(  h_nHadIsoEndcap_,"1D","neutralHadIsoEndcap","PF neutral Had iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker,  h_phoIsoBarrel_,"1D","phoIsoBarrel","PF photon iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker, h_phoIsoEndcap_,"1D","phoIsoEndcap","PF photon iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker, h_chHadIsoBarrel_,"1D","chHadIsoBarrel","PF charged Had iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker, h_chHadIsoEndcap_,"1D","chHadIsoEndcap","PF charged Had iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker, h_nHadIsoBarrel_,"1D","neutralHadIsoBarrel","PF neutral Had iso Barrel;E (GeV)",reducedEtBin,etMin,25.);
+    book2DHistoVector( iBooker, h_nHadIsoEndcap_,"1D","neutralHadIsoEndcap","PF neutral Had iso Endcap;E (GeV)",reducedEtBin,etMin,25.);
   
 
 
     //OTHER VARIABLES
     //bad channel histograms
-    book2DHistoVector(    h_phoEt_BadChannels_  ,"1D","phoEtBadChannels", "Fraction Containing Bad Channels: E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-    book2DHistoVector(    h_phoEta_BadChannels_ ,"1D","phoEtaBadChannels","Fraction Containing Bad Channels: #eta;#eta",etaBin,etaMin,etaMax);
-    book2DHistoVector(    h_phoPhi_BadChannels_ ,"1D","phoPhiBadChannels","Fraction Containing Bad Channels: #phi;#phi",phiBin,phiMin,phiMax);
+    book2DHistoVector( iBooker,   h_phoEt_BadChannels_  ,"1D","phoEtBadChannels", "Fraction Containing Bad Channels: E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+    book2DHistoVector( iBooker,   h_phoEta_BadChannels_ ,"1D","phoEtaBadChannels","Fraction Containing Bad Channels: #eta;#eta",etaBin,etaMin,etaMax);
+    book2DHistoVector( iBooker,   h_phoPhi_BadChannels_ ,"1D","phoPhiBadChannels","Fraction Containing Bad Channels: #phi;#phi",phiBin,phiMin,phiMax);
 
 
     ////////////////START OF BOOKING FOR CONVERSION-RELATED HISTOGRAMS////////////////
 
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/AllPhotons/Et Above 0 GeV/Conversions");
+    iBooker.setCurrentFolder("Egamma/"+fName_+"/AllPhotons/Et Above 0 GeV/Conversions");
 
     //ENERGY VARIABLES
 
-    book3DHistoVector(    h_phoConvE_  ,"1D","phoConvE","E;E (GeV)",eBin,eMin,eMax);
-    book3DHistoVector(    h_phoConvEt_ ,"1D","phoConvEt","E_{T};E_{T} (GeV)",etBin,etMin,etMax);
+    book3DHistoVector( iBooker,   h_phoConvE_  ,"1D","phoConvE","E;E (GeV)",eBin,eMin,eMax);
+    book3DHistoVector( iBooker,   h_phoConvEt_ ,"1D","phoConvEt","E_{T};E_{T} (GeV)",etBin,etMin,etMax);
 
     //GEOMETRICAL VARIABLES
 
-    book2DHistoVector(    h_phoConvEta_ ,"1D","phoConvEta","#eta;#eta",etaBin,etaMin,etaMax);
-    book3DHistoVector(    h_phoConvPhi_ ,"1D","phoConvPhi","#phi;#phi",phiBin,phiMin,phiMax);
+    book2DHistoVector( iBooker,   h_phoConvEta_ ,"1D","phoConvEta","#eta;#eta",etaBin,etaMin,etaMax);
+    book3DHistoVector( iBooker,   h_phoConvPhi_ ,"1D","phoConvPhi","#phi;#phi",phiBin,phiMin,phiMax);
 
     //NUMBER OF PHOTONS
 
-    book3DHistoVector(    h_nConv_ ,"1D","nConv","Number Of Conversions per Event ;# conversions",numberBin,numberMin,numberMax);
+    book3DHistoVector( iBooker,   h_nConv_ ,"1D","nConv","Number Of Conversions per Event ;# conversions",numberBin,numberMin,numberMax);
 
     //SHOWER SHAPE VARIABLES
 
-    book3DHistoVector(    h_phoConvR9_ ,"1D","phoConvR9","R9;R9",r9Bin,r9Min,r9Max);
+    book3DHistoVector( iBooker,   h_phoConvR9_ ,"1D","phoConvR9","R9;R9",r9Bin,r9Min,r9Max);
 
     //TRACK RELATED VARIABLES
 
-    book3DHistoVector(    h_eOverPTracks_ ,"1D","eOverPTracks","E/P;E/P",eOverPBin,eOverPMin,eOverPMax);
-    book3DHistoVector(    h_pOverETracks_ ,"1D","pOverETracks","P/E;P/E",eOverPBin,eOverPMin,eOverPMax);
+    book3DHistoVector( iBooker,   h_eOverPTracks_ ,"1D","eOverPTracks","E/P;E/P",eOverPBin,eOverPMin,eOverPMax);
+    book3DHistoVector( iBooker,   h_pOverETracks_ ,"1D","pOverETracks","P/E;P/E",eOverPBin,eOverPMin,eOverPMax);
 
-    book3DHistoVector(    h_dPhiTracksAtVtx_  ,"1D","dPhiTracksAtVtx", "#Delta#phi of Tracks at Vertex;#Delta#phi",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    book3DHistoVector(    h_dPhiTracksAtEcal_ ,"1D","dPhiTracksAtEcal", "Abs(#Delta#phi) of Tracks at Ecal;#Delta#phi",dPhiTracksBin,0.,dPhiTracksMax);
-    book3DHistoVector(    h_dEtaTracksAtEcal_ ,"1D","dEtaTracksAtEcal", "#Delta#eta of Tracks at Ecal;#Delta#eta",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+    book3DHistoVector( iBooker,   h_dPhiTracksAtVtx_  ,"1D","dPhiTracksAtVtx", "#Delta#phi of Tracks at Vertex;#Delta#phi",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    book3DHistoVector( iBooker,   h_dPhiTracksAtEcal_ ,"1D","dPhiTracksAtEcal", "Abs(#Delta#phi) of Tracks at Ecal;#Delta#phi",dPhiTracksBin,0.,dPhiTracksMax);
+    book3DHistoVector( iBooker,   h_dEtaTracksAtEcal_ ,"1D","dEtaTracksAtEcal", "#Delta#eta of Tracks at Ecal;#Delta#eta",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
 
-    book3DHistoVector(    h_dCotTracks_      ,"1D","dCotTracks","#Deltacot(#theta) of Tracks;#Deltacot(#theta)",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
-    book2DHistoVector(    p_dCotTracksVsEta_ ,"Profile","dCotTracksVsEta","Avg #Deltacot(#theta) of Tracks vs #eta;#eta;#Deltacot(#theta)",etaBin,etaMin,etaMax,dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+    book3DHistoVector( iBooker,   h_dCotTracks_      ,"1D","dCotTracks","#Deltacot(#theta) of Tracks;#Deltacot(#theta)",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
+    book2DHistoVector( iBooker,   p_dCotTracksVsEta_ ,"Profile","dCotTracksVsEta","Avg #Deltacot(#theta) of Tracks vs #eta;#eta;#Deltacot(#theta)",etaBin,etaMin,etaMax,dEtaTracksBin,dEtaTracksMin,dEtaTracksMax);
 
-    book2DHistoVector(    p_nHitsVsEta_ ,"Profile","nHitsVsEta","Avg Number of Hits per Track vs #eta;#eta;# hits",etaBin,etaMin,etaMax,etaBin,0,16);
+    book2DHistoVector( iBooker,   p_nHitsVsEta_ ,"Profile","nHitsVsEta","Avg Number of Hits per Track vs #eta;#eta;# hits",etaBin,etaMin,etaMax,etaBin,0,16);
 
-    book2DHistoVector(    h_tkChi2_      ,"1D","tkChi2","#chi^{2} of Track Fitting;#chi^{2}",chi2Bin,chi2Min,chi2Max);
-    book2DHistoVector(    p_tkChi2VsEta_ ,"Profile","tkChi2VsEta","Avg #chi^{2} of Track Fitting vs #eta;#eta;#chi^{2}",etaBin,etaMin,etaMax,chi2Bin,chi2Min,chi2Max);
+    book2DHistoVector( iBooker,   h_tkChi2_      ,"1D","tkChi2","#chi^{2} of Track Fitting;#chi^{2}",chi2Bin,chi2Min,chi2Max);
+    book2DHistoVector( iBooker,   p_tkChi2VsEta_ ,"Profile","tkChi2VsEta","Avg #chi^{2} of Track Fitting vs #eta;#eta;#chi^{2}",etaBin,etaMin,etaMax,chi2Bin,chi2Min,chi2Max);
 
     //VERTEX RELATED VARIABLES
 
-    book2DHistoVector(    h_convVtxRvsZ_ ,"2D","convVtxRvsZ","Vertex Position;Z (cm);R (cm)",500,zMin,zMax,rBin,rMin,rMax);
-    book2DHistoVector(    h_convVtxZEndcap_    ,"1D","convVtxZEndcap",   "Vertex Position: #eta > 1.5;Z (cm)",zBin,zMin,zMax);
-    book2DHistoVector(    h_convVtxZ_    ,"1D","convVtxZ",   "Vertex Position;Z (cm)",zBin,zMin,zMax);
-    book2DHistoVector(    h_convVtxR_    ,"1D","convVtxR",   "Vertex Position: #eta < 1;R (cm)",rBin,rMin,rMax);
-    book2DHistoVector(    h_convVtxYvsX_ ,"2D","convVtxYvsX","Vertex Position: #eta < 1;X (cm);Y (cm)",xBin,xMin,xMax,yBin,yMin,yMax);
-
-
-
-    book2DHistoVector(    h_vertexChi2Prob_ ,"1D","vertexChi2Prob","#chi^{2} Probability of Vertex Fitting;#chi^{2}",100,0.,1.0);
+    book2DHistoVector( iBooker,   h_convVtxRvsZ_ ,"2D","convVtxRvsZ","Vertex Position;Z (cm);R (cm)",500,zMin,zMax,rBin,rMin,rMax);
+    book2DHistoVector( iBooker,   h_convVtxZEndcap_    ,"1D","convVtxZEndcap",   "Vertex Position: #eta > 1.5;Z (cm)",zBin,zMin,zMax);
+    book2DHistoVector( iBooker,   h_convVtxZ_    ,"1D","convVtxZ",   "Vertex Position;Z (cm)",zBin,zMin,zMax);
+    book2DHistoVector( iBooker,   h_convVtxR_    ,"1D","convVtxR",   "Vertex Position: #eta < 1;R (cm)",rBin,rMin,rMax);
+    book2DHistoVector( iBooker,   h_convVtxYvsX_ ,"2D","convVtxYvsX","Vertex Position: #eta < 1;X (cm);Y (cm)",xBin,xMin,xMax,yBin,yMin,yMax);
+    book2DHistoVector( iBooker,   h_vertexChi2Prob_ ,"1D","vertexChi2Prob","#chi^{2} Probability of Vertex Fitting;#chi^{2}",100,0.,1.0);
 
 
   }//end if(dbe_)
@@ -1039,7 +1045,7 @@ void PhotonAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& setup)
   if(!standAlone_){
 
    
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/");
+    //dbe_->setCurrentFolder("Egamma/"+fName_+"/");
     //keep track of how many histos are in each folder
     totalNumberOfHistos_efficiencyFolder->Fill(histo_index_efficiency_);
     totalNumberOfHistos_invMassFolder->Fill(histo_index_invMass_);
@@ -1055,7 +1061,7 @@ void PhotonAnalyzer::endJob()
 {
   //dbe_->showDirStructure();
   if(standAlone_){
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/");
+    //    dbe_->setCurrentFolder("Egamma/"+fName_+"/");
 
     //keep track of how many histos are in each folder
     totalNumberOfHistos_efficiencyFolder->Fill(histo_index_efficiency_);
@@ -1119,7 +1125,7 @@ void  PhotonAnalyzer::fill3DHistoVector(vector<vector<vector<MonitorElement*> > 
 }
 
 
-MonitorElement* PhotonAnalyzer::bookHisto(string histoName, string title, int bin, double min, double max)
+MonitorElement* PhotonAnalyzer::bookHisto( DQMStore::IBooker& iBooker, string histoName, string title, int bin, double min, double max)
 {
 
   int histo_index = 0;
@@ -1139,15 +1145,15 @@ MonitorElement* PhotonAnalyzer::bookHisto(string histoName, string title, int bi
   if(histo_index<10)   histo_number_stream << "0";
   histo_number_stream << histo_index;
 
-  return dbe_->book1D(histo_number_stream.str()+"_"+histoName,title,bin,min,max);
+  return iBooker.book1D(histo_number_stream.str()+"_"+histoName,title,bin,min,max);
 
 }
 
 
-void PhotonAnalyzer::book2DHistoVector(vector<vector<MonitorElement*> > &temp2DVector,
+void PhotonAnalyzer::book2DHistoVector( DQMStore::IBooker& iBooker, vector<vector<MonitorElement*> > &temp2DVector,
 				       string histoType, string histoName, string title,
-									     int xbin, double xmin,double xmax,
-									     int ybin, double ymin, double ymax)
+				       int xbin, double xmin,double xmax,
+				       int ybin, double ymin, double ymax)
 {
   int histo_index = 0;
 
@@ -1184,19 +1190,19 @@ void PhotonAnalyzer::book2DHistoVector(vector<vector<MonitorElement*> > &temp2DV
       currentFolder_ << "Egamma/"+fName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
       if(conversionPlot) currentFolder_ << "/Conversions";
 
-      dbe_->setCurrentFolder(currentFolder_.str());
+      iBooker.setCurrentFolder(currentFolder_.str());
 
       string kind;
       if(conversionPlot) kind = " Conversions: ";
       else kind = " Photons: ";
 
-      if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(      histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax));
+      if(histoType=="1D")           temp1DVector.push_back(iBooker.book1D(      histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax));
       else if(histoType=="2D"){
 	if((TwoDPlot && type==0) || !TwoDPlot){//only book the 2D plots in the "AllPhotons" folder
-	                            temp1DVector.push_back(dbe_->book2D(      histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax));
+	                            temp1DVector.push_back(iBooker.book2D(      histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax));
 	}
       }
-      else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile( histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
+      else if(histoType=="Profile") temp1DVector.push_back(iBooker.bookProfile( histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
       else cout << "bad histoType\n";
     }
 
@@ -1209,10 +1215,10 @@ void PhotonAnalyzer::book2DHistoVector(vector<vector<MonitorElement*> > &temp2DV
 }
 
 
-void PhotonAnalyzer::book3DHistoVector(vector<vector<vector<MonitorElement*> > > &temp3DVector,
+void PhotonAnalyzer::book3DHistoVector( DQMStore::IBooker& iBooker, vector<vector<vector<MonitorElement*> > > &temp3DVector,
 				       string histoType, string histoName, string title,
-									     int xbin, double xmin,double xmax,
-									     int ybin, double ymin, double ymax)
+				       int xbin, double xmin,double xmax,
+				       int ybin, double ymin, double ymax )
 {
 
 
@@ -1254,15 +1260,15 @@ void PhotonAnalyzer::book3DHistoVector(vector<vector<vector<MonitorElement*> > >
 	currentFolder_ << "Egamma/"+fName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
 	if(conversionPlot) currentFolder_ << "/Conversions";
 
-	dbe_->setCurrentFolder(currentFolder_.str());
+	iBooker.setCurrentFolder(currentFolder_.str());
 
 	string kind;
 	if(conversionPlot) kind = " Conversions: ";
 	else kind = " Photons: ";
 
-	if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax));
-	else if(histoType=="2D")      temp1DVector.push_back(dbe_->book2D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax));
-	else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile( histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
+	if(histoType=="1D")           temp1DVector.push_back(iBooker.book1D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax));
+	else if(histoType=="2D")      temp1DVector.push_back(iBooker.book2D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax));
+	else if(histoType=="Profile") temp1DVector.push_back(iBooker.bookProfile( histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
 	else cout << "bad histoType\n";
 
 

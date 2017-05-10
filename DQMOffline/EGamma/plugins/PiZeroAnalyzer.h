@@ -53,6 +53,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //
 #include <map>
@@ -79,7 +80,7 @@ class SimVertex;
 class SimTrack;
 
 
-class PiZeroAnalyzer : public edm::EDAnalyzer
+class PiZeroAnalyzer : public DQMEDAnalyzer
 {
 
  public:
@@ -90,9 +91,10 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
                                    
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endJob() ;
- 
+  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
+
  private:
   //
 

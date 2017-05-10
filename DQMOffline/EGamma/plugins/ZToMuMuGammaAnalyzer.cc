@@ -5,6 +5,7 @@
 #include "DQMOffline/EGamma/plugins/ZToMuMuGammaAnalyzer.h"
 //#include "CommonTools/UtilAlgos/interface/DeltaR.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /** \class ZToMuMuGammaAnalyzer
  **
@@ -81,18 +82,20 @@ ZToMuMuGammaAnalyzer::ZToMuMuGammaAnalyzer( const edm::ParameterSet& pset )
   maxMumuGammaInvMass_  = pset.getParameter<double>("maxMumuGammaInvMass");
   
   parameters_ = pset;
-  
-}
 
-ZToMuMuGammaAnalyzer::~ZToMuMuGammaAnalyzer() {}
-
-void ZToMuMuGammaAnalyzer::beginJob()
-{
   nEvt_=0;
   nEntry_=0;
 
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
+
+  
+}
+
+ZToMuMuGammaAnalyzer::~ZToMuMuGammaAnalyzer() {}
+
+void ZToMuMuGammaAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & es)
+{
 
   double eMin = parameters_.getParameter<double>("eMin");
   double eMax = parameters_.getParameter<double>("eMax");
@@ -173,215 +176,215 @@ void ZToMuMuGammaAnalyzer::beginJob()
   if (dbe_) {
 
 
-    dbe_->setCurrentFolder("Egamma/"+fName_+"/ZToMuMuGamma");
+    iBooker.setCurrentFolder("Egamma/"+fName_+"/ZToMuMuGamma");
     
-    h1_mumuInvMass_[0]      = dbe_->book1D("mumuInvMass","Two muon invariant mass: M (GeV)",etBin,etMin,etMax);
-    h1_mumuGammaInvMass_[0] = dbe_->book1D("mumuGammaInvMass","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
-    h1_mumuGammaInvMass_[1] = dbe_->book1D("mumuGammaInvMassBarrel","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
-    h1_mumuGammaInvMass_[2] = dbe_->book1D("mumuGammaInvMassEndcap","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
+    h1_mumuInvMass_[0]      = iBooker.book1D("mumuInvMass","Two muon invariant mass: M (GeV)",etBin,etMin,etMax);
+    h1_mumuGammaInvMass_[0] = iBooker.book1D("mumuGammaInvMass","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
+    h1_mumuGammaInvMass_[1] = iBooker.book1D("mumuGammaInvMassBarrel","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
+    h1_mumuGammaInvMass_[2] = iBooker.book1D("mumuGammaInvMassEndcap","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
 
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
     //// 1D Histograms ////
-    h_nRecoVtx_ =  dbe_->book1D("nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);  
+    h_nRecoVtx_ =  iBooker.book1D("nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);  
     
     //ENERGY
-    h_phoE_[0]  = dbe_->book1D("phoE","Energy;E (GeV)",eBin,eMin,eMax);
-    h_phoSigmaEoverE_[0]  = dbe_->book1D("phoSigmaEoverE","All Ecal: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
-    h_phoEt_[0] = dbe_->book1D("phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
+    h_phoE_[0]  = iBooker.book1D("phoE","Energy;E (GeV)",eBin,eMin,eMax);
+    h_phoSigmaEoverE_[0]  = iBooker.book1D("phoSigmaEoverE","All Ecal: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
+    h_phoEt_[0] = iBooker.book1D("phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
 
     //NUMBER OF PHOTONS
-    h_nPho_[0] = dbe_->book1D("nPho", "Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
+    h_nPho_[0] = iBooker.book1D("nPho", "Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
 
     //GEOMETRICAL
-    h_phoEta_[0] = dbe_->book1D("phoEta", "#eta;#eta",etaBin,etaMin,etaMax);
-    h_phoPhi_[0] = dbe_->book1D("phoPhi", "#phi;#phi",phiBin,phiMin,phiMax);
+    h_phoEta_[0] = iBooker.book1D("phoEta", "#eta;#eta",etaBin,etaMin,etaMax);
+    h_phoPhi_[0] = iBooker.book1D("phoPhi", "#phi;#phi",phiBin,phiMin,phiMax);
 
-    h_scEta_[0]  = dbe_->book1D("scEta", "SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
-    h_scPhi_[0]  = dbe_->book1D("scPhi", "SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
+    h_scEta_[0]  = iBooker.book1D("scEta", "SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
+    h_scPhi_[0]  = iBooker.book1D("scPhi", "SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
 
     //SHOWER SHAPE
-    h_r9_[0]      = dbe_->book1D("r9","R9;R9",r9Bin,r9Min, r9Max);
-    h_e1x5_[0]  = dbe_->book1D("e1x5","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
-    h_e2x5_[0]  = dbe_->book1D("e2x5","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
-    h_r1x5_[0]  = dbe_->book1D("r1x5","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
-    h_r2x5_[0]  = dbe_->book1D("r2x5","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
-    h_phoSigmaIetaIeta_[0]   = dbe_->book1D("phoSigmaIetaIeta","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+    h_r9_[0]      = iBooker.book1D("r9","R9;R9",r9Bin,r9Min, r9Max);
+    h_e1x5_[0]  = iBooker.book1D("e1x5","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
+    h_e2x5_[0]  = iBooker.book1D("e2x5","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
+    h_r1x5_[0]  = iBooker.book1D("r1x5","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
+    h_r2x5_[0]  = iBooker.book1D("r2x5","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
+    h_phoSigmaIetaIeta_[0]   = iBooker.book1D("phoSigmaIetaIeta","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
     //TRACK ISOLATION
-    h_nTrackIsolSolid_[0]       = dbe_->book1D("nIsoTracksSolid","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
-    h_nTrackIsolHollow_[0]      = dbe_->book1D("nIsoTracksHollow","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
-    h_trackPtSumSolid_[0]       = dbe_->book1D("isoPtSumSolid","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-    h_trackPtSumHollow_[0]      = dbe_->book1D("isoPtSumHollow","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+    h_nTrackIsolSolid_[0]       = iBooker.book1D("nIsoTracksSolid","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
+    h_nTrackIsolHollow_[0]      = iBooker.book1D("nIsoTracksHollow","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
+    h_trackPtSumSolid_[0]       = iBooker.book1D("isoPtSumSolid","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+    h_trackPtSumHollow_[0]      = iBooker.book1D("isoPtSumHollow","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
     //CALORIMETER ISOLATION VARIABLES
-    h_ecalSum_[0]      = dbe_->book1D("ecalSum","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-    h_hcalSum_[0]      = dbe_->book1D("hcalSum","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-    h_hOverE_[0]       = dbe_->book1D("hOverE","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
-    h_h1OverE_[0]      = dbe_->book1D("h1OverE","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
-    h_h2OverE_[0]      = dbe_->book1D("h2OverE","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
+    h_ecalSum_[0]      = iBooker.book1D("ecalSum","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    h_hcalSum_[0]      = iBooker.book1D("hcalSum","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    h_hOverE_[0]       = iBooker.book1D("hOverE","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
+    h_h1OverE_[0]      = iBooker.book1D("h1OverE","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
+    h_h2OverE_[0]      = iBooker.book1D("h2OverE","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
     string histname = "newhOverE";
-    h_newhOverE_[0] = dbe_->book1D(histname+"All",   "new H/E: All Ecal",100,0., 0.1) ;
+    h_newhOverE_[0] = iBooker.book1D(histname+"All",   "new H/E: All Ecal",100,0., 0.1) ;
     //  Information from Particle Flow 
     histname = "chargedHadIso";
-    h_chHadIso_[0]=  dbe_->book1D(histname+"All",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
+    h_chHadIso_[0]=  iBooker.book1D(histname+"All",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
     histname = "neutralHadIso";
-    h_nHadIso_[0]=  dbe_->book1D(histname+"All",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
+    h_nHadIso_[0]=  iBooker.book1D(histname+"All",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
     histname = "photonIso";
-    h_phoIso_[0]=  dbe_->book1D(histname+"All",   "PF photonIso:  All Ecal",etBin,etMin,20.);
+    h_phoIso_[0]=  iBooker.book1D(histname+"All",   "PF photonIso:  All Ecal",etBin,etMin,20.);
     histname = "nCluOutMustache";
-    h_nCluOutsideMustache_[0]= dbe_->book1D(histname+"All",   "PF number of clusters outside Mustache:  All Ecal",50,0.,50.);
+    h_nCluOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF number of clusters outside Mustache:  All Ecal",50,0.,50.);
     histname = "etOutMustache";
-    h_etOutsideMustache_[0]= dbe_->book1D(histname+"All",   "PF et outside Mustache:  All Ecal",etBin,etMin,20.);
+    h_etOutsideMustache_[0]= iBooker.book1D(histname+"All",   "PF et outside Mustache:  All Ecal",etBin,etMin,20.);
     histname = "pfMVA";
-    h_pfMva_[0]= dbe_->book1D(histname+"All",   "PF MVA output:  All Ecal",50,-1.,2.);
+    h_pfMva_[0]= iBooker.book1D(histname+"All",   "PF MVA output:  All Ecal",50,-1.,2.);
     ////////// particle based isolation from value map
     histname = "SumPtOverPhoPt_ChHad_Cleaned";
-    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons:  All Ecal",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_NeuHad_Cleaned";
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons:  All Ecal",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_Pho_Cleaned";
-    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons Hadrons:  All Ecal",etBin,etMin,2.);
     histname = "dRPhoPFcand_ChHad_Cleaned";
-    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_Cleaned";
-    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_Cleaned";
-    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
     //
     histname = "SumPtOverPhoPt_ChHad_unCleaned";
-    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_NeuHad_unCleaned";
-    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_Pho_unCleaned";
-    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
     histname = "dRPhoPFcand_ChHad_unCleaned";
-    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_unCleaned";
-    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_unCleaned";
-    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[0]=  iBooker.book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
 
 
 
 
     //    if(splitHistosEBEE_){  
       // NUMBER OF PHOTONS
-      h_nPho_[1]  = dbe_->book1D("nPhoBarrel","Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
-      h_nPho_[2]  = dbe_->book1D("nPhoEndcap","Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
+      h_nPho_[1]  = iBooker.book1D("nPhoBarrel","Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
+      h_nPho_[2]  = iBooker.book1D("nPhoEndcap","Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
       //EB ENERGY
-      h_phoE_[1]  = dbe_->book1D("phoEBarrel","Energy for Barrel;E (GeV)",eBin,eMin,eMax);
-      h_phoSigmaEoverE_[1]  = dbe_->book1D("phoSigmaEoverEBarrel","Barrel: #sigma_E/E;#sigma_{E}/E",eBin,eMin,eMax);
-      h_phoEt_[1] = dbe_->book1D("phoEtBarrel","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
+      h_phoE_[1]  = iBooker.book1D("phoEBarrel","Energy for Barrel;E (GeV)",eBin,eMin,eMax);
+      h_phoSigmaEoverE_[1]  = iBooker.book1D("phoSigmaEoverEBarrel","Barrel: #sigma_E/E;#sigma_{E}/E",eBin,eMin,eMax);
+      h_phoEt_[1] = iBooker.book1D("phoEtBarrel","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
       //EE ENERGY
-      h_phoEt_[2] = dbe_->book1D("phoEtEndcap","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
-      h_phoE_[2]  = dbe_->book1D("phoEEndcap","Energy for Endcap;E (GeV)",eBin,eMin,eMax);
-      h_phoSigmaEoverE_[2]  = dbe_->book1D("phoSigmaEoverEEndcap","Endcap: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
+      h_phoEt_[2] = iBooker.book1D("phoEtEndcap","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
+      h_phoE_[2]  = iBooker.book1D("phoEEndcap","Energy for Endcap;E (GeV)",eBin,eMin,eMax);
+      h_phoSigmaEoverE_[2]  = iBooker.book1D("phoSigmaEoverEEndcap","Endcap: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
       //EB GEOMETRICAL
-      h_phoEta_[1] = dbe_->book1D("phoEtaBarrel","#eta;#eta",etaBin,etaMin,etaMax);
-      h_phoPhi_[1] = dbe_->book1D("phoPhiBarrel","#phi;#phi",phiBin,phiMin,phiMax);
-      h_scEta_[1]  = dbe_->book1D("scEtaBarrel","SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
-      h_scPhi_[1]  = dbe_->book1D("scPhiBarrel","SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
+      h_phoEta_[1] = iBooker.book1D("phoEtaBarrel","#eta;#eta",etaBin,etaMin,etaMax);
+      h_phoPhi_[1] = iBooker.book1D("phoPhiBarrel","#phi;#phi",phiBin,phiMin,phiMax);
+      h_scEta_[1]  = iBooker.book1D("scEtaBarrel","SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
+      h_scPhi_[1]  = iBooker.book1D("scPhiBarrel","SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
       //EE GEOMETRICAL
-      h_phoEta_[2] = dbe_->book1D("phoEtaEndcap","#eta;#eta",etaBin,etaMin,etaMax);
-      h_phoPhi_[2] = dbe_->book1D("phoPhiEndcap","#phi;#phi",phiBin,phiMin,phiMax);
-      h_scEta_[2]  = dbe_->book1D("scEtaEndcap","SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
-      h_scPhi_[2]  = dbe_->book1D("scPhiEndcap","SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
+      h_phoEta_[2] = iBooker.book1D("phoEtaEndcap","#eta;#eta",etaBin,etaMin,etaMax);
+      h_phoPhi_[2] = iBooker.book1D("phoPhiEndcap","#phi;#phi",phiBin,phiMin,phiMax);
+      h_scEta_[2]  = iBooker.book1D("scEtaEndcap","SuperCluster #eta;#eta",etaBin,etaMin,etaMax);
+      h_scPhi_[2]  = iBooker.book1D("scPhiEndcap","SuperCluster #phi;#phi",phiBin,phiMin,phiMax);
       //SHOWER SHAPES
-      h_r9_[1]      = dbe_->book1D("r9Barrel","R9;R9",r9Bin,r9Min, r9Max);
-      h_r9_[2]      = dbe_->book1D("r9Endcap","R9;R9",r9Bin,r9Min, r9Max);
-      h_e1x5_[1]  = dbe_->book1D("e1x5Barrel","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_e1x5_[2]  = dbe_->book1D("e1x5Endcap","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_e2x5_[1]  = dbe_->book1D("e2x5Barrel","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_e2x5_[2]  = dbe_->book1D("e2x5Endcap","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_r1x5_[1]  = dbe_->book1D("r1x5Barrel","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_r1x5_[2]  = dbe_->book1D("r1x5Endcap","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_r2x5_[1]  = dbe_->book1D("r2x5Barrel","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_r2x5_[2]  = dbe_->book1D("r2x5Endcap","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
-      h_phoSigmaIetaIeta_[1]   = dbe_->book1D("phoSigmaIetaIetaBarrel","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
-      h_phoSigmaIetaIeta_[2]   = dbe_->book1D("phoSigmaIetaIetaEndcap","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+      h_r9_[1]      = iBooker.book1D("r9Barrel","R9;R9",r9Bin,r9Min, r9Max);
+      h_r9_[2]      = iBooker.book1D("r9Endcap","R9;R9",r9Bin,r9Min, r9Max);
+      h_e1x5_[1]  = iBooker.book1D("e1x5Barrel","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_e1x5_[2]  = iBooker.book1D("e1x5Endcap","E1x5;E1X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_e2x5_[1]  = iBooker.book1D("e2x5Barrel","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_e2x5_[2]  = iBooker.book1D("e2x5Endcap","E2x5;E2X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_r1x5_[1]  = iBooker.book1D("r1x5Barrel","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_r1x5_[2]  = iBooker.book1D("r1x5Endcap","r1x5;r1X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_r2x5_[1]  = iBooker.book1D("r2x5Barrel","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_r2x5_[2]  = iBooker.book1D("r2x5Endcap","r2x5;r2X5 (GeV)",reducedEtBin,etMin,etMax);
+      h_phoSigmaIetaIeta_[1]   = iBooker.book1D("phoSigmaIetaIetaBarrel","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+      h_phoSigmaIetaIeta_[2]   = iBooker.book1D("phoSigmaIetaIetaEndcap","#sigma_{i#etai#eta};#sigma_{i#etai#eta}",sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
       // TRACK ISOLATION
-      h_nTrackIsolSolid_[1]       = dbe_->book1D("nIsoTracksSolidBarrel","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
-      h_nTrackIsolSolid_[2]       = dbe_->book1D("nIsoTracksSolidEndcap","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
-      h_nTrackIsolHollow_[1]      = dbe_->book1D("nIsoTracksHollowBarrel","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
-      h_nTrackIsolHollow_[2]      = dbe_->book1D("nIsoTracksHollowEndcap","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
-      h_trackPtSumSolid_[1]       = dbe_->book1D("isoPtSumSolidBarrel","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-      h_trackPtSumSolid_[2]       = dbe_->book1D("isoPtSumSolidEndcap","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-      h_trackPtSumHollow_[1]      = dbe_->book1D("isoPtSumHollowBarrel","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
-      h_trackPtSumHollow_[2]      = dbe_->book1D("isoPtSumHollowEndcap","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+      h_nTrackIsolSolid_[1]       = iBooker.book1D("nIsoTracksSolidBarrel","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
+      h_nTrackIsolSolid_[2]       = iBooker.book1D("nIsoTracksSolidEndcap","Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax);
+      h_nTrackIsolHollow_[1]      = iBooker.book1D("nIsoTracksHollowBarrel","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
+      h_nTrackIsolHollow_[2]      = iBooker.book1D("nIsoTracksHollowEndcap","Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax);
+      h_trackPtSumSolid_[1]       = iBooker.book1D("isoPtSumSolidBarrel","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+      h_trackPtSumSolid_[2]       = iBooker.book1D("isoPtSumSolidEndcap","Track P_{T} Sum in the Solid Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+      h_trackPtSumHollow_[1]      = iBooker.book1D("isoPtSumHollowBarrel","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
+      h_trackPtSumHollow_[2]      = iBooker.book1D("isoPtSumHollowEndcap","Track P_{T} Sum in the Hollow Iso Cone;P_{T} (GeV)",sumBin,sumMin,sumMax);
       // CALORIMETER ISOLATION VARIABLES
-      h_ecalSum_[1]      = dbe_->book1D("ecalSumBarrel","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-      h_ecalSum_[2]      = dbe_->book1D("ecalSumEndcap","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-      h_hcalSum_[1]      = dbe_->book1D("hcalSumBarrel","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
-      h_hcalSum_[2]      = dbe_->book1D("hcalSumEndcap","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+      h_ecalSum_[1]      = iBooker.book1D("ecalSumBarrel","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+      h_ecalSum_[2]      = iBooker.book1D("ecalSumEndcap","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+      h_hcalSum_[1]      = iBooker.book1D("hcalSumBarrel","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+      h_hcalSum_[2]      = iBooker.book1D("hcalSumEndcap","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
       //H/E
       // EB
-      h_hOverE_[1]       = dbe_->book1D("hOverEBarrel","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
-      h_h1OverE_[1]      = dbe_->book1D("h1OverEBarrel","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
-      h_h2OverE_[1]      = dbe_->book1D("h2OverEBarrel","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_hOverE_[1]       = iBooker.book1D("hOverEBarrel","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_h1OverE_[1]      = iBooker.book1D("h1OverEBarrel","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_h2OverE_[1]      = iBooker.book1D("h2OverEBarrel","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
       histname = "newhOverE";
-      h_newhOverE_[1] = dbe_->book1D(histname+"Barrel",   "new H/E: Barrel",100,0., 0.1) ;
+      h_newhOverE_[1] = iBooker.book1D(histname+"Barrel",   "new H/E: Barrel",100,0., 0.1) ;
       //EE 
-      h_hOverE_[2]       = dbe_->book1D("hOverEEndcap","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
-      h_h1OverE_[2]      = dbe_->book1D("h1OverEEndcap","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
-      h_h2OverE_[2]      = dbe_->book1D("h2OverEEndcap","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_hOverE_[2]       = iBooker.book1D("hOverEEndcap","H/E;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_h1OverE_[2]      = iBooker.book1D("h1OverEEndcap","H/E for Depth 1;H/E",hOverEBin,hOverEMin,hOverEMax);
+      h_h2OverE_[2]      = iBooker.book1D("h2OverEEndcap","H/E for Depth 2;H/E",hOverEBin,hOverEMin,hOverEMax);
       histname = "newhOverE";
-      h_newhOverE_[2] = dbe_->book1D(histname+"Endcap",   "new H/E: Endcap",100,0., 0.1) ;
+      h_newhOverE_[2] = iBooker.book1D(histname+"Endcap",   "new H/E: Endcap",100,0., 0.1) ;
       // Information from Particle Flow
       histname = "chargedHadIso";
-      h_chHadIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
-      h_chHadIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
+      h_chHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
+      h_chHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
       histname = "neutralHadIso";
-      h_nHadIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
-      h_nHadIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
+      h_nHadIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
+      h_nHadIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
       histname = "photonIso";
-      h_phoIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF photonIso:  Barrel",etBin,etMin,20.);
-      h_phoIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF photonIso:  Endcap",etBin,etMin,20.);
+      h_phoIso_[1]=  iBooker.book1D(histname+"Barrel",   "PF photonIso:  Barrel",etBin,etMin,20.);
+      h_phoIso_[2]=  iBooker.book1D(histname+"Endcap",   "PF photonIso:  Endcap",etBin,etMin,20.);
       histname = "nCluOutMustache";
-      h_nCluOutsideMustache_[1]= dbe_->book1D(histname+"Barrel",   "PF number of clusters outside Mustache:  Barrel",50,0.,50.);
-      h_nCluOutsideMustache_[2]= dbe_->book1D(histname+"Endcap",   "PF number of clusters outside Mustache:  Endcap",50,0.,50.);
+      h_nCluOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF number of clusters outside Mustache:  Barrel",50,0.,50.);
+      h_nCluOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF number of clusters outside Mustache:  Endcap",50,0.,50.);
       histname = "etOutMustache";
-      h_etOutsideMustache_[1]= dbe_->book1D(histname+"Barrel",   "PF et outside Mustache:  Barrel",etBin,etMin,20.);
-      h_etOutsideMustache_[2]= dbe_->book1D(histname+"Endcap",   "PF et outside Mustache:  Endcap",etBin,etMin,20.);
+      h_etOutsideMustache_[1]= iBooker.book1D(histname+"Barrel",   "PF et outside Mustache:  Barrel",etBin,etMin,20.);
+      h_etOutsideMustache_[2]= iBooker.book1D(histname+"Endcap",   "PF et outside Mustache:  Endcap",etBin,etMin,20.);
       histname = "pfMVA";
-      h_pfMva_[1]= dbe_->book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
-      h_pfMva_[2]= dbe_->book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
+      h_pfMva_[1]= iBooker.book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
+      h_pfMva_[2]= iBooker.book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
       ////////// particle based isolation from value map
       histname = "SumPtOverPhoPt_ChHad_Cleaned";
-      h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
       histname = "SumPtOverPhoPt_NeuHad_Cleaned";
-      h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
       histname = "SumPtOverPhoPt_Pho_Cleaned";
-      h_SumPtOverPhoPt_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons Hadrons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons Hadrons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
       histname = "dRPhoPFcand_ChHad_Cleaned";
-      h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_ChHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_ChHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
       histname = "dRPhoPFcand_NeuHad_Cleaned";
-      h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_NeuHad_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_NeuHad_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
       histname = "dRPhoPFcand_Pho_Cleaned";
-      h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_Pho_Cleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_Pho_Cleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
       //
       histname = "SumPtOverPhoPt_ChHad_unCleaned";
-      h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
       histname = "SumPtOverPhoPt_NeuHad_unCleaned";
-      h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
       histname = "SumPtOverPhoPt_Pho_unCleaned";
-      h_SumPtOverPhoPt_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
-      h_SumPtOverPhoPt_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
+      h_SumPtOverPhoPt_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
+      h_SumPtOverPhoPt_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
       histname = "dRPhoPFcand_ChHad_unCleaned";
-      h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_ChHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_ChHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
       histname = "dRPhoPFcand_NeuHad_unCleaned";
-      h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_NeuHad_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_NeuHad_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
       histname = "dRPhoPFcand_Pho_unCleaned";
-      h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
-      h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
+      h_dRPhoPFcand_Pho_unCleaned_[1]=  iBooker.book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
+      h_dRPhoPFcand_Pho_unCleaned_[2]=  iBooker.book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
 
       
       
@@ -390,71 +393,71 @@ void ZToMuMuGammaAnalyzer::beginJob()
 
     //// make profiles vs Eta and vs Et  
     if(makeProfiles_){
-      //     p_r9VsEt_[0]  = dbe_->bookProfile("r9VsEt","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r9VsEt_[1]  = dbe_->bookProfile("r9VsEtBarrel","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r9VsEt_[2]  = dbe_->bookProfile("r9VsEtEndcap","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r9VsEta_[0] = dbe_->bookProfile("r9VsEta","Avg R9 vs #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+      //     p_r9VsEt_[0]  = iBooker.bookProfile("r9VsEt","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r9VsEt_[1]  = iBooker.bookProfile("r9VsEtBarrel","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r9VsEt_[2]  = iBooker.bookProfile("r9VsEtEndcap","Avg R9 vs E_{T};E_{T} (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r9VsEta_[0] = iBooker.bookProfile("r9VsEta","Avg R9 vs #eta;#eta;R9",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
       //
-      p_sigmaIetaIetaVsEta_[0] = dbe_->bookProfile("sigmaIetaIetaVsEta","Avg #sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+      p_sigmaIetaIetaVsEta_[0] = iBooker.bookProfile("sigmaIetaIetaVsEta","Avg #sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",etaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
       //
-      // p_e1x5VsEt_[0]  = dbe_->bookProfile("e1x5VsEt","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e1x5VsEt_[1]  = dbe_->bookProfile("e1x5VsEtBarrel","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e1x5VsEt_[2]  = dbe_->bookProfile("e1x5VsEtEndcap","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e1x5VsEta_[0] = dbe_->bookProfile("e1x5VsEta","Avg E1x5 vs #eta;#eta;E1X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
+      // p_e1x5VsEt_[0]  = iBooker.bookProfile("e1x5VsEt","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e1x5VsEt_[1]  = iBooker.bookProfile("e1x5VsEtBarrel","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e1x5VsEt_[2]  = iBooker.bookProfile("e1x5VsEtEndcap","Avg E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e1x5VsEta_[0] = iBooker.bookProfile("e1x5VsEta","Avg E1x5 vs #eta;#eta;E1X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
       //
-      //p_e2x5VsEt_[0]  = dbe_->bookProfile("e2x5VsEt","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e2x5VsEt_[1]  = dbe_->bookProfile("e2x5VsEtBarrel","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e2x5VsEt_[2]  = dbe_->bookProfile("e2x5VsEtEndcap","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
-      p_e2x5VsEta_[0] = dbe_->bookProfile("e2x5VsEta","Avg E2x5 vs #eta;#eta;E2X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
+      //p_e2x5VsEt_[0]  = iBooker.bookProfile("e2x5VsEt","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e2x5VsEt_[1]  = iBooker.bookProfile("e2x5VsEtBarrel","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e2x5VsEt_[2]  = iBooker.bookProfile("e2x5VsEtEndcap","Avg E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",etBin,etMin,etMax,etBin,etMin,etMax);
+      p_e2x5VsEta_[0] = iBooker.bookProfile("e2x5VsEta","Avg E2x5 vs #eta;#eta;E2X5 (GeV)",etaBin,etaMin,etaMax,etBin,etMin,etMax);
       //
-      // p_r1x5VsEt_[0]  = dbe_->bookProfile("r1x5VsEt","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r1x5VsEt_[1]  = dbe_->bookProfile("r1x5VsEtBarrel","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r1x5VsEt_[2]  = dbe_->bookProfile("r1x5VsEtEndcap","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r1x5VsEta_[0] = dbe_->bookProfile("r1x5VsEta","Avg R1x5 vs #eta;#eta;R1X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+      // p_r1x5VsEt_[0]  = iBooker.bookProfile("r1x5VsEt","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r1x5VsEt_[1]  = iBooker.bookProfile("r1x5VsEtBarrel","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r1x5VsEt_[2]  = iBooker.bookProfile("r1x5VsEtEndcap","Avg R1x5 vs E_{T};E_{T} (GeV);R1X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r1x5VsEta_[0] = iBooker.bookProfile("r1x5VsEta","Avg R1x5 vs #eta;#eta;R1X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
 
-      //      p_r2x5VsEt_[0]  = dbe_->bookProfile("r2x5VsEt","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r2x5VsEt_[1]  = dbe_->bookProfile("r2x5VsEtBarrel","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r2x5VsEt_[2]  = dbe_->bookProfile("r2x5VsEtEndcap","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
-      p_r2x5VsEta_[0] = dbe_->bookProfile("r2x5VsEta","Avg R2x5 vs #eta;#eta;R2X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
+      //      p_r2x5VsEt_[0]  = iBooker.bookProfile("r2x5VsEt","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r2x5VsEt_[1]  = iBooker.bookProfile("r2x5VsEtBarrel","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r2x5VsEt_[2]  = iBooker.bookProfile("r2x5VsEtEndcap","Avg R2x5 vs E_{T};E_{T} (GeV);R2X5",etBin,etMin,etMax,r9Bin,r9Min,r9Max);
+      p_r2x5VsEta_[0] = iBooker.bookProfile("r2x5VsEta","Avg R2x5 vs #eta;#eta;R2X5",etaBin,etaMin,etaMax,r9Bin,r9Min,r9Max);
       //
-      //p_nTrackIsolSolidVsEt_[0]   = dbe_->bookProfile("nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolSolidVsEt_[1]   = dbe_->bookProfile("nIsoTracksSolidVsEtBarrel","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolSolidVsEt_[2]   = dbe_->bookProfile("nIsoTracksSolidVsEtEndcap","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolSolidVsEta_[0]  = dbe_->bookProfile("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+      //p_nTrackIsolSolidVsEt_[0]   = iBooker.bookProfile("nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolSolidVsEt_[1]   = iBooker.bookProfile("nIsoTracksSolidVsEtBarrel","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolSolidVsEt_[2]   = iBooker.bookProfile("nIsoTracksSolidVsEtEndcap","Avg Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolSolidVsEta_[0]  = iBooker.bookProfile("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
       //
-      // p_nTrackIsolHollowVsEt_[0]  = dbe_->bookProfile("nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolHollowVsEt_[1]  = dbe_->bookProfile("nIsoTracksHollowVsEtBarrel","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolHollowVsEt_[2]  = dbe_->bookProfile("nIsoTracksHollowVsEtEndcap","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
-      p_nTrackIsolHollowVsEta_[0] = dbe_->bookProfile("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+      // p_nTrackIsolHollowVsEt_[0]  = iBooker.bookProfile("nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolHollowVsEt_[1]  = iBooker.bookProfile("nIsoTracksHollowVsEtBarrel","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolHollowVsEt_[2]  = iBooker.bookProfile("nIsoTracksHollowVsEtEndcap","Avg Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax);
+      p_nTrackIsolHollowVsEta_[0] = iBooker.bookProfile("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
       // 
-      //p_trackPtSumSolidVsEt_[0]   = dbe_->bookProfile("isoPtSumSolidVsEt","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumSolidVsEt_[1]   = dbe_->bookProfile("isoPtSumSolidVsEtBarrel","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumSolidVsEt_[2]   = dbe_->bookProfile("isoPtSumSolidVsEtEndcap","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumSolidVsEta_[0]  = dbe_->bookProfile("isoPtSumSolidVsEta","Avg Track P_{T} Sum in the Solid Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+      //p_trackPtSumSolidVsEt_[0]   = iBooker.bookProfile("isoPtSumSolidVsEt","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumSolidVsEt_[1]   = iBooker.bookProfile("isoPtSumSolidVsEtBarrel","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumSolidVsEt_[2]   = iBooker.bookProfile("isoPtSumSolidVsEtEndcap","Avg Track P_{T} Sum in the Solid Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumSolidVsEta_[0]  = iBooker.bookProfile("isoPtSumSolidVsEta","Avg Track P_{T} Sum in the Solid Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
       //
-      //p_trackPtSumHollowVsEt_[0]  = dbe_->bookProfile("isoPtSumHollowVsEt","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumHollowVsEt_[1]  = dbe_->bookProfile("isoPtSumHollowVsEtBarrel","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumHollowVsEt_[2]  = dbe_->bookProfile("isoPtSumHollowVsEtEndcap","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
-      p_trackPtSumHollowVsEta_[0] = dbe_->bookProfile("isoPtSumHollowVsEta","Avg Track P_{T} Sum in the Hollow Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+      //p_trackPtSumHollowVsEt_[0]  = iBooker.bookProfile("isoPtSumHollowVsEt","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumHollowVsEt_[1]  = iBooker.bookProfile("isoPtSumHollowVsEtBarrel","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumHollowVsEt_[2]  = iBooker.bookProfile("isoPtSumHollowVsEtEndcap","Avg Track P_{T} Sum in the Hollow Iso Cone vs E_{T};E_{T} (GeV);P_{T} (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax);
+      p_trackPtSumHollowVsEta_[0] = iBooker.bookProfile("isoPtSumHollowVsEta","Avg Track P_{T} Sum in the Hollow Iso Cone vs #eta;#eta;P_{T} (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
       //
-      //  p_ecalSumVsEt_[0]  = dbe_->bookProfile("ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_ecalSumVsEt_[1]  = dbe_->bookProfile("ecalSumVsEtBarrel","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_ecalSumVsEt_[2]  = dbe_->bookProfile("ecalSumVsEtEndcap","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_ecalSumVsEta_[0] = dbe_->bookProfile("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+      //  p_ecalSumVsEt_[0]  = iBooker.bookProfile("ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_ecalSumVsEt_[1]  = iBooker.bookProfile("ecalSumVsEtBarrel","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_ecalSumVsEt_[2]  = iBooker.bookProfile("ecalSumVsEtEndcap","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_ecalSumVsEta_[0] = iBooker.bookProfile("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
       //
-      // p_hcalSumVsEt_[0]  = dbe_->bookProfile("hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_hcalSumVsEt_[1]  = dbe_->bookProfile("hcalSumVsEtBarrel","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_hcalSumVsEt_[2]  = dbe_->bookProfile("hcalSumVsEtEndcap","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
-      p_hcalSumVsEta_[0] = dbe_->bookProfile("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
+      // p_hcalSumVsEt_[0]  = iBooker.bookProfile("hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_hcalSumVsEt_[1]  = iBooker.bookProfile("hcalSumVsEtBarrel","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_hcalSumVsEt_[2]  = iBooker.bookProfile("hcalSumVsEtEndcap","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
+      p_hcalSumVsEta_[0] = iBooker.bookProfile("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax);
       //h over e
-      // p_hOverEVsEt_[0]   = dbe_->bookProfile("hOverEVsEt","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
-      p_hOverEVsEt_[1]   = dbe_->bookProfile("p_hOverEVsEtBarrel","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
-      p_hOverEVsEt_[2]   = dbe_->bookProfile("p_hOverEVsEtEndcap","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
-      p_hOverEVsEta_[0]  = dbe_->bookProfile("p_hOverEVsEta","Avg H/E vs #eta;#eta;H/E",etaBin,etaMin,etaMax,hOverEBin,hOverEMin,hOverEMax);
+      // p_hOverEVsEt_[0]   = iBooker.bookProfile("hOverEVsEt","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
+      p_hOverEVsEt_[1]   = iBooker.bookProfile("p_hOverEVsEtBarrel","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
+      p_hOverEVsEt_[2]   = iBooker.bookProfile("p_hOverEVsEtEndcap","Avg H/E vs Et;E_{T} (GeV);H/E",etBin,etMin,etMax,hOverEBin,hOverEMin,hOverEMax);
+      p_hOverEVsEta_[0]  = iBooker.bookProfile("p_hOverEVsEta","Avg H/E vs #eta;#eta;H/E",etaBin,etaMin,etaMax,hOverEBin,hOverEMin,hOverEMax);
       // sigmaE/E
       histname = "sigmaEoverEVsNVtx";
-      p_phoSigmaEoverEVsNVtx_[1] = dbe_->bookProfile(histname+"Barrel","Photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
-      p_phoSigmaEoverEVsNVtx_[2] = dbe_->bookProfile(histname+"Endcap","Photons #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+      p_phoSigmaEoverEVsNVtx_[1] = iBooker.bookProfile(histname+"Barrel","Photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+      p_phoSigmaEoverEVsNVtx_[2] = iBooker.bookProfile(histname+"Endcap","Photons #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
       
       
 
@@ -467,52 +470,52 @@ void ZToMuMuGammaAnalyzer::beginJob()
 
       //SHOWER SHAPE
       //r9    
-      h2_r9VsEt_[0]  = dbe_->book2D("r9VsEt2D","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r9VsEt_[1]  = dbe_->book2D("r9VsEt2DBarrel","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r9VsEt_[2]  = dbe_->book2D("r9VsEt2DEndcap","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r9VsEta_[0] = dbe_->book2D("r9VsEta2D","R9 vs #eta;#eta;R9",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+      h2_r9VsEt_[0]  = iBooker.book2D("r9VsEt2D","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r9VsEt_[1]  = iBooker.book2D("r9VsEt2DBarrel","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r9VsEt_[2]  = iBooker.book2D("r9VsEt2DEndcap","R9 vs E_{T};E_{T} (GeV);R9",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r9VsEta_[0] = iBooker.book2D("r9VsEta2D","R9 vs #eta;#eta;R9",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
       //sigmaIetaIeta
-      h2_sigmaIetaIetaVsEta_[0] = dbe_->book2D("sigmaIetaIetaVsEta2D","#sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",reducedEtaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
+      h2_sigmaIetaIetaVsEta_[0] = iBooker.book2D("sigmaIetaIetaVsEta2D","#sigma_{i#etai#eta} vs #eta;#eta;#sigma_{i#etai#eta}",reducedEtaBin,etaMin,etaMax,sigmaIetaBin,sigmaIetaMin,sigmaIetaMax);
       //e1x5
-      h2_e1x5VsEt_[0]  = dbe_->book2D("e1x5VsEt2D","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e1x5VsEt_[1]  = dbe_->book2D("e1x5VsEt2DBarrel","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e1x5VsEt_[2]  = dbe_->book2D("e1x5VsEt2DEndcap","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e1x5VsEta_[0] = dbe_->book2D("e1x5VsEta2D","E1x5 vs #eta;#eta;E1X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
+      h2_e1x5VsEt_[0]  = iBooker.book2D("e1x5VsEt2D","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e1x5VsEt_[1]  = iBooker.book2D("e1x5VsEt2DBarrel","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e1x5VsEt_[2]  = iBooker.book2D("e1x5VsEt2DEndcap","E1x5 vs E_{T};E_{T} (GeV);E1X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e1x5VsEta_[0] = iBooker.book2D("e1x5VsEta2D","E1x5 vs #eta;#eta;E1X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
       //e2x5
-      h2_e2x5VsEt_[0]  = dbe_->book2D("e2x5VsEt2D","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e2x5VsEt_[1]  = dbe_->book2D("e2x5VsEt2DBarrel","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e2x5VsEt_[2]  = dbe_->book2D("e2x5VsEt2DEndcap","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
-      h2_e2x5VsEta_[0] = dbe_->book2D("e2x5VsEta2D","E2x5 vs #eta;#eta;E2X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
+      h2_e2x5VsEt_[0]  = iBooker.book2D("e2x5VsEt2D","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e2x5VsEt_[1]  = iBooker.book2D("e2x5VsEt2DBarrel","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e2x5VsEt_[2]  = iBooker.book2D("e2x5VsEt2DEndcap","E2x5 vs E_{T};E_{T} (GeV);E2X5 (GeV)",reducedEtBin,etMin,etMax,reducedEtBin,etMin,etMax);
+      h2_e2x5VsEta_[0] = iBooker.book2D("e2x5VsEta2D","E2x5 vs #eta;#eta;E2X5 (GeV)",reducedEtaBin,etaMin,etaMax,reducedEtBin,etMin,etMax);
       //r1x5
-      h2_r1x5VsEt_[0]  = dbe_->book2D("r1x5VsEt2D","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r1x5VsEt_[1]  = dbe_->book2D("r1x5VsEt2DBarrel","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r1x5VsEt_[2]  = dbe_->book2D("r1x5VsEt2DEndcap","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r1x5VsEta_[0] = dbe_->book2D("r1x5VsEta2D","R1x5 vs #eta;#eta;R1X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+      h2_r1x5VsEt_[0]  = iBooker.book2D("r1x5VsEt2D","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r1x5VsEt_[1]  = iBooker.book2D("r1x5VsEt2DBarrel","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r1x5VsEt_[2]  = iBooker.book2D("r1x5VsEt2DEndcap","R1x5 vs E_{T};E_{T} (GeV);R1X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r1x5VsEta_[0] = iBooker.book2D("r1x5VsEta2D","R1x5 vs #eta;#eta;R1X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
       //r2x5
-      h2_r2x5VsEt_[0]  = dbe_->book2D("r2x5VsEt2D","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r2x5VsEt_[1]  = dbe_->book2D("r2x5VsEt2DBarrel","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r2x5VsEt_[2]  = dbe_->book2D("r2x5VsEt2DEndcap","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
-      h2_r2x5VsEta_[0] = dbe_->book2D("r2x5VsEta2D","R2x5 vs #eta;#eta;R2X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
+      h2_r2x5VsEt_[0]  = iBooker.book2D("r2x5VsEt2D","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r2x5VsEt_[1]  = iBooker.book2D("r2x5VsEt2DBarrel","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r2x5VsEt_[2]  = iBooker.book2D("r2x5VsEt2DEndcap","R2x5 vs E_{T};E_{T} (GeV);R2X5",reducedEtBin,etMin,etMax,reducedR9Bin,r9Min,r9Max);
+      h2_r2x5VsEta_[0] = iBooker.book2D("r2x5VsEta2D","R2x5 vs #eta;#eta;R2X5",reducedEtaBin,etaMin,etaMax,reducedR9Bin,r9Min,r9Max);
        //TRACK ISOLATION
       //nTrackIsolSolid
-      h2_nTrackIsolSolidVsEt_[0]   = dbe_->book2D("nIsoTracksSolidVsEt2D","Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
-      h2_nTrackIsolSolidVsEta_[0]  = dbe_->book2D("nIsoTracksSolidVsEta2D","Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+      h2_nTrackIsolSolidVsEt_[0]   = iBooker.book2D("nIsoTracksSolidVsEt2D","Number Of Tracks in the Solid Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
+      h2_nTrackIsolSolidVsEta_[0]  = iBooker.book2D("nIsoTracksSolidVsEta2D","Number Of Tracks in the Solid Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
       //nTrackIsolHollow
-      h2_nTrackIsolHollowVsEt_[0]  = dbe_->book2D("nIsoTracksHollowVsEt2D","Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
-      h2_nTrackIsolHollowVsEta_[0] = dbe_->book2D("nIsoTracksHollowVsEta2D","Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
+      h2_nTrackIsolHollowVsEt_[0]  = iBooker.book2D("nIsoTracksHollowVsEt2D","Number Of Tracks in the Hollow Iso Cone vs E_{T};E_{T};# tracks",reducedEtBin,etMin, etMax,numberBin,numberMin,numberMax);
+      h2_nTrackIsolHollowVsEta_[0] = iBooker.book2D("nIsoTracksHollowVsEta2D","Number Of Tracks in the Hollow Iso Cone vs #eta;#eta;# tracks",reducedEtaBin,etaMin, etaMax,numberBin,numberMin,numberMax);
       //trackPtSumSolid
-      h2_trackPtSumSolidVsEt_[0]   = dbe_->book2D("isoPtSumSolidVsEt2D","Track P_{T} Sum in the Solid Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-      h2_trackPtSumSolidVsEta_[0]  = dbe_->book2D("isoPtSumSolidVsEta2D","Track P_{T} Sum in the Solid Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+      h2_trackPtSumSolidVsEt_[0]   = iBooker.book2D("isoPtSumSolidVsEt2D","Track P_{T} Sum in the Solid Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+      h2_trackPtSumSolidVsEta_[0]  = iBooker.book2D("isoPtSumSolidVsEta2D","Track P_{T} Sum in the Solid Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
       //trackPtSumHollow
-      h2_trackPtSumHollowVsEt_[0]  = dbe_->book2D("isoPtSumHollowVsEt2D","Track P_{T} Sum in the Hollow Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-      h2_trackPtSumHollowVsEta_[0] = dbe_->book2D("isoPtSumHollowVsEta2D","Track P_{T} Sum in the Hollow Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+      h2_trackPtSumHollowVsEt_[0]  = iBooker.book2D("isoPtSumHollowVsEt2D","Track P_{T} Sum in the Hollow Iso Cone;E_{T} (GeV);P_{T} (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+      h2_trackPtSumHollowVsEta_[0] = iBooker.book2D("isoPtSumHollowVsEta2D","Track P_{T} Sum in the Hollow Iso Cone;#eta;P_{T} (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
       //CALORIMETER ISOLATION VARIABLES
       //ecal sum
-      h2_ecalSumVsEt_[0]  = dbe_->book2D("ecalSumVsEt2D","Ecal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-      h2_ecalSumVsEta_[0] = dbe_->book2D("ecalSumVsEta2D","Ecal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+      h2_ecalSumVsEt_[0]  = iBooker.book2D("ecalSumVsEt2D","Ecal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+      h2_ecalSumVsEta_[0] = iBooker.book2D("ecalSumVsEta2D","Ecal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
       //hcal sum
-      h2_hcalSumVsEt_[0]  = dbe_->book2D("hcalSumVsEt2D","Hcal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
-      h2_hcalSumVsEta_[0] = dbe_->book2D("hcalSumVsEta2D","Hcal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
+      h2_hcalSumVsEt_[0]  = iBooker.book2D("hcalSumVsEt2D","Hcal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
+      h2_hcalSumVsEta_[0] = iBooker.book2D("hcalSumVsEta2D","Hcal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
 
     }
 

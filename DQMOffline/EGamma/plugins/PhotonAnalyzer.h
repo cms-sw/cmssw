@@ -74,6 +74,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //
 
@@ -101,7 +102,7 @@ class SimVertex;
 class SimTrack;
 
 
-class PhotonAnalyzer : public edm::EDAnalyzer
+class PhotonAnalyzer : public DQMEDAnalyzer
 {
 
 
@@ -113,27 +114,27 @@ class PhotonAnalyzer : public edm::EDAnalyzer
                                    
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ; 
   virtual void endJob() ;
   virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-
+  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
  
  private:
   //
   bool  photonSelection (  const reco::PhotonRef & p );
   float  phiNormalization( float& a);
 
-  MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
+  MonitorElement* bookHisto(  DQMStore::IBooker&, std::string histoName, std::string title, int bin, double min, double max);
 
-  void book2DHistoVector(std::vector<std::vector<MonitorElement*> > & toFill,
-			 std::string histoType, std::string histoName, std::string title,			 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-
-  void book3DHistoVector( std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
-			  std::string histoType, std::string histoName, std::string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
+  void book2DHistoVector(  DQMStore::IBooker&, std::vector<std::vector<MonitorElement*> > & toFill,
+			   std::string histoType, std::string histoName, std::string title,			 
+			   int xbin, double xmin, double xmax,
+			   int ybin=1,double ymin=1, double ymax=2);
+  
+  void book3DHistoVector(   DQMStore::IBooker&, std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
+			    std::string histoType, std::string histoName, std::string title, 
+			    int xbin, double xmin, double xmax,
+			    int ybin=1,double ymin=1, double ymax=2);
 
 
   void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, int cut, int type);
