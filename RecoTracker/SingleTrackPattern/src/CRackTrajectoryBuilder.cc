@@ -452,17 +452,16 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 	      
 	      bool hitIsUnique = true;
 	      //now 
-	      if ((&collmatched)!=0)
-		for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
-		  {
-		    //		 if ( isDifferentStripReHit2D ( *istrip, (istripm->stereoHit() ) ) == false)
-		    if ( isDifferentStripReHit2D ( *istrip, (istripm->monoHit() ) ) == false)
-		      {
-			hitIsUnique = false;
-			edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "rphi hit is in matched hits; y: " << ych << endl;
-			break;
-		      }
-		  } //end loop over all matched
+	      for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
+		{
+		  //		 if ( isDifferentStripReHit2D ( *istrip, (istripm->stereoHit() ) ) == false)
+		  if ( isDifferentStripReHit2D ( *istrip, (istripm->monoHit() ) ) == false)
+		    {
+		      hitIsUnique = false;
+		      edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "rphi hit is in matched hits; y: " << ych << endl;
+		      break;
+		    }
+		} //end loop over all matched
 	      if (hitIsUnique)
 		{
 		  //      if (debug_info) cout << "adding rphi hit " << &(*istrip) << endl; 
