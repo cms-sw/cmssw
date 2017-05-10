@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 AnalyzeSUSYDQM = cms.EDAnalyzer("SUSYDQMAnalyzer",
                                 folderName = cms.string("JetMET/SUSYDQM/"),
                                 PFMETCollectionLabel   = cms.InputTag("pfMet"),
-                                CaloMETCollectionLabel   = cms.InputTag("met"),
+                                CaloMETCollectionLabel   = cms.InputTag("caloMet"),
 				#TCMETCollectionLabel   = cms.InputTag("tcMet"),
 				CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"),
 				#JPTJetCollectionLabel = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),

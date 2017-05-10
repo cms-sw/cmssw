@@ -45,7 +45,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
-process.metWithSignificance = process.met.clone(
+process.caloMetWithSignificance = process.caloMet.clone(
     process.METSignificance_params,
     calculateSignificance = cms.bool(True)
     )
@@ -55,16 +55,12 @@ process.p = cms.Path(
     process.calotoweroptmaker *
     process.calotoweroptmakerWithHO *
     process.towerMakerWithHO *
-    process.met *
-    process.metNoHF *
-    process.metHO *
-    process.metNoHFHO *
-    process.metOpt *
-    process.metOptNoHF *
-    process.metOptHO *
-    process.metOptNoHFHO *
+    process.caloMet *
+    process.caloMetBEFO *
+    process.caloMetBE *
+    process.caloMetBEO *
     process.corMetGlobalMuons *
-    process.metWithSignificance
+    process.caloMetWithSignificance
     )
 
 process.e1 = cms.EndPath(

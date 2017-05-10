@@ -17,7 +17,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -147,7 +147,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -325,7 +325,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
     ),
@@ -508,7 +508,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
     ),
@@ -689,7 +689,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("caloMet", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
     ),

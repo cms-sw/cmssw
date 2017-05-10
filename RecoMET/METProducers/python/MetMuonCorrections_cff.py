@@ -5,7 +5,7 @@ from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 
 corMetGlobalMuons = cms.EDProducer("MuonMET",
      metTypeInputTag = cms.InputTag("CaloMET"),
-     uncorMETInputTag = cms.InputTag("met"),
+     uncorMETInputTag = cms.InputTag("caloMet"),
      muonsInputTag  = cms.InputTag("muons"),
      muonMETDepositValueMapInputTag = cms.InputTag("muonMETValueMapProducer","muCorrData","")
 )

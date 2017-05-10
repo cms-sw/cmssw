@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-caloMet = cms.EDProducer(
+met = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMET'),
@@ -11,12 +11,12 @@ caloMet = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-caloMetBEFO = caloMet.clone()
-caloMetBEFO.src = "towerMakerWithHO"
-caloMetBEFO.alias = 'RawCaloMETHO'
+metHO = met.clone()
+metHO.src = "towerMakerWithHO"
+metHO.alias = 'RawCaloMETHO'
 
 ##____________________________________________________________________________||
-caloMetBE = cms.EDProducer(
+metNoHF = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMETNoHF'),
@@ -26,8 +26,9 @@ caloMetBE = cms.EDProducer(
 )
 
 ##____________________________________________________________________________||
-caloMetBEO = caloMetBE.clone()
-caloMetBEO.src = "towerMakerWithHO"
-caloMetBEO.alias = 'RawCaloMETNoHFHO'
+metNoHFHO = metNoHF.clone()
+metNoHFHO.src = "towerMakerWithHO"
+metNoHFHO.alias = 'RawCaloMETNoHFHO'
 
 ##____________________________________________________________________________||
+
