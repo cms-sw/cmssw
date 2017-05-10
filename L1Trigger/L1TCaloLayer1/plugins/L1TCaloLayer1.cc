@@ -209,7 +209,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( const auto& hcalTp : *hcalTPs ) {
     if ( unpackHcalMask && ((hcalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = hcalTp.id().ieta();
-    uint32_t absCaloEta = abs(caloEta);
+    uint32_t absCaloEta = std::abs(caloEta);
     // Tower 29 is not used by Layer-1
     if(absCaloEta == 29) {
       continue;
