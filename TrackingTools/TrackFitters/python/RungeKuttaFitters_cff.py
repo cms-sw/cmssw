@@ -23,7 +23,8 @@ KFFittingSmootherWithOutliersRejectionAndRK = RKFittingSmoother.clone(
     ComponentName = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
     EstimateCut = cms.double(20.0),
     # ggiurgiu@fnal.gov : Any value lower than -15 turns off this cut.
-    # Recommended default value: -14.0. This will reject only the worst hits with negligible loss in track efficiency.  
-    LogPixelProbabilityCut = cms.double(-14.0),                               
+    # Old Recommended default value: -14.0. This will reject only the worst hits with negligible loss in track efficiency.  
+    # New Recommended default value for Run2: -3.0. This will reject most of the hit affected by Dyn-Innefficency at the cost of a small loss in track efficiency.
+    LogPixelProbabilityCut = cms.double(-3.0),                               
     MinNumberOfHits = cms.int32(3)
 )
