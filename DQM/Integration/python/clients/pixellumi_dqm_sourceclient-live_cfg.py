@@ -83,6 +83,10 @@ process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+
+    process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
+
+
 #    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(
 #        SelectEvents = cms.vstring('HLT_HI*'))
 
