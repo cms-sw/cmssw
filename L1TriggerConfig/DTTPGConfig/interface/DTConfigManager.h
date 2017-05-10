@@ -116,28 +116,28 @@ class DTConfigManager {
  
 
   //! Set DTConfigBti for desired chip
-  void setDTConfigBti(DTBtiId,DTConfigBti);
+  void setDTConfigBti(DTBtiId,const DTConfigBti&);
 
   //! Set DTConfigTraco for desired chip
-  void setDTConfigTraco(DTTracoId,DTConfigTraco);
+  void setDTConfigTraco(DTTracoId,const DTConfigTraco&);
 
   //! Set DTConfigTSTheta for desired chip
-  inline void setDTConfigTSTheta(DTChamberId chambid ,DTConfigTSTheta conf) { my_tsthetamap[chambid] = conf; };
+  inline void setDTConfigTSTheta(DTChamberId chambid ,const DTConfigTSTheta& conf) { my_tsthetamap[chambid] = conf; };
 
   //! Set DTConfigTSPhi for desired chip
-  inline void setDTConfigTSPhi(DTChamberId chambid,DTConfigTSPhi conf) { my_tsphimap[chambid] = conf; };
+  inline void setDTConfigTSPhi(DTChamberId chambid,const DTConfigTSPhi& conf) { my_tsphimap[chambid] = conf; };
 
   //! Set DTConfigTrigUnit for desired chamber
-  void setDTConfigTrigUnit(DTChamberId chambid,DTConfigTrigUnit conf) { my_trigunitmap[chambid] = conf; };
+  void setDTConfigTrigUnit(DTChamberId chambid,const DTConfigTrigUnit& conf) { my_trigunitmap[chambid] = conf; };
 
   //! Set DTConfigLUTs for desired chamber
-  void setDTConfigLUTs(DTChamberId chambid,DTConfigLUTs conf) { my_lutmap[chambid] = conf; };
+  void setDTConfigLUTs(DTChamberId chambid,const DTConfigLUTs& conf) { my_lutmap[chambid] = conf; };
 
   //! Set DTConfigSectColl for desired chip
-  void setDTConfigSectColl(DTSectCollId sectcollid ,DTConfigSectColl conf){ my_sectcollmap[sectcollid] = conf; };
+  void setDTConfigSectColl(DTSectCollId sectcollid ,const DTConfigSectColl& conf){ my_sectcollmap[sectcollid] = conf; };
 
   //! Set DTConfigPedestals configuration 
-  void setDTConfigPedestals(DTConfigPedestals pedestals) { my_pedestals = pedestals; };
+  void setDTConfigPedestals(const DTConfigPedestals& pedestals) { my_pedestals = pedestals; };
 
   //! SetGlobalDebug flag
   inline void setDTTPGDebug(bool debug) { my_dttpgdebug = debug; }
