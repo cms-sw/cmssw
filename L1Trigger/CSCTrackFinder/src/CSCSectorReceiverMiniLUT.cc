@@ -68,16 +68,20 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
       << ", is out of bounds, [1, 4] +++\n";
   
   gbletadat data(0);
+
   
-  unsigned short int cscid  = ((theadd >> 15) & 0xf);
+  unsigned short int tcscid  = ((theadd >> 15) & 0xf);
   unsigned short int lclPhi = ((theadd >> 6)  & 0x3);
   unsigned short int WG     = ((theadd >> 8)  & 0x7f);
   unsigned short int bend   = ((theadd)       & 0x3f);
-  
+
+
+
   int eta_temp=999, eta_min=999, eta_max=999;
   
-  if((cscid > 0) && (cscid <= 9) && (WG < CSCConstants::MAX_NUM_WIRES))
+  if((tcscid > 0) && (tcscid <= 12) && (WG < CSCConstants::MAX_NUM_WIRES))
     {
+      unsigned short int cscid = (tcscid>9) ? tcscid - 9 : tcscid; 
       if(station == 1)
         {
           eta_temp = (gbl_eta_params[endcap-1][sector-1][station-1][subsector-1][lclPhi][cscid-1][0] + 
@@ -87,7 +91,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
           eta_max = gbl_eta_bounds[endcap-1][sector-1][station-1][subsector-1][lclPhi][cscid-1][1];
 
 	  // add offset to ME+11a, subtract for ME-11a (wire tilt and strip direction)1
-	  if ( (cscid < 4)&&(lclPhi == 3) ) {
+	  if ( (tcscid < 4)&&(lclPhi == 3) ) {
 	    if (endcap == 1) 
 	      eta_temp += 3;  
 	    else
@@ -106,7 +110,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   else
     {
       edm::LogWarning("CSCSectorReceiverMiniLUT")
-        << "+++ Value of cscid, " << cscid
+        << "+++ Value of cscid, " << tcscid
         << ", is out of bounds, [1, 9] -- or --"
         << " Value of wire group, " << WG 
         << ", exceeds max allowed, " << CSCConstants::MAX_NUM_WIRES << " +++\n";
@@ -124,6 +128,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
 //  data.global_bend = 0;
 // Just pass through lowest 5 bits of local bend (drop 1 MSB)
   data.global_bend = bend & 0x1F;
+  
   
   return data;
 }
@@ -159,13 +164,11 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
   const double binPhiL = static_cast<double>(maxPhiL)/(2*CSCConstants::MAX_NUM_STRIPS);
 
   int strip = static_cast<int>(lclPhi/binPhiL);
-  //  edm::LogWarning("GP Input") << " CSCID " << cscid << " strip:" << strip << " lclPhi: " << lclPhi << "theadd: " << theadd; 
   if (station == 1 && (cscid <= 3) && (strip >= 127 && strip < 160)){
-    //edm::LogWarning("GP Input") << " -> Matched Selection Criteria";
-
     // in this case need to redefine lclPhi in order to
     // place local phi in the middle of the 5th CFEB
     // and not on the first third of the CFEB as default
+    
     lclPhi = (strip-127+31)*(4*binPhiL/3);
   }
   // end GP et DA
