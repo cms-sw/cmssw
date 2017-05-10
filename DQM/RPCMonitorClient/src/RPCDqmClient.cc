@@ -118,41 +118,50 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
   //dbe_->setCurrentFolder(prefixDir_);
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   MonitorElement * myMe = NULL;
+  std::string rollName= "";
+  //  std::set<int> disk_set, ring_set;
+
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
        
        RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> roles = (ch->rolls());
+       
        //Loop on rolls in given chamber
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	 
 	 RPCDetId detId = (*r)->id();
 	 
-	 //Get Occupancy ME for roll
+	 //Get name
 	 RPCGeomServ RPCname(detId);	   
-	 std::string rollName= "";
+	 rollName= "";
+	 if(useRollInfo_) {
+	   rollName =  RPCname.name();
+	 }else{
+	   rollName =   RPCname.chambername();
+	 }
+
 	 //loop on clients
 	 for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
-	   if(useRollInfo_) rollName = 	RPCname.name();
-	   else     rollName = 	RPCname.chambername();
-	     
+	   
 	   myMe = NULL;
 	   myMe = dbe_->get(prefixDir_ +"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+rollName); 
-
-	  if (!myMe)continue;
-
-	  dbe_->tag(myMe, clientTag_[cl]);
-
-	  myMeVect.push_back(myMe);
-	  myDetIds.push_back(detId);
-	}//end loop on clients
-      }//end loop on roll in given chamber
+	   
+	   if (!myMe)continue;
+	   
+	   dbe_->tag(myMe, clientTag_[cl]);
+	   myMeVect.push_back(myMe);
+	   myDetIds.push_back(detId);
+	   
+	 }//end loop on clients
+	 
+       }//end loop on roll in given chamber
     }
   }//end loop on all geometry and get all histos  
   
-
-  RPCEvents_ = dbe_->get(prefixDir_ +"/RPCEvents");  
   
+  RPCEvents_ = dbe_->get(prefixDir_ +"/RPCEvents");  
 
   for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
     (*it)->getMonitorElements(myMeVect, myDetIds);

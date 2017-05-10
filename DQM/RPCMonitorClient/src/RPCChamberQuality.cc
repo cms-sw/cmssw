@@ -25,7 +25,7 @@ RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps ){
   enableDQMClients_ = ps.getUntrackedParameter<bool> ("EnableRPCDqmClient",true); 
 
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   useRollInfo_ = ps.getUntrackedParameter<bool> ("UseRollInfo",false); 
   offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
 }

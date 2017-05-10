@@ -6,29 +6,31 @@
 
 RPCDcsInfo::RPCDcsInfo(const edm::ParameterSet& ps){
   
-  dbe_ = edm::Service<DQMStore>().operator->();
-
+  
   subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "RPC") ;
   dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "DCSInfo") ;
   scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(ps.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
   
-  // initialize
-  dcs = true;
 }
 
 RPCDcsInfo::~RPCDcsInfo(){}
 
-void RPCDcsInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
+void RPCDcsInfo::bookHistograms(DQMStore::IBooker & ibooker,
+                                edm::Run const & /* iRun */,
+                                edm::EventSetup const & /* iSetup */) {
 
-  dbe_->cd();  
-  dbe_->setCurrentFolder(subsystemname_ + "/" + dcsinfofolder_);
+  // Fetch GlobalTag information and fill the string/ME.
+  ibooker.cd();
+  ibooker.setCurrentFolder(subsystemname_ + "/" + dcsinfofolder_);
 
-  DCSbyLS_=dbe_->book1D("DCSbyLS","DCS",1,0.5,1.5);
+  DCSbyLS_ = ibooker.book1D("DCSbyLS","DCS",1,0.5,1.5);
   DCSbyLS_->setLumiFlag();
 
   // initialize
   dcs=true;
-} 
+
+}
+
 
 void RPCDcsInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
  

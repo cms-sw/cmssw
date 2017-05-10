@@ -20,7 +20,7 @@ RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps ){
   useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
 
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 

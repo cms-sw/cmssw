@@ -108,17 +108,18 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::string _source; // HLT? FU?
 
   edm::InputTag theCaloMETCollectionLabel;
-
-  edm::InputTag theCaloTowersLabel;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag BeamHaloSummaryTag;
-  edm::InputTag HBHENoiseFilterResultTag;
-  edm::InputTag vertexTag;
-  edm::InputTag gtTag;
-
-  edm::InputTag inputMuonLabel;
-  edm::InputTag inputBeamSpotLabel;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonMETValueMap_muCorrData_token;
+  edm::EDGetTokenT<reco::CaloMETCollection> themetNoHFtoken;
+  edm::EDGetTokenT< reco::CaloMETCollection > theCaloMETCollectiontoken;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > theCaloTowersLabel;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionLabel;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> HcalNoiseRBXCollectionTag;
+  edm::EDGetTokenT<reco::BeamHaloSummary> BeamHaloSummaryTag;
+  edm::EDGetTokenT<reco::MuonCollection> theMuontoken;
+  edm::EDGetTokenT<bool> HBHENoiseFilterResultTag;
+  edm::EDGetTokenT<reco::VertexCollection> vertexTag;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtTag;
+  edm::EDGetTokenT<reco::BeamSpot> inputBeamSpotLabel;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;

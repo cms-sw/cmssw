@@ -27,7 +27,7 @@ RPCEfficiencyShiftHisto::RPCEfficiencyShiftHisto(const edm::ParameterSet& ps) {
   effCut_= ps.getUntrackedParameter<int>("EffCut", 90);
   SaveFile  = ps.getUntrackedParameter<bool>("SaveFile", false);
   NameFile  = ps.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root");
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
 }
 
 

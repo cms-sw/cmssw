@@ -52,6 +52,9 @@ public:
   
  private:
   
+
+  int  numberOfDisks_;
+  int innermostRings_ ;
   bool SaveFile;
 
   std::string NameFile;

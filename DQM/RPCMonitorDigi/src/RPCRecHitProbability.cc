@@ -27,53 +27,28 @@ RPCRecHitProbability::RPCRecHitProbability( const edm::ParameterSet& pset ):coun
 }
 
 RPCRecHitProbability::~RPCRecHitProbability(){}
-void RPCRecHitProbability::beginJob(){}
 
-void RPCRecHitProbability::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
+void RPCRecHitProbability::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &r , edm::EventSetup const & iSetup){
+
 
   edm::LogInfo ("rpcrechitprobability") <<"[RPCRecHitProbability]: Begin Run " ;
   
-  /// get hold of back-end interface
-  dbe = edm::Service<DQMStore>().operator->();
-
   std::string  currentFolder = subsystemFolder_ +"/"+muonFolder_+"/"+ globalFolder_;
-  dbe->setCurrentFolder(currentFolder); 
+  ibooker.setCurrentFolder(currentFolder); 
 
   int ptBins = 100 - (int)muPtCut_;
 
   //General part
-  NumberOfMuonEta_ = dbe->get(currentFolder+"/NumberOfMuonEta");
-  if(NumberOfMuonEta_) dbe->removeElement(NumberOfMuonEta_->getName());
-  NumberOfMuonEta_ = dbe->book1D("NumberOfMuonEta", "Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_ );
-
-  NumberOfMuonPt_B_ = dbe->get(currentFolder+"/NumberOfMuonPt_Barrel");
-  if(NumberOfMuonPt_B_) dbe->removeElement(NumberOfMuonPt_B_->getName());
-  NumberOfMuonPt_B_ = dbe->book1D("NumberOfMuonPt_Barrel", "Muons vs Pt - Barrel", ptBins, muPtCut_, 100);
-
-  NumberOfMuonPt_EP_ = dbe->get(currentFolder+"/NumberOfMuonPt_EndcapP");
-  if(NumberOfMuonPt_EP_) dbe->removeElement(NumberOfMuonPt_EP_->getName());
-  NumberOfMuonPt_EP_ = dbe->book1D("NumberOfMuonPt_EndcapP", "Muons vs Pt - Endcap+", ptBins , muPtCut_ , 100);
-
-  NumberOfMuonPt_EM_ = dbe->get(currentFolder+"/NumberOfMuonPt_EndcapM");
-  if(NumberOfMuonPt_EM_) dbe->removeElement(NumberOfMuonPt_EM_->getName());
-  NumberOfMuonPt_EM_ = dbe->book1D("NumberOfMuonPt_EndcapM", "Muons vs Pt - Endcap-", ptBins , muPtCut_ , 100);
-
-  NumberOfMuonPhi_B_ = dbe->get(currentFolder+"/NumberOfMuonPhi_Barrel");
-  if(NumberOfMuonPhi_B_) dbe->removeElement(NumberOfMuonPhi_B_->getName());
-  NumberOfMuonPhi_B_ = dbe->book1D("NumberOfMuonPhi_Barrel", "Muons vs Phi - Barrel", 144, -TMath::Pi(), TMath::Pi());
-
-  NumberOfMuonPhi_EP_ = dbe->get(currentFolder+"/NumberOfMuonPhi_EndcapP");
-  if(NumberOfMuonPhi_EP_) dbe->removeElement(NumberOfMuonPhi_EP_->getName());
-  NumberOfMuonPhi_EP_ = dbe->book1D("NumberOfMuonPhi_EndcapP", "Muons vs Phi - Endcap+", 144,  -TMath::Pi(), TMath::Pi() );
-
-  NumberOfMuonPhi_EM_ = dbe->get(currentFolder+"/NumberOfMuonPhi_EndcapM");
-  if(NumberOfMuonPhi_EM_) dbe->removeElement(NumberOfMuonPhi_EM_->getName());
-  NumberOfMuonPhi_EM_ = dbe->book1D("NumberOfMuonPhi_EndcapM", "Muons vs Phi - Endcap-", 144, -TMath::Pi(), TMath::Pi());
+  NumberOfMuonEta_ = ibooker.book1D("NumberOfMuonEta", "Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_ );
+  NumberOfMuonPt_B_ = ibooker.book1D("NumberOfMuonPt_Barrel", "Muons vs Pt - Barrel", ptBins, muPtCut_, 100);
+  NumberOfMuonPt_EP_ = ibooker.book1D("NumberOfMuonPt_EndcapP", "Muons vs Pt - Endcap+", ptBins , muPtCut_ , 100);
+  NumberOfMuonPt_EM_ = ibooker.book1D("NumberOfMuonPt_EndcapM", "Muons vs Pt - Endcap-", ptBins , muPtCut_ , 100);
+  NumberOfMuonPhi_B_ = ibooker.book1D("NumberOfMuonPhi_Barrel", "Muons vs Phi - Barrel", 144, -TMath::Pi(), TMath::Pi());
+  NumberOfMuonPhi_EP_ = ibooker.book1D("NumberOfMuonPhi_EndcapP", "Muons vs Phi - Endcap+", 144,  -TMath::Pi(), TMath::Pi() );
+  NumberOfMuonPhi_EM_ = ibooker.book1D("NumberOfMuonPhi_EndcapM", "Muons vs Phi - Endcap-", 144, -TMath::Pi(), TMath::Pi());
 
   //RPC part
-  RPCRecHitMuonEta_ = dbe->get(currentFolder+"/RPCRecHitMuonEta");
-  if(RPCRecHitMuonEta_) dbe->removeElement(RPCRecHitMuonEta_->getName());
-  RPCRecHitMuonEta_ = dbe->book2D("RPCRecHitMuonEta", "Number Of RecHits per Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_, 7, 0.5, 7.5);
+  RPCRecHitMuonEta_ = ibooker.book2D("RPCRecHitMuonEta", "Number Of RecHits per Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_, 7, 0.5, 7.5);
   
   std::stringstream name, title;
   for(int i = 0 ; i< 6 ; i++) {
@@ -81,55 +56,48 @@ void RPCRecHitProbability::beginRun(const edm::Run& r, const edm::EventSetup& iS
     title.str("");
     name<<(i+1)<<"RecHitMuonEta";
     title<<"At least " <<(i+1)<<" Cluster vs Eta";
-    recHitEta_[i] = dbe->book1D(name.str(), title.str(), 20*muEtaCut_,  -muEtaCut_,  muEtaCut_);
+    recHitEta_[i] = ibooker.book1D(name.str(), title.str(), 20*muEtaCut_,  -muEtaCut_,  muEtaCut_);
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPhiB";
     title<<"At least " <<(i+1)<<" Cluster vs Phi-Barrel";
-    recHitPhi_B_[i] = dbe->book1D(name.str(), title.str(), 144,  -TMath::Pi(), TMath::Pi());
+    recHitPhi_B_[i] = ibooker.book1D(name.str(), title.str(), 144,  -TMath::Pi(), TMath::Pi());
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPtB";
     title<<"At least " <<(i+1)<<" Cluster vs Pt-Barrel";
-    recHitPt_B_[i] = dbe->book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
+    recHitPt_B_[i] = ibooker.book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPhiEP";
     title<<"At least " <<(i+1)<<" Cluster vs Phi-Endcap+";
-    recHitPhi_EP_[i] = dbe->book1D(name.str(), title.str(), 144, -TMath::Pi(), TMath::Pi() );
+    recHitPhi_EP_[i] = ibooker.book1D(name.str(), title.str(), 144, -TMath::Pi(), TMath::Pi() );
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPtEP";
     title<<"At least " <<(i+1)<<" Cluster vs Pt-Endcap+";
-    recHitPt_EP_[i] = dbe->book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
+    recHitPt_EP_[i] = ibooker.book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPhiEM";
     title<<"At least " <<(i+1)<<" Cluster vs Phi-Endcap-";
-    recHitPhi_EM_[i] = dbe->book1D(name.str(), title.str(), 144, -TMath::Pi(), TMath::Pi());
+    recHitPhi_EM_[i] = ibooker.book1D(name.str(), title.str(), 144, -TMath::Pi(), TMath::Pi());
 
     name.str("");
     title.str("");
     name<<(i+1)<<"RecHitMuonPtEM";
     title<<"At least " <<(i+1)<<" Cluster vs Pt-Endcap-";
-    recHitPt_EM_[i] = dbe->book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
+    recHitPt_EM_[i] = ibooker.book1D(name.str(), title.str(), ptBins , muPtCut_ , 100);
 
   }
 
   dcs_ = true;
 }
-
-void RPCRecHitProbability::endJob(void){
-  if(saveRootFile) dbe->save(RootFileName); 
-  dbe = 0;
-}
-
-void RPCRecHitProbability::endLuminosityBlock(edm::LuminosityBlock const& L, edm::EventSetup const&  E){}
 
 
 void RPCRecHitProbability::analyze(const edm::Event& event,const edm::EventSetup& setup ){

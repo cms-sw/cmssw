@@ -1,28 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    DQMTtuAnalyzer
-// Class:      DQMTtuAnalyzer
-// 
-/**\class DQMTtuAnalyzer DQMTtuAnalyzer.cc StudyL1Trigger/DQMTtuAnalyzer/src/DQMTtuAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Andres Felipe Osorio Oliveros
-//         Created:  Wed Sep 30 09:32:55 CEST 2009
-//
-//
-
-
-// system include files
-//#include <memory>
-
-//... User include files
-
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -63,13 +38,14 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //
 // class declaration
 //
 
-class RPCTTUMonitor : public edm::EDAnalyzer {
+class RPCTTUMonitor : public DQMEDAnalyzer {
 public:
   explicit  RPCTTUMonitor(const edm::ParameterSet&);
   ~ RPCTTUMonitor();
@@ -78,13 +54,13 @@ public:
   
   void discriminateDecision( bool ,  bool , int );
   
-private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::EventSetup&);
+protected:
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
 
+private:
   MonitorElement * m_ttBitsDecisionData;
   MonitorElement * m_ttBitsDecisionEmulator;
   MonitorElement * m_bxDistDiffPac[8];
