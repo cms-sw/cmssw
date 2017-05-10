@@ -2,15 +2,16 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include<iostream>
 
 namespace spr{
 
   // Basic cone energy cluster for hcal simhits and hcal rechits
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int detOnly) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int detOnly, bool debug) {
     
-    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom, debug);
     
     nRecHits = -99;
     double energySum = 0.0;
@@ -35,15 +36,19 @@ namespace spr{
       }
     }
     nRecHits = uniqueIdset.size();
+    if (debug) {
+      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits
+                << " in subdet " << detOnly << std::endl;
+    }
     return energySum;
   }
 
   // Cone energy cluster for hcal simhits and hcal rechits
   // that returns vector of rechit IDs and hottest cell info
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly, bool debug) {
     
-    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom, debug);
     
     double energyMax = -99.;
     int hottestIndex = -99;
@@ -84,6 +89,45 @@ namespace spr{
     }
     
     nRecHits = uniqueIdset.size();
+    if (debug) {
+      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits
+                << ":" << coneRecHitDetIds.size() << " in subdet " << detOnly 
+                << std::endl;
+      std::cout << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist "
+                << distFromHotCell << std::endl;
+    }
+    return energySum;
+  }
+
+  template <typename T>
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, std::vector<double>& eHit, bool debug) {
+    
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom, debug);
+    nRecHits = -99;
+    double energySum = 0.0;
+    std::set<int> uniqueIdset;
+    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+      // Sum energy getting hottest cell for later
+      double energy = spr::getEnergy(hit.at(ihit));
+      energySum += energy;
+      // Don't double count depth in rechit multiplicity
+      int eta(-99), phi(-99);
+      spr::getEtaPhi(hit[ihit], eta, phi);
+      int uniqueEtaPhiId = 100*eta+phi;
+      uniqueIdset.insert(uniqueEtaPhiId);
+      // Get list of det ids
+      coneRecHitDetIds.push_back(hit[ihit]->id());
+      eHit.push_back(energy);
+    }
+    
+    nRecHits = uniqueIdset.size();
+    if (debug) {
+      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits
+                << ":" << coneRecHitDetIds.size() << std::endl;
+      for (unsigned int k=0; k<eHit.size(); ++k) 
+        std::cout << "Hit[" << k << "] " << HcalDetId(coneRecHitDetIds[k])
+                  << " energy " << eHit[k] << std::endl;
+    }
     return energySum;
   }
   
@@ -91,9 +135,9 @@ namespace spr{
   // that returns vector of rechit IDs and hottest cell info
   // AND info for making "hit maps"
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly, bool debug) {
 
-    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom, debug);
     
     double energyMax = -99.;
     int hottestIndex = -99;
@@ -134,18 +178,24 @@ namespace spr{
       ietaHotCell = hit.at(hottestIndex)->id().ieta();
       iphiHotCell = hit.at(hottestIndex)->id().iphi();
       distFromHotCell = spr::getDistInPlaneTrackDir(hpoint1, trackMom, gposHotCell);
-
     }
     
     nRecHits = uniqueIdset.size();
+    if (debug) {
+      std::cout << "eCone_hcal: Energy " << energySum << " from " << nRecHits
+                << ":" << coneRecHitDetIds.size() << " in subdet " << detOnly 
+                << std::endl;
+      std::cout << "HotCell " << ietaHotCell << ":" << iphiHotCell << " dist "
+                << distFromHotCell << std::endl;
+    }
     return energySum;
   }
 
   // 
   template <typename T>
-  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double ebThr, double eeThr, double tMin, double tMax) {
+  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
 
-    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, barrelhits, endcaphits, hpoint1, point1, dR, trackMom);
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, barrelhits, endcaphits, hpoint1, point1, dR, trackMom, debug);
 
     // No depth in Ecal so nRecHits = hit.size()
     nRecHits = hit.size();
@@ -160,6 +210,10 @@ namespace spr{
       if (ok && tt > tMin && tt < tMax) energySum += eTower;
     }
     
+    if (debug) {
+      std::cout << "eCone_ecal: Energy " << energySum << " from " << hit.size()
+                << " hits" << std::endl;
+    }
     return energySum;
   }
 

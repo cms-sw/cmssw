@@ -45,9 +45,9 @@ private:
   static const int NPBins   = 8; 
   double           pBins[NPBins+1], etaBins[NEtaBins+1];
 
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_EBhit_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_EEhit_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_EBhit_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_EEhit_;
+  edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
   edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
 
   std::string      sourceLabel, g4Label, hitLabEB, hitLabEE;

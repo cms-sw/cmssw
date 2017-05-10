@@ -31,11 +31,13 @@ namespace spr{
 	if (info2.isGoodEcal ) {
 	  if (std::abs(point2.eta())<1.479) {
 	    const DetId anyCell = gEB->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = gEE->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if(!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -100,11 +102,13 @@ namespace spr{
 	if (info2.isGoodEcal ) {
 	  if (std::abs(point2.eta())<1.479) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = endcapGeom->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -152,6 +156,7 @@ namespace spr{
 
 	if (info2.isGoodHcal ) {
 	  const DetId anyCell = gHB->getClosestCell(point2);
+	  if (debug) std::cout << "chargeIsolation:: HCAL cell " << (HcalDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	  if (!spr::chargeIsolation(anyCell,vdets)) {	
 	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
 	  }
