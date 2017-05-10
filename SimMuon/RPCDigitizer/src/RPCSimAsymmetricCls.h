@@ -66,6 +66,8 @@ class RPCSimAsymmetricCls : public RPCSim
   std::vector<double> sum_clsize;
   std::vector<double> clsForDetId;
   std::ifstream *infile;
+
+  bool doBkgNoise_;
  
   RPCSynchronizer* _rpcSync;
 };
