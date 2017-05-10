@@ -202,6 +202,8 @@ def OptionsFromItems(items):
             options.isMC=True
         if 'CFWRITER' in options.trimmedStep:
             options.isMC=True
+        if 'CFSLIMWRT' in options.trimmedStep:
+            options.isMC=True
         if 'DIGI' in options.trimmedStep:
             options.isMC=True
         if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
