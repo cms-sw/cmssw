@@ -55,6 +55,7 @@ private:
   std::vector<int> idDaughterF_;
   std::vector<int> idMotherY_;
   std::vector<int> idDaughterG_;
+  bool idYequalsX_;
   bool requireY_;
 
   edm::Handle<reco::GenParticleCollection> genParticles_;
@@ -65,7 +66,7 @@ private:
   double xSumR_;
   double xSumCtau_;
   unsigned int totalEvents_;
-  unsigned int rejectedEvents_;
+  unsigned int keptEvents_;
 };
 
 #endif

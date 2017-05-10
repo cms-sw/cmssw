@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/XtoFFbarFilter.h"
-
+#include <unordered_set>
 using namespace std;
 using namespace reco;
 
@@ -9,14 +9,18 @@ XtoFFbarFilter::XtoFFbarFilter(const edm::ParameterSet& iConfig) :
   idDaughterF_(iConfig.getParameter<vector<int> >("idDaughterF")),
   idMotherY_(iConfig.getParameter<vector<int> >("idMotherY")),
   idDaughterG_(iConfig.getParameter<vector<int> >("idDaughterG")),
-  xTotal_(0), xSumPt_(0.), xSumR_(0.), xSumCtau_(0.), totalEvents_(0),rejectedEvents_(0)
+  idYequalsX_(iConfig.getParameter<bool>("idYequalsX")),
+  xTotal_(0), xSumPt_(0.), xSumR_(0.), xSumCtau_(0.), totalEvents_(0), keptEvents_(0)
 { 
+  if (idYequalsX_) idMotherY_ = idMotherX_;
   // Note if if not searching for Y --> g-gbar.
   requireY_ = (idMotherY_.size() > 0 && idDaughterG_.size() > 0);
 }
 
 
 bool XtoFFbarFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)  {
+
+  bool keep = false;
 
   iEvent.getByLabel(src_, genParticles_);
 
@@ -25,6 +29,8 @@ bool XtoFFbarFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)  
   unsigned int numX = 0;
   unsigned int numY = 0;
   unsigned int numXorY = 0;
+
+  unordered_set<int> xPresent;
 
   for (unsigned int j = 0; j < genParticles_->size(); j++) {
     GenParticleRef moth(genParticles_, j);
@@ -36,7 +42,7 @@ bool XtoFFbarFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)  
     if (!requireY_) {
 
       // Has X been found already ?
-      if (numX >= 1) return true;
+      if (numX >= 1) keep = true;
 
     } else {
 
@@ -46,20 +52,33 @@ bool XtoFFbarFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)  
       if (isXtoFFbar || isYtoGGbar) numXorY++;
 
       // Have X and Y been found already ?
-      if (numX >= 1 && numY >= 1 && numXorY >= 2) return true;
+      if (numX >= 1 && numY >= 1 && numXorY >= 2) keep = true;
+    }
+
+    // Note which species listed in idMotherX_ are present in event.
+    if (idYequalsX_) {
+      int pdgIdMoth = moth->pdgId();
+      if (this->found(idMotherX_, pdgIdMoth)) xPresent.insert(pdgIdMoth);
     }
   }
 
-  rejectedEvents_++;
-  //  cout<<"REJECTED "<<totalEvents_<<endl;
-  return false;
+  // If requested veto events where more than one species listed in idMotherX_ is present.
+  if (idYequalsX_ && xPresent.size() > 1) keep = false;
+
+  if (keep) {
+    keptEvents_++;
+    //    cout<<"XtoFFbarFilter: KEPT EVENT"<<endl;
+    //  } else {
+    //    cout<<"XtoFFbarFilter: REJECTED EVENT"<<endl;
+  }
+  return keep;
 }
 
 
 bool XtoFFbarFilter::foundXtoFFbar(const GenParticleRef& moth, 
 				   const vector<int>& idMother, 
 				   const vector<int>& idDaughter) {
-  // Check if given particle "moth" is X-->f fbar
+  // Check if given particle "moth" is X-->f f'-bar + anything
   bool isXtoFFbar = false;
   int pdgIdMoth = moth->pdgId();
   double rho = -9.9e9;
@@ -102,12 +121,12 @@ bool XtoFFbarFilter::foundXtoFFbar(const GenParticleRef& moth,
 
 void XtoFFbarFilter::endJob() {
   cout<<endl;
-  cout<<"=== XtoFFbarFilter statistics of selected X->ffbar or Y->ggbar"<<endl;
+  cout<<"=== XtoFFbarFilter statistics of selected X -> f f'-bar + anything or Y -> g g'-bar + anything"<<endl;
   if (xTotal_ > 0) {
     cout<<"===   mean X & Y Pt = "<<xSumPt_/xTotal_<<" GeV and transverse decay length = "<<xSumR_/xTotal_<<" cm"<<endl;
     cout<<"===   mean c*tau = "<<xSumCtau_/xTotal_<<" cm"<<endl;
   } else {
     cout<<"===   WARNING: NONE FOUND !"<<endl;
   }
-  cout<<"===   events rejected = "<<rejectedEvents_<<"/"<<totalEvents_<<endl;                     
+  cout<<"===   events kept = "<<keptEvents_<<"/"<<totalEvents_<<endl;                     
 }
