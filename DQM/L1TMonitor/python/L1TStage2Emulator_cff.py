@@ -123,7 +123,7 @@ from DQM.L1TMonitor.L1TdeStage2BMTF_cfi import *
 from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import *
 
 # EMTF
-from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
+from DQM.L1TMonitor.L1TdeStage2EMTF_cff import *
 
 # uGMT
 from DQM.L1TMonitor.L1TdeStage2uGMT_cff import *
