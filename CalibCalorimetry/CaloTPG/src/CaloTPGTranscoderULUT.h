@@ -35,7 +35,7 @@ public:
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;
-  virtual void setup(const edm::EventSetup& es, Mode) const;
+  virtual void setup(const edm::EventSetup& es, Mode);
   virtual int getOutputLUTId(const int ieta, const int iphi) const;
   void printDecompression() const;
 
@@ -60,7 +60,7 @@ public:
   //int getLutThreshold(const DetId& id) const;
 
   // Member Variables
-  mutable bool isLoaded_;
+  bool isLoaded_;
   mutable double nominal_gain_;
   mutable double rctlsb_factor_;
   std::string compressionFile_;
