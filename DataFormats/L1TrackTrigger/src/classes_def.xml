@@ -1,3 +1,4 @@
+
 <lcgdict>
   <class name="TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
   <class name="TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
@@ -20,6 +21,93 @@
   <class name="vector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="Ref_Phase2TrackerDigi_" />
+  <class name="std::vector<Ref_Phase2TrackerDigi_>" />
+  <class pattern="TTCluster<*>" />
+  <class pattern="std::vector<TTCluster<*>>" />
+  <class pattern="edm::Wrapper<std::vector<TTCluster<*>>>" />
+  <class pattern="edmNew::DetSetVector<TTCluster<*>>" />
+  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTCluster<*>>>" />
+  <class pattern="edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>" />
+  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>" />
+  <class pattern="TTStub<*>" />
+  <class pattern="std::vector<TTStub<*>>" />
+  <class pattern="edm::Wrapper<std::vector<TTStub<*>>>" />
+  <class pattern="edmNew::DetSetVector<TTStub<*>>" />
+  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTStub<*>>>" />
+  <class pattern="edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>" />
+  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>" />
+  <class pattern="TTTrack<*>" />
+  <class pattern="std::vector<TTTrack<*>>" />
+  <class pattern="edm::Wrapper<std::vector<TTTrack<*>>>" />
+  <class pattern="edmNew::DetSetVector<TTTrack<*>>" />
+  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTTrack<*>>>" />
+  <class pattern="edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>" />
+  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>>" />
+
+ <class name="L1TkPrimaryVertex" ClassVersion="11">
+  <version ClassVersion="11" checksum="863057557"/>
+ </class>
+ <class name="std::vector<L1TkPrimaryVertex>"/>
+ <class name="edm::Wrapper<std::vector<L1TkPrimaryVertex> >"/>
+  <class name="edm::Ref<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex> >"/>
+
+  <class name="l1t::L1TkEtMissParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="3277669495"/>
+  </class>
+  <class name="std::vector<l1t::L1TkEtMissParticle>"/>
+ <class name="edm::Wrapper<l1t::L1TkEtMissParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkEtMissParticle> >"/>
+
+  <class name="l1t::L1TkEmParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="1290666254"/>
+  </class>
+  <class name="std::vector<l1t::L1TkEmParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkEmParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkEmParticle>,l1t::L1TkEmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkEmParticle>,l1t::L1TkEmParticle> >"/>
+
+  <class name="l1t::L1TkElectronParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="233957435"/>
+  </class>
+  <class name="edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ > >"/>
+  <class name="std::vector<l1t::L1TkElectronParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkElectronParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkElectronParticle>,l1t::L1TkElectronParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkElectronParticle>,l1t::L1TkElectronParticle> >"/>
+
+  <class name="l1t::L1TkJetParticle" ClassVersion="12">
+   <version ClassVersion="12" checksum="4142308388"/>
+   <version ClassVersion="12" checksum="3351458416"/>
+  </class>
+  <class name="std::vector<l1t::L1TkJetParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkJetParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkJetParticle>,l1t::L1TkJetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkJetParticle>,l1t::L1TkJetParticle> >"/>
+
+  <class name="edm::RefProd< std::vector<l1t::L1TkJetParticle> >"/>
+  
+  <class name="l1t::L1TkHTMissParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="1372312490"/>
+  </class>
+  <class name="std::vector<l1t::L1TkHTMissParticle>"/>
+  <class name="edm::Wrapper<l1t::L1TkHTMissParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkHTMissParticle> >"/>
+
+<!--
+  <class name="l1t::L1TkMuonParticle" ClassVersion="12">
+   <version ClassVersion="12" checksum="3928490091"/>
+   <version ClassVersion="11" checksum="2650978663"/>
+   <version ClassVersion="10" checksum="1626250068"/>
+  </class>
+  <class name="std::vector<l1t::L1TkMuonParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkMuonParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle> >"/>
+-->
+  <class name="l1t::L1TkTauParticle" ClassVersion="12">
+   <version ClassVersion="12" checksum="431862713"/>
+  </class>
+  <class name="std::vector<l1t::L1TkTauParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1t::L1TkTauParticle> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkTauParticle>,l1t::L1TkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkTauParticle>,l1t::L1TkTauParticle> >"/>
+
 
 </lcgdict>
 
