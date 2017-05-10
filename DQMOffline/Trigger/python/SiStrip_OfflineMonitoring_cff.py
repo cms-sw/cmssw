@@ -44,7 +44,25 @@ HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
         )
-
+HLTSiStripMonitorCluster.TH2CStripVsCpixel = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(99999.5),
+        Nbinsy = cms.int32(170),
+        ymin   = cms.double(-0.5),
+        ymax   = cms.double(50999.5),
+        globalswitchon = cms.bool(True)
+        )
+HLTSiStripMonitorCluster.TH1NClusPx = cms.PSet(
+        Nbinsx = cms.int32(170),
+        xmax = cms.double(50999.5),
+        xmin = cms.double(-0.5)
+        )
+HLTSiStripMonitorCluster.TH1NClusStrip = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(99999.5),
+        xmin = cms.double(-0.5)
+    )
 hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
   DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),

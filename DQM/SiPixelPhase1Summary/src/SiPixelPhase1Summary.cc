@@ -150,7 +150,10 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	//	std::cout << histName << std::endl;
 	MonitorElement * me = iGetter.get(histName);
 	
-	if (!me) continue; //Ignore non-existant MEs
+	if (!me) {
+	  edm::LogWarning("SiPixelPhase1Summary") << "ME " << histName << " is not available !!";
+	  continue; //Ignore non-existant MEs
+	}
 	      
 	if (me->hasError()) {
 	  //If there is an error, fill with 0
