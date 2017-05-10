@@ -20,6 +20,8 @@ int main()
     testSerialization<PTrackerParameters::TIBItem>();
     testSerialization<PTrackerParameters::TIDItem>();
     testSerialization<PTrackerParameters::TOBItem>();
+    testSerialization<PHcalParameters>();
+    testSerialization<PHcalParameters::LayerItem>();
 
     return 0;
 }
