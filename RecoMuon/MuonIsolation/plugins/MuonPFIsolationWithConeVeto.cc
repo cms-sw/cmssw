@@ -18,8 +18,8 @@ public:
     _vetoConeSize2(std::pow(c.getParameter<double>("VetoConeSize"),2.0)),
     _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes"))
   {
-    char buf[50];
-    snprintf(buf,49,"ThresholdVeto%03.0f-ConeVeto%03.0f", 100*_vetoThreshold, 100*std::sqrt(_vetoConeSize2));
+    char buf[650];
+    snprintf(buf, sizeof(buf), "ThresholdVeto%03.0f-ConeVeto%03.0f", 100*_vetoThreshold, 100*std::sqrt(_vetoConeSize2));
     _additionalCode = std::string(buf);
   }
   MuonPFIsolationWithConeVeto(const MuonPFIsolationWithConeVeto&) = delete;
@@ -59,11 +59,11 @@ bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& ph
           break;
         }
       }
-      result *= ( is_vertex_allowed );
+      result = is_vertex_allowed;
     }
-    result *= aspacked->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 ;
+    result = (aspacked->pt() > _vetoThreshold) && (deltar2 > _vetoConeSize2) && (deltar2 < _coneSize2);
   } else if ( aspf.isNonnull() && aspf.get() ) {
-    result *= aspf->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 ;
+    result = (aspf->pt() > _vetoThreshold) && (deltar2 > _vetoConeSize2) && (deltar2 < _coneSize2);
   } else {
     throw cms::Exception("InvalidIsolationInput")
       << "The supplied candidate to be used as isolation "
