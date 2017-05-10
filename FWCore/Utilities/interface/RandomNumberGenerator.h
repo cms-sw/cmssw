@@ -137,6 +137,7 @@ namespace CLHEP {
 
 namespace edm {
 
+  class ConsumesCollector;
   class Event;
   class LuminosityBlock;
   class LuminosityBlockIndex;
@@ -182,6 +183,8 @@ namespace edm {
 
     virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const = 0;
     virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const = 0;
+
+    virtual void consumes(ConsumesCollector&& iC) const = 0;
 
     /// For debugging purposes only.
     virtual void print(std::ostream& os) const = 0;

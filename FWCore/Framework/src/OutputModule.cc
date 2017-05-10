@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
@@ -65,7 +66,8 @@ namespace edm {
     wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                           process_name_,
                                                           getAllTriggerNames(),
-                                                          selectors_[0]);
+                                                          selectors_[0],
+                                                          consumesCollector());
 
     SharedResourcesRegistry::instance()->registerSharedResource(
                                                                 SharedResourcesRegistry::kLegacyModuleResourceName);
@@ -183,7 +185,8 @@ namespace edm {
         detail::configureEventSelector(selectEvents_,
                                        process_name_,
                                        getAllTriggerNames(),
-                                       s);
+                                       s,
+                                       consumesCollector());
       }
       seenFirst = true;
     }

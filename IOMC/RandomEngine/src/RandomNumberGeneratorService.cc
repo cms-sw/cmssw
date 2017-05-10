@@ -14,6 +14,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -201,6 +202,12 @@ namespace edm {
     }
 
     RandomNumberGeneratorService::~RandomNumberGeneratorService() {
+    }
+
+    void
+    RandomNumberGeneratorService::consumes(ConsumesCollector&& iC) const {
+       iC.consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
+       iC.consumes<RandomEngineStates>(restoreStateTag_);
     }
 
     CLHEP::HepRandomEngine&
