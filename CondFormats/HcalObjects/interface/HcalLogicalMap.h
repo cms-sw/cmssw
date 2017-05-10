@@ -4,17 +4,27 @@
 #include "CondFormats/HcalObjects/interface/HcalMappingEntry.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include <vector>
+
+////special for xml generation
+//#include "CalibCalorimetry/HcalTPGAlgos/interface/HCALLMAPXMLDOMBlock.h"
+//#include "CalibCalorimetry/HcalTPGAlgos/interface/HCALLMAPXMLProcessor.h"
+////#include "CondFormats/HcalObjects/interface/HCALLMAPXMLDOMBlock.h"
+////#include "CondFormats/HcalObjects/interface/HCALLMAPXMLProcessor.h"
+
 class HcalTopology;
 
-class HcalLogicalMap {
+class HcalLogicalMap 
+{
   public:
          
-  HcalLogicalMap(const HcalTopology*,
+    HcalLogicalMap(const HcalTopology*,
                    std::vector<HBHEHFLogicalMapEntry>&,
 		   std::vector<HOHXLogicalMapEntry>&,
-		   std::vector<CALIBLogicalMapEntry>&,
-		   std::vector<ZDCLogicalMapEntry>&,
+	           std::vector<CALIBLogicalMapEntry>&,
+         	   std::vector<ZDCLogicalMapEntry>&,
 		   std::vector<HTLogicalMapEntry>&,
+                   std::vector<OfflineDB>&,
+                   std::vector<QIEMap>&,
 		   std::vector<uint32_t>&,
 		   std::vector<uint32_t>&,
 		   std::vector<uint32_t>&,
@@ -24,13 +34,31 @@ class HcalLogicalMap {
 		   std::vector<uint32_t>&,
 		   std::vector<uint32_t>&);
 
-    ~HcalLogicalMap( );
+    ~HcalLogicalMap();
 
     void checkHashIds();
     void checkElectronicsHashIds() ;
     void checkIdFunctions();
-    void printMap( unsigned int mapIOV );
+    //this printHTRLMap function is for the old HTR logical map txt file output, comment from hua.wei@cern.ch
+    void printHTRLMap( unsigned int mapIOV );
+    //print map with micro TCA backend, added by hua.wei@cern.ch
+    void printuHTRLMap( unsigned int mapIOV);
+    //print offline DB, added by hua.wei@cern.ch
+    void printOfflineDB( unsigned int mapIOV );
+    //print QIE map, added by hua.wei@cern.ch
+    void printQIEMap( unsigned int mapIOV );
+    //new for xml generation
+    //void printXMLTables(unsigned int mapIOV);
+
+    //generate electronics map
     HcalElectronicsMap generateHcalElectronicsMap();
+
+    void printAllEMap(
+                      std::ostream& fOutputAll,
+                      std::ostream& fOutputHBHEuTCA,
+                      std::ostream& fOutputHBHEVME
+                     );
+
     const DetId getDetId(const HcalElectronicsId&);
     const HcalFrontEndId getHcalFrontEndId(const DetId&);
     uint32_t static makeEntryNumber(bool,int,int);
@@ -42,14 +70,52 @@ class HcalLogicalMap {
     void printCalibMap( FILE* calibmapfile );
     void printZDCMap(   FILE* zdcmapfile );
     void printHTMap(    FILE* htmapfile );
+    void printXMap(     FILE* xmapfile );
+
+
+    void printuHTRHBEFMap(FILE* hbefuhtrmapfile);
+    void printHCALOfflineDB(FILE* hcalofflinedb);
+    void printHCALQIEMap(FILE* hcalqiemap);
+
+    void printEmapHBHEVME(std::ostream& hcalemap);
+    void printEmapHBHEuTCA(std::ostream& hcalemap);
+    void printEmapHFVME(std::ostream& hcalemap);
+    void printEmapHFuTCA(std::ostream& hcalemap);
+    void printEmapHOHXVME(std::ostream& hcalemap);
+ 
+    void printEmapHTHBHEVME(std::ostream& hcalemap);
+    void printEmapHTHBHEuTCA(std::ostream& hcalemap);
+    void printEmapHTHFVME(std::ostream& hcalemap);
+    void printEmapHTHFuTCA(std::ostream& hcalemap);
+    void printEmapHTHOVME(std::ostream& hcalemap);
+ 
+    void printEmapCALIBHBHEVME(std::ostream& hcalemap);
+    void printEmapCALIBHBHEuTCA(std::ostream& hcalemap);
+    void printEmapCALIBHFVME(std::ostream& hcalemap);
+    void printEmapCALIBHFuTCA(std::ostream& hcalemap);
+    void printEmapCALIBHOVME(std::ostream& hcalemap);
+    
+    void printEmapZDC(std::ostream& hcalemap);
+
+    ////new for xml generation
+    //void printHBEFXML(  unsigned int mapIOV );
+    //void printHOXXML(   unsigned int mapIOV );
+    //void printCalibXML( unsigned int mapIOV );
+    //void printZDCXML(   unsigned int mapIOV );
+    //void printHTXML(    unsigned int mapIOV );
 
     unsigned int mapIOV_;
 
+  public:
     std::vector<HBHEHFLogicalMapEntry> HBHEHFEntries_;
     std::vector<HOHXLogicalMapEntry>   HOHXEntries_;
     std::vector<CALIBLogicalMapEntry>  CALIBEntries_;
     std::vector<ZDCLogicalMapEntry>    ZDCEntries_;
     std::vector<HTLogicalMapEntry>     HTEntries_;
+    std::vector<OfflineDB>             OfflineDatabase_;
+    std::vector<QIEMap>                QIEMaps_;
+
+  private:
     std::vector<uint32_t> LinearIndex2Entry_;
     std::vector<uint32_t> HbHash2Entry_;
     std::vector<uint32_t> HeHash2Entry_;
