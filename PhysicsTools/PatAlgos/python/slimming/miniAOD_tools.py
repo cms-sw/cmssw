@@ -114,11 +114,18 @@ def miniAOD_customizeCommon(process):
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    # FIXME: this and the typeI MET should become AK4 once we have the proper JEC?
-    from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
+    # FIXME: this and the typeI MET should become AK4 once we have the proper JEC? MM:yes
+    from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
-    runMEtUncertainties(process,jetCollection="selectedPatJetsAK5PFForMetUnc", outputModule=None)
-
+    process.patJetsAK5PFForMetUnc.getJetMCFlavour = False
+    runType1PFMEtUncertainties(process,
+                               addToPatDefaultSequence=False,
+                               jetCollection="selectedPatJetsAK5PFForMetUnc",
+                               electronCollection="selectedPatElectrons",
+                               muonCollection="selectedPatMuons",
+                               tauCollection="selectedPatTaus",
+                               outputModule=None)
+   
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
     process.patJets.userData.userFunctions = cms.vstring(

@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="CondFormats/JetMETObjects">
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>

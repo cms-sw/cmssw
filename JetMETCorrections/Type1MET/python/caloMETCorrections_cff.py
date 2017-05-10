@@ -10,6 +10,10 @@ caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
+    type2ResidualCorrLabel = cms.string(""),
+    type2ResidualCorrEtaMax = cms.double(9.9),
+    type2ResidualCorrOffset = cms.double(0.),
+    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data                               
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     srcMET = cms.InputTag('corMetGlobalMuons')
@@ -43,7 +47,7 @@ caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
-        cms.InputTag('caloJetMETcorr', 'type2'),
+        cms.InputTag('caloJetMETcorr', 'type2fromMEt'),
         cms.InputTag('muonCaloMETcorr') # NOTE: use 'muonCaloMETcorr' for 'corMetGlobalMuons', do **not** use it for 'met' !!
     ),
     type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
@@ -62,5 +66,11 @@ produceCaloMETCorrections = cms.Sequence(
    * muonCaloMETcorr
    * caloType1CorrectedMet
    * caloType1p2CorrectedMet
+)
+#--------------------------------------------------------------------------------
+# define corrector sequence
+produceCaloMETCorrectors = cms.Sequence(
+    caloJetMETcorr
+   * muonCaloMETcorr
 )
 #--------------------------------------------------------------------------------

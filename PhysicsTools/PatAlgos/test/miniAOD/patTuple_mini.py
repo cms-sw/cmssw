@@ -37,7 +37,6 @@ miniAOD_customizeMC(process)
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 #                                         ##
 
-
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
 process.out.fileName = 'patTuple_mini.root'
