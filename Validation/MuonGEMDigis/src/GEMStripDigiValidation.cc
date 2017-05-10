@@ -39,51 +39,66 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
   }
   // All chamber XY (cm) plots
   //auto& chamber = theGEMGeometry
+  theSpecific_phiz[0] = dbe_->book2D("sp_strip_re-1_st1_ch1_2_roll1","sp_strip_re-1_st1_ch1_2_roll1",500, 4.5,5.5,100,-575,-560);
+  theSpecific_phiz[1] = dbe_->book2D("sp_strip_re-1_st1_ch1_2_roll4","sp_strip_re-1_st1_ch1_2_roll4",500, 4.5,5.5,100,-575,-560);
+  theSpecific_phiz[2] = dbe_->book2D("sp_strip_re-1_st1_ch1_2_roll8","sp_strip_re-1_st1_ch1_2_roll8",500, 4.5,5.5,100,-575,-560);
+  theSpecific_phiz[3] = dbe_->book2D("sp_strip_re-1_st1_ch1_2","sp_strip_re-1_st1_ch1_2",500, 4.5,5.5,100,-575,-560);
   for( auto& region : theGEMGeometry->regions() ) 
   for( auto& station : region->stations() ) { 
-    std::stringstream ss1;
-    ss1<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
-    std::string st_title = std::string( ss1.str()+";delta Phi(#Delta#phi);Entries");
-    MonitorElement* st_temp;
-    std::stringstream name_prefix,  name;
-    std::stringstream title_prefix, title;
+    Short_t nre=region->region();
+    Short_t nst=station->station();
+    TString name_suffix = TString::Format("r%d_st%s",nre, stationLabel[nst-1].c_str());
+    TString title_suffix= TString::Format("Region %d Station %s",nre,stationLabel[nst-1].c_str());
 
-    if ( station->station() == 1 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,8.5,12.5);
-    if ( station->station() == 2 || station->station() == 3 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,18.5,22.5);
-    theStrip_st_dphi.insert( std::map<std::string, MonitorElement*>::value_type(ss1.str(), st_temp ));
+    TString ss1 = TString::Format("deltaPhi_%s",name_suffix.Data() );
+    TString st_title = ss1+";delta Phi(#Delta#phi);Entries";
+    MonitorElement* st_temp;
+
+    if ( nst == 1 ) st_temp = dbe_->book1D( ss1.Data(),st_title.Data(),2000.,8.5,12.5);
+    if ( nst == 2 || station->station() == 3 ) st_temp = dbe_->book1D(ss1.Data(),st_title.Data(),2000.,18.5,22.5);
+    theStrip_st_dphi.insert( std::map< UInt_t , MonitorElement*>::value_type(ss1.Hash(), st_temp ));
+    //std::cout<< ss1.Data()<<std::endl;
+
     for( auto& ring : station->rings() ) 
     for( auto& sCh : ring->superChambers() ) {
-     //Double_t xmin = 9999;
-     //Double_t xmax = -9999;
+     Short_t nch= sCh->id().chamber();
      Double_t zmin = 9999;
-     Double_t zmax = -999; 
-     Short_t nre=0;
-     Short_t nst=0;
-     Short_t nch=0;
-     Short_t nla=0;
-     //Short_t nro=0;
+     Double_t zmax = -999;
+     TString name_suffix2 = name_suffix+TString::Format("_ch%d",nch); 
+     TString title_suffix2 = title_suffix+TString::Format(" Chamber %d",nch);
+ 
+     TString name  = TString::Format("strip_phiz_%s",name_suffix2.Data());
+     TString title = TString::Format("Strip's Global PHI vs Z plots %s; Azimuthia Angle(degree) ; Global Z(cm)",title_suffix2.Data());
+
+     double step = GE11PhiStep_;
+     if ( nst > 1 ) step = GE11PhiStep_*2;
+     double xmin = GE11PhiBegin_ + step*(nch-1);
+     double xmax = GE11PhiBegin_ + step*(nch);
+     int nbin =0;
+
+     if ( nst ==1 ) nbin = nstripsGE11; 
+     else  nbin = nstripsGE21;
+ 
+     MonitorElement* temp2 = dbe_->book2D( name.Data(), title.Data(), nbin, xmin, xmax ,100, zmin-1, zmax+1);
+     theStrip_phiz_st_ch.insert( std::map<UInt_t , MonitorElement*>::value_type(name.Hash(), temp2)) ;
+     //std::cout<<name.Hash()<<"  "<<name.Length()<<std::endl;
+     
+
      for ( auto& ch : sCh->chambers() ) {
       auto& roll = ch->etaPartitions()[0];
-      //if ( ch->etaPartitions() != nullptr ) roll = ch->etaPartitions()[0];
-      name_prefix.str("");
-      name.str("");
-      title_prefix.str("");
-      title.str("");
       auto& parameters(roll->specs()->parameters());
       float nStrips = (parameters[3]); 
       GEMDetId roId( roll->id());
-      nre = (Short_t)roId.region();
-      nst = (Short_t)roId.station();
-      nch = (Short_t)roId.chamber();
-      nla = (Short_t)roId.layer();
+      Short_t nla = (Short_t)roId.layer();
       //nro = (Short_t)roId.roll();
-      name_prefix<<"r"<<nre<<"_st"<<stationLabel[nst-1]<<"_ch"<<nch;
-      title_prefix<<"Region "<<nre<<" Station "<<stationLabel[nst-1]<<" Chamber "<<nch;
+      TString name_suffix3 = name_suffix2 +TString::Format("_la%d",nla);
+      TString title_suffix3 = title_suffix2 + TString::Format(" Layer %d",nla);
 
-      name<< "strip_phi_dist_"<<name_prefix.str()<<"_la"<<nla;
-      title<<"strips' phi distributio at "<<title_prefix.str()<<" Layer "<<nla<<" ; Strip number ; Azimuthal angle (#phi)";
-      MonitorElement* temp = dbe_->book1D(name.str().c_str(), title.str().c_str(),nStrips,1,nStrips+1);
-      theStrip_ro_phi.insert( std::map<std::string, MonitorElement*>::value_type(name.str(), temp)) ;
+      TString name = TString::Format("strip_phi_dist_%s",name_suffix3.Data());
+      TString title = TString::Format("strips' phi distributio at %s ; Strip number ; #phi(Degree)",title_suffix3.Data());
+
+      MonitorElement* temp = dbe_->book1D(name.Data(), title.Data(),nStrips,1,nStrips+1);
+      theStrip_ro_phi.insert( std::map<UInt_t, MonitorElement*>::value_type(name.Hash(), temp)) ;
 
       const StripTopology* topology(&(roll->specificTopology()));
       LocalPoint lEdge1(topology->localPosition((float)0));
@@ -101,20 +116,8 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
       double z( roll->toGlobal( lEdge1).z()); 
       if ( zmin> z ) zmin = z;
       if ( zmax< z ) zmax = z;
-      name.str("");
-      title.str("");
     }
-    name<<"strip_phiz_"<<name_prefix.str();
-    title<<"Strip's Global PHI vs Z plots "<<title_prefix.str()<<"; Azimuthia Angle(degree) ; Global Z(cm)";
-    double step = GE11PhiStep_;
-    if ( nst > 1 ) step = GE11PhiStep_*2;
-    double xmin = GE11PhiBegin_ + step*(nch-1);
-    double xmax = GE11PhiBegin_ + step*(nch);
-    int nbin =0;
-    if ( nst ==1 ) nbin = nstripsGE11; 
-    else  nbin = nstripsGE21; 
-    MonitorElement* temp2 = dbe_->book2D(name.str().c_str(), title.str().c_str(),nbin, xmin, xmax ,100,zmin-1,zmax+1);
-    theStrip_phiz_st_ch.insert( std::map<std::string, MonitorElement*>::value_type(name.str(), temp2)) ;
+    
    }
  } 
 }
@@ -137,21 +140,31 @@ void GEMStripDigiValidation::savePhiPlot(){
       auto& parameters(roll->specs()->parameters());
       nStrips = parameters[3];
       roId =  roll->id();
-      std::stringstream name,name_prefix;
-      name_prefix<<"r"<<roId.region()<<"_st"<<stationLabel[roId.station()-1]<<"_ch"<<roId.chamber()<<"_la"<<roId.layer();
-      name<<"strip_phi_dist_"<<name_prefix.str();
+      TString name_prefix = TString::Format("r%d_st%s_ch%d_la%d",roId.region(),stationLabel[roId.station()-1].c_str(),roId.chamber(),roId.layer());
+      TString name = TString::Format("strip_phi_dist_")+name_prefix;
       double phi_0 = 0.0;
       double phi_max = 0.0;
+      double low_edge= roll->toGlobal( topology->localPosition( 0.0) ).phi().degrees();
       for( unsigned int i=0; i<=nStrips ; i++) {
         LocalPoint lEdgeN(topology->localPosition((float)i));
         double cstripN( roll->toGlobal( lEdgeN).phi().degrees());
-        theStrip_ro_phi[name.str()]->Fill(i,cstripN);
+        double d_phi = cstripN- low_edge;
+        if ( TMath::Abs( d_phi ) > 2*GE11PhiStep_) {
+          if ( cstripN > 0)      cstripN -= 360.;
+          else if ( cstripN < 0) cstripN += 360.;
+        }
+        if ( theStrip_ro_phi[name.Hash()] != nullptr ) {
+          theStrip_ro_phi[name.Hash()]->Fill(i,cstripN);
+        }
+        else std::cout<<"ro_phi error! "<<name.Data()<<std::endl;
         if ( i==0 ) phi_0 = cstripN;
         if ( i==nStrips ) phi_max = cstripN;
       }
-      std::stringstream ss;
-      ss<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
-      theStrip_st_dphi[ss.str()]->Fill( TMath::Abs(phi_max- phi_0));
+      TString ss = TString::Format("deltaPhi_r%d_st%s",region->region(),stationLabel[roId.station()-1].c_str());
+      if ( theStrip_st_dphi[ss.Hash()] != nullptr) {
+      theStrip_st_dphi[ss.Hash()]->Fill( TMath::Abs(phi_max- phi_0));
+      }
+      else std::cout<<"st_dphi error! "<<ss.Data()<<std::endl;
     }
   }
 }
@@ -180,10 +193,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     Short_t layer = (Short_t) id.layer();
     Short_t station = (Short_t) id.station();
     Short_t chamber = (Short_t) id.chamber();
-    
+    Short_t nroll = (Short_t) id.roll();
 
     GEMDigiCollection::const_iterator digiItr;
-    //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
       Short_t strip = (Short_t) digiItr->strip();
@@ -207,19 +219,33 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       else if ( region==1) region_num = 1;  
       int station_num = station-1;
       int layer_num = layer-1;
-
-      theStrip_xy[region_num][station_num][layer_num]->Fill(g_x,g_y);     
-      theStrip_phistrip[region_num][station_num][layer_num]->Fill(g_phi,strip);
-      theStrip[region_num][station_num][layer_num]->Fill(strip);
-      theStrip_bx[region_num][station_num][layer_num]->Fill(bx);
-      theStrip_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
-
-      std::stringstream name,name_prefix;
-      name_prefix<<"r"<<region<<"_st"<<stationLabel[station-1]<<"_ch"<<chamber;
-      name<<"strip_phiz_"<<name_prefix.str();
+    
+      if ( theStrip_xy[region_num][station_num][layer_num] != nullptr) {
+        theStrip_xy[region_num][station_num][layer_num]->Fill(g_x,g_y);     
+        theStrip_phistrip[region_num][station_num][layer_num]->Fill(g_phi,strip);
+        theStrip[region_num][station_num][layer_num]->Fill(strip);
+        theStrip_bx[region_num][station_num][layer_num]->Fill(bx);
+        theStrip_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
+      }
+      else {
+        std::cout<<"Error is occued when histograms is called."<<std::endl;
+      }
+    
+      TString name_suffix = TString::Format("r%d_st%s_ch%d",region,stationLabel[station_num].c_str(),chamber);
+      TString name = TString::Format("strip_phiz_%s",name_suffix.Data());
       Float_t digi_phi = gp.phi().degrees();
-      if ( digi_phi < -5  ) digi_phi = digi_phi+360.;
-      theStrip_phiz_st_ch[name.str()]->Fill(digi_phi,g_z);
+      if ( digi_phi < GE11PhiBegin_  ) digi_phi = digi_phi+360.;
+      
+      if ( theStrip_phiz_st_ch[name.Hash()] != nullptr) {
+        theStrip_phiz_st_ch[name.Hash()]->Fill(digi_phi,g_z);
+      }
+      else std::cout<<"Error! nullptr dqm. "<<name.Data()<<"  "<<name.Length()<<std::endl;
+      if ( region == -1 && station ==1 && ( chamber == 1 || chamber == 2 ) ) {
+        theSpecific_phiz[3]->Fill(digi_phi,g_z);
+        if( nroll == 1) theSpecific_phiz[0]->Fill(digi_phi,g_z);
+        else if( nroll == 4) theSpecific_phiz[1]->Fill(digi_phi,g_z);
+        else if( nroll == 8) theSpecific_phiz[2]->Fill(digi_phi,g_z);
+      }
    }
   }
 }

@@ -16,68 +16,68 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(DQMStore* dbe, edm::EDGetToken& track, edm:
 
 void GEMDigiTrackMatch::FillWithTrigger( MonitorElement* hist[4][3], bool array[3][2], Float_t value)
 {
-	for( unsigned int i=0 ; i<nstation ; i++) {
-		if ( array[i][0] ) hist[0][i]->Fill(value);
-		if ( array[i][1] ) hist[1][i]->Fill(value);
-		if ( array[i][0] || array[i][1] ) hist[2][i]->Fill(value);
-		if ( array[i][0] && array[i][1] ) hist[3][i]->Fill(value);
-	} 
-	return;
+  for( unsigned int i=0 ; i<nstation ; i++) {
+    if ( array[i][0] ) hist[0][i]->Fill(value);
+    if ( array[i][1] ) hist[1][i]->Fill(value);
+    if ( array[i][0] || array[i][1] ) hist[2][i]->Fill(value);
+    if ( array[i][0] && array[i][1] ) hist[3][i]->Fill(value);
+  } 
+  return;
 }
 
 
 void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
-	theGEMGeometry = geom;
+  theGEMGeometry = geom;
   const float PI=TMath::Pi();
-	const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-	const char* c_suffix[2] = {"_even","_odd"};
+  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
+  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
+  const char* c_suffix[2] = {"_even","_odd"};
 
   nstation = theGEMGeometry->regions()[0]->stations().size(); 
-	for( unsigned int j=0 ; j<nstation ; j++) {
-			string track_eta_name  = string("track_eta")+s_suffix[j];
-			string track_eta_title = string("track_eta")+";SimTrack |#eta|;# of tracks";
-			string track_phi_name  = string("track_phi")+s_suffix[j];
-			string track_phi_title = string("track_phi")+";SimTrack #phi;# of tracks";
-	 		track_eta[j] = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(),140,minEta_,maxEta_);
-			track_phi[j] = dbe_->book1D(track_phi_name.c_str(), track_phi_title.c_str(),100,-PI,PI);
-	 		for( unsigned int i=0 ; i< 4; i++) {
-				 string suffix = string(l_suffix[i])+string(s_suffix[j]);
-				 string dg_eta_name = string("dg_eta")+suffix;
-				 string dg_eta_title = dg_eta_name+"; tracks |#eta|; # of tracks";
-			   dg_eta[i][j] = dbe_->book1D( dg_eta_name.c_str(), dg_eta_title.c_str(), 140, minEta_, maxEta_) ;
+  for( unsigned int j=0 ; j<nstation ; j++) {
+      string track_eta_name  = string("track_eta")+s_suffix[j];
+      string track_eta_title = string("track_eta")+";SimTrack |#eta|;# of tracks";
+      string track_phi_name  = string("track_phi")+s_suffix[j];
+      string track_phi_title = string("track_phi")+";SimTrack #phi;# of tracks";
+      track_eta[j] = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(),140,minEta_,maxEta_);
+      track_phi[j] = dbe_->book1D(track_phi_name.c_str(), track_phi_title.c_str(),100,-PI,PI);
+      for( unsigned int i=0 ; i< 4; i++) {
+         string suffix = string(l_suffix[i])+string(s_suffix[j]);
+         string dg_eta_name = string("dg_eta")+suffix;
+         string dg_eta_title = dg_eta_name+"; tracks |#eta|; # of tracks";
+         dg_eta[i][j] = dbe_->book1D( dg_eta_name.c_str(), dg_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
-				 string dg_sh_eta_name = string("dg_sh_eta")+suffix;
-				 string dg_sh_eta_title = dg_sh_eta_name+"; tracks |#eta|; # of tracks";
-			   dg_sh_eta[i][j] = dbe_->book1D( dg_sh_eta_name.c_str(), dg_sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
+         string dg_sh_eta_name = string("dg_sh_eta")+suffix;
+         string dg_sh_eta_title = dg_sh_eta_name+"; tracks |#eta|; # of tracks";
+         dg_sh_eta[i][j] = dbe_->book1D( dg_sh_eta_name.c_str(), dg_sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
-				 string dg_phi_name = string("dg_phi")+suffix;
-				 string dg_phi_title = dg_phi_name+"; tracks #phi; # of tracks";
-			   dg_phi[i][j] = dbe_->book1D( dg_phi_name.c_str(), dg_phi_title.c_str(), 100, -PI,PI) ;
+         string dg_phi_name = string("dg_phi")+suffix;
+         string dg_phi_title = dg_phi_name+"; tracks #phi; # of tracks";
+         dg_phi[i][j] = dbe_->book1D( dg_phi_name.c_str(), dg_phi_title.c_str(), 100, -PI,PI) ;
 
-				 string dg_sh_phi_name = string("dg_sh_phi")+suffix;
-				 string dg_sh_phi_title = dg_sh_phi_name+"; tracks #phi; # of tracks";
-			   dg_sh_phi[i][j] = dbe_->book1D( dg_sh_phi_name.c_str(), dg_sh_phi_title.c_str(), 100,-PI,PI) ;
+         string dg_sh_phi_name = string("dg_sh_phi")+suffix;
+         string dg_sh_phi_title = dg_sh_phi_name+"; tracks #phi; # of tracks";
+         dg_sh_phi[i][j] = dbe_->book1D( dg_sh_phi_name.c_str(), dg_sh_phi_title.c_str(), 100,-PI,PI) ;
 
-				 string pad_eta_name = string("pad_eta")+suffix;
-				 string pad_eta_title = pad_eta_name+"; tracks |#eta|; # of tracks";
-			   pad_eta[i][j] = dbe_->book1D( pad_eta_name.c_str(), pad_eta_title.c_str(), 140, minEta_, maxEta_) ;
+         string pad_eta_name = string("pad_eta")+suffix;
+         string pad_eta_title = pad_eta_name+"; tracks |#eta|; # of tracks";
+         pad_eta[i][j] = dbe_->book1D( pad_eta_name.c_str(), pad_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
-				 string pad_phi_name = string("pad_phi")+suffix;
-				 string pad_phi_title = pad_phi_name+"; tracks #phi; # of tracks";
-			   pad_phi[i][j] = dbe_->book1D( pad_phi_name.c_str(), pad_phi_title.c_str(), 100, -PI,PI) ;
-				 for ( unsigned int k = 0 ; k<2 ; k++) {
-					 suffix = suffix+ string(c_suffix[k]);
-					 string dg_lx_name = string("dg_lx")+suffix;
-					 string dg_lx_title = dg_lx_name+"; local X[cm]; Entries";
-					 //dg_lx[i][j][k] = dbe_->book1D( dg_lx_name.c_str(), dg_lx_title.c_str(), 100,-100,100);  
+         string pad_phi_name = string("pad_phi")+suffix;
+         string pad_phi_title = pad_phi_name+"; tracks #phi; # of tracks";
+         pad_phi[i][j] = dbe_->book1D( pad_phi_name.c_str(), pad_phi_title.c_str(), 100, -PI,PI) ;
+         for ( unsigned int k = 0 ; k<2 ; k++) {
+           suffix = suffix+ string(c_suffix[k]);
+           string dg_lx_name = string("dg_lx")+suffix;
+           string dg_lx_title = dg_lx_name+"; local X[cm]; Entries";
+           //dg_lx[i][j][k] = dbe_->book1D( dg_lx_name.c_str(), dg_lx_title.c_str(), 100,-100,100);  
 
-					 string dg_ly_name = string("dg_ly")+suffix;
-					 string dg_ly_title = dg_ly_name+"; local Y[cm]; Entries";
-					 //dg_ly[i][j][k] = dbe_->book1D( dg_ly_name.c_str(), dg_ly_title.c_str(), 100,-100,100);  
-				 }
-			}
-	 }
+           string dg_ly_name = string("dg_ly")+suffix;
+           string dg_ly_title = dg_ly_name+"; local Y[cm]; Entries";
+           //dg_ly[i][j][k] = dbe_->book1D( dg_ly_name.c_str(), dg_ly_title.c_str(), 100,-100,100);  
+         }
+      }
+   }
 }
 
 GEMDigiTrackMatch::~GEMDigiTrackMatch() {  }
@@ -95,9 +95,9 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     Char_t has_gem_dg_l1, has_gem_dg_l2;
     Char_t has_gem_pad_l1, has_gem_pad_l2;
     Char_t has_gem_sh_l1, has_gem_sh_l2;
-		bool gem_sh[3][2];
-		bool gem_dg[3][2];
-		bool gem_pad[3][2];
+    bool gem_sh[3][2];
+    bool gem_dg[3][2];
+    bool gem_pad[3][2];
   };
   MySimTrack track_;
 
@@ -136,20 +136,20 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     track_.has_gem_dg_l2 = 0;
     track_.has_gem_pad_l1 = 0;
     track_.has_gem_pad_l2 = 0;
-		for ( int i= 0 ; i< 3 ; i++) {
-			for ( int j= 0 ; j<2 ; j++) {
-		    track_.gem_sh[i][j]  = false;
-    		track_.gem_dg[i][j]  = false;
-		    track_.gem_pad[i][j] = false;
-			}
-		}
+    for ( int i= 0 ; i< 3 ; i++) {
+      for ( int j= 0 ; j<2 ; j++) {
+        track_.gem_sh[i][j]  = false;
+        track_.gem_dg[i][j]  = false;
+        track_.gem_pad[i][j] = false;
+      }
+    }
 
     // ** GEM SimHits ** //
     const auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
     for(auto d: gem_sh_ids_ch)
     {
       const GEMDetId id(d);
-			track_.gem_sh[ id.station()-1][ (id.layer()-1)] = true;
+      track_.gem_sh[ id.station()-1][ (id.layer()-1)] = true;
 
     }
     // ** GEM Digis, Pads and CoPads ** //
@@ -158,35 +158,41 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     for(auto d: gem_dg_ids_ch)
     {
       GEMDetId id(d);
-			track_.gem_dg[ id.station()-1][ (id.layer()-1)] = true;
-			track_.gem_pad[ id.station()-1][ (id.layer()-1)] = true;
+      track_.gem_dg[ id.station()-1][ (id.layer()-1)] = true;
+      track_.gem_pad[ id.station()-1][ (id.layer()-1)] = true;
     }
-	  
+    
  
     // if this track enter thought station, 
-		track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1
-		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
+    if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) { 
+      track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1
+      track_phi[0]->Fill( track_.phi ) ;
+    }
 
-		if ( nstation >1 ) { 
-			track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
-			track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
-			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
-			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
-		}
-		
+    if ( nstation >1 ) { 
+      if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) { 
+        track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+        track_phi[1]->Fill( track_.phi ) ;
+      }
+      if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) {
+        track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+        track_phi[2]->Fill( track_.phi ) ;
+      }
+    }
+    
 
-		FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
-		FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
-		FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
-	
+    FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
+    FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
+    FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
+  
     // Separate station.
 
-		FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
-		FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
-		FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
-	
+    FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
+    FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
+    FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
+  
    
-    /*	
+    /*  
 
     // Calculation of the localXY efficiency
     GlobalPoint gp_track(match_sh.propagatedPositionGEM());

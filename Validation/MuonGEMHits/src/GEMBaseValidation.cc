@@ -38,9 +38,12 @@ void GEMBaseValidation::setGeometry(const GEMGeometry* geom)
 
 MonitorElement* GEMBaseValidation::BookHistZR( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
 
-  string hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
-  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalZ [cm]; globalR[cm]";
-
+  string hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num];
+  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" "+" ; globalZ [cm]; globalR[cm]";
+  if( layer_num !=10 ) {
+    hist_name=hist_name +"_l"+layerLabel[layer_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalZ [cm]; globalR[cm]";
+  }
   int xbin = (int)nBinZR_[station_num]; 
   int ybin = (int)nBinZR_[ nBinZR_.size()/2+station_num];
   double xmin = 0;
@@ -62,7 +65,12 @@ MonitorElement* GEMBaseValidation::BookHistZR( const char* name, const char* lab
 
 MonitorElement* GEMBaseValidation::BookHistXY( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
 
-  string hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
-  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalX [cm]; globalY[cm]";
+  string hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num];
+  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" ; globalX [cm]; globalY[cm]";
+  if ( layer_num !=10) { 
+    hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+    hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalX [cm]; globalY[cm]";
+  }
+
   return dbe_->book2D( hist_name, hist_label, nBinXY_, -360,360,nBinXY_,-360,360); 
 }
