@@ -72,10 +72,68 @@ class BasicTrajectoryState {
 public:
 
   // default constructor : to make root happy
-  BasicTrajectoryState() : theValid(false), theWeight(0){}
+ BasicTrajectoryState() : theWeight(0), theValid(false),theUpdatingFreeStateError(false){}
 
  /// construct invalid trajectory state (without parameters)
   explicit BasicTrajectoryState(const SurfaceType& aSurface);
+
+  BasicTrajectoryState(BasicTrajectoryState const& aOther):
+    theLocalError(aOther.theLocalError),
+    theLocalParameters(aOther.theLocalParameters),
+    theSurfaceSide(aOther.theSurfaceSide),
+    theSurfaceP(aOther.theSurfaceP),
+    theWeight(aOther.theWeight),
+    theValid(aOther.theValid),
+    theUpdatingFreeStateError(false)
+  {
+    bool expected=false;
+    while(not aOther.theUpdatingFreeStateError.compare_exchange_strong(expected,true));
+    theFreeState = aOther.theFreeState;
+    aOther.theUpdatingFreeStateError = false;
+  }
+
+  BasicTrajectoryState(BasicTrajectoryState&& aOther):
+    theFreeState(std::move(aOther.theFreeState)),
+    theLocalError(std::move(aOther.theLocalError)),
+    theLocalParameters(std::move(aOther.theLocalParameters)),
+    theSurfaceSide(std::move(aOther.theSurfaceSide)),
+    theSurfaceP(std::move(aOther.theSurfaceP)),
+    theWeight(aOther.theWeight),
+    theValid(aOther.theValid),
+    theUpdatingFreeStateError(false)
+  {
+  }
+
+  BasicTrajectoryState& operator=(BasicTrajectoryState const& aOther) {
+    theLocalError=aOther.theLocalError;
+    theLocalParameters=aOther.theLocalParameters;
+    theSurfaceSide=aOther.theSurfaceSide;
+    theSurfaceP=aOther.theSurfaceP;
+    theWeight=aOther.theWeight;
+    theValid=aOther.theValid;
+    theUpdatingFreeStateError=false;
+    bool expected = false;
+    while(not aOther.theUpdatingFreeStateError.compare_exchange_strong(expected,true));
+    theFreeState = aOther.theFreeState;
+    aOther.theUpdatingFreeStateError = false;
+
+    return *this;
+  }
+
+  BasicTrajectoryState& operator=(BasicTrajectoryState&& aOther) {
+    theFreeState = std::move(aOther.theFreeState);
+    theLocalError=std::move(aOther.theLocalError);
+    theLocalParameters=std::move(aOther.theLocalParameters);
+    theSurfaceSide=std::move(aOther.theSurfaceSide);
+    theSurfaceP=std::move(aOther.theSurfaceP);
+    theWeight=aOther.theWeight;
+    theValid=aOther.theValid;
+    theUpdatingFreeStateError=false;
+
+    return *this;
+  }
+
+
 
   virtual ~BasicTrajectoryState();
 
@@ -140,12 +198,15 @@ public:
   theFreeState(par, err),
   theLocalError(InvalidError()),
   theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
-  theWeight(1.)
-  {}
+  theWeight(1.),
+  theValid(true),
+  theUpdatingFreeStateError(false)
+  {
+    createLocalParameters();
+    createLocalError();
+  }
 
 
   /** Constructor from global parameters and surface. For surfaces with material
@@ -196,7 +257,7 @@ public:
 	missingError(" accesing cartesian error.");
 	return CartesianTrajectoryError();
       }
-    return freeTrajectoryState(true)->cartesianError();
+    return freeTrajectoryState()->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
     if unlikely(!hasError()) {
@@ -204,14 +265,13 @@ public:
 	static const CurvilinearTrajectoryError crap;
 	return crap;
       }
-    return freeTrajectoryState(true)->curvilinearError();
+    return freeTrajectoryState()->curvilinearError();
   }
 
 
-
-  FreeTrajectoryState const* freeTrajectoryState(bool withErrors=true) const {
+  FreeTrajectoryState const* freeTrajectoryState() const {
     if unlikely(!isValid()) notValid();
-    if(withErrors && hasError()) { // this is the right thing
+    if(hasError()) { // this is the right thing
       checkCurvilinError();
     }
     return &theFreeState;
@@ -223,8 +283,6 @@ public:
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
     if unlikely(!isValid()) notValid();
-    if unlikely(!theLocalParametersValid)
-      createLocalParameters();
     return theLocalParameters;
   }
   LocalPoint localPosition() const {
@@ -242,7 +300,6 @@ public:
 	missingError(" accessing local error.");
 	return theLocalError;
       }
-    if unlikely(theLocalError.invalid()) createLocalError();
     return theLocalError;
   }
 
@@ -262,7 +319,7 @@ public:
   }
 
   bool hasError() const {
-    return theFreeState.hasError() || theLocalError.valid();
+    return theLocalError.valid();
   }
 
 
@@ -310,26 +367,23 @@ private:
   void checkCurvilinError() const; //  dso_internal;
   
   // create local parameters and errors from global
-  void createLocalParameters() const;
+  void createLocalParameters();
   // create local errors from global
-  void createLocalError() const;
-  void createLocalErrorFromCurvilinearError() const  dso_internal;
+  void createLocalError() ;
+  void createLocalErrorFromCurvilinearError()  dso_internal;
   
 private:
 
   mutable FreeTrajectoryState theFreeState;
 
-  mutable LocalTrajectoryError      theLocalError;
-  mutable LocalTrajectoryParameters theLocalParameters;
-
-  mutable bool theLocalParametersValid;
-  mutable bool theValid;
-
- 
+  LocalTrajectoryError      theLocalError;
+  LocalTrajectoryParameters theLocalParameters; 
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<SurfaceType> theSurfaceP;
 
   double theWeight=0.;
+  bool theValid;
+  mutable std::atomic<bool> theUpdatingFreeStateError;
 };
 
 #endif

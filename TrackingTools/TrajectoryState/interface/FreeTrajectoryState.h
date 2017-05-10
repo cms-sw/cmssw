@@ -154,12 +154,12 @@ private:
 
 
 // convert cartesian errors to curvilinear
-  void createCurvilinearError(CartesianTrajectoryError const & aCartesianError) const; // dso_internal;
+  void createCurvilinearError(CartesianTrajectoryError const & aCartesianError); // dso_internal;
 
 private:
 
   GlobalTrajectoryParameters  theGlobalParameters;
-  mutable CurvilinearTrajectoryError  theCurvilinearError;
+  CurvilinearTrajectoryError  theCurvilinearError;
  
 };
 

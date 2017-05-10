@@ -67,11 +67,11 @@ public:
     return data().hasError();
   }
 
-  FreeTrajectoryState const* freeState(bool withErrors = true) const {
+  FreeTrajectoryState const* freeState() const {
     return data().freeTrajectoryState();
   }
 
-  FreeTrajectoryState const* freeTrajectoryState(bool withErrors = true) const {
+  FreeTrajectoryState const* freeTrajectoryState() const {
     return freeState();
   }
 
