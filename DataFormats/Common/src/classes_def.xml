@@ -153,6 +153,14 @@
   <version ClassVersion="10" checksum="3792606006"/>
  </class>
  <class name="edm::Wrapper<edm::MergeableCounter>"/>
+ <class name="edm::MergeableDouble"/>
+ <class name="edm::Wrapper<edm::MergeableDouble>"/>
+ <class name="edm::MergeableHistoD"/>
+ <class name="edm::Wrapper<edm::MergeableHistoD>"/>
+ <class name="edm::MergeableHistoF"/>
+ <class name="edm::Wrapper<edm::MergeableHistoF>"/>
+ <class name="edm::MergeableHistoI"/>
+ <class name="edm::Wrapper<edm::MergeableHistoI>"/>
 
  <class name="edm::ConditionsInEventBlock" ClassVersion="10">
   <version ClassVersion="10" checksum="28865621"/>
