@@ -17,7 +17,8 @@ GenRunInfoProduct::GenRunInfoProduct(GenRunInfoProduct const &other) :
 	internalXSec_(other.internalXSec_),
 	externalXSecLO_(other.externalXSecLO_),
 	externalXSecNLO_(other.externalXSecNLO_),
-	externalFilterEfficiency_(other.externalFilterEfficiency_)
+	externalFilterEfficiency_(other.externalFilterEfficiency_),
+	WeightList_(other.WeightList_)
 {
 }
 

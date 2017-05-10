@@ -21,6 +21,7 @@ class GenRunInfoProduct {
 	const XSec &externalXSecLO() const { return externalXSecLO_; }
 	const XSec &externalXSecNLO() const { return externalXSecNLO_; }
 	double filterEfficiency() const { return externalFilterEfficiency_; }
+	const std::vector<std::string> getWeightList() const { return WeightList_; }
 
 	// setters
 
@@ -28,6 +29,9 @@ class GenRunInfoProduct {
 	void setExternalXSecLO(const XSec &xsec) { externalXSecLO_ = xsec; }
 	void setExternalXSecNLO(const XSec &xsec) { externalXSecNLO_ = xsec; }
 	void setFilterEfficiency(double effic) { externalFilterEfficiency_ = effic; }
+	void setWeightList(const std::vector<std::string> inputWeightList) { 
+		WeightList_=inputWeightList;
+	}
 
 	// struct definitions
 	struct XSec {
@@ -68,6 +72,7 @@ class GenRunInfoProduct {
 	XSec	internalXSec_;	// the one computed during cmsRun
 	XSec	externalXSecLO_, externalXSecNLO_;	// from config file
 	double	externalFilterEfficiency_;		// from config file
+	std::vector<std::string> WeightList_;		// storing the string information corresponding to sys. weights
 };
 
 #endif // SimDataFormats_GeneratorProducts_GenRunInfoProduct_h
