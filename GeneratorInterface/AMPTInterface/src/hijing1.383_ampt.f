@@ -324,6 +324,9 @@ clin-2/2012 allow random orientation of reaction plane:
         common /phiHJ/iphirp,phiRP
         SAVE   
 
+ctuos-Need this line for correct b range-06/2015
+      DOUBLE PRECISION BMIN0,BMAX0
+
         BMAX=MIN(BMAX0,HIPR1(34)+HIPR1(35))
         BMIN=MIN(BMIN0,BMAX)
         IF(IHNT2(1).LE.1 .AND. IHNT2(3).LE.1) THEN
@@ -2061,7 +2064,7 @@ clin-8/2013 test on: set upper limit for gamma_s=P(s)/P(u) to 0.4
 c     (to limit strangeness enhancement when string tension is strongly 
 c     increased due to using a very low value of parameter b in Lund 
 c     symmetric splitting function as done in arXiv:1403.6321):
-c        PARJ(2)=min(PARJ(2),0.4)
+        PARJ(2)=min(PARJ(2),0.4)
 
 C                        ******** set up for jetset
         IF(FRAME.EQ.'LAB') THEN
