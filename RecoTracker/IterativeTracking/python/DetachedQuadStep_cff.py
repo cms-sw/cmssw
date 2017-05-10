@@ -30,8 +30,8 @@ from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import g
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
     ptMin = 0.45,
-    originRadius = 0.7,
-    nSigmaZ = 4.0
+    originRadius = 0.9,
+    nSigmaZ = 5.0
 )))
 
 # seeding
@@ -270,15 +270,15 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
-            chi2n_par = 0.45,
+            chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
-            maxNumberLostLayers = 0,
+            maxNumberLostLayers = 1,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.8, 4.0 ),
-            dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.8, 4.0 ),
-            dz_par2 = ( 0.8, 4.0 )
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
             )
     ] #end of vpset
 ) #end of clone
