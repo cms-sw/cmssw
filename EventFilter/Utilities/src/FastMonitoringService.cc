@@ -235,7 +235,7 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
     if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
-    edm::LogInfo("FastMonitoringService") << " STREAM " << sc.streamID().value() << " earlyTermination -: ID:"<< sc.eventID() 
+    edm::LogWarning("FastMonitoringService") << " STREAM " << sc.streamID().value() << " earlyTermination -: ID:"<< sc.eventID() 
                                           << " LS:" << sc.eventID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exceptionInLS_.push_back(sc.eventID().luminosityBlock());
@@ -248,7 +248,7 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
     if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
-    edm::LogInfo("FastMonitoringService") << " GLOBAL " << "earlyTermination -: LS:"
+    edm::LogWarning("FastMonitoringService") << " GLOBAL " << "earlyTermination -: LS:"
                                           << gc.luminosityBlockID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exceptionInLS_.push_back(gc.luminosityBlockID().luminosityBlock());
@@ -261,7 +261,7 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
     if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
-    edm::LogInfo("FastMonitoringService") << " SOURCE " << "earlyTermination -: " << context;
+    edm::LogWarning("FastMonitoringService") << " SOURCE " << "earlyTermination -: " << context;
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exception_detected_=true; 
   }
@@ -377,34 +377,32 @@ namespace evf{
               throw cms::Exception("FastMonitoringService") << "Internal error: got null pointer from FastMonitor";
 	  processedEventsPerLumi_[lumi] = std::pair<unsigned int,bool>(lumiProcessedJptr->value(),false);
 
-	  {
-	    auto itr = sourceEventsReport_.find(lumi);
-	    if (itr==sourceEventsReport_.end()) {
-              //check if exception has been thrown (in case of Global/Stream early termination, for this LS)
-              bool exception_detected = exception_detected_;
-              for (auto ex : exceptionInLS_)
-                if (lumi == ex) exception_detected=true;
+          //checking if exception has been thrown (in case of Global/Stream early termination, for this LS)
+          bool exception_detected = exception_detected_;
+          for (auto ex : exceptionInLS_)
+            if (lumi == ex) exception_detected=true;
 
-              if (edm::shutdown_flag || exception_detected) {
-                edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
-                                                      << processedEventsPerLumi_[lumi].first << " events were processed in LUMI " << lumi;
-                //this will prevent output modules from producing json file for possibly incomplete lumi
-                processedEventsPerLumi_[lumi].first=0;
-                processedEventsPerLumi_[lumi].second=true;
-                return;
-              }
-              //disable this exception, so service can be used standalone (will be thrown if output module asks for this information)
-              //throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
+          if (edm::shutdown_flag || exception_detected) {
+            edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
+                                                  << processedEventsPerLumi_[lumi].first << " events were processed in LUMI " << lumi;
+            //this will prevent output modules from producing json file for possibly incomplete lumi
+            processedEventsPerLumi_[lumi].first=0;
+            processedEventsPerLumi_[lumi].second=true;
+            //disable this exception, so service can be used standalone (will be thrown if output module asks for this information)
+            //throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
+            return;
+
+          }
+
+	  auto itr = sourceEventsReport_.find(lumi);
+	  if (itr!=sourceEventsReport_.end()) {
+	    if (itr->second!=processedEventsPerLumi_[lumi].first) {
+	      throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
+                                                            << lumi
+                                                            << ", events(processed):" << processedEventsPerLumi_[lumi].first
+                                                            << " events(source):" << itr->second;
 	    }
-	    else {
-	      if (itr->second!=processedEventsPerLumi_[lumi].first) {
-		throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
-                                                              << lumi
-                                                              << ", events(processed):" << processedEventsPerLumi_[lumi].first
-                                                              << " events(source):" << itr->second;
-	      }
-	      sourceEventsReport_.erase(itr);
-	    }
+	    sourceEventsReport_.erase(itr);
 	  }
 	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
 			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
