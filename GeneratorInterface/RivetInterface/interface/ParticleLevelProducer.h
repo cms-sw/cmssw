@@ -2,7 +2,7 @@
 #define GeneratorInterface_RivetInterface_ParticleLevelProducer_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalysis.h"
 
-class ParticleLevelProducer : public edm::stream::EDProducer<>
+class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResources>
 {
 public:
   ParticleLevelProducer(const edm::ParameterSet& pset);
@@ -23,7 +23,9 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
-  void addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets, std::unique_ptr<reco::GenParticleCollection> &consts, auto &constsRefHandle, int &iConstituent, std::unique_ptr<reco::GenParticleCollection> &tags, auto &tagsRefHandle, int &iTag);
+  void addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets,
+                 std::unique_ptr<reco::GenParticleCollection> &consts, edm::RefProd<reco::GenParticleCollection>& constsRefHandle, int &iConstituent,
+                 std::unique_ptr<reco::GenParticleCollection> &tags, edm::RefProd<reco::GenParticleCollection>& tagsRefHandle, int &iTag);
   
   template<typename T> reco::Candidate::LorentzVector p4(const T& p) const
   {
