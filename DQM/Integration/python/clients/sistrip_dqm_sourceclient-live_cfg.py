@@ -250,6 +250,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
     process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
 
+    process.ctfWithMaterialTracksCosmics.TTRHBuilder = 'WithTrackAngle' 
+    process.ctfWithMaterialTracksP5LHCNavigation.TTRHBuilder = 'WithTrackAngle' 
+
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
     process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_cosmic.xml')
