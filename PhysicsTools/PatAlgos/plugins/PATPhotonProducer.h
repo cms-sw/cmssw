@@ -134,6 +134,7 @@ namespace pat {
       const CaloGeometry * ecalGeometry_;
       EcalClusterLocal ecl_;
 
+      bool saveRegressionData_;
 
   };
 
