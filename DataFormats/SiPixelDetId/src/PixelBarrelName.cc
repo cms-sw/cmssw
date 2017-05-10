@@ -566,15 +566,3 @@ PXBDetId PixelBarrelName::getDetId() {
 
   return PXBDetId(layer, ladder, module);
 } 
-
-std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t)
-{
-  switch (t) {
-    case(PixelBarrelName::pI) : {out << "pI"; break;}
-    case(PixelBarrelName::pO) : {out << "pO"; break;}
-    case(PixelBarrelName::mI) : {out << "mI"; break;}
-    case(PixelBarrelName::mO) : {out << "mO"; break;}
-    default: out << "unknown";
-  };
-  return out;
-}

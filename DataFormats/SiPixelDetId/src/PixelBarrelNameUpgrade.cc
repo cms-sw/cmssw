@@ -315,18 +315,3 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
 
 } // PXBDetId PixelBarrelNameUpgrade::getDetId()
 
-
-
-std::ostream & operator<<( std::ostream& out, const PixelBarrelNameUpgrade::Shell& t)
-{
-  switch (t) {
-    case(PixelBarrelNameUpgrade::pI) : {out << "pI"; break;}
-    case(PixelBarrelNameUpgrade::pO) : {out << "pO"; break;}
-    case(PixelBarrelNameUpgrade::mI) : {out << "mI"; break;}
-    case(PixelBarrelNameUpgrade::mO) : {out << "mO"; break;}
-    default: out << "unknown";
-  };
-  return out;
-}
-
-

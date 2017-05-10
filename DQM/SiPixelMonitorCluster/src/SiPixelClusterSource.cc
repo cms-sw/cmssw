@@ -32,10 +32,10 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -60,7 +60,9 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
   smileyOn(conf_.getUntrackedParameter<bool>("smileyOn",false) ),
   bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",100) ), 
-  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) ),
+  noOfLayers(0),
+  noOfDisks(0)
 {
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
 
@@ -106,25 +108,26 @@ void SiPixelClusterSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup&
   }
 }
 
-void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
-  bookMEs(iBooker);
+void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup& iSetup){
+  bookMEs(iBooker, iSetup);
   // Book occupancy maps in global coordinates for all clusters:
   iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   //bpix
-  meClPosLayer1 = iBooker.book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-  meClPosLayer2 = iBooker.book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-  meClPosLayer3 = iBooker.book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-  if (isUpgrade) {
-    meClPosLayer4 = iBooker.book2D("position_siPixelClusters_Layer_4","Clusters Layer4;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+  std::stringstream ss1, ss2;
+  for (int i = 1; i <= noOfLayers; i++)
+  {
+    ss1.str(std::string()); ss1 << "position_siPixelClusters_Layer_" << i;
+    ss2.str(std::string()); ss2 << "Clusters Layer" << i << ";Global Z (cm);Global #phi";
+    meClPosLayer.push_back(iBooker.book2D(ss1.str(),ss2.str(),200,-30.,30.,128,-3.2,3.2));
   }
-  //fpix
-  meClPosDisk1pz = iBooker.book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-  meClPosDisk2pz = iBooker.book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-  meClPosDisk1mz = iBooker.book2D("position_siPixelClusters_mz_Disk_1","Clusters -Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-  meClPosDisk2mz = iBooker.book2D("position_siPixelClusters_mz_Disk_2","Clusters -Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-  if (isUpgrade) {
-    meClPosDisk3pz = iBooker.book2D("position_siPixelClusters_pz_Disk_3","Clusters +Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk3mz = iBooker.book2D("position_siPixelClusters_mz_Disk_3","Clusters -Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+  for (int i = 1; i <= noOfDisks; i++)
+  {
+    ss1.str(std::string()); ss1 << "position_siPixelClusters_pz_Disk_" << i;
+    ss2.str(std::string()); ss2 << "Clusters +Z Disk" << i << ";Global X (cm);Global Y (cm)";
+    meClPosDiskpz.push_back(iBooker.book2D(ss1.str(),ss2.str(),80,-20.,20.,80,-20.,20.));
+    ss1.str(std::string()); ss1 << "position_siPixelClusters_mz_Disk_" << i;
+    ss2.str(std::string()); ss2 << "Clusters -Z Disk" << i << ";Global X (cm);Global Y (cm)";
+    meClPosDiskmz.push_back(iBooker.book2D(ss1.str(),ss2.str(),80,-20.,20.,80,-20.,20.));
   }
 }
 
@@ -135,30 +138,15 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
 {
   eventNo++;
   
-  //if(modOn && !isUpgrade){
-  if(!isUpgrade){
-    if(meClPosLayer1 && meClPosLayer1->getEntries()>150000){
-      meClPosLayer1->Reset();
-      meClPosLayer2->Reset();
-      meClPosLayer3->Reset();
-      meClPosDisk1mz->Reset();
-      meClPosDisk2mz->Reset();
-      meClPosDisk1pz->Reset();
-      meClPosDisk2pz->Reset();
+  if(meClPosLayer.at(0) && meClPosLayer.at(0)->getEntries()>150000){
+    for (int i = 0; i < noOfLayers; i++)
+    {
+      meClPosLayer.at(i)->Reset();
     }
-  //}else if(modOn && isUpgrade){
-  }else if(isUpgrade){
-    if(meClPosLayer1 && meClPosLayer1->getEntries()>150000){
-      meClPosLayer1->Reset(); 
-      meClPosLayer2->Reset(); 
-      meClPosLayer3->Reset(); 
-      meClPosLayer4->Reset(); 
-      meClPosDisk1pz->Reset();
-      meClPosDisk2pz->Reset();
-      meClPosDisk3pz->Reset();
-      meClPosDisk1mz->Reset();
-      meClPosDisk2mz->Reset();
-      meClPosDisk3mz->Reset();
+    for (int i = 0; i < noOfDisks; i++)
+    {
+      meClPosDiskpz.at(i)->Reset();
+      meClPosDiskmz.at(i)->Reset();
     }
   }
   
@@ -178,9 +166,9 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  
-							   meClPosLayer1,meClPosLayer2,meClPosLayer3,meClPosLayer4,
-							   meClPosDisk1pz, meClPosDisk2pz, meClPosDisk3pz,
-							   meClPosDisk1mz, meClPosDisk2mz, meClPosDisk3mz,
+							   meClPosLayer,
+							   meClPosDiskpz,
+							   meClPosDiskmz,
 							   modOn, ladOn, layOn, phiOn, 
                                                            bladeOn, diskOn, ringOn, 
 							   twoDimOn, reducedSet, smileyOn, isUpgrade);
@@ -209,6 +197,10 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
@@ -231,14 +223,24 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
         if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
           if(isPIB) continue;
 	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+          int layer = PixelBarrelNameWrapper(conf_, DetId(id)).layerName();
+          if (layer > noOfLayers) noOfLayers = layer;
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
-        }else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade) ) {
+        }else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))/*&& (!isUpgrade)*/ ) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-          PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-          int disk   = PixelEndcapName(DetId(id)).diskName();
-          int blade  = PixelEndcapName(DetId(id)).bladeName();
-          int panel  = PixelEndcapName(DetId(id)).pannelName();
-          int module = PixelEndcapName(DetId(id)).plaquetteName();
+          PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id),pTT,isUpgrade).halfCylinder();
+          //PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+          int disk   = PixelEndcapName(DetId(id),pTT,isUpgrade).diskName();
+          if (disk > noOfDisks) noOfDisks = disk;
+          int blade  = PixelEndcapName(DetId(id),pTT,isUpgrade).bladeName();
+          int panel  = PixelEndcapName(DetId(id),pTT,isUpgrade).pannelName();
+          int module = PixelEndcapName(DetId(id),pTT,isUpgrade).plaquetteName();
+          /*PixelEndcapNameWrapper::HalfCylinder side = PixelEndcapNameWrapper(cfg_, DetId(id)).halfCylinder();
+          int disk   = PixelEndcapNameWrapper(cfg_, DetId(id)).diskName();
+          if (disk > noOfDisks) noOfDisks = disk;
+          int blade  = PixelEndcapNameWrapper(cfg_, DetId(id)).bladeName();
+          int panel  = PixelEndcapNameWrapper(cfg_, DetId(id)).pannelName();
+          int module = PixelEndcapNameWrapper(cfg_, DetId(id)).plaquetteName();*/
           char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
           char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
           char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
@@ -254,13 +256,20 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  mask = false;
 	  if(isPIB && mask) continue;
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
-        } else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade) ) {
+        }/* else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade) ) {
           LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
           PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
           int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+          if (disk > noOfDisks) noOfDisks = disk;
           int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
           int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
           int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+          //PixelEndcapNameWrapper::HalfCylinder side = PixelEndcapNameWrapper(cfg_, DetId(id)).halfCylinder();
+          //int disk   = PixelEndcapNameWrapper(cfg_, DetId(id)).diskName();
+          //if (disk > noOfDisks) noOfDisks = disk;
+          //int blade  = PixelEndcapNameWrapper(cfg_, DetId(id)).bladeName();
+          //int panel  = PixelEndcapNameWrapper(cfg_, DetId(id)).pannelName();
+          //int module = PixelEndcapNameWrapper(cfg_, DetId(id)).plaquetteName();
           char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
           char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
           char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
@@ -277,6 +286,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  if(isPIB && mask) continue;
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }//endif(Upgrade)
+	 */
       }
     }
   }
@@ -285,7 +295,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
+void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventSetup& iSetup){
   
   // Get DQM interface
   iBooker.setCurrentFolder("Pixel");
@@ -302,7 +312,7 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)){
-        (*struct_iter).second->book( conf_,iBooker,0,twoDimOn,reducedSet,isUpgrade);
+        (*struct_iter).second->book( conf_,iSetup,iBooker,0,twoDimOn,reducedSet,isUpgrade);
       } else {
         
         if(!isPIB) throw cms::Exception("LogicError")
@@ -311,49 +321,49 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,1,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,1,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,2,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,2,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,2,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,3,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,3,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,3,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,4,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,4,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,5,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,5,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,5,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,6,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,6,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,6,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     if(smileyOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,7,isUpgrade)){
-        (*struct_iter).second->book( conf_,iBooker,7,twoDimOn,reducedSet,isUpgrade);
+        (*struct_iter).second->book( conf_,iSetup,iBooker,7,twoDimOn,reducedSet,isUpgrade);
         } else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
       }
