@@ -1020,7 +1020,15 @@ class ConfigBuilder(object):
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
-            self.RECODefaultSeq='reconstructionHeavyIons'
+	    if self._options.fast:
+		    print "###########"
+		    print "WARNING"
+		    print "You are using fastsim in the scenario 'HeavyIons'."
+		    print "Fastsim has no heavy ion reconstruction sequence."
+		    print "Therefore the default reconstruction sequence is used instead."
+		    print "###########"
+	    else:
+		    self.RECODefaultSeq='reconstructionHeavyIons'
             self.ALCADefaultCFF = "Configuration/StandardSequences/AlCaRecoStreamsHeavyIons_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineHeavyIons_cff"
             self.DQMDefaultSeq='DQMOfflineHeavyIons'
