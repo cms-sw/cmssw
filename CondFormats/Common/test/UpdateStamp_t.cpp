@@ -1,17 +1,13 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-//#include "boost/intrusive_ptr.hpp"
-
-#define private public
 #include "CondFormats/Common/interface/UpdateStamp.h"
-#undef private
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 namespace {
 
-   class Test: public CppUnit::TestFixture
+   class TestUpdateStamp: public CppUnit::TestFixture
    {
-	 CPPUNIT_TEST_SUITE(Test);
+	 CPPUNIT_TEST_SUITE(TestUpdateStamp);
 	 CPPUNIT_TEST(construct);
 	 CPPUNIT_TEST(stamp);
 	 CPPUNIT_TEST_SUITE_END();
@@ -23,14 +19,14 @@ namespace {
 
    };
 
-  void Test::construct() {
+  void TestUpdateStamp::construct() {
     cond::UpdateStamp object;
     CPPUNIT_ASSERT(-1==object.m_revision);
     CPPUNIT_ASSERT(0==object.m_timestamp);
     CPPUNIT_ASSERT("not stamped"==object.m_comment);
   }
 
-  void Test::stamp() {
+  void TestUpdateStamp::stamp() {
     cond::UpdateStamp object;
     cond::Time_t otime = cond::time::now();
     {
@@ -60,8 +56,5 @@ namespace {
 
 }
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test);
+CPPUNIT_TEST_SUITE_REGISTRATION(TestUpdateStamp);
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-
-
-
