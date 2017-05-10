@@ -18,6 +18,9 @@ namespace SimDataFormats_TrackingAnalysis {
     TrackingParticleRefVector rv1;
     TrackingParticleRefProd rp1;
 
+    edm::Ptr< TrackingParticle >                  TP;
+    std::vector< edm::Ptr< TrackingParticle > > V_TP;
+
     TrackingVertex dummy0;
     TrackingVertexContainer dummy1;
     TrackingVertexCollection c2;
