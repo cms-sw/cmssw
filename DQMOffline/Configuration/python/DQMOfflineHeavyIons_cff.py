@@ -8,7 +8,7 @@ from DQMOffline.Ecal.ecal_dqm_source_offline_HI_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_HeavyIons_cff import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_HeavyIons_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
-from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
+from DQM.DTMonitorModule.dtDQMOfflineSources_HI_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
