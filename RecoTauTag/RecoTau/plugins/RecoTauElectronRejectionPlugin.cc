@@ -83,9 +83,9 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
 
-  PFCandidateRef myleadPFChargedCand = tau.leadPFChargedHadrCand();
+  PFCandidatePtr myleadPFChargedCand = tau.leadPFChargedHadrCand();
   // Build list of PFCands in tau
-  PFCandidateRefVector myPFCands;
+  std::vector<PFCandidatePtr> myPFCands;
   myPFCands.reserve(tau.isolationPFCands().size()+tau.signalPFCands().size());
 
   std::copy(tau.isolationPFCands().begin(), tau.isolationPFCands().end(),

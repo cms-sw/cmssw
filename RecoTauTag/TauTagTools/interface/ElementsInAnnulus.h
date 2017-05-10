@@ -1,7 +1,7 @@
 #ifndef ElementsInAnnulus_h
 #define ElementsInAnnulus_h
 
-#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Math/interface/angle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -11,9 +11,9 @@ template <typename T, typename M, typename N, typename C>
    public:
     ElementsInAnnulus() {}
     ~ElementsInAnnulus() {}  
-    const edm::RefVector<C> operator()(const T& coneAxis,const M& innerconeMetric,double innerconeSize,const N& outerconeMetric,double outerconeSize,const edm::RefVector<C>& elements)const{
-      edm::RefVector<C> elementsInBand;
-      for(typename edm::RefVector<C>::const_iterator element=elements.begin();element!=elements.end();++element) {
+    const std::vector<edm::Ptr<C> > operator()(const T& coneAxis,const M& innerconeMetric,double innerconeSize,const N& outerconeMetric,double outerconeSize,const std::vector<edm::Ptr<C> >& elements)const{
+      std::vector<edm::Ptr<C> > elementsInBand;
+      for(typename std::vector<edm::Ptr<C> >::const_iterator element=elements.begin();element!=elements.end();++element) {
 	double innerconeMetric_distance=innerconeMetric(coneAxis,(*element)->momentum());
 	double outerconeMetric_distance=outerconeMetric(coneAxis,(*element)->momentum());
 	if (innerconeMetric_distance>innerconeSize && outerconeMetric_distance<=outerconeSize)elementsInBand.push_back(*element);

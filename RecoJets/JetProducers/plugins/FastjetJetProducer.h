@@ -39,6 +39,7 @@ protected:
 
   // jet trimming parameters
   bool useMassDropTagger_;    /// Mass-drop tagging for boosted Higgs
+  bool useCMSBoostedTauSeedingAlgorithm_; /// algorithm for seeding reconstruction of boosted Taus (similar to mass-drop tagging)
   bool useFiltering_;         /// Jet filtering technique
   bool useTrimming_;          /// Jet trimming technique
   bool usePruning_;           /// Jet pruning technique
@@ -49,7 +50,14 @@ protected:
   double trimPtFracMin_;      /// for trimming: constituent minimum pt fraction of full jet
   double zCut_;               /// for pruning: constituent minimum pt fraction of parent cluster
   double RcutFactor_;         /// for pruning: constituent dR * pt/2m < rcut_factor
-
+  double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
+  double muMin_;              /// for CMSBoostedTauSeedingAlgorithm : min mass-drop
+  double muMax_;              /// for CMSBoostedTauSeedingAlgorithm : max mass-drop
+  double yMin_;               /// for CMSBoostedTauSeedingAlgorithm : min asymmetry
+  double yMax_;               /// for CMSBoostedTauSeedingAlgorithm : max asymmetry
+  double dRMin_;              /// for CMSBoostedTauSeedingAlgorithm : min dR
+  double dRMax_;              /// for CMSBoostedTauSeedingAlgorithm : max dR
+  int    maxDepth_;           /// for CMSBoostedTauSeedingAlgorithm : max depth for descending into clustering sequence
     
 };
 

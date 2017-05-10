@@ -1,7 +1,0 @@
-<use   name="DataFormats/TauReco"/>
-<use   name="RecoTauTag/TauTagTools"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="TCTauAnalysis.cpp" name="TCTauAnalysis">
-  <use   name="FWCore/Framework"/>
-  <use   name="JetMETCorrections/TauJet"/>
-</library>

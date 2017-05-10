@@ -4,8 +4,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
-#include "DataFormats/TauReco/interface/PFTauTagInfo.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

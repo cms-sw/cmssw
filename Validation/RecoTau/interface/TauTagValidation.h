@@ -85,7 +85,7 @@ private:
   /// label of the current module
   std::string moduleLabel_;
   ///sum the transversal momentum of all candidates
-  double getSumPt(const reco::PFCandidateRefVector & 	candidates);
+  double getSumPt(const std::vector<edm::Ptr<reco::PFCandidate> > & candidates);
   ///get rid of redundant parts to shorten the label
   bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel);
 

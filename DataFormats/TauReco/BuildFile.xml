@@ -5,7 +5,9 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="RecoVertex/VertexTools"/>
 <use   name="rootrflx"/>
+<use   name="rootcore"/>
 <export>
   <lib   name="1"/>
 </export>
