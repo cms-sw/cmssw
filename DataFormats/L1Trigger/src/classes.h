@@ -22,6 +22,12 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
 
 namespace DataFormats_L1Trigger {
   struct dictionary {
@@ -77,5 +83,8 @@ namespace DataFormats_L1Trigger {
      L1TriggerErrorCollection l1tErrColl;
      edm::Wrapper<L1TriggerErrorCollection> w_l1terr;
 
+
+
+    
   };
 }
