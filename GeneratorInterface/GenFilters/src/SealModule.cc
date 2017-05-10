@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterMultiMother.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaDauFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
@@ -48,6 +49,7 @@
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
+  DEFINE_FWK_MODULE(PythiaFilterMultiMother);
   DEFINE_FWK_MODULE(PythiaDauFilter);
   DEFINE_FWK_MODULE(PythiaFilterGammaJet);
   DEFINE_FWK_MODULE(PythiaFilterGammaGamma);
