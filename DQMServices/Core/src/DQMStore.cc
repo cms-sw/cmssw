@@ -3151,14 +3151,20 @@ void
 DQMStore::removeElement(const std::string &dir, const std::string &name, bool warning /* = true */)
 {
   MonitorElement proto(&dir, name);
-  MEMap::iterator pos = data_.find(proto);
-  if (pos == data_.end() && warning)
+  std::set<MonitorElement>::const_iterator e = data_.end();
+  std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
+  if (i == e && warning)
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
-  else
-    data_.erase(pos);
+  else {
+    while (i != e) {
+      data_.erase(i);
+      ++i;
+      if(i->getName() != name || i->getPathname() != dir)
+	break;
+    }
+  }
 }
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
