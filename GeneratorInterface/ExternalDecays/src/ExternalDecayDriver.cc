@@ -50,6 +50,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset ) :
       fPhotosInterface->configureOnlyFor(15); 
       fPhotosInterface->avoidTauLeptonicDecays();
     }
+    if( curSet =="Tauolapp114"){
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
+      fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+      fPhotosInterface->configureOnlyFor(15);
+      fPhotosInterface->avoidTauLeptonicDecays();
+    }
     if ( curSet == "Photos" || curSet == "Photos2155"){
       if ( !fPhotosInterface ){
 	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
