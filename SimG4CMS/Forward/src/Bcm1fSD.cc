@@ -23,6 +23,7 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 #include "G4VProcess.hh"
+#include "G4SystemOfUnits.hh"
 
 #include <string>
 #include <vector>
