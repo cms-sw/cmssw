@@ -33,7 +33,13 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPaths'] = []
+Configuration[ruleName]['exceptPaths'] = [
+                                           'DataFormats/BTauReco/interface/IPTagInfo.h:173:using namespace',
+                                           'DataFormats/BTauReco/interface/IPTagInfo.h:240:using namespace',
+                                           'DataFormats/BTauReco/interface/IPTagInfo.h:251:using namespace',
+                                           'RecoVertex/AdaptiveVertexFinder/plugins/TemplatedVertexArbitrator.h:85:using namespace',
+                                           'RecoVertex/AdaptiveVertexFinder/plugins/InclusiveVertexFinder.h:105:using namespace'
+                                         ]
 Configuration[ruleName]['skip']  = [comment, function]
 Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
