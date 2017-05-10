@@ -26,6 +26,12 @@ def customise(process):
 
     process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 
+    # use OscarProducer
+    for label, prod in process.producers_().iteritems():
+        if prod.type_() == "OscarMTProducer":
+            # replace
+            prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
+
     # modify the content
 
     #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
@@ -52,8 +58,6 @@ def customise(process):
     process.ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
     process.ecalRecHit.recoverEBFE = cms.bool(False)
     process.ecalRecHit.recoverEEFE = cms.bool(False)
-
-#    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
             # ecal
