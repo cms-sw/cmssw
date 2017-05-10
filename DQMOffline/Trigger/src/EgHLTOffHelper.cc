@@ -33,23 +33,23 @@ OffHelper::~OffHelper()
   if(hltPhoTrkIsolAlgo_) delete hltPhoTrkIsolAlgo_;
 }
 
-void OffHelper::setup(const edm::ParameterSet& conf)
+void OffHelper::setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC)
 {
 
-  ecalRecHitsEBTag_ = conf.getParameter<edm::InputTag>("BarrelRecHitCollection");
-  ecalRecHitsEETag_ = conf.getParameter<edm::InputTag>("EndcapRecHitCollection");
-  caloJetsTag_ = conf.getParameter<edm::InputTag>("CaloJetCollection");
-  isolTrkTag_ = conf.getParameter<edm::InputTag>("IsolTrackCollection");
-  hbheHitsTag_ = conf.getParameter<edm::InputTag>("HBHERecHitCollection");
-  hfHitsTag_ = conf.getParameter<edm::InputTag>("HFRecHitCollection");
-  electronsTag_ = conf.getParameter<edm::InputTag>("ElectronCollection");
-  photonsTag_ = conf.getParameter<edm::InputTag>("PhotonCollection");
-  triggerSummaryLabel_ = conf.getParameter<edm::InputTag>("triggerSummaryLabel");
+  ecalRecHitsEBToken = iC.consumes <EcalRecHitCollection > (conf.getParameter<edm::InputTag>("BarrelRecHitCollection"));
+  ecalRecHitsEEToken = iC.consumes <EcalRecHitCollection > (conf.getParameter<edm::InputTag>("EndcapRecHitCollection"));
+  caloJetsToken = iC.consumes <reco::CaloJetCollection > (conf.getParameter<edm::InputTag>("CaloJetCollection"));
+  isolTrkToken = iC.consumes <reco::TrackCollection > (conf.getParameter<edm::InputTag>("IsolTrackCollection"));
+  hbheHitsToken = iC.consumes <HBHERecHitCollection > (conf.getParameter<edm::InputTag>("HBHERecHitCollection"));
+  hfHitsToken = iC.consumes <HFRecHitCollection > (conf.getParameter<edm::InputTag>("HFRecHitCollection"));
+  electronsToken = iC.consumes <reco::GsfElectronCollection > (conf.getParameter<edm::InputTag>("ElectronCollection"));
+  photonsToken = iC.consumes <reco::PhotonCollection > (conf.getParameter<edm::InputTag>("PhotonCollection"));
+  triggerSummaryToken = iC.consumes <trigger::TriggerEvent> (conf.getParameter<edm::InputTag>("triggerSummaryLabel"));
   hltTag_ = conf.getParameter<std::string>("hltTag");
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpotProducer");
-  caloTowersTag_ = conf.getParameter<edm::InputTag>("CaloTowers");
-  trigResultsTag_ = conf.getParameter<edm::InputTag>("TrigResults");
-  vertexTag_ = conf.getParameter<edm::InputTag>("VertexCollection");
+  beamSpotToken = iC.consumes <reco::BeamSpot > (conf.getParameter<edm::InputTag>("BeamSpotProducer"));
+  caloTowersToken = iC.consumes <CaloTowerCollection > (conf.getParameter<edm::InputTag>("CaloTowers"));
+  trigResultsToken = iC.consumes <edm::TriggerResults > (conf.getParameter<edm::InputTag>("TrigResults"));
+  vertexToken = iC.consumes <reco::VertexCollection > (conf.getParameter<edm::InputTag>("VertexCollection"));
 
   eleCuts_.setup(conf.getParameter<edm::ParameterSet>("eleCuts"));
   eleLooseCuts_.setup(conf.getParameter<edm::ParameterSet>("eleLooseCuts"));
@@ -178,21 +178,21 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
   }
 
   //get objects
-  if(!getHandle(event,triggerSummaryLabel_,trigEvt_)) return errCodes::TrigEvent; //must have this, otherwise skip event
-  if(!getHandle(event,trigResultsTag_,trigResults_)) return errCodes::TrigEvent; //re using bit to minimise bug fix code changes
-  if(!getHandle(event,electronsTag_,recoEles_)) return errCodes::OffEle; //need for electrons
-  if(!getHandle(event,photonsTag_, recoPhos_)) return errCodes::OffPho; //need for photons
-  if(!getHandle(event,caloJetsTag_,recoJets_)) return errCodes::OffJet; //need for electrons and photons
-  if(!getHandle(event,vertexTag_,recoVertices_)) return errCodes::OffVertex; //need for eff vs nVertex
+  if(!getHandle(event,triggerSummaryToken,trigEvt_)) return errCodes::TrigEvent; //must have this, otherwise skip event
+  if(!getHandle(event,trigResultsToken,trigResults_)) return errCodes::TrigEvent; //re using bit to minimise bug fix code changes
+  if(!getHandle(event,electronsToken,recoEles_)) return errCodes::OffEle; //need for electrons
+  if(!getHandle(event,photonsToken, recoPhos_)) return errCodes::OffPho; //need for photons
+  if(!getHandle(event,caloJetsToken,recoJets_)) return errCodes::OffJet; //need for electrons and photons
+  if(!getHandle(event,vertexToken,recoVertices_)) return errCodes::OffVertex; //need for eff vs nVertex
 
   //need for HLT isolations (rec hits also need for sigmaIPhiIPhi (ele/pho) and r9 pho)
-  if(!getHandle(event,ecalRecHitsEBTag_,ebRecHits_)) return errCodes::EBRecHits;
-  if(!getHandle(event,ecalRecHitsEETag_,eeRecHits_)) return errCodes::EERecHits;
-  if(!getHandle(event,isolTrkTag_,isolTrks_)) return errCodes::IsolTrks;
-  if(!getHandle(event,hbheHitsTag_, hbheHits_)) return errCodes::HBHERecHits; //I dont think we need hbhe rec-hits any more
-  if(!getHandle(event,hfHitsTag_, hfHits_)) return errCodes::HFRecHits;//I dont think we need hf rec-hits any more
-  if(!getHandle(event,beamSpotTag_,beamSpot_)) return errCodes::BeamSpot;
-  if(!getHandle(event,caloTowersTag_,caloTowers_)) return errCodes::CaloTowers;
+  if(!getHandle(event,ecalRecHitsEBToken,ebRecHits_)) return errCodes::EBRecHits;
+  if(!getHandle(event,ecalRecHitsEEToken,eeRecHits_)) return errCodes::EERecHits;
+  if(!getHandle(event,isolTrkToken,isolTrks_)) return errCodes::IsolTrks;
+  if(!getHandle(event,hbheHitsToken, hbheHits_)) return errCodes::HBHERecHits; //I dont think we need hbhe rec-hits any more
+  if(!getHandle(event,hfHitsToken, hfHits_)) return errCodes::HFRecHits;//I dont think we need hf rec-hits any more
+  if(!getHandle(event,beamSpotToken,beamSpot_)) return errCodes::BeamSpot;
+  if(!getHandle(event,caloTowersToken,caloTowers_)) return errCodes::CaloTowers;
 
   
   return 0;

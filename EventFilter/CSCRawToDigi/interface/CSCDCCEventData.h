@@ -43,7 +43,7 @@ public:
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 
-  static bool debug;
+  static std::atomic<bool> debug;
 
 
 protected:
