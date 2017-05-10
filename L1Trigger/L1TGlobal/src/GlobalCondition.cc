@@ -7,7 +7,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Vladimir Rekovic,   Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$
@@ -92,6 +92,11 @@ const int GlobalCondition::nrObjects() const
         case l1t::Type2wsc:
         case l1t::Type2cor: {
                 return 2;
+            }
+
+            break;
+        case l1t::Type2corWithOverlapRemoval: {
+                return 3;
             }
 
             break;
@@ -186,6 +191,11 @@ void GlobalCondition::print(std::ostream& myCout) const
             }
 
             break;	    
+        case l1t::CondCorrelationWithOverlapRemoval: {
+                myCout << "  Condition category: " << "CondCorrelationWithOverlapRemoval"  << std::endl;
+            }
+
+            break;	    
         case l1t::CondExternal: {
                 myCout << "  Condition category: " << "CondExternal"  << std::endl;
             }
@@ -216,6 +226,11 @@ void GlobalCondition::print(std::ostream& myCout) const
             break;
         case l1t::Type2s: {
                 myCout << "  Condition type:     " << "l1t::Type2s"  << std::endl;
+            }
+
+            break;
+        case l1t::Type2corWithOverlapRemoval: {
+                myCout << "  Condition type:     " << "l1t::Type2corWithOverlapRemoval"  << std::endl;
             }
 
             break;

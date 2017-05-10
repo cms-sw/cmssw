@@ -134,7 +134,7 @@ L1UpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<l1t::EGammaBxCollection> eg;
   edm::Handle<l1t::JetBxCollection> jet;
   edm::Handle<l1t::EtSumBxCollection> sums;
-  edm::Handle<l1t::MuonBxCollection> muon; ;
+  edm::Handle<l1t::MuonBxCollection> muon; 
 
   iEvent.getByToken(egToken_,   eg);
   iEvent.getByToken(jetToken_,  jet);
