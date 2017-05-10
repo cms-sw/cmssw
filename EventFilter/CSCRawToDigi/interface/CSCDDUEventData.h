@@ -60,7 +60,7 @@ public:
   boost::dynamic_bitset<> pack();
 
   
-  static bool debug;
+  static std::atomic<bool> debug;
   static unsigned int errMask;
 
   /// a good test routine would be to unpack data, then pack it again.
