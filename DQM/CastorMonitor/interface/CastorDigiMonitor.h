@@ -29,6 +29,7 @@ private:
   int ievt_;
 
   MonitorElement* h2digierr;
+  MonitorElement* h2reportMap;
   MonitorElement* h2QtsvsCh;
   MonitorElement *h2QmeantsvsCh;
   MonitorElement *h2QmeanMap;
