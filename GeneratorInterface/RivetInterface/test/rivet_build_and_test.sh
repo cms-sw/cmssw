@@ -2,11 +2,15 @@
 
 #This script is expected to be executed in the CMSSW_X/src/GeneratorInterface/RivetInterface/test directory
 
-curl -s https://raw2.github.com/cms-sw/genproductions/master/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py -o ../../../Configuration/GenProduction/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py --create-dirs
-
-curl -s https://raw2.github.com/cms-sw/genproductions/master/python/rivet_customize.py -o ../../../Configuration/GenProduction/python/rivet_customize.py
-
 cd ../../../
+curl -s https://raw2.github.com/cms-sw/genproductions/master/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py -o Configuration/GenProduction/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py --create-dirs
+
+curl -s https://raw2.github.com/cms-sw/genproductions/master/python/rivet_customize.py -o Configuration/GenProduction/python/rivet_customize.py
+
+rm -f Configuration/GenProduction/python/rivet_customize.py
+rm -f Configuration/GenProduction/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py
+wget -P Configuration/GenProduction/python/ https://raw.githubusercontent.com/cms-sw/genproductions/master/python/rivet_customize.py 
+wget -P Configuration/GenProduction/python/SevenTeV/ https://raw.github.com/cms-sw/genproductions/master/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py
 
 scram b
 
