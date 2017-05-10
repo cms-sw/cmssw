@@ -3,6 +3,7 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="Geometry/CSCGeometry"/>
+  <use   name="Geometry/GEMGeometry"/>
   <use   name="Geometry/DTGeometry"/>
   <use   name="Geometry/RPCGeometry"/>
   <use   name="Geometry/Records"/>

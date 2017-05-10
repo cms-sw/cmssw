@@ -2,6 +2,7 @@
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
  *  \author C. Liu, R. Bellan, N. Amapane
+ *   \modified by C. Calabria to include GEMs
  *
  */
 
@@ -24,23 +25,28 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
+ 						   edm::InputTag gemlabel,
 						   edm::ConsumesCollector& iC,
-						   bool enableDT, bool enableCSC, bool enableRPC): 
+						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM): 
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
   enableRPCMeasurement(enableRPC),
+  enableGEMMeasurement(enableGEM),
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
+  theGEMRecHits(),
   theDTEventCacheID(0),
   theCSCEventCacheID(0),
   theRPCEventCacheID(0),
+  theGEMEventCacheID(0),
   theEvent(0)
 {
 
   dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
   cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
   rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
+  gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
 
 
   static int procInstance(0);
@@ -53,6 +59,9 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   std::ostringstream sCSC;
   sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
   //theCSCCheckName = sCSC.str();
+  std::ostringstream sGEM;
+  sGEM<<"MuonDetLayerMeasurements::checkGEMRecHits::" << procInstance;
+  //theGEMCheckName = sGEM.str();
   procInstance++;
 }
 
@@ -121,6 +130,25 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
     }
   }
+   else if (geoId.subdetId()  == MuonSubdetId::GEM) {
+    if(enableGEMMeasurement)
+    {
+      checkGEMRecHits(); 
+
+      // Create the chamber Id
+      GEMDetId chamberId(geoId.rawId());
+
+      // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
+
+      // Get the GEM-Segment which relies on this chamber
+      GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
+
+       // Create the MuonTransientTrackingRecHit
+       for (GEMRecHitCollection::const_iterator rechit = range.first; 
+           rechit!=range.second; ++rechit)
+         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+    }
+  }
   else {
     // wrong type
     throw cms::Exception("MuonDetLayerMeasurements") << "The DetLayer with det " << geoId.det() << " subdet " << geoId.subdetId() << " is not a valid Muon DetLayer. ";
@@ -175,6 +203,22 @@ void MuonDetLayerMeasurements::checkRPCRecHits()
   if(!theRPCRecHits.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get RPC RecHits";
+  }
+}
+
+void MuonDetLayerMeasurements::checkGEMRecHits()
+{
+  checkEvent();
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theGEMEventCacheID) return;
+
+  {
+    theEvent->getByToken(gemToken_, theGEMRecHits);
+    theGEMEventCacheID = cacheID;
+  }
+  if(!theGEMRecHits.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM RecHits";
   }
 }
 

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 GlobalMuonRefitter = cms.PSet(
     DTRecSegmentLabel = cms.InputTag("dt1DRecHits"),
     CSCRecSegmentLabel = cms.InputTag("csc2DRecHits"),
+    GEMRecHitLabel = cms.InputTag("gemRecHits"),
     RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
 
     MuonHitsOption = cms.int32(1),
@@ -11,6 +12,7 @@ GlobalMuonRefitter = cms.PSet(
     Chi2CutCSC = cms.double(1.0),
     Chi2CutDT = cms.double(30.0),
     Chi2CutRPC = cms.double(1.0),
+    Chi2CutGEM = cms.double(1.0),
     HitThreshold = cms.int32(1),
 
     Fitter = cms.string('KFFitterForRefitInsideOut'),
