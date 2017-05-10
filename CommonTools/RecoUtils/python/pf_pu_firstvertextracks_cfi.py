@@ -11,9 +11,10 @@ FirstVertexTracks = cms.EDProducer('PF_PU_FirstVertexTracks',
 	 
 	  #The input parameter for the track & vertex collection
 	  TrackCollection = cms.InputTag('generalTracks'),	   
-	  VertexCollection = cms.InputTag('offlinePrimaryVertices<'),
+	  VertexCollection = cms.InputTag('offlinePrimaryVertices'),
 	   
 	  #The minimum quality an association should have 
 	  #so that the track is inserted into the track collection
-	  MinQuality = cms.int32(2),
+	  MinQuality = cms.int32(3),
+	  
 )

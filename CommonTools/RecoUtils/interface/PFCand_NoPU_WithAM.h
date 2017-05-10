@@ -32,6 +32,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -61,6 +63,8 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
 
       // ----------member data ---------------------------
 
+      edm::InputTag input_SourceColl_;
+
       edm::InputTag input_AssociationType_;
 
       edm::InputTag input_VertexPFCandAssociationMap_;
@@ -68,6 +72,8 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
       edm::InputTag input_VertexCollection_;
 
       int input_MinQuality_;
+      int negativeQuality_;
+
 };
 
 

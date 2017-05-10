@@ -33,6 +33,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
    
 using namespace edm;
 using namespace std;
@@ -45,31 +47,42 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig)
 {
    //now do what ever other initialization is needed
 
-  	input_AssociationType_ = iConfig.getParameter<InputTag>("AssociationType");
+   input_AssociationType_ = iConfig.getParameter<InputTag>("AssociationType");
 
-  	input_VertexPFCandAssociationMap_ = iConfig.getParameter<InputTag>("VertexPFCandAssociationMap");
+   input_VertexPFCandAssociationMap_ = iConfig.getParameter<InputTag>("VertexPFCandAssociationMap");
 
-  	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
+   input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
 
-  	input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
+   input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
+
+   if ( input_MinQuality_ >= 3) {
+     negativeQuality_ = -1;
+   } else {
+     if ( input_MinQuality_ >= 1) {
+       negativeQuality_ = -2;
+     } else{
+       negativeQuality_ = -3;
+     }
+   }
+
 
    //register your products
 
-	if ( input_AssociationType_.label() == "PFCandsToVertex" ) {
-  	  produces<PFCandidateCollection>("P2V");
-	} else {
-	  if ( input_AssociationType_.label() == "VertexToPFCands" ) {
-  	    produces<PFCandidateCollection>("V2P");
-	  } else {
-	    if ( input_AssociationType_.label() == "Both" ) {
-  	      produces<PFCandidateCollection>("P2V");
-  	      produces<PFCandidateCollection>("V2P");
-	    } else {
-	      cout << "No correct InputTag for AssociationType!" << endl;
-	      cout << "Won't produce any PFCandiateCollection!" << endl;
-	    }
-	  }
-	}
+   if ( input_AssociationType_.label() == "PFCandsToVertex" ) {
+     produces<PFCandidateCollection>("P2V");
+   } else {
+     if ( input_AssociationType_.label() == "VertexToPFCands" ) {
+       produces<PFCandidateCollection>("V2P");
+     } else {
+       if ( input_AssociationType_.label() == "Both" ) {
+         produces<PFCandidateCollection>("P2V");
+  	 produces<PFCandidateCollection>("V2P");
+       } else {
+         edm::LogWarning("FirstVertexParticles") << "No correct InputTag for AssociationType!" << std::endl
+         << "Won't produce any PFCandidateCollection!" << std::endl;
+       }
+     }
+   }
   
 }
 
@@ -91,97 +104,91 @@ void
 PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	auto_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection() );
-	auto_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection() );
+  auto_ptr<PFCandidateCollection> p2v_firstvertex(new PFCandidateCollection() );
+  auto_ptr<PFCandidateCollection> v2p_firstvertex(new PFCandidateCollection() );
 
-	bool p2vassmap = false;
-	bool v2passmap = false;
+  bool p2vassmap = false;
+  bool v2passmap = false;
   
-	//get the input vertex<->pf-candidate association map
-  	Handle<PFCandToVertexAssMap> p2vAM;
-  	Handle<VertexToPFCandAssMap> v2pAM;
+  //get the input vertex<->pf-candidate association map
+  Handle<PFCandToVertexAssMap> p2vAM;
+  Handle<VertexToPFCandAssMap> v2pAM;
 	
-	string asstype = input_AssociationType_.label();
+  string asstype = input_AssociationType_.label();
 
-	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, p2vAM ) ) {
-	    p2vassmap = true;
-	  }
-	}
+  if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
+    if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, p2vAM ) ) {
+      p2vassmap = true;
+    }
+  }
 
-	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, v2pAM ) ) {
-	    v2passmap = true;
-	  }
-	}
+  if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
+    if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, v2pAM ) ) {
+      v2passmap = true;
+    }
+  }
 
-	if ( !p2vassmap && !v2passmap ) {
-	  cout << "No input collection could be found" << endl;
-	  return;
-	}
+  if ( !p2vassmap && !v2passmap ) {
+    edm::LogWarning("FirstVertexParticles") << "PFCand_NoPU_WithAM:: No input collection could be found" << endl;
+    return;
+  }
 
-	int negativeQuality = 0;
-	if ( input_MinQuality_ >= 2) {
-	  negativeQuality = -1;
-	} else {
-	  if ( input_MinQuality_ == 1) {
-	    negativeQuality = -2;
-	  } else{
-	    negativeQuality = -3;
-	  } 
-	} 
+  if ( p2vassmap ) {
 
-	if ( p2vassmap ){
+    if ( p2vAM->size()==0 ) {
+      iEvent.put( p2v_firstvertex, "P2V" );
+      return;
+    }
 
-	  const PFCandQualityPairVector pfccoll = p2vAM->begin()->val;
+    const PFCandQualityPairVector pfccoll = p2vAM->begin()->val;
 
-	  //get the candidates associated to the first vertex and store them in a pf-candidate collection
-	  for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++){
+    //get the candidates associated to the first vertex and store them in a pf-candidate collection
+    for ( unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++ ) {
      
-            PFCandidateRef pfcand = pfccoll[pfccoll_ite].first;
-	    int quality = pfccoll[pfccoll_ite].second;
+      PFCandidateRef pfcand = pfccoll[pfccoll_ite].first;
+      int quality = pfccoll[pfccoll_ite].second;
 
-	    if ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality) ) ) { 
-	      p2v_firstvertex->push_back(*pfcand);
+      if ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality_) ) ) {
+        p2v_firstvertex->push_back( *pfcand );
+      }
 
-	    }
+    }
 
-	  }
+    iEvent.put( p2v_firstvertex, "P2V" );
 
-          iEvent.put( p2v_firstvertex, "P2V" );
+  }
 
-	} 
-
-	if ( v2passmap ) {
+  if ( v2passmap ) {
  
-	  //get the input vertex collection
-  	  Handle<VertexCollection> input_vtxcollH;
-  	  iEvent.getByLabel(input_VertexCollection_,input_vtxcollH);
+    //get the input vertex collection
+    Handle<VertexCollection> input_vtxcollH;
+    iEvent.getByLabel(input_VertexCollection_,input_vtxcollH);
 
-	  VertexRef firstVertexRef(input_vtxcollH,0);
+    VertexRef firstVertexRef(input_vtxcollH,0);
 
-	  VertexToPFCandAssMap::const_iterator v2p_ite;
+    VertexToPFCandAssMap::const_iterator v2p_ite;
 
-          for(v2p_ite=v2pAM->begin(); v2p_ite!=v2pAM->end(); v2p_ite++){
+    for(v2p_ite=v2pAM->begin(); v2p_ite!=v2pAM->end(); v2p_ite++){
 
-   	    PFCandidateRef pfcand = v2p_ite->key;
+      PFCandidateRef pfcand = v2p_ite->key;
     
-    	    for(unsigned v_ite = 0; v_ite<(v2p_ite->val).size(); v_ite++){
+      for(unsigned v_ite = 0; v_ite<(v2p_ite->val).size(); v_ite++){
 
-     	      VertexRef vtxref = (v2p_ite->val)[v_ite].first;
-              int quality = (v2p_ite->val)[v_ite].second;
+        VertexRef vtxref = (v2p_ite->val)[v_ite].first;
+        int quality = (v2p_ite->val)[v_ite].second;
 
-	      if ( (vtxref==firstVertexRef) && ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality) ) ) ) {
-	         v2p_firstvertex->push_back(*pfcand);
-	      }
-
-	    }
-
-	  }
-
-          iEvent.put( v2p_firstvertex, "V2P" );
-
+	if ( (vtxref==firstVertexRef) && ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality_) ) ) ) {
+	  v2p_firstvertex->push_back( *pfcand);
 	}
+
+      }
+
+    }
+
+    iEvent.put( v2p_firstvertex, "V2P" );
+
+  }
+
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

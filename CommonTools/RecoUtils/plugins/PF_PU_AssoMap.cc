@@ -26,30 +26,29 @@
 PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig):PF_PU_AssoMapAlgos(iConfig)
 {
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 
-  	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
+  input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	input_TrackCollection_ = iConfig.getParameter<edm::InputTag>("TrackCollection");
+  input_TrackCollection_ = iConfig.getParameter<edm::InputTag>("TrackCollection");
 
-   //register your products
+  //register your products
 
-	if ( input_AssociationType_.label() == "TracksToVertex" ) {
-  	  produces<TrackToVertexAssMap>();
-	} else {
-	  if ( input_AssociationType_.label() == "VertexToTracks" ) {
-  	    produces<VertexToTrackAssMap>();
-	  } else {
-	    if ( input_AssociationType_.label() == "Both" ) {
-  	      produces<TrackToVertexAssMap>();
-  	      produces<VertexToTrackAssMap>();
-	    } else {
-	      std::cout << "No correct InputTag for AssociationType!" << std::endl;
-	      std::cout << "Won't produce any AssociationMap!" << std::endl;
-	    }
-	  }
-	}
-
+  if ( input_AssociationType_.label() == "TracksToVertex" ) {
+    produces<TrackToVertexAssMap>();
+  } else {
+    if ( input_AssociationType_.label() == "VertexToTracks" ) {
+      produces<VertexToTrackAssMap>();
+    } else {
+      if ( input_AssociationType_.label() == "Both" ) {
+  	produces<TrackToVertexAssMap>();
+  	produces<VertexToTrackAssMap>();
+      } else {
+        edm::LogWarning("Trck2VtxAssociation") << "No correct InputTag for AssociationType!" << std::endl
+	<< "Won't produce any AssociationMap!" << std::endl;
+      }
+    }
+  }
   
 }
 
@@ -75,25 +74,24 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
   using namespace reco;
-
     
-  	//get the input track collection     
-  	Handle<TrackCollection> trkcollH;
-  	iEvent.getByLabel(input_TrackCollection_, trkcollH);
+  //get the input track collection
+  Handle<TrackCollection> trkcollH;
+  iEvent.getByLabel(input_TrackCollection_, trkcollH);
 	
-	string asstype = input_AssociationType_.label();
+  string asstype = input_AssociationType_.label();
 
-	PF_PU_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
+  PF_PU_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
 
-	if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
-  	  auto_ptr<TrackToVertexAssMap> Track2Vertex = CreateTrackToVertexMap(trkcollH, iSetup);
-  	  iEvent.put( SortAssociationMap( &(*Track2Vertex) ) );
-	}
+  if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
+    auto_ptr<TrackToVertexAssMap> Track2Vertex = CreateTrackToVertexMap(trkcollH, iSetup);
+    iEvent.put( SortAssociationMap( &(*Track2Vertex) ) );
+  }
  
-	if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
-  	  auto_ptr<VertexToTrackAssMap> Vertex2Track = CreateVertexToTrackMap(trkcollH, iSetup);
-  	  iEvent.put( Vertex2Track );  
-	}
+  if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
+    auto_ptr<VertexToTrackAssMap> Vertex2Track = CreateVertexToTrackMap(trkcollH, iSetup);
+    iEvent.put( Vertex2Track );
+  }
  
 }
 

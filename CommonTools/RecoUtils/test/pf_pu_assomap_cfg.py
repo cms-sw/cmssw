@@ -7,8 +7,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/user/geisler/RelValZmumuJets_Pt_20_300_PU_START53_V6-v1_GEN-SIM-RECO.root'),
-    secondaryFileNames =  cms.untracked.vstring('file:/user/geisler/RelValZmumuJets_Pt_20_300_PU_START53_V6-v1_GEN-SIM-DIGI-RAW-HLTDEBUG.root'),
+    fileNames = cms.untracked.vstring('file:/user/geisler/CMSSW/CMSSW_6_2_8/src/CommonTools/RecoUtils/test/step2.root'),
 )
 
 #process.source = cms.Source("PoolSource",
@@ -17,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START53_V11::All'
+process.GlobalTag.globaltag = 'POSTLS162_V1::All'
 		
 ### standard includes
 process.load('Configuration.StandardSequences.Services_cff')
