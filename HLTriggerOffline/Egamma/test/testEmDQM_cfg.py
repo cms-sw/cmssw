@@ -42,7 +42,7 @@ process.p = cms.Path(
                     )
 
 #----------------------------------------
-process.post=cms.EDAnalyzer("EmDQMPostProcessor",
+process.post=cms.EDProducer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
                             noPhiPlots = cms.untracked.bool(False),

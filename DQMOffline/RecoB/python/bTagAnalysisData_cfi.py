@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.RecoB.bTagCommon_cff import *
 
-bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
+bTagAnalysis = cms.EDProducer("BTagPerformanceAnalyzerOnData",
                               bTagCommonBlock,
                               )
 
-bTagHarvest = cms.EDAnalyzer("BTagPerformanceHarvester",
+bTagHarvest = cms.EDProducer("BTagPerformanceHarvester",
                              bTagCommonBlock,
                              produceEps = cms.bool(False),
                              producePs = cms.bool(False),

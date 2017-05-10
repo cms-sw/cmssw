@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_HT350_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT350_MET100 = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -13,7 +13,7 @@ SUSY_HLT_HT350_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT350_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT350_MET100_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT350_PFMET100_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -22,7 +22,7 @@ SUSY_HLT_HT350_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_HT300_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT300_MET100 = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -35,7 +35,7 @@ SUSY_HLT_HT300_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT300_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT300_MET100_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_PFMET100_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -44,7 +44,7 @@ SUSY_HLT_HT300_MET100_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_HT300_MET110 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT300_MET110 = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -57,7 +57,7 @@ SUSY_HLT_HT300_MET110 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT300_MET110_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT300_MET110_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_PFMET110_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

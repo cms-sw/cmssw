@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimTracker.TrackHistory.TrackClassifier_cff import *
 
-BDHadronTrackMonitoringAnalyze = cms.EDAnalyzer("BDHadronTrackMonitoringAnalyzer",
+BDHadronTrackMonitoringAnalyze = cms.EDProducer("BDHadronTrackMonitoringAnalyzer",
 								trackClassifier,
 								distJetAxisCut = cms.double(0.07),
 								decayLengthCut = cms.double(5.0),
@@ -16,5 +16,5 @@ BDHadronTrackMonitoringAnalyze = cms.EDAnalyzer("BDHadronTrackMonitoringAnalyzer
                                 )
 
 
-BDHadronTrackMonitoringHarvest = cms.EDAnalyzer("BDHadronTrackMonitoringHarvester"
+BDHadronTrackMonitoringHarvest = cms.EDProducer("BDHadronTrackMonitoringHarvester"
 								)

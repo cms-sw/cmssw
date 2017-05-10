@@ -83,7 +83,7 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 # HCAL validation
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = cms.EDProducer("HcalRecHitsValidation",
                                           outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
                                           HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
                                           HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
@@ -95,7 +95,7 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
                                           ecalselector              = cms.untracked.string('no'),
                                           )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
                                            outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
                                            DQMDirName = cms.string("/") # root directory
                                            )

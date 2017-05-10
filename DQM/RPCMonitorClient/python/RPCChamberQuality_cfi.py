@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
+rpcChamberQuality = cms.EDProducer("RPCChamberQuality",
                                    OfflineDQM = cms.untracked.bool(True),
                                    PrescaleFactor  = cms.untracked.int32(5),
                                    NumberOfEndcapDisks  = cms.untracked.int32(4),
@@ -9,7 +9,7 @@ rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
                                    )
 
 
-rpcMuonChamberQuality = cms.EDAnalyzer("RPCChamberQuality",
+rpcMuonChamberQuality = cms.EDProducer("RPCChamberQuality",
                                        OfflineDQM = cms.untracked.bool(True),
                                        PrescaleFactor  = cms.untracked.int32(5),
                                        NumberOfEndcapDisks  = cms.untracked.int32(4),

@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #Client:
-sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
+sipixelEDAClient = cms.EDProducer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -19,7 +19,7 @@ sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
 )
 
 #QualityTester
-sipixelQTester = cms.EDAnalyzer("QualityTester",
+sipixelQTester = cms.EDProducer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -33,9 +33,9 @@ sipixelQTesterHI = sipixelQTester.clone(
 )
 
 #DataCertification:
-sipixelDaqInfo = cms.EDAnalyzer("SiPixelDaqInfo")
-sipixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
-sipixelCertification = cms.EDAnalyzer("SiPixelCertification")
+sipixelDaqInfo = cms.EDProducer("SiPixelDaqInfo")
+sipixelDcsInfo = cms.EDProducer("SiPixelDcsInfo")
+sipixelCertification = cms.EDProducer("SiPixelCertification")
 
 #Predefined Sequences:
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)

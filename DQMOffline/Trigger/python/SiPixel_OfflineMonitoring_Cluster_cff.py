@@ -261,7 +261,7 @@ hltSiPixelPhase1ClustersTriggers = cms.VPSet(
 #   triggerflag.genericTriggerEventFlag4L1bd,
 )
 
-hltSiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
+hltSiPixelPhase1ClustersAnalyzer = cms.EDProducer("SiPixelPhase1Clusters",
         pixelSrc    = cms.InputTag("hltSiPixelClusters"),
         stripSrc    = cms.InputTag("hltSiStripRawToClustersFacility"),
         histograms  = hltSiPixelPhase1ClustersConf,
@@ -269,7 +269,7 @@ hltSiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         triggerflag = hltSiPixelPhase1ClustersTriggers,
 )
 
-hltSiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+hltSiPixelPhase1ClustersHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1ClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )

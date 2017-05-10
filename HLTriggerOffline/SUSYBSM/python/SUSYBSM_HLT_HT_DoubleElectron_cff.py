@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
+SUSY_HLT_HT_DoubleEle = cms.EDProducer("SUSY_HLT_DoubleEle_Hadronic",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
@@ -17,7 +17,7 @@ SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT250_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
+SUSY_HLT_HT250_DoubleEle = cms.EDProducer("SUSY_HLT_DoubleEle_Hadronic",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
@@ -34,7 +34,7 @@ SUSY_HLT_HT250_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT_DoubleEle_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT_DoubleEle_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
@@ -44,7 +44,7 @@ SUSY_HLT_HT_DoubleEle_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     )
 )
 
-SUSY_HLT_HT250_DoubleEle_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT250_DoubleEle_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

@@ -51,14 +51,14 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 
-process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
+process.hcalDigiAnalyzer = cms.EDProducer("HcalDigiTester",
     digiLabel = cms.InputTag("hcalDigis"),
     outputFile = cms.untracked.string('HcalDigisValidation_ZS.root'),
     hcalselector = cms.untracked.string('noise'),
     zside = cms.untracked.string('*')
 )
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = cms.EDProducer("HcalRecHitsValidation",
     outputFile = cms.untracked.string('HcalRecHitsValidation_ZS.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
@@ -70,7 +70,7 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     ecalselector = cms.untracked.string('no'),
 )
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+process.hcalTowerAnalyzer = cms.EDProducer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidation.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
     hcalselector = cms.untracked.string('all'),
@@ -126,12 +126,12 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = cms.EDProducer("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME_ZS.root'),
      DQMDirName = cms.string("/") # root directory
 )

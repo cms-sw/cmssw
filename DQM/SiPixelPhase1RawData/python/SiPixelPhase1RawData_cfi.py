@@ -91,13 +91,13 @@ SiPixelPhase1RawDataConf = cms.VPSet(
   SiPixelPhase1RawDataTypeNErrors,
 )
 
-SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
+SiPixelPhase1RawDataAnalyzer = cms.EDProducer("SiPixelPhase1RawData",
         src = cms.InputTag("siPixelDigis"),
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1RawDataHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RawDataHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )

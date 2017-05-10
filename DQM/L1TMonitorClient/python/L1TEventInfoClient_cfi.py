@@ -11,7 +11,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-l1tEventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
+l1tEventInfoClient = cms.EDProducer("L1TEventInfoClient",
     monitorDir = cms.untracked.string("L1T"),
     
     # decide when to run and update the results of the quality tests

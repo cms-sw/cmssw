@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ################# Quality Tests for jets #########################
-qTesterJet = cms.EDAnalyzer("QualityTester",
+qTesterJet = cms.EDProducer("QualityTester",
      qtList = cms.untracked.FileInPath('DQMOffline/JetMET/test/JetQualityTests.xml'),
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),
@@ -9,7 +9,7 @@ qTesterJet = cms.EDAnalyzer("QualityTester",
  )
 
 ################# Quality Tests for MET #########################
-qTesterMET = cms.EDAnalyzer("QualityTester",
+qTesterMET = cms.EDProducer("QualityTester",
      qtList = cms.untracked.FileInPath('DQMOffline/JetMET/test/METQualityTests.xml'),
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),
@@ -17,7 +17,7 @@ qTesterMET = cms.EDAnalyzer("QualityTester",
  )
 
 ################# Data Certification #########################
-dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+dataCertificationJetMET = cms.EDProducer('DataCertificationJetMET',
                               fileName       = cms.untracked.string(""),
                               refFileName    = cms.untracked.string(""),
                               OutputFile     = cms.untracked.bool(False),

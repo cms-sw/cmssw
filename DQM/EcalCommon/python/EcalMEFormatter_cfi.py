@@ -20,7 +20,7 @@ from DQM.EcalMonitorClient.TimingClient_cfi import ecalTimingClient
 from DQM.EcalMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 
-ecalMEFormatter = cms.EDAnalyzer("EcalMEFormatter",
+ecalMEFormatter = cms.EDProducer("EcalMEFormatter",
     MEs = cms.untracked.PSet(),
     verbosity = cms.untracked.int32(0)
 )

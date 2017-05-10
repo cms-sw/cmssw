@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag(''),
                                                   muonCollection = cms.InputTag('muons'),
                                                   pfMetCollection = cms.InputTag('pfMet'),
@@ -42,7 +42,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   csvThreshold = cms.untracked.double(0.898)
                                                   )
 
-SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
+SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGenericClient',
                                                                  subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_BTagCSV_p067_PFHT400'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",

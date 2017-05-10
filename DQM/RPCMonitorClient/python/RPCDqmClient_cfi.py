@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcdqmclient = cms.EDAnalyzer("RPCDqmClient",                               
+rpcdqmclient = cms.EDProducer("RPCDqmClient",                               
                               RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
                               DiagnosticPrescale = cms.untracked.int32(5),
                               MinimumRPCEvents  = cms.untracked.int32(10000),
@@ -13,7 +13,7 @@ rpcdqmclient = cms.EDAnalyzer("RPCDqmClient",
                               )
 
 
-rpcdqmMuonclient = cms.EDAnalyzer("RPCDqmClient",                               
+rpcdqmMuonclient = cms.EDProducer("RPCDqmClient",                               
                                   RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
                                   DiagnosticPrescale = cms.untracked.int32(5),
                                   MinimumRPCEvents  = cms.untracked.int32(10000),

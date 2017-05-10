@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_PhotonMET_pt36 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt36 = cms.EDProducer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),
@@ -12,7 +12,7 @@ SUSY_HLT_PhotonMET_pt36 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt50 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt50 = cms.EDProducer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),
@@ -24,7 +24,7 @@ SUSY_HLT_PhotonMET_pt50 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt75 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt75 = cms.EDProducer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),
@@ -36,7 +36,7 @@ SUSY_HLT_PhotonMET_pt75 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt36_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_PhotonMET_pt36_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),
@@ -46,7 +46,7 @@ SUSY_HLT_PhotonMET_pt36_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
    )
 )
 
-SUSY_HLT_PhotonMET_pt50_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_PhotonMET_pt50_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),
@@ -56,7 +56,7 @@ SUSY_HLT_PhotonMET_pt50_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
    )
 )
 
-SUSY_HLT_PhotonMET_pt75_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_PhotonMET_pt75_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_PFMET40_v"),
    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
    resolution     = cms.vstring(""),

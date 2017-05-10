@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_Mu10_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu10",
+SUSY_HLT_Mu10_VBF = cms.EDProducer("SUSY_HLT_VBF_Mu10",
                                  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
                                  #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
                                  MuonCollection = cms.InputTag("muons"),
@@ -29,7 +29,7 @@ SUSY_HLT_Mu10_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu10",
                                  
                                  )
 
-SUSY_HLT_Mu10_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu10_VBF_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
                                                 subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu10_v"),
                                                 verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                 resolution     = cms.vstring(""),
@@ -41,7 +41,7 @@ SUSY_HLT_Mu10_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
         )
                                                 )
 
-SUSY_HLT_Mu8_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu8",
+SUSY_HLT_Mu8_VBF = cms.EDProducer("SUSY_HLT_VBF_Mu8",
                                  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
                                  #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
                                  MuonCollection = cms.InputTag("muons"),
@@ -70,7 +70,7 @@ SUSY_HLT_Mu8_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu8",
                                  
                                  )
 
-SUSY_HLT_Mu8_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu8_VBF_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
                                                 subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu8_v"),
                                                 verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                 resolution     = cms.vstring(""),

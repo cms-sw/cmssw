@@ -94,33 +94,33 @@ process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = config.runNumber
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = cms.EDProducer("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDAnalyzer("NoiseRatesClient", 
+process.noiseratesClient = cms.EDProducer("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
 ##########
-process.calotowersDQMClient = cms.EDAnalyzer("CaloTowersDQMClient",
+process.calotowersDQMClient = cms.EDProducer("CaloTowersDQMClient",
       outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
 #     outputFile = cms.untracked.string(''),
       DQMDirName = cms.string("/") # root directory
 )
-process.hcalNoiseRatesClient = cms.EDAnalyzer("HcalNoiseRatesClient", 
+process.hcalNoiseRatesClient = cms.EDProducer("HcalNoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
 #     outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory
 )
-process.hcalRecHitsDQMClient = cms.EDAnalyzer("HcalRecHitsDQMClient", 
+process.hcalRecHitsDQMClient = cms.EDProducer("HcalRecHitsDQMClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
 #    outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory

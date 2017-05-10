@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  TrackingOfflineDQM (for Tier0 Harvesting Step) ####
-trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
+trackingOfflineAnalyser = cms.EDProducer("TrackingOfflineDQM",
     GlobalStatusFilling        = cms.untracked.int32(2),
     UsedWithEDMtoMEConverter   = cms.untracked.bool(True),
     TopFolderName              = cms.untracked.string("Tracking"),                                     
@@ -59,7 +59,7 @@ trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
     )
 )
 
-trackingQTester = cms.EDAnalyzer("QualityTester",
+trackingQTester = cms.EDProducer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)

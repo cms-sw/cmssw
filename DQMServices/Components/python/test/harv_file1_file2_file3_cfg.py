@@ -17,13 +17,13 @@ process.source = cms.Source("DQMRootSource",
 
 elements = c.createElements()
 
-process.harvester = cms.EDAnalyzer("DummyHarvestingClient",
+process.harvester = cms.EDProducer("DummyHarvestingClient",
                                    folder = cms.untracked.string("TestFolder/"),
                                    elements=cms.untracked.VPSet(*elements),
                                    cumulateRuns = cms.untracked.bool(False),
                                    cumulateLumis = cms.untracked.bool(True))
 
-process.eff = cms.EDAnalyzer("DQMGenericClient",
+process.eff = cms.EDProducer("DQMGenericClient",
                              efficiency = cms.vstring("eff1 \'Eff1\' Bar0 Bar1"),
                              resolution = cms.vstring(),
                              subDirs = cms.untracked.vstring(folder))

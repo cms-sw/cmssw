@@ -83,7 +83,7 @@ SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
 )
 
 
-SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficiency",
+SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDProducer("SiPixelPhase1TrackEfficiency",
         clusters = cms.InputTag("siPixelClusters"),
         tracks = cms.InputTag("generalTracks"),
         primaryvertices = cms.InputTag("offlinePrimaryVertices"),
@@ -91,7 +91,7 @@ SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficie
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackEfficiencyHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry
 )

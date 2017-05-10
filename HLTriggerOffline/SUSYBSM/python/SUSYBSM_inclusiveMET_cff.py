@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -13,7 +13,7 @@ SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveH
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveMET_Default = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_Default = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -29,7 +29,7 @@ SUSY_HLT_InclusiveMET_Default = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 
 
 
-SUSY_HLT_InclusiveMET_HBHECleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_HBHECleaned = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -43,7 +43,7 @@ SUSY_HLT_InclusiveMET_HBHECleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 )
 
 
-SUSY_HLT_InclusiveMET_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_BeamHaloCleaned = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -58,7 +58,7 @@ SUSY_HLT_InclusiveMET_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 
 
 
-SUSY_HLT_InclusiveMET_NotCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveMET_NotCleaned = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -71,7 +71,7 @@ SUSY_HLT_InclusiveMET_NotCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -87,7 +87,7 @@ SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_Inc
 
 
 
-SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -96,7 +96,7 @@ SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMG
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -105,7 +105,7 @@ SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient"
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHECleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -114,7 +114,7 @@ SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericCli
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -124,7 +124,7 @@ SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGeneri
 )
 
 
-SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NotCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -133,7 +133,7 @@ SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClie
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

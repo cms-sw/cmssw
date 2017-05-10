@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_HT_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
+SUSY_HLT_HT_DoubleMuon = cms.EDProducer("SUSY_HLT_DoubleMuon_Hadronic",
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -15,7 +15,7 @@ SUSY_HLT_HT_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_HT250_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
+SUSY_HLT_HT250_DoubleMuon = cms.EDProducer("SUSY_HLT_DoubleMuon_Hadronic",
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -31,7 +31,7 @@ SUSY_HLT_HT250_DoubleMuon = cms.EDAnalyzer("SUSY_HLT_DoubleMuon_Hadronic",
 )
 
 
-SUSY_HLT_HT_DoubleMuon_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT_DoubleMuon_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu8_Mass8_PFHT300_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
@@ -41,7 +41,7 @@ SUSY_HLT_HT_DoubleMuon_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     )
 )
 
-SUSY_HLT_HT250_DoubleMuon_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_HT250_DoubleMuon_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu8_Mass8_PFHT250_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

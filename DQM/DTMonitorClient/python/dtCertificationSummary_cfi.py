@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-dtCertificationSummary = cms.EDAnalyzer("DTCertificationSummary")
+dtCertificationSummary = cms.EDProducer("DTCertificationSummary")
 
 

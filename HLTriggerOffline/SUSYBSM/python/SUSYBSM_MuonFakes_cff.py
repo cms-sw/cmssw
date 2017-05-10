@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_Mu8_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu8_TrkIsoVVL = cms.EDProducer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -8,14 +8,14 @@ SUSY_HLT_Mu8_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerFilter = cms.InputTag('hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4', '', 'HLT'), #the last filter in the path                                        
 )
 
-SUSY_HLT_Mu8_TrkIsoVVL_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu8_TrkIsoVVL_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_TrkIsoVVL_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu8 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu8 = cms.EDProducer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -23,14 +23,14 @@ SUSY_HLT_Mu8 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerFilter = cms.InputTag('hltL3fL1sMu5L1f0L2f5L3Filtered8', '', 'HLT'), #the last filter in the path                                        
 )
 
-SUSY_HLT_Mu8_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu8_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17_TrkIsoVVL = cms.EDProducer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -38,14 +38,14 @@ SUSY_HLT_Mu17_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerFilter = cms.InputTag('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4', '', 'HLT'), #the last filter in the path                                 
 )
 
-SUSY_HLT_Mu17_TrkIsoVVL_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu17_TrkIsoVVL_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu17_TrkIsoVVL_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17 = cms.EDProducer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -53,14 +53,14 @@ SUSY_HLT_Mu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerFilter = cms.InputTag('hltL3fL1sMu10lqL1f0L2f10L3Filtered17', '', 'HLT'), #the last filter in the path                                 
 )
 
-SUSY_HLT_Mu17_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Mu17_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu17_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_TkMu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
+SUSY_HLT_TkMu17 = cms.EDProducer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -68,7 +68,7 @@ SUSY_HLT_TkMu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerFilter = cms.InputTag('hltL3fL1sMu10lqTkFiltered17Q', '', 'HLT'), #the last filter in the path                                 
 )
 
-SUSY_HLT_TkMu17_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_TkMu17_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_TkMu17_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

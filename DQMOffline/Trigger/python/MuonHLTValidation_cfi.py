@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ################# Muon HLT Quality Tests  #########################
-qTesterMuonHLT = cms.EDAnalyzer("QualityTester",
+qTesterMuonHLT = cms.EDProducer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'DQMOffline/Trigger/data/MuonHLT_QualityTests.xml'
     ),
@@ -15,7 +15,7 @@ qTesterMuonHLT = cms.EDAnalyzer("QualityTester",
         #reportThreshold = cms.untracked.string("black")
 )
 
-muonHLTCertSummary = cms.EDAnalyzer("HLTMuonCertSummary",
+muonHLTCertSummary = cms.EDProducer("HLTMuonCertSummary",
     verbose = cms.untracked.bool(False),
 )
 

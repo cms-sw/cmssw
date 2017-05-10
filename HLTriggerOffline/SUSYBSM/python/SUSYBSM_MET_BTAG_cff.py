@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_MET_BTAG = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_MET_BTAG = cms.EDProducer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -13,7 +13,7 @@ SUSY_HLT_MET_BTAG = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_MET_BTAG_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_MET_BTAG_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_BTagCSV_p067_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

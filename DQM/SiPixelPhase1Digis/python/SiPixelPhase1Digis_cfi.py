@@ -178,13 +178,13 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisOccupancy,
 )
 
-SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
+SiPixelPhase1DigisAnalyzer = cms.EDProducer("SiPixelPhase1Digis",
         src = cms.InputTag("siPixelDigis"), 
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1DigisHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )
