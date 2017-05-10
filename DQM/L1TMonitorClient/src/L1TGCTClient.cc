@@ -88,7 +88,7 @@ void L1TGCTClient::processHistograms(DQMStore::IGetter &igetter) {
     if(m_stage1_layer2_ ==false){
       InputDir = "L1T/L1TGCT/";
     } else{
-      InputDir = "L1T/stage1layer2/";
+      InputDir = "L1T/L1TStage1Layer2/";
     }
 
     Input = igetter.get(InputDir + "IsoEmOccEtaPhi");

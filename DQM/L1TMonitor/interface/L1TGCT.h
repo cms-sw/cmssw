@@ -210,8 +210,6 @@ private:
   MonitorElement* l1GctHFRingRatioNegEta_;
   MonitorElement* l1GctHFRingETSumOccBx_;
   MonitorElement* l1GctHFRingTowerCountOccBx_;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
