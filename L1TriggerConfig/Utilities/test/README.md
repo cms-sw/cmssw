@@ -5,12 +5,12 @@ The whole trigger system's online configuration is aggregated by two top-level k
 utilized every time when a new data taking is started. You can check the XML configuration for the specific TSC
 and RS keys using the [L1 Configuration Editor](https://l1ce.cms) (assuming you are within .cms network or use a
 tunnel) or alternatively, using following python scripts:
-[ugtDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/ugtDump.py),
-[ugmtDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/ugmtDump.py),
-[caloDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/caloDump.py),
-[emtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/emtfDump.py),
-[omtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/omtfDump.py),
-[bmtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/bmtfDump.py).
+[ugtDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/ugtDump.py),
+[ugmtDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/ugmtDump.py),
+[caloDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/caloDump.py),
+[emtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/emtfDump.py),
+[omtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/omtfDump.py),
+[bmtfDump.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/bmtfDump.py).
 These scripts can be ran from my afs public area on lxplus as well as within the private .cms network from
 ~l1emulator/o2o/. For example:
 
@@ -36,7 +36,9 @@ contain all of the successfully produced payloads ready to be used with the L1 t
 ## Dumping conditions from the Offline (Conditions) DB
 
 Another set of scripts allows you to print fields of the payloads in Cond DB or local sqlite file. They are:
-[viewMenu.py](https://github.com/kkotov/cmssw/blob/o2oUtilities/L1TriggerConfig/Utilities/test/viewMenu.py),
+[viewMenu.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewMenu.py),
+[viewGlobalMuon.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewGlobalMenu.py),
+[viewCaloParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewCaloParams.py),
 
 ## For experts: uploading prototype payloads in Cond DB
 
