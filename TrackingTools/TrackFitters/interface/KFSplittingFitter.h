@@ -34,7 +34,7 @@ public:
 		    const MeasurementEstimator* aEstimator) : 
     fitter(aPropagator, aUpdator, aEstimator) {}
 
-  virtual KFSplittingFitter* clone() const {
+  virtual const KFSplittingFitter* clone() const {
     return new KFSplittingFitter(fitter.propagator(),fitter.updator(),fitter.estimator());
   }
   

@@ -23,7 +23,7 @@ public:
   typedef Trajectory::RecHitContainer      RecHitContainer;
 
   virtual ~TrajectoryFitter() {}
-  virtual TrajectoryFitter* clone() const = 0;
+  virtual const TrajectoryFitter* clone() const = 0;
 
   // new interface return one trajectory: if fit fails trajectory is invalid...
   virtual Trajectory fitOne(const Trajectory& traj, fitType type=standard) const=0;

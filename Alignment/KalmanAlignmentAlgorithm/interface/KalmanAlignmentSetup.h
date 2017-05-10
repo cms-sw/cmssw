@@ -70,13 +70,13 @@ private:
 
   std::string theId;
 
-  TrajectoryFitter* theFitter;
+  const TrajectoryFitter* theFitter;
   Propagator* thePropagator;
   std::vector< SubDetId > theTrackingSubDetIds;
   unsigned int theMinTrackingHits;
   SortingDirection theSortingDir;
 
-  TrajectoryFitter* theExternalFitter;
+  const TrajectoryFitter* theExternalFitter;
   Propagator* theExternalPropagator;
   std::vector< SubDetId > theExternalTrackingSubDetIds;
   unsigned int theMinExternalHits;
