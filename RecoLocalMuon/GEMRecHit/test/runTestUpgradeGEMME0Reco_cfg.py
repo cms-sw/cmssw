@@ -147,7 +147,7 @@ process.load("RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cf
 # process.siPixelClusterShapeCachePreSplitting = process.siPixelClusterShapeCache.clone(
 #     src = 'siPixelClustersPreSplitting'
 # )
-process.load("RecoVertex.Configuration.RecoVertex_cff")
+process.load("RecoVertex.Configuration.RecoVertex_Run1_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi")
 
