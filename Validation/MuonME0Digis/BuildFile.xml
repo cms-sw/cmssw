@@ -1,0 +1,8 @@
+<use name="boost"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="FWCore/Utilities"/>
+<use name="rootcore"/>
+<use name="Validation/MuonME0Hits"/>
+<export>
+<lib name="1"/>
+</export>

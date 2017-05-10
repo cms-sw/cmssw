@@ -1,0 +1,9 @@
+<use name="boost"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/GEMRecHit"/>
+<use name="DataFormats/Scalers"/>
+<use name="Validation/MuonME0Hits"/>
+<use name="rootcore"/>
+<export>
+<lib name="1"/>
+</export>
