@@ -7,8 +7,12 @@
 #include <iostream>
 #include <string.h>
 
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
+#ifdef HAVE_XDAQ
+#include <toolbox/string.h>
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
+
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 

@@ -2,8 +2,13 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/PluginManager.hh"
-#include <toolbox/string.h>
 #include <ctype.h>
+
+#ifdef HAVE_XDAQ
+#include <toolbox/string.h>
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Includes typedef for log4cplus::Logger
+#endif
 
 namespace hcal {
 
@@ -15,25 +20,25 @@ namespace hcal {
     if (m_implementationOptions.empty()) {
       std::vector<hcal::AbstractPluginFactory*> facts;
       hcal::PluginManager::getFactories("hcal::ConfigurationDatabaseImpl",facts);
-      for (std::vector<hcal::AbstractPluginFactory*>::iterator j=facts.begin(); j!=facts.end(); j++) 
-	m_implementationOptions.push_back(dynamic_cast<hcal::ConfigurationDatabaseImpl*>((*j)->newInstance()));
+      for (std::vector<hcal::AbstractPluginFactory*>::iterator j=facts.begin(); j!=facts.end(); j++)
+        m_implementationOptions.push_back(dynamic_cast<hcal::ConfigurationDatabaseImpl*>((*j)->newInstance()));
     }
 
     std::map<std::string,std::string> params;
     std::string user, host, method, db, port,password;
     ConfigurationDatabaseImpl::parseAccessor(accessor,method,host,port,user,db,params);
-    
+
     if (m_implementation==0 || !m_implementation->canHandleMethod(method)) {
       m_implementation=0;
       std::vector<ConfigurationDatabaseImpl*>::iterator j;
-      for (j=m_implementationOptions.begin(); j!=m_implementationOptions.end(); j++) 
-	if ((*j)->canHandleMethod(method)) {
-	  m_implementation=*j;
-	  break;
-	}
+      for (j=m_implementationOptions.begin(); j!=m_implementationOptions.end(); j++)
+        if ((*j)->canHandleMethod(method)) {
+          m_implementation=*j;
+          break;
+        }
     }
 
-    if (m_implementation==0) 
+    if (m_implementation==0)
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,toolbox::toString("Unable to open database using '%s'",accessor.c_str()));
     m_implementation->setLogger(m_logger);
     m_implementation->connect(accessor);
@@ -48,7 +53,7 @@ namespace hcal {
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
-    
+
     return m_implementation->getFirmwareChecksum(board,version);
   }
 
@@ -74,7 +79,7 @@ namespace hcal {
     }
 
     m_implementation->getFirmwareMCS(board, version, mcsLines);
- 
+
   }
 
   void ConfigurationDatabase::getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
@@ -86,12 +91,12 @@ namespace hcal {
     std::map<unsigned int, std::string> results;
 
     m_implementation->getLUTs(tag, crate, slot, LUTs);
-    
+
     if (LUTs.size()==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not enough found (%d)",LUTs.size()));
     }
   }
-  
+
   void ConfigurationDatabase::getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
     checksums.clear();
 
@@ -109,7 +114,7 @@ namespace hcal {
     }
 
     m_implementation->getPatterns(tag,crate,slot,patterns);
-    
+
     if (patterns.size()==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not found '$s',%d,%d",tag.c_str(),crate,slot));
     }
@@ -141,7 +146,7 @@ namespace hcal {
     m_implementation->getRBXpatterns(tag,rbx,patterns);
   }
 
-  void ConfigurationDatabase::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds) 
+  void ConfigurationDatabase::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds)
     throw (hcal::exception::ConfigurationDatabaseException) {
 
     if (m_implementation==0) {
@@ -151,7 +156,7 @@ namespace hcal {
     m_implementation->getZSThresholds(tag,crate,slot,thresholds);
   }
 
-  void ConfigurationDatabase::getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& m) 
+  void ConfigurationDatabase::getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& m)
     throw (hcal::exception::ConfigurationDatabaseException) {
 
     if (m_implementation==0) {

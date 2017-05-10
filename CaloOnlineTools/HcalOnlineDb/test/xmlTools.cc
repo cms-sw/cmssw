@@ -34,14 +34,19 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalO2OManager.h"
 
+#include <sys/time.h>  // gettimeofday
+
+#ifdef HAVE_XDAQ
+#include "toolbox/string.h"
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
 
 
 using namespace std;

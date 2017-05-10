@@ -4,10 +4,15 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "log4cplus/logger.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xercesc/dom/DOMDocument.hpp"
 #include <stdint.h>
+
+#ifdef HAVE_XDAQ
+#include "log4cplus/logger.h"
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Includes typedef for log4cplus::Logger
+#endif
 
 namespace hcal {
 
@@ -198,9 +203,9 @@ namespace hcal {
 
     
   private:
-    log4cplus::Logger m_logger;
     std::vector<ConfigurationDatabaseImpl*> m_implementationOptions;
     ConfigurationDatabaseImpl* m_implementation;
+    log4cplus::Logger m_logger;
   };
 
 }

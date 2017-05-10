@@ -12,10 +12,12 @@ namespace hcal {
 	ConfigurationDatabaseException(name, message, module, line, function) 
       {} 
       
+#ifdef HAVE_XDAQ
       ConfigurationItemNotFoundException( const std::string& name, const std::string& message, const std::string& module, int line, const std::string& function,
 			 xcept::Exception& e ): 
 	ConfigurationDatabaseException(name, message, module, line, function, e) 
       {} 
+#endif
     }; 
     
   }
