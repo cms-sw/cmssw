@@ -71,6 +71,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , doHitPropertiesPlots_    ( conf_.getParameter<bool>("doHitPropertiesPlots"))
     , doPUmonitoring_          ( conf_.getParameter<bool>("doPUmonitoring") )
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig,consumesCollector()))
+    , numSelection_       (conf_.getParameter<std::string>("numCut"))
+    , denSelection_       (conf_.getParameter<std::string>("denCut"))
 {
 
   edm::ConsumesCollector c{ consumesCollector() };
@@ -482,15 +484,22 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     iEvent.getByToken(trackToken_, trackHandle);
 
     int numberOfAllTracks = 0;
+    int numberOfTracks_den = 0;
     edm::Handle<reco::TrackCollection> allTrackHandle;
     iEvent.getByToken(allTrackToken_,allTrackHandle);
     if (allTrackHandle.isValid()) {
       numberOfAllTracks = allTrackHandle->size();
+      for (reco::TrackCollection::const_iterator track = allTrackHandle->begin();
+	   track!=allTrackHandle->end(); ++track) {
+	if ( denSelection_(*track) )
+	  numberOfTracks_den++;
+      }
     }
       
     if (trackHandle.isValid()) {
       
       int numberOfTracks = trackHandle->size();
+      int numberOfTracks_num = 0;
 
       reco::TrackCollection trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
@@ -499,6 +508,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	
+	if ( numSelection_(*track) )
+	  numberOfTracks_num++;
+
 	if ( doProfilesVsLS_ || doAllPlots)
 	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
 
@@ -511,6 +523,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       double frac = -1.;
       if (numberOfAllTracks > 0) frac = static_cast<double>(numberOfTracks)/static_cast<double>(numberOfAllTracks);
+      std::cout << "old frac: " << frac << std::endl;
+      if (numberOfTracks_den > 0) frac = static_cast<double>(numberOfTracks_num)/static_cast<double>(numberOfTracks_den);
+      std::cout << "new frac: " << frac << std::endl;
       
       if (doGeneralPropertiesPlots_ || doAllPlots){
 	NumberOfTracks       -> Fill(numberOfTracks);
