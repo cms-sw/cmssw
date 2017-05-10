@@ -10,6 +10,8 @@ hiMuons1stStep.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuon
 hiMuons1stStep.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
 hiMuons1stStep.TrackExtractorPSet.inputTrackCollection = hiTracks
 hiMuons1stStep.minPt = cms.double(0.8)
+#iso deposits are not used in HI
+hiMuons1stStep.writeIsoDeposits = False
 #hiMuons1stStep.fillGlobalTrackRefits = False
 muonEcalDetIds.inputCollection = "hiMuons1stStep"
 
@@ -26,6 +28,8 @@ muonShowerInformation.muonCollection = "hiMuons1stStep"
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
 muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking._seq._collection + displacedGlobalMuonTracking._seq._collection)
 muonreco_plus_isolation_PbPb.replace(muons1stStep, hiMuons1stStep)
+#iso deposits are not used in HI
+muonreco_plus_isolation_PbPb.remove(muIsoDeposits_muons)
 
 
 globalMuons.TrackerCollectionLabel = hiTracks

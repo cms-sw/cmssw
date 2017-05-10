@@ -136,7 +136,7 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
 
-  bool photonSelection(const reco::PhotonRef & p);
+  bool photonSelection(const reco::Photon* p);
   float phiNormalization(float& a);
 
   //////////

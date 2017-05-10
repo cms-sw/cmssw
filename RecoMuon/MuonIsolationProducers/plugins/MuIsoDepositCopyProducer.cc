@@ -60,8 +60,8 @@ void MuIsoDepositCopyProducer::produce(Event& event, const EventSetup& eventSetu
     Handle<reco::IsoDepositMap > inDep;
     event.getByToken(theInputTokens[iDep], inDep);
 
-    std::auto_ptr<reco::IsoDepositMap> outDep(new reco::IsoDepositMap(*inDep));
-    event.put(outDep, theDepositNames[iDep]);
+    std::unique_ptr<reco::IsoDepositMap> outDep(new reco::IsoDepositMap(*inDep));
+    event.put(std::move(outDep), theDepositNames[iDep]);
   }//! end iDep
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";

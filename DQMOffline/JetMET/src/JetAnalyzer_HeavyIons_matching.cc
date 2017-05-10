@@ -159,9 +159,9 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
   // Get the Jet collection
   //----------------------------------------------------------------------------
   
-  std::vector<Jet> recoJet1;
+  std::vector<const Jet*> recoJet1;
   recoJet1.clear();
-  std::vector<Jet> recoJet2;
+  std::vector<const Jet*> recoJet2;
   recoJet2.clear();
   
   edm::Handle<CaloJetCollection>  caloJet1;
@@ -172,36 +172,36 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
   if(std::string("VsCalo") == JetType1) {
     mEvent.getByToken(caloJet1Token_, caloJet1);
-    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back((*caloJet1)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back(&(*caloJet1)[ijet]);
   }
   if(std::string("PuCalo") == JetType1) {
     mEvent.getByToken(caloJet2Token_, caloJet1);
-    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back((*caloJet1)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet1->size(); ++ijet) recoJet1.push_back(&(*caloJet1)[ijet]);
   }
   if(std::string("VsPF") == JetType1) {
     mEvent.getByToken(pfJetsToken_, pfJets);
-    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet1.push_back((*pfJets)[ijet]);
+    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet1.push_back(&(*pfJets)[ijet]);
   }
   if(std::string("PuPF") == JetType1) {
     mEvent.getByToken(basicJetsToken_, basicJets);
-    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet1.push_back((*basicJets)[ijet]);
+    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet1.push_back(&(*basicJets)[ijet]);
   }
 
   if(std::string("VsCalo") == JetType2) {
     mEvent.getByToken(caloJet1Token_, caloJet2);
-    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back((*caloJet2)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back(&(*caloJet2)[ijet]);
   }
   if(std::string("PuCalo") == JetType2) {
     mEvent.getByToken(caloJet2Token_, caloJet2);
-    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back((*caloJet2)[ijet]);
+    for (unsigned ijet=0; ijet<caloJet2->size(); ++ijet) recoJet2.push_back(&(*caloJet2)[ijet]);
   }
   if(std::string("VsPF") == JetType2) {
     mEvent.getByToken(pfJetsToken_, pfJets);
-    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet2.push_back((*pfJets)[ijet]);
+    for (unsigned ijet=0; ijet<pfJets->size(); ++ijet) recoJet2.push_back(&(*pfJets)[ijet]);
   }
   if(std::string("PuPF") == JetType2) {
     mEvent.getByToken(basicJetsToken_, basicJets);
-    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet2.push_back((*basicJets)[ijet]);
+    for (unsigned ijet=0; ijet<basicJets->size(); ++ijet) recoJet2.push_back(&(*basicJets)[ijet]);
   }
 
   // start to perform the matching - between recoJet1 and recoJet2.
@@ -220,13 +220,13 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
   for(unsigned ijet1 = 0; ijet1 < recoJet1.size(); ++ijet1){
 
 
-    if(recoJet1[ijet1].pt() < mRecoJetPtThreshold) continue;
-    if(fabs(recoJet1[ijet1].eta()) < mRecoJetEtaCut) continue;
+    if(recoJet1[ijet1]->pt() < mRecoJetPtThreshold) continue;
+    if(fabs(recoJet1[ijet1]->eta()) < mRecoJetEtaCut) continue;
 
     MyJet JET1;
-    JET1.eta = recoJet1[ijet1].eta();
-    JET1.phi = recoJet1[ijet1].phi();
-    JET1.pt  = recoJet1[ijet1].pt();
+    JET1.eta = recoJet1[ijet1]->eta();
+    JET1.phi = recoJet1[ijet1]->phi();
+    JET1.pt  = recoJet1[ijet1]->pt();
     JET1.id  = ijet1; 
 
     vJet1.push_back(JET1);
@@ -236,13 +236,13 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
   for(unsigned ijet2 = 0; ijet2 < recoJet2.size(); ++ijet2){
 
-    if(recoJet2[ijet2].pt() < mRecoJetPtThreshold) continue;
-    if(fabs(recoJet2[ijet2].eta()) < mRecoJetEtaCut) continue;
+    if(recoJet2[ijet2]->pt() < mRecoJetPtThreshold) continue;
+    if(fabs(recoJet2[ijet2]->eta()) < mRecoJetEtaCut) continue;
 
     MyJet JET2;
-    JET2.eta = recoJet1[ijet2].eta();
-    JET2.phi = recoJet1[ijet2].phi();
-    JET2.pt  = recoJet1[ijet2].pt();
+    JET2.eta = recoJet2[ijet2]->eta();
+    JET2.phi = recoJet2[ijet2]->phi();
+    JET2.pt  = recoJet2[ijet2]->pt();
     JET2.id  = ijet2; 
 
     vJet2.push_back(JET2);
@@ -266,7 +266,7 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       int pj = (*iJet).id;
       
-      mpT_Jet1_unmatched->Fill(recoJet1[pj].pt());
+      mpT_Jet1_unmatched->Fill(recoJet1[pj]->pt());
 
     }
 
@@ -276,7 +276,7 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       int cj = (*iJet).id;
 
-      mpT_Jet2_unmatched->Fill(recoJet2[cj].pt());
+      mpT_Jet2_unmatched->Fill(recoJet2[cj]->pt());
     }
     
   }else if (bothJet1Jet2){
@@ -301,10 +301,10 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       if( delr < mRecoDelRMatch && Jet1_ID[Aj.id] == 0){
 
-	mpT_ratio_Jet1Jet2->Fill((Float_t) recoJet2[Bj.id].pt()/recoJet1[Aj.id].pt());
+	mpT_ratio_Jet1Jet2->Fill((Float_t) recoJet2[Bj.id]->pt()/recoJet1[Aj.id]->pt());
 
-	mpT_Jet1_matched->Fill(recoJet1[Aj.id].pt());
-	mpT_Jet2_matched->Fill(recoJet2[Bj.id].pt());
+	mpT_Jet1_matched->Fill(recoJet1[Aj.id]->pt());
+	mpT_Jet2_matched->Fill(recoJet2[Bj.id]->pt());
 	
 	Jet1_ID[Aj.id] = 1;
 	Jet2_ID[Bj.id] = 1;
@@ -326,7 +326,7 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       if(Jet1_ID[Aj.id] == 0) {
 
-	mpT_Jet1_unmatched->Fill(recoJet1[Aj.id].pt());
+	mpT_Jet1_unmatched->Fill(recoJet1[Aj.id]->pt());
 	unmatchedJet1++;
 	Jet1_ID[Aj.id] = 1;
 
@@ -354,7 +354,7 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       if(Jet2_ID[Bj.id] == 0) {
 
-	mpT_Jet2_unmatched->Fill(recoJet2[Bj.id].pt());
+	mpT_Jet2_unmatched->Fill(recoJet2[Bj.id]->pt());
 	unmatchedJet2++;
 	Jet2_ID[Bj.id] = 2;
 	if(std::string("VsCalo") == JetType2 || std::string("PuCalo") == JetType2){

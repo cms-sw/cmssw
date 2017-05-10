@@ -59,7 +59,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			    const EcalRecHitCollection* ecalEndcapHits,
                             const EcalRecHitCollection* preshowerHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			    reco::VertexCollection& pvVertices,
+			    const reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
 
