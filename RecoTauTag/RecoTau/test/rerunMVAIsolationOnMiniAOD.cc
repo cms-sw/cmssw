@@ -75,14 +75,14 @@ class rerunMVAIsolationOnMiniAOD : public edm::one::EDAnalyzer<edm::one::SharedR
       TauIdMVAAuxiliaries clusterVariables_;
 
       edm::EDGetTokenT<pat::TauCollection> tauToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationToken_;
+    /*edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVLooseToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationLooseToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationMediumToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationTightToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVTightToken_;
       edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVVTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaEleRawToken_;
+      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaEleRawToken_;*/
       edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> dmfNewToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> chargedIsoPtSumToken_;
@@ -161,15 +161,7 @@ rerunMVAIsolationOnMiniAOD::rerunMVAIsolationOnMiniAOD(const edm::ParameterSet& 
 
    outfile = new TFile("outfile_rerunMVAIsolationOnMiniAOD.root","RECREATE");
 
-   tauToken_ = consumes<pat::TauCollection>(edm::InputTag("slimmedTaus","","PAT"));
-   mvaIsolationToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1raw","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVLooseToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VLoose","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationLooseToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Loose","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationMediumToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Medium","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Tight","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VTight","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVVTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VVTight","","rerunMVAIsolationOnMiniAOD"));
-   mvaEleRawToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationAgainstElectronMVA6","","rerunMVAIsolationOnMiniAOD"));
+   tauToken_ = consumes<pat::TauCollection>(edm::InputTag("newTauIDsEmbedded"));
    pfTauToken_ = consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer","","PAT"));
    dmfNewToken_ = consumes<reco::PFTauDiscriminator>(edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs","","PAT"));
    chargedIsoPtSumToken_ = consumes<reco::PFTauDiscriminator>(edm::InputTag("hpsPFTauChargedIsoPtSum","","PAT"));
@@ -254,53 +246,26 @@ rerunMVAIsolationOnMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSe
 	edm::Handle<pat::TauCollection> taus;
 	iEvent.getByToken(tauToken_,taus);
 
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoRaw;
-	iEvent.getByToken(mvaIsolationToken_,mvaIsoRaw);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVLoose;
-	iEvent.getByToken(mvaIsolationVLooseToken_,mvaIsoVLoose);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoLoose;
-	iEvent.getByToken(mvaIsolationLooseToken_,mvaIsoLoose);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoMedium;
-	iEvent.getByToken(mvaIsolationMediumToken_,mvaIsoMedium);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoTight;
-	iEvent.getByToken(mvaIsolationTightToken_,mvaIsoTight);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVTight;
-	iEvent.getByToken(mvaIsolationVTightToken_,mvaIsoVTight);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVVTight;
-	iEvent.getByToken(mvaIsolationVVTightToken_,mvaIsoVVTight);
-
-        edm::Handle<reco::PFTauDiscriminator> rawElecMVA6;
-	iEvent.getByToken(rawElecMVA6Token_,rawElecMVA6);
-       
-        edm::Handle<pat::PATTauDiscriminator> mvaEleRaw;
-        iEvent.getByToken(mvaEleRawToken_,mvaEleRaw);
-
 	std::vector<pat::TauRef> unmatchedTaus;
 
 	for(unsigned iTau = 0; iTau < taus->size(); iTau++)
 	{
 		pat::TauRef tau(taus,iTau);
 		float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
-		float valueMiniAOD = (*mvaIsoRaw)[tau];
+		float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
 
 		mvaValueAOD->Fill(valueAOD);
 		mvaValueMiniAOD->Fill(valueMiniAOD);
 
 		mvaValue->Fill(valueAOD,valueMiniAOD);
-		mvaValue_vLoose->Fill(tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVLoose)[tau]);
-		mvaValue_Loose->Fill(tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoLoose)[tau]);
-		mvaValue_Medium->Fill(tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoMedium)[tau]);
-		mvaValue_Tight->Fill(tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoTight)[tau]);
-		mvaValue_vTight->Fill(tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVTight)[tau]);
-		mvaValue_vvTight->Fill(tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVVTight)[tau]);
+		mvaValue_vLoose->Fill(tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Loose->Fill(tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Medium->Fill(tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Tight->Fill(tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byTightIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_vTight->Fill(tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_vvTight->Fill(tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLTNew"));
 		mvaValueDiff->Fill(std::abs(valueAOD - valueMiniAOD));
-                mvaValue_antiEMVA6->Fill((*mvaEleRaw)[tau] , taus->at(iTau).tauID("againstElectronMVA6Raw"));
+                mvaValue_antiEMVA6->Fill(tau->tauID("againstElectronMVA6Raw"), tau->tauID("againstElectronMVA6RawNew"));
 
 		if(valueAOD != valueMiniAOD)
 			unmatchedTaus.push_back(tau);
