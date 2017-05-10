@@ -12,6 +12,11 @@ class RegionalMuonCand {
     enum bmtfAddress {
         kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5, kSegSelStat1=6, kSegSelStat2=7, kSegSelStat3=8, kSegSelStat4=9, kNumBmtfSubAddr=10
     };
+    /// Enum to identify the individual parts of the OMTF track address
+    /// Update kNumEmtfSubAddr if you add additional enums
+    enum omtfAddress {
+	kLayers=0, kZero=1, kWeight=2, kNumOmtfSubAddr=3
+    };
     /// Enum to identify the individual parts of the EMTF track address
     /// Update kNumEmtfSubAddr if you add additional enums
     enum emtfAddress {
@@ -62,6 +67,10 @@ class RegionalMuonCand {
     void setTrackSubAddress(bmtfAddress subAddress, int value) {
         m_trackAddress[subAddress] = value;
     }
+    /// Set a part of the muon candidates track address; specialised for OMTF
+    void setTrackSubAddress(omtfAddress subAddress, int value) {
+        m_trackAddress[subAddress] = value;
+    }
     /// Set a part of the muon candidates track address; specialised for EMTF
     void setTrackSubAddress(emtfAddress subAddress, int value) {
         m_trackAddress[subAddress] = value;
@@ -104,6 +113,10 @@ class RegionalMuonCand {
     }
     /// Get part of track address (identifies track primitives used for reconstruction)
     int trackSubAddress(bmtfAddress subAddress) const {
+        return m_trackAddress.at(subAddress);
+    }
+    /// Get part of track address (identifies track primitives used for reconstruction)
+    int trackSubAddress(omtfAddress subAddress) const {
         return m_trackAddress.at(subAddress);
     }
     /// Get part of track address (identifies track primitives used for reconstruction)

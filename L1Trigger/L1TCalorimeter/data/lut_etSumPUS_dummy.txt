@@ -1,0 +1,6 @@
+# Dummy LUT
+# anything after # is ignored with the exception of the header
+# the header is first valid line starting with #<header> versionStr nrBitsAddress nrBitsData </header>
+#<header> v1 1 1 </header>
+0 1
+1 1
