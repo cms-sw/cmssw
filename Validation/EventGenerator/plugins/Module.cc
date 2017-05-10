@@ -39,3 +39,9 @@ DEFINE_FWK_MODULE(TTbarSpinCorrHepMCAnalyzer);
 
 #include "Validation/EventGenerator/interface/HiggsValidation.h"
 DEFINE_FWK_MODULE(HiggsValidation);
+
+#include "Validation/EventGenerator/interface/BPhysicsValidation.h"
+DEFINE_FWK_MODULE(BPhysicsValidation);
+
+#include "Validation/EventGenerator/interface/BPhysicsSpectrum.h"
+DEFINE_FWK_MODULE(BPhysicsSpectrum);
