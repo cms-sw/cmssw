@@ -45,6 +45,9 @@ namespace HcalDbXml {
 		   const HcalQIEData& fObject) {return false;}
   inline bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
+		   const HcalQIEDataExtended& fObject) {return false;}
+  inline bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalCalibrationQIEData& fObject) {return false;}
 } 
 #endif

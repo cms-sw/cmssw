@@ -13,6 +13,8 @@ drop table HCALGAINS_MITEMS;
 drop table HCALGAINS;
 drop table HCALQIEDATA_MITEMS;
 drop table HCALQIEDATA;
+drop table HCALQIEDATAEXTENDED_MITEMS;
+drop table HCALQIEDATAEXTENDED;
 drop table COND__IOV_IOV;
 drop table COND__IOV;
 drop table POOL_OR_MAPPING_VERSIONS;

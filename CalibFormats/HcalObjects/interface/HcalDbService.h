@@ -40,8 +40,10 @@ class HcalDbService {
   const HcalGain* getGain (const HcalGenericDetId& fId) const;
   const HcalGainWidth* getGainWidth (const HcalGenericDetId& fId) const;
   const HcalQIECoder* getHcalCoder (const HcalGenericDetId& fId) const;
+  const HcalQIECoderExtended* getHcalCoderExtended (const HcalGenericDetId& fId) const;
   const HcalQIEShape* getHcalShape (const HcalGenericDetId& fId) const;
   const HcalQIEShape* getHcalShape (const HcalQIECoder *coder) const;
+  const HcalQIEShape* getHcalShape (const HcalQIECoderExtended *coder) const;
   const HcalElectronicsMap* getHcalMapping () const;
   const HcalRespCorr* getHcalRespCorr (const HcalGenericDetId& fId) const;
   const HcalTimeCorr* getHcalTimeCorr (const HcalGenericDetId& fId) const;
@@ -57,6 +59,7 @@ class HcalDbService {
   void setData (const HcalGains* fItem) {mGains = fItem; mCalibSet = nullptr; }
   void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; mCalibWidthSet = nullptr; }
   void setData (const HcalQIEData* fItem) {mQIEData = fItem; mCalibSet=nullptr; mCalibWidthSet=nullptr;}
+  void setData (const HcalQIEDataExtended* fItem) {mQIEDataExtended = fItem; mCalibSet=nullptr; mCalibWidthSet=nullptr;}
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
   void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem; mCalibSet = nullptr; }
@@ -79,6 +82,7 @@ class HcalDbService {
   const HcalGains* mGains;
   const HcalGainWidths* mGainWidths;
   const HcalQIEData* mQIEData;
+  const HcalQIEDataExtended* mQIEDataExtended;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
   const HcalRespCorrs* mRespCorrs;

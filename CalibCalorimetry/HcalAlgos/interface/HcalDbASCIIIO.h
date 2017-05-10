@@ -24,6 +24,8 @@ Text file formats for different data types is as following:
   33 x floats - low edges for first 33 channels of ideal QIE
 - HcalQIEData:
   eta phi depth det 4x offsets_cap1 4x offsets_cap2 4x offsets_cap3 4x offsets_cap4 4x slopes_cap1 4x slopes_cap2 4x slopes_cap3 4x slopes_cap4
+- HcalQIEDataExtended:
+  eta phi depth det QIEbarcode QIEchannel 4x offsets_cap1 4x offsets_cap2 4x offsets_cap3 4x offsets_cap4 4x slopes_cap1 4x slopes_cap2 4x slopes_cap3 4x slopes_cap4
 - HcalChannelQuality:
   eta phi depth det status(GOOD/BAD/HOT/DEAD)
 - HcalElectronicsMap:
@@ -46,6 +48,8 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject);
   bool getObject (std::istream& fInput, HcalQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalQIEData& fObject);
+  bool getObject (std::istream& fInput, HcalQIEDataExtended* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalQIEDataExtended& fObject);
   bool getObject (std::istream& fInput, HcalCalibrationQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
   bool getObject (std::istream& fInput, HcalElectronicsMap* fObject);

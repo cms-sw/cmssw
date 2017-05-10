@@ -18,6 +18,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEDataExtended.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
 
@@ -87,6 +88,9 @@ void initDb (const std::string& inputdb, bool verbose) {
   std::cout << "initDb-> initializing qie" << std::endl;
   HcalQIEData* qie = new HcalQIEData;
   db.putObject (qie, "dummy_qie", 1);
+  std::cout << "initDb-> initializing qieextended" << std::endl;
+  HcalQIEDataExtended* qieextended = new HcalQIEDataExtended;
+  db.putObject (qieextended, "dummy_qieextended", 1);
   std::cout << "initDb-> initializing electronics map" << std::endl;
   HcalElectronicsMap* map = new HcalElectronicsMap;
   db.putObject (map, "dummy_map", 1);

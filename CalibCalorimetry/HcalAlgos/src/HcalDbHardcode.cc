@@ -566,6 +566,34 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   return result;
 }
 
+HcalQIECoderExtended HcalDbHardcode::makeQIECoderExtended (HcalGenericDetId fId) {
+  HcalQIECoderExtended result (fId.rawId ());
+  float offset = 0.0;
+  float slope = fId.genericSubdet () == HcalGenericDetId::HcalGenForward ? 
+  0.36 : 0.333;  // ADC/fC
+  int qiebarcode = 999999;
+  int qiechannel = 0;
+
+  // qie8/qie10 attribution - 0/1
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    result.setQIEIndex(0);
+    slope = 1.0;
+  } else 
+    result.setQIEIndex(1);
+
+  // all set to barcode 999999 and channel 0
+  result.setQIEId(qiebarcode,qiechannel);
+
+  for (unsigned range = 0; range < 4; range++) {
+    for (unsigned capid = 0; capid < 4; capid++) {
+      result.setOffset (capid, range, offset);
+      result.setSlope (capid, range, slope);
+    }
+  }
+
+  return result;
+}
+
 HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
   HcalCalibrationQIECoder result (fId.rawId ());
   float lowEdges [64];

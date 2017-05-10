@@ -29,6 +29,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEDataExtended.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
 //using namespace cms;
@@ -67,7 +68,7 @@ void printHelp (const Args& args) {
   std::cout << "Use:" << std::endl;
   sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
-  std::cout << "  where <what> is: \n    pedestals\n    gains\n    pwidths\n    gwidths\n    emap\n    qie\n    calibqie" << std::endl;
+  std::cout << "  where <what> is: \n    pedestals\n    gains\n    pwidths\n    gwidths\n    emap\n    qie\n  qieextended\n  calibqie" << std::endl;
   args.printOptionsHelp ();
 }
 
@@ -122,6 +123,9 @@ int main (int argn, char* argv []) {
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
+  }
+  else if (what == "qieextended") {
+    HcalQIEDataExtended* object = 0;
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
