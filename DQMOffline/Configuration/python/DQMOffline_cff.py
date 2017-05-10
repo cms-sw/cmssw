@@ -46,7 +46,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
-from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
+
 
 DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  muonMonitors *
@@ -106,11 +106,12 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                  )
-DQMOfflineMuon = cms.Sequence( dtSources *
+DQMOfflineMuon = cms.Sequence( #dtSources *
                                rpcTier0Source *
                                cscSources *
                                muonMonitors
                               )
+DQMOfflineMuon_miniAOD = cms.Sequence( muonMonitors_miniAOD )
 DQMOfflineHcal = cms.Sequence( hcalOfflineDQMSource )
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
@@ -122,6 +123,12 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
-HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
-                                                                 
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD )
+from DQMOffline.Muon.miniAOD_cff import *                                                                 
+
+muonMiniAOD = cms.Sequence( MuonMiniAOD )
+DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence*muonMonitors_miniAOD*muonMiniAOD )
+
+#DQMOfflineNoHWW = cms.Sequence(DQMOffline)
+#DQMOfflineNoHWW.remove(hwwAnalyzer)
+
+
