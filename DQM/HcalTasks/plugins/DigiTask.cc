@@ -401,9 +401,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
 
-	_cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
-	_cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
-	_cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCvsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cLETDCvsTS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cLETDCTime_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -975,11 +975,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!_filter_HF.filter(did)) {
 				_cADC_SubdetPM_HF.fill(did, digi[i].adc());
 				_cfC_SubdetPM_HF.fill(did, q);
-			}
-			_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
-			_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
-			if (digi[i].le_tdc() <50) {
-				_cLETDCTime_SubdetPM.fill(did, i*25. + (digi[i].le_tdc() / 2.));
+				_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
+				_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
+				if (digi[i].le_tdc() <50) {
+					_cLETDCTime_SubdetPM.fill(did, i*25. + (digi[i].le_tdc() / 2.));
+				}
 			}
 
 			if (_ptype != fOffline) { // hidefed2crate
