@@ -56,6 +56,7 @@ L1HardwareValidationforStage1 = cms.Sequence(
                                 deHcal+
                                 deRct+
                                 deStage1Layer2+
+                                deGct+
                                 deDt+
                                 deCsc+
                                 deCsctfTracks +
