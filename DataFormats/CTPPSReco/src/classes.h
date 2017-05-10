@@ -11,6 +11,8 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+
 #include <vector>
 
 namespace DataFormats_CTPPSReco {
@@ -56,5 +58,11 @@ namespace DataFormats_CTPPSReco {
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
 
+    //--- common objects
+
+    CTPPSLocalTrackLite cltl;
+    std::vector<CTPPSLocalTrackLite> v_cltl;
+    edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
+    edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
   };
 }
