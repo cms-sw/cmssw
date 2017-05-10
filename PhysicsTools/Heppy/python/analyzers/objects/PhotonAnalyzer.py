@@ -87,13 +87,23 @@ class PhotonAnalyzer( Analyzer ):
 
             gamma.rho = float(self.handles['rhoPhoton'].product()[0])
             # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Selection_implementation_details
-            if   abs(gamma.eta()) < 1.0:   gamma.EffectiveArea03 = [ 0.0234, 0.0053, 0.078  ]
-            elif abs(gamma.eta()) < 1.479: gamma.EffectiveArea03 = [ 0.0189, 0.0103, 0.0629 ]
-            elif abs(gamma.eta()) < 2.0:   gamma.EffectiveArea03 = [ 0.0171, 0.0057, 0.0264 ]
-            elif abs(gamma.eta()) < 2.2:   gamma.EffectiveArea03 = [ 0.0129, 0.0070, 0.0462 ]
-            elif abs(gamma.eta()) < 2.3:   gamma.EffectiveArea03 = [ 0.0110, 0.0152, 0.0740 ]
-            elif abs(gamma.eta()) < 2.4:   gamma.EffectiveArea03 = [ 0.0074, 0.0232, 0.0924 ]
-            else:                          gamma.EffectiveArea03 = [ 0.0035, 0.1709, 0.1484 ]
+            if 'PHYS14_25ns' in self.cfg_ana.gammaID:
+                if   abs(gamma.eta()) < 1.0:   gamma.EffectiveArea03 = [ 0.0234, 0.0053, 0.078  ]
+                elif abs(gamma.eta()) < 1.479: gamma.EffectiveArea03 = [ 0.0189, 0.0103, 0.0629 ]
+                elif abs(gamma.eta()) < 2.0:   gamma.EffectiveArea03 = [ 0.0171, 0.0057, 0.0264 ]
+                elif abs(gamma.eta()) < 2.2:   gamma.EffectiveArea03 = [ 0.0129, 0.0070, 0.0462 ]
+                elif abs(gamma.eta()) < 2.3:   gamma.EffectiveArea03 = [ 0.0110, 0.0152, 0.0740 ]
+                elif abs(gamma.eta()) < 2.4:   gamma.EffectiveArea03 = [ 0.0074, 0.0232, 0.0924 ]
+                else:                          gamma.EffectiveArea03 = [ 0.0035, 0.1709, 0.1484 ]
+            else:
+                # default: values for SPRING15_25ns
+                if   abs(gamma.eta()) < 1.0:   gamma.EffectiveArea03 = [ 0.0, 0.0599, 0.1271  ]
+                elif abs(gamma.eta()) < 1.479: gamma.EffectiveArea03 = [ 0.0, 0.0819, 0.1101 ]
+                elif abs(gamma.eta()) < 2.0:   gamma.EffectiveArea03 = [ 0.0, 0.0696, 0.0756 ]
+                elif abs(gamma.eta()) < 2.2:   gamma.EffectiveArea03 = [ 0.0, 0.0360, 0.1175 ]
+                elif abs(gamma.eta()) < 2.3:   gamma.EffectiveArea03 = [ 0.0, 0.0360, 0.1498 ]
+                elif abs(gamma.eta()) < 2.4:   gamma.EffectiveArea03 = [ 0.0, 0.0462, 0.1857 ]
+                else:                          gamma.EffectiveArea03 = [ 0.0, 0.0656, 0.2183 ]
 
             if self.doFootprintRemovedIsolation:
                 self.attachFootprintRemovedIsolation(gamma)
@@ -104,16 +114,18 @@ class PhotonAnalyzer( Analyzer ):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
 
                 id=0
-                if gamma.photonID(X%"Loose"):
-                    id=1
-                #if gamma.photonID(X%"Medium"):
-                #    id=2 
-                if gamma.photonID(X%"Tight"):
+                if gamma.passPhotonID(X%"Loose", self.cfg_ana.conversionSafe_eleVeto) and gamma.passPhotonIso(X%"Loose",self.cfg_ana.gamma_isoCorr):
+                    id=1 
+                if gamma.passPhotonID(X%"Medium", self.cfg_ana.conversionSafe_eleVeto) and gamma.passPhotonIso(X%"Medium",self.cfg_ana.gamma_isoCorr):
+                    id=2 
+                if gamma.passPhotonID(X%"Tight", self.cfg_ana.conversionSafe_eleVeto) and gamma.passPhotonIso(X%"Tight",self.cfg_ana.gamma_isoCorr):
                     id=3
                 return id
 
-            gamma.idCutBased = idWP(gamma, "PhotonCutBasedID%s")
-
+            # bits to store in the trees
+            gamma.idWPs = idWP(gamma, "POG_SPRING15_25ns_%s")
+            # bit to be used in selection
+            gamma.idCutBased = 0
 
             keepThisPhoton = True
 

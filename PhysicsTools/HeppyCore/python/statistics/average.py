@@ -91,4 +91,6 @@ class Average(object):
 
 class Averages(diclist):
     def write(self, dirname):
-        map( lambda x: x.write(dirname), self)
+        for item in self:
+            item.write(dirname)
+            

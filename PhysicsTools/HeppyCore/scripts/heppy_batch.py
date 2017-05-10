@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 import sys
 import imp
@@ -9,8 +9,9 @@ import pickle
 import json
 import math
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
+from PhysicsTools.HeppyCore.framework.config import split
 
-from PhysicsTools.HeppyCore.framework.heppy_loop import split
+import PhysicsTools.HeppyCore.framework.looper as looper
 
 def batchScriptPADOVA( index, jobDir='./'):
    '''prepare the LSF version of the batch script, to run on LSF'''
@@ -32,12 +33,12 @@ echo 'copying job dir to worker'
 eval `scram runtime -sh`
 ls
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
+python {looper} pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
 #echo cp -r Loop/* $LS_SUBCWD 
-""".format(jdir=jobDir)
+""".format(looper=looper.__file__, jdir=jobDir)
 
    return script
 
@@ -65,17 +66,17 @@ eval `scramv1 runtime -sh`
 ls
 echo `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
+python {looper} pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
 #echo cp -r Loop/* $LS_SUBCWD 
-"""
+""".format(looper=looper.__file__)
    return script
 
 def batchScriptCERN( jobDir, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
-   
+
    dirCopy = """echo 'sending the logs back'  # will send also root files if copy failed
 rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $LS_SUBCWD
@@ -84,7 +85,6 @@ if [ $? -ne 0 ]; then
 else
    echo 'job directory copy succeeded'
 fi"""
-
    if remoteDir=='':
       cpCmd=dirCopy
    elif  remoteDir.startswith("root://eoscms.cern.ch//eos/cms/store/"):
@@ -155,10 +155,49 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
+python {looper} pycfg.py config.pck --options=options.json
 echo
 {copy}
-""".format(copy=cpCmd)
+""".format(looper=looper.__file__, copy=cpCmd)
+
+   return script
+
+
+
+def batchScriptCERN_FCC( jobDir ):
+   '''prepare the LSF version of the batch script, to run on LSF'''
+
+   dirCopy = """echo 'sending the logs back'  # will send also root files if copy failed
+cp -r Loop/* $LS_SUBCWD
+if [ $? -ne 0 ]; then
+   echo 'ERROR: problem copying job directory back'
+else
+   echo 'job directory copy succeeded'
+fi"""
+   cpCmd=dirCopy
+
+   script = """#!/bin/bash
+#BSUB -q 8nm
+# ulimit -v 3000000 # NO
+unset LD_LIBRARY_PATH
+echo 'copying job dir to worker'
+source /afs/cern.ch/exp/fcc/sw/0.7/init_fcc_stack.sh
+cd $HEPPY
+source ./init.sh
+echo 'environment:'
+echo
+env | sort
+echo
+which python
+cd -
+cp -rf $LS_SUBCWD .
+ls
+cd `find . -type d | grep /`
+echo 'running'
+python {looper} pycfg.py config.pck
+echo
+{copy}
+""".format(looper=looper.__file__, copy=cpCmd)
 
    return script
 
@@ -244,8 +283,7 @@ cp -rf $SUBMISIONDIR .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
-#python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
+python {looper} pycfg.py config.pck --options=options.json
 echo
 {copy}
 ###########################################################################
@@ -255,7 +293,7 @@ echo "################################################################"
 echo "Job finished at " `date`
 echo "Wallclock running time: $RUNTIME s"
 exit 0
-""".format(jdir=jobDir, vo=VO_CMS_SW_DIR,cmssw=cmssw_release, copy=cpCmd)
+""".format(jdir=jobDir, vo=VO_CMS_SW_DIR,cmssw=cmssw_release, looper=looper.__file__, copy=cpCmd)
 
    return script
 
@@ -272,11 +310,11 @@ cd {cmssw}/src
 eval `scramv1 ru -sh`
 cd -
 echo 'running'
-python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
+python {looper} pycfg.py config.pck --options=options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./ && rm -r Loop
-""".format(jobdir = jobDir,cmssw = cmssw_release)
+""".format(jobdir = jobDir, looper=looper.__file__, cmssw = cmssw_release)
    return script
 
 def batchScriptLocal(  remoteDir, index ):
@@ -284,7 +322,7 @@ def batchScriptLocal(  remoteDir, index ):
 
    script = """#!/bin/bash
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
+python {looper} pycfg.py config.pck --options=options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./
@@ -296,53 +334,81 @@ class MyBatchManager( BatchManager ):
    '''Batch manager specific to cmsRun processes.''' 
          
    def PrepareJobUser(self, jobDir, value ):
-       '''Prepare one job. This function is called by the base class.'''
-       print value
-       print components[value]
+      '''Prepare one job. This function is called by the base class.'''
+      print value
+      print self.components[value]
 
-       #prepare the batch script
-       scriptFileName = jobDir+'/batchScript.sh'
-       scriptFile = open(scriptFileName,'w')
-       storeDir = self.remoteOutputDir_.replace('/castor/cern.ch/cms','')
-       mode = self.RunningMode(options.batch)
-       if mode == 'LXPLUS':
-           scriptFile.write( batchScriptCERN( jobDir, storeDir ) ) 
-       elif mode == 'PSI':
-           scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) # storeDir not implemented at the moment
-       elif mode == 'LOCAL':
-           scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
-       elif mode == 'PISA' :
-	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
-       elif mode == 'PADOVA' :
-           scriptFile.write( batchScriptPADOVA( value, jobDir) )        
-       elif mode == 'IC':
-           scriptFile.write( batchScriptIC(jobDir) )
-       scriptFile.close()
-       os.system('chmod +x %s' % scriptFileName)
-       
-       shutil.copyfile(cfgFileName, jobDir+'/pycfg.py')
+      #prepare the batch script
+      scriptFileName = jobDir+'/batchScript.sh'
+      scriptFile = open(scriptFileName,'w')
+      storeDir = self.remoteOutputDir_.replace('/castor/cern.ch/cms','')
+      mode = self.RunningMode(self.options_.batch)
+      if mode == 'LXPLUS':
+         if 'CMSSW_BASE' in os.environ and not 'PODIO' in os.environ:  
+            scriptFile.write( batchScriptCERN( jobDir, storeDir) )
+         elif 'PODIO' in os.environ:
+            #FCC case
+            scriptFile.write( batchScriptCERN_FCC( jobDir ) )
+         else: 
+            assert(False)
+      elif mode == 'PSI':
+         # storeDir not implemented at the moment
+         scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) 
+      elif mode == 'LOCAL':
+         # watch out arguments are swapped (although not used)         
+         scriptFile.write( batchScriptLocal( storeDir, value) ) 
+      elif mode == 'PISA' :
+         scriptFile.write( batchScriptPISA( storeDir, value) ) 	
+      elif mode == 'PADOVA' :
+         scriptFile.write( batchScriptPADOVA( value, jobDir) )        
+      elif mode == 'IC':
+         scriptFile.write( batchScriptIC(jobDir) )
+      scriptFile.close()
+      os.system('chmod +x %s' % scriptFileName)
+
+      shutil.copyfile(self.cfgFileName, jobDir+'/pycfg.py')
 #      jobConfig = copy.deepcopy(config)
-#      jobConfig.components = [ components[value] ]
-       cfgFile = open(jobDir+'/config.pck','w')
-       pickle.dump(  components[value] , cfgFile )
-       # pickle.dump( cfo, cfgFile )
-       cfgFile.close()
-       if hasattr(self,"heppyOptions_"):
-          optjsonfile = open(jobDir+'/options.json','w')
-          optjsonfile.write(json.dumps(self.heppyOptions_))
-          optjsonfile.close()
+#      jobConfig.self.components = [ self.components[value] ]
+      cfgFile = open(jobDir+'/config.pck','w')
+      pickle.dump(  self.components[value] , cfgFile )
+      # pickle.dump( cfo, cfgFile )
+      cfgFile.close()
+      if hasattr(self,"heppyOptions_"):
+         optjsonfile = open(jobDir+'/options.json','w')
+         optjsonfile.write(json.dumps(self.heppyOptions_))
+         optjsonfile.close()
 
-if __name__ == '__main__':
-    batchManager = MyBatchManager()
-    batchManager.parser_.usage="""
+
+def create_batch_manager(): 
+   batchManager = MyBatchManager()
+   batchManager.parser_.usage="""
     %prog [options] <cfgFile>
 
     Run Colin's python analysis system on the batch.
     Job splitting is determined by your configuration file.
     """
+   return batchManager
 
-    options, args = batchManager.ParseOptions()
 
+def main(options, args, batchManager): 
+   batchManager.cfgFileName = args[0]
+
+   handle = open(batchManager.cfgFileName, 'r')
+   cfo = imp.load_source("pycfg", batchManager.cfgFileName, handle)
+   config = cfo.config
+   handle.close()
+
+   batchManager.components = split( [comp for comp in config.components \
+                                        if len(comp.files)>0] )
+   listOfValues = range(0, len(batchManager.components))
+   listOfNames = [comp.name for comp in batchManager.components]
+
+   batchManager.PrepareJobs( listOfValues, listOfNames )
+   waitingTime = 0.1
+   batchManager.SubmitJobs( waitingTime )
+   
+
+if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.heppy_loop import _heppyGlobalOptions
     for opt in options.extraOptions:
         if "=" in opt:
@@ -352,19 +418,6 @@ if __name__ == '__main__':
             _heppyGlobalOptions[opt] = True
     batchManager.heppyOptions_=_heppyGlobalOptions
 
-    cfgFileName = args[0]
-
-    handle = open(cfgFileName, 'r')
-    # import pdb; pdb.set_trace()
-    cfo = imp.load_source("pycfg", cfgFileName, handle)
-    config = cfo.config
-    handle.close()
-
-    components = split( [comp for comp in config.components if len(comp.files)>0] )
-    listOfValues = range(0, len(components))
-    listOfNames = [comp.name for comp in components]
-
-    batchManager.PrepareJobs( listOfValues, listOfNames )
-    waitingTime = 0.1
-    batchManager.SubmitJobs( waitingTime )
-
+   batchManager = create_batch_manager() 
+   options, args = batchManager.ParseOptions()
+   main(options, args, batchManager)
