@@ -53,6 +53,8 @@ caloParams = cms.ESProducer(
     egPUSType               = cms.string("None"),
     egIsolationType          = cms.string("unspecified"),
     egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
+    egIsoLUTFile2               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
+
     #egIsoLUTFileBarrel         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.30.txt"),
     #egIsoLUTFileEndcaps        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.50.txt"),
     egIsoAreaNrTowersEta       = cms.uint32(2),
@@ -62,6 +64,7 @@ caloParams = cms.ESProducer(
     egIsoMaxEtaAbsForTowerSum  = cms.uint32(4),
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
     egBypassEGVetos            = cms.uint32(0),
+    egBypassExtHOverE          = cms.uint32(1),
 
     # Tau
     tauRegionMask                 = cms.int32(0),
