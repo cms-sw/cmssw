@@ -8,12 +8,25 @@ dqmInfoEcal = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Ecal')
 )
 
+ecalMultiftAnalyzer = cms.EDAnalyzer('ECALMultifitAnalyzer_HI',
+                                     recoPhotonSrc         = cms.InputTag('photons'),
+                                     recoJetSrc            = cms.InputTag('akVs4CaloJets'),
+                                     RecHitCollection_EB   = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
+                                     RecHitCollection_EE   = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
+                                     rechitEnergyThreshold = cms.double(5.0),
+                                     recoPhotonPtThreshold = cms.double(15.0),
+                                     recoJetPtThreshold    = cms.double(30.0),
+                                     deltaRPhotonThreshold = cms.double(0.1),
+                                     deltaRJetThreshold    = cms.double(0.4)
+)
+
 ## standard
 ecal_dqm_source_offline = cms.Sequence(
     dqmInfoEcal +
     ecalMonitorTask +
     ecalFEDMonitor +
-    ecalzmasstask
+    ecalzmasstask +
+    ecalMultiftAnalyzer
 )
 
 ecalMonitorTask.collectionTags.EBBasicCluster = 'islandBasicClusters:islandBarrelBasicClusters'
