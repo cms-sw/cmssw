@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 selectHighPurity = cms.EDProducer("AnalyticalTrackSelector",
+    isHLT = cms.bool(False),                                  
     src = cms.InputTag("generalTracks"),
     keepAllTracks = cms.bool(False), ## if set to true tracks failing this filter are kept in the output
     beamspot = cms.InputTag("offlineBeamSpot"),
