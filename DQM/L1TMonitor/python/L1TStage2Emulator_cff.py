@@ -27,11 +27,14 @@ from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
 
 l1tStage2Unpack = cms.Sequence(
     l1tCaloLayer1Digis +
+    gmtStage2Digis
+)
+
+l1tStage2UnpackValidationEvents = cms.Sequence(
     caloStage2Digis +
     bmtfDigis  +
     #omtfStage2Digis +
     emtfStage2Digis +
-    gmtStage2Digis +
     gtStage2Digis
 )
 
@@ -97,12 +100,15 @@ valGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
 
 Stage2L1HardwareValidation = cms.Sequence(
     valCaloStage2Layer1Digis +
+    valGmtCaloSumDigis +
+    valGmtStage2Digis
+)
+
+Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
     valCaloStage2Layer2Digis +
     valBmtfDigis +
     valEmtfStage2Digis +
     valOmtfDigis +
-    valGmtCaloSumDigis +
-    valGmtStage2Digis +
     valGtStage2Digis
 )
 
@@ -134,7 +140,13 @@ from DQM.L1TMonitor.L1TStage2uGTEmul_cfi import *
 #-------------------------------------------------
 # Stage2 Emulator and Emulator DQM Sequences
 
+# sequence to run for every event
 l1tStage2EmulatorOnlineDQM = cms.Sequence(
+    l1tStage2uGMTEmulatorOnlineDQMSeq
+)
+
+# sequence to run only for validation events
+l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2CaloLayer1 +
     # We process both layer2 and layer2emu in same sourceclient
     # to be able to divide them in the MonitorClient
@@ -143,6 +155,6 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2Omtf +
     l1tdeStage2Emtf +
     l1tdeStage2EmtfComp +
-    l1tStage2uGMTEmulatorOnlineDQMSeq +
     l1tStage2uGtEmul
 )
+
