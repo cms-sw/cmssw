@@ -93,7 +93,7 @@ template< class T, class C>
     int iMatch = matchIndices[i];
     assert(iMatch< static_cast<int>(matchedJetCollection.size()));
     
-    if( iMatch!=-1 ) {
+    if( iMatch != -1 ) {
       const reco::Candidate& matchedJet = matchedJetCollection[ iMatch ];
       if( !isInRange( matchedJet.pt(), matchedJet.eta(), matchedJet.phi() ) ) continue;
       float ptRes = (jet.pt() - matchedJet.pt())/matchedJet.pt();

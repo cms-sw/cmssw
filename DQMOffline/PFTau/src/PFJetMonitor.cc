@@ -147,7 +147,6 @@ void PFJetMonitor::setDirectory(TDirectory* dir) {
 //
 void PFJetMonitor::fillOne(const reco::Jet& jet,
 			const reco::Jet& matchedJet) {
-  std::cout <<"\nfillone Jet histos" <<std::endl;
 
   const reco::PFJet* pfJet = dynamic_cast<const reco::PFJet*>(&jet);
   const reco::PFJet* pfMatchedJet = dynamic_cast<const reco::PFJet*>(&matchedJet);
