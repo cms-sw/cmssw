@@ -93,6 +93,82 @@ namespace HcalRecAlgosPrivate {
     };
 
     template <typename T>
+    class HasAuxEnergySetterHelper
+    {
+    private:
+        template<void (T::*)(float)> struct tester;
+        typedef char One;
+        typedef struct {char a[2];} Two;
+        template<typename C> static One test(tester<&C::setAuxEnergy>*);
+        template<typename C> static Two test(...);
+
+    public:
+        enum {value = sizeof(HasAuxEnergySetterHelper<T>::template test<T>(0)) == 1};
+    };
+
+    template<typename T, bool is_class_type=IsClassType<T>::value>
+    struct HasAuxEnergySetter
+    {
+        enum {value = false};
+    };    
+
+    template<typename T>
+    struct HasAuxEnergySetter<T, true>
+    {
+        enum {value = HasAuxEnergySetterHelper<T>::value};
+    };
+
+    template<typename T, bool>
+    struct AuxEnergySetter
+    {
+        inline static void setAuxEnergy(T&, float) {}
+    };
+
+    template<typename T>
+    struct AuxEnergySetter<T, true>
+    {
+        inline static void setAuxEnergy(T& h, float e) {h.setAuxEnergy(e);}
+    };
+
+    template <typename T>
+    class HasAuxEnergyGetterHelper
+    {
+    private:
+        template<float (T::*)() const> struct tester;
+        typedef char One;
+        typedef struct {char a[2];} Two;
+        template<typename C> static One test(tester<&C::eaux>*);
+        template<typename C> static Two test(...);
+
+    public:
+        enum {value = sizeof(HasAuxEnergyGetterHelper<T>::template test<T>(0)) == 1};
+    };
+
+    template<typename T, bool is_class_type=IsClassType<T>::value>
+    struct HasAuxEnergyGetter
+    {
+        enum {value = false};
+    };    
+
+    template<typename T>
+    struct HasAuxEnergyGetter<T, true>
+    {
+        enum {value = HasAuxEnergyGetterHelper<T>::value};
+    };
+
+    template<typename T, bool>
+    struct AuxEnergyGetter
+    {
+        inline static float getAuxEnergy(const T&, float v) {return v;}
+    };
+
+    template<typename T>
+    struct AuxEnergyGetter<T, true>
+    {
+        inline static float getAuxEnergy(const T& h, float) {return h.eaux();}
+    };
+
+    template <typename T>
     class HasAuxRecHitGetterHelper
     {
     private:
@@ -149,6 +225,19 @@ template <typename HcalRecHit>
 inline float getRawEnergy(const HcalRecHit& h, float valueIfNoSuchMember=-1.0e20)
 {
     return HcalRecAlgosPrivate::RawEnergyGetter<HcalRecHit,HcalRecAlgosPrivate::HasRawEnergyGetter<HcalRecHit>::value>::getRawEnergy(h, valueIfNoSuchMember);
+}
+
+// Similar functions for aux energy
+template <typename HcalRecHit>
+inline void setAuxEnergy(HcalRecHit& h, float e)
+{
+    HcalRecAlgosPrivate::AuxEnergySetter<HcalRecHit,HcalRecAlgosPrivate::HasAuxEnergySetter<HcalRecHit>::value>::setAuxEnergy(h, e);
+}
+
+template <typename HcalRecHit>
+inline float getAuxEnergy(const HcalRecHit& h, float valueIfNoSuchMember=-1.0e20)
+{
+    return HcalRecAlgosPrivate::AuxEnergyGetter<HcalRecHit,HcalRecAlgosPrivate::HasAuxEnergyGetter<HcalRecHit>::value>::getAuxEnergy(h, valueIfNoSuchMember);
 }
 
 // Function for getting the auxiliary word in a code templated
