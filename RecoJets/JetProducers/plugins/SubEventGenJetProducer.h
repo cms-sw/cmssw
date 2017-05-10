@@ -11,7 +11,7 @@
  ************************************************************/
 
 #include <vector>
-#include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
+#include "RecoJets/JetProducers/interface/VirtualJetProducer.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 namespace cms

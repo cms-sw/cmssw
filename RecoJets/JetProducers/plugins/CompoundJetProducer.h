@@ -32,7 +32,7 @@ Modifications:
  ************************************************************/
 
 
-#include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
+#include "RecoJets/JetProducers/interface/VirtualJetProducer.h"
 
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
