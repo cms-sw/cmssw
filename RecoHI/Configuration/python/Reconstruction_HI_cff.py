@@ -43,7 +43,7 @@ globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hiEgammaSequence
                               * hiParticleFlowReco
                               * hiCentrality
-                              * centralityBin
+                              #* centralityBin  # temporarily removed
                               * hiClusterCompatibility
                               * hiEvtPlane
                               * hcalnoise
@@ -59,7 +59,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
                                               * hiCentrality
-                                              * centralityBin
+                                              #* centralityBin  # temporarily removed 
                                               * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
