@@ -144,17 +144,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
-	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
+	_cLETDCvsADC_SubdetPM.initialize(_name, "LETDCvsADC",
+		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cLETDCvsTS.initialize(_name, "LETDCvsTS", 
+	_cLETDCvsTS_SubdetPM.initialize(_name, "LETDCvsTS", 
+		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64));
-	_cLETDCTime.initialize(_name, "LETDCTime",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64), 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));		
+	_cLETDCTime_SubdetPM.initialize(_name, "LETDCTime",
+		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-
 
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
@@ -398,9 +401,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
 
-	_cLETDCvsADC.book(ib, _subsystem);
-	_cLETDCvsTS.book(ib, _subsystem);
-	_cLETDCTime.book(ib, _subsystem);
+	_cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -973,10 +976,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cADC_SubdetPM_HF.fill(did, digi[i].adc());
 				_cfC_SubdetPM_HF.fill(did, q);
 			}
-			_cLETDCvsADC.fill(digi[i].adc(), digi[i].le_tdc());
-			_cLETDCvsTS.fill((int)i, digi[i].le_tdc());
+			_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
+			_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
 			if (digi[i].le_tdc() <50) {
-				_cLETDCTime.fill(i*25. + (digi[i].le_tdc() / 2.));
+				_cLETDCTime_SubdetPM.fill(did, i*25. + (digi[i].le_tdc() / 2.));
 			}
 
 			if (_ptype != fOffline) { // hidefed2crate
