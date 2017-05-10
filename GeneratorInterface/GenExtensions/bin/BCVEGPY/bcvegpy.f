@@ -158,7 +158,7 @@ c**************The unweighting scheme****************
 c******the ratio of xwgtup and the xwgtup_max setted at the beginning******
       xwt_r=xwgtup/MAXWGT
 
-      x_r = ran(0)
+      x_r = rand(0)
 
       if (x_r.le.xwt_r.and.xwt_r.le.1) then
 c         write(*,*) "random number ",x_r," ratio ",xwt_r 
@@ -171,7 +171,7 @@ c         write(*,*) "fill times",ic
          call bcvegpy_write_lhe
          end do
          sxwt=xwt_r-int(xwt_r)
-         x_r = ran(0)
+         x_r = rand(0)
          if (x_r.le.sxwt) then
          call bcvegpy_write_lhe
          end if
