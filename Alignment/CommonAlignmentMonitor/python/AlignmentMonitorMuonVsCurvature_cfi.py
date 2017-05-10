@@ -16,5 +16,7 @@ AlignmentMonitorMuonVsCurvature = cms.untracked.PSet(
     layer = cms.int32(2),
     propagator = cms.string("SmartPropagatorAnyRK"),
     doDT = cms.bool(True),
-    doCSC = cms.bool(True)
+    doCSC = cms.bool(True),
+    createLayerNtupleDT = cms.bool(False),
+    createLayerNtupleCSC = cms.bool(False)
 )
