@@ -110,6 +110,7 @@ class TrackAnalyzer
         // Compute the hit-finding efficiency using the HitPattern of
         // the reconstructed tracks
         bool doEffFromHitPattern_;
+	int  pvNDOF_;
 	std::string qualityString_;
 	
         struct TkParameterMEs {

@@ -42,6 +42,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
     , doSIPPlots_                      ( conf_.getParameter<bool>("doSIPPlots") )
     , doEffFromHitPattern_             ( conf_.getParameter<bool>("doEffFromHitPattern") )
+    , pvNDOF_                          ( conf_.getParameter<int> ("pvNDOF") )
     , qualityString_                   ( conf_.getParameter<std::string>("qualityString"))
     , good_vertices_(0)
 {
@@ -812,7 +813,7 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event & iEvent) {
   if (recoPrimaryVerticesHandle.isValid())
     if (recoPrimaryVerticesHandle->size() > 0)
       for (auto v : *recoPrimaryVerticesHandle)
-        if (v.ndof() >=4 && !v.isFake())
+        if (v.ndof() >= pvNDOF_ && !v.isFake())
           ++good_vertices_;
 }
 
