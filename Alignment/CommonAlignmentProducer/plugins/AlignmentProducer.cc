@@ -467,7 +467,8 @@ AlignmentProducer::duringLoop( const edm::Event& event,
       clusterValueMapPtr = &(*clusterValueMap);
     }
 
-    const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot,
+    const edm::EventID evtid = event.id();
+    const AlignmentAlgorithmBase::EventInfo eventInfo(evtid, trajTracks, *beamSpot,
 						      clusterValueMapPtr);
     theAlignmentAlgo->run(setup, eventInfo);
 
