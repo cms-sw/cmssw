@@ -25,132 +25,69 @@ RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps ){
  
 }
 
-RPCOccupancyTest::~RPCOccupancyTest(){
-  dbe_=0;
-}
+RPCOccupancyTest::~RPCOccupancyTest(){}
 
-void RPCOccupancyTest::beginJob(DQMStore * dbe, std::string workingFolder){
+void RPCOccupancyTest::beginJob(std::string & workingFolder){
  edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
  globalFolder_ =  workingFolder;
- dbe_=dbe;
 }
 
-void RPCOccupancyTest::endRun(const edm::Run& r, const edm::EventSetup& c){
- edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: End run";
- }
  
-void RPCOccupancyTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector){
-  
- //Get Occupancy  ME for each roll
-  for (unsigned int i = 0 ; i<meVector.size(); i++){
+void RPCOccupancyTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector, std::string & clientHistoName){
+  //Get NumberOfDigi ME for each roll
+  for(unsigned int i = 0 ; i<meVector.size(); i++){
     
-    bool flag= false;
-    
-    DQMNet::TagList tagList;
-    tagList = meVector[i]->getTags();
-    DQMNet::TagList::iterator tagItr = tagList.begin();
-    
-    while (tagItr != tagList.end() && !flag ) {
-      if((*tagItr) ==  rpcdqm::OCCUPANCY)
-	flag= true;      
-      tagItr++;
-    }
-    
-    if(flag){
+    std::string meName =  meVector[i]->getName();
+
+    if(meName.find(clientHistoName) != std::string::npos){
       myOccupancyMe_.push_back(meVector[i]);
       myDetIds_.push_back(detIdVector[i]);
     }
   }
 }
 
-void RPCOccupancyTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
-
-void RPCOccupancyTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
-
-void RPCOccupancyTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
-
-void RPCOccupancyTest::clientOperation(edm::EventSetup const& iSetup) {
+void RPCOccupancyTest::clientOperation() {
 
   edm::LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
-   MonitorElement * RPCEvents = dbe_->get(prefixDir_ +"/RPCEvents");  
-   if(RPCEvents == 0 ){rpcevents_ = 0;}
-   else{
-     rpcevents_ = RPCEvents ->getBinContent(1);
-   }
-     
  //Loop on MEs
   for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
     this->fillGlobalME(myDetIds_[i],myOccupancyMe_[i]);
   }//End loop on MEs
 }
 
-void RPCOccupancyTest::endJob(void) {}
-void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
 
- MonitorElement* me;
- dbe_->setCurrentFolder( globalFolder_);
+void RPCOccupancyTest::myBooker(DQMStore::IBooker & ibooker){
 
- std::stringstream histoName;
- rpcdqm::utils rpcUtils;
-
- histoName.str("");
- histoName<<"Barrel_OccupancyByStations_Normalized";
- me = dbe_->get( globalFolder_+"/"+ histoName.str());
- if ( 0!=me  ) {
-   dbe_->removeElement(me->getName());
- }
- Barrel_OccBySt = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
- Barrel_OccBySt -> setBinLabel(1, "St1", 1);
- Barrel_OccBySt -> setBinLabel(2, "St2", 1);
- Barrel_OccBySt -> setBinLabel(3, "St3", 1);
- Barrel_OccBySt -> setBinLabel(4, "St4", 1);
+  ibooker.setCurrentFolder( globalFolder_);
+  
+  std::stringstream histoName;
+  rpcdqm::utils rpcUtils;
+  
+  histoName.str("");
+  histoName<<"Barrel_OccupancyByStations_Normalized";
  
- 
- histoName.str("");
- histoName<<"EndCap_OccupancyByRings_Normalized";
- me = dbe_->get( globalFolder_+"/"+ histoName.str());
- if ( 0!=me  ) {
-   dbe_->removeElement(me->getName());
- }
- EndCap_OccByRng = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
- EndCap_OccByRng -> setBinLabel(1, "E+/R3", 1);
- EndCap_OccByRng -> setBinLabel(2, "E+/R2", 1);
- EndCap_OccByRng -> setBinLabel(3, "E-/R2", 1);
- EndCap_OccByRng -> setBinLabel(4, "E-/R3", 1);
-
-//  histoName.str("");
-//  histoName<<"EndCap_OccupancyByDisksAndRings_Normalized";
-//  me = dbe_->get( globalFolder_+"/"+ histoName.str());
-//  if ( 0!=me  ) {
-//    dbe_->removeElement(me->getName());
-//  }
-//  EndCap_OccByDisk = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  12, 0, 12);
-//  EndCap_OccByDisk -> setBinLabel(1, "YE-3/R2", 1);
-//  EndCap_OccByDisk -> setBinLabel(2, "YE-2/R2", 1);
-//  EndCap_OccByDisk -> setBinLabel(3, "YE-1/R2", 1);
-//  EndCap_OccByDisk -> setBinLabel(4, "YE+1/R2", 1);
-//  EndCap_OccByDisk -> setBinLabel(5, "YE+2/R2", 1);
-//  EndCap_OccByDisk -> setBinLabel(6, "YE+3/R2", 1);
-
-//  EndCap_OccByDisk -> setBinLabel(7, "YE-3/R3", 1);
-//  EndCap_OccByDisk -> setBinLabel(8, "YE-2/R3", 1);
-//  EndCap_OccByDisk -> setBinLabel(9, "YE-1/R3", 1);
-//  EndCap_OccByDisk -> setBinLabel(10, "YE+1/R3", 1);
-//  EndCap_OccByDisk -> setBinLabel(11, "YE+2/R3", 1);
-//  EndCap_OccByDisk -> setBinLabel(12, "YE+3/R3", 1);
- 
-  for (int w = -2; w<=2; w++ ){//loop on wheels
+  Barrel_OccBySt = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
+  Barrel_OccBySt -> setBinLabel(1, "St1", 1);
+  Barrel_OccBySt -> setBinLabel(2, "St2", 1);
+  Barrel_OccBySt -> setBinLabel(3, "St3", 1);
+  Barrel_OccBySt -> setBinLabel(4, "St4", 1);
+  
+  
+  histoName.str("");
+  histoName<<"EndCap_OccupancyByRings_Normalized";
+  EndCap_OccByRng = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
+  EndCap_OccByRng -> setBinLabel(1, "E+/R3", 1);
+  EndCap_OccByRng -> setBinLabel(2, "E+/R2", 1);
+  EndCap_OccByRng -> setBinLabel(3, "E-/R2", 1);
+  EndCap_OccByRng -> setBinLabel(4, "E-/R3", 1);
+  
+ for (int w = -2; w<=2; w++ ){//loop on wheels
  
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Roll_vs_Sector_Wheel"<<w;
-    me = 0;
-    me = dbe_->get( globalFolder_+"/"+ histoName.str());
-    if ( 0!=me  ) {
-      dbe_->removeElement(me->getName());
-    }
     
-    AsyMeWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+    AsyMeWheel[w+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     
     rpcUtils.labelXAxisSector(AsyMeWheel[w+2]);
     rpcUtils.labelYAxisRoll(AsyMeWheel[w+2], 0, w,  useRollInfo_);
@@ -160,13 +97,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
   
       histoName.str("");
       histoName<<"OccupancyNormByEvents_Wheel"<<w;
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      
-      NormOccupWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+      NormOccupWheel[w+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
       
       rpcUtils.labelXAxisSector(  NormOccupWheel[w+2]);
       rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w,  useRollInfo_);
@@ -174,21 +105,12 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
       
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Distribution_Wheel"<<w;  
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      AsyMeDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
+      AsyMeDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
       
       histoName.str("");
       histoName<<"OccupancyNormByEvents_Distribution_Wheel"<<w;   
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      NormOccupDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
+    
+      NormOccupDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
     }
   }//end Barrel
   
@@ -201,13 +123,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
     
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Ring_vs_Segment_Disk"<<d;
-    me = 0;
-    me = dbe_->get( globalFolder_+"/"+ histoName.str());
-    if ( 0!=me  ) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    AsyMeDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    AsyMeDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     
     rpcUtils.labelXAxisSegment(AsyMeDisk[d+offset]);
     rpcUtils.labelYAxisRing(AsyMeDisk[d+offset], numberOfRings_,  useRollInfo_);
@@ -218,36 +134,18 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
    
       histoName.str("");
       histoName<<"OccupancyNormByEvents_Disk"<<d;
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      
-      NormOccupDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+      NormOccupDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
       
       rpcUtils.labelXAxisSegment(NormOccupDisk[d+offset]);
       rpcUtils.labelYAxisRing( NormOccupDisk[d+offset],numberOfRings_,  useRollInfo_);
       
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Distribution_Disk"<<d;      
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      AsyMeDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
-      
-      
+      AsyMeDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
       
       histoName.str("");
       histoName<<"OccupancyNormByEvents_Distribution_Disk"<<d;  
-      me = 0;
-      me = dbe_->get( globalFolder_+"/"+ histoName.str());
-      if ( 0!=me  ) {
-	dbe_->removeElement(me->getName());
-      }
-      NormOccupDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
+      NormOccupDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
     }
   }//End loop on Endcap
 }

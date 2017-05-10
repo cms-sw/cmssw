@@ -18,15 +18,12 @@ public:
   RPCOccupancyTest(const edm::ParameterSet& ps);
   virtual ~RPCOccupancyTest();
 
-  void beginJob(DQMStore *, std::string);
-  void endRun(const edm::Run& , const edm::EventSetup& ); 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
-  void endJob();
-  void clientOperation(edm::EventSetup const& c);
-  void getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId>& );
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
+
+
  protected:
   // void OccupancyDist();
   void fillGlobalME(RPCDetId & , MonitorElement *);
@@ -40,7 +37,6 @@ private:
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
  
-  DQMStore* dbe_;
   int numberOfDisks_, numberOfRings_;
  
   float rpcevents_;

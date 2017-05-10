@@ -20,53 +20,32 @@ RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps ){
   resetMEArrays();
 }
 
-RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
+RPCClusterSizeTest::~RPCClusterSizeTest(){ }
 
-void RPCClusterSizeTest::beginJob(DQMStore *  dbe, std::string workingFolder){
+void RPCClusterSizeTest::beginJob(std::string  & workingFolder){
   edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Begin job ";
 
   globalFolder_  = workingFolder;
-  dbe_ = dbe;
 }
 
-void RPCClusterSizeTest::endRun(const edm::Run& r, const edm::EventSetup& c){
-  edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: End run";
-}
 
-void RPCClusterSizeTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector){
+void RPCClusterSizeTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector, std::string & clientHistoName){
     
  
  //Get  ME for each roll
  for (unsigned int i = 0 ; i<meVector.size(); i++){
 
-   bool flag= false;
-   
-   DQMNet::TagList tagList;
-   tagList = meVector[i]->getTags();
-   DQMNet::TagList::iterator tagItr = tagList.begin();
+    std::string meName =  meVector[i]->getName();
 
-   while (tagItr != tagList.end() && !flag ) {
-     if((*tagItr) ==  rpcdqm::CLUSTERSIZE)
-       flag= true;
-   
-     tagItr++;
-   }
-   
-   if(flag){
+    if(meName.find(clientHistoName) != std::string::npos){
      myClusterMe_.push_back(meVector[i]);
      myDetIds_.push_back(detIdVector[i]);
    }
  }
-
 }
 
-void RPCClusterSizeTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCClusterSizeTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
-
-void RPCClusterSizeTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {} 
-
-void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
+void RPCClusterSizeTest::clientOperation() {
   
   edm::LogVerbatim ("rpceventsummary") <<"[RPCClusterSizeTest]:Client Operation";
   
@@ -157,7 +136,6 @@ void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
   }//End loop on chambers
 } 
 
-void  RPCClusterSizeTest::endJob(void) {}
 
 void RPCClusterSizeTest::resetMEArrays(void) {
   memset((void*) CLSWheel, 0, sizeof(MonitorElement*)*kWheels);
@@ -172,12 +150,11 @@ void RPCClusterSizeTest::resetMEArrays(void) {
 }
 
 
-void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+void  RPCClusterSizeTest::myBooker(DQMStore::IBooker & ibooker) {
 
   resetMEArrays();
   
-  MonitorElement* me;
-  dbe_->setCurrentFolder(globalFolder_);
+  ibooker.setCurrentFolder(globalFolder_);
 
   std::stringstream histoName;
 
@@ -187,26 +164,14 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
   for (int w = -2; w <= 2; w++) {
     histoName.str("");   
     histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)       
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me ) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    CLSWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+    CLSWheel[w+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     rpcUtils.labelXAxisSector(  CLSWheel[w+2]);
     rpcUtils.labelYAxisRoll(   CLSWheel[w+2], 0, w ,useRollInfo_);
     
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    MEANWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+    MEANWheel[w+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     
     rpcUtils.labelXAxisSector(  MEANWheel[w+2]);
     rpcUtils.labelYAxisRoll(MEANWheel[w+2], 0, w,useRollInfo_ );
@@ -214,22 +179,12 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     if(testMode_){
       histoName.str("");
       histoName<<"ClusterSizeIn1Bin_Distribution_Wheel"<<w;       //  ClusterSize in first bin, distribution
-      me = 0;
-      me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me ) {
-	dbe_->removeElement(me->getName());
-      }
-      CLSDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
+      CLSDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
       
       
       histoName.str("");
       histoName<<"ClusterSizeMean_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
-      me = 0;
-      me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me){
-	dbe_->removeElement(me->getName());
-      }
-      MEANDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
+      MEANDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
     }
   }//end loop on wheels
 
@@ -243,46 +198,24 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
 
     histoName.str("");   
     histoName<<"ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<d;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
-      dbe_->removeElement(me->getName());
-    }
-    
-    CLSDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5); 
+    CLSDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5); 
     rpcUtils.labelXAxisSegment(CLSDisk[d+offset]);
     rpcUtils.labelYAxisRing(CLSDisk[d+offset], numberOfRings_,useRollInfo_ );
    
     if(testMode_){
       histoName.str("");
       histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<d;       //  ClusterSize in first bin, distribution
-      me = 0;
-      me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me){
-	dbe_->removeElement(me->getName());
-      }
-      CLSDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
+      CLSDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
       
       histoName.str("");
       histoName<<"ClusterSizeMean_Distribution_Disk"<<d;       //  Avarage ClusterSize Distribution
-      me = 0;
-      me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me){
-	dbe_->removeElement(me->getName());
-      }
-      MEANDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
+      MEANDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
       
     }
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Ring_vs_Segment_Disk"<<d;       // Avarage ClusterSize (2D Roll vs Sector)   
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
-      dbe_->removeElement(me->getName());
-    }
-    
-    MEANDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    MEANDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     rpcUtils.labelXAxisSegment(MEANDisk[d+offset]);
     rpcUtils.labelYAxisRing(MEANDisk[d+offset], numberOfRings_ ,useRollInfo_);
  }

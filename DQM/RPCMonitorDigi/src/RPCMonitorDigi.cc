@@ -400,38 +400,38 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       if(region ==0){
 	os.str("");
 	os<<"1DOccupancy_Wheel_"<<wheelOrDiskNumber;
-	if( meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, clusterSize);
+	if( meWheelDisk[os.str()]) {meWheelDisk[os.str()]->Fill(sector, clusterSize);}
 	
 	os.str("");
 	os<<"Occupancy_Roll_vs_Sector_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;       
-	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
+	if (meWheelDisk[os.str()]) {meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);}
 
       }else{
 	os.str("");
 	os<<"1DOccupancy_Ring_"<<ring;
 	if ((meWheelDisk[os.str()])){
-	  if (wheelOrDiskNumber > 0 ) meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);
-	  else meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);
+	  if (wheelOrDiskNumber > 0 ) {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);}
+	  else {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);}
 	}
 
 	os.str("");
 	os<<"Occupancy_Ring_vs_Segment_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;   
-	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );
+	if (meWheelDisk[os.str()]) {meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );}
       }
 
       os.str("");
       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;
-      if(meWheelDisk[os.str()])  meWheelDisk[os.str()]->Fill(bx);
+      if(meWheelDisk[os.str()])  {meWheelDisk[os.str()]->Fill(bx);}
       
   
       os.str("");
       os<<"ClusterSize_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Layer"<<layer;
-      if(meWheelDisk[os.str()]) meWheelDisk[os.str()] -> Fill(clusterSize);
+      if(meWheelDisk[os.str()]) {meWheelDisk[os.str()] -> Fill(clusterSize);}
  
 
       os.str("");
       os<<"ClusterSize_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring"<<ring;
-      if(meWheelDisk[os.str()]) meWheelDisk[os.str()] -> Fill(clusterSize);
+      if(meWheelDisk[os.str()]) {meWheelDisk[os.str()] -> Fill(clusterSize);}
 
 
     // ######################  Global  ##################################
@@ -439,7 +439,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
       os.str("");
       os<<"ClusterSize_"<<RPCMonitorDigi::regionNames_[region +1];
-      if(meRegion[os.str()]) meRegion[os.str()] -> Fill(clusterSize);
+      if(meRegion[os.str()]) {meRegion[os.str()] -> Fill(clusterSize);}
 
       os.str("");
       os<<"ClusterSize_";
@@ -448,7 +448,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       }else{
 	os<<"Ring"<<ring;
       }
-      if(meRegion[os.str()]) meRegion[os.str()] -> Fill(clusterSize);
+      if(meRegion[os.str()]){ meRegion[os.str()] -> Fill(clusterSize);}
 
       
     }//end loop on recHits
@@ -459,33 +459,33 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     
     os.str("");
     os<<"NumberOfClusters_"<<nameRoll;
-    if(meMap[os.str()]) meMap[os.str()]->Fill( numberOfRecHits);
+    if(meMap[os.str()]) {meMap[os.str()]->Fill( numberOfRecHits);}
 
     os.str("");
     os<<"Multiplicity_"<<RPCMonitorDigi::regionNames_[region +1];
-    if(meRegion[os.str()]) meRegion[os.str()]->Fill(numDigi);
+    if(meRegion[os.str()]) {meRegion[os.str()]->Fill(numDigi);}
 
     os.str("");
     if(region==0) {
       os<<"Occupancy_for_Barrel";
-      if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
+      if(meRegion[os.str()]){ meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);}
     }else {
       os<<"Occupancy_for_Endcap";
-      int xbin = wheelOrDiskNumber+3;
-      if (region==-1) xbin = wheelOrDiskNumber+4;
-      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin,ring,numDigi);
+      int xbin = wheelOrDiskNumber+ RPCMonitorDigi::numberOfDisks_; // positive endcap
+      if (region==-1){ xbin = wheelOrDiskNumber+ RPCMonitorDigi::numberOfDisks_+1;} //negative endcap
+      if(meRegion[os.str()]){ meRegion[os.str()]->Fill(xbin,ring,numDigi);}
     }
 
     os.str("");
     os<<"Multiplicity_"<<nameRoll;
-    if(meMap[os.str()]) meMap[os.str()]->Fill(numDigi);   
+    if(meMap[os.str()]) {meMap[os.str()]->Fill(numDigi);  }
 
   }//end loop on rolls
 
   for(int i = 0; i< 3; i++ ){
     os.str("");
     os<<"NumberOfClusters_"<<RPCMonitorDigi::regionNames_[i];
-    if(meRegion[os.str()]) meRegion[os.str()]->Fill( totalNumberOfRecHits[i]);
+    if(meRegion[os.str()]){ meRegion[os.str()]->Fill( totalNumberOfRecHits[i]);}
   }
 
 }

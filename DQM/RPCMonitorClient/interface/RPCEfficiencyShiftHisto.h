@@ -1,24 +1,14 @@
 #ifndef RPCEfficiencyShiftHisto_H
 #define RPCEfficiencyShiftHisto_H
 
+// * *
+// *  RPCEfficiencyShiftHisto
+// * *
 
-/** \class RPCEfficiencyShiftHisto
- * *
- *  RPCEfficiencyShiftHisto
- *
- *  \author Cesare Calabria
- *   
- */
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-
-#include <memory>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <string>
 
 
@@ -26,7 +16,7 @@ class DQMStore;
 class RPCDetId;
 
 
-class RPCEfficiencyShiftHisto:public edm::EDAnalyzer {
+class RPCEfficiencyShiftHisto:public DQMEDHarvester{
 public:
 
   /// Constructor
@@ -35,32 +25,22 @@ public:
   /// Destructor
   virtual ~RPCEfficiencyShiftHisto();
 
-  /// BeginJob
+ protected:
   void beginJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
-  //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
-   //End Run
-   void endRun(const edm::Run& r, const edm::EventSetup& c);
+ private:
 
-  /// Analyze  
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   MonitorElement * EffBarrelRoll;
   MonitorElement * EffEndcapPlusRoll;
   MonitorElement * EffEndcapMinusRoll;
   MonitorElement * RollPercentage;
   
- private:
-  
-  bool SaveFile;
-
-  std::string NameFile;
   int  numberOfDisks_;
   int effCut_;
-
-  DQMStore* dbe_;
 
   std::string globalFolder_;
 
