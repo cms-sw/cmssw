@@ -41,7 +41,7 @@ public:
 
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return std::make_shared<SiPixelRecHit>(*this);}
 #endif
 
@@ -60,7 +60,7 @@ private:
   virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner(*this,tsos).release();
   }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner.makeShared(*this,tsos);
   }

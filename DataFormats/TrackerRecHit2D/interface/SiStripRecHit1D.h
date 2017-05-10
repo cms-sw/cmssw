@@ -30,7 +30,7 @@ public:
 
 
   virtual SiStripRecHit1D * clone() const GCC11_OVERRIDE {return new SiStripRecHit1D( * this); }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripRecHit1D>(*this);}
 #endif
   
@@ -44,7 +44,7 @@ private:
   virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
     return cloner(*this,tsos).release();
   }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
     return cloner.makeShared(*this,tsos);
   }
