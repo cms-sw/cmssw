@@ -163,6 +163,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     //
 
     std::vector<MonitorElement*> meClPosLayersOnTrack;
+    std::vector<MonitorElement*> meClPosLayersLadVsModOnTrack;
     std::vector<MonitorElement*> meClPosLayersNotOnTrack;
     std::vector<MonitorElement*> meClPosDiskspzOnTrack;
     std::vector<MonitorElement*> meClPosDisksmzOnTrack;
