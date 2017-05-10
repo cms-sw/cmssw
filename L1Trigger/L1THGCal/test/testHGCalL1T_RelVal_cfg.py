@@ -15,7 +15,7 @@ process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_0_0_pre2/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v1_2023D4TimingPU200-v1/10000/E8545E07-EDC3-E611-852B-0025905A60F2.root') )
+       fileNames = cms.untracked.vstring('/store/relval//CMSSW_9_0_0_pre4/RelValZEE_14/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v3_2023D4Timing-v1/10000/02605B3A-92EC-E611-A9A9-0025905B85B2.root') )
 
 process.options = cms.untracked.PSet(
 

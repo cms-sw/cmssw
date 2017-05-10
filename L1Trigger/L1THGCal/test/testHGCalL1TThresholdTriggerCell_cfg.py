@@ -12,9 +12,9 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -113,7 +113,13 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
+                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                              )
+
+
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 
@@ -121,7 +127,13 @@ process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
 cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec )
+                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec,
+                                 HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                                 HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                                 calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                                 )
+
+
 process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
 process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
 
