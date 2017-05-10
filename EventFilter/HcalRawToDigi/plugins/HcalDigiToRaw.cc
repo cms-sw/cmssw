@@ -69,7 +69,7 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<HcalTrigPrimDigiCollection> htp;
   if (!trigTag_.label().empty()) {
     e.getByToken(tok_htp_,htp);
-    colls.tpCont=htp.product();
+    if(htp.isValid()) colls.tpCont=htp.product();
   }
   // get the mapping
   edm::ESHandle<HcalDbService> pSetup;

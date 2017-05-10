@@ -21,6 +21,7 @@ HcalSiPM::HcalSiPM(int nCells, double tau) :
 }
 
 HcalSiPM::~HcalSiPM() {
+  if (nonlin) delete nonlin;
 }
 
 //================================================================================
