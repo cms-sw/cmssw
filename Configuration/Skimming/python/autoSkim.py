@@ -28,6 +28,19 @@ autoSkimRunI = {
     'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
     'ZeroBias':'LogError',
     'Commissioning':'DT+LogError',
+    'MuonEG':'TopMuEG+LogError',
+    'DoubleElectron' : 'ZElectron+LogError',
+    'SingleMuon' : 'ZMu+MuTau+LogError',
+    'JetHT': 'HighMET+LogError',
+    
+    }
+
+
+
+autoSkimRunI = {
+    'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
+    'ZeroBias':'LogError',
+    'Commissioning':'DT+LogError',
     'Cosmics':'CosmicSP+CosmicTP+LogError',
     'Mu' : 'WMu+ZMu+HighMET+LogError',    
     'EG':'WElectron+ZElectron+HighMET+LogError',
@@ -61,6 +74,7 @@ autoSkimRunI = {
     'TauPlusX': 'LogError',
     
     }
+
 
 
 autoSkimPDWG = {
