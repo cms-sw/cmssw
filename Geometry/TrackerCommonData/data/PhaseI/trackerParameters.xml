@@ -1,23 +1,26 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection  label="trackerParameters.xml" eval="true">
-  <Vector name="pxbPars" type="numeric" nEntries="6">
+  <Vector name="vPars" type="numeric" nEntries="6">
+    80, 52, 0, 0, 2, 8
+  </Vector>
+  <Vector name="Subdetector1" type="numeric" nEntries="6">
     20, 12, 2, 0xF, 0xFF, 0x3FF
   </Vector>
-  <Vector name="pxfPars" type="numeric" nEntries="10">
+  <Vector name="Subdetector2" type="numeric" nEntries="10">
     23, 18, 12, 10, 2, 0x3, 0xF, 0x3F, 0x3, 0xFF
   </Vector>
-  <Vector name="tecPars" type="numeric" nEntries="14">
-    18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3
-  </Vector>
-  <Vector name="tibPars" type="numeric" nEntries="12">
+  <Vector name="Subdetector3" type="numeric" nEntries="12">
     14, 12, 10, 4, 2, 0, 0x7, 0x3, 0x3, 0x3F, 0x3, 0x3
   </Vector>
-  <Vector name="tidPars" type="numeric" nEntries="12">
+  <Vector name="Subdetector4" type="numeric" nEntries="12">
     13, 11, 9, 7, 2, 0, 0x3, 0x3, 0x3, 0x3, 0x1F, 0x3
   </Vector>
-  <Vector name="tobPars" type="numeric" nEntries="10">
+  <Vector name="Subdetector5" type="numeric" nEntries="10">
     14, 12, 5, 2, 0, 0x7, 0x3, 0x7F, 0x7, 0x3
+  </Vector>
+  <Vector name="Subdetector6" type="numeric" nEntries="14">
+    18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3
   </Vector>
   <Vector name="detIdShifts" type="numeric" nEntries="36">
     -1, 23, -1,
