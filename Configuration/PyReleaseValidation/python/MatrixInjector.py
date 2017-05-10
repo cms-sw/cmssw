@@ -101,15 +101,12 @@ class MatrixInjector(object):
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
-            "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
+            "ConfigCacheUrl": self.couch,                     #URL of CouchDB containing Config Cache
             "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
             #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
             "nowmTasklist" : [],  #a list of tasks as we put them in
-            "unmergedLFNBase" : "/store/unmerged",
-            "mergedLFNBase" : "/store/relval",
-            "dashboardActivity" : "relval",
             "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
@@ -501,14 +498,14 @@ class MatrixInjector(object):
                     #upload
                     couchID=self.uploadConf(d[it]['ConfigCacheID'],
                                             str(n)+d[it]['TaskName'],
-                                            d['ConfigCacheURL']
+                                            d['ConfigCacheUrl']
                                             )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
-                                            d['ConfigCacheURL']
+                                            d['ConfigCacheUrl']
                                             )
                     print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
                     d['DQMConfigCacheID']=couchID
