@@ -343,6 +343,16 @@
     ]]>
   </ioread>
 
+ <class name="pat::PackedCluster">
+    <field name="unpackedEt_" transient="true" />
+    <field name="unpackedEta_" transient="true" />  
+    <field name="unpackedPhi_" transient="true" />
+    <field name="unpacked_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedCluster"  version="[1-]" targetClass="pat::PackedCluster" source="" target="unpacked_">
+    <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
 
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
@@ -374,6 +384,7 @@
   <class name="std::vector<pat::Conversion>" />
   <class name="std::vector<pat::PackedCandidate>"/>
   <class name="std::vector<pat::PackedGenParticle>"/>
+  <class name="std::vector<pat::PackedCluster>"/>
 
   <!-- PAT Object Collection Iterators -->
   <class name="std::vector<pat::Electron>::const_iterator" />
@@ -408,7 +419,7 @@
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
   <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
   <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
-
+  <class name="edm::Wrapper<std::vector<pat::PackedCluster> >"/>
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
   <class name="pat::MuonRef" />

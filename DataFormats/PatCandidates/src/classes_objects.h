@@ -19,6 +19,7 @@
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/PatCandidates/interface/PackedCluster.h"
 
 namespace DataFormats_PatCandidates {
   struct dictionaryobjects {
@@ -39,6 +40,7 @@ namespace DataFormats_PatCandidates {
   std::vector<pat::Conversion>::const_iterator      v_p_c_ci;
   std::vector<pat::PackedCandidate>::const_iterator      v_p_pc_ci;
   std::vector<pat::PackedGenParticle>::const_iterator      v_p_pgc_ci;
+  std::vector<pat::PackedCluster>::const_iterator      v_p_pcl_ci;
 
   /*   PAT Object Collection Wrappers   */
   edm::Wrapper<std::vector<pat::Electron> >	    w_v_p_e;
@@ -56,7 +58,8 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<std::vector<pat::Conversion> >       w_v_p_c;
   edm::Wrapper<std::vector<pat::PackedCandidate> >       w_v_pc_c;
   edm::Wrapper<std::vector<pat::PackedGenParticle> >       w_v_pgc_c;
-
+  edm::Wrapper<std::vector<pat::PackedCluster> >  w_v_pcl_c;
+  
   /*   PAT Object References   */
   pat::ElectronRef	    p_r_e;
   pat::MuonRef	            p_r_mu;
@@ -88,6 +91,7 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<pat::ConversionRefVector>        p_rv_c;
   edm::Wrapper<pat::PackedCandidateRefVector>        p_rv_pc;
   edm::Wrapper<pat::PackedGenParticleRefVector>        p_rv_pcg;
+
 
   /*   RefToBase<Candidate> from PATObjects   */
     /*   With direct Holder   */
