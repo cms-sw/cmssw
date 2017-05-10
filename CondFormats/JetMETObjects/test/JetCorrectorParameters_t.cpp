@@ -50,7 +50,7 @@ public:
       float ratio  =  x/(float)n;
       int   c      =  ratio * w;
 
-      cout << prefix << std::fixed << setw(8) << std::setprecision(2) << (ratio*100) << "% [";
+      cout << prefix << std::fixed << setw(8) << std::setprecision(0) << (ratio*100) << "% [";
       for (int x=0; x<c; x++) cout << "=";
       for (unsigned int x=c; x<w; x++) cout << " ";
       cout << "] (" << x << "/" << n << ")\r" << flush;
@@ -247,7 +247,7 @@ void testJetCorrectorParameters::compareBinIndex3D() {
 		for(unsigned int irho=0; irho<vrho.size()-1; irho++) {
 			for(unsigned int ipt=0; ipt<vpt.size()-1; ipt++) {
 				loadbar3(ieta*((vrho.size()-1)*(vpt.size()-1))+irho*(vpt.size()-1)+ipt+1,
-				         (veta.size()-1)*(vrho.size()-1)*(vpt.size()-1), 50, 10000, "\tProgress");
+				         (veta.size()-1)*(vrho.size()-1)*(vpt.size()-1), 50, 100, "\tProgress");
 				eta = (veta[ieta]+veta[ieta+1])/2.0;
 				rho = (vrho[irho]+vrho[irho+1])/2.0;
 				pt = (vpt[ipt]+vpt[ipt+1])/2.0;
