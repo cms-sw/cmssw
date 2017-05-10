@@ -7,7 +7,7 @@
 //
 //
 // The module produces the ElectronSeeds, similarly to ElectronSeedProducer
-// although 
+// although with a varible number of required hits
 // 
 //
 // Author : Sam Harper (RAL), 2017
@@ -146,8 +146,16 @@ void ElectronNHitSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup
   for(const auto& superClustersToken : superClustersTokens_){
     auto superClustersHandle = getHandle(iEvent,superClustersToken);
     for(auto& superClusRef : *superClustersHandle){
+
+      //the eta of the supercluster when mustache clustered is slightly biased due to bending in magnetic field
+      //the eta of its seed cluster is a better estimate of the orginal position
+      GlobalPoint caloPosition(GlobalPoint::Polar(superClusRef->seed()->position().theta(), //seed theta
+						  superClusRef->position().phi(), //supercluster phi
+						  superClusRef->position().r())); //supercluster r
+
+
       const std::vector<TrajSeedMatcher::SeedWithInfo> matchedSeeds = 
-	matcher_.compatibleSeeds(*initialSeedsHandle,convertToGP(superClusRef->position()),
+	matcher_.compatibleSeeds(*initialSeedsHandle,caloPosition,
 				 primVtxPos,superClusRef->energy());
       
       for(auto& matchedSeed : matchedSeeds){
