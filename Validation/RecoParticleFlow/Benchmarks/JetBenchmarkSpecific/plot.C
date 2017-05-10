@@ -1,11 +1,16 @@
 {
+
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libValidationRecoParticleFlow.so");
 
 //gROOT->LoadMacro("../Tools/NicePlot.C");
 //InitNicePlot();
 
+extern void ResolutionDirection(bool barrel, const char* input, const char* output, const char* title="");
+extern void Compare(unsigned barrel, const char* fastInput, const char* fullInput, const char* output, const char* title, unsigned algo1=0, unsigned algo2=0);
+
 gROOT->ProcessLine(".L makeJetResolutionPlot.C");
+gROOT->ProcessLine(".L ResolutionDirection.C");
 Resolution(1,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Barrel.png","Fast simulation - Barrel resolution");
  Resolution(1,"JetBenchmark_Full_3110pre3.root","JetBenchmark_Full_Barrel.png","Full simulation - Barrel resolution");
 Resolution(2,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Endcap.png","Fast simulation - Endcap resolution");
