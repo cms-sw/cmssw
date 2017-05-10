@@ -115,7 +115,8 @@ namespace edm {
       findFileForSpecifiedID_.reset(new std::unordered_multimap<size_t, size_t>);
       auto hasher = std::hash<std::string>();
       for(auto fileIter = fileIterBegin_; fileIter != fileIterEnd_; ++fileIter) {
-        findFileForSpecifiedID_->insert(std::make_pair(hasher(fileIter->logicalFileName()), fileIter - fileIterBegin_));
+	 //        findFileForSpecifiedID_->insert(std::make_pair(hasher(fileIter->logicalFileName()), fileIter - fileIterBegin_));
+	 findFileForSpecifiedID_->insert(std::make_pair((hasher(fileIter->logicalFileName()) & 0xffffffff), fileIter - fileIterBegin_));
       }
     }
     // Look up the logical file name in the table
