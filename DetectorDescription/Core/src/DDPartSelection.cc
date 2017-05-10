@@ -226,7 +226,7 @@ DDPartSelectionLevel::DDPartSelectionLevel(const DDLogicalPart & lp, int c, ddse
 
 void DDTokenize2(const std::string & sel, std::vector<DDPartSelRegExpLevel> & path)
 {
-  static SpecParParser parser;
+  thread_local static SpecParParser parser;
   DDI::Singleton<DDSelLevelCollector>::instance().path(&path);
   bool result = parse(sel.c_str(), parser).full;
   if (!result) {
