@@ -1079,10 +1079,10 @@ void DTDataIntegrityTask::fedNonFatal(int dduID) {
 
 std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
-  string folder = isFEDIntegrity ? fedIntegrityFolder : "DT/00-DataIntegrity";
+  string folder = isFEDIntegrity ? fedIntegrityFolder : "DT/00-DataIntegrity/";
 
-  if (!isFEDIntegrity)
-    folder += (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
+//  if (!isFEDIntegrity)
+//    folder += (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
 
   return folder;
 
