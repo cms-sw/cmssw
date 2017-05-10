@@ -19,6 +19,7 @@ RecoCTPPSFEVT = cms.PSet(
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
+    'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
   )
 )
 
@@ -42,6 +43,7 @@ RecoCTPPSRECO = cms.PSet(
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
+    'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
   )
 )
 
@@ -65,5 +67,6 @@ RecoCTPPSAOD = cms.PSet(
     'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*',
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
+    'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
   )
 )
