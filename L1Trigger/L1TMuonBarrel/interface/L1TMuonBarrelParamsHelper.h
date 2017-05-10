@@ -19,7 +19,6 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 #include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
