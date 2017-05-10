@@ -442,7 +442,15 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
 
   } // end of loop over different processes
   tempVector_before.push_back(GenLumiInfoProduct::XSec(sigSelSum, sqrt(err2SelSum)));
-  GenLumiInfoProduct::XSec result(sigSum,std::sqrt(err2Sum));
+
+  double total_matcheff = jetMatchEffStat_[10000].filterEfficiency(hepidwtup_);
+  double total_matcherr = jetMatchEffStat_[10000].filterEfficiencyError(hepidwtup_);
+
+  double xsec_after     = sigSelSum*total_matcheff;
+  double xsecerr_after  = (total_matcheff > 0 && sigSelSum > 0)? xsec_after*sqrt(err2SelSum/sigSelSum/sigSelSum + 
+										 total_matcherr*total_matcherr/total_matcheff/total_matcheff):0;
+
+  GenLumiInfoProduct::XSec result(xsec_after,xsecerr_after);
   tempVector_after.push_back(result);
 
   xsecBeforeMatching_ =tempVector_before;
@@ -502,28 +510,19 @@ GenXSecAnalyzer::endJob() {
 						     );
 
 
+      jetmatch_eff = thisJetMatchStat.filterEfficiency(hepidwtup_);
+      jetmatch_err = thisJetMatchStat.filterEfficiencyError(hepidwtup_);
+
       if(i==last)
   	{
   	  title[i] = "Total";
 
   	  edm::LogPrint("GenXSecAnalyzer") 
-  	    << "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ";
- 	
-  	  double n1 = xsecBeforeMatching_[i].value();
-  	  double e1 = xsecBeforeMatching_[i].error();
-  	  double n2 = xsecAfterMatching_[i].value();
-  	  double e2 = xsecAfterMatching_[i].error();
-
-  	  jetmatch_eff = n1>0? n2/n1 : 0;
-  	  jetmatch_err = (n1>0 && n2>0 && pow(e2/n2,2)>pow(e1/n1,2))?
-  	    jetmatch_eff*sqrt( pow(e2/n2,2) - pow(e1/n1,2)):-1;
- 	  
+  	    << "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- "; 	 	  
   	}
       else
   	{
   	  title[i] = Form("%d",i);      
-  	  jetmatch_eff = thisJetMatchStat.filterEfficiency(hepidwtup_);
-  	  jetmatch_err = thisJetMatchStat.filterEfficiencyError(hepidwtup_);
 
   	}
 

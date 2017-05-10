@@ -233,11 +233,10 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
-		double sigmaFin = sigmaAvg * fracAcc * fracBr;
+		double sigmaFin = sigmaAvg * fracAcc ;
 		double sigmaFinBr = sigmaFin * fracBr;
 
 		double relErr = 1.0;
-		if (proc->killed().n() > 1) {
 
 			double efferr2=0;
 			switch(idwtup) {
@@ -279,7 +278,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
 					std::sqrt(delta2Sum) : 0.0);
-		}
+
 		double deltaFin = sigmaFin * relErr;
 		double deltaFinBr = sigmaFinBr * relErr;
 
@@ -346,18 +345,17 @@ void LHERunInfo::statistics() const
 		  break;
 		}
 
-		if(fracAcc<1e-6)continue;
 
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
-		double sigmaFin = sigmaAvg * fracAcc;
+		double sigmaFin = fracAcc < 1e-6? 0: sigmaAvg * fracAcc;
 		double sigmaFinBr = sigmaFin * fracBr;
 
 		double relErr = 1.0;
 		double relAccErr = 1.0;
 		double efferr2=0;
 
-		if (proc->killed().n() > 1) {
+		if (proc->killed().n() > 0 && fracAcc>1e-6) {
 			switch(idwtup) {
 			case 3: case -3:
 			  {
