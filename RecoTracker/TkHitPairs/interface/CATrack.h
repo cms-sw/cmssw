@@ -1,0 +1,15 @@
+/*
+ * CATrack.h
+ *
+ *  Created on: Jan 29, 2016
+ *      Author: fpantale
+ */
+
+#ifndef CMSSW_8_0_0_PRE4_SRC_RECOTRACKER_TKHITPAIRS_INTERFACE_CATRACK_H_
+#define CMSSW_8_0_0_PRE4_SRC_RECOTRACKER_TKHITPAIRS_INTERFACE_CATRACK_H_
+#include "CACell.h"
+
+
+
+
+#endif /* CMSSW_8_0_0_PRE4_SRC_RECOTRACKER_TKHITPAIRS_INTERFACE_CATRACK_H_ */
