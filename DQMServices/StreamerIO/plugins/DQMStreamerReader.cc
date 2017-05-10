@@ -144,8 +144,16 @@ bool DQMStreamerReader::openNextFile_() {
   std::string p = fiterator_.make_path(currentLumi.datafn);
 
   if (boost::filesystem::exists(p)) {
-    openFile_(currentLumi);
-    return true;
+    try {
+      openFile_(currentLumi);
+      return true;
+    } catch (const cms::Exception& e) {
+      fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
+      fiterator_.logLumiState(currentLumi, "error: data file corrupted");
+
+      closeFile_("data file corrupted");
+      return false;
+    }
   } else {
     /* dat file missing */
     fiterator_.logFileAction("Data file (specified in json) is missing:", p);
@@ -290,12 +298,27 @@ bool DQMStreamerReader::checkNextEvent() {
   if (file_.streamFile_->newHeader()) {
     // A new file has been opened and we must compare Headers here !!
     // Get header/init from reader
-    InitMsgView const* header = getHeaderMsg();
-    deserializeAndMergeWithRegistry(*header, true);
+
+    try {
+      InitMsgView const* header = getHeaderMsg();
+      deserializeAndMergeWithRegistry(*header, true);
+    } catch (const cms::Exception& e) {
+      fiterator_.logFileAction(std::string("Can't deserialize registry data: ") + e.what());
+      closeFile_("data file corrupted");
+      return checkNextEvent();
+    }
+  }
+
+  // try to recover from corrupted files/events
+  try {
+    deserializeEvent(*eview);
+  } catch (const cms::Exception& e) {
+    fiterator_.logFileAction(std::string("Can't deserialize event data: ") + e.what());
+    closeFile_("error");
+    return checkNextEvent();
   }
 
   processedEventPerLs_ += 1;
-  deserializeEvent(*eview);
 
   return true;
 }
