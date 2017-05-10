@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -15,17 +16,18 @@
 using namespace edm;
 using namespace std;
 
-class PlotCombiner : public edm::EDAnalyzer{
+class PlotCombiner : public DQMEDHarvester{
   public:
     PlotCombiner(const edm::ParameterSet& pset);
     virtual ~PlotCombiner();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void makePlot(const ParameterSet& pset);
     DQMStore * dqmStore;
     string myDQMrootFolder;
     const VParameterSet plots;
+  protected:
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+
 };
 
 PlotCombiner::PlotCombiner(const edm::ParameterSet& pset):
@@ -34,7 +36,7 @@ PlotCombiner::PlotCombiner(const edm::ParameterSet& pset):
 {
 }
 
-void PlotCombiner::endRun(const edm::Run &, const edm::EventSetup &){
+void PlotCombiner::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
   dqmStore = Service<DQMStore>().operator->();
   if( !dqmStore ){
     LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";

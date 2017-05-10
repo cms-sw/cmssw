@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -14,24 +15,17 @@
 #include "TH3F.h"
 #include "RVersion.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include "TEfficiency.h"
-#else
-#include "TGraphAsymmErrors.h"
-#endif
+
 using namespace edm;
 using namespace std;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-class HeavyFlavorHarvesting : public edm::EDAnalyzer { //, public TGraphAsymmErrors{
-#else
-class HeavyFlavorHarvesting : public edm::EDAnalyzer , public TGraphAsymmErrors{
-#endif
+class HeavyFlavorHarvesting : public DQMEDHarvester { 
+
   public:
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorHarvesting();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
+    // virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void calculateEfficiency(const ParameterSet& pset);
     void calculateEfficiency1D( TH1* num, TH1* den, string name );
@@ -39,6 +33,8 @@ class HeavyFlavorHarvesting : public edm::EDAnalyzer , public TGraphAsymmErrors{
     DQMStore * dqmStore;
     string myDQMrootFolder;
     const VParameterSet efficiencies;
+  protected:
+     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 };
 
 HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset):
@@ -47,7 +43,7 @@ HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset):
 {
 }
 
-void HeavyFlavorHarvesting::endRun(const edm::Run &, const edm::EventSetup &){
+void HeavyFlavorHarvesting::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
   dqmStore = Service<DQMStore>().operator->();
   if( !dqmStore ){
     LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
@@ -129,14 +125,11 @@ void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string ef
   eff->SetStats(kFALSE);
   for(int i=1;i<=num->GetNbinsX();i++){
     double e, low, high;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
     low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
     high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
-#else
-    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
-#endif
+
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
     eff->SetBinContent( i, e );
@@ -167,14 +160,11 @@ void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string 
   eff->SetStats(kFALSE);
   for(int i=0;i<num->GetSize();i++){
     double e, low, high;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
     low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
     high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
-#else
-    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
-#endif
+
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
     eff->SetBinContent( i, e );
