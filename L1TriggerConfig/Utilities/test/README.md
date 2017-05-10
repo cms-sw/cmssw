@@ -35,10 +35,20 @@ contain all of the successfully produced payloads ready to be used with the L1 t
 
 ## Dumping conditions from the Offline (Conditions) DB
 
-Another set of scripts allows you to print fields of the payloads in Cond DB or local sqlite file. They are:
+Another set of scripts allows you to print fields of the payloads in Cond DB (production and development), local
+sqlite file, or static configuration python in the release (if applies). Diffing the results is a key use case.
+These CMSSW scripts are:
 [viewMenu.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewMenu.py),
-[viewGlobalMuon.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewGlobalMenu.py),
 [viewCaloParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewCaloParams.py),
+[viewOverPar.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewOverPar.py),
+[viewECpar.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewECpar.py),
+[viewL1TGlobalPrescalesVetos.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewL1TGlobalPrescalesVetos.py),
+[viewTKE.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewTKE.py),
+[viewTKLE.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/viewTKLE.py)
+
+You can run them from lxplus (but not from .cms):
+
+lxplus> cmsRun viewCaloParams.py db=prod run=1000000
 
 ## For experts: uploading prototype payloads in Cond DB
 
