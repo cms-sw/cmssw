@@ -81,6 +81,7 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   std::string hcalTPSourceLabel;
   
+  // calibrations in bins of pt, eta, and phi
   std::vector< std::vector< std::vector< std::vector < uint32_t > > > > ecalLUT;
   std::vector< std::vector< std::vector< std::vector < uint32_t > > > > hcalLUT;
   std::vector< std::vector< std::vector< uint32_t > > > hfLUT;
