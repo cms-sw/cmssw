@@ -6,19 +6,18 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class DQMStore;
 class MonitorElement;
-class PFClient_JetRes: public edm::EDAnalyzer {
+class PFClient_JetRes: public DQMEDHarvester {
  public:
   
   PFClient_JetRes(const edm::ParameterSet& parameterSet);
   
  private:
-  void beginJob();
-  void analyze(edm::Event const&, edm::EventSetup const&){;}
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  
 
   void doSummaries();
   void doEfficiency();
@@ -34,7 +33,8 @@ class PFClient_JetRes: public edm::EDAnalyzer {
 
   bool efficiencyFlag_;
 
-  DQMStore* dqmStore_;
+  DQMStore::IBooker * ibooker_;
+  DQMStore::IGetter * igetter_;
 
 };
 

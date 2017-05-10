@@ -26,7 +26,7 @@ CandidateBenchmark::CandidateBenchmark(Mode mode) : Benchmark(mode) {
 CandidateBenchmark::~CandidateBenchmark() {}
 
 
-void CandidateBenchmark::setup() {
+void CandidateBenchmark::setup(DQMStore::IBooker& b) {
 
   if (!histogramBooked_) {
     PhaseSpace ptPS(100,0,100);
@@ -41,19 +41,16 @@ void CandidateBenchmark::setup() {
       break;
     }
     
-    pt_ = book1D("pt_", "pt_;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M);
-    
-    eta_ = book1D("eta_", "eta_;#eta", etaPS.n, etaPS.m, etaPS.M);
-    
-    phi_ = book1D("phi_", "phi_;#phi", phiPS.n, phiPS.m, phiPS.M);
-
-    charge_ = book1D("charge_", "charge_;charge", 3,-1.5,1.5);
+    pt_ = book1D(b, "pt_", "pt_;p_{T} (GeV)", ptPS.n, ptPS.m, ptPS.M); 
+    eta_ = book1D(b, "eta_", "eta_;#eta", etaPS.n, etaPS.m, etaPS.M);
+    phi_ = book1D(b, "phi_", "phi_;#phi", phiPS.n, phiPS.m, phiPS.M);
+    charge_ = book1D(b, "charge_", "charge_;charge", 3,-1.5,1.5);
 
     histogramBooked_ = true;
   }
 }
 
-void CandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
+void CandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) {
   if (!histogramBooked_)  {
     edm::ParameterSet ptPS  = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
     edm::ParameterSet etaPS = parameterSet.getParameter<edm::ParameterSet>("EtaHistoParameter");
@@ -61,22 +58,22 @@ void CandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
     edm::ParameterSet chPS = parameterSet.getParameter<edm::ParameterSet>("ChargeHistoParameter");
     
     if (ptPS.getParameter<bool>("switchOn")) {
-      pt_ = book1D("pt_", "p_{T};p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+      pt_ = book1D(b, "pt_", "p_{T};p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
 		   ptPS.getParameter<double>("xMin"),
 		   ptPS.getParameter<double>("xMax"));
     } 
     if (etaPS.getParameter<bool>("switchOn")) {
-      eta_ = book1D("eta_", "#eta;#eta", etaPS.getParameter<int32_t>("nBin"), 
+      eta_ = book1D(b, "eta_", "#eta;#eta", etaPS.getParameter<int32_t>("nBin"), 
 		    etaPS.getParameter<double>("xMin"),
 		    etaPS.getParameter<double>("xMax"));
     }
     if (phiPS.getParameter<bool>("switchOn")) {
-      phi_ = book1D("phi_", "#phi;#phi", phiPS.getParameter<int32_t>("nBin"), 
+      phi_ = book1D(b, "phi_", "#phi;#phi", phiPS.getParameter<int32_t>("nBin"), 
 		    phiPS.getParameter<double>("xMin"),
 		    phiPS.getParameter<double>("xMax"));
     }
     if (chPS.getParameter<bool>("switchOn")) {
-      charge_ = book1D("charge_","charge;charge",chPS.getParameter<int32_t>("nBin"),
+      charge_ = book1D(b, "charge_","charge;charge",chPS.getParameter<int32_t>("nBin"),
 		       chPS.getParameter<double>("xMin"),
 		       chPS.getParameter<double>("xMax"));
     }   
