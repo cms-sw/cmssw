@@ -233,7 +233,7 @@ steps['RunZeroBias2016D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016D-v2/RAW'
 steps['RunMuOnia2016D']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016D-v2/RAW',label='muOnia2016D',events=100000,location='STD', ls=Run2016D)}
 
 #### run2 2016E ####
-Run2016E={277069: [[81, 120]]}
+Run2016E={277069: [[81, 200]]}
 steps['RunHLTPhy2016E']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016E-v2/RAW',label='hltPhy2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunDoubleEG2016E']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016E-v2/RAW',label='doubEG2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunDoubleMuon2016E']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016E-v2/RAW',label='doubMu2016E',events=100000,location='STD', ls=Run2016E)}
