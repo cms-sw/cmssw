@@ -7,8 +7,12 @@ from Configuration.StandardSequences.Eras import eras
 from FastSimulation.Calorimetry.HcalResponse_cfi import *
 from FastSimulation.Calorimetry.HSParameters_cfi import *
 #from FastSimulation.Configuration.CommonInputs_cff import *
+
+from FastSimulation.Calorimetry.ECALResponse_cfi import *
+
 FamosCalorimetryBlock = cms.PSet(
     Calorimetry = cms.PSet(
+        #ECALScaleBlock, # comment out to disable scaling
         HSParameterBlock,
         HCALResponseBlock,
         ECAL = cms.PSet(
