@@ -43,7 +43,11 @@ DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet){
   etaBin = parameters.getParameter<int>("etaBin");
   etaBBin = parameters.getParameter<int>("etaBBin");
   etaEBin = parameters.getParameter<int>("etaEBin");
-  
+
+  etaBinLM = parameters.getParameter<int>("etaBinLM");
+  etaBBinLM = parameters.getParameter<int>("etaBBinLM");
+  etaEBinLM = parameters.getParameter<int>("etaEBinLM");
+ 
   etaBMin = parameters.getParameter<double>("etaBMin");
   etaBMax = parameters.getParameter<double>("etaBMax");
   etaECMin = parameters.getParameter<double>("etaECMin");
@@ -65,15 +69,23 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder("Muons/DiMuonHistograms");  
 
-  int nBin = 0;
+  int nBin = 0, nBinLM = 0;
   for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
     if (iEtaRegion==0) { EtaName = "";         nBin = etaBin;} 
     if (iEtaRegion==1) { EtaName = "_Barrel";  nBin = etaBBin;}
     if (iEtaRegion==2) { EtaName = "_EndCap";  nBin = etaEBin;}
+
+
+    if (etaBinLM == 0) { nBinLM = nBin;} //for HeavyIons
+    else{
+    if (iEtaRegion==0) { EtaName = "";         nBinLM = etaBinLM;}
+    if (iEtaRegion==1) { EtaName = "_Barrel";  nBinLM = etaBBinLM;}
+    if (iEtaRegion==2) { EtaName = "_EndCap";  nBinLM = etaEBinLM;}
+    }
     
-    GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, LowMassMin, LowMassMax));
-    TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
-    StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBin, LowMassMin, LowMassMax));
+    GlbGlbMuon_LM.push_back(ibooker.book1D("GlbGlbMuon_LM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBinLM, LowMassMin, LowMassMax));
+    TrkTrkMuon_LM.push_back(ibooker.book1D("TrkTrkMuon_LM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBinLM, LowMassMin, LowMassMax));
+    StaTrkMuon_LM.push_back(ibooker.book1D("StaTrkMuon_LM"+EtaName,"InvMass_{STA,TRK}"+EtaName,nBinLM, LowMassMin, LowMassMax));
     
     GlbGlbMuon_HM.push_back(ibooker.book1D("GlbGlbMuon_HM"+EtaName,"InvMass_{GLB,GLB}"+EtaName,nBin, HighMassMin, HighMassMax));
     TrkTrkMuon_HM.push_back(ibooker.book1D("TrkTrkMuon_HM"+EtaName,"InvMass_{TRK,TRK}"+EtaName,nBin, HighMassMin, HighMassMax));

@@ -53,6 +53,9 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   int etaBin;
   int etaBBin;
   int etaEBin;
+  int etaBinLM;
+  int etaBBinLM;
+  int etaEBinLM;
   int etaOvlpBin;
 
   //Defining relevant eta regions
