@@ -11,6 +11,16 @@ class AlignableObjectId
 
 public:
   AlignableObjectId(){};
+
+  /// sets entries-pointer to names of RunI geometry
+  static void isRunIGeometry();
+
+  /// sets entries-pointer to names of PhaseI geometry
+  static void isPhaseIGeometry();
+
+  /// sets entries-pointer to names of PhaseII geometry
+  static void isPhaseIIGeometry();
+
   /// Convert name to type
   align::StructureType nameToType( const std::string &name ) const;
 

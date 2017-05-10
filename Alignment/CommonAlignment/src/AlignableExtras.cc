@@ -7,6 +7,7 @@
  *  (last update by $Author: mussgill $)
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Geometry

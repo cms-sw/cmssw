@@ -260,6 +260,8 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // Get list of alignables
   Alignables theAlignables = alignmentParameterBuilder.alignables();
+
+  edm::LogInfo("Alignment") << "Constructed theAlignables calling alignmentParameterBuilder.alignables()";
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "got " << theAlignables.size() << " alignables";
 

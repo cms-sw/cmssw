@@ -1,17 +1,17 @@
+#include "Alignment/CommonAlignment/interface/AlignableIndexer.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Alignment/CommonAlignment/interface/Counters.h"
 
 using namespace align;
 
 //__________________________________________________________________________________________________
-Counter Counters::get(StructureType type) const
+Counter AlignableIndexer::get(StructureType type) const
 {
   auto n = theCounters.find(type);
 
   if (theCounters.end() == n)
     {
-      throw cms::Exception("SetupError")
+      throw cms::Exception("AlignableBuildProcess")
         << "Cannot find counter corresponding to the structure "
         << AlignableObjectId::idToString(type);
     }

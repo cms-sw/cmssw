@@ -55,6 +55,8 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 {
  public:
