@@ -568,7 +568,7 @@ namespace edm
 
   void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
     BMixingModule::beginLuminosityBlock(l1, c);
-    EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
+    if(addMCDigiNoise_ && EcalDigiWorkerProd_) EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
   }
 
   void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
