@@ -10,6 +10,10 @@
  * \version $Revision: 1.13 $
  *
  */
+
+#define BOOST_SPIRIT_THREADSAFE 1
+#define PHOENIX_THREADSAFE 1
+
 #include "boost/spirit/include/classic_core.hpp"
 #include "boost/spirit/include/classic_grammar_def.hpp"
 #include "boost/spirit/include/classic_chset.hpp"

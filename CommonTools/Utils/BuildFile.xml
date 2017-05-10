@@ -1,5 +1,5 @@
 <use   name="FWCore/Utilities"/>
-<use   name="boost"/>
+<use   name="boost_header"/>
 <use   name="roothistmatrix"/>
 <use   name="roottmva"/>
 <export>
