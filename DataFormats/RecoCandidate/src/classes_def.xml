@@ -6,14 +6,9 @@
   <class name="reco::RecoChargedCandidate"  ClassVersion="10">
    <version ClassVersion="10" checksum="2818554415"/>
   </class>
-  <class name="reco::RecoChargedRefCandidateBase">
-    <field name="p4Polar_" transient="true"/>
-    <field name="p4Cartesian_" transient="true"/>
-    <field name="cachePolarFixed_" transient="true"/>
-    <field name="cacheCartesianFixed_" transient="true"/>
-  </class>
-  <class name="reco::RecoChargedRefCandidate"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2155624976"/>
+  <class name="reco::RecoChargedRefCandidate"  ClassVersion="11">
+    <version ClassVersion="11" checksum="27158565"/>
+    <version ClassVersion="10" checksum="2155624976"/>
   </class>
   <class name="reco::RecoEcalCandidate"  ClassVersion="10">
    <version ClassVersion="10" checksum="3531165310"/>

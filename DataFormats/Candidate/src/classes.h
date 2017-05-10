@@ -6,6 +6,7 @@
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PxPyPzE4D.h" 
+#include "DataFormats/Candidate/interface/LeafRefCandidateT.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
