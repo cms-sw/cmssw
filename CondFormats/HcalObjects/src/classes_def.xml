@@ -391,5 +391,8 @@
  <class name="OOTPileupCorrectionBuffer">
   <field name="m_buffer" mapping="blob" />
  </class>
+ <class name="HBHEChannelGroups">
+  <field name="group_" mapping="blob" />
+ </class>
 
 </lcgdict>   

@@ -93,6 +93,7 @@ namespace CondFormats_HcalObjects {
     DummyOOTPileupCorrection myDummyOOTPileupCorrection;
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
+    HBHEChannelGroups myHBHEChannelGroups;
   };
 }
 

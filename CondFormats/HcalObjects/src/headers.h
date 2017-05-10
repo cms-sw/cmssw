@@ -8,3 +8,4 @@
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include "CondFormats/HcalObjects/interface/DummyOOTPileupCorrection.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionMapColl.h"
+#include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
