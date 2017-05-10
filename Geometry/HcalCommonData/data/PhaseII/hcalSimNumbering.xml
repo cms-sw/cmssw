@@ -5,29 +5,37 @@
   <Vector name="phioff" type="numeric" nEntries="5">
     0.0*deg, 0.0*deg, 0.0*deg, 10.0*deg, 10.0*deg
   </Vector>
-  <Vector name="etaTable" type="numeric" nEntries="57">
-    0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696,
-    0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479,
-    1.566, 1.653, 1.740, 1.7625, 1.7850, 1.8075, 1.830, 1.855,
-    1.880, 1.905, 1.930, 1.95825, 1.98650, 2.01475, 2.043, 2.07525,
-    2.10750, 2.13975, 2.172, 2.2095, 2.2470, 2.2845, 2.322, 2.3665,
-    2.4110, 2.4555, 2.500, 2.5375, 2.5750, 2.6125, 2.650, 2.7045,
-    2.7590, 2.8135, 2.868, 2.9010, 2.9340, 2.9670, 3.000 
+  <Vector name="etaTable" type="numeric" nEntries="101">
+    0.000,  0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696,
+    0.783,  0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392,1.4094,
+    1.4268,1.4442,1.4616, 1.479,1.4964,1.5138,1.5312,1.5486, 1.566,
+    1.5834,1.6008,1.6182,1.6356, 1.653,1.6704,1.6878,1.7052,1.7226,
+    1.740, 1.7574,1.7748,1.7922,1.8096, 1.827,1.8444,1.8618,1.8792,
+    1.8966, 1.914,1.9314,1.9488,1.9662,1.9836, 2.001,2.0184,2.0358,
+    2.0532,2.0706, 2.088,2.1054,2.1228,2.1402,2.1516, 2.175,2.1924,
+    2.2098,2.2272,2.2446, 2.262,2.2794,2.2968,2.3142,2.3316, 2.349,
+    2.3664,2.3838,2.4012,2.4186, 2.436,2.4534,2.4708,2.4882,2.5056,
+    2.523, 2.5404,2.5578,2.5752,2.5926, 2.610,2.6274,2.6448,2.6622,
+    2.6796, 2.697, 2.732, 2.767, 2.802, 2.837, 2.872, 2.904, 2.936,
+    2.968, 3.000
   </Vector>
   <Vector name="rTable" type="numeric" nEntries="14">
     12.50*cm, 16.90*cm, 20.10*cm, 24.00*cm, 28.60*cm, 34.00*cm,
     40.60*cm, 48.30*cm, 57.60*cm, 68.60*cm, 81.80*cm, 97.50*cm,
     116.20*cm, 130.00*cm
   </Vector>
-  <Vector name="phibin" type="numeric" nEntries="56">
+  <Vector name="phibin" type="numeric" nEntries="101">
     5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
-    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
-    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 2.5*deg,
-    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
-    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
-    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
-    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
-    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg, 1.0*deg,
+    1.0*deg, 1.0*deg
   </Vector>
   <Vector name="phitable" type="numeric" nEntries="13">
     10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg,
@@ -56,7 +64,7 @@
     1, 16, 29, 1
   </Vector>
   <Vector name="etaMax" type="numeric" nEntries="4">
-    16, 56, 41, 15
+    16,100, 41, 15
   </Vector>
   <Vector name="MaxDepth" type="numeric" nEntries="4">
      4,  7,  4,  4
@@ -80,14 +88,14 @@
   <Vector name="HBShift" type="numeric" nEntries="4">
     0, 0, 0, 0
   </Vector>
-  <Vector name="HEGains" type="numeric" nEntries="5">
-    178.0, 178.0, 178.0, 178.0, 178.0
+  <Vector name="HEGains" type="numeric" nEntries="7">
+    178.0, 178.0, 178.0, 178.0, 178.0, 178.0, 178.0
   </Vector>
-  <Vector name="HEShift" type="numeric" nEntries="5">
-    0, 0, 0, 0, 0
+  <Vector name="HEShift" type="numeric" nEntries="7">
+    0, 0, 0, 0, 0, 0, 0
   </Vector>
   <Vector name="HFGains" type="numeric" nEntries="4">
-    2.840, 2.090, 0.000, 0.000
+    2.840, 2.090, 2.840, 2.090
   </Vector>
   <Vector name="HFShift" type="numeric" nEntries="4">
     0, 0, 0, 0
