@@ -22,17 +22,17 @@ namespace l1t {
   public:
 
     EMTFHit() :
-        endcap(-99), station(-99), ring(-99), sector(-99), sector_idx(-99), subsector(-99),
-        chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99), neighbor(-99), mpc_link(-99),
-        pc_sector(-99), pc_station(-99), pc_chamber(-99), pc_segment(-99),
-        wire(-99), strip(-99), strip_hi(-99), strip_low(-99), track_num(-99), quality(-99),
-        pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
-        phi_fp(-99), theta_fp(-99), phzvl(-99), ph_hit(-99), zone_hit(-99), zone_code(-99),
-        fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
-        phi_loc(-99), phi_glob(-99), theta(-99), eta(-99),
-        phi_sim(-99), theta_sim(-99), eta_sim(-99),
-        is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
-        {};
+    endcap(-99), station(-99), ring(-99), sector(-99), sector_RPC(-99), sector_idx(-99), 
+      subsector(-99), subsector_RPC(-99), chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99), 
+      neighbor(-99), mpc_link(-99), pc_sector(-99), pc_station(-99), pc_chamber(-99), pc_segment(-99),
+      wire(-99), strip(-99), strip_hi(-99), strip_low(-99), track_num(-99), quality(-99),
+      pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
+      phi_fp(-99), theta_fp(-99), phzvl(-99), ph_hit(-99), zone_hit(-99), zone_code(-99),
+      fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
+      phi_loc(-99), phi_glob(-99), theta(-99), eta(-99),
+      phi_sim(-99), theta_sim(-99), eta_sim(-99),
+      is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
+      {};
 
     virtual ~EMTFHit() {};
 
@@ -70,8 +70,10 @@ namespace l1t {
     void set_station      (int  bits) { station      = bits; }
     void set_ring         (int  bits) { ring         = bits; }
     void set_sector       (int  bits) { sector       = bits; }
+    void set_sector_RPC   (int  bits) { sector_RPC   = bits; }
     void set_sector_idx   (int  bits) { sector_idx   = bits; }
     void set_subsector    (int  bits) { subsector    = bits; }
+    void set_subsector_RPC(int  bits) { subsector_RPC= bits; }
     void set_chamber      (int  bits) { chamber      = bits; }
     void set_csc_ID       (int  bits) { csc_ID       = bits; }
     void set_csc_nID      (int  bits) { csc_nID      = bits; }
@@ -121,8 +123,10 @@ namespace l1t {
     int   Station      ()  const { return station     ; }
     int   Ring         ()  const { return ring        ; }
     int   Sector       ()  const { return sector      ; }
+    int   Sector_RPC   ()  const { return sector_RPC  ; }
     int   Sector_idx   ()  const { return sector_idx  ; }
     int   Subsector    ()  const { return subsector   ; }
+    int   Subsector_RPC()  const { return subsector_RPC; }
     int   Chamber      ()  const { return chamber     ; }
     int   CSC_ID       ()  const { return csc_ID      ; }
     int   CSC_nID      ()  const { return csc_nID     ; }
@@ -181,10 +185,12 @@ namespace l1t {
     int   endcap      ; //    +/-1.  For ME+ and ME-.
     int   station     ; //  1 -  4.
     int   ring        ; //  1 -  4.  ME1/1a is denoted as "Ring 4".  Should check dependence on input CSCDetId convention. - AWB 02.03.17
-    int   sector      ; //  1 -  6.
+    int   sector      ; //  1 -  6.  CSC / EMTF sector convention: sector 1 starts at 15 degrees
+    int   sector_RPC  ; //  1 -  6.  RPC sector convention (in CMSSW): sector 1 starts at -5 degrees
     int   sector_idx  ; //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.  For neighbor hits, set by EMTF sector that received it.
-    int   subsector   ; //  0 -  6.  In CSCs, 1 or 2 for ME1, 0 for ME2/3/4.  In RPCs, 1 - 6.
-    int   chamber     ; //  1 - 36.  For CSCs only.  0 for RPCs.
+    int   subsector   ; //  0 -  6.  In CSCs, 1 or 2 for ME1, 0 for ME2/3/4.  In RPCs, 1 - 6, where 1 is first chamber in EMTF sector.
+    int   subsector_RPC; // 0 -  6.  RPC sector convention (in CMSSW): subsector 3 is the first chamber in the EMTF sector.
+    int   chamber     ; //  1 - 36.  Chamber 1 starts at -5 degrees.
     int   csc_ID      ; //  1 -  9.  For CSCs only.
     int   csc_nID     ; //  1 - 15.  For CSCs only.  Neighbors 10 - 15, 12 not filled.
     int   roll        ; //  1 -  3.  For RPCs only, sub-division of ring. (Range? - AWB 02.03.17)

@@ -72,22 +72,12 @@ namespace l1t {
 	neighbor  = -99;
 	segment   = -99;
 
-	// // Original mapping according to document
-	// // "link" is the "link index" field (0 - 6) in the EMTF DAQ document, not "link number" (1 - 7)
-	// sector    = (link != 6 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1) );
-	// subsector = ((std::min(link + 1, 6) + 1) % 6) + 1;  // Rotate up by 3 to match RPC subsector convention
-	// neighbor  = (link == 6 ? 1 : 0);
-	// segment   = (word % 2);
-
-	// Alternate, empirical mapping - AWB 03.05.17
 	// "link" is the "link index" field (0 - 6) in the EMTF DAQ document, not "link number" (1 - 7)
-	// Neighbor indicated by link == 0, subsector rotated by 2 instead of 3, assign sector based on RPC sector
+	// Neighbor indicated by link == 0
 	sector    = (link != 0 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1) );
-	subsector = ((link + 1) % 6) + 1;  // Rotate up by 2 to match RPC subsector convention
+	subsector = (link != 0 ? link : 6);
 	neighbor  = (link == 0 ? 1 : 0);
 	segment   = (word % 2);
-	if (subsector < 3) sector = (sector % 6) + 1;  // Rotate up by 1 to match RPC sector convention
-
 
 	if        (frame == 0) {
 	  station = (word < 2 ? 1 : 2);
@@ -160,18 +150,20 @@ namespace l1t {
 	convert_RPC_location( _station, _ring, _sector, _subsector, _neighbor, _segment,
 			      (res->at(iOut)).PtrEventHeader()->Sector(), RPC_.Frame(), RPC_.Word(), RPC_.Link() );
 
-	Hit_.set_station    ( _station   );
-	Hit_.set_ring       ( _ring      );
-	Hit_.set_sector     ( _sector    );
-	Hit_.set_subsector  ( _subsector ); 
-	Hit_.set_neighbor   ( _neighbor  );
-	Hit_.set_pc_segment ( _segment   );
-	Hit_.set_fs_segment ( _segment   );
-	Hit_.set_bt_segment ( _segment   );
+	Hit_.set_station       ( _station   );
+	Hit_.set_ring          ( _ring      );
+	Hit_.set_sector        ( _sector    );
+	Hit_.set_subsector     ( _subsector );
+	Hit_.set_sector_RPC    ( _subsector < 5 ? _sector : (_sector % 6) + 1);  // Rotate by 20 deg to match RPC convention in CMSSW
+	Hit_.set_subsector_RPC ( ((_subsector + 1) % 6) + 1 );  // Rotate by 2 to match RPC convention in CMSSW (RPCDetId.h) 
+	Hit_.set_chamber       ( (Hit_.Sector_RPC() - 1)*6 + Hit_.Subsector_RPC() );
+	Hit_.set_neighbor      ( _neighbor  );
+	Hit_.set_pc_segment    ( _segment   );
+	Hit_.set_fs_segment    ( _segment   );
+	Hit_.set_bt_segment    ( _segment   );
 
 	// Fill the EMTFHit
 	ImportRPC( Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
-
 
 	// // Don't skip on format errors for now - AWB 15.03.17
 	// write:

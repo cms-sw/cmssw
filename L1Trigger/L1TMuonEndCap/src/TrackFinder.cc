@@ -233,7 +233,7 @@ void TrackFinder::process(
               int rpc_sub = -1;
               int rpc_chm = -1;
               if (!h.Neighbor()) {
-                rpc_sub = ((h.Subsector() + 3) % 6);
+                rpc_sub = h.Subsector() - 1;
               } else {
                 rpc_sub = 6;
               }

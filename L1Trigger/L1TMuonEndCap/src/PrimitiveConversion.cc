@@ -453,19 +453,17 @@ void PrimitiveConversion::convert_rpc(
   const bool is_neighbor = (pc_station == 5);
 
   // Set properties
-  conv_hit.SetRPCDetId     ( tp_detId );
+  conv_hit.SetRPCDetId       ( tp_detId );
 
-  conv_hit.set_endcap      ( (tp_endcap == 2) ? -1 : tp_endcap );
-  conv_hit.set_station     ( tp_station );
-  conv_hit.set_ring        ( tp_ring );
-  conv_hit.set_roll        ( tp_roll );
-  //conv_hit.set_chamber     ( tp_chamber );
-  conv_hit.set_sector      ( tp_sector );
-  conv_hit.set_subsector   ( tp_subsector );
-  //conv_hit.set_csc_ID      ( tp_csc_ID );
-  //conv_hit.set_csc_nID     ( csc_nID );
-  //conv_hit.set_track_num   ( tp_data.trknmb );
-  //conv_hit.set_sync_err    ( tp_data.syncErr );
+  conv_hit.set_endcap        ( (tp_endcap == 2) ? -1 : tp_endcap );
+  conv_hit.set_station       ( tp_station );
+  conv_hit.set_ring          ( tp_ring );
+  conv_hit.set_roll          ( tp_roll );
+  conv_hit.set_sector_RPC    ( tp_sector );  // In RPC convention in CMSSW (RPCDetId.h), sector 1 starts at -5 deg
+  conv_hit.set_subsector_RPC ( tp_subsector );
+  conv_hit.set_chamber       ( (tp_sector - 1)*6 + tp_subsector );
+  conv_hit.set_sector        ( tp_subsector > 2 ? tp_sector : ((tp_sector + 4) % 6) + 1 );  // Rotate by 20 deg
+  conv_hit.set_subsector     ( ((tp_subsector + 3) % 6) + 1 );  // Rotate by 2
 
   conv_hit.set_bx          ( tp_bx + bxShiftRPC_ );
   conv_hit.set_subsystem   ( TriggerPrimitive::kRPC );
@@ -482,10 +480,7 @@ void PrimitiveConversion::convert_rpc(
   conv_hit.set_strip       ( tp_strip );
   conv_hit.set_strip_low   ( tp_data.strip_low );
   conv_hit.set_strip_hi    ( tp_data.strip_hi );
-  //conv_hit.set_wire        ( tp_data.keywire );
-  //conv_hit.set_quality     ( tp_data.quality );
   conv_hit.set_pattern     ( 0 );  // In firmware, this marks RPC stub
-  //conv_hit.set_bend        ( tp_data.bend );
 
   conv_hit.set_neighbor    ( is_neighbor );
   conv_hit.set_sector_idx  ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );
@@ -507,7 +502,11 @@ void PrimitiveConversion::convert_rpc(
     // Theta precision is (36.5/32) degrees, 4x larger than CSC precision of (36.5/128) degrees
     int fph = ((phi_loc_int + (1<<1)) >> 2);
     int th  = ((theta_int + (1<<1)) >> 2);
-    assert(0 <= fph && fph < 1024);
+
+    // std::cout << "RPC hit sector (RPC) = " << conv_hit.Sector() << " (" << conv_hit.Sector_RPC() << "), subsector (RPC) = " << conv_hit.Subsector()
+    // 	      << " (" << conv_hit.Subsector_RPC() << ") glob_phi = " << glob_phi << ", phi_loc_int = " << phi_loc_int << ", fph = " << fph << std::endl;
+
+    assert(0 <= fph && fph < 1250);
     assert(0 <=  th &&  th < 32);
     assert(th != 0b11111);  // RPC hit valid when data is not all ones
     fph <<= 2;  // upgrade to full CSC precision by adding 2 zeros
