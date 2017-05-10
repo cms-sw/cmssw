@@ -145,7 +145,7 @@ namespace HcalSimpleRecAlgoImpl {
       HcalDetId cell(digi.id());
       int ieta  = cell.ieta();
       int iphi  = cell.iphi();
-      ampl *= eCorr(ieta,iphi,ampl);
+      if( cell.subdet() == HcalBarrel) ampl *= eCorr(ieta,iphi,ampl);
     }
 
     // Correction for a leak to pre-sample
@@ -272,39 +272,26 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int 
 /// Ugly hack to apply energy corrections to some HB- cells
 float eCorr(int ieta, int iphi, double energy) {
 // return energy correction factor for HBM channels 
-// iphi=6 ieta=(-1,-15) and iphi=32 ieta=(-1,-7)
-// I.Vodopianov 28 Feb. 2011
+// iphi=32 ieta=(-1,-7)
+// I.Vodopianov 28 Feb. 2011, mod. by S.Abdullin on Nov 19, 2013
   static const float low32[7]  = {0.741,0.721,0.730,0.698,0.708,0.751,0.861};
   static const float high32[7] = {0.973,0.925,0.900,0.897,0.950,0.935,1};
-  static const float low6[15]  = {0.635,0.623,0.670,0.633,0.644,0.648,0.600,
-				  0.570,0.595,0.554,0.505,0.513,0.515,0.561,0.579};
-  static const float high6[15] = {0.875,0.937,0.942,0.900,0.922,0.925,0.901,
-				  0.850,0.852,0.818,0.731,0.717,0.782,0.853,0.778};
-
   
   double slope, mid, en;
   double corr = 1.0;
 
-  if (!(iphi==6 && ieta<0 && ieta>-16) && !(iphi==32 && ieta<0 && ieta>-8)) 
+  if (!(iphi==32 && ieta<0 && ieta>-8)) 
     return corr;
 
   int jeta = -ieta-1;
   double xeta = (double) ieta;
   if (energy > 0.) en=energy;
   else en = 0.;
-
-  if (iphi == 32) {
-    slope = 0.2272;
-    mid = 17.14 + 0.7147*xeta;
-    if (en > 100.) corr = high32[jeta];
+  
+  slope = 0.2272;
+  mid = 17.14 + 0.7147*xeta;
+  if (en > 100.) corr = high32[jeta];
     else corr = low32[jeta]+(high32[jeta]-low32[jeta])/(1.0+exp(-(en-mid)*slope));
-  }
-  else if (iphi == 6) {
-    slope = 0.1956;
-    mid = 15.96 + 0.3075*xeta;
-    if (en > 100.0) corr = high6[jeta];
-    else corr = low6[jeta]+(high6[jeta]-low6[jeta])/(1.0+exp(-(en-mid)*slope));
-  }
 
   //  std::cout << "HBHE cell:  ieta, iphi = " << ieta << "  " << iphi 
   //	    << "  ->  energy = " << en << "   corr = " << corr << std::endl;
