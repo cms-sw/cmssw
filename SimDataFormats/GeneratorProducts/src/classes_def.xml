@@ -74,8 +74,10 @@
 	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenVertex*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
