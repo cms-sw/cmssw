@@ -6,9 +6,10 @@
  * Description: Print out statistics of histograms in DQMStore
 */
 
-#include "DQMServices/Components/src/DQMStoreStats.h"
+#include "DQMStoreStats.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 using namespace edm;
@@ -42,6 +43,8 @@ static unsigned int getEmptyMetric(T * array, int lenx, int leny, int lenz)
   
   return result;
 }
+
+namespace dqmservices {
 
 //==================================================================//
 //================= Constructor and Destructor =====================//
@@ -716,5 +719,9 @@ void DQMStoreStats::endJob() {
     calcstats( DQMStoreStats::considerOnlyLumiProductME );
     dumpMemoryProfile();
   }
+
+}
+
+DEFINE_FWK_MODULE(DQMStoreStats);
 
 }

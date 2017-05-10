@@ -6,6 +6,14 @@ DQMEDHarvester::DQMEDHarvester() {
   usesResource("DQMStore");
 }
 
+void DQMEDHarvester::beginRun(edm::Run const& iRun,
+          edm::EventSetup const& iSetup) {
+  DQMStore * store = edm::Service<DQMStore>().operator->();
+  store->meBookerGetter([this, &iRun, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
+      this->dqmBeginRun(b, g, iRun, iSetup);
+    });
+}
+
 void DQMEDHarvester::endJob() {
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g){
@@ -18,5 +26,13 @@ void DQMEDHarvester::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->meBookerGetter([this, &iLumi, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
       this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
+    });
+}
+
+void DQMEDHarvester::endRun(edm::Run const& iRun,
+          edm::EventSetup const& iSetup) {
+  DQMStore * store = edm::Service<DQMStore>().operator->();
+  store->meBookerGetter([this, &iRun, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
+      this->dqmEndRun(b, g, iRun, iSetup);
     });
 }
