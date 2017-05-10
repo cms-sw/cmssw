@@ -31,6 +31,11 @@ class StreamID;
 class InputFile;
 class InputChunk;
 
+namespace edm {
+  class PathsAndConsumesOfModulesBase;
+  class ProcessContext;
+}
+
 namespace Json{
   class Value;
 }
@@ -53,6 +58,7 @@ namespace evf{
       ~EvFDaqDirector();
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void preallocate(edm::service::SystemBounds const& bounds);
+      void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
@@ -112,7 +118,7 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
-      void checkTransferSystemPSet();
+      void checkTransferSystemPSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
 

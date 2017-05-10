@@ -2,8 +2,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -84,6 +84,7 @@ namespace evf {
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
+    reg.watchPreBeginJob(this, &EvFDaqDirector::preBeginJob);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
     reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
@@ -280,8 +281,11 @@ namespace evf {
     }
     nThreads_=bounds.maxNumberOfStreams();
     nStreams_=bounds.maxNumberOfThreads();
+  }
 
-    checkTransferSystemPSet();
+  void EvFDaqDirector::preBeginJob(edm::PathsAndConsumesOfModulesBase const&,
+                                   edm::ProcessContext const& pc) {
+    checkTransferSystemPSet(pc);
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
@@ -865,12 +869,15 @@ namespace evf {
   }
 
   //if transferSystem PSet is present in the menu, we require it to be complete and consistent for all specified streams
-  void EvFDaqDirector::checkTransferSystemPSet()
+  void EvFDaqDirector::checkTransferSystemPSet(edm::ProcessContext const& pc)
   {
+    if(transferSystemJson_) return;
+
     transferSystemJson_.reset(new Json::Value);
-    if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
+    edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
+    if (topPset.existsAs<edm::ParameterSet>("transferSystem",true))
     {
-      const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
+      const edm::ParameterSet& tsPset(topPset.getParameterSet("transferSystem"));
 
       Json::Value destinationsVal(Json::arrayValue);
       std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
