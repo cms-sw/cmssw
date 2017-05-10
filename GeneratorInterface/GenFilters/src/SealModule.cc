@@ -35,6 +35,7 @@
 #include "GeneratorInterface/GenFilters/interface/STFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterTTBar.h"
 #include "GeneratorInterface/GenFilters/interface/LQGenFilter.h"
+#include "GeneratorInterface/GenFilters/interface/SingleLQGenFilter.h"
 #include "GeneratorInterface/GenFilters/interface/XtoFFbarFilter.h"
 #include "GeneratorInterface/GenFilters/interface/HerwigMaxPtPartonFilter.h"
 #include "GeneratorInterface/GenFilters/interface/TwoVBGenFilter.h"
@@ -47,6 +48,7 @@
 
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
+  DEFINE_FWK_MODULE(SingleLQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
   DEFINE_FWK_MODULE(PythiaDauFilter);
   DEFINE_FWK_MODULE(PythiaFilterGammaJet);
