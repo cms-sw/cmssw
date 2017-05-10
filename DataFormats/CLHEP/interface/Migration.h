@@ -2,6 +2,7 @@
 #define _CLEHP_2_SMATRIX_MIGRATION_H_
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/Math/interface/AlgebraicObjects.h"
 #include <cstring>
 
 /*

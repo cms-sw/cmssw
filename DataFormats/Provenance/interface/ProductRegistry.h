@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/array.hpp"
+#include "boost/regex.hpp"
 #include <memory>
 
 #include <iosfwd>

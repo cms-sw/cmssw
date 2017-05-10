@@ -26,6 +26,7 @@
 #include <atomic>
 
 // user include files
+#include "DataFormats/Common/interface/EDProductGetter.h"
 
 // forward declarations
 namespace edm {

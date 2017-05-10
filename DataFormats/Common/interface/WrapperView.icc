@@ -7,9 +7,14 @@ Code from Wrapper.h supporting Views
 
 ----------------------------------------------------------------------*/
 
+#include <cassert>
+
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "boost/mpl/if.hpp"
 
