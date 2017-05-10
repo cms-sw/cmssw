@@ -166,26 +166,26 @@ void GEMTrackMatch::buildLUT(const int maxChamberId)
 void GEMTrackMatch::setGeometry(const GEMGeometry& geom)
 {
   gem_geom_ = &geom;
+  GEMDetId chId(gem_geom_->chambers().front()->id());
+    
   bool isEvenOK = true;
   bool isOddOK  = true;
   useRoll_=1;
-  if ( geom.etaPartition( GEMDetId(1,1,1,1,1,1) ) == nullptr) isOddOK = false;
-  if ( geom.etaPartition( GEMDetId(1,1,1,1,2,1) ) == nullptr) isEvenOK = false;
+  if ( geom.etaPartition( GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),chId.roll()) ) == nullptr) isOddOK = false;
+  if ( geom.etaPartition( GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber()+1,chId.roll()) ) == nullptr) isEvenOK = false;
   if ( !isEvenOK || !isOddOK) useRoll_=2;
-
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(1,1,1,1,1,useRoll_))); 
-  const int nEtaPartitions(geom.chamber(GEMDetId(1,1,1,1,1,useRoll_))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+    
+  const auto top_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),useRoll_)));
+  const int nEtaPartitions(geom.chamber(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),useRoll_))->nEtaPartitions());
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(geom.idToDetUnit(GEMDetId(chId.region(),chId.ring(),chId.station(),chId.layer(),chId.chamber(),nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
   const LocalPoint lp_top(0., top_half_striplength, 0.);
   const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
   const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
   const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
-
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
-
   const int maxChamberId = geom.regions()[0]->stations()[0]->superChambers().size();
   buildLUT(maxChamberId);
 }  
