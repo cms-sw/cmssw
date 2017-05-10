@@ -13,7 +13,6 @@
 namespace dqmservices {
 
 class DQMProtobufReader : public edm::InputSource {
-
  public:
   explicit DQMProtobufReader(edm::ParameterSet const&,
                              edm::InputSourceDescription const&);
@@ -24,10 +23,10 @@ class DQMProtobufReader : public edm::InputSource {
   virtual edm::InputSource::ItemType getNextItemType() override;
   virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
   virtual std::shared_ptr<edm::LuminosityBlockAuxiliary>
-      readLuminosityBlockAuxiliary_() override;
+  readLuminosityBlockAuxiliary_() override;
   virtual void readRun_(edm::RunPrincipal& rpCache) override;
-  virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache)
-      override;
+  virtual void readLuminosityBlock_(
+      edm::LuminosityBlockPrincipal& lbCache) override;
   virtual void readEvent_(edm::EventPrincipal&) override;
 
   void logFileAction(char const* msg, char const* fileName) const;
@@ -41,8 +40,7 @@ class DQMProtobufReader : public edm::InputSource {
   DQMFileIterator fiterator_;
   DQMFileIterator::LumiEntry currentLumi_;
 
-
   InputSource::ItemType nextItemType;
 };
 
-} // end of namespace
+}  // end of namespace

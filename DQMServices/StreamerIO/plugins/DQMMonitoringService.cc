@@ -4,7 +4,6 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-
 #include <ctime>
 
 /*
@@ -14,7 +13,8 @@
 
 namespace dqmservices {
 
-DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::ActivityRegistry& ar) {
+DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet& pset,
+                                           edm::ActivityRegistry& ar) {
   const char* x = getenv("DQM2_SOCKET");
   if (x) {
     std::cerr << "Monitoring pipe: " << x << std::endl;
@@ -37,13 +37,12 @@ DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::A
   ar.watchPreSourceEvent(this, &DQMMonitoringService::evEvent);
 }
 
-DQMMonitoringService::~DQMMonitoringService() {
-}
+DQMMonitoringService::~DQMMonitoringService() {}
 
 void DQMMonitoringService::outputLumiUpdate() {
   using std::chrono::duration_cast;
   using std::chrono::milliseconds;
- 
+
   auto now = std::chrono::high_resolution_clock::now();
 
   ptree doc;
@@ -79,7 +78,6 @@ void DQMMonitoringService::outputLumiUpdate() {
   }
 
   outputUpdate(doc);
-
 }
 
 void DQMMonitoringService::evLumi(GlobalContext const& iContext) {
@@ -92,7 +90,7 @@ void DQMMonitoringService::evLumi(GlobalContext const& iContext) {
   lumi_ = iContext.luminosityBlockID().luminosityBlock();
 
   outputLumiUpdate();
- 
+
   last_lumi_time_ = std::chrono::high_resolution_clock::now();
   last_lumi_nevents_ = nevents_;
   last_lumi_ = lumi_;
@@ -107,8 +105,7 @@ void DQMMonitoringService::outputUpdate(ptree& doc) {
   using std::chrono::duration_cast;
   using std::chrono::milliseconds;
 
-  if (!mstream_)
-    return;
+  if (!mstream_) return;
 
   try {
     last_update_time_ = std::chrono::high_resolution_clock::now();
@@ -122,8 +119,7 @@ void DQMMonitoringService::outputUpdate(ptree& doc) {
 }
 
 void DQMMonitoringService::keepAlive() {
-  if (!mstream_)
-    return;
+  if (!mstream_) return;
 
   mstream_ << "\n";
   mstream_.flush();
@@ -135,21 +131,19 @@ void DQMMonitoringService::tryUpdate() {
   using std::chrono::duration_cast;
   using std::chrono::milliseconds;
 
-  if (!mstream_)
-    return;
+  if (!mstream_) return;
 
   // sometimes we don't see any transition for a very long time
   // but we still want updates
   // luckily, keepAlive is called rather often by the input source
   auto now = std::chrono::high_resolution_clock::now();
   auto millis = duration_cast<milliseconds>(now - last_update_time_).count();
-  if (millis >= (25*1000)) {
+  if (millis >= (25 * 1000)) {
     outputLumiUpdate();
   }
 }
 
-
-} // end-of-namespace
+}  // end-of-namespace
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 

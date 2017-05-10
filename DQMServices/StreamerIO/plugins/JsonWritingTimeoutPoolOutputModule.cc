@@ -39,8 +39,8 @@ JsonWritingTimeoutPoolOutputModule::physicalAndLogicalNameForNewFile() {
 void JsonWritingTimeoutPoolOutputModule::doExtrasAfterCloseFile() {
   std::string json_tmp_ = currentJsonName_ + ".open";
   std::string transferDest = "";
-  auto pt =
-      DQMFileSaver::fillJson(runNumber_, sequence_, currentFileName_, transferDest, nullptr);
+  auto pt = DQMFileSaver::fillJson(runNumber_, sequence_, currentFileName_,
+                                   transferDest, nullptr);
   write_json(json_tmp_, pt);
   rename(json_tmp_.c_str(), currentJsonName_.c_str());
 }
@@ -55,11 +55,15 @@ void JsonWritingTimeoutPoolOutputModule::fillDescriptions(
       "follow the FFF naming convention. Additionally a json 'description' "
       "file is emitted for every .root file written.");
 
-  desc.addUntracked<uint32_t>("runNumber", 0)->setComment(
-      "The run number, only used for file prefix: 'run000001_lumi0000_...'.");
+  desc.addUntracked<uint32_t>("runNumber", 0)
+      ->setComment(
+          "The run number, only used for file prefix: "
+          "'run000001_lumi0000_...'.");
 
-  desc.addUntracked<std::string>("outputPath", "./")->setComment(
-      "Output path for the root and json files, usually the run directory.");
+  desc.addUntracked<std::string>("outputPath", "./")
+      ->setComment(
+          "Output path for the root and json files, usually the run "
+          "directory.");
 
   desc.addUntracked<std::string>("streamLabel", "streamEvDOutput")
       ->setComment("Stream label, used for file suffix.");
