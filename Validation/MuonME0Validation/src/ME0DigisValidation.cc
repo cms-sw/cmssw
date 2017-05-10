@@ -145,7 +145,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     int region = (int) id.region();
     int layer = (int) id.layer();
     int chamber = (int) id.chamber();
-//    int roll = (int) id.roll();
+    int roll = (int) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -195,7 +195,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             int region_sh = id.region();
             int layer_sh = id.layer();
             int chamber_sh = id.chamber();
-//            int roll_sh = id.roll();
+            int roll_sh = id.roll();
             
             int region_sh_num = 0 ;
             if ( region_sh == -1 ) region_sh_num = 0 ;
@@ -211,12 +211,14 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
             }
             
-            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh /*&& roll == roll_sh*/)) continue;
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll == roll_sh)) continue;
             
             float dx_loc = lp_sh.x()-lp.x();
             float dy_loc = lp_sh.y()-lp.y();
-            
-            if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
+            float dphi_glob = gp_sh.phi()-gp.phi();
+            float deta_glob = gp_sh.eta()-gp.eta();
+
+            if(!(fabs(dphi_glob) < 3*sigma_x_ && fabs(deta_glob) < 3*sigma_y_)) continue;
             
             float timeOfFlight_sh = hits->tof();
             const LocalPoint centralLP(0., 0., 0.);
@@ -224,8 +226,6 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             float centralTOF(centralGP.mag() / 29.98); //speed of light
             float timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
             
-            float dphi_glob = gp_sh.phi()-gp.phi();
-        
             me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
             me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);
             me0_strip_dg_dphi_global_Muon[region_num][layer_num]->Fill(dphi_glob);
