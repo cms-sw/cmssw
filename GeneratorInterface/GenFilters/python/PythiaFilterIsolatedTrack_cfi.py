@@ -6,7 +6,7 @@ isotrack_filter = cms.EDFilter("PythiaFilterIsolatedTrack",
                                MinSeedMom      = cms.untracked.double(20.0),
                                MinIsolTrackMom = cms.untracked.double(2.0),
                                IsolCone        = cms.untracked.double(40.0),
-                               PixelEfficiency = cms.untracked.double(0.8)
+                               OnlyHadrons     = cms.untracked.bool(True)
                                )
 
 

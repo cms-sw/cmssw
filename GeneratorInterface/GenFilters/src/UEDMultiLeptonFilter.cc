@@ -315,8 +315,8 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    HepMC::GenEvent::particle_const_iterator i;
    for(i = mcEvent->particles_begin(); i!= mcEvent->particles_end(); i++){
 
-   bool D_part = (fabs((*i)->pdg_id())-5100000>0 && fabs((*i)->pdg_id())-5100000<40);
-   bool S_part = (fabs((*i)->pdg_id())-6100000>0 && fabs((*i)->pdg_id())-6100000<40 );
+   bool D_part = (std::abs((*i)->pdg_id())-5100000>0 && std::abs((*i)->pdg_id())-5100000<40);
+   bool S_part = (std::abs((*i)->pdg_id())-6100000>0 && std::abs((*i)->pdg_id())-6100000<40 );
      if(D_part || S_part){
 
        //debug std::cout << "UED particle ID: " << (*i)->pdg_id() << " status: "<< (*i)->status()<< std::endl;
@@ -483,7 +483,7 @@ UEDMultiLeptonFilter::endJob() {
 bool 
 UEDMultiLeptonFilter::isLepton(HepMC::GenVertex::particles_out_const_iterator part){
 
-  return (fabs((*part)->pdg_id())==13 || fabs((*part)->pdg_id())==11);
+  return (std::abs((*part)->pdg_id())==13 || std::abs((*part)->pdg_id())==11);
 
 } 
 
