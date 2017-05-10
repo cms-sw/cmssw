@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-//
+// Modify for phase1 detector. d.k. 5/17
 //
 
 #include <memory>
@@ -137,7 +137,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   IOOffset size = -1;
   StorageFactory::getToModify()->enableAccounting(true);
     
-  edm::LogInfo("PixelSLinkDataInputSource") << " unsigned long int size = " << sizeof(unsigned long int) <<"\n unsigned long size = " << sizeof(unsigned long)<<"\n unsigned long long size = " << sizeof(unsigned long long) <<  "\n uint32_t size = " << sizeof(uint32_t) << "\n uint64_t size = " << sizeof(uint64_t) << std::endl;
+  //edm::LogInfo("PixelSLinkDataInputSource") << " unsigned long int size = " << sizeof(unsigned long int) <<"\n unsigned long size = " << sizeof(unsigned long)<<"\n unsigned long long size = " << sizeof(unsigned long long) <<  "\n uint32_t size = " << sizeof(uint32_t) << "\n uint64_t size = " << sizeof(uint64_t) << std::endl;
 
   bool exists = StorageFactory::get() -> check(currentfilename.c_str(), &size);
   
@@ -156,7 +156,8 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   Storage & temp_file = *storage;
   //  IOSize n =
   temp_file.read((char*)&m_data,8);
-  if((m_data >> 60) != 0x5){ 
+  //if((m_data >> 60) != 0x5){ 
+  if ( !is_header(m_data) ) {  // check that it is not a header 
     uint32_t runnum = m_data;
     if(m_runnumber!=-1)
       edm::LogInfo("") << "WARNING: observed run number encoded in S-Link dump. Overwriting run number as defined in .cfg file!!! Run number now set to " << runnum << " (was " << m_runnumber << ")";
@@ -172,6 +173,24 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 
 }
 
+bool PixelSLinkDataInputSource::is_header(unsigned long long value) {
+  // replace to make it work for uTCA FEDs with 48 channels
+  return ( (value & 0xFF0000000000000F) == 0x5000000000000000); 
+  //return ( (m_value >> 60) == 0x5);
+}
+
+bool PixelSLinkDataInputSource:: is_trailer(unsigned long long value) {
+  // replace to make it work for uTCA FEDs with 48 channels
+  //cout<<hex<<value<<dec<<endl;
+  //bool stat =  ( (value & 0xFFFFC0000000F00F) == 0xA000000000000000);
+  //if(stat) cout<<" is a trailer "<<endl;
+  return ( (value & 0xFFFFC0000000F00F) == 0xA000000000000000);
+  //return ( (m_value >> 60) == 0xa);
+}
+
+
+
+
 bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   Storage & m_file = *storage;
 
@@ -181,17 +200,17 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
   //  uint32_t currenteventnumber = (m_data >> 32)&0x00ffffff;
   uint32_t eventnumber =(m_data >> 32)&0x00ffffff ;
   
-  do{
+  do {
     std::vector<uint64_t> buffer;
-  
- 
   
     uint16_t count=0;
     eventnumber = (m_data >> 32)&0x00ffffff ;
     if(m_currenteventnumber==0)
       m_currenteventnumber=eventnumber;
     edm::LogInfo("PixelSLinkDataInputSource::produce()") << "**** event number = " << eventnumber << " global event number " << m_currenteventnumber << " data " << std::hex << m_data << std::dec << std::endl;
-    while ((m_data >> 60) != 0x5){
+
+    //while ((m_data >> 60) != 0x5){
+    while ( !is_header(m_data) ) {  // check that it is a header 
       //  std::cout << std::hex << m_data << std::dec << std::endl;
       if (count==0){
 	edm::LogWarning("") << "DATA CORRUPTION!" ;
@@ -207,7 +226,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
 	edm::LogInfo("") << "End of input file" ;
 	return false;
       }
-    }
+    }  // finish looking for heder 
  
 
     if (count>0) {
@@ -222,11 +241,12 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
     //   std::cout << "fed id = " << fed_id << std::endl;
     buffer.push_back(m_data);
   
-    do{
+    do {  // loop until trailer is found 
       m_file.read((char*)&m_data,8);
       buffer.push_back(m_data);
-    }
-    while((m_data >> 60) != 0xa);
+    } while( !is_trailer(m_data) );
+    //while((m_data >> 60) != 0xa);
+
     //  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
 
     auto rawData = std::make_unique<FEDRawData>(8*buffer.size());
@@ -256,14 +276,14 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
     if(m_currenteventnumber<eventnumber)
       LogError("PixelSLinkDataInputSource") << " error, the previous event number (" << eventnumber << ") is LARGER than the next event number (" << m_currenteventnumber << ")" << std::endl;
 
-  }
-  while( eventnumber == m_currenteventnumber);
+  } while( eventnumber == m_currenteventnumber);
   
   uint32_t realeventno = synchronizeEvents();
   if(m_runnumber!=0)
     id = edm::EventID(m_runnumber, id.luminosityBlock(), realeventno);
   else
     id = edm::EventID(id.run(), id.luminosityBlock(), realeventno);
+
   return true;
 }
 
