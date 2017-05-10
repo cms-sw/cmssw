@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Generator.PyquenDefaultSettings_cff import *
+from Configuration.Generator.Pyquen2013Settings_cff import *
 
 generator = cms.EDFilter("HydjetGeneratorFilter",
                          collisionParameters,
