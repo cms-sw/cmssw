@@ -52,4 +52,14 @@ lxplus> cmsRun viewCaloParams.py db=prod run=1000000
 
 ## For experts: uploading prototype payloads in Cond DB
 
+The following set of script allows to update the prototype (starting point that L1T O2O take and updates with parameters
+extracted from the online XMLs):
+[uploadBmtfParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/uploadBmtfParams.py),
+[uploadEmtfParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/uploadEmtfParams.py),
+[uploadCaloParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/uploadCaloParams.py),
+[uploadGmtParams.py](https://github.com/kkotov/cmssw/blob/o2oUtilities92X/L1TriggerConfig/Utilities/test/uploadGmtParams.py)
 
+## For experts: standalone XML parsers
+
+The read*.cc standalones (compilation instructions inside) are able to read the online xml config files. Although I do
+not commit to support them up to the date.
