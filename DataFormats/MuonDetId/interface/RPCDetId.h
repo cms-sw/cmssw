@@ -162,7 +162,9 @@ class RPCDetId :public DetId {
   static const int maxSubSectorForwardId=	 6;
 
   static const int minRollId=	  0;
-  static const int maxRollId=	  4;
+  static const int maxRollId=	  5; // used to be 4 ... need 5 for upgrade 
+  // if we decide to divide the upgrade RE3/1 and RE4/1 up to eta=2.4 
+  // and we want basically to have 0.10 eta / roll ...
 
 
  private:

@@ -23,29 +23,24 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-
 #include <DataFormats/RPCDigi/interface/RPCDigi.h>
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 
 //
 // class decleration
@@ -124,12 +119,15 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    float areabarrel = 0; 
    float areaendcap = 0;
 
+   // Count chambers and rolls in the endcap
+   // 4 Endcap disks with each 3 rings
+   // count the chambers
    for(int i=1;i<5;i++){
      for(int j=1;j<4;j++){
        ENDCAP[i][j]=0;
      }
    }
-
+   // count the rolls
    for(int i=1;i<5;i++){
      for(int j=1;j<4;j++){
        ENDCAProll[i][j]=0;
@@ -138,118 +136,152 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
    
    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+     // The DetId can be a chamber or a roll
+     // Consider only the chambers and ask the rolls belonging to this chamber later on
+     // So this is a loop on the chambers
      if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
-       std::vector< const RPCRoll*> roles = (ch->rolls());
-       
-       //std::cout<<"RPC Chamber"<<ch->id()<<std::endl;
-       
-       if(ch->id().region()==1){
-	 
+       std::vector< const RPCRoll*> rolls = (ch->rolls());
+       //std::cout<<"RPC Chamber"<<ch->id()<<std::endl;       
+       if(ch->id().region()==1){	 
 	 switch(ch->id().station()){
 	 case 1:
 	   switch(ch->id().ring()){
 	   case 1:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 2:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 3:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   }
 	   break;
-	   
 	 case 2:
 	   switch(ch->id().ring()){
 	   case 1:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 2:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 3:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   }
 	   break;
-	   
 	 case 3:
 	   switch(ch->id().ring()){
 	   case 1:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
-	     break;
-	     case 2:
-	       ENDCAP[ch->id().station()][ch->id().ring()]++;
-	       break;
-	   case 3:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
-	     break;
-	   }
-	   
-	   break;
-	 case 4:
-	   
-	   switch(ch->id().ring()){
-	   case 1:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 2:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   case 3:
-	     ENDCAP[ch->id().station()][ch->id().ring()]++;
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
+	     break;
+	   }
+	   break;
+	 case 4:
+	   switch(ch->id().ring()){
+	   case 1:
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
+	     break;
+	   case 2:
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
+	     break;
+	   case 3:
+	     ++ENDCAP[ch->id().station()][ch->id().ring()];
 	     break;
 	   }
 	   break;
 	 }
        }
-
-       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+       // ======================================
+       // Loop over the rolls inside the chamber
+       // ======================================
+       for(std::vector<const RPCRoll*>::const_iterator r = rolls.begin();r != rolls.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
 	 int stripsinthisroll=(*r)->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
-	 
-	 //std::cout<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
-	 
-	 RollsInCMS++;
-	 
+	 ++RollsInCMS;
+	 // std::cout<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
 	 //std::cout<<rpcId<<" - "<<rpcsrv.name()<<" - "<<rpcsrv.shortname()<<std::endl;
-	//std::cout<<rpcsrv.name()<<std::endl;
-	
+	 //std::cout<<rpcsrv.name()<<std::endl;
 
+	 // start RPC Barrel
+	 // ----------------
 	 if (rpcId.region()==0){ 
 	   //std::cout<<"Getting the RPC Topolgy"<<std::endl;
 	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	   float s1 = static_cast<float>(1)-0.5;
+           float sLast = static_cast<float>(stripsinthisroll)-0.5;
 	   float stripl = top_->stripLength();
 	   float stripw = top_->pitch();
 	   areabarrel = areabarrel + stripl*stripw*stripsinthisroll;
-	   sumstripwbarrel=sumstripwbarrel+stripw*stripsinthisroll;
-	   std::cout<<"AllInfo "<<rpcId.rawId()<<" = "<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total barrel="<<areabarrel<<std::endl;
-	   counterRollsBarrel++; 
+	   sumstripwbarrel = sumstripwbarrel+stripw*stripsinthisroll;
+	   std::string name = rpcsrv.name();
+
+	   // +++ Printout +++
+	   // ++++++++++++++++
+	   std::cout<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
+	   std::cout<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
+	   std::cout<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total barrel = "<<areabarrel<<"[cm^2]"<<std::endl;
+	   // ++++++++++++++++
+
+	   const BoundPlane & RPCSurface = (*r)->surface();
+	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
+	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
+	   double rpcphiFirst = FirstStripCenterPointInGlobal.barePhi();//*180./3.141592;
+	   double rpcphiLast  = LastStripCenterPointInGlobal.barePhi();//*180./3.141592;
+	   //double rpcYFirst = FirstStripCenterPointInGlobal.y();
+	   //double rpcYLast  = LastStripCenterPointInGlobal.y();
+	   double diff=rpcphiLast-rpcphiFirst;
+	   double rollphi = (rpcphiFirst+rpcphiLast)*0.5*180./3.141592;
+	   double orientation=diff/fabs(diff);
+	   int seg=rpcsrv.segment();
+
+	   // ++++++++++++++++
+	   // +++ Printout +++
+	   // ++++++++++++++++
+	   std::cout<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
+		    <<" phi first strip="<<rpcphiFirst<<" phi last strip="<<rpcphiLast<<" || "<<std::endl;
+	   std::cout<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
+		    <<" glob (X,Y,Z) last strip =("<<LastStripCenterPointInGlobal.x()<<", "<<LastStripCenterPointInGlobal.y()<<","<<LastStripCenterPointInGlobal.z()<<")[cm]"
+	            <<std::endl;	   
+	   // ++++++++++++++++
+
+	   ++counterRollsBarrel; 
 	   if(rpcId.station()==4){
-	     counterRollsMB4++;
+	     ++counterRollsMB4;
 	       switch(rpcId.ring()){
 	       case -2:
-		 RB4Wm2++;
+		 ++RB4Wm2;
 		 break;
 	       case -1:
-		 RB4Wm1++;
+		 ++RB4Wm1;
 		 break;
 	       case 0:
-		 RB4W0++;
+		 ++RB4W0;
 		 break;
 	       case 1:
-		 RB4W1++;
+		 ++RB4W1;
 		 break;
 	       case 2:
-		 RB4W2++;
+		 ++RB4W2;
 		 break;
 	       }
 	   }
-	   else counterRollsMB1MB2MB3++;
-	 }else{
+	   else ++counterRollsMB1MB2MB3;
+	 }
+	 // end RPC Barrel loop
+	 // -------------------
+
+	 // start RPC Endcap
+	 // -------------------
+	 else {
 	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
 	   float s1 = static_cast<float>(1)-0.5;
 	   float sLast = static_cast<float>(stripsinthisroll)-0.5;
@@ -257,140 +289,135 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   float stripw = top_->pitch();
 	   areaendcap = areaendcap + stripw*stripl*stripsinthisroll;
 	   sumstripwendcap=sumstripwendcap+stripw*stripsinthisroll;
+	   std::string name = rpcsrv.name();
 
-	   std::cout<<"AllInfo "<<rpcId.rawId()<<" = "<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total endcap="<<areaendcap<<std::endl;
+	   // +++ Printout +++
+	   // ++++++++++++++++
+	   std::cout<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
+	   std::cout<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
+	   std::cout<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total endcap = "<<areaendcap<<"[cm^2]"<<std::endl;
+	   // ++++++++++++++++
+
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
 	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
-	   
 	   double rpcphiFirst = FirstStripCenterPointInGlobal.barePhi();//*180./3.141592;
 	   double rpcphiLast  = LastStripCenterPointInGlobal.barePhi();//*180./3.141592;
-
 	   //double rpcYFirst = FirstStripCenterPointInGlobal.y();
 	   //double rpcYLast  = LastStripCenterPointInGlobal.y();
-
 	   double diff=rpcphiLast-rpcphiFirst;
-	   
 	   double rollphi = (rpcphiFirst+rpcphiLast)*0.5*180./3.141592;
-	     
 	   double orientation=diff/fabs(diff);
-
 	   int seg=rpcsrv.segment();
-
+	   // ??? what does this mean ???
 	   if(seg==19) orientation = orientation*-1;
+	   // ????
 
-	   std::cout<<rpcsrv.name()<<" midlephi="<<rollphi<<" "<<orientation<<" seg="<<seg
-		    <<" First.phi="<<rpcphiFirst<<" First.Y="<<FirstStripCenterPointInGlobal.y()
-		    <<"  Last.phi="<<rpcphiLast<<" Last.Y="<<LastStripCenterPointInGlobal.y()
-		    <<" Last.X="<<LastStripCenterPointInGlobal.x()
-		    <<" Last.Z="<<LastStripCenterPointInGlobal.z();	   
+	   // +++ Printout +++
+	   // ++++++++++++++++
+	   std::cout<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
+		    <<" phi first strip="<<rpcphiFirst<<" phi last strip="<<rpcphiLast<<" || "<<std::endl;
+	   std::cout<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
+		    <<" glob (X,Y,Z) last strip =("<<LastStripCenterPointInGlobal.x()<<", "<<LastStripCenterPointInGlobal.y()<<","<<LastStripCenterPointInGlobal.z()<<")[cm]";
+	   // ++++++++++++++++
+	   // cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
 
-	   //cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
-
-	   bool ok = false;
+	   // +++ Check the orientation +++
+	   // +++++++++++++++++++++++++++++
+	   bool orientation_ok = false;
 	   if(rpcId.station()==1) {
-	     if(rpcId.ring()==2 && seg%2!=0 && orientation*rpcId.region()== 1.0) {ok=true;}
-	     if(rpcId.ring()==2 && seg%2==0 && orientation*rpcId.region()==-1.0) {ok=true;}
-	     if(rpcId.ring()==3             && orientation*rpcId.region()== 1.0) {ok=true;}
+	     if(rpcId.ring()==1             && orientation*rpcId.region()== 1.0) {orientation_ok=true;}
+	     if(rpcId.ring()==2 && seg%2!=0 && orientation*rpcId.region()== 1.0) {orientation_ok=true;}
+	     if(rpcId.ring()==2 && seg%2==0 && orientation*rpcId.region()==-1.0) {orientation_ok=true;}
+	     if(rpcId.ring()==3             && orientation*rpcId.region()== 1.0) {orientation_ok=true;}
 	   }
 	   if(rpcId.station()==2 || rpcId.station()==4) {
-	     if(orientation*rpcId.region()==-1.0) {ok=true;}
+	     if(orientation*rpcId.region()==-1.0) {orientation_ok=true;}
 	   }
 	   if(rpcId.station()==3) {
-	     if(orientation*rpcId.region()==1.0) {ok=true;}
+	     if(orientation*rpcId.region()==1.0) {orientation_ok=true;}
 	   }
-
-	   if(ok) std::cout<<" OK"<<std::endl;
+	   if(orientation_ok) std::cout<<" OK"<<std::endl;
 	   else std::cout<<" WRONG!!!"<<std::endl;
+	   // +++++++++++++++++++++++++++++
 	     
-	   counterRollsEndCap++;
-
+	   ++counterRollsEndCap;
 	   if(rpcId.region()==1){
-	     
 	     switch(rpcId.station()){
 	     case 1:
 	       switch(rpcId.ring()){
 	       case 1:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 2:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 3:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       }
 	       break;
-	   
 	     case 2:
 	       switch(rpcId.ring()){
 	       case 1:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 2:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 3:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       }
 	       break;
-	   
 	     case 3:
 	       switch(rpcId.ring()){
 	       case 1:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 2:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 3:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       }
-	   
 	       break;
 	     case 4:
 	       switch(rpcId.ring()){
 	       case 1:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 2:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       case 3:
-		 ENDCAProll[rpcId.station()][rpcId.ring()]++;
+		 ++ENDCAProll[rpcId.station()][rpcId.ring()];
 		 break;
 	       }
 	       break;
 	     }
 	   }
 	 }
+	 // end RPC Endcap loop
+	 // -------------------
        
-	 //Particular Counter
-	 if(rpcId.region()==1&&rpcId.station()==2&&(rpcId.sector()==3||rpcId.sector()==4||rpcId.sector()==5)){
-	   rollsNearDiskp2++;
+	 // Particular Counter
+	 if(rpcId.region()==1 && rpcId.station()==2 && (rpcId.sector()==3 || rpcId.sector()==4 || rpcId.sector()==5)) {
+	   ++rollsNearDiskp2;
 	 }
-
-
-
-	 if(rpcId.region()==1&&rpcId.station()==3&&(rpcId.sector()==3||rpcId.sector()==4||rpcId.sector()==2)){
-	   rollsNearDiskp3++;
+	 if(rpcId.region()==1 && rpcId.station()==3 && (rpcId.sector()==3 || rpcId.sector()==4 || rpcId.sector()==2)) {
+	   ++rollsNearDiskp3;
+	 }	 
+	 for(int strip=1; strip<=stripsinthisroll; ++strip){
+	   // LocalPoint lCentre=(*r)->centreOfStrip(strip);
+	   // const BoundSurface& bSurface = (*r)->surface();
+	   // GlobalPoint gCentre = bSurface.toGlobal(lCentre);
+	   // std::cout<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
+	   ++StripsInCMS;
+	   if(rpcId.region()==0) ++counterstripsBarrel;
+	   else ++counterstripsEndCap; 
 	 }
-
-
-	 	 
-	 for(int strip=1;strip<=stripsinthisroll;++strip){
-	   //LocalPoint lCentre=(*r)->centreOfStrip(strip);
-	   //const BoundSurface& bSurface = (*r)->surface();
-	   //GlobalPoint gCentre = bSurface.toGlobal(lCentre);
-	   //std::cout<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
-	   StripsInCMS++;
-	   if(rpcId.region()==0) counterstripsBarrel++;
-	   else counterstripsEndCap++;
-	   
-	 }
-	 
        }
      }
    }
@@ -435,8 +462,8 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    std::cout<<"Rolls in Near Disk 2= "<<rollsNearDiskp2<<std::endl;
    std::cout<<"Rolls in Near Disk 3= "<<rollsNearDiskp3<<std::endl;
 
-   std::cout<<"Average Strip in Barrel= "<<sumstripwbarrel/counterstripsBarrel<<std::endl;
-   std::cout<<"Average Strip in EndCap= "<<sumstripwendcap/counterstripsEndCap<<std::endl;
+   std::cout<<"Average Strip Width in Barrel= "<<sumstripwbarrel/counterstripsBarrel<<std::endl;
+   std::cout<<"Average Strip Width in EndCap= "<<sumstripwendcap/counterstripsEndCap<<std::endl;
 
    std::cout<<"Expected RMS Barrel= "<<(sumstripwbarrel/counterstripsBarrel)/sqrt(12)<<std::endl;
    std::cout<<"Expected RMS EndCap= "<<(sumstripwendcap/counterstripsEndCap)/sqrt(12)<<std::endl;
