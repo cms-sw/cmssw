@@ -1,0 +1,71 @@
+body {
+  background: url('../images/twiki_header.gif') #fff repeat-x 0 0;
+}
+
+#patternTopBar {
+  background: url('../images/bg_outer_gradient.gif') no-repeat center 0;
+  height: 64px;
+  width: 100%;
+  border-bottom: 1px solid #DADADA;
+  margin-bottom: 30px;
+}
+
+#logo {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+} 
+
+.uns_form {
+  width: 400px;
+}
+
+.uns_form label {
+  display: block;
+  font-family:	Arial,sans-serif;
+  font-size:14px;
+  color: #000; 
+}   
+
+.uns_form input[type="text"] {
+  width: 398px;  
+}
+
+.uns_form textarea {
+  width: 388px;
+  height: 60px;
+}     
+
+.uns_form select {
+  width: 400px;
+}
+
+.uns_form input[type="checkbox"] {
+  margin-left: 0;
+  margin-right: 10px;
+  display: inline;
+}
+
+.uns_form input[type="submit"] {
+  background-color: #DBD9CF;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #F8F6EC #B8B6AD #B8B6AD #F8F6EC;
+  color: #222222;  
+  background: url("../images/bg_button_small_gradient.gif") repeat-x 0 0;
+  padding: 4px 10px;
+  margin-top: 15px;
+  font-family: Arial,sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+}  
+
+.uns_form input[type="submit"]:hover {
+  background-color: #c2bfae;
+  background-position: 0 -80px;
+  border-color: #F4F2EB #A3A092 #A3A092 #F4F2EB;
+}   
+
+.uns_form  .inline {
+  display: inline;
+}                         
