@@ -1,5 +1,6 @@
-#ifndef Utilities_DebugMacros_h
-#define Utilities_DebugMacros_h
+#ifndef FWCore_Utilities_DebugMacros_h
+#define FWCore_Utilities_DebugMacros_h
+#include <iostream>
 
 namespace edm {
   struct debugvalue {
