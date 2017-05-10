@@ -46,7 +46,7 @@ public:
   void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
   // ugly hack related to HB- e-dependent corrections
-  void setForData();
+  void setForData(int runnum);
   // usage of leak correction 
   void setLeakCorrection();
 
@@ -66,7 +66,7 @@ private:
   bool correctForPulse_;
   float phaseNS_;
   std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
-  bool setForData_;
+  int runnum_;  // data run numer 
   bool setLeakCorrection_;
   int pileupCleaningID_;
 };
