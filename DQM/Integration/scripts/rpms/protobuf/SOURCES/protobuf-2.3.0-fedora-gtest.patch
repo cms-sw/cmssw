@@ -1,0 +1,99 @@
+diff -up protobuf-2.3.0/autogen.sh.orig protobuf-2.3.0/autogen.sh
+--- protobuf-2.3.0/autogen.sh.orig	2010-04-21 18:55:43.857266895 -0600
++++ protobuf-2.3.0/autogen.sh	2010-04-21 19:54:57.386270273 -0600
+@@ -15,25 +15,8 @@ __EOF__
+   exit 1
+ fi
+ 
+-# Check that gtest is present.  Usually it is already there since the
+-# directory is set up as an SVN external.
+-if test ! -e gtest; then
+-  echo "Google Test not present.  Fetching gtest-1.3.0 from the web..."
+-  curl http://googletest.googlecode.com/files/gtest-1.3.0.tar.bz2 | tar jx
+-  mv gtest-1.3.0 gtest
+-fi
+-
+ set -ex
+ 
+-# Temporary hack:  Must change C runtime library to "multi-threaded DLL",
+-#   otherwise it will be set to "multi-threaded static" when MSVC upgrades
+-#   the project file to MSVC 2005/2008.  vladl of Google Test says gtest will
+-#   probably change their default to match, then this will be unnecessary.
+-#   One of these mappings converts the debug configuration and the other
+-#   converts the release configuration.  I don't know which is which.
+-sed -i -e 's/RuntimeLibrary="5"/RuntimeLibrary="3"/g;
+-           s/RuntimeLibrary="4"/RuntimeLibrary="2"/g;' gtest/msvc/*.vcproj
+-
+ # TODO(kenton):  Remove the ",no-obsolete" part and fix the resulting warnings.
+ autoreconf -f -i -Wall,no-obsolete
+ 
+diff -up protobuf-2.3.0/Makefile.am.orig protobuf-2.3.0/Makefile.am
+--- protobuf-2.3.0/Makefile.am.orig	2010-04-21 18:55:38.009265866 -0600
++++ protobuf-2.3.0/Makefile.am	2010-04-21 18:56:15.068016238 -0600
+@@ -11,27 +11,6 @@ SUBDIRS = . src
+ # Always include gtest in distributions.
+ DIST_SUBDIRS = $(subdirs) src
+ 
+-# Build gtest before we build protobuf tests.  We don't add gtest to SUBDIRS
+-# because then "make check" would also build and run all of gtest's own tests,
+-# which takes a lot of time and is generally not useful to us.  Also, we don't
+-# want "make install" to recurse into gtest since we don't want to overwrite
+-# the installed version of gtest if there is one.
+-check-local:
+-	@echo "Making lib/libgtest.a lib/libgtest_main.a in gtest"
+-	@cd gtest && $(MAKE) $(AM_MAKEFLAGS) lib/libgtest.la lib/libgtest_main.la
+-
+-# We would like to clean gtest when "make clean" is invoked.  But we have to
+-# be careful because clean-local is also invoked during "make distclean", but
+-# "make distclean" already recurses into gtest because it's listed among the
+-# DIST_SUBDIRS.  distclean will delete gtest/Makefile, so if we then try to
+-# cd to the directory again and "make clean" it will fail.  So, check that the
+-# Makefile exists before recursing.
+-clean-local:
+-	@if test -e gtest/Makefile; then \
+-	  echo "Making clean in gtest"; \
+-	  cd gtest && $(MAKE) $(AM_MAKEFLAGS) clean; \
+-	fi
+-
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = protobuf.pc protobuf-lite.pc
+ 
+diff -up protobuf-2.3.0/src/Makefile.am.orig protobuf-2.3.0/src/Makefile.am
+--- protobuf-2.3.0/src/Makefile.am.orig	2010-04-21 18:56:57.342268786 -0600
++++ protobuf-2.3.0/src/Makefile.am	2010-04-21 20:02:40.168268698 -0600
+@@ -276,10 +276,8 @@ COMMON_TEST_SOURCES =                   
+ check_PROGRAMS = protoc protobuf-test protobuf-lazy-descriptor-test \
+                  protobuf-lite-test test_plugin $(GZCHECKPROGRAMS)
+ protobuf_test_LDADD = $(PTHREAD_LIBS) libprotobuf.la libprotoc.la \
+-                      $(top_builddir)/gtest/lib/libgtest.la       \
+-                      $(top_builddir)/gtest/lib/libgtest_main.la
+-protobuf_test_CPPFLAGS = -I$(top_srcdir)/gtest/include         \
+-                         -I$(top_builddir)/gtest/include
++                      -lgtest -lgtest_main
++protobuf_test_CPPFLAGS =
+ # Disable optimization for tests unless the user explicitly asked for it,
+ # since test_util.cc takes forever to compile with optimization (with GCC).
+ # See configure.ac for more info.
+@@ -319,11 +317,8 @@ nodist_protobuf_test_SOURCES = $(protoc_
+ 
+ # Run cpp_unittest again with PROTOBUF_TEST_NO_DESCRIPTORS defined.
+ protobuf_lazy_descriptor_test_LDADD = $(PTHREAD_LIBS) libprotobuf.la \
+-                      $(top_builddir)/gtest/lib/libgtest.la       \
+-                      $(top_builddir)/gtest/lib/libgtest_main.la
+-protobuf_lazy_descriptor_test_CPPFLAGS = -I$(top_srcdir)/gtest/include    \
+-                                         -I$(top_builddir)/gtest/include  \
+-                                         -DPROTOBUF_TEST_NO_DESCRIPTORS
++                                      -lgtest -lgtest_main
++protobuf_lazy_descriptor_test_CPPFLAGS = -DPROTOBUF_TEST_NO_DESCRIPTORS
+ protobuf_lazy_descriptor_test_CXXFLAGS = $(NO_OPT_CXXFLAGS)
+ protobuf_lazy_descriptor_test_SOURCES =                        \
+   google/protobuf/compiler/cpp/cpp_unittest.cc                 \
+@@ -341,7 +336,7 @@ nodist_protobuf_lite_test_SOURCES = $(pr
+ 
+ # Test plugin binary.
+ test_plugin_LDADD = $(PTHREAD_LIBS) libprotobuf.la libprotoc.la \
+-                    $(top_builddir)/gtest/lib/libgtest.la
++                    -lgtest
+ test_plugin_CPPFLAGS = -I$(top_srcdir)/gtest/include         \
+                        -I$(top_builddir)/gtest/include
+ test_plugin_SOURCES =                                          \
