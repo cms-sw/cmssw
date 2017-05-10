@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# lumi
+from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 
@@ -33,6 +35,9 @@ from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
+
+# pixel
+from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
@@ -72,6 +77,7 @@ from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
+    lumiMonitorHLTsequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
@@ -102,7 +108,9 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
+    lumiMonitorHLTsequence * # lumi
     sistripMonitorHLTsequence * # strip
+    sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
     egmTrackingMonitorHLT * # egm tracking
