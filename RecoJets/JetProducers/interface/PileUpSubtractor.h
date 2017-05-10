@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -29,6 +31,7 @@ class PileUpSubtractor{
   
   PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
   virtual ~PileUpSubtractor(){;}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 virtual void setDefinition(JetDefPtr const & jetDef);
 virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
@@ -66,6 +69,10 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
   bool     doRhoFastjet_;
   double   jetPtMin_;
   double   puPtMin_;
+
+  double ghostEtaMax;
+  int    activeAreaRepeats;
+  double ghostArea;
 
   double                nSigmaPU_;                  // number of sigma for pileup
   double                radiusPU_;                  // pileup radius
