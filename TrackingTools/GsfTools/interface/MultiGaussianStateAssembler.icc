@@ -1,30 +1,12 @@
 #include "TrackingTools/GsfTools/interface/GaussianStateLessWeight.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+
 template <unsigned int N>
 MultiGaussianStateAssembler<N>::MultiGaussianStateAssembler (const MultiState & state) :
   theInitialState(state), minFractionalWeight(1.e-16),
   combinationDone(false), theValidWeightSum(0.)
-{
-  //
-  // parameters (could be configurable)
-  //
-//   static SimpleConfigurable<bool> sortStatesConf(false,"MultiGaussianStateAssembler:sortStates");
-//   sortStates = sortStatesConf.value();
-//   static SimpleConfigurable<double> minWeightConf(1.e-16,"MultiGaussianStateAssembler:minFractionalWeight");
-//   minFractionalWeight = minWeightConf.value();
-//   //
-//   // Timers
-//   //
-//   if ( theTimerAdd==0 ) {
-//     theTimerAdd =
-//       &(*TimingReport::current())[string("MultiGaussianStateAssembler::addState")];
-//     theTimerAdd->switchCPU(false);
-//     theTimerComb =
-//       &(*TimingReport::current())[string("MultiGaussianStateAssembler::combinedState")];
-//     theTimerComb->switchCPU(false);
-//   }
-}
+{}
 
 template <unsigned int N>
 void MultiGaussianStateAssembler<N>::addState (const SingleStatePtr& sgs)
@@ -44,20 +26,12 @@ void MultiGaussianStateAssembler<N>::addState (const SingleStatePtr& sgs)
 
 template <unsigned int N>
 void MultiGaussianStateAssembler<N>::addState (const MultiState& mgs) {
-//   // Timer
-//   TimeMe t(*theTimerAdd,false);
   //
   // refuse to add states after combination has been done
   //
   if ( combinationDone )
     throw cms::Exception("LogicError") 
       << "MultiGaussianStateAssembler: trying to add states after combination";
-  //
-  // Verify validity of state to be added
-  //ThS: Is not possible for gaussian states.
-//   if ( !tsos.isValid() )
-//     throw cms::Exception("LogicError") 
-//       << "MultiGaussianStateAssembler: trying to add invalid state";
   //
   // Add components (i.e. state to be added can be single or multi state)
   //
@@ -77,15 +51,8 @@ void MultiGaussianStateAssembler<N>::addStateVector (const SingleStateContainer&
   //
   // sum up weights (all components are supposed to be valid!!!)
   //
-  double sum(0.);
-  for ( typename SingleStateContainer::const_iterator i=states.begin();
-	i!=states.end(); i++ ) {
-  //ThS: Is not possible for gaussian states:
-//     if ( !(i->isValid()) )
-//       throw cms::Exception("LogicError") 
-//         << "MultiGaussianStateAssembler: trying to add invalid state";
-    sum += (**i).weight();
-  }
+  double sum=0.;
+  for (auto const & is : states ) sum += (*is).weight();
   theValidWeightSum += sum;
   //
   // add to vector of states
@@ -97,31 +64,19 @@ void MultiGaussianStateAssembler<N>::addStateVector (const SingleStateContainer&
 template <unsigned int N>
 MultiGaussianState<N>
 MultiGaussianStateAssembler<N>::combinedState () {
-//   // Timer
-//   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   prepareCombinedState();
-  // ThS: What to return here? I choose a RCMP with empty state vector...
-//  if ( !prepareCombinedState() )  return TSOS();
-  //
-  // Return new multi state without reweighting
-  //
-//   return theInitialState.createNewState(theStates);
   return MultiState(theStates);
 }
 
 template <unsigned int N>
 MultiGaussianState<N>
 MultiGaussianStateAssembler<N>::combinedState (const float newWeight) {
-//   // Timer
-//   TimeMe t(*theTimerComb,false);
   //
   // Prepare resulting state vector
   //
   prepareCombinedState();
-  // ThS: What to return here? I choose a RCMP with empty state vector...
-//  if ( !prepareCombinedState() )  return TSOS();
   //
   // return reweighted state
   //
@@ -135,19 +90,12 @@ MultiGaussianStateAssembler<N>::prepareCombinedState () {
   // remaining part to be done only once
   //
   if ( combinationDone )  return true;
-  else  combinationDone = true;
+  combinationDone = true;
   //
   // Remove states with negligible weights
   //
   removeSmallWeights();
-  if ( theStates.empty() )  return false;
-//   //
-//   // Sort output by weights? (currently deactivated - make it again configurable?)
-//   //
-//   if ( sortStates )
-//     sort(theStates.begin(),theStates.end(),GaussianStateLessWeight<N>());
-
-  return true;
+  return  !theStates.empty();
 }
 
 template <unsigned int N>
@@ -162,16 +110,11 @@ MultiGaussianStateAssembler<N>::reweightedCombinedState (const double newWeight)
   //
   SingleStateContainer reweightedStates;
   reweightedStates.reserve(theStates.size());
-  for ( typename SingleStateContainer::const_iterator i=theStates.begin();
-	i!=theStates.end(); i++ ) {
-    double oldWeight = (**i).weight();
-//     reweightedStates.push_back( (**i).createNewState ((**i).mean(),
-//     	(**i).covariance(), factor*oldWeight) );
-    reweightedStates.push_back( SingleState((**i).mean(),
-					    (**i).covariance(), factor*oldWeight) );
+  for (auto const & is : theStates) {
+    auto oldWeight = (*is).weight();
+    reweightedStates.emplace_back((*is).mean(),
+					    (*is).covariance(), factor*oldWeight);
   }
-
-//   return theInitialState.createNewState(reweightedStates);
   return MultiState(reweightedStates);
 }
 
@@ -186,22 +129,7 @@ MultiGaussianStateAssembler<N>::removeSmallWeights()
     theStates.clear();
     return;
   }
-  //
-  // Loop until no more states are removed
-  //
-  bool redo;
-  do {
-    redo = false;
-    for ( typename SingleStateContainer::iterator i=theStates.begin();
-	  i!=theStates.end(); i++ ) {
-      if ( (**i).weight()/theValidWeightSum < minFractionalWeight ) {
-	theStates.erase(i);
-	redo = true;
-	break;
-      }
-    }
-  } while (redo);
+  theStates.erase(std::remove_if(theStates.begin(),theStates.end(),
+                  [&](typename SingleStateContainer::value_type const & s){ return s->weight() < minFractionalWeight*theValidWeightSum;}),theStates.end()
+                 );
 }
-
-// TimingReport::Item * MultiGaussianStateAssembler::theTimerAdd(0);
-// TimingReport::Item * MultiGaussianStateAssembler::theTimerComb(0);

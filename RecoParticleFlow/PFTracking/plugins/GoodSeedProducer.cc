@@ -200,7 +200,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     auto const & Tj=*(tjCollection.product());
     
     LogDebug("GoodSeedProducer")<<"Number of tracks in collection "
-                                <<tracksContainers_[istr] <<" to be analyzed "
+                                <<"tracksContainers_[" << istr << "] to be analyzed "
                                 <<Tj.size();
 
     //loop over the track collection
@@ -423,7 +423,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  GoodPreId= GoodTkId | GoodMatching; 
 
 	  myPreId.setFinalDecision(GoodPreId);
-      
+
+#ifdef EDM_ML_DEBUG      
 	  if(GoodPreId)
 	    LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
 	      "GeV/c, eta= "<<Tk[i].eta() <<
@@ -432,8 +433,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
 	      "GeV/c, eta= "<<Tk[i].eta() <<
 	      ") preidentified only for track properties";
-	
+#endif
+
 	} // end of !disablePreId_
+
       
       if (GoodPreId){
 	//NEW SEED with n hits	

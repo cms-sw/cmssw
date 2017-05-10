@@ -69,9 +69,10 @@ MultiGaussianStateCombiner1D::combine(const VSC& theComponents) const
     measCovar = 0.;
     weightSum = 0.;
   } else {
-    meanMean /= weightSum;
-    measCovar1 *= (1./weightSum);
-    measCovar2 *= (1./weightSum/weightSum);
+    weightSum = 1./weightSum;
+    meanMean *= weightSum;
+    measCovar1 *= weightSum;
+    measCovar2 *= weightSum*weightSum;
     measCovar = measCovar1 + measCovar2;
 //     measCovar = measCovar1/weightSum + measCovar2/weightSum/weightSum;
   }
