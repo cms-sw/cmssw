@@ -69,7 +69,7 @@ namespace cond {
     }
       
     bool OraTagTable::select( const std::string& name, cond::TimeType& timeType, std::string& objectType, 
-			      cond::SynchronizationType&, cond::Time_t& endOfValidity, 
+			      cond::SynchronizationType& synchronizationType, cond::Time_t& endOfValidity, 
 			      std::string& description, cond::Time_t& lastValidatedTime ){
       if(!m_cache.load( name )) return false;
       if( m_cache.iovSequence().size()==0 ) return false;
@@ -78,6 +78,7 @@ namespace cond {
       objectType = m_cache.session().classNameForItem( ptok );
       //if( m_cache.iovSequence().payloadClasses().size()==0 ) throwException( "No payload type information found.","OraTagTable::select");
       //objectType = *m_cache.iovSequence().payloadClasses().begin();
+      synchronizationType = cond::SYNCH_ANY;
       endOfValidity = m_cache.iovSequence().lastTill();
       description = m_cache.iovSequence().comment();
       lastValidatedTime = m_cache.iovSequence().tail(1).back().since();
