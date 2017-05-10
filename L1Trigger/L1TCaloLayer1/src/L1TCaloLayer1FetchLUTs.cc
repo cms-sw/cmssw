@@ -240,7 +240,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
         else {
           iPhi = (index-18)*4+1;
         }
-        if (abs(caloEta) == 41 && iPhi<3) iPhi = 3;
+        if (std::abs(caloEta) == 41 && iPhi<3) iPhi = 3;
       }
       for(uint32_t etCode = 0; etCode < 256; etCode++) {
         uint32_t value = etCode;
