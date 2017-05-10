@@ -14,8 +14,6 @@ from SimMuon.DTDigitizer.muondtdigi_cfi import *
 from SimMuon.RPCDigitizer.muonrpcdigi_cfi import *
 muonDigi = cms.Sequence(simMuonCSCDigis+simMuonDTDigis+simMuonRPCDigis)
 
-from CondCore.DBCommon.CondDBCommon_cfi import *
-
 from SimMuon.GEMDigitizer.muonGEMDigi_cff import *
 from SimMuon.GEMDigitizer.muonME0Digi_cff import *
 
@@ -27,8 +25,6 @@ _phase2_muonDigi += muonME0Digi
 
 def _modifySimMuonForPhase2( theProcess ):
     theProcess.rpcphase2recovery_essource = cms.ESSource("PoolDBESSource",
-         CondDBCommon,
-         #    using CondDBSetup
          toGet = cms.VPSet(cms.PSet(
              record = cms.string("RPCStripNoisesRcd"),             
              tag = cms.string("RPC_testCondition_192Strips_mc"),
