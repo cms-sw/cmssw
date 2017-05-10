@@ -56,6 +56,9 @@ class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
   std::vector<std::pair<double, double> > TS4TS5LowerCut_;  
 
+  // Rechit-r45 filter parameters:
+  std::vector<double> hltMinRBXRechitR45Cuts_;
+
   // helper function to compare noise data energies
   struct noisedatacomp {
     inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {

@@ -74,6 +74,7 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
     TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold"))
 {
 
+  hltMinRBXRechitR45Cuts_ = iConfig.getParameter<std::vector<double> >("hltRBXRecHitR45Cuts");
   std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
   std::vector<double> TS4TS5UpperCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperCut");
   std::vector<double> TS4TS5LowerThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerThreshold");
@@ -129,15 +130,18 @@ HLTHcalTowerNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descr
   double TS4TS5UpperCutArray[5] = {1, 0.8, 0.75, 0.72, 0.72};
   double TS4TS5LowerThresholdArray[7] = {100, 120, 150, 200, 300, 400, 500};
   double TS4TS5LowerCutArray[7] = {-1, -0.7, -0.4, -0.2, -0.08, 0, 0.1};
+  double hltRBXRecHitR45CutsArray[8] = { 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 1.0, -1.0 };
   std::vector<double> TS4TS5UpperThreshold(TS4TS5UpperThresholdArray, TS4TS5UpperThresholdArray+5);
   std::vector<double> TS4TS5UpperCut(TS4TS5UpperCutArray, TS4TS5UpperCutArray+5);
   std::vector<double> TS4TS5LowerThreshold(TS4TS5LowerThresholdArray, TS4TS5LowerThresholdArray+7);
   std::vector<double> TS4TS5LowerCut(TS4TS5LowerCutArray, TS4TS5LowerCutArray+7);
+  std::vector<double> hltRBXRecHitR45Cuts(hltRBXRecHitR45CutsArray, hltRBXRecHitR45CutsArray+8);
 
   desc.add<std::vector<double> >("TS4TS5UpperThreshold", TS4TS5UpperThreshold);
   desc.add<std::vector<double> >("TS4TS5UpperCut", TS4TS5UpperCut);
   desc.add<std::vector<double> >("TS4TS5LowerThreshold", TS4TS5LowerThreshold);
   desc.add<std::vector<double> >("TS4TS5LowerCut", TS4TS5LowerCut);
+  desc.add<std::vector<double> >("hltRBXRecHitR45Cuts", hltRBXRecHitR45Cuts);
   descriptions.add("hltHcalTowerNoiseCleaner",desc);
 }
 
@@ -188,8 +192,18 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
     for(noisedataset_t::const_iterator it=data.begin();
 	it!=data.end();
 	it++) {
-      
-      
+      // Check the Rechit-R45 filter
+      // Taken from http://cmslxr.fnal.gov/lxr/source/RecoMET/METAlgorithms/src/HcalNoiseAlgo.cc?v=CMSSW_7_4_6#0256
+     bool passRechitr45 = true;
+      int r45Count = it->r45Count();
+      double r45Fraction = it->r45Fraction();
+      double r45EnergyFraction = it->r45EnergyFraction();
+      for(int i = 0; i + 3 < (int)hltMinRBXRechitR45Cuts_.size(); i = i + 4) {
+	double Value = r45Count * hltMinRBXRechitR45Cuts_[i] + r45Fraction * hltMinRBXRechitR45Cuts_[i+1] + r45EnergyFraction * hltMinRBXRechitR45Cuts_[i+2] + hltMinRBXRechitR45Cuts_[i+3];
+	if (Value > 0) passRechitr45=false;
+      }
+      //if(passRechitr45==false)
+       //std::cout<<"r45EnergyFraction:"<<it->r45EnergyFraction()<<"|r45Fraction:"<<it->r45Fraction()<<std::endl;
       bool passFilter=true;
       bool passEMF=true;
       if(it->energy()>minRBXEnergy_) {
@@ -201,8 +215,8 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 	else if(it->numZeros()>=minZeros_)                   passFilter=false;
 	else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
 	else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
-	else if(!it->PassTS4TS5())                           passFilter=false;
-	
+	//else if(!it->PassTS4TS5())                           passFilter=false;
+	else if (passRechitr45==false)                       passFilter=false;
 	if(it->RBXEMF()<maxRBXEMF_){
 	  passEMF=false;
 	}
@@ -218,7 +232,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 		     << "# Zeros=" << it->numZeros() << "; "
 		     << "min time=" << it->minHighEHitTime() << "; "
 		     << "max time=" << it->maxHighEHitTime() << "; "
-		     << "passTS4TS5=" << it->PassTS4TS5() << "; "
+		     //<< "passTS4TS5=" << it->PassTS4TS5() << "; "
 		     << "RBX EMF=" << it->RBXEMF()
 		     << std::endl;
 	// add calotowers associated with this RBX to the noise list
