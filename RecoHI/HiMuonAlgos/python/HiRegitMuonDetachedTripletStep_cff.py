@@ -102,7 +102,7 @@ import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuDetachedTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
@@ -114,14 +114,14 @@ hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
             name = 'hiRegitMuDetachedTripletStepTight',
             preFilterName = 'hiRegitMuDetachedTripletStepLoose',
             min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
+            useMVA = cms.bool(False),
             minMVA = cms.double(-0.2)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuDetachedTripletStep',
             preFilterName = 'hiRegitMuDetachedTripletStepTight',
             min_nhits = cms.uint32(8),
-            useMVA = cms.bool(True),
+            useMVA = cms.bool(False),
             minMVA = cms.double(-0.09)
             )
         ) #end of vpset

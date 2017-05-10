@@ -175,7 +175,7 @@ hiLowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiLowPtTripletStepTracks',
-    useAnyMVA = cms.bool(True),
+    useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('HIMVASelectorIter5'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
@@ -186,13 +186,13 @@ hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiLowPtTripletStepTight',
     preFilterName = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(-0.58)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiLowPtTripletStep',
     preFilterName = 'hiLowPtTripletStepTight',
-    useMVA = cms.bool(True),
+    useMVA = cms.bool(False),
     minMVA = cms.double(0.35)
     ),
     ) #end of vpset
