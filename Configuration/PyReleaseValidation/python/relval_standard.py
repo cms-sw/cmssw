@@ -205,4 +205,4 @@ workflows[143] = ['',['HydjetQ_B3_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 #workflows[144] = ['',['HydjetQ_B5_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
-workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
+workflows[280]= ['',['Hijing_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']] 
