@@ -157,11 +157,11 @@ void DDCompactView::lockdown() {
   // 2010-01-27 memory patch
   // not sure this will stay, but for now we want to explicitely lock the global stores.
   // lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
+  DDMaterial::StoreT::instance().setReadOnly(true);
+  DDSolid::StoreT::instance().setReadOnly(true);
+  DDLogicalPart::StoreT::instance().setReadOnly(true);
+  DDSpecifics::StoreT::instance().setReadOnly(true);
+  DDRotation::StoreT::instance().setReadOnly(true);
 
 }
 
