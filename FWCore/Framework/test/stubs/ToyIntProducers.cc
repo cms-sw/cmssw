@@ -53,6 +53,32 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // throws an exception.
+  // Announces an IntProduct but does not produce one;
+  // every call to FailingProducer::produce throws a cms exception
+  //
+  class FailingInRunProducer : public edm::global::EDProducer<edm::BeginRunProducer> {
+  public:
+    explicit FailingInRunProducer(edm::ParameterSet const& /*p*/) {
+      produces<IntProduct,edm::Transition::BeginRun>();
+    }
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    
+    void globalBeginRunProduce( edm::Run&, edm::EventSetup const&) const override;
+
+  };
+  
+  void
+  FailingInRunProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {
+  }
+  void
+  FailingInRunProducer::globalBeginRunProduce( edm::Run&, edm::EventSetup const&) const {
+    // We throw an edm exception with a configurable action.
+    throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Announces an IntProduct but does not produce one;
   // every call to NonProducer::produce does nothing.
   //
@@ -371,6 +397,7 @@ using edmtest::IntProducerFromTransient;
 using edmtest::Int16_tProducer;
 using edmtest::AddIntsProducer;
 DEFINE_FWK_MODULE(FailingProducer);
+DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(IntLegacyProducer);
