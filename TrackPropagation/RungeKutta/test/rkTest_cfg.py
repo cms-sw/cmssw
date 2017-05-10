@@ -20,16 +20,17 @@ process.maxEvents = cms.untracked.PSet(
 
 ### Full field map, static configuration for each field value
 #process.load("Configuration.StandardSequences.MagneticField_20T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_30T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_35T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi")
+### Configuration to select map based on recorded current in the DB
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
+process.AutoMagneticFieldESProducer.valueOverride = 18000
 
 
 process.MessageLogger = cms.Service("MessageLogger",
