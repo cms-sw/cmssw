@@ -16,7 +16,7 @@
 */
 
 
-#include "VirtualJetProducer.h"
+#include "RecoJets/JetProducers/interface/VirtualJetProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 #include "RecoJets/JetAlgorithms/interface/SubjetFilterAlgorithm.h"

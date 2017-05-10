@@ -1,5 +1,5 @@
-#ifndef RecoJets_JetProducers_plugins_VirtualJetProducer_h
-#define RecoJets_JetProducers_plugins_VirtualJetProducer_h
+#ifndef RecoJets_JetProducers_plugins_OldVirtualJetProducer_h
+#define RecoJets_JetProducers_plugins_OldVirtualJetProducer_h
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 
-class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<>
+class dso_hidden OldVirtualJetProducer : public edm::stream::EDProducer<>
 {
 protected:
   //
@@ -76,8 +76,8 @@ protected:
   // construction/destruction
   //
 public:
-  explicit VirtualJetProducer(const edm::ParameterSet& iConfig);
-  virtual ~VirtualJetProducer();
+  explicit OldVirtualJetProducer(const edm::ParameterSet& iConfig);
+  virtual ~OldVirtualJetProducer();
   
   // typedefs
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
