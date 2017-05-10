@@ -23,7 +23,7 @@ Test of the EventProcessor class.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/regex.hpp"
+#include <regex>
 
 #include <exception>
 #include <iostream>
@@ -454,7 +454,7 @@ testeventprocessor::activityRegistryTest() {
 static
 bool
 findModuleName(std::string const& iMessage) {
-  static boost::regex const expr("TestFailuresAnalyzer");
+  static std::regex const expr("TestFailuresAnalyzer");
   return regex_search(iMessage, expr);
 }
 
@@ -556,7 +556,7 @@ testeventprocessor::moduleFailureTest() {
 
         threw = false;
       } catch(cms::Exception const& iException) {
-        static boost::regex const expr("m1");
+        static std::regex const expr("m1");
         if(!regex_search(iException.explainSelf(), expr)) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
