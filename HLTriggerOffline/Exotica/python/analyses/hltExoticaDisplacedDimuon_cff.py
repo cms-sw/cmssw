@@ -11,9 +11,8 @@ DisplacedDimuonPSet = cms.PSet(
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
-
-    parametersTurnOn = cms.vdouble( #0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
-                                    #60, 70, 80, 100
+    parametersDxy      = cms.vdouble(50, -50, 50),
+    parametersTurnOn = cms.vdouble( 
                                     0, 10, 20, 30, 40, 50,
                                     100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600
                                    ),

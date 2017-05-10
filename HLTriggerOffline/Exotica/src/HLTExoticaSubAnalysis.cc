@@ -237,7 +237,8 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
               // If the target is electron or muon,
               // we will add Dxy plots.
               if ( it->first == EVTColContainer::ELEC ||
-                   it->first == EVTColContainer::MUON    ) { 
+                   it->first == EVTColContainer::MUON ||  
+                   it->first == EVTColContainer::MUTRK   ) { 
                  bookHist(iBooker, source, objStr, "Dxy");
               }
             }
@@ -256,7 +257,8 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
               // If the target is electron or muon,
               // we will add Dxy plots.
               if ( it->first == EVTColContainer::ELEC ||
-                   it->first == EVTColContainer::MUON    ) { 
+                   it->first == EVTColContainer::MUON ||  
+                   it->first == EVTColContainer::MUTRK    ) { 
                  bookHist(iBooker, source, objStr, "Dxy");
               }
             }
@@ -584,6 +586,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // If the target is electron or muon,
 
         if ( objType == EVTColContainer::MUON ||
+             objType == EVTColContainer::MUTRK ||
              objType == EVTColContainer::ELEC   ) {
           const math::XYZPoint & vtx = matchesGen[j].vertex();
           float momphi = matchesGen[j].momentum().phi();
@@ -1213,6 +1216,9 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
                 mom4.SetXYZT(mom3.x(),mom3.y(),mom3.z(),mom3.r());
 		reco::LeafCandidate m(0, mom4, cols->tracks->at(i).vertex(), objType, 0, true);
 		matches->push_back(m);
+
+                // for making dxy plots
+                trkObjs[objType].push_back(&cols->tracks->at(i));
             }
         }
     } else if (objType == EVTColContainer::TRACK) {
