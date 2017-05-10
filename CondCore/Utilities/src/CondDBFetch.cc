@@ -213,7 +213,6 @@ namespace cond {
       FETCH_PAYLOAD_CASE( PhysicsTGraphPayload )
       FETCH_PAYLOAD_CASE( PhysicsTFormulaPayload )
       FETCH_PAYLOAD_CASE( PCaloGeometry )
-      FETCH_PAYLOAD_CASE( PHcalParameters )
       FETCH_PAYLOAD_CASE( HcalParameters )
       FETCH_PAYLOAD_CASE( PGeometricDet )
       FETCH_PAYLOAD_CASE( PGeometricDetExtra )
