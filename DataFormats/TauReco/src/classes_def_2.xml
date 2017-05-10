@@ -159,8 +159,6 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 
 
 
-
-
 <ioread sourceClass = "reco::PFTau" version="[1-]" 
  targetClass="reco::PFTau" 
 source = "" 
