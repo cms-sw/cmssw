@@ -36,15 +36,15 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
   ///Setting the DQM top directories
     DQMHelper dqm(&i); i.setCurrentFolder("Generator/Tau");
     // Number of analyzed events
-    nTaus = dqm.book1dHisto("nTaus", "n analyzed Taus", 1, 0., 1.);
-    nPrimeTaus = dqm.book1dHisto("nPrimeTaus", "n analyzed prime Taus", 1, 0., 1.);
+    nTaus = dqm.book1dHisto("nTaus", "n analyzed Taus", 1, 0., 1.,"bin","Number of #tau's found");
+    nPrimeTaus = dqm.book1dHisto("nPrimeTaus", "n analyzed prime Taus", 1, 0., 1.,"bin","Number of #tau's from Gauge Bosons");
 
     //Kinematics
-    TauPt            = dqm.book1dHisto("TauPt","Tau pT", 100 ,0,100); 
-    TauEta           = dqm.book1dHisto("TauEta","Tau eta", 100 ,-2.5,2.5);
-    TauPhi           = dqm.book1dHisto("TauPhi","Tau phi", 100 ,-3.14,3.14);
-    TauProngs        = dqm.book1dHisto("TauProngs","Tau n prongs", 7 ,0,7);
-    TauDecayChannels = dqm.book1dHisto("TauDecayChannels","Tau decay channels", 13 ,0,13);
+    TauPt            = dqm.book1dHisto("TauPt","Tau pT", 100 ,0,100,"P_{T}^{#tau}","Number of #tau's from Gauge Bosons"); 
+    TauEta           = dqm.book1dHisto("TauEta","Tau eta", 100 ,-2.5,2.5,"#eta^{#tau}","Number of #tau's from Gauge Bosons");
+    TauPhi           = dqm.book1dHisto("TauPhi","Tau phi", 100 ,-3.14,3.14,"#phi^{#tau}","Number of #tau's from Gauge Bosons");
+    TauProngs        = dqm.book1dHisto("TauProngs","Tau n prongs", 7 ,0,7,"N_{prongs}","Number of #tau's from Gauge Bosons");
+    TauDecayChannels = dqm.book1dHisto("TauDecayChannels","Tau decay channels", 13 ,0,13,"Tau POG Decay Mode","Number of #tau's from Gauge Bosons");
     TauDecayChannels->setBinLabel(1+undetermined,"?");
     TauDecayChannels->setBinLabel(1+electron,"e");
     TauDecayChannels->setBinLabel(1+muon,"mu");
@@ -59,7 +59,7 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     TauDecayChannels->setBinLabel(1+Kstar,"K^{*}");
     TauDecayChannels->setBinLabel(1+stable,"Stable");
     
-    TauMothers        = dqm.book1dHisto("TauMothers","Tau mother particles", 10 ,0,10);
+    TauMothers        = dqm.book1dHisto("TauMothers","Tau mother particles", 10 ,0,10,"Mother of #tau","Number of #tau's");
 
     TauMothers->setBinLabel(1+other,"?");
     TauMothers->setBinLabel(1+B,"B Decays");
@@ -71,88 +71,82 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     TauMothers->setBinLabel(1+H0,"H^{0}");
     TauMothers->setBinLabel(1+A0,"A^{0}");
     TauMothers->setBinLabel(1+Hpm,"H^{#pm}");
-    
-    DecayLength = dqm.book1dHisto("DecayLength","#tau Decay Length", 100 ,-20,20);  DecayLength->setAxisTitle("L_{#tau} (cm)");
-    LifeTime =  dqm.book1dHisto("LifeTime","#tau LifeTime ", 500 ,0,10000E-15);     LifeTime->setAxisTitle("#tau_{#tau} (s)");
-    
-    TauSpinEffectsW_X   = dqm.book1dHisto("TauSpinEffectsWX","X for pion", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
-    TauSpinEffectsHpm_X = dqm.book1dHisto("TauSpinEffectsHpmX","X for pion", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
-    
-    TauSpinEffectsW_eX   = dqm.book1dHisto("TauSpinEffectsWeX","X for e", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
-    TauSpinEffectsHpm_eX = dqm.book1dHisto("TauSpinEffectsHpmeX","X for e", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
 
-    TauSpinEffectsW_muX   = dqm.book1dHisto("TauSpinEffectsWmuX","X for mu", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
-    TauSpinEffectsHpm_muX = dqm.book1dHisto("TauSpinEffectsHpmmuX","X for mue", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
-
-    TauSpinEffectsW_UpsilonRho   = dqm.book1dHisto("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
-    TauSpinEffectsHpm_UpsilonRho = dqm.book1dHisto("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
+    DecayLength = dqm.book1dHisto("DecayLength","#tau Decay Length", 100 ,-20,20,"L_{#tau} (cm)","Number of #tau's from Gauge Bosons");
+    LifeTime =  dqm.book1dHisto("LifeTime","#tau LifeTime ", 500 ,0,10000E-15,"#tau_{#tau} (s)","Number of #tau's from Gauge Bosons");
     
-    TauSpinEffectsW_UpsilonA1   = dqm.book1dHisto("TauSpinEffectsWUpsilonA1","#Upsilon for a1", 50 ,-1,1);       TauSpinEffectsW_UpsilonA1->setAxisTitle("#Upsilon");
-    TauSpinEffectsHpm_UpsilonA1 = dqm.book1dHisto("TauSpinEffectsHpmUpsilonA1","#Upsilon for a1", 50 ,-1,1);     TauSpinEffectsHpm_UpsilonA1->setAxisTitle("#Upsilon");
-
-    TauSpinEffectsH_pipiAcoplanarity = dqm.book1dHisto("TauSpinEffectsH_pipiAcoplanarity","H Acoplanarity for #pi^{-}#pi^{+}", 50 ,0,2*TMath::Pi()); TauSpinEffectsH_pipiAcoplanarity->setAxisTitle("Acoplanarity"); 
-
-    TauSpinEffectsH_pipiAcollinearity = dqm.book1dHisto("TauSpinEffectsH_pipiAcollinearity","H Acollinearity for #pi^{-}#pi^{+}", 50 ,0,TMath::Pi()); TauSpinEffectsH_pipiAcollinearity->setAxisTitle("Acollinearity");
-    TauSpinEffectsH_pipiAcollinearityzoom = dqm.book1dHisto("TauSpinEffectsH_pipiAcollinearityzoom","H Acollinearity for #pi^{-}#pi^{+}", 50 ,3,TMath::Pi()); TauSpinEffectsH_pipiAcollinearityzoom->setAxisTitle("Acollinearity");
+    TauSpinEffectsW_X   = dqm.book1dHisto("TauSpinEffectsWX","X for pion", 50 ,0,1,"X","Number of #tau#rightarrow#pi#nu from W^{#pm} Bosons");
+    TauSpinEffectsHpm_X = dqm.book1dHisto("TauSpinEffectsHpmX","X for pion", 50 ,0,1,"X","Number of #tau#rightarrow#pi#nu from H^{#pm} Bosons");
     
-    TauSpinEffectsZ_MVis   = dqm.book1dHisto("TauSpinEffectsZMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
-    TauSpinEffectsH_MVis   = dqm.book1dHisto("TauSpinEffectsHMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
+    TauSpinEffectsW_eX   = dqm.book1dHisto("TauSpinEffectsWeX","X for e", 50 ,0,1,"X","Number of #tau#rightarrowe#nu#nu from W^{#pm} Bosons");
+    TauSpinEffectsHpm_eX = dqm.book1dHisto("TauSpinEffectsHpmeX","X for e", 50 ,0,1,"X","Number of #tau#rightarrowe#nu#nu from H^{#pm} Bosons");
+
+    TauSpinEffectsW_muX   = dqm.book1dHisto("TauSpinEffectsWmuX","X for mu", 50 ,0,1,"X","Number of #tau#rightarrow#mu#nu#nu from W^{#pm} Bosons");
+    TauSpinEffectsHpm_muX = dqm.book1dHisto("TauSpinEffectsHpmmuX","X for mue", 50 ,0,1,"X","Number of #tau#rightarrow#mu#nu#nu from H^{#pm} Bosons");
+
+    TauSpinEffectsW_UpsilonRho   = dqm.book1dHisto("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1,"#Upsilon","Number of #tau#rightarrow#rho#nu from Gauge Bosons");
+    TauSpinEffectsHpm_UpsilonRho = dqm.book1dHisto("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1,"#Upsilon","Number of #tau#rightarrow#rho#nu from Gauge Bosons");
     
-    TauSpinEffectsZ_Zs   = dqm.book1dHisto("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
-    TauSpinEffectsH_Zs   = dqm.book1dHisto("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
+    TauSpinEffectsW_UpsilonA1   = dqm.book1dHisto("TauSpinEffectsWUpsilonA1","#Upsilon for a1", 50 ,-1,1,"#Upsilon","Number of #tau#rightarrow#pi#pi#pi#nu from Gauge Bosons");
+    TauSpinEffectsHpm_UpsilonA1 = dqm.book1dHisto("TauSpinEffectsHpmUpsilonA1","#Upsilon for a1", 50 ,-1,1,"#Upsilon","Number of #tau#rightarrow#pi#pi#pi#nu from Gauge Bosons");
+
+    TauSpinEffectsH_pipiAcoplanarity = dqm.book1dHisto("TauSpinEffectsH_pipiAcoplanarity","H Acoplanarity for #pi^{-}#pi^{+}", 50 ,0,2*TMath::Pi(),"Acoplanarity","Number of H#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu) Events"); 
+
+    TauSpinEffectsH_pipiAcollinearity = dqm.book1dHisto("TauSpinEffectsH_pipiAcollinearity","H Acollinearity for #pi^{-}#pi^{+}", 50 ,0,TMath::Pi(),"Acollinearity","Number of H#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu) Events");
+    TauSpinEffectsH_pipiAcollinearityzoom = dqm.book1dHisto("TauSpinEffectsH_pipiAcollinearityzoom","H Acollinearity for #pi^{-}#pi^{+}", 50 ,3,TMath::Pi(),"Acollinearity","Number of H#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu) Events");
     
-    TauSpinEffectsZ_X= dqm.book1dHisto("TauSpinEffectsZX","X for pion of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X50to75= dqm.book1dHisto("TauSpinEffectsZX50to75","X for pion of #tau^{-} (50GeV-75GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X75to88= dqm.book1dHisto("TauSpinEffectsZX75to88","X for pion of #tau^{-} (75GeV-88GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X88to100= dqm.book1dHisto("TauSpinEffectsZX88to100","X for pion of #tau^{-} (88GeV-100GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X100to120= dqm.book1dHisto("TauSpinEffectsZX100to120","X for pion of #tau^{-} (100GeV-120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X120UP= dqm.book1dHisto("TauSpinEffectsZX120UP","X for pion of #tau^{-} (>120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_MVis   = dqm.book1dHisto("TauSpinEffectsZMVis","Mass of pi+ pi-", 25 ,0,1.1,"M_{#pi^{+}#pi^{-}} (GeV)","Number of Z#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu) Events");
+    TauSpinEffectsH_MVis   = dqm.book1dHisto("TauSpinEffectsHMVis","Mass of pi+ pi-", 25 ,0,1.1,"M_{#pi^{+}#pi^{-}} (GeV)","Number of H#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu) Events");
+    
+    TauSpinEffectsZ_Zs   = dqm.book1dHisto("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax,"Z_{s}","Number of Z#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu Events");
+    TauSpinEffectsH_Zs   = dqm.book1dHisto("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax,"Z_{s}","Number of H#rightarrow#tau^{-}(#rightarrow#pi^{-}#nu)#tau^{+}(#rightarrow#pi^{+}#nu Events");
+    
+    TauSpinEffectsZ_X= dqm.book1dHisto("TauSpinEffectsZX","X for pion of #tau^{-}", 25 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z Bosons");
+    TauSpinEffectsZ_X50to75= dqm.book1dHisto("TauSpinEffectsZX50to75","X for pion of #tau^{-} (50GeV-75GeV)", 10 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z(50GeV<M<75GeV) Bosons");
+    TauSpinEffectsZ_X75to88= dqm.book1dHisto("TauSpinEffectsZX75to88","X for pion of #tau^{-} (75GeV-88GeV)", 10 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z(75GeV<M<88GeV) Bosons");
+    TauSpinEffectsZ_X88to100= dqm.book1dHisto("TauSpinEffectsZX88to100","X for pion of #tau^{-} (88GeV-100GeV)", 10 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z(88GeV<M<100GeV) Bosons");
+    TauSpinEffectsZ_X100to120= dqm.book1dHisto("TauSpinEffectsZX100to120","X for pion of #tau^{-} (100GeV-120GeV)", 10 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z(100GeV<M<120GeV) Bosons");
+    TauSpinEffectsZ_X120UP= dqm.book1dHisto("TauSpinEffectsZX120UP","X for pion of #tau^{-} (>120GeV)", 10 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from Z(120GeV<MGeV) Bosons");
 
 
-    TauSpinEffectsH_X= dqm.book1dHisto("TauSpinEffectsH_X","X for pion of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
+    TauSpinEffectsH_X= dqm.book1dHisto("TauSpinEffectsH_X","X for pion of #tau^{-}", 25 ,0,1.0,"X","Number of #tau#rightarrow#pi#nu from H Bosons");
     
-    TauSpinEffectsZ_Xf   = dqm.book1dHisto("TauSpinEffectsZXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
-    TauSpinEffectsH_Xf   = dqm.book1dHisto("TauSpinEffectsHXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
+    TauSpinEffectsZ_Xf   = dqm.book1dHisto("TauSpinEffectsZXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0,"X_{f}","Number of #tau#rightarrow#pi#nu from Z Bosons");
+    TauSpinEffectsH_Xf   = dqm.book1dHisto("TauSpinEffectsHXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0,"X_{f}","Number of #tau#rightarrow#pi#nu from H Bosons");
     
-    TauSpinEffectsZ_Xb   = dqm.book1dHisto("TauSpinEffectsZXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
-    TauSpinEffectsH_Xb   = dqm.book1dHisto("TauSpinEffectsHXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+    TauSpinEffectsZ_Xb   = dqm.book1dHisto("TauSpinEffectsZXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0,"X_{b}","Number of #tau#rightarrow#pi#nu from Z Bosons");
+    TauSpinEffectsH_Xb   = dqm.book1dHisto("TauSpinEffectsHXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0,"X_{b}","Number of #tau#rightarrow#pi#nu from H Bosons");
 
-    TauSpinEffectsZ_eX   = dqm.book1dHisto("TauSpinEffectsZeX","X for e", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
-    TauSpinEffectsH_eX = dqm.book1dHisto("TauSpinEffectsHeX","X for e", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
+    TauSpinEffectsZ_eX   = dqm.book1dHisto("TauSpinEffectsZeX","X for e", 50 ,0,1,"X","Number of #tau#rightarrowe#nu#nu from Gauge Bosons");
+    TauSpinEffectsH_eX = dqm.book1dHisto("TauSpinEffectsHeX","X for e", 50 ,0,1,"X","Number of #tau#rightarrowe#nu#nu from Gauge Bosons");
 
-    TauSpinEffectsZ_muX   = dqm.book1dHisto("TauSpinEffectsZmuX","X for mu", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
-    TauSpinEffectsH_muX = dqm.book1dHisto("TauSpinEffectsHmuX","X for mu", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
+    TauSpinEffectsZ_muX   = dqm.book1dHisto("TauSpinEffectsZmuX","X for mu", 50 ,0,1,"X","Number of #tau#rightarrow#mu#nu#nu from Gauge Bosons");
+    TauSpinEffectsH_muX = dqm.book1dHisto("TauSpinEffectsHmuX","X for mu", 50 ,0,1,"X","Number of #tau#rightarrow#mu#nu#nu from Gauge Bosons");
     
-    TauSpinEffectsH_rhorhoAcoplanarityminus = dqm.book1dHisto("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityminus->setAxisTitle("#phi^{*-} (Acoplanarity)");
-    TauSpinEffectsH_rhorhoAcoplanarityplus = dqm.book1dHisto("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityplus->setAxisTitle("#phi^{*+} (Acoplanarity)");
+    TauSpinEffectsH_rhorhoAcoplanarityminus = dqm.book1dHisto("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi(),"#phi^{*-} (Acoplanarity)","Number of H#rightarrow#tau^{-}(#rightarrow#rho^{-}#nu)#tau^{+}(#rightarrow#rho^{+}#nu) Events");
+    TauSpinEffectsH_rhorhoAcoplanarityplus = dqm.book1dHisto("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi(),"#phi^{*+} (Acoplanarity)","Number of H#rightarrow#tau^{-}(#rightarrow#rho^{-}#nu)#tau^{+}(#rightarrow#rho^{+}#nu) Events");
     
-    TauFSRPhotonsN=dqm.book1dHisto("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
-    TauFSRPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
-    TauFSRPhotonsPt=dqm.book1dHisto("TauFSRPhotonsPt","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
-    TauFSRPhotonsPt->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
-    TauFSRPhotonsPtSum=dqm.book1dHisto("TauFSRPhotonsPtSum","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
-    TauFSRPhotonsPtSum->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
+    TauFSRPhotonsN=dqm.book1dHisto("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5,"N^{FSR Photons radiating from/with #tau}","Number of #tau's from Gauge Bosons");
+    TauFSRPhotonsPt=dqm.book1dHisto("TauFSRPhotonsPt","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100,"P_{t}^{FSR Photons radiating from/with #tau [per #tau]} (GeV)","Number of #tau's from Gauge Bosons");
+    TauFSRPhotonsPtSum=dqm.book1dHisto("TauFSRPhotonsPtSum","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100,"P_{t}^{FSR Photons radiating from/with #tau [per #tau]} (GeV)","Number of #tau's from Gauge Bosons");
 
-    TauBremPhotonsN=dqm.book1dHisto("TauBremPhotonsN","Brem. Photons radiating in tau decay", 5 ,-0.5,4.5);
-    TauBremPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
-    TauBremPhotonsPt=dqm.book1dHisto("TauBremPhotonsPt","Sum Brem Pt ", 100 ,0,100);
-    TauFSRPhotonsPt->setAxisTitle("P_{t} of Brem. Photons radiating in tau decay");    
-    TauBremPhotonsPtSum =dqm.book1dHisto("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100);
-    TauFSRPhotonsPtSum->setAxisTitle("Sum P_{t} of Brem. Photons radiating in tau decay");
+    TauBremPhotonsN=dqm.book1dHisto("TauBremPhotonsN","Brem. Photons radiating in tau decay", 5 ,-0.5,4.5,"N FSR Photons radiating from/with tau","Number of #tau's from Gauge Bosons");
+    TauBremPhotonsPt=dqm.book1dHisto("TauBremPhotonsPt","Sum Brem Pt ", 100 ,0,100,"P_{t}^{Brem. Photons radiating in tau decay} (GeV)","Number of #tau's from Gauge Bosons");    
+    TauBremPhotonsPtSum =dqm.book1dHisto("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100,"Sum P_{t}^{Brem. Photons radiating in tau decay} (GeV)","Number of #tau's from Gauge Bosons");
     
     MODEID =dqm.book1dHisto("JAKID","JAK ID",NMODEID+1,-0.5,NMODEID+0.5);
     for(unsigned int j=0; j<NMODEID+1;j++){
       MODEInvMass.push_back(std::vector<MonitorElement *>());
-      TString tmp="JAKID";
-      tmp+=j;
-      MODEInvMass.at(j).push_back(dqm.book1dHisto("M"+std::string(tmp.Data()),"M_{"+std::string(tmp.Data())+"} (GeV)", 80 ,0,2.0));
+      std::string tmp="JAKID";
+      tmp+=std::to_string(j);
+      MODEInvMass.at(j).push_back(dqm.book1dHisto("M"+tmp,"M_{"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
       MODEID->setBinLabel(1+j,TauDecay::DecayMode(j));
       if(j==TauDecay::MODE_3PI || j==TauDecay::MODE_PI2PI0 ||
 	 j==TauDecay::MODE_KPIK ||
 	 j==TauDecay::MODE_KPIPI ){
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M13"+std::string(tmp.Data()),"M_{13,"+std::string(tmp.Data())+"} (GeV)", 80 ,0,2.0));
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M23"+std::string(tmp.Data()),"M_{23,"+std::string(tmp.Data())+"} (GeV)", 80 ,0,2.0));
-	MODEInvMass.at(j).push_back(dqm.book1dHisto("M12"+std::string(tmp.Data()),"M_{12,"+std::string(tmp.Data())+"} (GeV)", 80 ,0,2.0));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M13"+tmp,"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{13,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M23"+tmp,"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{23,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
+	MODEInvMass.at(j).push_back(dqm.book1dHisto("M12"+tmp,"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)", 80 ,0,2.0,"M_{12,"+TauDecay::DecayMode(j)+"} (GeV)","Number of #tau's from Gauge Bosons"));
       }
     }
   return;

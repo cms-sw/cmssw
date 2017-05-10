@@ -58,16 +58,16 @@ void TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 void TTbar_GenJetAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
   DQMHelper dqm(&i); i.setCurrentFolder("Generator/TTbar");
-  hists_["jetPtAll" ] = dqm.book1dHisto("TTbar_jetPtAll" , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt1"   ] = dqm.book1dHisto("TTbar_jetPt1"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt2"   ] = dqm.book1dHisto("TTbar_jetPt2"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt3"   ] = dqm.book1dHisto("TTbar_jetPt3"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt4"   ] = dqm.book1dHisto("TTbar_jetPt4"   , "pt" , 1000,  0., 1000.); 
+  hists_["jetPtAll" ] = dqm.book1dHisto("TTbar_jetPtAll" , "pt" , 1000,  0., 1000.,"P_{t}^{All-Jets} (GeV)","Number of Events"); 
+  hists_["jetPt1"   ] = dqm.book1dHisto("TTbar_jetPt1"   , "pt" , 1000,  0., 1000.,"P_{t}^{1st-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt2"   ] = dqm.book1dHisto("TTbar_jetPt2"   , "pt" , 1000,  0., 1000.,"P_{t}^{2nd-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt3"   ] = dqm.book1dHisto("TTbar_jetPt3"   , "pt" , 1000,  0., 1000.,"P_{t}^{3rd-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt4"   ] = dqm.book1dHisto("TTbar_jetPt4"   , "pt" , 1000,  0., 1000.,"P_{t}^{4th-Jet} (GeV)","Number of Events"); 
                                                                                     
-  hists_["jetEtaAll"] = dqm.book1dHisto("TTbar_jetEtaAll", "eta",  100, -5.,    5.); 
-  hists_["jetEta1"  ] = dqm.book1dHisto("TTbar_jetEta1"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta2"  ] = dqm.book1dHisto("TTbar_jetEta2"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta3"  ] = dqm.book1dHisto("TTbar_jetEta3"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta4"  ] = dqm.book1dHisto("TTbar_jetEta4"  , "eta",  100, -5.,    5.); 
+  hists_["jetEtaAll"] = dqm.book1dHisto("TTbar_jetEtaAll", "eta",  100, -5.,    5.,"#eta^{All-Jets}","Number of Events"); 
+  hists_["jetEta1"  ] = dqm.book1dHisto("TTbar_jetEta1"  , "eta",  100, -5.,    5.,"#eta^{1st-Jet}","Number of Events"); 
+  hists_["jetEta2"  ] = dqm.book1dHisto("TTbar_jetEta2"  , "eta",  100, -5.,    5.,"#eta^{2nd-Jet}","Number of Events"); 
+  hists_["jetEta3"  ] = dqm.book1dHisto("TTbar_jetEta3"  , "eta",  100, -5.,    5.,"#eta^{3rd-Jet}","Number of Events"); 
+  hists_["jetEta4"  ] = dqm.book1dHisto("TTbar_jetEta4"  , "eta",  100, -5.,    5.,"#eta^{4th-Jet}","Number of Events"); 
 }
 
