@@ -30,6 +30,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
+#include <stdlib.h>
+#include <cstdlib>
+
+
 using namespace gen;
 using namespace edm;
 using namespace std;
@@ -66,6 +70,14 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
 {
   if ( fPSet != 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n" << std::endl;
   fPSet = new ParameterSet(pset);
+
+  std::string Base= getenv ("TAUOLAPPDATA");
+  std::string cmd="cp ";
+  cmd+=Base;
+  cmd+="/* .";
+  std::cout << cmd.data() << std::endl;
+  system(cmd.data());
+
 }
 
 TauolappInterface::~TauolappInterface(){if ( fPSet != 0 ) delete fPSet;}
