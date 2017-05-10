@@ -1,5 +1,7 @@
 <bin   file="test_precomputed_value_sort.cpp" name="test_precomputed_value_sort">
 </bin>
-<bin   file="TestTBB.cc">                                                                                                                                                   
+<bin   file="TestTBB.cc">
   <use   name="tbb"/>
+</bin>
+<bin file="testCout.cc" name="testCout">
 </bin>
