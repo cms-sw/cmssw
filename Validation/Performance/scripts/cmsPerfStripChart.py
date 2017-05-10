@@ -3,6 +3,10 @@
 import os, sys
 try: import simplejson as json
 except ImportError: import json
+import csv
+
+# Globals
+script_name= os.path.basename(__file__)
 
 # Helper functions
 def get_yaxis_range(list):
@@ -17,8 +21,26 @@ def get_yaxis_range(list):
         high = max((node['average'] + node['error']), high)
     return (low, high)
 
+def dump_to_csv(file, release, data):
+    """
+    Given the csv file name and the data to be stored, this function stores
+    the data in the csv file.
+    """
+    exists = False
+    data_to_store = [release, str(data["average"]), str(data["error"]), str(data["max_rss"])]
+    with open(file, 'a+b') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if row == data_to_store:
+                exists = True
+        if not exists:
+            writer = csv.writer(csvfile)
+            writer.writerow(data_to_store)
+        else: 
+            sys.stderr.write(script_name + ': Warning: Data already exists in CSV file!\n')
+
 # Main operation function
-def operate(timelog, memlog, json_f, num):
+def operate(timelog, memlog, json_f, csv_f, num):
     """
     Main operation of the script (i.e. json db update, histograms' creation)
     with respect to the specifications of all the files & formats concerned.
@@ -27,8 +49,6 @@ def operate(timelog, memlog, json_f, num):
     import commands
     import ROOT
     from datetime import datetime
-
-    script_name=os.path.basename(__file__)
 
     # Open files and store the lines.
     timefile=open(timelog, 'r')
@@ -94,8 +114,8 @@ def operate(timelog, memlog, json_f, num):
     json_db.close()
 
     # Get the data to be stored and check if already exists.
-    ib_list=IB.split('_')
-    cmsrelease=ib_list[0] + '_' + ib_list[1] +\
+    ib_list = IB.split('_')
+    cmsrelease = ib_list[0] + '_' + ib_list[1] +\
                '_' + ib_list[2] + '_' + ib_list[3]
     data={"IB" : ib_list[4], "average" : float(average), "error" : float(error), "max_rss" : float(max_rss)}
 
@@ -107,13 +127,16 @@ def operate(timelog, memlog, json_f, num):
         dict["strips"].append(data)
         print 'Storing entry to \"' + json_f +\
               '\" file with attribute values:\n' +\
-              'IB=' + IB + '\naverage=' + average +\
-              '\nUncertainty of average=' + error +'\nmax_rss=' + max_rss
+              'IB=' + ib_list[4] + '\nAverage of the CPU=' + average +\
+              '\nUncertainty of CPU average=' + error +'\nMaximum RSS=' + max_rss
         # Store the data in json file.
         json_db = open(json_f, "w+")
         json.dump(dict, json_db, indent=2)
         json_db.close()
         print 'File "' + json_f + '" was updated successfully!'
+ 
+    # Store the data in csv file.
+    dump_to_csv(csv_f, cmsrelease, data)
 
     # Change to datetime type (helpful for sorting).
     for record in dict["strips"]:
@@ -242,7 +265,7 @@ if __name__ == '__main__':
     ################################
     # Definition of command usage. #
     ################################
-    script_name= os.path.basename(__file__)
+
     usage = script_name + ' <options> -t TIMELOG -m MEMLOG'
     parser = optparse.OptionParser(usage)
     parser.add_option('-t', '--timelog',
@@ -258,11 +281,17 @@ if __name__ == '__main__':
                       metavar='MEMLOG', 
                       help='input file MEMLOG, the output of cmsSimplememchecker_parser.py')
     parser.add_option('-j', '--jsonfile',
-                     action='store',
-                     dest='json_f',
-                     default='strips.json',
-                     metavar='FILE.JSON',
-                     help='the .json file database')
+                      action='store',
+                      dest='json_f',
+                      default='strips.json',
+                      metavar='FILE.JSON',
+                      help='the .json file database')
+    parser.add_option('--csvfile',
+                      action='store',
+                      dest='csv_f',
+                      default='strip-chart-summary.csv',
+                      metavar='FILE.CSV',
+                      help='the .csv file database')
     parser.add_option('-n', type='int',
                       action='store',
                       dest='num',
@@ -274,6 +303,7 @@ if __name__ == '__main__':
     ######################################
     # Some error handling for the usage. #
     ######################################
+
     if options.timelog == '' or\
        options.memlog == '':
         sys.exit('%s: Missing file operands!\n' % script_name+\
@@ -288,10 +318,11 @@ if __name__ == '__main__':
  
     # The format that the json file must have:  
     format = "\n  {  \"strips\" :\n"   +\
-             "    [\n      {\"IB\" : \"XXX_XXX\", \"average\" : M, \"error\" : E \"max_rss\" : N},\n" +\
+             "    [\n      {\"IB\" : \"YYYY-MM-DD-HHmm\","+\
+             " \"average\" : A, \"error\" : E, \"max_rss\" : M},\n" +\
              "        .........................................\n" +\
              "    ]\n"+\
-             "  }\n"
+             "  }\n\n> A, E, N are floats.\n"
 
     # json file validity checks start under the try statement
     json_db = open(options.json_f, "r+")
@@ -325,9 +356,22 @@ if __name__ == '__main__':
     finally:
         json_db.close()
 
+    #############################
+    # Validity of the CSV file. #
+    #############################
+
+    # -check if csv file exists
+    csv_db = open(options.csv_f, "r+")
+    # -check if csv file is emptyq if yes, create a new one
+    if os.stat(options.csv_f)[stat.ST_SIZE] == 0:
+       sys.stderr.write(script_name + ': Warning: File \"' + options.csv_f +\
+                        '\" is empty. A new database will be created upon it.\n')
+       csv_db.write("release,average,error,max_rss")
+    csv_db.close()
+
     ####################
     # Start operation. #
     ####################
 
     # sys.exit() used in order to return an exit code to shell, in case of error
-    sys.exit(operate(options.timelog, options.memlog, options.json_f, options.num))
+    sys.exit(operate(options.timelog, options.memlog, options.json_f, options.csv_f, options.num))
