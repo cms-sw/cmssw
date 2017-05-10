@@ -106,6 +106,8 @@ private:
   //Tokens for accessing run data. Used for passing to edm::Event. - stanislav
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken;
   edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken;
+  edm::EDGetTokenT<RPCDigiCollection> rpcDigiForPUToken;
+  bool isPileup_;
 };
 
 #endif
