@@ -57,7 +57,7 @@ lowPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Region
 ))
 trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase1QuadProp.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
-trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.45))
+trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.40))
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -138,6 +138,13 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryFilter,
     filters = lowPtTripletStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
+lowPtTripletStepTrajectoryFilterInOut = lowPtTripletStepStandardTrajectoryFilter.clone(
+    minimumNumberOfHits = 4,
+    seedExtension = 1,
+    strictSeedExtension = False, # allow inactive
+    pixelSeedExtension = False,
+)
+
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 lowPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('lowPtTripletStepChi2Est'),
@@ -162,7 +169,11 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
 trackingLowPU.toModify(lowPtTripletStepTrajectoryBuilder, maxCand = 3)
-trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder, maxCand = 3)
+trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder, 
+    inOutTrajectoryFilter = dict(refToPSet_ = "lowPtTripletStepTrajectoryFilterInOut"),
+    useSameTrajFilter = False,
+    maxCand = 3,
+)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -249,7 +260,7 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.7, 4.0 ),
-            dz_par1 = ( 0.6, 4.0 ),
+            dz_par1 = ( 0.7, 4.0 ),
             d0_par2 = ( 0.6, 4.0 ),
             dz_par2 = ( 0.6, 4.0 )
             ), #end of pset
@@ -262,7 +273,7 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.6, 4.0 ),
-            dz_par1 = ( 0.5, 4.0 ),
+            dz_par1 = ( 0.6, 4.0 ),
             d0_par2 = ( 0.5, 4.0 ),
             dz_par2 = ( 0.5, 4.0 )
             ),
@@ -273,12 +284,12 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
             preFilterName = 'lowPtTripletStepTight',
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
-            min_nhits = 5,
-            minNumberLayers = 5,
+            min_nhits = 3,
+            minNumberLayers = 4,
             maxNumberLostLayers = 2,
-            minNumber3DLayers = 5,
+            minNumber3DLayers = 4,
             d0_par1 = ( 0.5, 4.0 ),
-            dz_par1 = ( 0.4, 4.0 ),
+            dz_par1 = ( 0.5, 4.0 ),
             d0_par2 = ( 0.45, 4.0 ),
             dz_par2 = ( 0.45, 4.0 )
             ),

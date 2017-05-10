@@ -110,6 +110,11 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
 )
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+trackingPhase2PU140.toModify(pixelPairStepTrajectoryFilter,
+    filters = pixelPairStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
+)
+
 
 
 pixelPairStepTrajectoryFilterInOut = pixelPairStepTrajectoryFilterBase.clone(
