@@ -90,6 +90,9 @@ private:
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
 
+  METME htME_;
+  METME htME_variableBinning_;
+  METME htVsLS_;
   METME metME_;
   METME metME_variableBinning_;
   METME metVsLS_;

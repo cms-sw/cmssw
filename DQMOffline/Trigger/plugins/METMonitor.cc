@@ -36,6 +36,8 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
 {
 
+  htME_.numerator   = nullptr;
+  htME_.denominator = nullptr;
   metME_.numerator   = nullptr;
   metME_.denominator = nullptr;
   metME_variableBinning_.numerator   = nullptr;
@@ -162,6 +164,7 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
   
+  float ht  = 0.0;
   float met = pfmet.pt();
   float phi = pfmet.phi();
 
@@ -170,7 +173,9 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   std::vector<reco::PFJet> jets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
-    if ( jetSelection_( j ) ) jets.push_back(j);
+    if ( jetSelection_( j ) ) {
+	    jets.push_back(j);
+	    ht += j.pt()
   }
   if ( int(jets.size()) < njets_ ) return;
   
@@ -193,17 +198,23 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if ( int(muons.size()) < nmuons_ ) return;
 
   // filling histograms (denominator)  
+  htME_.denominator -> Fill(ht);
+  htME_variableBinning_.denominator -> Fill(ht);
   metME_.denominator -> Fill(met);
   metME_variableBinning_.denominator -> Fill(met);
   metPhiME_.denominator -> Fill(phi);
 
   int ls = iEvent.id().luminosityBlock();
+  htVsLS_.denominator -> Fill(ls, ht);
   metVsLS_.denominator -> Fill(ls, met);
   
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)  
+  htME_.numerator -> Fill(ht);
+  htME_variableBinning_.numerator -> Fill(ht);
+  htVsLS_.numerator -> Fill(ls, ht);
   metME_.numerator -> Fill(met);
   metME_variableBinning_.numerator -> Fill(met);
   metPhiME_.numerator -> Fill(phi);
