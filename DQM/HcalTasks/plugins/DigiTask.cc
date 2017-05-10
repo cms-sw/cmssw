@@ -16,7 +16,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
-	_tokHF = consumes<HFDigiCollection>(_tagHF);
+	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 
 	_cutSumQ_HBHE = ps.getUntrackedParameter<double>("cutSumQ_HBHE", 20);
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
@@ -423,7 +423,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 {
 	edm::Handle<HBHEDigiCollection>     chbhe;
 	edm::Handle<HODigiCollection>       cho;
-	edm::Handle<HFDigiCollection>       chf;
+	edm::Handle<QIE10DigiCollection>       chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
@@ -432,7 +432,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
 	if (!e.getByToken(_tokHF, chf))
-		_logger.dqmthrow("Collection HFDigiCollection isn't available"
+		_logger.dqmthrow("Collection QIE10DigiCollection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
 
 	//	extract some info per event
@@ -695,16 +695,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	rawidValid = 0;
 
 	//	HF collection
-	for (HFDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
+	for (QIE10DigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
-		double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
+		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.size()-1);
 
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId const& did = it->id();
+		HcalDetId const& did = digi.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent=true;
+			continue;
+		}
 		HcalElectronicsId const& eid(rawid);
 		if (did.subdet()==HcalForward)
 			rawidValid = did.rawId();
@@ -724,13 +728,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (_ptype==fOnline)
 		{
 			_xNChs.get(eid)++;
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			_cDigiSizevsLS_FED.fill(eid, _currentLS, (int)digi.size());
+			digi.size()!=(unsigned int)constants::DIGISIZE[did.subdet()-1]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
-		_cDigiSize_FED.fill(eid, it->size());
+		_cDigiSize_FED.fill(eid, (int)digi.size());
 		if (eid.isVMEid())
 		{
 			_cOccupancy_FEDVME.fill(eid);
@@ -748,20 +752,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cCapIdRots_FEDuTCA.fill(eid, 1);*/
 		}
 
-		for (int i=0; i<it->size(); i++)
+		for (unsigned int i=0; i<digi.size(); i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
-			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
+			_cADC_SubdetPM.fill(did, digi[i].adc());
+			_cfC_SubdetPM.fill(did, constants::adc2fC[digi[i].adc()] - 2.5);
 			if (sumQ>_cutSumQ_HF)
-				_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+				_cShapeCut_FED.fill(eid, (int)i, constants::adc2fC[digi[i].adc()] - 2.5);
 		}
 
 		if (sumQ>_cutSumQ_HF)
 		{
-			double timing = hcaldqm::utilities::aveTS<HFDataFrame>(*it, 2.5, 0,
+			double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0,
 				it->size()-1);
-			double q1 = it->sample(1).nominal_fC()-2.5;
-			double q2 = it->sample(2).nominal_fC()-2.5;
+			double q1 = constants::adc2fC[digi[1].adc()]-2.5;
+			double q2 = constants::adc2fC[digi[2].adc()]-2.5;
 			double q2q12 = q2/(q1+q2);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);

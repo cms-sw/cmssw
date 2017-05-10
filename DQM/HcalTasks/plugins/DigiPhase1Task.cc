@@ -35,7 +35,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 {
 	DQTask::bookHistograms(ib,r,es);
 
-	//	GET WHAT YOU NEED
+	//  GET WHAT YOU NEED
 	edm::ESHandle<HcalDbService> dbs;
 	es.get<HcalDbRecord>().get(dbs);
 	_emap = dbs->getHcalMapping();
@@ -60,11 +60,11 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 
-	//	initialize filters
+	//  initialize filters
 	_filter_FEDHF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED,
 		vFEDHF);
 
-	//	push the rawIds of each fed into the vector...
+	//  push the rawIds of each fed into the vector...
 	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
 		it!=vFEDsVME.end(); ++it)
 		_vhashFEDs.push_back(HcalElectronicsId(
@@ -72,14 +72,14 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 			(*it)-FED_VME_MIN).rawId());
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
-    {
-        std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
+	{
+		std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
 			cspair.first, cspair.second, FIBER_uTCA_MIN1,
 			FIBERCH_MIN, false).rawId());
-    }
+	}
 
-	//	INITIALIZE FIRST
+	//  INITIALIZE FIRST
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
@@ -135,7 +135,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 
-	//	Occupancy w/o a cut
+	//  Occupancy w/o a cut
 	_cOccupancy_FEDVME.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
@@ -166,7 +166,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
-	//	Occupancy w/ a cut
+	//  Occupancy w/ a cut
 	_cOccupancyCut_FEDVME.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
@@ -203,7 +203,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 
-	//	BOOK HISTOGRAMS
+	//  BOOK HISTOGRAMS
 	char cutstr[200];
 	sprintf(cutstr, "_SumQHBHE%dHO%dHF%d", int(_cutSumQ_HBHE),
 		int(_cutSumQ_HO), int(_cutSumQ_HF));
@@ -241,29 +241,29 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 	_cDigiSize_FED.book(ib, _emap, _subsystem);
 
-	//	BOOK HISTOGRAMS that are only for Online
+	//  BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 	_dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
 
-        //      MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
-        if (_ptype==fOffline)
+		//      MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
+		if (_ptype==fOffline)
 	  {
-	    _cDigiSize_FED.setLumiFlag();
-	    _cOccupancy_depth.setLumiFlag();
+		_cDigiSize_FED.setLumiFlag();
+		_cOccupancy_depth.setLumiFlag();
 	  }
 
-        //      book Number of Events vs LS histogram                                                                                                                                     
-        ib.setCurrentFolder(_subsystem+"/RunInfo");
-        meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents",
+		//      book Number of Events vs LS histogram                                                                                                                                     
+		ib.setCurrentFolder(_subsystem+"/RunInfo");
+		meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents",
 				   1, 0, 1);
 	meNumEvents1LS->setLumiFlag();
 
-        //      book the flag for unknown ids and the online guy as well                                                                                                                  
-        ib.setCurrentFolder(_subsystem+"/"+_name);
-        meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds",
-				    1, 0, 1);
-        _unknownIdsPresent = false;
-        meUnknownIds1LS->setLumiFlag();
+		//      book the flag for unknown ids and the online guy as well                                                                                                                  
+		ib.setCurrentFolder(_subsystem+"/"+_name);
+		meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds",
+					1, 0, 1);
+		_unknownIdsPresent = false;
+		meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void DigiPhase1Task::_resetMonitors(hcaldqm::UpdateFreq uf)
@@ -296,30 +296,29 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
 	if (!e.getByToken(_tokHF, chf))
-		_logger.dqmthrow("Collection HFDigiCollection isn't available"
+		_logger.dqmthrow("Collection HF QIE10Collection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
 
-	//	extract some info per event
+	//  extract some info per event
 	meNumEvents1LS->Fill(0.5); // just increment
 
-	//	To fill histograms outside of the loop, you need to determine if there were
-	//	any valid det ids first
+	//  To fill histograms outside of the loop, you need to determine if there were
+	//  any valid det ids first
 	uint32_t rawidValid = 0;
 	uint32_t rawidHBValid = 0;
 	uint32_t rawidHEValid = 0;
 
-	//	HB collection
+	//  HB collection
 	int numChs = 0;
 	int numChsCut = 0;
 	int numChsHE = 0;
 	int numChsCutHE = 0;
 	for (QIE11DigiCollection::const_iterator it=chbhe->begin(); it!=chbhe->end();
-		++it)
-	{
-	        QIE11DataFrame const& frame = *it;
-	        double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(frame, 2.5, 0, frame.samples()-1);
+		++it) {
+		QIE11DataFrame const& frame = *it;
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(frame, 2.5, 0, frame.samples()-1);
 
-		//	Explicit check on the DetIds present in the Collection
+		//  Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = frame.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
@@ -330,7 +329,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		else if (did.subdet()==HcalEndcap) 
 			rawidHEValid = did.rawId();
 
-		//	filter out channels that are masked out
+		//  filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
 			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
@@ -371,8 +370,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 		if (sumQ>_cutSumQ_HBHE)
 		{
-		        double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame, 2.5, 0,
-										      frame.samples()-1);
+			double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame, 2.5, 0, frame.samples()-1);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
@@ -410,16 +408,16 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	numChs=0;
 	numChsCut = 0;
 
-	//	reset
+	//  reset
 	rawidValid = 0;
 
-	//	HO collection
+	//  HO collection
 	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
 		++it)
 	{
 		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 
-		//	Explicit check on the DetIds present in the Collection
+		//  Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
@@ -428,7 +426,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		if (did.subdet()==HcalOuter)
 			rawidValid = did.rawId();
 
-		//	filter out channels that are masked out
+		//  filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
 			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
@@ -504,18 +502,18 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	}
 	numChs=0; numChsCut=0;
 
-	//	reset
+	//  reset
 	rawidValid = 0;
 
-	//	HF collection
+	//  HF collection
 	for (QIE10DigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
-	        QIE10DataFrame frame = *it;
-	        double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, 
+			QIE10DataFrame frame = *it;
+			double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, 
 									   2.5, 0, frame.samples()-1);
 
-		//	Explicit check on the DetIds present in the Collection
+		//  Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
@@ -524,7 +522,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		if (did.subdet()==HcalForward)
 			rawidValid = did.rawId();
 
-		//	filter out channels that are masked out
+		//  filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
 			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
@@ -559,13 +557,13 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, frame[i].adc());
 			_cfC_SubdetPM.fill(did, constants::adc2fC[frame[i].adc()]);
 			if (sumQ>_cutSumQ_HF)
-			        _cShapeCut_FED.fill(eid, i, constants::adc2fC[frame[i].adc()]);
+					_cShapeCut_FED.fill(eid, i, constants::adc2fC[frame[i].adc()]);
 		}
 
 		if (sumQ>_cutSumQ_HF)
 		{
-		        double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(frame, 2.5, 0,
-										      frame.samples()-1);
+				double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(frame, 2.5, 0,
+											  frame.samples()-1);
 
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
