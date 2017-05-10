@@ -1,4 +1,4 @@
-#include "TopQuarkAnalysis/TopPairBSM/interface/CATopJetHelper.h"
+#include "CATopJetHelper.h"
 
 
 struct GreaterByPtCandPtr {

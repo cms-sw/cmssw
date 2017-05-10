@@ -5,12 +5,12 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: JetCombinatorics.cc,v 1.3 2009/07/30 06:02:21 jengbou Exp $
+ version $Id: JetCombinatorics.cc,v 1.4 2012/10/11 14:25:45 eulisse Exp $
 
 ________________________________________________________________**/
 
 
-#include "TopQuarkAnalysis/TopPairBSM/interface/JetCombinatorics.h"
+#include "JetCombinatorics.h"
 #include "TMath.h"
 
 #include <iostream>

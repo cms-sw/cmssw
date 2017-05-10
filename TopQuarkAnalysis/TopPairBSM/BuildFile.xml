@@ -1,16 +1,16 @@
-<use   name="fastjet"/>
-<use   name="ktjet"/>
-<use   name="DataFormats/JetReco"/>
+<use   name="AnalysisDataFormats/TopObjects"/>
+<use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Math"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="AnalysisDataFormats/TopObjects"/>
-<use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="PhysicsTools/HepMCCandAlgos"/>
-<use   name="rootcore"/>
+<use   name="TopQuarkAnalysis/TopTools"/>
+<use   name="fastjet"/>
+<use   name="ktjet"/>
 <use   name="root"/>
-<export>
-  <lib   name="1"/>
-</export>
+<use   name="rootcore"/>
+<flags   EDM_PLUGIN="1"/>

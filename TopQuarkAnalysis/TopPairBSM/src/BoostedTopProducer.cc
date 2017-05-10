@@ -1,4 +1,4 @@
-#include "TopQuarkAnalysis/TopPairBSM/interface/BoostedTopProducer.h"
+#include "BoostedTopProducer.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <string>
@@ -94,7 +94,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // This will hold the prompt W lepton candidate, and a
    // maximum pt decision variable
    double maxWLeptonPt = -1;
-   reco::Candidate const * Wlepton = 0;
+   //reco::Candidate const * Wlepton = 0;
 
    // ----------------------
    // Find isolated muons, and highest pt lepton
@@ -277,7 +277,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        lepW.addDaughter  ( neutrino, "neutrino");
        addFourMomenta.set( lepW );
 
-       bool nuzHasComplex = false;
+       //bool nuzHasComplex = false;
        METzCalculator zcalculator;
        
        zcalculator.SetMET( neutrino );
@@ -286,7 +286,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        else
 	 zcalculator.SetMuon( *electron ); // This name is misleading, should be setLepton
        double neutrinoPz = zcalculator.Calculate(1);// closest to the lepton Pz
-       if (zcalculator.IsComplex()) nuzHasComplex = true;
+       //if (zcalculator.IsComplex()) nuzHasComplex = true;
        // Set the neutrino pz
        neutrino.setPz( neutrinoPz );
 
