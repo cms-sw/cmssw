@@ -145,7 +145,7 @@ namespace HcalSimpleRecAlgoImpl {
       HcalDetId cell(digi.id());
       int ieta  = cell.ieta();
       int iphi  = cell.iphi();
-      ampl *= eCorr(ieta,iphi,ampl);
+      if( cell.subdet() == HcalBarrel) ampl *= eCorr(ieta,iphi,ampl);
     }
 
     // Correction for a leak to pre-sample
