@@ -218,7 +218,7 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 	desc.add<int>("nFilt",	-1);
 	desc.add<int>("MinVtxNdof",	5);
 	///// From VirtualJetProducer
-	desc.add<string> ("module_label",	"" );
+	desc.add<string> ("@module_label",	"" );
 	desc.add<InputTag>("src",	InputTag("particleFlow") );
 	desc.add<bool>("doAreaFastjet",	false );
 	desc.add<double>("Rho_EtaMax", 	4.4 	);

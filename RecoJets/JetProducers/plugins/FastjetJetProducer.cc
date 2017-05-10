@@ -477,7 +477,7 @@ void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	descFastjetJetProducer.add<int>("nFilt",	-1);
 	descFastjetJetProducer.add<int>("MinVtxNdof",	5);
 	///// From VirtualJetProducer
-	descFastjetJetProducer.add<string> ("module_label",	"" );
+	descFastjetJetProducer.add<string> ("@module_label",	"" );
 	descFastjetJetProducer.add<InputTag>("src",	InputTag("particleFlow") );
 	descFastjetJetProducer.add<bool>("doAreaFastjet",	false );
 	descFastjetJetProducer.add<double>("Rho_EtaMax", 	4.4 	);

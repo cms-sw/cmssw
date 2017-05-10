@@ -1,16 +1,20 @@
 from RecoJets.JetProducers.CATopJetParameters_cfi import *
+from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
+from RecoJets.JetProducers.PFJetParameters_cfi import *
 
 # CATopJet PF Jets
 # with adjacency 
-cmsTopTagPFJetsCHS = cms.EDProducer( "CATopJetProducer",
-	#CATopJetParameters,
-	doAreaFastjet = cms.bool(True),
-	doRhoFastjet = cms.bool(False),
-	jetPtMin = cms.double(100.0),
-	jetAlgorithm = cms.string("CambridgeAachen"),
-	rParam = cms.double(0.8),
-	writeCompound = cms.bool(True)
-	)
+cmsTopTagPFJetsCHS = cms.EDProducer(
+    "CATopJetProducer",
+    src = cms.InputTag('pfNoPileUpJME'),
+    doAreaFastjet = cms.bool(True),
+    doRhoFastjet = cms.bool(False),
+    jetPtMin = cms.double(100.0),
+    #CATopJetParameters,
+    jetAlgorithm = cms.string("CambridgeAachen"),
+    rParam = cms.double(0.8),
+    writeCompound = cms.bool(True)
+    )
 
 hepTopTagPFJetsCHS = cmsTopTagPFJetsCHS.clone(
 	rParam = cms.double(1.5),
@@ -18,14 +22,14 @@ hepTopTagPFJetsCHS = cmsTopTagPFJetsCHS.clone(
         muCut = cms.double(0.8),
         maxSubjetMass = cms.double(30.0),
         useSubjetMass = cms.bool(False)
-	)
+)
 
 
 jhuTopTagPFJetsCHS = cmsTopTagPFJetsCHS.clone(
-	ptFrac = cms.double(0.05),
-	deltaRCut = cms.double(0.19),
-	cosThetaWMax = cms.double(0.7)
-	)
+    ptFrac = cms.double(0.05),
+    deltaRCut = cms.double(0.19),
+    cosThetaWMax = cms.double(0.7)
+)
 
 
 caTopTagInfos = cms.EDProducer("CATopJetTagger",
@@ -43,4 +47,12 @@ caTopTagInfos = cms.EDProducer("CATopJetTagger",
 
 hepTopTagInfos = caTopTagInfos.clone(
 	src = cms.InputTag("hepTopTagPFJetsCHS")
-	)
+)
+
+caTopTaggersTask = cms.Task(
+    cmsTopTagPFJetsCHS,
+    hepTopTagPFJetsCHS,
+    jhuTopTagPFJetsCHS,
+    caTopTagInfos,
+    hepTopTagInfos
+)

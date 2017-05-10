@@ -170,7 +170,7 @@ void SubEventGenJetProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 	edm::ParameterSetDescription desc;
 	desc.add<bool> 	("ignoreHydro", 	true);
 	//// From VirtualJetProducer
-	desc.add<string> ("module_label",	"" );
+	desc.add<string> ("@module_label",	"" );
 	desc.add<edm::InputTag>("src",		edm::InputTag("particleFlow") );
 	desc.add<edm::InputTag>("srcPVs",	edm::InputTag("") );
 	desc.add<string>("jetType",		"PFJet" );
