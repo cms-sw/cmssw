@@ -6,6 +6,9 @@ namespace hcaldqm
 	using namespace constants;
 	namespace utilities
 	{
+		double adc2fCDB(const CaloSamples& calo_samples, unsigned int n) {
+			return calo_samples[n];
+		}
 
 		/*
 		 *	Useful Detector Functions. For Fast Detector Validity Check
@@ -49,6 +52,38 @@ namespace hcaldqm
 		uint32_t hash(HcalTrigTowerDetId const& tid)
 		{
 			return tid.rawId();
+		}
+
+		std::vector<int> getCrateList(HcalElectronicsMap const* emap) {
+			std::vector<int> vCrates;
+			std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
+			for (std::vector<HcalElectronicsId>::const_iterator it=vids.begin(); it!=vids.end(); ++it) {
+				HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+				int crate = eid.crateId();
+				if (std::find(vCrates.begin(), vCrates.end(), crate) == vCrates.end()) {
+					vCrates.push_back(crate);
+				}
+			}
+			std::sort(vCrates.begin(), vCrates.end());
+			return vCrates;
+		}
+
+		std::map<int, uint32_t> getCrateHashMap(HcalElectronicsMap const* emap) {
+			std::map<int, uint32_t> crateHashMap;
+			std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
+			for (std::vector<HcalElectronicsId>::const_iterator it=vids.begin(); it!=vids.end(); ++it) {
+				HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+				int this_crate = eid.crateId();
+				uint32_t this_hash = (eid.isVMEid() ?
+					utilities::hash(HcalElectronicsId(FIBERCH_MIN,
+						FIBER_VME_MIN, eid.spigot(), eid.dccid())) :
+					utilities::hash(HcalElectronicsId(eid.crateId(),
+						eid.slot(), FIBER_uTCA_MIN1, FIBERCH_MIN, false)));
+				if (crateHashMap.find(this_crate) == crateHashMap.end()) {
+					crateHashMap[this_crate] = this_hash;
+				}
+			}
+			return crateHashMap;
 		}
 
 		std::vector<int> getFEDList(HcalElectronicsMap const* emap)

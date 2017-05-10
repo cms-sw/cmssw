@@ -44,13 +44,15 @@ class DigiTask : public hcaldqm::DQTask
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHEP17;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
-		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
+		double _cutSumQ_HBHE, _cutSumQ_HEP17, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
 		//	flag vector
@@ -68,7 +70,6 @@ class DigiTask : public hcaldqm::DQTask
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
@@ -77,6 +78,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDHF;
 		hcaldqm::filter::HashFilter _filter_HF;
+		hcaldqm::filter::HashFilter _filter_notHF;
+		hcaldqm::filter::HashFilter _filter_HEP17;
 
 		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
@@ -87,6 +90,14 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
+		// ADC, fC for HF (QIE10 has different ADC/fC)
+		hcaldqm::Container1D _cADC_SubdetPM_HF;
+		hcaldqm::Container1D _cfC_SubdetPM_HF;
+		hcaldqm::Container1D _cSumQ_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_HF;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_HF;	// online only!
+
+		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
 
@@ -98,6 +109,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
 		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
 		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
@@ -134,12 +146,19 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
 
 		//	#Time Samples for a digi. Used for Summary generation
+		hcaldqm::Container1D _cDigiSize_Crate;
 		hcaldqm::Container1D _cDigiSize_FED;
 		hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;	// online only
 		hcaldqm::ContainerXXX<uint32_t> _xDigiSize; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+
+		// QIE10 TDC histograms
+		hcaldqm::ContainerSingle2D _cLETDCvsADC;
+		hcaldqm::ContainerSingle2D _cLETDCvsTS;
+		hcaldqm::ContainerSingle1D _cLETDCTime;
+
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting

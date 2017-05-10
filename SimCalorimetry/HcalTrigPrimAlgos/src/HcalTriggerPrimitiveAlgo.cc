@@ -458,33 +458,33 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeHF2016(
-        const IntegerCaloSamples& SAMPLES,
+        const IntegerCaloSamples& samples,
         HcalTriggerPrimitiveDigi& result,
-        const int HF_LUMI_SHIFT,
-        const HcalFeatureBit* HCALFEM
+        const int hf_lumi_shift,
+        const HcalFeatureBit* embit
         ) {
     // Align digis and TP
-    const int SHIFT = SAMPLES.presamples() - numberOfPresamples_;
+    const int SHIFT = samples.presamples() - numberOfPresamplesHF_;
     assert(SHIFT >= 0);
-    assert((SHIFT + numberOfSamples_) <= SAMPLES.size());
+    assert((SHIFT + numberOfSamplesHF_) <= samples.size());
 
     // Try to find the HFDetails from the map corresponding to our samples
-    const HcalTrigTowerDetId detId(SAMPLES.id());
+    const HcalTrigTowerDetId detId(samples.id());
     HFDetailMap::const_iterator it = theHFDetailMap.find(detId);
     // Missing values will give an empty digi
     if (it == theHFDetailMap.end()) {
         return;
     }
 
-    std::vector<std::bitset<2>> finegrain(numberOfSamples_, false);
+    std::vector<std::bitset<2>> finegrain(numberOfSamplesHF_, false);
 
     // Set up out output of IntergerCaloSamples
-    IntegerCaloSamples output(SAMPLES.id(), numberOfSamples_);
-    output.setPresamples(numberOfPresamples_);
+    IntegerCaloSamples output(samples.id(), numberOfSamplesHF_);
+    output.setPresamples(numberOfPresamplesHF_);
 
     for (const auto& item: it->second) {
         auto& details = item.second;
-        for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+        for (int ibin = 0; ibin < numberOfSamplesHF_; ++ibin) {
             const int IDX = ibin + SHIFT;
             int long_fiber_val = 0;
             if (IDX < details.long_fiber.size()) {
@@ -502,22 +502,21 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             if (details.LongDigi.id().ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
                finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
-               if (HCALFEM != 0)
-                  finegrain[ibin][0] = HCALFEM->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
+               if (embit != 0)
+                  finegrain[ibin][0] = embit->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
             }
         }
     }
 
-    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+    for (int bin = 0; bin < numberOfSamplesHF_; ++bin) {
        static const unsigned int MAX_OUTPUT = QIE8_LINEARIZATION_ET;  // QIE8_LINEARIZATION_ET = 1023
-       output[bin] = min({MAX_OUTPUT, output[bin] >> HF_LUMI_SHIFT});
+       output[bin] = min({MAX_OUTPUT, output[bin] >> hf_lumi_shift});
     }
 
     std::vector<int> finegrain_converted;
     for (const auto& fg: finegrain)
        finegrain_converted.push_back(fg.to_ulong());
     outcoder_->compress(output, finegrain_converted, result);
-    
 }
 
 bool
@@ -547,9 +546,9 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         const int hf_lumi_shift, const HcalFeatureBit* embit)
 {
     // Align digis and TP
-    const int shift = samples.presamples() - numberOfPresamples_;
+    const int shift = samples.presamples() - numberOfPresamplesHF_;
     assert(shift >= 0);
-    assert((shift + numberOfSamples_) <= samples.size());
+    assert((shift + numberOfSamplesHF_) <= samples.size());
 
     // Try to find the HFDetails from the map corresponding to our samples
     const HcalTrigTowerDetId detId(samples.id());
@@ -559,15 +558,15 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         return;
     }
 
-    std::vector<std::bitset<2>> finegrain(numberOfSamples_, false);
+    std::vector<std::bitset<2>> finegrain(numberOfSamplesHF_, false);
 
     // Set up out output of IntergerCaloSamples
-    IntegerCaloSamples output(samples.id(), numberOfSamples_);
-    output.setPresamples(numberOfPresamples_);
+    IntegerCaloSamples output(samples.id(), numberOfSamplesHF_);
+    output.setPresamples(numberOfPresamplesHF_);
 
     for (const auto& item: it->second) {
         auto& details = item.second;
-        for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+        for (int ibin = 0; ibin < numberOfSamplesHF_; ++ibin) {
             const int idx = ibin + shift;
 
             int long_fiber_val = 0;
@@ -634,7 +633,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         }
     }
 
-    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+    for (int bin = 0; bin < numberOfSamplesHF_; ++bin) {
        output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]}) >> hf_lumi_shift;
     }
     std::vector<int> finegrain_converted;

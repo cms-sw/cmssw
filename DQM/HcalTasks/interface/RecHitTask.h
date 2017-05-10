@@ -42,9 +42,11 @@ class RecHitTask : public hcaldqm::DQTask
 
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
+		edm::InputTag		_tagpreHF;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
 		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
+		edm::EDGetTokenT<HFPreRecHitCollection>	_tokpreHF;
 		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
 
 		double _cutE_HBHE, _cutE_HO, _cutE_HF;
@@ -64,7 +66,6 @@ class RecHitTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	Filters
@@ -72,6 +73,7 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDsVME;
 		hcaldqm::filter::HashFilter _filter_FEDsuTCA;
+		hcaldqm::filter::HashFilter _filter_HF;
 
 		//	Energy. Just filling. No Summary Generation
 		hcaldqm::Container1D _cEnergy_Subdet;
@@ -93,6 +95,7 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
 		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	//	online only
 		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM; //	online only
 		hcaldqm::ContainerProf1D _cTimingCutvsBX_SubdetPM;	// online only
@@ -119,6 +122,11 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only!
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF, _xUni;
+
+		// QIE10 dual anode histograms
+		hcaldqm::Container2D _cDAAsymmetryVsCharge_SubdetPM;
+		hcaldqm::ContainerProf2D _cDAAsymmetryMean_cut_depth;
+		hcaldqm::Container1D _cDAAsymmetry_cut_SubdetPM;
 
 		//	tracks the unknown ids
 		MonitorElement *meUnknownIds1LS;

@@ -42,14 +42,16 @@ class PedestalTask : public hcaldqm::DQTask
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
+		edm::InputTag	_tagHEP17;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
 		edm::InputTag   _taguMN;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
-		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
 		std::vector<hcaldqm::flag::Flag> _vflags;
@@ -62,7 +64,6 @@ class PedestalTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const*	_emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
