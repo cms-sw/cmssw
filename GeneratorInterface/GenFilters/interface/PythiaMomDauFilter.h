@@ -15,6 +15,7 @@
 //
 // Original Author:  Daniele Pedrini
 //         Created:  Oct 27 2015
+// Fixed : Ta-Wei Wang, Dec 11 2015        
 // $Id: PythiaMomDauFilter.h,v 1.1 2015/10/27  pedrini Exp $
 //
 //
