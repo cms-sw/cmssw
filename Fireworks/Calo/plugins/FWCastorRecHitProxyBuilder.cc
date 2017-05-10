@@ -5,29 +5,30 @@
  *  Created by Ianna Osborne on 7/8/10.
  *
  */
-
-#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class FWCastorRecHitProxyBuilder : public FWDigitSetProxyBuilder
+class FWCastorRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWCastorRecHitProxyBuilder( void ) {}  
    virtual ~FWCastorRecHitProxyBuilder( void ) {}
+
+
+   virtual float scaleFactor(const FWViewContext* vc) { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); } 
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& );
    const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& );
-
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
+REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );
+
+// AMT:: scale box round center. Scaleing and e/et added now. Previously used fireworks::energyTower3DCorners();
+
+/*
 void FWCastorRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
    const CastorRecHitCollection* collection = 0;
@@ -50,5 +51,4 @@ void FWCastorRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
-
-REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );
+*/

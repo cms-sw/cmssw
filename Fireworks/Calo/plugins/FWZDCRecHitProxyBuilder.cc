@@ -5,15 +5,12 @@
  *  Created by Ianna Osborne on 7/8/10.
  *
  */
-#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
-#include "TEveBoxSet.h"
 
-class FWZDCRecHitProxyBuilder :  public FWDigitSetProxyBuilder
+
+class FWZDCRecHitProxyBuilder :  public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWZDCRecHitProxyBuilder( void ) {}  
@@ -23,11 +20,15 @@ public:
 
 private:
    FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& );
-
-   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
+   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );	
 };
 
+
+REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder,  edm::SortedCollection<ZDCRecHit> , "ZDC RecHit", FWViewType::kISpyBit );
+
+// AMT scale box round center. Scaling and e/et mode added now. Previusly used energyTower3DCorners().
+
+/*
 void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
    const edm::SortedCollection<ZDCRecHit> *collection = 0;
@@ -53,6 +54,4 @@ void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
 
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
-}
-
-REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder,  edm::SortedCollection<ZDCRecHit> , "ZDC RecHit", FWViewType::kISpyBit );
+   }*/
