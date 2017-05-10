@@ -1,13 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3CorrectorChain, \
-                                                              ak4CaloL2RelativeCorrector, \
-                                                              ak4CaloL3AbsoluteCorrector, \
-                                                              ak4CaloL2L3Corrector, \
-                                                              ak4CaloL2L3ResidualCorrectorChain, \
-                                                              ak4CaloResidualCorrector, \
-                                                              ak4CaloL2L3ResidualCorrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 corrCaloMetType1 = cms.EDProducer(
     "CaloJetMETcorrInputProducer",

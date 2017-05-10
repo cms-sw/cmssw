@@ -22,8 +22,8 @@ selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0 = cms.EDFilter("PATSingl
 from RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cfi import particleFlowDisplacedVertex
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
-from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
-pfCandidateToVertexAssociation = PFCandAssoMap.clone(
+from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap as _PFCandAssoMap
+pfCandidateToVertexAssociation = _PFCandAssoMap.clone(
     PFCandidateCollection = cms.InputTag('particleFlow'),
     UseBeamSpotCompatibility = cms.untracked.bool(True),
     ignoreMissingCollection = cms.bool(True)
