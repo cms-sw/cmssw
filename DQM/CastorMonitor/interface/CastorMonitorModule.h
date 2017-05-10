@@ -32,6 +32,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
@@ -114,6 +116,12 @@ private:
   edm::InputTag inputLabelReport_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
+
+  edm::InputTag inputLabelCastorTowers_;
+  typedef std::vector<reco::CastorTower> CastorTowerCollection;
+
+  edm::InputTag JetAlgorithm;
+//  edm::InputTag trigResultsSource;
 
   CastorRecHitMonitor*      RecHitMon_;
   CastorDigiMonitor*        DigiMon_;

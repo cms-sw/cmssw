@@ -1,4 +1,4 @@
-#include "DQM/CastorMonitor/interface/CastorMonitorModule.h"
+#include <DQM/CastorMonitor/interface/CastorMonitorModule.h>
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,18 +19,19 @@
 
 //==================================================================//
 //======================= Constructor ==============================//
-CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps):
-  fVerbosity{ps.getUntrackedParameter<int>("debug", 0)}
+CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
 {
-  if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(start)"<<std::endl;
-
-  inputLabelRaw_ 	= ps.getParameter<edm::InputTag>("rawLabel");
-  inputLabelReport_     = ps.getParameter<edm::InputTag>("unpackerReportLabel");
-  inputLabelDigi_ 	= ps.getParameter<edm::InputTag>("digiLabel");
-  inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel");
-  NBunchesOrbit		= ps.getUntrackedParameter<int>("nBunchesOrbit",3563);
-  showTiming_ 		= ps.getUntrackedParameter<bool>("showTiming",false);
-//inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
+ inputLabelRaw_ 	= ps.getParameter<edm::InputTag>("rawLabel");
+ inputLabelReport_     = ps.getParameter<edm::InputTag>("unpackerReportLabel");
+ inputLabelDigi_ 	= ps.getParameter<edm::InputTag>("digiLabel");
+ inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel");
+ NBunchesOrbit		= ps.getUntrackedParameter<int>("nBunchesOrbit",3563);
+ fVerbosity		= ps.getUntrackedParameter<int>("debug", 0);
+ showTiming_ 		= ps.getUntrackedParameter<bool>("showTiming",false);
+ inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
+ JetAlgorithm		= ps.getParameter<edm::InputTag>("CastorBasicJetsLabel");
+// trigResultsSource	= ps.getParameter<edm::InputTag>("HLTtriggerResults");
+// trigResultsSource	= ps.getParameter<edm::InputTag>("triggerResults");
 //dump2database_   	= ps.getUntrackedParameter<bool>("dump2database",false);
 
   irun_=0; 
@@ -111,7 +112,6 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
     CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(3,"CastorDigi");
     CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(4,"CastorRecHits");
 
-// reset();
  if(fVerbosity>0) 
  std::cout<<"CastorMonitorModule::bookHistogram(end)"<< std::endl;
  return;
@@ -190,14 +190,24 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
  CastorEventProduct->Fill(3,int(rechitOK_));
 
   // if((DigiMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
-  if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_,ibunch_);
+  if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_){
       cpu_timer.stop();
       if (DigiMon_!=NULL) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
- if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
+ if(rechitOK_) { 
+//	RecHitMon_->processEvent(*CastorHits,*hltResults);
+	RecHitMon_->processEvent(*CastorHits);
+   edm::Handle<reco::CastorTowerCollection> castorTowers;
+   iEvent.getByLabel(inputLabelCastorTowers_,castorTowers);
+	RecHitMon_->processEventTowers(*castorTowers);
+  edm::Handle<reco::BasicJetCollection> jets;
+  iEvent.getByLabel(JetAlgorithm,jets);
+	RecHitMon_->processEventJets(*jets);
+ }
+
  if (showTiming_){
       cpu_timer.stop();
       if (RecHitMon_!=NULL) std::cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
