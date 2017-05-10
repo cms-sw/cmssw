@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <cxxabi.h>
+# include <fstream>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -576,7 +577,6 @@ class DQMStore
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void                          setAccumulate(MonitorElement *me, bool flag);
-
   void print_trace(const std::string &dir, const std::string &name);
 
   // ----------------------- Unavailable ---------------------------------------
@@ -612,6 +612,7 @@ class DQMStore
 
   std::mutex book_mutex_;
   IBooker * ibooker_;
+  std::ofstream stream;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;
