@@ -74,7 +74,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
         EvtGen130 = cms.untracked.PSet(
             decay_table = cms.string('DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            user_decay_files = cms.vstring('DECAY_2010.DEC'),
+            user_decay_file = cms.vstring('DECAY_2010.DEC'),
             list_forced_decays = cms.vstring(),
             operates_on_particles = cms.vint32(0)
         ),
@@ -121,3 +121,4 @@ from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 process = setCrossingFrameOn(process)
 
 # End of customisation functions
+
