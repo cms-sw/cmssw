@@ -30,10 +30,17 @@ const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const & iSetu
     edm::LogError("MuonGEMBaseValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return nullptr;
   }
+
+  LogDebug("MuonBaseValidation") << "GEMGeometry_->regions().size() " << GEMGeometry_->regions().size() << "\n";
+  LogDebug("MuonBaseValidation") << "GEMGeometry_->stations().size() " << GEMGeometry_->regions().front()->stations().size() << "\n";
+  LogDebug("MuonBaseValidation") << "GEMGeometry_->superChambers().size() " << GEMGeometry_->superChambers().size() << "\n";
+  LogDebug("MuonBaseValidation") << "GEMGeometry_->chambers().size() " << GEMGeometry_->chambers().size() << "\n";
+  LogDebug("MuonBaseValidation") << "GEMGeometry_->etaPartitions().size() " << GEMGeometry_->etaPartitions().size() << "\n"; 
+
   nregion  = GEMGeometry_->regions().size();
-  nstation = GEMGeometry_->regions()[0]->stations().size() ;
-  nstationForLabel = GEMGeometry_->regions()[0]->stations().size() ;
-  npart    = GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
+  nstation = GEMGeometry_->regions().front()->stations().size() ;
+  nstationForLabel = nstation;
+  npart    = GEMGeometry_->chambers().front()->etaPartitions().size();
 
   return GEMGeometry_;
 }
@@ -105,18 +112,17 @@ MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TStri
 }
 
 MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker, const GEMStation* station, TString title, TString histname ) {
-  if( station->rings()[0]->superChambers().size() ==0) {
+  if( station->rings().front()->superChambers().size() == 0 ) {
     LogDebug("MuonBaseValidation")<<"+++ Error! can not get superChambers. Skip "<<getSuffixTitle(station->region(), station->station())<<" on "<<histname<<"\n";
     return nullptr;
   }
 
-  int nXbins = station->rings()[0]->nSuperChambers()*2;;
-  int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();;
-  int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();;
-  int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2;;
+  int nXbins = station->rings().front()->nSuperChambers()*2;
+  int nYbins = station->rings().front()->superChambers().front()->chambers().front()->nEtaPartitions();
 
   TH2F* dcEta_temp = new TH2F(title,histname,nXbins, 0, nXbins, nYbins, 1, nYbins+1);
   int idx = 0 ;
+
   for(unsigned int sCh = 1; sCh <= station->superChambers().size(); sCh++){
     for(unsigned int Ch = 1; Ch <= 2; Ch++){
       idx++;
