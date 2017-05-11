@@ -31,19 +31,22 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_     = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenPuppiCandidates_  = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
   tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
-  reco2pf_               = mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
-  tokenPhotonId_         = mayConsume<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId"));
+  usePhotonId_           = (iConfig.getParameter<edm::InputTag>("photonId")).label().size() != 0;
+  if(usePhotonId_)
+    tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId"));
+  runOnMiniAOD_          = iConfig.getParameter<bool>("runOnMiniAOD");
+  if(!runOnMiniAOD_)
+    reco2pf_               =  consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
+  useValueMap_           = iConfig.getParameter<bool>("useValueMap");
+  if(useValueMap_)
+    tokenWeights_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("weightsName"));
+
   pt_                    = iConfig.getParameter<double>("pt");
   eta_                   = iConfig.getParameter<double>("eta");
   dRMatch_               = iConfig.getParameter<std::vector<double> > ("dRMatch");
   pdgIds_                = iConfig.getParameter<std::vector<int32_t> >("pdgids");
-  runOnMiniAOD_          = iConfig.getParameter<bool>("runOnMiniAOD");
   usePFRef_              = iConfig.getParameter<bool>("useRefs");
   weight_                = iConfig.getParameter<double>("weight");
-  useValueMap_           = iConfig.getParameter<bool>("useValueMap");
-  tokenWeights_          = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("weightsName"));
-
-  usePhotonId_  = (iConfig.getParameter<edm::InputTag>("photonId")).label().size() != 0;
   produces<PFOutputCollection>();
   produces< edm::ValueMap<reco::CandidatePtr> >(); 
 }
@@ -83,7 +86,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
       if(pPho != 0) {
         for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
-	  if(fabs(pfCol->ptrAt(ref.key())->eta()) < eta_ ) {
+	  if(fabs(ref->eta()) < eta_ ) {
 	    phoIndx.push_back(ref.key());
 	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	  }
@@ -93,14 +96,14 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
       if(pElectron != 0) {
         for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() )
-	  if(fabs(pfCol->ptrAt(ref.key())->eta()) < eta_ )  {
+	  if(fabs(ref->eta()) < eta_ )  {
 	    phoIndx.push_back(ref.key());
 	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	  }
       }
     } else {
       for( const edm::Ref<std::vector<reco::PFCandidate> > & ref : (*reco2pf)[phoCol->ptrAt(iC)] ) {
-	  if(fabs(pfCol->ptrAt(ref.key())->eta()) < eta_ )  {
+	  if(fabs(ref->eta()) < eta_ )  {
 	    phoIndx.push_back(ref.key());
 	    phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	  }
@@ -109,8 +112,9 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   //Get Weights
   edm::Handle<edm::ValueMap<float> > pupWeights; 
-  iEvent.getByToken(tokenWeights_,pupWeights);
-  std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
+  if(useValueMap_)
+    iEvent.getByToken(tokenWeights_,pupWeights);
+  std::unique_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
   int iPF = 0; 
@@ -169,16 +173,16 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     corrCandidates_->push_back(pCand);
   }
   //Fill it into the event
-  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( corrCandidates_ );
+  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(corrCandidates_));
   for(unsigned int ic=0, nc = pupCol->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref( oh, ic );
       values[ic] = pkref;
   }  
-  std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
-  iEvent.put(pfMap_p);
+  iEvent.put(std::move(pfMap_p));
 }
 // ------------------------------------------------------------------------------------------
 bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
