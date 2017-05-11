@@ -86,7 +86,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   vector<const DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
   vector<const DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
    
-  // get the GEM layers
   vector<const DetLayer*> gemForwardLayers = muonLayers->forwardGEMLayers();
   vector<const DetLayer*> gemBackwardLayers = muonLayers->backwardGEMLayers(); 
 
@@ -136,7 +135,11 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB3 = zero(list6.size());
 
   MuonRecHitContainer muRH_GE11Fwd, muRH_GE21Fwd, muRH_GE11Bwd, muRH_GE21Bwd, muRH_ME0Fwd, muRH_ME0Bwd;
-  
+
+  // get the GEM layers made by MuonGEMDetLayerGeometryBuilder
+  // 0 is ge11 superChamber, 1 is ge11 layer 1 chamber, 2 is ge11 layer 2 chamber
+  // 3 is ge21 superChamber, 4 is ge21 layer 1 chamber, 5 is ge21 layer 2 chamber
+  // GEMsegments are found with superChambers, so only 0 and 3 is needed
   if (gemForwardLayers.size()){// Forward (z>0) EndCap disk
     const DetLayer* GE11Fwd = gemForwardLayers[0];
     muRH_GE11Fwd = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
@@ -145,7 +148,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
       muRH_GE21Fwd = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);      
     }
   }
-
   if (gemBackwardLayers.size()){// Backward (z<0) EndCap disk
     const DetLayer* GE11Bwd = gemBackwardLayers[0];
     muRH_GE11Bwd = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
@@ -283,18 +285,18 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 	const DetLayer* GE21Bwd = gemBackwardLayers[3];
 	tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
 	all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+	copy(tmp.begin(),tmp.end(),back_inserter(all));
       }
       const DetLayer* GE11Bwd = gemBackwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
     if (me0BackwardLayers.size()){
       const DetLayer* ME0Bwd = me0BackwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
       all.reserve(all.size()+tmp.size());
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
 
     tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
@@ -403,10 +405,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   rememberCrackSegments(me2,  crackSegments);
   rememberCrackSegments(me3,  crackSegments);
   rememberCrackSegments(me4,  crackSegments);
-
-  rememberCrackSegments(ge21, crackSegments);
-  rememberCrackSegments(ge11, crackSegments);
-  rememberCrackSegments(me0, crackSegments);
+  rememberCrackSegments(me0,  crackSegments);
 
 
   MuonRecHitContainer list24 = me4;
@@ -722,6 +721,10 @@ void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitConta
     if((**segmentItr).hit()->dimension() == 4 && isCrack(*segmentItr)) 
     {
        crackSegments.push_back(*segmentItr);
+    }
+    // save ME0 segments if eta > 2.4, no other detectors
+    if ((*segmentItr)->isME0() && std::abs((*segmentItr)->globalPosition().eta()) > 2.4){      
+      crackSegments.push_back(*segmentItr);      
     }
   }
 }
