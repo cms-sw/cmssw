@@ -202,7 +202,8 @@ std::vector<double> fcPerMip;
 double fcPerEle;
 std::vector<double> nonAgedNoises;
 double noiseMip;
-std::vector<std::vector<double> >thresholds;
+std::vector<std::vector<double> > thresholds;
+std::vector<std::vector<double> > v_sigmaNoise;
 
 // The verbosity level
 VerbosityLevel verbosity;
