@@ -70,6 +70,11 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     <UnionSolid name="unionsolid" firstSolid="pcrz" secondSolid="cone1">
       <Translation x="0" y="0" z="-1.0*m"/>
     </UnionSolid>
+    <MultiUnionSolid name="multiunionsolid">
+      <rSolid name="pcrz"/>
+      <rSolid name="cone1"/>
+      <Translation x="0" y="0" z="-1.0*m"/>
+    </MultiUnionSolid>
     <IntersectionSolid name="intsolid" firstSolid="cone1" secondSolid="cone2">
       <RotationByAxis axis="y" angle="90*deg"/>
       <Translation x="0" y="0" z="50*cm"/>

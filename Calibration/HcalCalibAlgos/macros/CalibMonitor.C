@@ -3,7 +3,7 @@
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
 //                  corrFileName, flag, numb, dataMC, useGen, etalo, etahi,
-//                  runlo, runhi);
+//                  runlo, runhi, phimin, phimax, zside);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -33,9 +33,10 @@
 //   flag (int)                = 3 digit integer (hdo) with specific control
 //                               information (h = 0/1/2 for not creating/
 //                               creating in output/creating in append mode
-//                               the output text file; d = 0/1 produces 
-//                               standard/extended set of histograms; o = 0/1
-//                               for loose/tight selection). Default = 0
+//                               the output text file; d = 0/1/2/3 produces 
+//                               3 standard (0,1,2) or extended (3) set of 
+//                               histograms; o = 0/1 for loose/tight 
+//                               selection). Default = 0
 //   numb   (int)              = number of eta bins (42 for -21:21)
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   useGen (bool)             = false/true to use generator level momentum
@@ -43,6 +44,10 @@
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number (def -1)
 //   runhi  (int)              = higher value of run number (def 9999999)
+//   phimin          (int)     = minimum iphi value (1)
+//   phimax          (int)     = maximum iphi value (72)
+//   zside           (int)     = the side of the detector if phimin and phimax
+//                               differ from 1-72 (1)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the hitogram file to be opened
@@ -169,7 +174,8 @@ public :
 	       std::string dupFileName, std::string outTxtFileName, 
 	       std::string prefix="", std::string corrFileName="",
 	       int flag=0, int numb=42, bool datMC=true, bool useGen=false,
-	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999);
+	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999,
+	       int phimin=1, int phimax=72, int zside=1);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -179,6 +185,7 @@ public :
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
   bool                       GoodTrack (double &eHcal, double &cut, bool debug);
+  bool                       SelectPhi(bool debug);
   void                       PlotHist(int type, int num, bool save=false);
   template<class Hist> void  DrawHist(Hist*, TCanvas*);
   void                       SavePlot(std::string theName, bool append, bool all=false);
@@ -189,8 +196,9 @@ private:
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
   int                       flag_, numb_, flexibleSelect_;
-  bool                      dataMC_, plotStandard_, useGen_, corrE_;
-  int                       etalo_, etahi_, runlo_, runhi_;
+  bool                      dataMC_, useGen_, corrE_;
+  int                       plotType_, etalo_, etahi_, runlo_, runhi_;
+  int                       phimin_, phimax_, zside_;
   double                    log2by16_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
@@ -208,23 +216,27 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 			   std::string prefix, std::string corrFileName,
 			   int flag, int numb, bool dataMC, bool useGen, 
 			   int etalo, int etahi, int runlo,
-			   int runhi) : fname_(fname), dirnm_(dirnm),
+			   int runhi, int phimin, int phimax,
+			   int zside) : fname_(fname), dirnm_(dirnm),
 					prefix_(prefix), 
 					outTxtFileName_(outTxtFileName),
 					flag_(flag), numb_(numb),
 					dataMC_(dataMC), useGen_(useGen), 
 					etalo_(etalo), etahi_(etahi), 
-					runlo_(runlo), runhi_(runhi) {
+					runlo_(runlo), runhi_(runhi),
+					phimin_(phimin), phimax_(phimax),
+					zside_(zside) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
-  plotStandard_    = (((flag_/10)%10) == 0);
+  plotType_        = ((flag_/10)%10);
+  if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
   log2by16_        = std::log(2.5)/16.0;
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir 
-	    << " flags " << flexibleSelect_ << "|" << plotStandard_ << " cons "
+	    << " flags " << flexibleSelect_ << "|" << plotType_ << " cons "
 	    << log2by16_ << " eta range " << etalo_ << ":" << etahi_ 
 	    << " run range " << runlo_ << ":" << runhi_ << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
@@ -336,9 +348,23 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
 	      << dupFileName << std::endl;
   }
 
-  double xbins[9] = {-21.0, -16.0, -12.0, -6.0, 0.0, 6.0, 12.0, 16.0, 21.0};
-  if (plotStandard_) {
-    for (int i=0; i<9; ++i) etas_.push_back(xbins[i]);
+  double xbins[99];
+  int    nbins(-1);
+  if (plotType_ == 0) {
+    double xbin[9] = {-21.0, -16.0, -12.0, -6.0, 0.0, 6.0, 12.0, 16.0, 21.0};
+    for (int i=0; i<9; ++i) {etas_.push_back(xbin[i]); xbins[i] = xbin[i];}
+    nbins = 8;
+  } else if (plotType_ == 1) {
+    double xbin[11] = {-25.0, -20.0, -15.0, -10.0, -5.0, 0.0,
+		       5.0, 10.0, 15.0, 20.0, 25.0};
+    for (int i=0; i<11; ++i) {etas_.push_back(xbin[i]); xbins[i] = xbin[i];}
+    nbins = 10;
+  } else if (plotType_ == 2) {
+    double xbin[23] = {-23.0, -21.0, -19.0, -17.0, -15.0, -13.0, -11.0, -9.0,
+		       -7.0, -5.0, -3.0, 0.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0,
+		       15.0, 17.0, 19.0, 21.0, 23.0};
+    for (int i=0; i<23; ++i) {etas_.push_back(xbin[i]); xbins[i] = xbin[i];}
+    nbins = 22;
   } else {
     double      xbina[99];
     int         neta = numb_/2;
@@ -347,7 +373,11 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       xbina[numb_-k] = (neta-k) + 0.5;
     }
     xbina[neta] = 0;
-    for (int i=0; i<numb_+1; ++i) etas_.push_back(xbina[i]);
+    for (int i=0; i<numb_+1; ++i) {
+      etas_.push_back(xbina[i]);
+      xbins[i] = xbina[i];
+      ++nbins;
+    }
   }
   int ipbin[npbin] = {20, 30, 40, 60, 100};
   for (unsigned int i=0; i<npbin; ++i) ps_.push_back((double)(ipbin[i]));
@@ -355,11 +385,11 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   for (int i=0; i<6; ++i)  nvx_.push_back(npvtx[i]);
   double dl1s[9]= {0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
 
-  char        name[20], title[100];
+  char        name[20], title[200];
   std::string titl[5] = {"All tracks", "Good quality tracks", "Selected tracks",
 			 "Tracks with charge isolation", "Tracks MIP in ECAL"};
   for (int i=0; i<9; ++i)  dl1_.push_back(dl1s[i]);
-  if (plotStandard_) {
+  if (plotType_ <= 1) {
     std::cout << "Book Histos for Standard\n";
     for (int k=0; k<5; ++k) {
       sprintf (name, "%sp%d", prefix_.c_str(), k);
@@ -399,7 +429,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
 	} else {
 	  sprintf (title,"%s (p = %d:%d GeV # Vtx %d:%d)",titl[4].c_str(),ipbin[k],ipbin[k+1],nvx_[i-1],nvx_[i]);
 	}
-	h_etaX[k].push_back(new TProfile(name, title, 8, xbins));
+	h_etaX[k].push_back(new TProfile(name, title, nbins, xbins));
 	unsigned int kk = h_etaX[k].size()-1;
 	h_etaX[k][kk]->Sumw2();
 	sprintf (name, "%snvxR%d%d", prefix_.c_str(), k, i);
@@ -446,7 +476,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       } else {
 	sprintf (title,"%s (All Momentum # Vtx %d:%d)",titl[4].c_str(),nvx_[i-1],nvx_[i]);
       }
-      h_etaX[npbin-1].push_back(new TProfile(name, title, 8, xbins));
+      h_etaX[npbin-1].push_back(new TProfile(name, title, nbins, xbins));
       unsigned int kk = h_etaX[npbin-1].size()-1;
       h_etaX[npbin-1][kk]->Sumw2();
       sprintf (name, "%snvxR%d%d", prefix_.c_str(), kp, i);
@@ -624,7 +654,7 @@ void CalibMonitor::Loop() {
     if (debug) std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" 
 			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp 
 			 << std::endl;
-    if (plotStandard_) {
+    if (plotType_ <= 1) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
       if (kp >= 0) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
@@ -633,7 +663,7 @@ void CalibMonitor::Loop() {
     double rcut= (pmom > 20) ? 0.25: 0.1;
 
     // Some Standard plots for control
-    if (plotStandard_) {
+    if (plotType_ <= 1) {
       if (t_qltyFlag) {
 	h_p[1]->Fill(pmom,t_EventWeight);
 	h_eta[1]->Fill(t_ieta,t_EventWeight);
@@ -678,6 +708,7 @@ void CalibMonitor::Loop() {
       }
     }
     bool goodTk = GoodTrack(eHcal, cut, debug);
+    bool selPhi = SelectPhi(debug);
     if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
     if (debug) 
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
@@ -685,13 +716,13 @@ void CalibMonitor::Loop() {
 		<< kv << "|" << jp << " Cuts " 	<< t_qltyFlag << "|" 
 		<< t_selectTk << "|" << (t_hmaxNearP < cut) << "|" 
 		<< (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut)
-		<< std::endl;
+		<< " Select Phi " << selPhi << std::endl;
     if (debug)
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1
 		<< ":" << kd << ":" << kd1 << ":" << jp << std::endl;
-    if (goodTk && kp >=0) {
+    if (goodTk && kp >=0 && selPhi) {
       if (rat > rcut) {
-	if (plotStandard_) {
+	if (plotType_ <= 1) {
 	  h_etaX[kp][kv]->Fill(eta,rat,t_EventWeight);
 	  h_etaX[kp][kv1]->Fill(eta,rat,t_EventWeight);
 	  h_nvxR[kp][kv]->Fill(rat,t_EventWeight);
@@ -703,7 +734,7 @@ void CalibMonitor::Loop() {
 	}
 	if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
 	  ++kounts[kp];
-	  if (plotStandard_) {
+	  if (plotType_ <= 1) {
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
 	  } else if (kp == (int)(kp50)) {
@@ -713,7 +744,7 @@ void CalibMonitor::Loop() {
 	  }
 	}
 	if (pmom > 20.0) {
-	  if (plotStandard_) {
+	  if (plotType_ <= 1) {
 	    h_etaX[kp1][kv]->Fill(eta,rat,t_EventWeight);
 	    h_etaX[kp1][kv1]->Fill(eta,rat,t_EventWeight);
 	    h_nvxR[kp1][kv]->Fill(rat,t_EventWeight);
@@ -771,6 +802,26 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cut, bool debug) {
 	    (t_eMipDR < 1.0));
   if (debug) std::cout << " output " << eHcal << ":" << cut << ":" << select 
 		       << std::endl;
+  return select;
+}
+
+bool CalibMonitor::SelectPhi(bool debug) {
+
+  bool   select(true);
+  if (phimin_ > 1 || phimax_ < 72) {
+    double eTotal(0), eSelec(0);
+    for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+      int iphi  = ((*t_DetIds)[k]) & (0x3FF);
+      int zside = ((*t_DetIds)[k]&0x80000)?(1):(-1);
+      eTotal   += ((*t_HitEnergies)[k]);
+      if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
+	eSelec += ((*t_HitEnergies)[k]);
+    }
+    if (eSelec < 0.9*eTotal) select = false;
+    if (debug) std::cout << "Etotal " << eTotal << " and ESelec " << eSelec
+			 << " (phi " << phimin_ << ":" << phimax_ << " z "
+			 << zside_ << ") Selection " << select << std::endl;
+  }
   return select;
 }
 
@@ -918,7 +969,7 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
 
   theFile->cd();
   for (unsigned int k=0; k<ps_.size(); ++k) {
-    if (plotStandard_) {
+    if (plotType_ <= 1) {
       for (unsigned int i=0; i<nvx_.size(); ++i) {
 	if (h_etaX[k][i] != 0) {
 	  TProfile* hnew = (TProfile*)h_etaX[k][i]->Clone();
@@ -931,7 +982,7 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
       }
     }
     for (unsigned int j=0; j<etas_.size(); ++j) {
-      if (plotStandard_ && h_etaR[k][j] != 0) {
+      if ((plotType_ <= 1) && (h_etaR[k][j] != 0)) {
 	TH1D* hist = (TH1D*)h_etaR[k][j]->Clone();
 	hist->Write();
       }
@@ -940,7 +991,7 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
 	hist->Write();
       }
     }
-    if (plotStandard_) {
+    if (plotType_ <= 1) {
       for (unsigned int j=0; j<dl1_.size(); ++j) {
 	if (h_dL1R[k][j] != 0) {
 	  TH1D* hist = (TH1D*)h_dL1R[k][j]->Clone();
@@ -948,7 +999,7 @@ void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
 	}
       }
     }
-    if (all && plotStandard_ && ((k+1) < ps_.size())) {
+    if (all && (plotType_ <= 1) && ((k+1) < ps_.size())) {
       if (h_eta0[k] != 0) {TH1D* h1 = (TH1D*)h_eta0[k]->Clone(); h1->Write();}
       if (h_eta1[k] != 0) {TH1D* h2 = (TH1D*)h_eta1[k]->Clone(); h2->Write();}
       if (h_eta2[k] != 0) {TH1D* h3 = (TH1D*)h_eta2[k]->Clone(); h3->Write();}
