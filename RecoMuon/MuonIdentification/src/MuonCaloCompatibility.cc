@@ -27,7 +27,7 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 
    pion_em_etaEmi.reset((TH2D*) pion_templates.Get("em_etaEmi"));
    pion_had_etaEmi.reset((TH2D*) pion_templates.Get("had_etaEmi"));
-	       	
+
    pion_em_etaTmi.reset((TH2D*) pion_templates.Get("em_etaTmi"));
    pion_had_etaTmi.reset((TH2D*) pion_templates.Get("had_etaTmi"));
 
@@ -37,20 +37,20 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 
    pion_em_etaTpl.reset((TH2D*) pion_templates.Get("em_etaTpl"));
    pion_had_etaTpl.reset((TH2D*) pion_templates.Get("had_etaTpl"));
-	       	
+
    pion_em_etaEpl.reset((TH2D*) pion_templates.Get("em_etaEpl"));
    pion_had_etaEpl.reset((TH2D*) pion_templates.Get("had_etaEpl"));
 
    muon_em_etaEmi.reset((TH2D*) muon_templates.Get("em_etaEmi"));
    muon_had_etaEmi.reset((TH2D*) muon_templates.Get("had_etaEmi"));
-	       	
+
    muon_em_etaTmi.reset((TH2D*) muon_templates.Get("em_etaTmi"));
    muon_had_etaTmi.reset((TH2D*) muon_templates.Get("had_etaTmi"));
-	       	
+
    muon_em_etaB.reset((TH2D*) muon_templates.Get("em_etaB"));
    muon_had_etaB.reset((TH2D*) muon_templates.Get("had_etaB"));
    muon_ho_etaB.reset((TH2D*) muon_templates.Get("ho_etaB"));
-	       	
+
    muon_em_etaTpl.reset((TH2D*) muon_templates.Get("em_etaTpl"));
    muon_had_etaTpl.reset((TH2D*) muon_templates.Get("had_etaTpl"));
 
@@ -60,7 +60,7 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
    // Release from the opened file
    pion_em_etaEmi->SetDirectory(0);
    pion_had_etaEmi->SetDirectory(0);
-	       	
+
    pion_em_etaTmi->SetDirectory(0);
    pion_had_etaTmi->SetDirectory(0);
 
@@ -89,6 +89,41 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 
    muon_em_etaEpl->SetDirectory(0);
    muon_had_etaEpl->SetDirectory(0);
+
+   // change names
+   const std::string prefixPion = "MuonCaloCompatibility_pion_";
+   pion_em_etaEmi->SetName((prefixPion+pion_em_etaEmi->GetName()).c_str());
+   pion_had_etaEmi->SetName((prefixPion+pion_had_etaEmi->GetName()).c_str());
+
+   pion_em_etaTmi->SetName((prefixPion+pion_em_etaTmi->GetName()).c_str());
+   pion_had_etaTmi->SetName((prefixPion+pion_had_etaTmi->GetName()).c_str());
+
+   pion_em_etaB->SetName((prefixPion+pion_em_etaB->GetName()).c_str());
+   pion_had_etaB->SetName((prefixPion+pion_had_etaB->GetName()).c_str());
+   pion_ho_etaB->SetName((prefixPion+pion_ho_etaB->GetName()).c_str());
+
+   pion_em_etaTpl->SetName((prefixPion+pion_em_etaTpl->GetName()).c_str());
+   pion_had_etaTpl->SetName((prefixPion+pion_had_etaTpl->GetName()).c_str());
+
+   pion_em_etaEpl->SetName((prefixPion+pion_em_etaEpl->GetName()).c_str());
+   pion_had_etaEpl->SetName((prefixPion+pion_had_etaEpl->GetName()).c_str());
+
+   const std::string prefixMuon = "MuonCaloCompatibility_muon_";
+   muon_em_etaEmi->SetName((prefixMuon+muon_em_etaEmi->GetName()).c_str());
+   muon_had_etaEmi->SetName((prefixMuon+muon_had_etaEmi->GetName()).c_str());
+
+   muon_em_etaTmi->SetName((prefixMuon+muon_em_etaTmi->GetName()).c_str());
+   muon_had_etaTmi->SetName((prefixMuon+muon_had_etaTmi->GetName()).c_str());
+
+   muon_em_etaB->SetName((prefixMuon+muon_em_etaB->GetName()).c_str());
+   muon_had_etaB->SetName((prefixMuon+muon_had_etaB->GetName()).c_str());
+   muon_ho_etaB->SetName((prefixMuon+muon_ho_etaB->GetName()).c_str());
+
+   muon_em_etaTpl->SetName((prefixMuon+muon_em_etaTpl->GetName()).c_str());
+   muon_had_etaTpl->SetName((prefixMuon+muon_had_etaTpl->GetName()).c_str());
+
+   muon_em_etaEpl->SetName((prefixMuon+muon_em_etaEpl->GetName()).c_str());
+   muon_had_etaEpl->SetName((prefixMuon+muon_had_etaEpl->GetName()).c_str());
 
    pbx = -1;
    pby = -1;
