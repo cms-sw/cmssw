@@ -69,11 +69,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   addGenMatch_(iConfig.getParameter<bool>( "addGenMatch" )),
   embedGenMatch_(addGenMatch_ ? iConfig.getParameter<bool>( "embedGenMatch" ) : false),
   embedRecHits_(iConfig.getParameter<bool>( "embedRecHits" )),
-  // for mini-iso
-  pcToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"))),
-  computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso")),
-  miniIsoParamsE_(iConfig.getParameter<std::vector<double> >("miniIsoParamsE")),
-  miniIsoParamsB_(iConfig.getParameter<std::vector<double> >("miniIsoParamsB")),
   // pflow configurables
   useParticleFlow_(iConfig.getParameter<bool>( "useParticleFlow" )),
   pfElecToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>( "pfElectronSource" ))),
@@ -175,6 +170,13 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   //      }
   //   }
   //   isoDepositTokens_ = edm::vector_transform(isoDepositLabels_, [this](std::pair<IsolationKeys,edm::InputTag> const & label){return consumes<edm::ValueMap<IsoDeposit> >(label.second);});
+
+  // for mini-iso
+  computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
+  miniIsoParamsE_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsE");
+  miniIsoParamsB_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsB");
+  if(computeMiniIso_)
+      pcToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
 
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);

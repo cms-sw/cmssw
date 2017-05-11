@@ -81,8 +81,8 @@ namespace pat {
       bool                embedGenMatch_;
       const bool          embedRecHits_;
       // for mini-iso calculation
-      const edm::EDGetTokenT<pat::PackedCandidateCollection>  pcToken_;
-      const bool computeMiniIso_;
+      edm::EDGetTokenT<pat::PackedCandidateCollection>  pcToken_;
+      bool computeMiniIso_;
       std::vector<double> miniIsoParamsE_;
       std::vector<double> miniIsoParamsB_;
 
