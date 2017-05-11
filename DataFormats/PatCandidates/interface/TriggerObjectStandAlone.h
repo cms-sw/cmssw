@@ -23,6 +23,7 @@
 
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 namespace edm { class TriggerNames; }
 
 namespace pat {
@@ -162,6 +163,9 @@ namespace pat {
 
       /// reduce the precision on the 4-vector
       void packP4();
+
+      std::vector<std::string> const* allLabels(edm::TriggerResults const& triggerResults,
+                                                edm::ProcessHistory const &history,std::string const& processName="HLT") ;
 
   };
 
