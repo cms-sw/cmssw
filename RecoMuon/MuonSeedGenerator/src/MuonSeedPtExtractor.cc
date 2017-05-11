@@ -391,6 +391,16 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
     if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
        result = 0;
   }
+  else if( hit->isGEM() ){
+    GEMDetId gemID(detId);
+    //std::cout<<"first (GEM) E/S/R/C = "<<gemID.endcap()<<"/"<<gemID.station()<<"/"<<gemID.ring()<<"/"<<gemID.chamber()<<std::endl;
+    result = gemID.station();
+  }
+  else if( hit->isME0() ){
+    ME0DetId me0ID(detId);
+    //std::cout<<"first (ME0) E/S/R/C = "<<me0ID.endcap()<<"/"<<me0ID.station()<<"/"<<me0ID.ring()<<"/"<<me0ID.chamber()<<std::endl;
+    result = me0ID.station();
+  }
   else if(hit->isRPC()){
   }
   return result;
