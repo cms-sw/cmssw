@@ -33,6 +33,7 @@ int main(int /*argc*/, char **/*argv[]*/)
   ddShapeTypeNames.push_back("ddparallelepiped");
   ddShapeTypeNames.push_back("ddcuttubs");
   ddShapeTypeNames.push_back("ddextrudedpolygon");
+  ddShapeTypeNames.push_back("ddmultiunion");
 
   DDSolidShapesName ssn;
   DDSolidShape ish(dd_not_init);
@@ -109,6 +110,9 @@ int main(int /*argc*/, char **/*argv[]*/)
       break;
     case 23:
       std::cout << ddShapeTypeNames[23] << " " << ssn.name(ish) << " " <<  ddextrudedpolygon;
+      break;
+    case 24:
+      std::cout << ddShapeTypeNames[24] << " " << ssn.name(ish) << " " <<  ddmultiunion;
       break;
     default:
       std::cout << "ERROR! No such shape!";
