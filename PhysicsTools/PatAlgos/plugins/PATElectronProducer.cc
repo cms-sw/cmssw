@@ -218,7 +218,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.getByToken(electronToken_, electrons);
 
   edm::Handle<PackedCandidateCollection > pc;
-  iEvent.getByToken(pcToken_, pc);
+  if(computeMiniIso_)
+      iEvent.getByToken(pcToken_, pc);
 
   // for additional mva variables
   edm::InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
@@ -533,7 +534,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 	  //COLIN need to use fillElectron2 in the non-pflow case as well, and to test it.
 
-          setElectronMiniIso(anElectron, pc.product());
+          if(computeMiniIso_)
+              setElectronMiniIso(anElectron, pc.product());
 
 	  patElectrons->push_back(anElectron);
 	}
@@ -744,7 +746,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       fillElectron( anElectron, elecsRef,elecBaseRef,
 		    genMatches, deposits, pfId, isolationValues, isolationValuesNoPFId);
 
-      setElectronMiniIso(anElectron, pc.product());
+      if(computeMiniIso_)
+          setElectronMiniIso(anElectron, pc.product());
 
       patElectrons->push_back(anElectron);
     }
@@ -943,20 +946,18 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
 
 void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedCandidateCollection *pc)
 {
-        if(computeMiniIso_){
-            pat::PFIsolation miniiso;
-            if(anElectron.isEE())
-                miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
-                                                  miniIsoParamsE_[0], miniIsoParamsE_[1], miniIsoParamsE_[2],
-                                                  miniIsoParamsE_[3], miniIsoParamsE_[4], miniIsoParamsE_[5],
-                                                  miniIsoParamsE_[6], miniIsoParamsE_[7], miniIsoParamsE_[8]);
-            else
-                miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
-                                                  miniIsoParamsB_[0], miniIsoParamsB_[1], miniIsoParamsB_[2],
-                                                  miniIsoParamsB_[3], miniIsoParamsB_[4], miniIsoParamsB_[5],
-                                                  miniIsoParamsB_[6], miniIsoParamsB_[7], miniIsoParamsB_[8]);
-            anElectron.setMiniPFIsolation(miniiso);
-        }
+  pat::PFIsolation miniiso;
+  if(anElectron.isEE())
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+                                        miniIsoParamsE_[0], miniIsoParamsE_[1], miniIsoParamsE_[2],
+                                        miniIsoParamsE_[3], miniIsoParamsE_[4], miniIsoParamsE_[5],
+                                        miniIsoParamsE_[6], miniIsoParamsE_[7], miniIsoParamsE_[8]);
+  else
+      miniiso = pat::getMiniPFIsolation(pc, anElectron.p4(),
+                                        miniIsoParamsB_[0], miniIsoParamsB_[1], miniIsoParamsB_[2],
+                                        miniIsoParamsB_[3], miniIsoParamsB_[4], miniIsoParamsB_[5],
+                                        miniIsoParamsB_[6], miniIsoParamsB_[7], miniIsoParamsB_[8]);
+  anElectron.setMiniPFIsolation(miniiso);
 
 }
 
