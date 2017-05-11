@@ -8,6 +8,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 using namespace pat;
 
@@ -365,3 +370,70 @@ void TriggerObjectStandAlone::packP4() {
                 MiniFloatConverter::reduceMantissaToNbits<11>(phi()),
                 MiniFloatConverter::reduceMantissaToNbitsRounding<8>(mass()) ));
 }
+
+namespace {
+ struct key_hash {
+          std::size_t operator()(edm::ParameterSetID const& iKey) const{
+             return iKey.smallHash();
+          }
+       };
+  typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
+  [[cms::thread_safe]] static AllLabelsMap allLabelsMap;
+}
+
+
+std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::TriggerResults const& triggerResults,
+						edm::ProcessHistory const &history,std::string const& processName) {
+
+      // If TriggerNames was already created and cached here in the map,
+      // then look it up and return that one
+      AllLabelsMap::const_iterator iter =
+         allLabelsMap.find(triggerResults.parameterSetID());
+      if (iter != allLabelsMap.end()) {
+         return &iter->second;
+      }
+
+      // Look for the parameter set containing the trigger names in the parameter
+      // set registry using the ID from TriggerResults as the key used to find it.
+      edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
+      edm::ParameterSet const* pset=0;
+      edm::ProcessConfiguration config;
+      history.getConfigurationForProcess(processName,config); 	
+      if (0!=(pset=psetRegistry->getMapped(config.parameterSetID()))) {
+   	using namespace std;
+	using namespace edm;
+   	using namespace trigger;
+
+   	const ParameterSet& HLTPSet(pset->getParameterSet("@trigger_paths"));
+   	auto   triggerNames= HLTPSet.getParameter<vector<string> >("@trigger_paths");
+
+   	const unsigned int n(triggerNames.size());
+   	std::vector<std::string> allModules;
+   	for (unsigned int i=0;i!=n; ++i) {
+     	if (pset->existsAs<vector<string> >(triggerNames[i],true)) {
+       		auto modules = pset->getParameter<vector<string> >(triggerNames[i]);
+       		allModules.insert(allModules.end(), modules.begin(), modules.end());
+     	    }
+   	}
+   /*
+   saveTagsModules_.reserve(n);
+   vector<string> labels;
+   for (unsigned int i=0;i!=n; ++i) {
+     labels.clear();
+     const vector<string>& modules(moduleLabels(i));
+     const unsigned int m(modules.size());
+     labels.reserve(m);
+     for (unsigned int j=0;j!=m; ++j) {
+       const string& label(modules[j]);
+       if (saveTags(label)) labels.push_back(label);
+     }
+     saveTagsModules_.push_back(labels);
+   }
+   */
+         std::pair<AllLabelsMap::iterator, bool> ret =
+               allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(triggerResults.parameterSetID(), allModules));
+         return &(ret.first->second);
+      }
+      return 0;
+   }
+
