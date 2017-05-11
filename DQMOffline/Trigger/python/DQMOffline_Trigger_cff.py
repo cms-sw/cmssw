@@ -34,7 +34,7 @@ from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
 # hcal
-from DQMOffline.Hcal.HLTHcalRecHitParam_cfi import *
+from DQMOffline.Trigger.HCALMonitoring_cff import *
 
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
@@ -80,7 +80,7 @@ from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    hltHCALRecHitsAnalyzer *
+    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
