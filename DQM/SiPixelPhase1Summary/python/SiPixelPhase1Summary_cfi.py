@@ -92,7 +92,7 @@ SiPixelPhase1Summary_Cosmics = cms.EDProducer("SiPixelPhase1Summary",
         )
 )
 
-ADCQTester = cms.EDProducer("QualityTester",
+ADCQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -101,7 +101,7 @@ ADCQTester = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ADCQTester_offline = cms.EDProducer("QualityTester",
+ADCQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_adc_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -110,7 +110,7 @@ ADCQTester_offline = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumClustersQTester = cms.EDProducer("QualityTester",
+NumClustersQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -119,7 +119,7 @@ NumClustersQTester = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumClustersQTester_offline = cms.EDProducer("QualityTester",
+NumClustersQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_clusters_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -128,7 +128,7 @@ NumClustersQTester_offline = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester = cms.EDProducer("QualityTester",
+NumDigisQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -137,7 +137,7 @@ NumDigisQTester = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester_offline = cms.EDProducer("QualityTester",
+NumDigisQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -146,7 +146,7 @@ NumDigisQTester_offline = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-NumDigisQTester_cosmics = cms.EDProducer("QualityTester",
+NumDigisQTester_cosmics = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_num_digis_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -155,7 +155,7 @@ NumDigisQTester_cosmics = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester = cms.EDProducer("QualityTester",
+SizeQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -164,7 +164,7 @@ SizeQTester = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester_offline = cms.EDProducer("QualityTester",
+SizeQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -173,7 +173,7 @@ SizeQTester_offline = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-SizeQTester_cosmics = cms.EDProducer("QualityTester",
+SizeQTester_cosmics = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_size_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -182,7 +182,7 @@ SizeQTester_cosmics = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester = cms.EDProducer("QualityTester",
+ChargeQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -191,7 +191,7 @@ ChargeQTester = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester_offline = cms.EDProducer("QualityTester",
+ChargeQTester_offline = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -200,7 +200,7 @@ ChargeQTester_offline = cms.EDProducer("QualityTester",
     reportThreshold = cms.untracked.string("more")
 )
 
-ChargeQTester_cosmics = cms.EDProducer("QualityTester",
+ChargeQTester_cosmics = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelPhase1Config/test/qTests/mean_charge_qualitytest_config_cosmics.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.RecoB.bTagCommon_cff import *
 
-bTagValidation = cms.EDProducer("BTagPerformanceAnalyzerMC",
+bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
                                 bTagCommonBlock,
                                 applyPtHatWeight = cms.bool(False),
                                 jetCorrection = cms.string(''),

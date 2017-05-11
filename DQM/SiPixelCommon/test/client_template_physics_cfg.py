@@ -112,7 +112,7 @@ process.sipixelEDAClient = cms.EDProducer("SiPixelEDAClient",
     NEventsForNoiseCalculation = cms.untracked.int32(100000)
 )
 
-process.qTester = cms.EDProducer("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True)

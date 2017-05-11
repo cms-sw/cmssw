@@ -22,7 +22,7 @@ trackingOfflineAnalyser = cms.EDProducer("TrackingOfflineDQM",
 )
 
 # clone and modify modules
-trackingQTesterHI = cms.EDProducer("QualityTester",
+trackingQTesterHI = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0_heavyions.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)
