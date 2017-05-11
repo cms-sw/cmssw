@@ -40,7 +40,7 @@ void DDHGCalWafer::initialize(const DDNumericArguments & nArgs,
 	    << childNames_[1] << " in namespace " << idNameSpace_ 
 	    << " positioned in " << nCellsRow_.size() << " rows and " 
 	    << nColumns_ << " columns with lowest column at " << nBottomY_ 
-	    << " in moher " << parentName_ << " of size " << waferSize_ 
+	    << " in mother " << parentName_ << " of size " << waferSize_ 
 	    << std::endl;
   for (unsigned int k=0; k<nCellsRow_.size(); ++k)
     std::cout << "[" << k << "] Ncells " << nCellsRow_[k] << " Edge rotations "
