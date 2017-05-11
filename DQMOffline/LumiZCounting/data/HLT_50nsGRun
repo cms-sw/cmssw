@@ -1,0 +1,58 @@
+// single electron
+HLT_Ele23_WPLoose_Gsf_v*                hltEGL1SingleEG20ORL1SingleEG15Filter                    1
+HLT_Ele23_WPLoose_Gsf_v*                hltEle23WPLooseGsfTrackIsoFilter                         2
+HLT_Ele22_WP75_Gsf_v*                   hltL1sL1SingleEG20                                       1
+HLT_Ele22_WP75_Gsf_v*                   hltEle22WP75GsfTrackIsoFilter                            2
+HLT_Ele23_WP75_Gsf_v*                   hltL1sL1SingleEG20                                       1
+HLT_Ele23_WP75_Gsf_v*                   hltEle23WP75GsfTrackIsoFilter                            2
+// single muon
+HLT_IsoMu20_v*                          hltL1sL1SingleMu18                                       1
+HLT_IsoMu20_v*                          hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p09    2
+HLT_IsoMu20_v*                          hltL3crIsoL1sMu16L1f0L2f10QL3f20QL3trkIsoFiltered0p09    3
+HLT_IsoTkMu20_eta2p1_v*                 hltL3crIsoL1sMu18Eta2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p09 1
+
+// single muon pre-scaled
+HLT_Mu17_TrkIsoVVL_v*                   hltL3fL1sMu12L1f0L2f12L3Filtered17TkIsoFiltered0p4      1
+HLT_Mu8_TrkIsoVVL_v*                    hltL3fL1sMu5L1f0L2f5L3Filtered8TkIsoFiltered0p4         1
+HLT_IsoMu22_v*                          hltL3crIsoL1sMu20L1f0L2f10QL3f22QL3trkIsoFiltered0p09   1    
+HLT_IsoTkMu18_v*                        hltL3fL1sMu16L1f0Tkf18QL3trkIsoFiltered0p09             1
+HLT_Ele27_WPLoose_Gsf_v*                hltEle27noerWPLooseGsfTrackIsoFilter                    1
+HLT_Ele22_eta2p1_WP75_Gsf_v*            hltEle22WP75GsfTrackIsoFilter                           1
+HLT_Ele27_eta2p1_WP75_Gsf_v*            hltEle27WP75GsfTrackIsoFilter                           1
+HLT_Ele22_eta2p1_WPLoose_Gsf_v*         hltEle22WPLooseGsfTrackIsoFilter                        1 
+
+HLT_Mu20_v*                             hltL3fL1sMu18L1f0L2f10QL3Filtered20Q                    1
+HLT_Mu27_v*                             hltL3fL1sMu22Or25L1f0L2f10QL3Filtered27Q                1
+HLT_Mu50_v*                             hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q                1
+HLT_TkMu50_v*                           hltL3fL1sMu25f0TkFiltered50Q                            1
+
+// double muon pre-scaled
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*		hltL3fL1sDoubleMu103p5L1f0L2f10OneMuL3Filtered17		1
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*		hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4				2
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*		hltL3fL1sDoubleMu103p5L1f0L2f10OneMuL3Filtered17		1
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*		hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4				2
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*		hltL3fL1sDoubleMu103p5L1f0L2f10L3Filtered17			1
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*		hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4				2
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*	hltL3fL1sDoubleMu103p5L1f0L2f10L3Filtered17			1
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*	hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4				2
+
+// double electron
+HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*                                 hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter                               1
+HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*                                 hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter                               2
+HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*                              hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter                               1
+HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*                              hltEle17Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter                               2
+HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v*                                 hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter                               1
+HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v*                                 hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter                               2
+HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*                              hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter                               1
+HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*                              hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter                               2
+
+//Double Photon
+HLT_DoublePhoton60_v*                    hltDiEG60HEUnseededFilter                           1
+
+HLT_IsoMu24_v*                          hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09    1
+HLT_IsoMu27_v*                          hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09    1
+HLT_Ele25_eta2p1_WPTight_Gsf_v*         hltEle25erWPTightGsfTrackIsoFilter                  1
+HLT_Ele27_WPTight_Gsf_v*                hltEle27WPTightGsfTrackIsoFilter                    1
+HLT_Ele27_eta2p1_WPLoose_Gsf_v*          hltEle27erWPLooseGsfTrackIsoFilter                  1
+
+//MC triggers

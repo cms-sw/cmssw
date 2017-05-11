@@ -1,0 +1,98 @@
+// SingleMu
+HLT_Mu40_v*                                                       hltL3fL1sMu16L1f0L2f16QL3Filtered40Q                                              1
+HLT_IsoMu20_eta2p1_IterTrk02_v*                                   hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f20QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoTkMu20_eta2p1_IterTrk02_v*                                 hltL3fL1sMu16L1Eta2p1f0TkFiltered20QL3crIsoRhoFiltered0p15IterTrk02               1
+HLT_IsoMu24_eta2p1_IterTrk02_v*                                   hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoTkMu24_eta2p1_IterTrk02_v*                                 hltL3fL1sMu20L1Eta2p1f0TkFiltered24QL3crIsoRhoFiltered0p15IterTrk02               1
+HLT_IsoMu24_IterTrk02_v*                                          hltL3crIsoL1sMu16L1f0L2f16QL3f24QL3crIsoRhoFiltered0p15IterTrk02                  1
+HLT_IsoTkMu24_IterTrk02_v*                                        hltL3fL1sMu16L1f0TkFiltered24QL3crIsoRhoFiltered0p15IterTrk02                     1
+// DoubleMu
+HLT_Mu17_Mu8_v*                                                   hltL3fL1sDoubleMu103p5L1f0L2f10OneMuL3Filtered17                                  1
+HLT_Mu17_Mu8_v*                                                   hltL3pfL1sDoubleMu103p5L1f0L2pf0L3PreFiltered8                                    2
+HLT_Mu17_TkMu8_v*                                                 hltL3fL1sDoubleMu103p5L1f0L2f10L3Filtered17                                       1
+HLT_Mu17_TkMu8_v*                                                 hltDiMuonGlbFiltered17TrkFiltered8                                                2
+HLT_Mu30_TkMu11_v*                                                hltL3fL1sMu16L1f0L2f25L3Filtered30                                                1
+HLT_Mu30_TkMu11_v*                                                hltDiMuonGlbFiltered30TrkFiltered11                                               2
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*                               hltL3fL1sDoubleMu103p5L1f0L2f10OneMuL3Filtered17                                  1
+HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*                               hltL3pfL1sDoubleMu103p5L1f0L2pf0L3PreFiltered8                                    2
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*                             hltL3fL1sDoubleMu103p5L1f0L2f10L3Filtered17                                       1
+HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*                             hltDiMuonGlbFiltered17TrkFiltered8                                                2
+// SingleElectron
+HLT_Ele27_eta2p1_WP85_Gsf_v*                                      hltEle27WP85GsfTrackIsoFilter                                                     1
+HLT_Ele32_eta2p1_WP85_Gsf_v*                                      hltEle32WP85GsfTrackIsoFilter                                                     1
+HLT_Ele95_CaloIdVT_GsfTrkIdT_v*                                   hltEle95CaloIdVTGsfTrkIdTGsfDphiFilter                                            1   // not saved?
+// Jet
+HLT_PFJet260_v*                                                   hltSinglePFJet260                                                                 1
+HLT_AK8PFJet360TrimMod_Mass30_v*                                  hltAK8SinglePFJet360TrimModMass30                                                 1
+// Tau
+HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*                             hltL3crIsoL1sMu16erTauJet20erL1f0L2f16QL3f17QL3crIsoRhoFiltered0p15IterTrk02      1
+HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*                             hltOverlapFilterIsoMu17LooseIsoPFTau20                                            2
+HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v*                      hltEle22WP85GsfTrackIsoFilter                                                     1
+HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v*                      hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20                                    2
+HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*                     hltDoublePFTau40TrackPt1MediumIsolationL1HLTMatchedReg                            1
+HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v*                        hltPFTau50TrackPt30LooseAbsOrRelIso                                               1
+// Lepton+Jets
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f20QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu20Eta2p1Trk02CentralPFJet60MuCleaned                                      2
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu20Eta2p1Trk02DiCentralPFJet50MuCleaned                                    3
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu20Eta2p1Trk02TriCentralPFJet35MuCleaned                                   4
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v*                 hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f20QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v*                 hltIsoMu20Eta2p1Trk02TriCentralPFJet40MuCleaned                                   2
+HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v*            hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f20QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v*            hltCSVFilterSingleTopIsoMu20Eta2p1                                                2
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu24Eta2p1Trk02CentralPFJet60MuCleaned                                      2
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu24Eta2p1Trk02DiCentralPFJet50MuCleaned                                    3
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v*           hltIsoMu24Eta2p1Trk02TriCentralPFJet35MuCleaned                                   4
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v*                 hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v*                 hltIsoMu24Eta2p1Trk02TriCentralPFJet40MuCleaned                                   2
+HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v*            hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02            1
+HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v*            hltCSVFilterSingleTopIsoMu24Eta2p1                                                2
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v*                    hltEle27WP85GsfTrackIsoFilter                                                     1
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v*                    hltEle27TriCentralPFJet40EleCleaned                                               2
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle27WP85GsfTrackIsoFilter                                                     1
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle27CentralPFJet60EleCleaned                                                  2
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle27DiCentralPFJet50EleCleaned                                                3
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle27TriCentralPFJet35EleCleaned                                               4
+HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*               hltEle27WP85GsfTrackIsoFilter                                                     1
+HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*               hltCSVFilterSingleTopEle27                                                        2
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet40_v*                    hltEle32WP85GsfTrackIsoFilter                                                     1
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet40_v*                    hltEle32TriCentralPFJet40EleCleaned                                               2
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle32WP85GsfTrackIsoFilter                                                     1
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle32CentralPFJet60EleCleaned                                                  2
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle32DiCentralPFJet50EleCleaned                                                3
+HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*              hltEle32TriCentralPFJet35EleCleaned                                               4
+HLT_Ele32_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*               hltEle32WP85GsfTrackIsoFilter                                                     1
+HLT_Ele32_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*               hltCSVFilterSingleTopEle32                                                        2
+HLT_Mu40_eta2p1_PFJet200_PFJet50_v*                               hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered40Q                                        1
+HLT_Mu40_eta2p1_PFJet200_PFJet50_v*                               hltMu40eta2p1CentralPFJet200MuCleaned                                             2
+HLT_Mu40_eta2p1_PFJet200_PFJet50_v*                               hltMu40eta2p1DiCentralPFJet50MuCleaned                                            3
+HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*                  hltEle45CaloIdVTGsfTrkIdTGsfDphiFilter                                            1  // not saved?
+HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*                  hltEle45CaloIdVTGsfTrkIdTCentralPFJet200EleCleaned                                2
+HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*                  hltEle45CaloIdVTGsfTrkIdTDiCentralPFJet50EleCleaned                               3
+// DoubleElectron
+HLT_Ele23_Ele12_CaloId_TrackId_Iso_v*                             hltEle23Ele12CaloIdTrackIdIsoTrackIsoLeg1Filter                                   1
+HLT_Ele23_Ele12_CaloId_TrackId_Iso_v*                             hltEle23Ele12CaloIdTrackIdIsoTrackIsoLeg2Filter                                   2
+HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v*                           hltEle17Ele12Ele10CaloIdTrackIdDphiLeg1Filter                                     1
+HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v*                           hltEle17Ele12Ele10CaloIdTrackIdDphiLeg2Filter                                     2
+HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v*                           hltEle17Ele12Ele10CaloIdTrackIdDphiLeg3Filter                                     3
+HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*                             hltDiEle33CaloIdLGsfTrkIdVLDPhiUnseededFilter                                     1
+HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*                          hltDiEle33CaloIdLNewPixelMatchUnseededFilter                                      1
+// MuEG
+HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v*       hltL1Mu12EG7L3IsoMuFiltered23                                                     1
+HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v*       hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter                  2
+HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v*        hltL1sL1Mu5EG20ORL1Mu5IsoEG18L3IsoFiltered8                                       1
+HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v*        hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter                   2
+// SinglePhoton
+HLT_Photon155_v*                                                  hltPhoton155HEFilter                                                              1
+// DoubleElectron Tag-and-Probe
+HLT_Ele20WP60_Ele8_Mass55_v*                                      hltEle20WP60Ele8TrackIsoFilter                                                    1
+HLT_Ele20WP60_Ele8_Mass55_v*                                      hltEle20WP60Ele8PixelMatchUnseededFilter                                          2
+HLT_Ele25WP60_SC4_Mass55_v*                                       hltEle25WP60SC4TrackIsoFilter                                                     1
+HLT_Ele25WP60_SC4_Mass55_v*                                       hltEle25WP60SC4EtUnseededFilter                                                   2
+// MET
+HLT_PFMET170_NoiseCleaned_v*                                      hltPFMET170Filter                                                                 1
+HLT_PFMET120_NoiseCleaned_BTagCSV07_v*                            hltPFMET120Filter                                                                 1
+HLT_PFMET120_NoiseCleaned_BTagCSV07_v*                            hltBLifetimeL3FilterCSVsusy                                                       2
+HLT_PFHT350_PFMET120_NoiseCleaned_v*                              hltPFHT350                                                                        1
+HLT_PFHT350_PFMET120_NoiseCleaned_v*                              hltPFMET120Filter                                                                 2
