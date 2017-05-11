@@ -35,12 +35,12 @@ class GeometryComparisonPlotter
             _print_option,
             _module_plot_option,
             _alignment_name,
-            _reference_name,
-            _print_only_global,
-            _make_profile_plots;
+            _reference_name;
     bool _print,
          _legend,
          _write,
+         _print_only_global,
+         _make_profile_plots,
          _batchMode,
          _1dModule,
          _2dModule;
@@ -82,8 +82,8 @@ public:
                               TString modulesToPlot="all",
                               TString referenceName="Ideal",
                               TString alignmentName="Alignment",
-                              TString plotOnlyGlobal="false",
-                              TString makeProfilePlots="false");
+                              bool plotOnlyGlobal=false,
+                              bool makeProfilePlots=false);
     ~GeometryComparisonPlotter ();
 
     // main methods

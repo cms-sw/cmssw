@@ -28,8 +28,8 @@ GeometryComparisonPlotter::GeometryComparisonPlotter (TString tree_file_name,
                                                       TString modulesToPlot,
                                                       TString alignmentName,
                                                       TString referenceName,
-                                                      TString printOnlyGlobal,
-                                                      TString makeProfilePlots
+                                                      bool printOnlyGlobal,
+                                                      bool makeProfilePlots
                                                       ) :
     _output_directory(output_directory + TString(output_directory.EndsWith("/") ? "" : "/")),
     _output_filename("comparison.root"),
@@ -289,7 +289,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                                    _window_height);
         c_global[ic]->Divide(x.size(),y.size());
         
-        if (_make_profile_plots == "true") {
+        if (_make_profile_plots) {
 			c_global_hist[ic] = new TCanvas (TString::Format("global_profile_plots_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
 																							canvas_index),
 											TString::Format("Global overview profile plots of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
@@ -332,7 +332,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     }
     
     // Use seperate loop for the profile histograms since we do not produce histograms for the different module qualities
-    if (_make_profile_plots == "true") {
+    if (_make_profile_plots) {
 	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
 	    {
 			if ( x[ix] == "phi") nXBins = 10;
@@ -401,7 +401,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 if (branch_i["sublevel"] < 1 || branch_i["sublevel"] > NB_SUBLEVELS) continue;
                 
                 // FILLING histograms take even those outside the plotted range into account
-                if (_make_profile_plots == "true") {
+                if (_make_profile_plots) {
 	                if (_module_plot_option == "all"){
 						const short int igraph = (branch_i["sublevel"]-1) 
 													+ (branch_f["z"]>=0?0:NB_SUBLEVELS);
@@ -662,7 +662,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 					mgraphs[ix][iy][imgr]->Draw("A");
 				}
                 if (imgr == 0 && _legend) legend->Draw(); // only for the tracker
-                if (_print && _print_only_global != "true") c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+                if (_print && !_print_only_global) c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
 
                 // writing into root file
                 if (_write) mgraphs[ix][iy][imgr]->Write();
@@ -749,7 +749,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     
     // Now produce the profile plots if the option is chosen
     // Use seperate loops since no seperate plots are produced for different module qualities
-    if (_make_profile_plots == "true") {
+    if (_make_profile_plots) {
     
 	    // Fill Content of 2D-hists into 1D-hists for the profile plots
 		// Loop over all y-bins for a certain x-bin, calculate mean and RMS as entries of the 1D-hists
@@ -842,7 +842,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 	   
 	            }
 	            
-	            if (_print && _print_only_global != "true") c_hist[ix][iy][0]->Print(_output_directory 
+	            if (_print && !_print_only_global) c_hist[ix][iy][0]->Print(_output_directory 
 															+ TString::Format("Profile_plot_%s_vs_%s_tracker_%d", x[ix].Data(), y[iy].Data(), canvas_index)
 															+ ExtensionFromPrintOption(_print_option),
 															_print_option);
@@ -895,7 +895,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 					histos[ix][iy][             isublevel-1]->Draw("same pe0");
 	                histos[ix][iy][NB_SUBLEVELS+isublevel-1]->Draw("same pe0");
 	                
-	                if (_print && _print_only_global != "true") c_hist[ix][iy][isublevel]->Print(_output_directory 
+	                if (_print && !_print_only_global) c_hist[ix][iy][isublevel]->Print(_output_directory 
 																	+ TString::Format("Profile_plot_%s_vs_%s_%s_%d", x[ix].Data(), y[iy].Data(),_sublevel_names[isublevel-1].Data(), canvas_index)
 																	+ ExtensionFromPrintOption(_print_option),
 																	_print_option);

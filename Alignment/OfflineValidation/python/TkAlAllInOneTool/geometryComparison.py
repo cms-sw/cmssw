@@ -158,7 +158,7 @@ class GeometryComparison(GenericValidation):
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
-                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\",\".oO[plotOnlyGlobal]Oo.\",\".oO[plotPng]Oo.\",\".oO[makeProfilePlots]Oo.\""+y_ranges+")'\n"
+                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",.oO[useDefaultRange]Oo.,.oO[plotOnlyGlobal]Oo.,.oO[plotPng]Oo.,.oO[makeProfilePlots]Oo."+y_ranges+")'\n"
 		     "rfcp "+path+"/TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C .\n"
 		     "root -l -b -q TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C+\n")
                 if  self.copyImages:
