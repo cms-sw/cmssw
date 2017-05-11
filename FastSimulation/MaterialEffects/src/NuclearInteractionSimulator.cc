@@ -100,7 +100,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   // Open the root files
   //  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
-  edm::FileInPath myDataFile("FastSimulation/MaterialEffects/data/david.root");
+  edm::FileInPath myDataFile("FastSimulation/MaterialEffects/data/NuclearInteractions.root");
 
   fullPath = myDataFile.fullPath();
   theFile = TFile::Open(fullPath.c_str());
