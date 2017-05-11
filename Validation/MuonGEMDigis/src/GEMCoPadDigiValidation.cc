@@ -11,9 +11,9 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& cfg): GE
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
   const GEMGeometry* GEMGeometry_ = initGeometry(iSetup);
   if ( GEMGeometry_ == nullptr) return ;
-  LogDebug("GEMStripDIGIValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
+  LogDebug("GEMCoPadDigiValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
   ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
-  LogDebug("GEMStripDIGIValidation")<<"ibooker set current folder\n";
+  LogDebug("GEMCoPadDigiValidation")<<"ibooker set current folder\n";
 
   const double PI = TMath::Pi();
 
