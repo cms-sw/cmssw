@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_Ele8_IdL_Iso_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele8_IdL_Iso_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -15,7 +15,7 @@ SUSY_HLT_Ele8_IdL_Iso_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele12_IdL_Iso_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele12_IdL_Iso_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -30,7 +30,7 @@ SUSY_HLT_Ele12_IdL_Iso_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele17_IdL_Iso_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele17_IdL_Iso_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -46,7 +46,7 @@ SUSY_HLT_Ele17_IdL_Iso_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele23_IdL_Iso_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele23_IdL_Iso_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -63,7 +63,7 @@ SUSY_HLT_Ele23_IdL_Iso_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
 )
 
 
-SUSY_HLT_Ele8_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele8_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -78,7 +78,7 @@ SUSY_HLT_Ele8_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele12_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele12_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -93,7 +93,7 @@ SUSY_HLT_Ele12_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele17_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele17_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -108,7 +108,7 @@ SUSY_HLT_Ele17_Jet30_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency = cms.vstring()
 )
 
-SUSY_HLT_Ele23_Jet30 = cms.EDProducer("SUSY_HLT_ElecFakes",
+SUSY_HLT_Ele23_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_HT350_MET100 = cms.EDProducer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT350_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -22,7 +22,7 @@ SUSY_HLT_HT350_MET100_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_HT300_MET100 = cms.EDProducer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT300_MET100 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -44,7 +44,7 @@ SUSY_HLT_HT300_MET100_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_HT300_MET110 = cms.EDProducer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_HT300_MET110 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
