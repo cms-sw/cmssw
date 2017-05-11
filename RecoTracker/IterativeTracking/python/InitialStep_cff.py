@@ -108,7 +108,22 @@ trackingPhase2PU140.toModify(initialStepHitTriplets,
     produceSeedingHitSets = False,
     produceIntermediateHitTriplets = True,
 )
-trackingPhase1.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+_initialStepSeedsConsecutiveHitsTripletOnly = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "initialStepHitTriplets",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
+        FilterAtHelixStage = cms.bool(False),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
+    ),
+)
+trackingPhase1QuadProp.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly)
+trackingPhase1.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutiveHitsTripletOnly.clone(
+        seedingHitSets = "initialStepHitQuadruplets"
+))
 trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
 
 # temporary...
@@ -230,18 +245,10 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
 
 
 #vertices
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
+firstStepPrimaryVertices = _offlinePrimaryVertices.clone()
 firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
-firstStepPrimaryVertices.vertexCollections = cms.VPSet(
-     [cms.PSet(label=cms.string(""),
-               algorithm=cms.string("AdaptiveVertexFitter"),
-               minNdof=cms.double(0.0),
-               useBeamConstraint = cms.bool(False),
-               maxDistanceToBeam = cms.double(1.0)
-               )
-      ]
-    )
+firstStepPrimaryVertices.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
  
 
 # Final selection

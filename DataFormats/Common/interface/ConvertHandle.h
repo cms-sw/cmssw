@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <typeinfo>
+#include <algorithm>
 
 namespace edm {
 

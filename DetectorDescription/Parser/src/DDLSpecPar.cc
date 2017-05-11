@@ -35,11 +35,11 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   // for each of the above, use the name of the SpecPar, since DDL does not
   // provide a name for a PartSelector.
 
-  DDXMLElement* myParameter      = myRegistry_->getElement("Parameter");
-  DDXMLElement* myNumeric        = myRegistry_->getElement("Numeric");
-  DDXMLElement* myString         = myRegistry_->getElement("String");
-  DDXMLElement* myPartSelector   = myRegistry_->getElement("PartSelector");
-  DDXMLElement* mySpecParSection = myRegistry_->getElement("SpecParSection");
+  auto myParameter      = myRegistry_->getElement("Parameter");
+  auto myNumeric        = myRegistry_->getElement("Numeric");
+  auto myString         = myRegistry_->getElement("String");
+  auto myPartSelector   = myRegistry_->getElement("PartSelector");
+  auto mySpecParSection = myRegistry_->getElement("SpecParSection");
 
   // Because of namespace magic "!" means namespaces should be provided
   // in the names of the XML elements for the DDD.  So if this is

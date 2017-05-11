@@ -24,6 +24,20 @@ dbwriter_user_name = 'cms_cond_general_w'
 devdbwriter_user_name = 'cms_test_conditions'
 logger = logging.getLogger(__name__)
 
+# frontier services
+PRO ='PromptProd'
+ARC ='FrontierArc'
+INT ='FrontierInt'
+DEV ='FrontierPrep'
+# oracle read only services
+ORAPRO = 'cms_orcon_adg'
+ORAARC = 'cmsarc_lb'
+# oracle masters
+ORAINT = 'cms_orcoff_int'
+ORADEV = 'cms_orcoff_prep'
+ONLINEORAPRO = 'cms_orcon_prod'
+ONLINEORAINT = 'cmsintr_lb'
+
 # Set initial level to WARN.  This so that log statements don't occur in
 # the absense of explicit logging being enabled.
 if logger.level == logging.NOTSET:
@@ -296,6 +310,12 @@ class TagLog:
                             'command':(sqlalchemy.String(500),_Col.notNull),
                             'user_text':(sqlalchemy.String(4000),_Col.notNull) }
 
+class RunInfo:
+    __tablename__       = 'RUN_INFO'
+    columns             = { 'run_number':(sqlalchemy.BIGINT,_Col.pk),
+                            'start_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'end_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+
 
 # CondDB object
 class Connection(object):
@@ -349,6 +369,7 @@ class Connection(object):
         self.get_dbtype(TagLog)
         self.get_dbtype(GlobalTag)
         self.get_dbtype(GlobalTagMap)
+        self.get_dbtype(RunInfo)
         self._is_valid = self.is_valid()
 
     def get_dbtype(self,theType):
@@ -362,6 +383,7 @@ class Connection(object):
         s = self._session()
         s.get_dbtype = self.get_dbtype
         s._is_sqlite = self._is_sqlite
+        s._url = self._url
         return s
 
     @property
@@ -418,6 +440,27 @@ class Connection(object):
                 self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
                 self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
                 self._is_valid = True
+
+def getSessionOnMasterDB( session1, session2 ):
+    key = '%s/%s' 
+    sessiondict = { }
+    sessiondict[key %(session1._url.drivername,session1._url.host)] = session1
+    sessiondict[key %(session2._url.drivername,session2._url.host)] = session2
+    masterkey = key %('oracle',ONLINEORAPRO)
+    if masterkey in sessiondict.keys():
+        return sessiondict[masterkey]
+    adgkey = key %('oracle',ORAPRO)
+    if adgkey in sessiondict.keys():
+        return sessiondict[adgkey]
+    frontierkey = key %('frontier',PRO)
+    if frontierkey in sessiondict.keys():
+        return sessiondict[frontierkey]
+    # default case: frontier on pro
+    conn = Connection(make_url())
+    session = conn.session()
+    # is it required?
+    session._conn = conn
+    return session
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):

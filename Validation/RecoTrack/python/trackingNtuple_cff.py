@@ -74,6 +74,13 @@ trackingPhase1.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhas
 trackingPhase1QuadProp.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
 trackingPhase2PU140.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase2PU140)
 
+def _seedProdToTrackCands(name):
+    return name.replace("seedTracks", "").replace("Seeds", "TrackCandidates")
+trackingNtuple.trackCandidates = map(_seedProdToTrackCands, _seedProducers)
+trackingPhase1.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1))
+trackingPhase1QuadProp.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1QuadProp))
+trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase2PU140))
+
 trackingNtupleSequence = cms.Sequence()
 # reproduce hits because they're not stored in RECO
 if _includeHits:

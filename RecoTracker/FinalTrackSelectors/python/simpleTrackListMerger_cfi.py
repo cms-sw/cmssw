@@ -41,7 +41,8 @@ simpleTrackListMerger = cms.EDProducer("SimpleTrackListMerger",
     promoteTrackQuality = cms.bool(False),
     allowFirstHitShare = cms.bool(True),
     newQuality = cms.string('confirmed'),
-    copyExtras = cms.untracked.bool(False)
+    copyExtras = cms.untracked.bool(False),
+    trackAlgoPriorityOrder = cms.string("trackAlgoPriorityOrder"),
 )
 
 

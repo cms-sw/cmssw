@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect,addMonitoring
 import FWCore.ParameterSet.Config as cms
 
 class AlCa(Scenario):
@@ -39,7 +39,7 @@ class AlCa(Scenario):
         options.step = step
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
-        
+
         process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
@@ -67,7 +67,7 @@ class AlCa(Scenario):
             options.conditions += ','+args['globalTagConnect']
 
         options.triggerResultsProcess = 'RECO'
-        
+
         process = cms.Process('ALCA', self.eras)
         cb = ConfigBuilder(options, process = process)
 
@@ -77,7 +77,7 @@ class AlCa(Scenario):
            fileNames = cms.untracked.vstring()
         )
 
-        cb.prepare() 
+        cb.prepare()
 
         return process
 
@@ -94,7 +94,7 @@ class AlCa(Scenario):
         options.step = "HARVESTING:alcaHarvesting"
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
- 
+
         process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
         configBuilder = ConfigBuilder(options, process = process)
@@ -112,5 +112,5 @@ class AlCa(Scenario):
         #    process.DQMStore.referenceFileName = \
         #                        cms.untracked.string(args['referenceFile'])
         harvestingMode(process,datasetName,args)
-        
+
         return process

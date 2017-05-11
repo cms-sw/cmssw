@@ -2,7 +2,15 @@
 <selection>
   <class name="FactorizedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
-  <class name="JetCorrectorParameters"/>
+  <class name="JetCorrectorParameters">
+    <field name="helper"                  transient="true"/>
+    <field name="MAX_SIZE_DIMENSIONALITY" transient="true"/>
+  </class>
+  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="JetCorrectorParameters::Definitions mDefinitions; std::vector<JetCorrectorParameters::Record> mRecords;" target="helper">
+    <![CDATA[
+         newObj->init(); 
+    ]]>
+  </ioread>
   <class name="JetCorrectorParametersCollection"/>
   <class name="JetCorrectorParametersCollection::collection_type"/>
   <class name="JetCorrectorParametersCollection::pair_type"/>

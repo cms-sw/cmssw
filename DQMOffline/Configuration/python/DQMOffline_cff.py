@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
-from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalTasks.OfflineSourceSequence_pp import *
@@ -18,7 +17,7 @@ from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
-from DQM.CTPPS.totemDQM_cff import *
+from DQM.CTPPS.ctppsDQM_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
@@ -75,16 +74,16 @@ HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
-                           dqmFastTimerServiceLuminosity *
+                           # dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
-_ctpps_2016_DQMOffline *= totemDQM
+_ctpps_2016_DQMOffline *= ctppsDQM
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
-#_ctpps_2016_DQMOffline *= totemDQM
+#_ctpps_2016_DQMOffline *= ctppsDQM
 ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )

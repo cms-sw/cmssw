@@ -148,7 +148,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
@@ -218,7 +218,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double s2 = -m11;
     double l2 = 1./(c2*c2+s2*s2);
 
-   float sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
+   double sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
    // auto sigmap22 = (*seconditer)->sigmaPitch();
     // assert(sigmap22>=0);
 
@@ -311,7 +311,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
 
-  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
@@ -335,13 +335,12 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   
   //perform the matching
   //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-  AlgebraicMatrix22 m; AlgebraicVector2 c;
+  AlgebraicMatrix22 m(ROOT::Math::SMatrixNoInit{}); 
+  AlgebraicVector2 c(c0,m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x());
   m(0,0)=m00; 
   m(0,1)=m01;
   m(1,0)=m10;
   m(1,1)=m11;
-  c(0)=c0;
-  c(1)=m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x();
   m.Invert(); 
   AlgebraicVector2 solution = m * c;
   Local2DPoint position(solution(0),solution(1));
@@ -354,7 +353,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l2 = 1./(c2*c2+s2*s2);
   
   
-  float sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
+  double sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
   // auto sigmap22 = stereoRH->sigmaPitch();
   // assert (sigmap22>0);
 

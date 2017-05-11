@@ -31,5 +31,9 @@ AlcaIsoTracksFilter = cms.EDFilter("AlCaIsoTracksFilter",
 # following 3 parameters are for isolation cuts and described in the code
                                    MaxTrackP         = cms.double(8.0),
                                    SlopeTrackP       = cms.double(0.05090504066),
-                                   IsolationEnergy   = cms.double(10.0)
+                                   IsolationEnergy   = cms.double(10.0),
+# Prescale events only containing isolated tracks in the range
+                                   MomentumRangeLow  = cms.double(20.0),
+                                   MomentumRangeHigh = cms.double(40.0),
+                                   PreScaleFactor    = cms.int32(1)
 )

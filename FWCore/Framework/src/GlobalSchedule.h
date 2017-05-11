@@ -209,29 +209,11 @@ namespace edm {
         worker->doWork<T>(p, es,StreamID::invalidStreamID(), parentContext, context);
       }
       catch (cms::Exception & ex) {
-        std::ostringstream ost;
-        if (T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling global beginRun";
+        if(ex.context().empty()) {
+          std::ostringstream ost;
+          ost << "Processing " <<T::transitionName()<<" "<< p.id();
+          ex.addContext(ost.str());
         }
-        else if (T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling global beginLuminosityBlock";
-        }
-        else if (!T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling global endLuminosityBlock";
-        }
-        else if (!T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling global endRun";
-        }
-        else {
-          // It should be impossible to get here ...
-          ost << "Calling unknown function";
-        }
-        ost << " for module " << worker->description().moduleName()
-        << "/'" << worker->description().moduleLabel() << "'";
-        ex.addContext(ost.str());
-        ost.str("");
-        ost << "Processing " << p.id();
-        ex.addContext(ost.str());
         throw;
       }
     }

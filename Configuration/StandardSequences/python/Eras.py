@@ -21,7 +21,7 @@ class Eras (object):
                  'Run2_2016_pA',
                  'Run2_2017',
                  'Run2_2017_trackingRun2',
-                 'Run2_2017_trackingPhase1CA',
+                 'Run2_2017_trackingPhase1QuadProp',
                  'Run2_2017_trackingLowPU',
                  'Run2_2018',
                  'Run3',

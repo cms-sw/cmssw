@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoBTag.Combined.pfDeepCSVTagInfos_cfi import pfDeepCSVTagInfos
-from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import pfDeepCMVATagInfos
+from RecoBTag.Combined.pfDeepCMVATagInfos_cfi import pfDeepCMVATagInfos
 from RecoBTag.Combined.pfDeepCSVJetTags_cfi import pfDeepCSVJetTags 
 from RecoBTag.Combined.pfDeepCMVAJetTags_cfi import pfDeepCMVAJetTags
 
@@ -50,10 +50,10 @@ pfPositiveDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
 ##
 ## Deep Flavour sequence, not complete as it would need the IP and SV tag infos
 ##
-pfDeepFlavour = cms.Sequence(
-	pfDeepCSVTagInfos 
-	##* pfDeepCMVATagInfos * #SKIP for the moment
-	* pfDeepCSVJetTags 
-	##* pfDeepCMVAJetTags
+pfDeepFlavourTask = cms.Task(
+    pfDeepCSVTagInfos,
+    pfDeepCMVATagInfos, #SKIP for the moment
+    pfDeepCSVJetTags
+    , pfDeepCMVAJetTags
 )
-
+pfDeepFlavour = cms.Sequence(pfDeepFlavourTask)

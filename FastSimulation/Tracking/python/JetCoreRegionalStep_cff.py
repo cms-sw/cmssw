@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # a dummy track collection
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 jetCoreRegionalStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (),

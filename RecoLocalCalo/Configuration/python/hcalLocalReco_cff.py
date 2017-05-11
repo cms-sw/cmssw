@@ -3,7 +3,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
-from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi import *
+from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
+hbheprereco = _phase1_hbheprereco.clone(
+    processQIE11 = cms.bool(False),
+    tsFromDB = cms.bool(True),
+    pulseShapeParametersQIE8 = dict(
+        TrianglePeakTS = cms.uint32(4),
+    )
+)
+
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi import *
@@ -11,11 +19,9 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
 from RecoLocalCalo.HcalRecProducers.hfprereco_cfi import hfprereco
 from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
-from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
-# copies for cosmics
-_default_hbheprereco = hbheprereco.clone()
+# copy for cosmics
 _default_hfreco = hfreco.clone()
 
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()

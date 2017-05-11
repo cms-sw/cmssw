@@ -494,7 +494,7 @@
   </SpecPar>
   <SpecPar name="MuonGEMSector">
    <PartSelector path="//GEMBox11."/>
-   <PartSelector path="//GEMBox21L"/>
+   <PartSelector path="//GEMBox21."/>
    <Parameter name="CopyNoTag" value="[mg_sector]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
   </SpecPar>

@@ -123,7 +123,7 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
-        keV2MIP           = cms.double(1./1498.4),
+        keV2MIP           = cms.double(1./616.0),
         noise_MIP         = cms.double(0.2),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(11.0),
@@ -136,9 +136,9 @@ hgchebackDigitizer = cms.PSet(
             # n bits for the ADC 
             adcNbits        = cms.uint32(12),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(1024),
+            adcSaturation_fC = cms.double(1024.0),
             # threshold for digi production : in this case we use the same variable but fC=MIP
-            adcThreshold_fC = cms.double(0.95)
+            adcThreshold_fC = cms.double(0.75)
             )
         )                              
     )

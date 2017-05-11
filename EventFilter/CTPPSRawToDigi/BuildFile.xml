@@ -9,6 +9,7 @@
 <use name="DataFormats/CTPPSDetId"/>
 
 <use name="CondFormats/CTPPSReadoutObjects"/>
+<use name="CondFormats/DataRecord"/>
 
 <export>
 	<lib name="1"/>

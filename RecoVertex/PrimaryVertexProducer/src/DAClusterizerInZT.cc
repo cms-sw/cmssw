@@ -110,8 +110,11 @@ double DAClusterizerInZT::update( double beta,
     if (tks[i].zi>0){
       // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-	k->se += tks[i].pi* k->ei / Zi;
-	double w = k->pk * tks[i].pi * k->ei /( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
+        double zratio = k->pk*k->ei/Zi;
+        
+	k->se += tks[i].pi*zratio/k->pk;
+	double w = tks[i].pi * zratio /( tks[i].dz2 + tks[i].dt2 );        
+        
 	k->sw  += w;
 	k->swz += w * tks[i].z;
         k->swt += w * tks[i].t;
@@ -254,7 +257,7 @@ double DAClusterizerInZT::beta0( double betamax,
     double sumwt=0.;
     double sumw=0.;
     for(unsigned int i=0; i<nt; i++){
-      double w = tks[i].pi/(tks[i].dz2 * tks[i].dt2);
+      double w = tks[i].pi/(tks[i].dz2 + tks[i].dt2);
       sumwz += w*tks[i].z;
       sumwt += w*tks[i].t;
       sumw  += w;
@@ -267,7 +270,7 @@ double DAClusterizerInZT::beta0( double betamax,
     for(unsigned int i=0; i<nt; i++){
       double dx = tks[i].z-(k->z);
       double dt = tks[i].t-(k->t);
-      double w  = tks[i].pi/(tks[i].dz2 * tks[i].dt2);
+      double w  = tks[i].pi/(tks[i].dz2 + tks[i].dt2);
       a += w*(sqr(dx)/tks[i].dz2 + sqr(dt)/tks[i].dt2);
       b += w;
     }
@@ -312,7 +315,7 @@ bool DAClusterizerInZT::split( double beta,
       if(tks[i].zi>0){
 	//sumpi+=tks[i].pi;
 	double p=y[ik].pk * exp(-beta*e_ik(tks[i],y[ik])) / tks[i].zi*tks[i].pi;
-	double w=p/(tks[i].dz2 * tks[i].dt2);
+	double w=p/(tks[i].dz2 + tks[i].dt2);
 	if(tks[i].z < y[ik].z){
 	  p1+=p; z1+=w*tks[i].z; t1+=w*tks[i].t; w1+=w;
 	}else{

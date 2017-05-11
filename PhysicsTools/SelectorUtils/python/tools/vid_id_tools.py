@@ -47,13 +47,13 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName,addUserData=True)
             userDatas.userClasses.src.append(cms.InputTag('%s:%s'%(idProducer,idName)))
         sys.stderr.write('\t--- %s:%s added to %s\n'%(idProducer,idName,patProducer.label()))
 
-def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None,addUserData=True):
+def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None,addUserData=True,task=None):
 #    idmod = importlib.import_module(id_module_name)
     idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
     for name in dir(idmod):
         item = getattr(idmod,name)
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
-            setupFunction(process,item,patProducer,addUserData)
+            setupFunction(process,item,patProducer,addUserData,task)
 
 # Supported data formats defined via "enum"
 class DataFormat:
@@ -66,8 +66,10 @@ class DataFormat:
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDElectronIdProducer(process, dataFormat):
+def switchOnVIDElectronIdProducer(process, dataFormat, task=None):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
+    if task is not None:
+        task.add(process.egmGsfElectronIDTask)
     #*always* reset to an empty configuration
     if( len(process.egmGsfElectronIDs.physicsObjectIDs) > 0 ):
         process.egmGsfElectronIDs.physicsObjectIDs = cms.VPSet()
@@ -85,7 +87,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     #    
 #    sys.stderr.write('Added \'egmGsfElectronIDs\' to process definition (%s format)!\n' % dataFormatString)
 
-def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True):
+def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True,task=None):
     if not hasattr(process,'egmGsfElectronIDs'):
         raise Exception('VIDProducerNotAvailable','egmGsfElectronIDs producer not available in process!')
     setupVIDSelection(process.egmGsfElectronIDs,cutflow)
@@ -107,8 +109,7 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True)
             
         from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import addHEEPProducersToSeq
         addHEEPProducersToSeq(process=process,seq=process.egmGsfElectronIDSequence,
-                              insertIndex=process.egmGsfElectronIDSequence.index(process.egmGsfElectronIDs),
-                              useMiniAOD=useMiniAOD)
+                              useMiniAOD=useMiniAOD,task=task)
         
 ####
 # Muons
@@ -116,8 +117,10 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True)
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDMuonIdProducer(process, dataFormat):
+def switchOnVIDMuonIdProducer(process, dataFormat, task=None):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
+    if task is not None:
+        task.add(process.muoMuonIDTask)
      #*always* reset to an empty configuration                                                                    
     if( len(process.muoMuonIDs.physicsObjectIDs) > 0 ):
         process.muoMuonIDs.physicsObjectIDs = cms.VPSet()
@@ -155,8 +158,10 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDPhotonIdProducer(process, dataFormat):
+def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    if task is not None:
+        task.add(process.egmPhotonIDTask)
     #*always* reset to an empty configuration
     if( len(process.egmPhotonIDs.physicsObjectIDs) > 0 ):
         process.egmPhotonIDs.physicsObjectIDs = cms.VPSet()
@@ -174,7 +179,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat):
     #    
     sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
-def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True):
+def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True,task=None):
     if not hasattr(process,'egmPhotonIDs'):
         raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!\n')
     setupVIDSelection(process.egmPhotonIDs,cutflow)

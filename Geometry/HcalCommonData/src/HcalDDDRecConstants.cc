@@ -185,7 +185,7 @@ HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay,
     ++phi0;
     unit     = hcons.unitPhi(phibin[eta-1]);
     phi      = hcons.phiNumber(phi0,unit);
-    depth    = hcons.findDepth(subdet,eta,phi,zside,lay);
+    depth    = hcons.findDepth(subdet,eta,phi,zside,lay-1);
     if (depth <= 0) depth = layerGroup(eta-1, lay-1);
     if (eta == iEtaMin[1]) {
       if (subdet == static_cast<int>(HcalBarrel)) {
@@ -595,6 +595,19 @@ void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
   }
 }
 
+bool HcalDDDRecConstants::specialRBXHBHE(bool tobemerged,
+					 std::vector<HcalDetId>& ids) const {
+  if (tobemerged) {
+    std::map<HcalDetId,HcalDetId>::const_iterator itr;
+    for (itr = detIdSp_.begin(); itr != detIdSp_.end(); ++itr) 
+      ids.push_back(itr->first);
+  } else{
+    std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr;
+    for (itr = detIdSpR_.begin(); itr != detIdSpR_.end(); ++itr) 
+      ids.push_back(itr->first);
+  }
+  return (ids.size() > 0);
+}
 
 void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zside,
 				       std::vector<std::pair<int,double> >& phis,

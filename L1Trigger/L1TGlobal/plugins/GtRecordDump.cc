@@ -275,7 +275,7 @@ namespace l1t {
 
                    // Combination
 		   const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = oMap.operandTokenVector();
-		   const std::vector<ObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
+		   const std::vector<L1TObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
 //		   const std::vector<CombinationsInCond>& condCombinations = oMapcombinationVector();
 
 		   for(size_t iCond=0; iCond<opTokenVecObjMap.size(); iCond++) {
@@ -856,7 +856,7 @@ unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iter
   unsigned int packedVal = 0;
   //unsigned int shift = 12;
 
-// Pack Bits
+  // Pack Bits
   //packedVal |= ((etSum->hwPt()     & 0xfff)   << shift);
 
   //towercount takes 13 bits

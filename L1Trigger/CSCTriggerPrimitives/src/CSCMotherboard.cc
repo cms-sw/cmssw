@@ -195,9 +195,6 @@ CSCMotherboard::CSCMotherboard() :
   }
 }
 
-CSCMotherboard::~CSCMotherboard() {
-}
-
 void CSCMotherboard::clear() {
   if (alct) alct->clear();
   if (clct) clct->clear();

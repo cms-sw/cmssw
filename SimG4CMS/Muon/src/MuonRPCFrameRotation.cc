@@ -6,9 +6,9 @@
 #include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
 
-MuonRPCFrameRotation::MuonRPCFrameRotation(const DDCompactView& cpv) : MuonFrameRotation::MuonFrameRotation(cpv) {
-  g4numbering = new MuonG4Numbering(cpv);
-  MuonDDDConstants muonConstants(cpv);
+MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonDDDConstants& muonConstants) : 
+MuonFrameRotation::MuonFrameRotation() {
+  g4numbering = new MuonG4Numbering(muonConstants);
   int theLevelPart=muonConstants.getValue("level");
   theRegion=muonConstants.getValue("mr_region")/theLevelPart;
 }

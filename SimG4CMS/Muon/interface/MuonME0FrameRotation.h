@@ -17,12 +17,12 @@
 
 #include "G4Step.hh"
 
-class DDCompactView;
+class MuonDDDConstants;
 
 class MuonME0FrameRotation : public MuonFrameRotation {
 
 public:
-  MuonME0FrameRotation( const DDCompactView& cpv );
+  MuonME0FrameRotation( const MuonDDDConstants& muonConstants );
   virtual ~MuonME0FrameRotation();
   virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
 

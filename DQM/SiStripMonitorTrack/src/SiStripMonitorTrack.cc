@@ -34,12 +34,15 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_        = conf.getParameter<bool>("Mod_On");
   Trend_On_      = conf.getParameter<bool>("Trend_On");
   TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
+  Digi_On_       = conf.getParameter<bool>("Digi_On");
 
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_    = conf_.getParameter<std::string>("TrackLabel");
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
+  if (Digi_On_)
+	digiToken_ = consumes<edm::DetSetVector<SiStripDigi>> (  conf.getParameter<edm::InputTag>("ADCDigi_src") );
   clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
   trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
 
@@ -288,9 +291,11 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_
     // Cluster Charge
     theModMEs.ClusterCharge=bookME1D(ibooker , "TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterCharge,id);
+
     // Cluster Charge Raw (no gain )
     theModMEs.ClusterChargeRaw=bookME1D(ibooker , "TH1ClusterChargeRaw", hidmanager.createHistoId("ClusterChargeRaw_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterChargeRaw,id);
+
     // Cluster Charge Corrected
     theModMEs.ClusterChargeCorr=bookME1D(ibooker , "TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterChargeCorr,id);
@@ -685,7 +690,12 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , c
 }
 
 //------------------------------------------------------------------------------------------
-void SiStripMonitorTrack::trajectoryStudy(const reco::Track & track, const edm::EventSetup& es, bool track_ok) {
+void SiStripMonitorTrack::trajectoryStudy(
+  const reco::Track & track,
+  const edm::Event&      ev,
+  const edm::EventSetup& es,
+  bool track_ok
+) {
 
   auto const & trajParams = track.extra()->trajParams();
   assert(trajParams.size()==track.recHitsSize());
@@ -730,13 +740,13 @@ void SiStripMonitorTrack::trajectoryStudy(const reco::Track & track, const edm::
       statedirection=monodet->toLocal(gtrkdirup);
       SiStripRecHit2D m = matchedhit->monoHit();
       //      if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,trackref,es);
-      if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,es,track_ok);
+      if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,ev,es,track_ok);
       //stereo side
       const GeomDetUnit * stereodet=gdet->stereoDet();
       statedirection=stereodet->toLocal(gtrkdirup);
       SiStripRecHit2D s = matchedhit->stereoHit();
       //      if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,trackref,es);
-      if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,es,track_ok);
+      if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,ev,es,track_ok);
     }
     else if(projhit){
       LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
@@ -751,19 +761,19 @@ void SiStripMonitorTrack::trajectoryStudy(const reco::Track & track, const edm::
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found  MONO"<< std::endl;
 	det=gdet->monoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,es,track_ok);
+	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,ev,es,track_ok);
       }
       else{
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found STEREO"<< std::endl;
 	//stereo side
 	det=gdet->stereoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,es,track_ok);
+	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,ev,es,track_ok);
       }
     }else if (hit2D){
-      if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,es,track_ok);
+      if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,ev,es,track_ok);
     } else if (hit1D) {
-      if(statedirection.mag()) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,es,track_ok);
+      if(statedirection.mag()) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,ev,es,track_ok);
     } else {
       LogDebug ("SiStripMonitorTrack")
 	<< " LocalMomentum: "<<statedirection
@@ -774,14 +784,16 @@ void SiStripMonitorTrack::trajectoryStudy(const reco::Track & track, const edm::
 
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::hitStudy(const edm::EventSetup& es,
-				   const ProjectedSiStripRecHit2D* projhit,
-				   const SiStripMatchedRecHit2D*   matchedhit,
-				   const SiStripRecHit2D*          hit2D,
-				   const SiStripRecHit1D*          hit1D,
-				         LocalVector               localMomentum,
-				   const bool                      track_ok
-				   ) {
+void SiStripMonitorTrack::hitStudy(
+  const edm::Event& ev,
+  const edm::EventSetup& es,
+	const ProjectedSiStripRecHit2D* projhit,
+	const SiStripMatchedRecHit2D*   matchedhit,
+	const SiStripRecHit2D*          hit2D,
+	const SiStripRecHit1D*          hit1D,
+	      LocalVector               localMomentum,
+	const bool                      track_ok
+) {
   LocalVector statedirection;
   if(matchedhit){     // type=Matched;
     LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
@@ -794,13 +806,13 @@ void SiStripMonitorTrack::hitStudy(const edm::EventSetup& es,
     const GeomDetUnit * monodet=gdet->monoDet();
     statedirection=monodet->toLocal(gtrkdirup);
     SiStripRecHit2D m = matchedhit->monoHit();
-    if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,es,track_ok);
+    if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,ev,es,track_ok);
 
     //stereo side
     const GeomDetUnit * stereodet=gdet->stereoDet();
     statedirection=stereodet->toLocal(gtrkdirup);
     SiStripRecHit2D s = matchedhit->stereoHit();
-    if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,es,track_ok);
+    if(statedirection.mag())	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,ev,es,track_ok);
   }
   else if(projhit){    // type=Projected;
       LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
@@ -816,21 +828,21 @@ void SiStripMonitorTrack::hitStudy(const edm::EventSetup& es,
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found  MONO"<< std::endl;
 	det=gdet->monoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,es,track_ok);
+	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,ev,es,track_ok);
       }
       else{
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found STEREO"<< std::endl;
 	//stereo side
 	det=gdet->stereoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,es,track_ok);
+	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,ev,es,track_ok);
       }
   } else if (hit2D){ // type=2D
     statedirection=localMomentum;
-    if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,es,track_ok);
+    if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,ev,es,track_ok);
   } else if (hit1D) { // type=1D
     statedirection=localMomentum;
-    if(statedirection.mag()) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,es,track_ok);
+    if(statedirection.mag()) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,ev,es,track_ok);
   } else {
     LogDebug ("SiStripMonitorTrack")
       << " LocalMomentum: "<<statedirection
@@ -853,7 +865,7 @@ using namespace reco;
   edm::Handle<reco::TrackCollection > trackCollectionHandle;
   ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
   if (trackCollectionHandle.isValid()){
-    trackStudyFromTrajectory(trackCollectionHandle,es);
+    trackStudyFromTrajectory(trackCollectionHandle,ev, es);
   } else {
     edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
     return;
@@ -870,7 +882,11 @@ bool SiStripMonitorTrack::trackFilter(const reco::Track& track) {
   return true;
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es) {
+void SiStripMonitorTrack::trackStudyFromTrack(
+  edm::Handle<reco::TrackCollection > trackCollectionHandle,
+  const edm::Event& ev,
+  const edm::EventSetup& es
+) {
 
   //  edm::ESHandle<TransientTrackBuilder> builder;
   //  es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
@@ -912,7 +928,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
       //      reco::TrajectoryStateOnSurface stateOnSurface = transientTrack->stateOnSurface(globalPoint);
 
       LocalVector localMomentum;
-      hitStudy(es,projhit,matchedhit,hit2D,hit1D,localMomentum,track_ok);
+      hitStudy(ev,es,projhit,matchedhit,hit2D,hit1D,localMomentum,track_ok);
     }
 
     // hit pattern of the track
@@ -949,7 +965,11 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   }
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es) {
+void SiStripMonitorTrack::trackStudyFromTrajectory(
+  edm::Handle<reco::TrackCollection > trackCollectionHandle,
+  const edm::Event& ev,
+  const edm::EventSetup& es
+) {
   //Perform track study
   int i=0;
   reco::TrackCollection trackCollection = *trackCollectionHandle;
@@ -970,12 +990,12 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollec
 
     //    trajectoryStudy(traj_iterator,trackref,es);
     bool track_ok = trackFilter(*track);
-    trajectoryStudy(*track,es,track_ok);
+    trajectoryStudy(*track,ev,es,track_ok);
 
   }
 }
 //------------------------------------------------------------------------
-template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup& es, bool track_ok){
+template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::Event& ev,  const edm::EventSetup& es, bool track_ok){
 
     if(!tkrecHit->isValid()){
       LogTrace("SiStripMonitorTrack") <<"\t\t Invalid Hit " << std::endl;
@@ -1005,13 +1025,20 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
     es.get<SiStripQualityRcd>().get("",qualityHandle);
     const SiStripQuality* stripQuality = qualityHandle.product();
 
+    edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
+    if (Digi_On_)
+      ev.getByToken( digiToken_, digihandle );
+    const edm::DetSetVector<SiStripDigi> dummy;
+    auto digilist = ( digihandle.isValid() ? *digihandle : dummy );
+
     //Get SiStripCluster from SiStripRecHit
     if ( tkrecHit != NULL ){
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
       SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,detid);
 
       const Det2MEs MEs = findMEs(tTopo, detid);
-      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo,stripGain,stripQuality))
+      //      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo,stripGain,stripQuality,*digihandle))
+      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo,stripGain,stripQuality,digilist))
       {
         vPSiStripCluster.insert(SiStripCluster_);
       }
@@ -1039,6 +1066,12 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   es.get<SiStripQualityRcd>().get("",qualityHandle);
   const SiStripQuality* stripQuality = qualityHandle.product();
 
+  edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
+  if (Digi_On_)
+    ev.getByToken( digiToken_, digihandle );
+  const edm::DetSetVector<SiStripDigi> dummy;
+  auto digilist = ( digihandle.isValid() ? *digihandle : dummy );
+
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > siStripClusterHandle;
   ev.getByToken( clusterToken_, siStripClusterHandle);
   if (siStripClusterHandle.isValid()){
@@ -1057,7 +1090,8 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 
         if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
           SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
-          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality);
+	  //          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,*digihandle);
+          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,digilist);
         }
       }
     }
@@ -1109,7 +1143,8 @@ bool SiStripMonitorTrack::clusterInfos(
   const Det2MEs& MEs ,
   const TrackerTopology* tTopo,
   const SiStripGain*     stripGain,
-  const SiStripQuality*  stripQuality
+  const SiStripQuality*  stripQuality,
+  const edm::DetSetVector<SiStripDigi>& digilist
 )
 {
 
@@ -1137,15 +1172,25 @@ bool SiStripMonitorTrack::clusterInfos(
   float    position = cluster->baryStrip();
 
   // Getting raw charge with strip gain.
-  double chargeraw = 0;
+  double chargeraw   = 0;
   double clustergain = 0 ;
+  auto   digi_it     = digilist.find(detid); //(digilist.isValid() ? digilist.find(detid) : digilist.end());
   // SiStripClusterInfo.stripCharges() <==> SiStripCluster.amplitudes()
   for( size_t chidx = 0 ; chidx < cluster->stripCharges().size() ; ++chidx ){
     if( cluster->stripCharges().at(chidx) <= 0 ){ continue ; } // nonzero amplitude
     if( stripQuality->IsStripBad(stripQuality->getRange(detid), cluster->firstStrip()+chidx)) { continue ; }
-    clustergain = stripGain->getStripGain(cluster->firstStrip()+chidx, stripGain->getRange(detid));
-    chargeraw += cluster->stripCharges().at(chidx) * clustergain;
+    clustergain += stripGain->getStripGain(cluster->firstStrip()+chidx, stripGain->getRange(detid));
+    // Getting raw adc charge from digi collections
+    if( digi_it == digilist.end() ){
+      continue; 
+    } // skipping if not found
+    for( const auto& digiobj : *digi_it ){
+      if( digiobj.strip() == cluster->firstStrip() + chidx  ){
+        chargeraw += digiobj.adc();
+      }
+    }
   }
+  clustergain /= double(cluster->stripCharges().size()) ;  // calculating average gain inside cluster
 
 
   // new dE/dx (chargePerCM)

@@ -9,9 +9,12 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include <TSystem.h>
 
+#include <algorithm>
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+
+#include <boost/algorithm/string/join.hpp>
 
 
 static inline double stampToReal(edm::Timestamp time)
@@ -98,15 +101,25 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
     edm::getProcessParameterSetContainingModule(moduleDescription())
     .getParameterSet("@main_input");
 
-  if (sourcePSet.getParameter<std::string>("@module_type") == "EventStreamHttpReader" ){
+  if (sourcePSet.getParameter<std::string>("@module_type") == "DQMStreamerReader" ){
     std::string evSelection;
     std::vector<std::string> evSelectionList;
-    const edm::ParameterSet &evSelectionPSet = sourcePSet.getUntrackedParameterSet("SelectEvents");
-    evSelectionList = evSelectionPSet.getParameter<std::vector<std::string> >("SelectEvents");
-    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); it++ )
-      evSelection += "'"+ *it + "', ";
-
-    evSelection.resize(evSelection.length()-2);
+    std::string delimiter( ", " );
+    evSelectionList = sourcePSet.getUntrackedParameter<std::vector<std::string> >("SelectEvents");
+    // add single quotes inline in the vector of HLT paths:
+    // we do copy assignment, and getUntrackedParameter returns
+    // a by-value copy of the vector of strings 
+    std::for_each( evSelectionList.begin(), evSelectionList.end(),
+                   []( std::string & s ){ std::string squote( "'" );
+                                          s = squote + s + squote;
+                                          }
+                   );
+    evSelection = boost::algorithm::join( evSelectionList, delimiter );
+    // if no HLT paths are specified, no selections are performed:
+    // we mark this with an asterisk.
+    if( evSelection.empty() ) {
+      evSelection = std::string( "'*'" );
+    }
     ibooker.setCurrentFolder(eventInfoFolder_);
     ibooker.bookString("eventSelection",evSelection);
   }

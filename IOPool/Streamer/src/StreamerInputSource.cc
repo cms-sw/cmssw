@@ -315,16 +315,28 @@ namespace edm {
 
         BranchDescription const branchDesc(*spitem.desc());
         // This ProductProvenance constructor inserts into the entry description registry
-        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
-
-        if(spitem.prod() != nullptr) {
-          FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
-          FDEBUG(10) << "addproduct done" << std::endl;
-        } else {
-          FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
-          FDEBUG(10) << "addproduct empty done" << std::endl;
+        if (spitem.parents()) {
+          ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
+          if(spitem.prod() != nullptr) {
+            FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
+            eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), &productProvenance);
+            FDEBUG(10) << "addproduct done" << std::endl;
+          } else {
+            FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
+            eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), &productProvenance);
+            FDEBUG(10) << "addproduct empty done" << std::endl;
+          }
+	} else {
+          ProductProvenance const* productProvenance = nullptr;
+          if(spitem.prod() != nullptr) {
+            FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
+            eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
+            FDEBUG(10) << "addproduct done" << std::endl;
+          } else {
+            FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
+            eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
+            FDEBUG(10) << "addproduct empty done" << std::endl;
+          }
         }
         spitem.clear();
     }

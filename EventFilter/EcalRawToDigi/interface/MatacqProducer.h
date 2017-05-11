@@ -160,6 +160,10 @@ private:
 
   uint32_t getRunNumber(edm::Event& ev) const;
   uint32_t getOrbitId(edm::Event& ev) const;
+
+  
+  bool getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb);
+
   int getCalibTriggerType(edm::Event& ev) const;
 
   /** Loading orbit correction table from file. @see orbitOffsetFile_

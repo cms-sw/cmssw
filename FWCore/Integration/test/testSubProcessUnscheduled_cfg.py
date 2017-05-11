@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool( True ),
     wantSummary = cms.untracked.bool(True)
 )
 
@@ -24,6 +23,10 @@ process.ten = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(10), iter
 
 process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two','ten'))
 
+process.task = cms.Task(process.two, process.four, process.ten, process.adder)
+
+process.path = cms.Path(process.task)
+
 subprocess = cms.Process("SUB")
 process.addSubProcess( cms.SubProcess(
     process = subprocess, 
@@ -36,3 +39,17 @@ subprocess.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.vstring('adder'))
 
 subprocess.subpath = cms.Path( subprocess.final )
+
+subprocess.test = cms.EDAnalyzer("TestParentage",
+                                 inputTag = cms.InputTag("final"),
+                                 expectedAncestors = cms.vstring("two", "ten", "adder")
+)
+
+subprocess.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSubProcessUnscheduled.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *', 
+        'keep *_final_*_*',
+    )
+)
+subprocess.o = cms.EndPath(subprocess.test * subprocess.out)

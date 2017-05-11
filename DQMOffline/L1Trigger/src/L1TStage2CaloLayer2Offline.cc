@@ -496,13 +496,13 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0,
       300);
 
-  h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
+  h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
-  h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
+  h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HE",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
-  h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
+  h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HF",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
-  h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
+  h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB_HE",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
 
   h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",

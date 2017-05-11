@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
@@ -26,11 +27,13 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/SubProcess.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/src/streamTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -569,6 +572,7 @@ namespace edm {
                                  preg(),
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 SubProcessParentageHelper(),
                                  *espController_,
                                  *actReg_,
                                  token,
@@ -1602,7 +1606,7 @@ namespace edm {
       << "This likely indicates a bug in an input module or corrupted input or both\n";
     stateMachineWasInErrorState_ = true;
   }
-
+  
   void EventProcessor::beginRun(statemachine::Run const& run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
     {
@@ -1639,10 +1643,23 @@ namespace edm {
       looper_->doBeginRun(runPrincipal, es, &processContext_);
     }
     {
+      //To wait, the ref count has to be 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        schedule_->processOneStream<Traits>(i,runPrincipal, es);
-        for_all(subProcesses_, [i, &runPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginRun(i, runPrincipal, ts); });
+      
+      beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                         *schedule_,
+                                         preallocations_.numberOfStreams(),
+                                         runPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
+
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
@@ -1671,11 +1688,24 @@ namespace edm {
     }
     EventSetup const& es = esp_->eventSetup();
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-        schedule_->processOneStream<Traits>(i,runPrincipal, es, cleaningUpAfterException);
-        for_all(subProcesses_, [i, &runPrincipal, &ts, cleaningUpAfterException](auto& subProcess) { subProcess.doStreamEndRun(i,runPrincipal, ts, cleaningUpAfterException);
-          });
+      //To wait, the ref count has to be 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+      
+      endStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                       *schedule_,
+                                       preallocations_.numberOfStreams(),
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
@@ -1727,12 +1757,25 @@ namespace edm {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-        schedule_->processOneStream<Traits>(i,lumiPrincipal, es);
-        for_all(subProcesses_, [i, &lumiPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginLuminosityBlock(i,lumiPrincipal, ts); });
+      //To wait, the ref count has to b 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+
+      beginStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                         *schedule_,
+                                         preallocations_.numberOfStreams(),
+                                         lumiPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
+    
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       //looper_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
@@ -1760,10 +1803,23 @@ namespace edm {
     }
     EventSetup const& es = esp_->eventSetup();
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-        schedule_->processOneStream<Traits>(i,lumiPrincipal, es, cleaningUpAfterException);
-        for_all(subProcesses_, [i, &lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndLuminosityBlock(i,lumiPrincipal, ts, cleaningUpAfterException); });
+      //To wait, the ref count has to b 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+      
+      endStreamsTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                       *schedule_,
+                                       preallocations_.numberOfStreams(),
+                                       lumiPrincipal,
+                                       ts,
+                                       es,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";

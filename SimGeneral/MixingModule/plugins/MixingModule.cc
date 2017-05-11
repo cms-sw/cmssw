@@ -65,6 +65,11 @@ namespace edm {
       inputTagPlayback_ = InputTag(labelPlayback, "", edm::InputTag::kSkipCurrentProcess);
       consumes<CrossingFramePlaybackInfoNew>(inputTagPlayback_);
     }
+    wrapLongTimes_ = false;
+    if (ps_mix.exists("WrapLongTimes")) {
+      wrapLongTimes_ = ps_mix.getParameter<bool>("WrapLongTimes");
+    }
+
 
     ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
@@ -85,7 +90,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -104,7 +109,7 @@ namespace edm {
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector(),wrapLongTimes_));
 	    // note: no crossing frame is foreseen to be used for this object type
 	    
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -116,7 +121,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -160,7 +165,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PCaloHit> >(label);
@@ -183,7 +188,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PSimHit> >(label);

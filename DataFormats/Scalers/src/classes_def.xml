@@ -29,6 +29,9 @@
   <class name="TimeSpec" ClassVersion="10">
    <version ClassVersion="10" checksum="3936062714"/>
   </class>
+  <class name="BSTRecord" ClassVersion="3">
+   <version ClassVersion="3" checksum="1274227912"/>
+  </class>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
   <class name="std::vector<L1TriggerScalers>"/>
   <class name="std::vector<L1TriggerRates>"/>
@@ -45,6 +48,7 @@
   <class name="edm::RefProd<LumiScalers>"/>
   <class name="edm::RefProd<DcsStatus>"/>
   <class name="edm::RefProd<BeamSpotOnline>"/>
+  <class name="edm::RefProd<BSTRecord>"/>
   <class name="edm::Wrapper<L1AcceptBunchCrossing>"/>
   <class name="edm::Wrapper<L1TriggerScalers>"/>
   <class name="edm::Wrapper<L1TriggerRates>"/>
@@ -53,6 +57,7 @@
   <class name="edm::Wrapper<LumiScalers>"/>
   <class name="edm::Wrapper<DcsStatus>"/>
   <class name="edm::Wrapper<BeamSpotOnline>"/>
+  <class name="edm::Wrapper<BSTRecord>"/>
   <class name="edm::Wrapper<std::vector<L1AcceptBunchCrossing>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerScalers>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerRates>>"/>

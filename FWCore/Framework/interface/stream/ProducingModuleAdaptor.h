@@ -89,6 +89,7 @@ namespace edm {
                                edm::Run const& iRun,
                                edm::EventSetup const& iES) override final {
         auto s = m_runSummaries[iRun.index()].get();
+        std::lock_guard<decltype(m_runSummaryLock)> guard(m_runSummaryLock);
         MyGlobalRunSummary::streamEndRunSummary(iProd,iRun,iES,s);
       }
  
@@ -100,6 +101,7 @@ namespace edm {
                                            edm::LuminosityBlock const& iLumi,
                                            edm::EventSetup const& iES) override final {
         auto s = m_lumiSummaries[iLumi.index()].get();
+        std::lock_guard<decltype(m_lumiSummaryLock)> guard(m_lumiSummaryLock);
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd,iLumi,iES,s);
       }
 
@@ -189,7 +191,9 @@ namespace edm {
       typename impl::choose_shared_vec<typename T::RunCache const>::type m_runs;
       typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
+      typename impl::choose_mutex<typename T::RunSummaryCache>::type m_runSummaryLock;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
+      typename impl::choose_mutex<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaryLock;
       ParameterSet const* m_pset;
     };
   }

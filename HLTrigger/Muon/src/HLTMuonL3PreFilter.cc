@@ -74,9 +74,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
       << " " << nsigma_Pt_;
 }
 
-HLTMuonL3PreFilter::~HLTMuonL3PreFilter()
-{
-}
+HLTMuonL3PreFilter::~HLTMuonL3PreFilter() = default;
 
 void
 HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -164,8 +162,8 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
 
      // look at all mucands,  check cuts and add to filter object
      int n = 0;
-     std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it = L2toL3s.begin();
-     std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+     auto L2toL3s_it = L2toL3s.begin();
+     auto L2toL3s_end = L2toL3s.end();
      LogDebug("HLTMuonL3PreFilter")<<"looking at: "<<L2toL3s.size()<<" L2->L3s from: "<<mucands->size();
      for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
   
@@ -240,8 +238,8 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
   
      vector<RecoChargedCandidateRef> vref;
      filterproduct.getObjects(TriggerMuon,vref);
-     for (unsigned int i=0; i<vref.size(); i++ ) {
-       RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+     for (auto & i : vref) {
+       RecoChargedCandidateRef candref =  RecoChargedCandidateRef(i);
        TrackRef tk = candref->get<TrackRef>();
        LogDebug("HLTMuonL3PreFilter")
          << " Track passing filter: trackRef pt= " << tk->pt() << " (" << candref->pt() << ") " << ", eta: " << tk->eta() << " (" << candref->eta() << ") ";
@@ -266,8 +264,8 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
     // Loop over RecoChargedCandidates:
     for(unsigned int i(0); i < mucands->size(); ++i){
       RecoChargedCandidateRef cand(mucands,i);
-      for(unsigned int l(0); l <links->size(); ++l){
-        const reco::MuonTrackLinks* link = &links->at(l);
+      for(auto const & l : *links){
+        const reco::MuonTrackLinks* link = &l;
 	bool useThisLink=false;
 	TrackRef tk = cand->track();
 	reco::TrackRef trkTrack = link->trackerTrack();
@@ -354,8 +352,8 @@ bool
 HLTMuonL3PreFilter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands) const
 {
   bool ok=false;
-  for (unsigned int i=0; i<vcands.size(); i++) {
-    if ( vcands[i]->get<TrackRef>() == staTrack ) {
+  for (auto & vcand : vcands) {
+    if ( vcand->get<TrackRef>() == staTrack ) {
       ok=true;
       LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;

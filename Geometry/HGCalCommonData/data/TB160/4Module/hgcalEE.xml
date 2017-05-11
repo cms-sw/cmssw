@@ -33,21 +33,22 @@
       15, 15, 15, 15</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="4"> 
       32.70*mm, 32.70*mm, 31.70*mm, 30.70*mm</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="52"> 
+    <Vector name="LayerType" type="numeric" nEntries="60"> 
       3, 13, 13,  2, 13,  8,  6, 14,  9,  9,  9, 11, 13, 13, 11,
       3, 13, 13,  2, 13,  8,  6, 14,  9,  9,  9, 11, 13, 13, 11,
       3, 13, 13,  2, 13,  8,  6, 14,  9,  9,  9, 10, 13, 13, 10,
       3, 13, 13,  2, 13,  8,  5, 14,  9,  9,  9, 10, 13, 13, 10
     </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="52">
-      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0
+    <Vector name="LayerSense" type="numeric" nEntries="60">
+      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0
     </Vector>
     <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
     <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
     <Numeric name="Sectors"     value="12"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       0.0, 0.0</Vector>

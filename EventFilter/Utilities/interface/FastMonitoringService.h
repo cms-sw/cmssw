@@ -54,6 +54,20 @@ namespace edm {
 
 namespace evf{
 
+  template<typename T>
+    struct ContainableAtomic {
+    ContainableAtomic(): m_value{} {}
+    ContainableAtomic(T iValue): m_value(iValue) {}
+    ContainableAtomic(ContainableAtomic<T> const& iOther): m_value(iOther.m_value.load()) {}
+    ContainableAtomic<T>& operator=(const void* iValue) {
+      m_value.store(iValue,std::memory_order_relaxed);
+      return *this;
+    }
+    operator T() { return m_value.load(std::memory_order_relaxed); }
+    
+    std::atomic<T> m_value;
+  };
+
   class FastMonitoringService : public MicroStateService
     {
       struct Encoding
@@ -231,8 +245,8 @@ namespace evf{
       Encoding encModule_;
       std::vector<Encoding> encPath_;
       FedRawDataInputSource * inputSource_ = nullptr;
-      FastMonitoringThread::InputState inputState_;
-      FastMonitoringThread::InputState inputSupervisorState_;
+      std::atomic<FastMonitoringThread::InputState> inputState_;
+      std::atomic<FastMonitoringThread::InputState> inputSupervisorState_;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -251,16 +265,16 @@ namespace evf{
       unsigned int lastGlobalLumi_;
       std::queue<unsigned int> lastGlobalLumisClosed_;
       bool isGlobalLumiTransition_;
-      bool isInitTransition_;
+      std::atomic<bool> isInitTransition_;
       unsigned int lumiFromSource_;
 
       //global state
-      FastMonitoringThread::Macrostate macrostate_;
+      std::atomic<FastMonitoringThread::Macrostate> macrostate_;
 
       //per stream
-      std::vector<const void*> ministate_;
-      std::vector<const void*> microstate_;
-      std::vector<const void*> threadMicrostate_;
+      std::vector<ContainableAtomic<const void*>> ministate_;
+      std::vector<ContainableAtomic<const void*>> microstate_;
+      std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
       //variables measuring source statistics (global)
       //unordered_map is not used because of very few elements stored concurrently
@@ -280,7 +294,7 @@ namespace evf{
 
       std::vector<unsigned long> firstEventId_;
       std::vector<std::atomic<bool>*> collectedPathList_;
-      std::vector<unsigned int> eventCountForPathInit_;
+      std::vector<ContainableAtomic<unsigned int>> eventCountForPathInit_;
       std::vector<bool> pathNamesReady_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;

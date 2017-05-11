@@ -32,6 +32,7 @@ public:
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const = 0;
+  virtual ~HcalCoder() = default;
 };
 
 #endif

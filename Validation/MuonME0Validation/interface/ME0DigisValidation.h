@@ -46,6 +46,9 @@ private:
     MonitorElement* me0_strip_dg_bkg_rad_tot;
     MonitorElement* me0_strip_dg_bkgElePos_rad;
     MonitorElement* me0_strip_dg_bkgNeutral_rad;
+    MonitorElement* me0_strip_exp_bkg_rad_tot;
+    MonitorElement* me0_strip_exp_bkgElePos_rad;
+    MonitorElement* me0_strip_exp_bkgNeutral_rad;
     
     edm::EDGetToken InputTagToken_Digi;
     double sigma_x_, sigma_y_;

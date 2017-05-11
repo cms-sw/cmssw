@@ -179,6 +179,7 @@ hiDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
     ) #end of vpset
     ) #end of clone
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers=cms.VInputTag(cms.InputTag('hiDetachedTripletStepTracks')),

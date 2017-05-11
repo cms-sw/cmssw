@@ -19,15 +19,15 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
 ## produce decaySubset
 process.load("TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi")
+process.task = cms.Task(process.decaySubset)
 
 ## produce printout of particle listings (for debugging)
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.printGenParticles_cff")
 
 ## path
-process.p = cms.Path(process.printDecaySubset)
+process.p = cms.Path(process.printDecaySubset, process.task)

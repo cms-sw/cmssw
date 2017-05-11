@@ -581,11 +581,11 @@ steps['ZpEE_2250_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250_8TeV_T
 steps['ZpTT_1500_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
-steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
-steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
-steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics'},Kby(5000,500000),step1Up2015Defaults])
-steps['Cosmics_UP17']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(666,100000),step1Defaults])
-steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
+steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
+steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
+steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics'},Kby(5000,500000),step1Up2015Defaults])
+steps['Cosmics_UP17']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(666,100000),step1Defaults])
+steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
 
@@ -1156,7 +1156,7 @@ steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
 
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
-                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlGlobalCosmics+DtCalib',
+                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:DtCalib',
                           '--datatier':'RECO,DQMIO',     # no miniAOD for cosmics
                           '--eventcontent':'RECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
@@ -1173,13 +1173,13 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 
 # step3 
 step3Defaults = {
-                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT',
                   '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM',
                   }
-step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION,DQM'}, step3Defaults])
+step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'}, step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
@@ -1195,9 +1195,9 @@ step3Up2015Defaults = {
     '--era' : 'Run2_2016'
     }
 
-step3Up2015Defaults50ns = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015Defaults])
+step3Up2015Defaults50ns = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015Defaults])
 
-step3Up2015DefaultsAlCaCalo = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+EcalTrg+HcalCalIsoTrk,VALIDATION,DQM'},step3Up2015Defaults])
+step3Up2015DefaultsAlCaCalo = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+EcalTrg+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'},step3Up2015Defaults])
 step3Up2015DefaultsAlCaCalo50ns = merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step3Up2015DefaultsAlCaCalo])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
@@ -1291,11 +1291,12 @@ steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 #steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
 steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
-steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},stCond,step3Defaults])
+steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 steps['RECOCOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
+
 
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},step3Up2015Defaults])
@@ -1510,7 +1511,7 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 
 
 #MC
-steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                    '--filetype':'DQM',
@@ -1580,7 +1581,7 @@ steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvesting+dqmHarvest
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
-steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
+steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 
 steps['HARVESTUP15_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15']])
 
@@ -1708,8 +1709,8 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_0_0_pre5-90X_upgrade2017_realistic_v15-v'
-defaultDataSets['2017Design']='CMSSW_9_0_0_pre5-90X_upgrade2017_design_IdealBS_v15-v'
+defaultDataSets['2017']='CMSSW_9_0_0-90X_upgrade2017_realistic_v20_resub-v'
+defaultDataSets['2017Design']='CMSSW_9_0_0-90X_upgrade2017_design_IdealBS_v19_resub-v'
 #defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2023D7']=''
@@ -1721,13 +1722,18 @@ defaultDataSets['2023D4']=''
 defaultDataSets['2023D8']=''
 defaultDataSets['2023D9']=''
 defaultDataSets['2023D11']=''
+defaultDataSets['2023D12']=''
+defaultDataSets['2023D13']=''
+defaultDataSets['2023D14']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
   
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
-versionOverrides={}
+versionOverrides={'SingleNuE10_cf_2017':'2',
+                  'SingleNuE10_cf_2017PU':'2'
+}
 
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
@@ -1752,8 +1758,13 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for step in upgradeSteps:
-    upgradeStepDict[step]={}
+for stepType in upgradeSteps.keys():
+    for step in upgradeSteps[stepType]['steps']:
+        stepName = step+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepName]={}
+    for step in upgradeSteps[stepType]['PU']:
+        stepName = step+'PU'+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepName]={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -1767,6 +1778,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
+
+    # setup baseline steps
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1775,8 +1788,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
     if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
 
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
@@ -1787,8 +1798,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
 
     upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
@@ -1799,9 +1808,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
     
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--era']=era
-    
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1810,13 +1816,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
- 
-    if k2 in PUDataSets:
-        upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
-
-#Adding Track trigger step in step2 
+    # Adding Track trigger step in step2 
     upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1824,13 +1824,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-
-    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiFullTrigger'][k]['--era']=era
- 
- 
-    if k2 in PUDataSets:
-        upgradeStepDict['DigiFullTriggerPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFullTrigger'][k]])
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                       '--conditions':gt,
@@ -1840,19 +1833,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
-
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
-
-
-    upgradeStepDict['RecoFull_trackingOnly'][k] = merge([step3_trackingOnly, upgradeStepDict['RecoFull'][k]]) 
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
-
 
     upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
                                       '--conditions':gt,
@@ -1862,11 +1842,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullGlobal'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFullGlobal'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullGlobalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullGlobal'][k]])
 
     upgradeStepDict['RecoFullLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
                                       '--conditions':gt,
@@ -1875,12 +1850,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullLocalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullLocal'][k]])
-
 
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
@@ -1890,32 +1859,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
 				    '--filein':'file:step3_inDQM.root'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
 
-    if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
-
-    upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
     upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
 
-    if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])
-        upgradeStepDict['HARVESTFullGlobalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFullGlobal'][k]])
-
-
-
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter',
+    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['ALCAFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['ALCAFull'][k]['--era']=era
-
-
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1924,8 +1877,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                    '--fast':'',
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
-    if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['FastSim'][k]['--era']=era
 
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
@@ -1933,26 +1884,61 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['HARVESTFast'][k]['--era']=era
 
+    # setup baseline customizations and PU
+    for step in upgradeSteps['baseline']['steps']:
+        if cust is not None: upgradeStepDict[step][k]['--customise']=cust
+        if era is not None: upgradeStepDict[step][k]['--era']=era
 
+    # setup variations (manually)
 
+    for step in upgradeSteps['trackingOnly']['steps']:
+        stepName = step + upgradeSteps['trackingOnly']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
 
-for step in upgradeSteps:
+    for step in upgradeSteps['Timing']['steps']:
+        stepName = step + upgradeSteps['Timing']['suffix']
+        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        # avoid some nonsense
+        if '--era' in upgradeStepDict[stepName][k].keys() and not "_timing" in upgradeStepDict[stepName][k]['--era']:
+            upgradeStepDict[stepName][k]['--era'] += "_timing"
+
+    for step in upgradeSteps['Neutron']['steps']:
+        if 'GenSim' in step:
+            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
+        else:
+            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
+        stepName = step + upgradeSteps['Neutron']['suffix']
+        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
+        if '--customise' in upgradeStepDict[stepName][k].keys():
+            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
+        else:
+            upgradeStepDict[stepName][k]['--customise'] = custNew
+
+    # setup PU
+    if k2 in PUDataSets:
+        for stepType in upgradeSteps.keys():
+            for step in upgradeSteps[stepType]['PU']:
+                stepName = step + upgradeSteps[stepType]['suffix']
+                stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
+                upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
+
+for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step:
         for frag in upgradeFragments:
             howMuch=howMuches[frag]
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
-                #get inputs in case of -i...but no need to specify in great detail
-                #however, there can be a conflict of beam spots but this is lost in the dataset name
-                #so please be careful   
-                s=frag[:-4]+'_'+key
-                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                if step in upgradeStepDict and key in upgradeStepDict[step]: 
+                    steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                    #get inputs in case of -i...but no need to specify in great detail
+                    #however, there can be a conflict of beam spots but this is lost in the dataset name
+                    #so please be careful   
+                    s=frag[:-4]+'_'+key
+                    if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
@@ -1962,6 +1948,6 @@ for step in upgradeSteps:
 # 2017 tracking specific eras
 steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_trackingOnly_2017']])
+steps['RecoFull_trackingPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_2017']])
+steps['RecoFull_trackingOnlyPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_trackingOnly_2017']])
 steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])

@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
+#include <algorithm>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
@@ -22,7 +23,7 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::Para
 }
 
 CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopology& fTopology, const HcalDDDRecConstants& hcons) {
-  CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (fTopology);
+  HcalGeometry* hcalGeometry = new HcalGeometry (fTopology);
   if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells()+fTopology.getHFSize() );
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (hcalGeometry->numberOfShapes(),
 							       HcalGeometry::k_NumberOfParametersPerShape ) ;
@@ -44,6 +45,8 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
     fillHF (hcalGeometry, makeHFCells(hcons));
     fillHE (hcalGeometry, makeHECells(hcons));
   }
+  //fast insertion of valid ids requires sort at end
+  hcalGeometry->sortValidIds();
   return hcalGeometry;
 }
 
@@ -125,8 +128,9 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
 //
 // Convert constants to appropriate cells
 //
-void HcalFlexiHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeometry, const std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters>& fCells, bool fHB) {
+void HcalFlexiHardcodeGeometryLoader::fillHBHO (HcalGeometry* fGeometry, const std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters>& fCells, bool fHB) {
 
+  fGeometry->increaseReserve(fCells.size());
   for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
     const HcalFlexiHardcodeGeometryLoader::HBHOCellParameters& param = fCells[iCell];
     HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.ieta, param.iphi, param.depth);
@@ -151,7 +155,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeomet
 	      << cellParams [0] << '/' << cellParams [1] << '/' 
 	      << cellParams [2] << std::endl;
 #endif
-    fGeometry->newCell(refPoint,  refPoint,  refPoint, 
+    fGeometry->newCellFast(refPoint,  refPoint,  refPoint, 
 		       CaloCellGeometry::getParmPtr(cellParams, 
 						    fGeometry->parMgr(), 
 						    fGeometry->parVecVec()),
@@ -285,8 +289,9 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HFCellParameters> HcalFlexiHardcod
   return result;
 }
   
-void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry, const std::vector <HcalFlexiHardcodeGeometryLoader::HECellParameters>& fCells) {
+void HcalFlexiHardcodeGeometryLoader::fillHE (HcalGeometry* fGeometry, const std::vector <HcalFlexiHardcodeGeometryLoader::HECellParameters>& fCells) {
 
+  fGeometry->increaseReserve(fCells.size());
   for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
     const HcalFlexiHardcodeGeometryLoader::HECellParameters& param = fCells[iCell];
     HcalDetId hid (HcalEndcap, param.ieta, param.iphi, param.depth);
@@ -312,7 +317,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
 	      << " " << hid << refPoint << '/' << cellParams [0] << '/' 
 	      << cellParams [1] << '/' << cellParams [2] << std::endl;
 #endif
-    fGeometry->newCell(refPoint,  refPoint,  refPoint, 
+    fGeometry->newCellFast(refPoint,  refPoint,  refPoint, 
 		       CaloCellGeometry::getParmPtr(cellParams, 
 						    fGeometry->parMgr(), 
 						    fGeometry->parVecVec()),
@@ -320,8 +325,9 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
   }
 }
 
-void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry, const std::vector <HcalFlexiHardcodeGeometryLoader::HFCellParameters>& fCells) {
+void HcalFlexiHardcodeGeometryLoader::fillHF (HcalGeometry* fGeometry, const std::vector <HcalFlexiHardcodeGeometryLoader::HFCellParameters>& fCells) {
 
+  fGeometry->increaseReserve(fCells.size());
   for (size_t iCell = 0; iCell < fCells.size(); ++iCell) {
     const HcalFlexiHardcodeGeometryLoader::HFCellParameters& param = fCells[iCell];
     for (int kPhi = 0; kPhi < param.nPhi; ++kPhi) {
@@ -354,7 +360,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry
 		<< " " << hid << " " << refPoint << '/' << cellParams [0] 
 		<< '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 #endif	
-      fGeometry->newCell(refPoint,  refPoint,  refPoint, 
+      fGeometry->newCellFast(refPoint,  refPoint,  refPoint, 
 			 CaloCellGeometry::getParmPtr(cellParams, 
 						      fGeometry->parMgr(), 
 						      fGeometry->parVecVec()),

@@ -117,10 +117,10 @@ namespace {
 // Template to convert a ref to desired output type
 template<typename T> const T convert(const reco::PFTauRef &tau);
 
-template<> const edm::RefToBase<reco::PFTau>
-convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
-  return edm::RefToBase<reco::PFTau>(tau);
-}
+  //template<> const edm::RefToBase<reco::PFTau>
+  //convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
+  // return edm::RefToBase<reco::PFTau>(tau);
+  //}
 
 template<> const reco::PFTauRef
 convert<reco::PFTauRef>(const reco::PFTauRef &tau) { return tau; }

@@ -16,35 +16,36 @@
 #include <map>
 
 namespace {
-GeomDetEnumerators::SubDetector
-geometricDetToGeomDet(GeometricDet::GDEnumType gdenum) {
-  // provide a map between the GeometricDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
-  if(gdenum == GeometricDet::GDEnumType::PixelBarrel ) return GeomDetEnumerators::SubDetector::PixelBarrel;
-  if(gdenum == GeometricDet::GDEnumType::PixelEndCap) return GeomDetEnumerators::SubDetector::PixelEndcap;
-  if(gdenum == GeometricDet::GDEnumType::TIB) return GeomDetEnumerators::SubDetector::TIB;
-  if(gdenum == GeometricDet::GDEnumType::TID) return GeomDetEnumerators::SubDetector::TID;
-  if(gdenum == GeometricDet::GDEnumType::TOB) return GeomDetEnumerators::SubDetector::TOB;
-  if(gdenum == GeometricDet::GDEnumType::TEC) return GeomDetEnumerators::SubDetector::TEC;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase1Barrel) return GeomDetEnumerators::SubDetector::P1PXB;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase1EndCap) return GeomDetEnumerators::SubDetector::P1PXEC;
-  if(gdenum == GeometricDet::GDEnumType::PixelPhase2EndCap) return GeomDetEnumerators::SubDetector::P2PXEC;
-  if(gdenum == GeometricDet::GDEnumType::OTPhase2Barrel) return GeomDetEnumerators::SubDetector::P2OTB;
-  if(gdenum == GeometricDet::GDEnumType::OTPhase2EndCap) return GeomDetEnumerators::SubDetector::P2OTEC;
-  return GeomDetEnumerators::SubDetector::invalidDet;
-}
-class DetIdComparator {
-public:
-  bool operator()(GeometricDet const* gd1, GeometricDet const * gd2) const {
-    uint32_t det1 = gd1->geographicalId();
-    uint32_t det2 = gd2->geographicalId();
-    return det1 < det2;
-  }                                      
+  GeomDetEnumerators::SubDetector
+  geometricDetToGeomDet(GeometricDet::GDEnumType gdenum) {
+    // provide a map between the GeometricDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
+    if(gdenum == GeometricDet::GDEnumType::PixelBarrel ) return GeomDetEnumerators::SubDetector::PixelBarrel;
+    if(gdenum == GeometricDet::GDEnumType::PixelEndCap) return GeomDetEnumerators::SubDetector::PixelEndcap;
+    if(gdenum == GeometricDet::GDEnumType::TIB) return GeomDetEnumerators::SubDetector::TIB;
+    if(gdenum == GeometricDet::GDEnumType::TID) return GeomDetEnumerators::SubDetector::TID;
+    if(gdenum == GeometricDet::GDEnumType::TOB) return GeomDetEnumerators::SubDetector::TOB;
+    if(gdenum == GeometricDet::GDEnumType::TEC) return GeomDetEnumerators::SubDetector::TEC;
+    if(gdenum == GeometricDet::GDEnumType::PixelPhase1Barrel) return GeomDetEnumerators::SubDetector::P1PXB;
+    if(gdenum == GeometricDet::GDEnumType::PixelPhase1EndCap) return GeomDetEnumerators::SubDetector::P1PXEC;
+    if(gdenum == GeometricDet::GDEnumType::PixelPhase2Barrel) return GeomDetEnumerators::SubDetector::P2PXB;
+    if(gdenum == GeometricDet::GDEnumType::PixelPhase2EndCap) return GeomDetEnumerators::SubDetector::P2PXEC;
+    if(gdenum == GeometricDet::GDEnumType::OTPhase2Barrel) return GeomDetEnumerators::SubDetector::P2OTB;
+    if(gdenum == GeometricDet::GDEnumType::OTPhase2EndCap) return GeomDetEnumerators::SubDetector::P2OTEC;
+    return GeomDetEnumerators::SubDetector::invalidDet;
+  }
   
-};
+  class DetIdComparator {
+  public:
+    bool operator()(GeometricDet const* gd1, GeometricDet const * gd2) const {
+      uint32_t det1 = gd1->geographicalId();
+      uint32_t det2 = gd2->geographicalId();
+      return det1 < det2;
+    }  
+  };
 }
- 
 
-TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
+TrackerGeometry::TrackerGeometry(GeometricDet const* gd)
+   : theTrackerDet(gd)
 {
   for(unsigned int i=0;i<6;++i) {
     theSubDetTypeMap[i] = GeomDetEnumerators::invalidDet;
@@ -91,7 +92,6 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
   }  
 }
 
-
 TrackerGeometry::~TrackerGeometry() {
     for (auto d : theDets) delete const_cast<GeomDet*>(d);
     for (auto d : theDetTypes) delete const_cast<GeomDetType*>(d);
@@ -111,7 +111,6 @@ void TrackerGeometry::finalize() {
     theTOBDets.shrink_to_fit(); // not owned: they're also in 'theDets'
     theTECDets.shrink_to_fit(); // not owned: they're also in 'theDets'
 }
-
 
 void TrackerGeometry::addType(GeomDetType const * p) {
   theDetTypes.push_back(p);  // add to vector
@@ -156,8 +155,6 @@ void TrackerGeometry::addDet(GeomDet const * p) {
   default:
     edm::LogError("TrackerGeometry")<<"ERROR - I was expecting a Tracker Subdetector, I got a "<<id.subdetId();
   }
-
-
 }
 
 void TrackerGeometry::addDetId(DetId p){
@@ -205,20 +202,24 @@ const TrackerGeomDet *
 TrackerGeometry::idToDetUnit(DetId s)const
 {
   mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
-  if (p != theMapUnit.end())
+  if (p != theMapUnit.end()) {
     return static_cast<const TrackerGeomDet *>(p->second);
-  edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDetUnit associated";
-  return nullptr;
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
+					       << s.rawId() << " of subdet ID " << s.subdetId();
+  }
 }
 
 const TrackerGeomDet* 
 TrackerGeometry::idToDet(DetId s)const
 {
   mapIdToDet::const_iterator p=theMap.find(s.rawId());
-  if (p != theMap.end())
+  if (p != theMap.end()) {
     return static_cast<const TrackerGeomDet *>(p->second);
-  edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDet associated";
-  return nullptr;
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
+					       << s.rawId() << " of subdet ID " << s.subdetId();
+  }
 }
 
 const GeomDetEnumerators::SubDetector 
@@ -274,6 +275,7 @@ TrackerGeometry::ModuleType TrackerGeometry::getDetectorType(DetId detid) const 
   }
   return TrackerGeometry::ModuleType::UNKNOWN;
 }
+
 float TrackerGeometry::getDetectorThickness(DetId detid) const {
   for (auto iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);

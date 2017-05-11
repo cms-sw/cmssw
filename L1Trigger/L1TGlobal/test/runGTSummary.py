@@ -58,8 +58,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '90X_dataRun2_v0', '')
 ## process.es_prefer_l1conddb = cms.ESPrefer( "PoolDBESSource","l1conddb")
 #### done ##############################################################
 
-process.load('L1Trigger.L1TGlobal.l1tGlobalSummary_cfi')
-process.l1tGlobalSummary.DumpTrigResults= cms.bool(True)
+process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
+process.L1TGlobalSummary.AlgInputTag = cms.InputTag("gtStage2Digis")
+process.L1TGlobalSummary.ExtInputTag = cms.InputTag("gtStage2Digis")
+process.L1TGlobalSummary.MinBx          = cms.int32(-2)
+process.L1TGlobalSummary.MaxBx          = cms.int32(2)
+#process.L1TGlobalSummary.DumpRecord   = cms.bool(False) # print raw uGT record
+process.L1TGlobalSummary.DumpTrigResults= cms.bool(True)
 ## process.l1tGlobalSummary.ReadPrescalesFromFile = cms.bool(True)
 ## process.l1tGlobalSummary.psFileName = cms.string("prescale_new.csv")
 ## process.l1tGlobalSummary.psColumn = cms.int32(0)

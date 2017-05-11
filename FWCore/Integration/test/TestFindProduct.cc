@@ -112,13 +112,15 @@ namespace edmtest {
         ++iter, ++iToken) {
       e.getByLabel(*iter, h);
       if (h.isValid()) {
-        std::cerr << "TestFindProduct::analyze: getByLabel found a product that should not be found" << std::endl;
+        std::cerr << "TestFindProduct::analyze: getByLabel found a product that should not be found "
+                  << h.provenance()->moduleLabel() << std::endl;
         abort();    
       }
 
       e.getByToken(*iToken, hToken);
       if (hToken.isValid()) {
-        std::cerr << "TestFindProduct::analyze: getByToken found a product that should not be found" << std::endl;
+        std::cerr << "TestFindProduct::analyze: getByToken found a product that should not be found "
+                  << hToken.provenance()->moduleLabel() << std::endl;
         abort();    
       }
     }

@@ -17,8 +17,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         using Algorithm<FECODEC>::codec_;
 
     public:
-        SingleCellClusterAlgo(const edm::ParameterSet& conf):
-            Algorithm<FECODEC>(conf),
+        SingleCellClusterAlgo(const edm::ParameterSet& conf,edm::ConsumesCollector &cc):
+            Algorithm<FECODEC>(conf,cc),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
             HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
             HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
@@ -26,12 +26,14 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
-        virtual void setProduces(edm::EDProducer& prod) const override final 
+        virtual void setProduces(edm::stream::EDProducer<>& prod) const override final 
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
         }
     
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
+		         edm::Event&evt
+			) override final
         {
             es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
             es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
@@ -59,7 +61,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
                             edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                         }
                         l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                        calibration_.calibrate(calibratedtriggercell, cellThickness);     
+                        calibration_.calibrateInGeV(calibratedtriggercell, cellThickness);     
                         cluster_product_->push_back(0,calibratedtriggercell);
                     }
                 }

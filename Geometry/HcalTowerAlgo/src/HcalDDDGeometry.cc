@@ -162,7 +162,7 @@ HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 }
 
 void
-HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
+HcalDDDGeometry::newCellImpl( const GlobalPoint& f1 ,
 			  const GlobalPoint& f2 ,
 			  const GlobalPoint& f3 ,
 			  const CCGFloat*    parm ,
@@ -196,7 +196,28 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
       }
     }
   }
-  addValidID( detId ) ;
+}
+
+void
+HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
+              const GlobalPoint& f2 ,
+              const GlobalPoint& f3 ,
+              const CCGFloat*    parm ,
+              const DetId&       detId   )
+{
+  newCellImpl(f1,f2,f3,parm,detId);
+  addValidID( detId );
+}
+
+void
+HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
+              const GlobalPoint& f2 ,
+              const GlobalPoint& f3 ,
+              const CCGFloat*    parm ,
+              const DetId&       detId   )
+{
+  newCellImpl(f1,f2,f3,parm,detId);
+  m_validIds.push_back(detId);
 }
 
 const CaloCellGeometry* 
@@ -243,4 +264,12 @@ HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
     }
   }
   return ( 0 == cell || 0 == cell->param() ? 0 : cell ) ;
+}
+
+void HcalDDDGeometry::increaseReserve(unsigned int extra) {
+  m_validIds.reserve(m_validIds.size()+extra);
+}
+
+void HcalDDDGeometry::sortValidIds() {
+  std::sort(m_validIds.begin(),m_validIds.end());
 }

@@ -1,5 +1,6 @@
 #ifndef FWCore_Utilities_OffsetToBase_h
 #define FWCore_Utilities_OffsetToBase_h
+#include <cstddef>
 #include <typeinfo>
 
 /*

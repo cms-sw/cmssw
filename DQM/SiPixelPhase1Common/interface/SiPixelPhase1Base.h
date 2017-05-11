@@ -1,6 +1,6 @@
 #ifndef SiPixel_DefaultTemplates_h
 #define SiPixel_DefaultTemplates_h
-// 
+//
 // This defines two classes, one that has to be extended to make a new plugin,
 // and one that can be used as-is for the Harvesting.
 //
@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
 
@@ -40,29 +41,34 @@ class HistogramManagerHolder {
 // use it but if you just need some normal HistogramManager this should be perfect.
 class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   public:
-  SiPixelPhase1Base(const edm::ParameterSet& iConfig) 
-    : DQMEDAnalyzer(), HistogramManagerHolder(iConfig) {};
+  SiPixelPhase1Base(const edm::ParameterSet& iConfig);
 
-  // You should analyze something, and call histoman.fill(...).
-  //void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  // You should analyze something, and call histoman.fill(...). Setting to pure virtual function
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) = 0;
 
   // This booking is usually fine.
-  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup) {
-    for (HistogramManager& histoman : histo)
-      histoman.book(iBooker, iSetup);
-  };
+  // Also used to store the required triggers
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup);
 
   virtual ~SiPixelPhase1Base() {};
+
+  protected:
+  // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
+  bool checktrigger( const edm::Event& iEvent, const edm::EventSetup& iSetup, const unsigned trgidx ) const;
+
+  private:
+  // Storing the trigger objects per plugin instance
+  std::vector<std::unique_ptr<GenericTriggerEventFlag>>   triggerlist;
 };
 
-// This wraps the Histogram Managers into a DQMEDHarvester. It 
+// This wraps the Histogram Managers into a DQMEDHarvester. It
 // provides sane default implementations, so most plugins don't care about this.
-// However, you have to instantiate one with the same config as your Analyzer 
+// However, you have to instantiate one with the same config as your Analyzer
 // to get the Harvesting done.
 // For custom harvesting, you have to derive from this.
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
   public:
-  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig) 
+  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig)
     : DQMEDHarvester(), HistogramManagerHolder(iConfig) {};
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) ;

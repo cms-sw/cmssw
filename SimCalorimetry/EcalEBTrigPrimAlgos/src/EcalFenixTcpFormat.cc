@@ -80,7 +80,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 	else
 	  lut_out = (lut_)[myEt] ;
 	
-	int ttFlag = (lut_out & 0x700) >> 8 ;
+	// int ttFlag = (lut_out & 0x700) >> 8 ;
 	myEt = lut_out & 0xff ;
 	//	out[i]=EcalEBTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
 	out[i]=EcalEBTriggerPrimitiveSample( myEt ); 
@@ -91,7 +91,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
   else {
     //std::cout << " FenixTcpFormatter et.size() " << Et.size() << std::endl;
     for (unsigned int i=0; i<Et.size();++i) {
-      int myFgvb=fgvb[i];
+      //int myFgvb=fgvb[i];
       int mysFgvb=sfgvb[i];
       //myEt=Et[i]>>eTTotShift;
       //if (myEt>0x3ff) myEt=0x3ff ;
@@ -121,7 +121,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
       else
 	lut_out = (lut_)[myEt] ;
       
-      int ttFlag = (lut_out & 0x700) >> 8 ;
+      //int ttFlag = (lut_out & 0x700) >> 8 ;
       if (tcpFormat_)  {
 	out2[i]=EcalEBTriggerPrimitiveSample( myEt & 0x3ff);
 	//std::cout << " FenixTcpFormatter final et " << (myEt & 0x3ff) << std::endl;

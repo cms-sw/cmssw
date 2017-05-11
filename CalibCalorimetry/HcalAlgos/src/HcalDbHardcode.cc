@@ -566,25 +566,25 @@ bool HcalDbHardcode::isHEPlan1(HcalGenericDetId fId){
   return false;
 }
 
-HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo) {
+HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo, double intlumi) {
   // SiPMParameter defined for each DetId the following quantities:
   //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
   //  These numbers come from some measurements done with SiPMs
   // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
-  double theDC = getParameters(fId).darkCurrent(0);
+  double theDC = getParameters(fId).darkCurrent(0,intlumi);
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
     if(useHBUpgrade_) {
       HcalDetId hid(fId);
       int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
       if(nLayersInDepth > 4) {
         theType = HcalHBHamamatsu2;
-        theDC = getParameters(fId).darkCurrent(1);
+        theDC = getParameters(fId).darkCurrent(1,intlumi);
       }
       else {
         theType = HcalHBHamamatsu1;
-        theDC = getParameters(fId).darkCurrent(0);
+        theDC = getParameters(fId).darkCurrent(0,intlumi);
       }
     }
     else theType = HcalHPD;
@@ -594,11 +594,11 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
       int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
       if(nLayersInDepth > 4) {
         theType = HcalHEHamamatsu2;
-        theDC = getParameters(fId).darkCurrent(1);
+        theDC = getParameters(fId).darkCurrent(1,intlumi);
       }
       else {
         theType = HcalHEHamamatsu1;
-        theDC = getParameters(fId).darkCurrent(0);
+        theDC = getParameters(fId).darkCurrent(0,intlumi);
       }
     }
     else theType = HcalHPD;

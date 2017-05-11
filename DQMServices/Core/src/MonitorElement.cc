@@ -12,6 +12,10 @@
 #include <cfloat>
 #include <inttypes.h>
 
+#if !WITHOUT_CMS_FRAMEWORK
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif
+
 static TH1 *
 checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
 {
@@ -927,9 +931,13 @@ MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 *
   }
   else
   {
-    //  edm::LogWarning ("MonitorElement")
-    std::cout << "*** MonitorElement: WARNING:"
-              <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
+#if WITHOUT_CMS_FRAMEWORK
+    std::cout
+#else
+    edm::LogWarning("MonitorElement")
+#endif
+      << "*** MonitorElement: WARNING:"
+      <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
   }
 }
 

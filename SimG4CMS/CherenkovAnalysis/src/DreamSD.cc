@@ -194,11 +194,8 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,sd,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();

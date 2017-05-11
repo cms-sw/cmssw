@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.MuonSeededStep_cff import *
 
 ###### Muon reconstruction module #####
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiEarlyGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),

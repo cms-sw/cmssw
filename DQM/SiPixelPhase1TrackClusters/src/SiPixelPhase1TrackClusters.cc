@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -39,10 +40,18 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   //get the map
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken( tracksToken_, tracks);
+  if ( !tracks.isValid() ) {
+    edm::LogWarning("SiPixelPhase1TrackClusters")  << "track collection is not valid";
+    return;
+  }
   
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   iEvent.getByToken( clustersToken_, clusterColl );
+  if ( !clusterColl.isValid() ) {
+    edm::LogWarning("SiPixelPhase1TrackClusters")  << "pixel cluster collection is not valid";
+    return;
+  }
   
   // we need to store some per-cluster data. Instead of a map, we use a vector,
   // exploiting the fact that all custers live in the DetSetVector and we can 

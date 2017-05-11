@@ -48,7 +48,7 @@ void testPackedCandidate::testCopyConstructor() {
   pat::PackedCandidate::Point v(0.01,0.02,0.);
 
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, 1., 1., 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   //these by design do not work
   //  CPPUNIT_ASSERT(pc.polarP4() == plv);
@@ -77,10 +77,14 @@ testPackedCandidate::testPackUnpack() {
   pat::PackedCandidate::LorentzVector lv(1.,1.,0., std::sqrt(2.+0.120*0.120));
   pat::PackedCandidate::PolarLorentzVector plv(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
 
-  pat::PackedCandidate::Point v(-0.005,0.005,0.1);
+  pat::PackedCandidate::Point v(-0.005,0.005,0.1); 
+  float trkPt=plv.Pt()+0.5;
+  float trkEta=plv.Eta()-0.1;
+  float trkPhi=-3./4.*3.1416;
+
 
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, -3./4.*3.1416, 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, trkPt,trkEta,trkPhi, 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   pc.pack(true);
   pc.packVtx(true);
@@ -95,18 +99,27 @@ testPackedCandidate::testPackUnpack() {
   CPPUNIT_ASSERT(tolerance(pc.p4().E(),lv.E(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().X(),v.X(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Y(),v.Y(), 0.001));
-  CPPUNIT_ASSERT(tolerance(pc.vertex().Z(),v.Z(), 0.01));
+  CPPUNIT_ASSERT(tolerance(pc.vertex().Z(),v.Z(), 0.01));  
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
 }
 
 void testPackedCandidate::testSimulateReadFromRoot() {
 
+  
+
   pat::PackedCandidate::LorentzVector lv(1.,1.,0., std::sqrt(2. +0.120*0.120));
   pat::PackedCandidate::PolarLorentzVector plv(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
-
   pat::PackedCandidate::Point v(-0.005,0.005,0.1);
 
+  float trkPt=plv.Pt()+0.5;
+  float trkEta=plv.Eta()-0.1;
+  float trkPhi=-3./4.*3.1416;
+
+
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, -3./4.*3.1416, 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, trkPt,trkEta,trkPhi, 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   //  CPPUNIT_ASSERT(pc.polarP4() == plv);
   //  CPPUNIT_ASSERT(pc.p4() == lv);
@@ -130,7 +143,9 @@ void testPackedCandidate::testSimulateReadFromRoot() {
   CPPUNIT_ASSERT(tolerance(pc.vertex().X(),v.X(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Y(),v.Y(), 0.001));
   CPPUNIT_ASSERT(tolerance(pc.vertex().Z(),v.Z(), 0.01));
-  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().p(),lv.P(),0.001));
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().pt(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().eta(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.pseudoTrack().phi(),trkPhi,0.001));
   
 }
 

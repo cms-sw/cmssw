@@ -146,17 +146,17 @@ class RemoveMCMatching(ConfigToolBase):
                     jetProducer = getattr(process, jetCollectionString()+pfix)
                     jetProducer.addGenPartonMatch   = False
                     jetProducer.embedGenPartonMatch = False
-                    attrsToDelete += [jetProducer.genPartonMatch.getModuleLabel()]
+                    #attrsToDelete += [jetProducer.genPartonMatch.getModuleLabel()] #MM needed for potential jet backuping
                     jetProducer.genPartonMatch      = ''
                     jetProducer.addGenJetMatch      = False
-                    attrsToDelete += [jetProducer.genJetMatch.getModuleLabel()]
+                    #attrsToDelete += [jetProducer.genJetMatch.getModuleLabel()]  #MM needed for potential jet backuping
                     jetProducer.genJetMatch         = ''
                     jetProducer.getJetMCFlavour     = False
                     jetProducer.useLegacyJetMCFlavour = False
                     jetProducer.addJetFlavourInfo   = False
-                    attrsToDelete += [jetProducer.JetPartonMapSource.getModuleLabel()]
+                    #attrsToDelete += [jetProducer.JetPartonMapSource.getModuleLabel()]  #MM needed for potential jet backuping
                     jetProducer.JetPartonMapSource  = ''
-                    attrsToDelete += [jetProducer.JetFlavourInfoSource.getModuleLabel()]
+                    #attrsToDelete += [jetProducer.JetFlavourInfoSource.getModuleLabel()]  #MM needed for potential jet backuping
                     jetProducer.JetFlavourInfoSource = ''
                     attrsToDelete += ['slimmedGenJets'+pfix]
                 ## adjust output
@@ -186,10 +186,13 @@ class RemoveMCMatching(ConfigToolBase):
 removeMCMatching=RemoveMCMatching()
 
 def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""):
-    objectMatcher = getattr(process, matcherName+postfix)
-    objectProducer = getattr(process, producerName+postfix)
-    objectProducer.addGenMatch      = False
-    objectProducer.embedGenMatch    = False
-    attr = objectProducer.genParticleMatch.getModuleLabel()
+    if hasattr(process, matcherName+postfix):
+        objectMatcher = getattr(process, matcherName+postfix)
+    if hasattr(process, producerName+postfix):
+        objectProducer = getattr(process, producerName+postfix)
+        objectProducer.addGenMatch      = False
+        objectProducer.embedGenMatch    = False
+        attr = objectProducer.genParticleMatch.getModuleLabel()
+        objectProducer.genParticleMatch = ''
     if hasattr(process,attr): delattr(process,attr)
-    objectProducer.genParticleMatch = ''
+    

@@ -127,10 +127,9 @@ bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evS
 
     edm::LogInfo("HLTBeamModeFilter") << "Beam mode: " << beamModeValue;
 
-    for (std::vector<unsigned int>::const_iterator itMode =
-            m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end(); ++itMode) {
+    for (unsigned int itMode : m_allowedBeamMode) {
 
-        if (beamModeValue == (*itMode)) {
+        if (beamModeValue == itMode) {
             filterResult = true;
 
             //LogTrace("HLTBeamModeFilter") << "Event selected - beam mode: "

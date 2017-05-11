@@ -40,7 +40,7 @@ HLTEgammaEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
    descriptions.add("hltEgammaEtFilter", desc);
 }
 
-HLTEgammaEtFilter::~HLTEgammaEtFilter(){}
+HLTEgammaEtFilter::~HLTEgammaEtFilter()= default;
 
 
 // ------------ method called to produce the data  ------------
@@ -69,9 +69,9 @@ HLTEgammaEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    ref = recoecalcands[i] ;
+    ref = recoecalcand ;
 
     if( ( fabs(ref->eta()) < 1.479 &&  ref->et()  >= etcutEB_ ) || ( fabs(ref->eta()) >= 1.479 &&  ref->et()  >= etcutEE_ ) ){
       n++;

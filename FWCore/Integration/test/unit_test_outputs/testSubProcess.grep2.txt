@@ -219,54 +219,54 @@
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
-++++ finished: begin run: stream = 0 run = 1 time = 1
-++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin run for module: stream = 0 label = 'out' id = 24
+++++ finished: begin run: stream = 0 run = 1 time = 1
+++++ starting: begin run: stream = 0 run = 1 time = 1
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -335,54 +335,54 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
+++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: source event
 ++++ finished: source event
@@ -933,54 +933,54 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
+++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
@@ -1109,54 +1109,54 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
+++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: source event
 ++++ finished: source event
@@ -1707,54 +1707,54 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
+++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 2 time = 25000001
 ++++ finished: global end lumi: run = 1 lumi = 2 time = 25000001
@@ -1883,54 +1883,54 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
+++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: source event
 ++++ finished: source event
@@ -2209,54 +2209,54 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
+++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 3 time = 45000001
 ++++ finished: global end lumi: run = 1 lumi = 3 time = 45000001
@@ -2323,54 +2323,54 @@
 ++++ starting: end run: stream = 0 run = 1 time = 0
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end run for module: stream = 0 label = 'get' id = 3
-++++++ finished: end run for module: stream = 0 label = 'get' id = 3
-++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end run for module: stream = 0 label = 'get' id = 3
+++++++ finished: end run for module: stream = 0 label = 'get' id = 3
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end run for module: stream = 0 label = 'test' id = 11
-++++++ finished: end run for module: stream = 0 label = 'test' id = 11
-++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end run for module: stream = 0 label = 'get' id = 13
-++++++ finished: end run for module: stream = 0 label = 'get' id = 13
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end run for module: stream = 0 label = 'out' id = 16
-++++++ finished: end run for module: stream = 0 label = 'out' id = 16
-++++ finished: end run: stream = 0 run = 1 time = 0
-++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'get' id = 21
+++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end run for module: stream = 0 label = 'out' id = 24
+++++ finished: end run: stream = 0 run = 1 time = 0
+++++ starting: end run: stream = 0 run = 1 time = 0
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end run for module: stream = 0 label = 'get' id = 13
+++++++ finished: end run for module: stream = 0 label = 'get' id = 13
+++++++ starting: end run for module: stream = 0 label = 'test' id = 11
+++++++ finished: end run for module: stream = 0 label = 'test' id = 11
+++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end run for module: stream = 0 label = 'out' id = 16
+++++++ finished: end run for module: stream = 0 label = 'out' id = 16
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: global end run 1 : time = 50000001
 ++++ finished: global end run 1 : time = 50000001
@@ -2499,54 +2499,54 @@
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
-++++ finished: begin run: stream = 0 run = 2 time = 55000001
-++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin run for module: stream = 0 label = 'out' id = 24
+++++ finished: begin run: stream = 0 run = 2 time = 55000001
+++++ starting: begin run: stream = 0 run = 2 time = 55000001
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -2615,54 +2615,54 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
+++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: source event
 ++++ finished: source event
@@ -3213,54 +3213,54 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
+++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 1 time = 55000001
 ++++ finished: global end lumi: run = 2 lumi = 1 time = 55000001
@@ -3389,54 +3389,54 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
+++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: source event
 ++++ finished: source event
@@ -3987,54 +3987,54 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
+++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 2 time = 75000001
 ++++ finished: global end lumi: run = 2 lumi = 2 time = 75000001
@@ -4163,54 +4163,54 @@
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
+++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: source event
 ++++ finished: source event
@@ -4489,54 +4489,54 @@
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
+++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 3 time = 95000001
 ++++ finished: global end lumi: run = 2 lumi = 3 time = 95000001
@@ -4603,54 +4603,54 @@
 ++++ starting: end run: stream = 0 run = 2 time = 0
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end run for module: stream = 0 label = 'get' id = 3
-++++++ finished: end run for module: stream = 0 label = 'get' id = 3
-++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end run for module: stream = 0 label = 'get' id = 3
+++++++ finished: end run for module: stream = 0 label = 'get' id = 3
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end run for module: stream = 0 label = 'test' id = 11
-++++++ finished: end run for module: stream = 0 label = 'test' id = 11
-++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end run for module: stream = 0 label = 'get' id = 13
-++++++ finished: end run for module: stream = 0 label = 'get' id = 13
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end run for module: stream = 0 label = 'out' id = 16
-++++++ finished: end run for module: stream = 0 label = 'out' id = 16
-++++ finished: end run: stream = 0 run = 2 time = 0
-++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'get' id = 21
+++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end run for module: stream = 0 label = 'out' id = 24
+++++ finished: end run: stream = 0 run = 2 time = 0
+++++ starting: end run: stream = 0 run = 2 time = 0
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end run for module: stream = 0 label = 'get' id = 13
+++++++ finished: end run for module: stream = 0 label = 'get' id = 13
+++++++ starting: end run for module: stream = 0 label = 'test' id = 11
+++++++ finished: end run for module: stream = 0 label = 'test' id = 11
+++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end run for module: stream = 0 label = 'out' id = 16
+++++++ finished: end run for module: stream = 0 label = 'out' id = 16
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: global end run 2 : time = 100000001
 ++++ finished: global end run 2 : time = 100000001
@@ -4779,54 +4779,54 @@
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
-++++ finished: begin run: stream = 0 run = 3 time = 105000001
-++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin run for module: stream = 0 label = 'out' id = 24
+++++ finished: begin run: stream = 0 run = 3 time = 105000001
+++++ starting: begin run: stream = 0 run = 3 time = 105000001
+++++++ starting: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin run for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin run for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin run for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin run for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin run for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin run for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -4895,54 +4895,54 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
+++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: source event
 ++++ finished: source event
@@ -5493,54 +5493,54 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
+++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 1 time = 105000001
 ++++ finished: global end lumi: run = 3 lumi = 1 time = 105000001
@@ -5669,54 +5669,54 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
+++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: source event
 ++++ finished: source event
@@ -6267,54 +6267,54 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
+++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 2 time = 125000001
 ++++ finished: global end lumi: run = 3 lumi = 2 time = 125000001
@@ -6443,54 +6443,54 @@
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: begin lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: begin lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
+++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
+++++++ starting: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: begin lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: begin lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: begin lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: begin lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: begin lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: begin lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: begin lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: source event
 ++++ finished: source event
@@ -6769,54 +6769,54 @@
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
-++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end lumi for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end lumi for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end lumi for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
-++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
-++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
-++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
-++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end lumi for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end lumi for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end lumi for module: stream = 0 label = 'out' id = 24
+++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
+++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
+++++++ starting: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end lumi for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ finished: end lumi for module: stream = 0 label = 'get' id = 13
+++++++ starting: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ finished: end lumi for module: stream = 0 label = 'test' id = 11
+++++++ starting: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end lumi for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end lumi for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end lumi for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end lumi for module: stream = 0 label = 'out' id = 16
+++++++ finished: end lumi for module: stream = 0 label = 'out' id = 16
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 3 time = 145000001
 ++++ finished: global end lumi: run = 3 lumi = 3 time = 145000001
@@ -6883,54 +6883,54 @@
 ++++ starting: end run: stream = 0 run = 3 time = 0
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
-++++++ starting: end run for module: stream = 0 label = 'get' id = 3
-++++++ finished: end run for module: stream = 0 label = 'get' id = 3
-++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
-++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
-++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
 ++++++ starting: end run for module: stream = 0 label = 'noPut' id = 8
 ++++++ finished: end run for module: stream = 0 label = 'noPut' id = 8
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 7
+++++++ starting: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ finished: end run for module: stream = 0 label = 'putInt3' id = 6
+++++++ starting: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 5
+++++++ starting: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ finished: end run for module: stream = 0 label = 'putInt' id = 4
+++++++ starting: end run for module: stream = 0 label = 'get' id = 3
+++++++ finished: end run for module: stream = 0 label = 'get' id = 3
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 2
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ starting: end run for module: stream = 0 label = 'test' id = 11
-++++++ finished: end run for module: stream = 0 label = 'test' id = 11
-++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
-++++++ starting: end run for module: stream = 0 label = 'get' id = 13
-++++++ finished: end run for module: stream = 0 label = 'get' id = 13
-++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ starting: end run for module: stream = 0 label = 'out' id = 16
-++++++ finished: end run for module: stream = 0 label = 'out' id = 16
-++++ finished: end run: stream = 0 run = 3 time = 0
-++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
-++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'get' id = 21
+++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'test' id = 19
 ++++++ finished: end run for module: stream = 0 label = 'test' id = 19
 ++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 20
 ++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 20
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++++ starting: end run for module: stream = 0 label = 'getInt' id = 22
 ++++++ finished: end run for module: stream = 0 label = 'getInt' id = 22
-++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++ starting: end run for module: stream = 0 label = 'out' id = 24
 ++++++ finished: end run for module: stream = 0 label = 'out' id = 24
+++++ finished: end run: stream = 0 run = 3 time = 0
+++++ starting: end run: stream = 0 run = 3 time = 0
+++++++ starting: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: end run for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ starting: end run for module: stream = 0 label = 'get' id = 13
+++++++ finished: end run for module: stream = 0 label = 'get' id = 13
+++++++ starting: end run for module: stream = 0 label = 'test' id = 11
+++++++ finished: end run for module: stream = 0 label = 'test' id = 11
+++++++ starting: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: end run for module: stream = 0 label = 'testmerge' id = 12
+++++++ starting: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: end run for module: stream = 0 label = 'getInt' id = 14
+++++++ starting: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: end run for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ starting: end run for module: stream = 0 label = 'out' id = 16
+++++++ finished: end run for module: stream = 0 label = 'out' id = 16
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: global end run 3 : time = 150000001
 ++++ finished: global end run 3 : time = 150000001

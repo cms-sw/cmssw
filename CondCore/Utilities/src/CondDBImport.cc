@@ -45,6 +45,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( AlignmentErrorsExtended )
       IMPORT_PAYLOAD_CASE( AlignmentSurfaceDeformations )
       IMPORT_PAYLOAD_CASE( Alignments )
+      IMPORT_PAYLOAD_CASE( AlignPCLThresholds )
       IMPORT_PAYLOAD_CASE( BeamSpotObjects )
       IMPORT_PAYLOAD_CASE( CSCBadChambers )
       IMPORT_PAYLOAD_CASE( CSCBadStrips )

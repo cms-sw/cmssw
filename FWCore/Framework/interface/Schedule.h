@@ -107,6 +107,7 @@ namespace edm {
   struct TriggerTimingReport;
   class ModuleRegistry;
   class ThinnedAssociationsHelper;
+  class SubProcessParentageHelper;
   class TriggerResultInserter;
   class WaitingTaskHolder;
 
@@ -124,6 +125,7 @@ namespace edm {
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
              ThinnedAssociationsHelper& thinnedAssociationsHelper,
+             SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -146,6 +148,13 @@ namespace edm {
                           typename T::MyPrincipal& principal,
                           EventSetup const& eventSetup,
                           bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneStreamAsync(WaitingTaskHolder iTask,
+                               unsigned int iStreamID,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
@@ -264,7 +273,9 @@ namespace edm {
 
   private:
 
-    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
+    void limitOutput(ParameterSet const& proc_pset,
+                     BranchIDLists const& branchIDLists,
+                     SubProcessParentageHelper const* subProcessParentageHelper);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {return get_underlying_safe(resultsInserter_);}
     std::shared_ptr<TriggerResultInserter>& resultsInserter() {return get_underlying_safe(resultsInserter_);}
@@ -296,6 +307,17 @@ namespace edm {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneStream<T>(ep,es,cleaningUpAfterException);
   }
+  
+  template <typename T>
+  void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
+                                       unsigned int iStreamID,
+                                       typename T::MyPrincipal& ep,
+                                       EventSetup const& es,
+                                       bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,cleaningUpAfterException);
+  }
+
   template <typename T>
   void
   Schedule::processOneGlobal(typename T::MyPrincipal& ep,

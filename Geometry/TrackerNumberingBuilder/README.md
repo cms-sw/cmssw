@@ -129,7 +129,7 @@ The OT tilted option has been introduced in the subdetector 5 with two bits (in 
 
 With this subdetector, the flat geometry is compatible using just the central barrel part of the subdetector 5.
  
-* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
+* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -191,6 +191,7 @@ The link between the subdetectors described in the geometry and the `DetId::subD
 | TEC | `TEC`=6 | 6=`StripSubdetector::TEC` |
 | PixelPhase1Barrel | `PixelPhase1Barrel`=101 | 1=`PixelSubdetector::PixelBarrel` |
 | PixelPhase1EndcapSubDet | `PixelPhase1EndCap`=102 | 2=`PixelSubdetector::PixelEndcap` |
+| PixelPhase2Barrel | `PixelPhase2Barrel`=201 | 1=`PixelSubdetector::PixelBarrel` |
 | PixelPhase2EndcapSubDet | `PixelPhase2EndCap`=202 | 2=`PixelSubdetector::PixelEndcap` |
 | Phase2OTBarrel | `OTPhase2Barrel`=205 | 5=`StripSubdetector::TOB` |
 | Phase2OTEndcap | `OTPhase2EndCap`=204 | 4=`StripSubdetector::TID` |

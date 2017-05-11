@@ -16,6 +16,9 @@
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
+
 #include <vector>
 
 namespace DataFormats_CTPPSDigi {
@@ -54,6 +57,20 @@ namespace DataFormats_CTPPSDigi {
     edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> > wdsv_rp_diamo_dig;
 
     HPTDCErrorFlags rm_hptdcerr;
+    CTPPSPixelDigi ff0;
+    CTPPSPixelDigiCollection ffc0;
+    std::vector<CTPPSPixelDigi>  ff1;
+    edm::DetSet<CTPPSPixelDigi>  ff2;
+    std::vector<edm::DetSet<CTPPSPixelDigi> >  ff3;
+    edm::DetSetVector<CTPPSPixelDigi> ff4;
+
+
+    edm::Wrapper<CTPPSPixelDigi> wff0;
+    edm::Wrapper<CTPPSPixelDigiCollection> wffc0;
+    edm::Wrapper< std::vector<CTPPSPixelDigi>  > wff1;
+    edm::Wrapper< edm::DetSet<CTPPSPixelDigi> > wff2;
+    edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDigi> > > wff3;
+    edm::Wrapper< edm::DetSetVector<CTPPSPixelDigi> > wff4;
 
   };
 }

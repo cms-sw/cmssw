@@ -88,9 +88,11 @@ CaloSamples HcalSignalGenerator<HcalQIE11DigitizerTraits>::samplesInPE(const Hca
   bool overflow = false;
   // find and list them
 
-  uint16_t flag = digi.flags();
   for(int isample=0; isample<digi.samples(); ++isample) {
-    if((flag>>isample)&1) overflow = true; 
+    if(digi[isample].tdc()==1){
+      overflow = true; 
+      break;
+    }
   }
 
   if(overflow) {  // do full conversion, go back and overwrite fake entries
@@ -101,7 +103,7 @@ CaloSamples HcalSignalGenerator<HcalQIE11DigitizerTraits>::samplesInPE(const Hca
 
     // overwrite with coded information
     for(int isample=0; isample<digi.samples(); ++isample) {
-      if(!((flag>>isample)&1)) result[isample] = float(digi[isample].adc())/HcalQIE11DigitizerTraits::PreMixFactor;
+      if(digi[isample].tdc()==0) result[isample] = float(digi[isample].adc())/HcalQIE11DigitizerTraits::PreMixFactor;
     }
   }
   else {  // saves creating the coder, etc., every time

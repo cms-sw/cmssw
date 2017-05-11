@@ -60,7 +60,7 @@ BaseRandomtXiGunProducer::BaseRandomtXiGunProducer( const edm::ParameterSet& pse
    fFireBackward = pset.getParameter<bool>("FireBackward") ;
    fFireForward  = pset.getParameter<bool>("FireForward") ;
 
-   produces<GenRunInfoProduct, InRun>();
+   produces<GenRunInfoProduct, Transition::EndRun>();
 }
 
 BaseRandomtXiGunProducer::~BaseRandomtXiGunProducer()

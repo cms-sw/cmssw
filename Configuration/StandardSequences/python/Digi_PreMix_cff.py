@@ -20,6 +20,9 @@ simMuonRPCDigis.doBkgNoise = False
 simEcalDigis.UseFullReadout = cms.bool(True)
 # This is extra, since the configuration skips it anyway.  Belts and suspenders.
 pdigi.remove(simEcalPreshowerDigis)
+# remove HCAL TP sim - not needed, sometimes breaks
+hcalDigiSequence.remove(simHcalTriggerPrimitiveDigis)
+hcalDigiSequence.remove(simHcalTTPDigis)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
