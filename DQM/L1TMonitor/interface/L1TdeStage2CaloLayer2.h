@@ -39,6 +39,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
    */
   L1TdeStage2CaloLayer2 (const edm::ParameterSet & ps);
 
+
  protected:
 
   /**
@@ -197,48 +198,6 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   // Value is taken from python configuration file (passed in class constructor)
   std::string monitorDir;
 
-  enum summaryVars {
-    EVENTGOOD = 1,    // number of good events (100% agreement)
-    JETGOOD_S,        // number of jets in agreement (energy and pos)
-    EGGOOD_S,         // number of e/g in agremeent (energy and pos)
-    TAUGOOD_S,        // number of taus in agremenet (energy and pos)
-    SUMGOOD_S         // number of good sums across all events
-  };
-
-  enum jetVars {
-    JETGOOD = 1,
-    JETPOSOFF,
-    JETETOFF
-  };
-
-  enum egVars {
-    EGGOOD = 1,
-    EGPOSOFF,
-    EGETOFF,
-    ISOEGGOOD,
-    ISOEGPOSOFF,
-    ISOEGETOFF
-  };
-
-  enum tauVars {
-    TAUGOOD = 1,
-    TAUPOSOFF,
-    TAUETOFF,
-    ISOTAUGOOD,
-    ISOTAUPOSOFF,
-    ISOTAUETOFF
-  };
-
-  enum sumVars {
-    SUMGOOD = 1,
-    ETTSUMGOOD,
-    HTTSUMGOOD,
-    METSUMGOOD,
-    MHTSUMGOOD,
-    MBHFSUMGOOD,
-    TOWCOUNTGOOD
-  };
-
   // collections to hold entities reconstructed from data and emulation
   edm::EDGetTokenT<l1t::JetBxCollection> calol2JetCollectionData;
   edm::EDGetTokenT<l1t::JetBxCollection> calol2JetCollectionEmul;
@@ -248,6 +207,76 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::TauBxCollection> calol2TauCollectionEmul;
   edm::EDGetTokenT<l1t::EtSumBxCollection> calol2EtSumCollectionData;
   edm::EDGetTokenT<l1t::EtSumBxCollection> calol2EtSumCollectionEmul;
+
+  enum summaryBins {
+    NEVENTS = 1,      // total number of events
+    EVENTGOOD,        // number of good events (100% agreement)
+    NJETS_S,          // total number of jets objects found
+    JETGOOD_S,        // number of jets in agreement (energy and pos)
+    NEGS_S,           // total number of e/g objects found
+    EGGOOD_S,         // number of e/g in agremeent (energy and pos)
+    NTAUS_S,          // total number of tau objects found
+    TAUGOOD_S,        // number of taus in agremenet (energy and pos)
+    NSUMS_S,          // total number of sums
+    SUMGOOD_S         // number of good sums across all events
+  };
+
+  enum problemCauses {
+    NEVENTS_P = 1,    // total number of events
+    JETCOLLSIZE,      // no. events with different data/emul obj. in jet coll.
+    EGCOLLESIZE,      // no. events with different data/emul obj. in eg coll.
+    TAUCOLLSIZE,      // no. events with different data/emul obj. in tau coll.
+    JETMISMATCH,      // no. events failed due to a jet mismatch
+    EGMISMATCH,       // no. events failed due to an e/g mismatch
+    TAUMISMATCH,      // no. events failed due to a tau mismatch
+    SUMMISMATCH       // no. events failed due to a sum mismatch
+  };
+
+  enum jetVars {
+    NJETS = 1,
+    JETGOOD,
+    JETPOSOFF,
+    JETETOFF
+  };
+
+  enum egVars {
+    NEGS = 1,
+    EGGOOD,
+    EGPOSOFF,
+    EGETOFF,
+    NISOEGS,
+    ISOEGGOOD,
+    ISOEGPOSOFF,
+    ISOEGETOFF
+  };
+
+  enum tauVars {
+    NTAUS = 1,
+    TAUGOOD,
+    TAUPOSOFF,
+    TAUETOFF,
+    NISOTAUS,
+    ISOTAUGOOD,
+    ISOTAUPOSOFF,
+    ISOTAUETOFF
+  };
+
+  enum sumVars {
+    NSUMS = 1,
+    SUMGOOD,
+    NETTSUMS,
+    ETTSUMGOOD,
+    NHTTSUMS,
+    HTTSUMGOOD,
+    NMETSUMS,
+    METSUMGOOD,
+    NMHTSUMS,
+    MHTSUMGOOD,
+    NMBHFSUMS,
+    MBHFSUMGOOD,
+    NTOWCOUNTS,
+    TOWCOUNTGOOD
+  };
 
   // objects to represent individual plots shown in DQM
   MonitorElement * agreementSummary;
@@ -346,51 +375,6 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
 
   bool verbose;
   bool notProcessed = true;
-
-  int totalEvents = 0;
-  int goodEvents = 0;
-
-  int totalJets = 0;
-  int goodJets = 0;
-  int posOffJets = 0;
-  int etOffJets = 0;
-
-  int totalEGs = 0;
-  int goodEGs = 0;
-  int posOffEGs = 0;
-  int etOffEGs = 0;
-  int totalIsoEGs = 0;
-  int goodIsoEGs = 0;
-  int posOffIsoEGs = 0;
-  int etOffIsoEGs = 0;
-
-  int totalTaus = 0;
-  int goodTaus = 0;
-  int posOffTaus = 0;
-  int etOffTaus = 0;
-  int totalIsoTaus = 0;
-  int goodIsoTaus = 0;
-  int posOffIsoTaus = 0;
-  int etOffIsoTaus = 0;
-
-  int totalSums = 0;
-  int goodSums = 0;
-
-  int totalETTSums = 0;
-  int goodETTSums = 0;
-  int totalHTTSums = 0;
-  int goodHTTSums = 0;
-
-  int totalMETSums = 0;
-  int goodMETSums = 0;
-  int totalMHTSums = 0;
-  int goodMHTSums = 0;
-
-  int totalMBHFSums = 0;
-  int goodMBHFSums = 0;
-  int totalTowCountSums = 0;
-  int goodTowCountSums = 0;
-
   // use only bx = 0 since it only contains RAW data (needed for emulator)
   const unsigned int currBx = 0;
 };
