@@ -22,7 +22,7 @@ from DQM.CTPPS.ctppsDQM_cff import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
-                                 #hcalOfflineSourceSequence *
+                                 hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source *
                                  dtSources *
@@ -148,8 +148,7 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                muonMonitors
                               )
 
-#DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
-DQMOfflineHcal = cms.Sequence()
+DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline
