@@ -146,8 +146,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByToken(muonToken_, muons);
 
+  
   edm::Handle<pat::PackedCandidateCollection> pc;
-  iEvent.getByToken(pcToken_, pc);
+  if(computeMiniIso_)
+      iEvent.getByToken(pcToken_, pc);
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
@@ -287,7 +289,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       aMuon.setPFCandidateRef( pfRef  );
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
-      setMuonMiniIso(aMuon, pc.product());
+
+      if(computeMiniIso_) 
+          setMuonMiniIso(aMuon, pc.product());
 
       if (addPuppiIsolation_) {
 	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonBaseRef],
@@ -341,7 +345,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       Muon aMuon(muonRef);
       fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
-      setMuonMiniIso(aMuon, pc.product());
+      if(computeMiniIso_)
+          setMuonMiniIso(aMuon, pc.product());
       if (addPuppiIsolation_) {
 	aMuon.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[muonRef], (*PUPPIIsolation_neutral_hadrons)[muonRef], (*PUPPIIsolation_photons)[muonRef]);
 	aMuon.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_neutral_hadrons)[muonRef], (*PUPPINoLeptonsIsolation_photons)[muonRef]);
@@ -513,13 +518,11 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
 
 void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollection *pc)
 {
-  if(computeMiniIso_){
-    pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc, aMuon.p4(),
-                                                       miniIsoParams_[0], miniIsoParams_[1], miniIsoParams_[2],
-                                                       miniIsoParams_[3], miniIsoParams_[4], miniIsoParams_[5],
-                                                       miniIsoParams_[6], miniIsoParams_[7], miniIsoParams_[8]);
-    aMuon.setMiniPFIsolation(miniiso);
-  }
+  pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc, aMuon.p4(),
+                                                     miniIsoParams_[0], miniIsoParams_[1], miniIsoParams_[2],
+                                                     miniIsoParams_[3], miniIsoParams_[4], miniIsoParams_[5],
+                                                     miniIsoParams_[6], miniIsoParams_[7], miniIsoParams_[8]);
+  aMuon.setMiniPFIsolation(miniiso);
 }
 
 // ParameterSet description for module
