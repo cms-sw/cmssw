@@ -9,16 +9,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 {
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
+	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 		edm::InputTag("hcalDigis"));
 
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
-	_tokHF = consumes<HFDigiCollection>(_tagHF);
+	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 
 	_cutSumQ_HBHE = ps.getUntrackedParameter<double>("cutSumQ_HBHE", 20);
+	_cutSumQ_HEP17 = ps.getUntrackedParameter<double>("cutSumQ_HEP17", 20);
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
 	_cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
 	_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
@@ -208,6 +212,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
+	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cLETDCvsTS.initialize(_name, "LETDCvsTS", 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64));
+	_cLETDCTime.initialize(_name, "LETDCTime",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+
+
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
 	{
@@ -326,6 +342,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	_cDigiSize_FED.book(ib, _emap, _subsystem);
 
+	_cLETDCvsADC.book(ib, _subsystem);
+	_cLETDCvsTS.book(ib, _subsystem);
+	_cLETDCTime.book(ib, _subsystem);
+
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 	_dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
@@ -422,17 +442,21 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	edm::EventSetup const&)
 {
 	edm::Handle<HBHEDigiCollection>     chbhe;
+	edm::Handle<QIE11DigiCollection>     chep17;
 	edm::Handle<HODigiCollection>       cho;
-	edm::Handle<HFDigiCollection>       chf;
+	edm::Handle<QIE10DigiCollection>       chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
+	if (!e.getByToken(_tokHEP17, chep17))
+		_logger.dqmthrow("Collection HEP17DigiCollection isn't available"
+			+ _tagHEP17.label() + " " + _tagHEP17.instance());
 	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
 	if (!e.getByToken(_tokHF, chf))
-		_logger.dqmthrow("Collection HFDigiCollection isn't available"
+		_logger.dqmthrow("Collection QIE10DigiCollection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
 
 	//	extract some info per event
@@ -550,6 +574,97 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		did.subdet()==HcalBarrel?numChs++:numChsHE++;
 	}
 
+	// HEP17 collection
+	// The following are filled w.r.t. HBHE digis
+	// - All eta-phi maps
+	// - Occupancy in electronics coordinates
+	// - Digi size
+	// 
+	// The following are not filled:
+	// - ADC, fC, sumQ, timing. These are different for QIE11 vs. QIE8. Find them in QIE11Task instead.
+	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+		++it)
+	{
+		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
+
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.size()-1);
+
+		//	Explicit check on the DetIds present in the Collection
+		HcalDetId const& did = digi.detid();
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0) 
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalBarrel) // Note: since this is HEP17, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection may someday expand.
+			rawidHBValid = did.rawId();
+		else if (did.subdet()==HcalEndcap) 
+			rawidHEValid = did.rawId();
+
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
+
+		_cOccupancy_depth.fill(did);
+		if (_ptype==fOnline)
+		{
+			_cDigiSizevsLS_FED.fill(eid, _currentLS, (int)digi.size());
+			(int)(digi.size())!=constants::DIGISIZE[did.subdet()-1]?
+				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
+			_cOccupancyvsiphi_SubdetPM.fill(did);
+			_cOccupancyvsieta_Subdet.fill(did);
+		}
+		_cDigiSize_FED.fill(eid, (int)(digi.size()));
+		if (eid.isVMEid())
+		{
+			_cOccupancy_FEDVME.fill(eid);
+			_cOccupancy_ElectronicsVME.fill(eid);
+		}
+		else
+		{
+			_cOccupancy_FEDuTCA.fill(eid);
+			_cOccupancy_ElectronicsuTCA.fill(eid);
+			/*
+			if (!digi.validate(0, digi.size()))
+			{
+				_cCapIdRots_depth.fill(did);
+				_cCapIdRots_FEDuTCA.fill(eid, 1);
+			}*/
+		}
+
+		if (sumQ>_cutSumQ_HEP17)
+		{
+			double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,
+				digi.size()-1);
+			_cOccupancyCut_depth.fill(did);
+			_cTimingCut_depth.fill(did, timing);
+			_cSumQ_depth.fill(did, sumQ);
+			if (_ptype==fOnline)
+			{
+				_cOccupancyCutvsiphi_SubdetPM.fill(did);
+				_cOccupancyCutvsieta_Subdet.fill(did);
+				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
+			}
+			if (eid.isVMEid())
+			{
+				_cOccupancyCut_FEDVME.fill(eid);
+				_cOccupancyCut_ElectronicsVME.fill(eid);
+			}
+			else 
+			{
+				_cOccupancyCut_FEDuTCA.fill(eid);
+				_cOccupancyCut_ElectronicsuTCA.fill(eid);
+			}
+			did.subdet()==HcalBarrel?numChsCut++:numChsCutHE++;
+		}
+		did.subdet()==HcalBarrel?numChs++:numChsHE++;
+	}
+
 	if (rawidHBValid!=0 && rawidHEValid!=0)
 	{
 		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidHBValid), _currentLS, 
@@ -575,6 +690,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	//	reset
 	rawidValid = 0;
+
 
 	//	HO collection
 	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
@@ -695,16 +811,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	rawidValid = 0;
 
 	//	HF collection
-	for (HFDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
+	for (QIE10DigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
-		double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
+		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
+		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.size()-1);
 
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId const& did = it->id();
+		HcalDetId const& did = digi.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent=true;
+			continue;
+		}
 		HcalElectronicsId const& eid(rawid);
 		if (did.subdet()==HcalForward)
 			rawidValid = did.rawId();
@@ -724,13 +844,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (_ptype==fOnline)
 		{
 			_xNChs.get(eid)++;
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			_cDigiSizevsLS_FED.fill(eid, _currentLS, (int)digi.size());
+			digi.size()!=(unsigned int)constants::DIGISIZE[did.subdet()-1]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
-		_cDigiSize_FED.fill(eid, it->size());
+		_cDigiSize_FED.fill(eid, (int)digi.size());
 		if (eid.isVMEid())
 		{
 			_cOccupancy_FEDVME.fill(eid);
@@ -748,20 +868,26 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cCapIdRots_FEDuTCA.fill(eid, 1);*/
 		}
 
-		for (int i=0; i<it->size(); i++)
+		for (unsigned int i=0; i<digi.size(); i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
-			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
+			_cADC_SubdetPM.fill(did, digi[i].adc());
+			_cfC_SubdetPM.fill(did, constants::adc2fC[digi[i].adc()] - 2.5);
+			_cLETDCvsADC.fill(digi[i].adc(), digi[i].le_tdc());
+			_cLETDCvsTS.fill((int)i, digi[i].le_tdc());
+			if (digi[i].le_tdc() <50) {
+				_cLETDCTime.fill(i*25. + (digi[i].le_tdc() / 2.));
+			}
+
 			if (sumQ>_cutSumQ_HF)
-				_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+				_cShapeCut_FED.fill(eid, (int)i, constants::adc2fC[digi[i].adc()] - 2.5);
 		}
 
 		if (sumQ>_cutSumQ_HF)
 		{
-			double timing = hcaldqm::utilities::aveTS<HFDataFrame>(*it, 2.5, 0,
+			double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0,
 				it->size()-1);
-			double q1 = it->sample(1).nominal_fC()-2.5;
-			double q2 = it->sample(2).nominal_fC()-2.5;
+			double q1 = constants::adc2fC[digi[1].adc()]-2.5;
+			double q2 = constants::adc2fC[digi[2].adc()]-2.5;
 			double q2q12 = q2/(q1+q2);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);

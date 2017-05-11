@@ -55,12 +55,11 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		vuTCA);
 
 	//	push the rawIds of each fed into the vector
-	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
-		it!=vFEDsVME.end(); ++it)
+	for (std::vector<int>::const_iterator it=vFEDsVME.begin(); it!=vFEDsVME.end(); ++it) {
 		_vhashFEDs.push_back(HcalElectronicsId(
 			FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
-	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin(); 
-		it!=vFEDsuTCA.end(); ++it)
+	}
+	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin(); it!=vFEDsuTCA.end(); ++it)
     {
         std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
@@ -394,8 +393,15 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId did = it->id();
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0)
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+        /*
+         * Needs to be removed as DetIds that belong to the HEP17 after combination
+         * are not present in the emap
+         * Removed until further notice!
+         *
+         */
+		//if (rawid==0)
+		//{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+        
 		HcalElectronicsId const& eid(rawid);
 		rawidValid = did.rawId();
 		if (did.subdet()==HcalBarrel)
@@ -416,16 +422,18 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
 		//	^^^ONLINE ONLY!
-
-		if (eid.isVMEid())
-		{
-			_cOccupancy_FEDVME.fill(eid);
-			_cOccupancy_ElectronicsVME.fill(eid);
-		}
-		else
-		{
-			_cOccupancy_FEDuTCA.fill(eid);
-			_cOccupancy_ElectronicsuTCA.fill(eid);
+		//	Also, for these electronics plots, require that the channel was found in the emap.
+		if (rawid != 0) {
+			if (eid.isVMEid())
+			{
+				_cOccupancy_FEDVME.fill(eid);
+				_cOccupancy_ElectronicsVME.fill(eid);
+			}
+			else if (eid.isUTCAid())
+			{
+				_cOccupancy_FEDuTCA.fill(eid);
+				_cOccupancy_ElectronicsuTCA.fill(eid);
+			}
 		}
 
 		if (energy>_cutE_HBHE)
@@ -452,49 +460,56 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			//	ONLINE 
 			if (_ptype==fOnline)
 			{
-				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				if (rawid != 0) {
+					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				}
 				_cTimingCut_depth.fill(did, timing);
 			}//	^^^ONLINE
 			else
 			{
-				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				if (rawid != 0) {
+			    	_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				}
 				_cTimingCut_depth.fill(did, timing);
 			}
 			_cOccupancyCut_depth.fill(did);
-			if (eid.isVMEid())
-			{
 
-				//	ONLINE 
-				if (_ptype==fOnline)
+			if (rawid != 0) {
+				if (eid.isVMEid())
 				{
-					_cTimingCut_FEDVME.fill(eid, timing);
-					_cTimingCut_ElectronicsVME.fill(eid, timing);
-				} // ^^^ ONLINE
-				else
-				{
-					_cTimingCut_FEDVME.fill(eid, timing);
-					_cTimingCut_ElectronicsVME.fill(eid, timing);
-				}
-				//	^^^ONLINE
 
-				_cOccupancyCut_FEDVME.fill(eid);
-				_cOccupancyCut_ElectronicsVME.fill(eid);
-			}
-			else
-			{
-				if (_ptype==fOnline)
-				{
-					//	time constraints are explicit!
-					_cTimingCut_FEDuTCA.fill(eid, timing);
-					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					//	ONLINE 
+					if (_ptype==fOnline)
+					{
+						_cTimingCut_FEDVME.fill(eid, timing);
+						_cTimingCut_ElectronicsVME.fill(eid, timing);
+					} // ^^^ ONLINE
+					else
+					{
+						_cTimingCut_FEDVME.fill(eid, timing);
+						_cTimingCut_ElectronicsVME.fill(eid, timing);
+					}
+					//	^^^ONLINE
+
+					_cOccupancyCut_FEDVME.fill(eid);
+					_cOccupancyCut_ElectronicsVME.fill(eid);
 				}
-				else
+				else if (eid.isUTCAid())
 				{
-					_cTimingCut_FEDuTCA.fill(eid, timing);
-					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					if (_ptype==fOnline)
+					{
+						//	time constraints are explicit!
+						_cTimingCut_FEDuTCA.fill(eid, timing);
+						_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					}
+					else
+					{
+						_cTimingCut_FEDuTCA.fill(eid, timing);
+						_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					}
+					_cOccupancyCut_FEDuTCA.fill(eid);
+					_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				}
-				_cOccupancyCut_FEDuTCA.fill(eid);
-				_cOccupancyCut_ElectronicsuTCA.fill(eid);
 			}
 			did.subdet()==HcalBarrel?nChsHBCut++:nChsHECut++;
 		}
@@ -778,9 +793,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		if (cit==_vcdaqEids.end())
 		{
 			//	not @cDAQ
-			for (uint32_t iflag=0; iflag<_vflags.size(); iflag++)
-				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
-					int(flag::fNCDAQ));
+			for (uint32_t iflag=0; iflag<_vflags.size(); iflag++) {
+				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
+			}
 			_cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
 			continue;
 		}

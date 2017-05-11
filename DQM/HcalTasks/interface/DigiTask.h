@@ -44,13 +44,15 @@ class DigiTask : public hcaldqm::DQTask
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHEP17;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
-		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
+		double _cutSumQ_HBHE, _cutSumQ_HEP17, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
 		//	flag vector
@@ -140,6 +142,12 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+
+		// QIE10 TDC histograms
+		hcaldqm::ContainerSingle2D _cLETDCvsADC;
+		hcaldqm::ContainerSingle2D _cLETDCvsTS;
+		hcaldqm::ContainerSingle1D _cLETDCTime;
+
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
