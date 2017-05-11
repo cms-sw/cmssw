@@ -34,6 +34,7 @@ class GeometryComparison(GenericValidation):
 	    "useDefaultRange":"false",
 	    "plotOnlyGlobal":"false",
 	    "plotPng":"true",
+	    "makeProfilePlots":"true",
 	    "dx_min":"-99999",
 	    "dx_max":"-99999",
 	    "dy_min":"-99999",
@@ -157,7 +158,7 @@ class GeometryComparison(GenericValidation):
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
-                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\",\".oO[plotOnlyGlobal]Oo.\",\".oO[plotPng]Oo.\""+y_ranges+")'\n"
+                     "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",\".oO[useDefaultRange]Oo.\",\".oO[plotOnlyGlobal]Oo.\",\".oO[plotPng]Oo.\",\".oO[makeProfilePlots]Oo.\""+y_ranges+")'\n"
 		     "rfcp "+path+"/TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C .\n"
 		     "root -l -b -q TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C+\n")
                 if  self.copyImages:
@@ -206,6 +207,11 @@ class GeometryComparison(GenericValidation):
 	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
 	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
                    
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name "
+                        "\"*.tex\" -print | xargs -I {} bash -c"
+                        " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
                         "\"TkMap_SurfDeform*.pdf\" -print | xargs -I {} bash -c"
