@@ -188,13 +188,18 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
     //if ( Et<= 0 ) continue;
     nTP++;
 
-    /*
     std::cout << " TP digi size " << d.size() << std::endl;
     for (int iBx=0;iBx<d.size();iBx++) {
       std::cout << " TP samples " << d.sample(iBx) << std::endl; 
 
     }
-    */
+
+    //      EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myId);
+    // does not work float etaTow =  theBarrelGeometry->getGeometry(coarser)->getPosition().theta();
+    // float etaTP =  theBarrelGeometry->getGeometry(TPid)->getPosition().eta();
+    // does not work hTPvsTow_eta_->Fill ( etaTow,  etaTP );
+    //      hTPvsTow_ieta_->Fill ( coarser.ieta(),  TPid.ieta() );
+    
     
     tpIphi_ = TPid.iphi() ;
     tpIeta_ = TPid.ieta() ;
