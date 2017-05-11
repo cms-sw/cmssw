@@ -32,88 +32,107 @@ L1TdeStage2CaloLayer2::L1TdeStage2CaloLayer2 (const edm::ParameterSet& ps)
 void L1TdeStage2CaloLayer2::endLuminosityBlock (const edm::LuminosityBlock&,
 					       const edm::EventSetup&)
 {
-  double totRatio = totalEvents != 0 ? goodEvents / (totalEvents * 1.0) : 0;
-  double jetRatio = totalJets != 0 ? goodJets / (totalJets * 1.0) : 0;
-  double egRatio = (totalEGs + totalIsoEGs) != 0 ?
-    (goodEGs + goodIsoEGs) / ((totalEGs + totalIsoEGs) * 1.0) : 0;
-  double tauRatio = (totalTaus + totalIsoTaus) != 0 ?
-    (goodTaus + goodIsoTaus) / ((totalTaus + totalIsoTaus) * 1.0) : 0;
-  double sumRatio = totalSums != 0 ? goodSums / (totalSums * 1.0) : 0;
 
-  // divide the bin contents of high-level summary histogram by the totals
-  // this might require too much memory (called at end of run)
-  TH1F * hlSum = agreementSummary->getTH1F();
-  hlSum->SetBinContent(hlSum->FindBin(EVENTGOOD), totRatio);
-  hlSum->SetBinContent(hlSum->FindBin(JETGOOD_S), jetRatio);
-  hlSum->SetBinContent(hlSum->FindBin(EGGOOD_S), egRatio);
-  hlSum->SetBinContent(hlSum->FindBin(TAUGOOD_S), tauRatio);
-  hlSum->SetBinContent(hlSum->FindBin(SUMGOOD_S), sumRatio);
+  // double goodRatio = agreementSummary->getTH1F()->GetBinContent(NEVENTS) /
+  //   (agreementSummary->getTH1F()->GetBinContent(EVENTGOOD) * 1.0);
 
-  // this might require too much memory (called at end of run)
-  double posOffJetRatio = totalJets != 0 ? posOffJets / (totalJets * 1.0) : 0;
-  double etOffJetRatio = totalJets != 0 ? etOffJets / (totalJets * 1.0) : 0;
+  // std::cout << "n = " << agreementSummary->getTH1F()->GetBinContent(NEVENTS)
+  // 	    << std::endl;
+  // std::cout << "d = " << agreementSummary->getTH1F()->GetBinContent(EVENTGOOD)
+  // 	    << std::endl;
+  // std::cout << "r = " << goodRatio << std::endl;
 
-  TH1F * jetHist = jetSummary->getTH1F();
-  jetHist->SetBinContent(jetHist->FindBin(JETGOOD), jetRatio);
-  jetHist->SetBinContent(jetHist->FindBin(JETPOSOFF), posOffJetRatio);
-  jetHist->SetBinContent(jetHist->FindBin(JETETOFF), etOffJetRatio);
+  // return;
+  //  std::exit(0);
 
-  double goodNonIsoEGRatio = totalEGs != 0 ? goodEGs / (totalEGs * 1.0) : 0;
-  double posOffNonIsoEGRatio = totalEGs != 0 ? posOffEGs / (totalEGs * 1.0) : 0;
-  double etOffNonIsoEGRatio = totalEGs != 0 ? etOffEGs / (totalEGs * 1.0) : 0;
+  /*
+  agreementSummary->getTH1F()->SetBinContent(
+    agreementSummary->getTH1F()->FindBin(EVENTGOOD),
+    goodRatio);
+  */
 
-  double goodIsoEGRatio = totalIsoEGs != 0 ?
-    goodIsoEGs / (totalIsoEGs * 1.0) : 0;
-  double posOffIsoEGRatio = totalIsoEGs != 0 ?
-    posOffIsoEGs / (totalIsoEGs * 1.0) : 0;
-  double etOffIsoEGRatio = totalIsoEGs != 0 ?
-    etOffIsoEGs / (totalIsoEGs * 1.0) : 0;
+  // // double totRatio = totalEvents != 0 ? goodEvents / (totalEvents * 1.0) : 0;
+  // double jetRatio = totalJets != 0 ? goodJets / (totalJets * 1.0) : 0;
+  // double egRatio = (totalEGs + totalIsoEGs) != 0 ?
+  //   (goodEGs + goodIsoEGs) / ((totalEGs + totalIsoEGs) * 1.0) : 0;
+  // double tauRatio = (totalTaus + totalIsoTaus) != 0 ?
+  //   (goodTaus + goodIsoTaus) / ((totalTaus + totalIsoTaus) * 1.0) : 0;
+  // double sumRatio = totalSums != 0 ? goodSums / (totalSums * 1.0) : 0;
 
-  TH1F * egHist = egSummary->getTH1F();
-  egHist->SetBinContent(egHist->FindBin(EGGOOD), goodNonIsoEGRatio);
-  egHist->SetBinContent(egHist->FindBin(EGPOSOFF), posOffNonIsoEGRatio);
-  egHist->SetBinContent(egHist->FindBin(EGETOFF), etOffNonIsoEGRatio);
-  egHist->SetBinContent(egHist->FindBin(ISOEGGOOD), goodIsoEGRatio);
-  egHist->SetBinContent(egHist->FindBin(ISOEGPOSOFF), posOffIsoEGRatio);
-  egHist->SetBinContent(egHist->FindBin(ISOEGETOFF), etOffIsoEGRatio);
+  // // divide the bin contents of high-level summary histogram by the totals
+  // // this might require too much memory (called at end of run)
+  // TH1F * hlSum = agreementSummary->getTH1F();
+  // // hlSum->SetBinContent(hlSum->FindBin(EVENTGOOD), totRatio);
+  // // hlSum->SetBinContent(hlSum->FindBin(JETGOOD_S), jetRatio);
+  // // hlSum->SetBinContent(hlSum->FindBin(EGGOOD_S), egRatio);
+  // // hlSum->SetBinContent(hlSum->FindBin(TAUGOOD_S), tauRatio);
+  // // hlSum->SetBinContent(hlSum->FindBin(SUMGOOD_S), sumRatio);
 
-  double goodNonIsoTauRatio = totalTaus != 0 ? goodTaus / (totalTaus * 1.0) : 0;
-  double posOffNonIsoTauRatio = totalTaus != 0 ?
-    posOffTaus / (totalTaus * 1.0) : 0;
-  double etOffNonIsoTauRatio = totalTaus != 0 ?
-    etOffTaus / (totalTaus * 1.0) : 0;
-  double goodIsoTauRatio = totalIsoTaus != 0 ?
-    goodIsoTaus / (totalIsoTaus * 1.0) : 0;
-  double posOffIsoTauRatio = totalIsoTaus != 0 ?
-    posOffIsoTaus / (totalIsoTaus * 1.0) : 0;
-  double etOffIsoTauRatio = totalIsoTaus != 0 ?
-    etOffIsoTaus / (totalIsoTaus * 1.0) : 0;
+  // // this might require too much memory (called at end of run)
+  // double posOffJetRatio = totalJets != 0 ? posOffJets / (totalJets * 1.0) : 0;
+  // double etOffJetRatio = totalJets != 0 ? etOffJets / (totalJets * 1.0) : 0;
 
-  TH1F * tauHist = tauSummary->getTH1F();
-  tauHist->SetBinContent(tauHist->FindBin(TAUGOOD), goodNonIsoTauRatio);
-  tauHist->SetBinContent(tauHist->FindBin(TAUPOSOFF), posOffNonIsoTauRatio);
-  tauHist->SetBinContent(tauHist->FindBin(TAUETOFF), etOffNonIsoTauRatio);
-  tauHist->SetBinContent(tauHist->FindBin(ISOTAUGOOD), goodIsoTauRatio);
-  tauHist->SetBinContent(tauHist->FindBin(ISOTAUPOSOFF), posOffIsoTauRatio);
-  tauHist->SetBinContent(tauHist->FindBin(ISOTAUETOFF), etOffIsoTauRatio);
+  // TH1F * jetHist = jetSummary->getTH1F();
+  // jetHist->SetBinContent(jetHist->FindBin(JETGOOD), jetRatio);
+  // jetHist->SetBinContent(jetHist->FindBin(JETPOSOFF), posOffJetRatio);
+  // jetHist->SetBinContent(jetHist->FindBin(JETETOFF), etOffJetRatio);
 
-  double ettRatio = totalETTSums != 0 ? goodETTSums / (totalETTSums * 1.0) : 0;
-  double httRatio = totalHTTSums != 0 ? goodHTTSums / (totalHTTSums * 1.0) : 0;
-  double metRatio = totalMETSums != 0 ? goodMETSums / (totalMETSums * 1.0) : 0;
-  double mhtRatio = totalMHTSums != 0 ? goodMHTSums / (totalMHTSums * 1.0) : 0;
-  double mbhfRatio = totalMBHFSums != 0 ?
-    goodMBHFSums / (totalMBHFSums * 1.0) : 0;
-  double towRatio = totalTowCountSums != 0 ?
-    goodTowCountSums / (totalTowCountSums * 1.0) : 0;
+  // double goodNonIsoEGRatio = totalEGs != 0 ? goodEGs / (totalEGs * 1.0) : 0;
+  // double posOffNonIsoEGRatio = totalEGs != 0 ? posOffEGs / (totalEGs * 1.0) : 0;
+  // double etOffNonIsoEGRatio = totalEGs != 0 ? etOffEGs / (totalEGs * 1.0) : 0;
 
-  TH1F * sumHist = sumSummary->getTH1F();
-  sumHist->SetBinContent(sumHist->FindBin(SUMGOOD), sumRatio);
-  sumHist->SetBinContent(sumHist->FindBin(ETTSUMGOOD), ettRatio);
-  sumHist->SetBinContent(sumHist->FindBin(HTTSUMGOOD), httRatio);
-  sumHist->SetBinContent(sumHist->FindBin(METSUMGOOD), metRatio);
-  sumHist->SetBinContent(sumHist->FindBin(MHTSUMGOOD), mhtRatio);
-  sumHist->SetBinContent(sumHist->FindBin(MBHFSUMGOOD), mbhfRatio);
-  sumHist->SetBinContent(sumHist->FindBin(TOWCOUNTGOOD), towRatio);
+  // double goodIsoEGRatio = totalIsoEGs != 0 ?
+  //   goodIsoEGs / (totalIsoEGs * 1.0) : 0;
+  // double posOffIsoEGRatio = totalIsoEGs != 0 ?
+  //   posOffIsoEGs / (totalIsoEGs * 1.0) : 0;
+  // double etOffIsoEGRatio = totalIsoEGs != 0 ?
+  //   etOffIsoEGs / (totalIsoEGs * 1.0) : 0;
+
+  // TH1F * egHist = egSummary->getTH1F();
+  // egHist->SetBinContent(egHist->FindBin(EGGOOD), goodNonIsoEGRatio);
+  // egHist->SetBinContent(egHist->FindBin(EGPOSOFF), posOffNonIsoEGRatio);
+  // egHist->SetBinContent(egHist->FindBin(EGETOFF), etOffNonIsoEGRatio);
+  // egHist->SetBinContent(egHist->FindBin(ISOEGGOOD), goodIsoEGRatio);
+  // egHist->SetBinContent(egHist->FindBin(ISOEGPOSOFF), posOffIsoEGRatio);
+  // egHist->SetBinContent(egHist->FindBin(ISOEGETOFF), etOffIsoEGRatio);
+
+  // double goodNonIsoTauRatio = totalTaus != 0 ? goodTaus / (totalTaus * 1.0) : 0;
+  // double posOffNonIsoTauRatio = totalTaus != 0 ?
+  //   posOffTaus / (totalTaus * 1.0) : 0;
+  // double etOffNonIsoTauRatio = totalTaus != 0 ?
+  //   etOffTaus / (totalTaus * 1.0) : 0;
+  // double goodIsoTauRatio = totalIsoTaus != 0 ?
+  //   goodIsoTaus / (totalIsoTaus * 1.0) : 0;
+  // double posOffIsoTauRatio = totalIsoTaus != 0 ?
+  //   posOffIsoTaus / (totalIsoTaus * 1.0) : 0;
+  // double etOffIsoTauRatio = totalIsoTaus != 0 ?
+  //   etOffIsoTaus / (totalIsoTaus * 1.0) : 0;
+
+  // TH1F * tauHist = tauSummary->getTH1F();
+  // tauHist->SetBinContent(tauHist->FindBin(TAUGOOD), goodNonIsoTauRatio);
+  // tauHist->SetBinContent(tauHist->FindBin(TAUPOSOFF), posOffNonIsoTauRatio);
+  // tauHist->SetBinContent(tauHist->FindBin(TAUETOFF), etOffNonIsoTauRatio);
+  // tauHist->SetBinContent(tauHist->FindBin(ISOTAUGOOD), goodIsoTauRatio);
+  // tauHist->SetBinContent(tauHist->FindBin(ISOTAUPOSOFF), posOffIsoTauRatio);
+  // tauHist->SetBinContent(tauHist->FindBin(ISOTAUETOFF), etOffIsoTauRatio);
+
+  // double ettRatio = totalETTSums != 0 ? goodETTSums / (totalETTSums * 1.0) : 0;
+  // double httRatio = totalHTTSums != 0 ? goodHTTSums / (totalHTTSums * 1.0) : 0;
+  // double metRatio = totalMETSums != 0 ? goodMETSums / (totalMETSums * 1.0) : 0;
+  // double mhtRatio = totalMHTSums != 0 ? goodMHTSums / (totalMHTSums * 1.0) : 0;
+  // double mbhfRatio = totalMBHFSums != 0 ?
+  //   goodMBHFSums / (totalMBHFSums * 1.0) : 0;
+  // double towRatio = totalTowCountSums != 0 ?
+  //   goodTowCountSums / (totalTowCountSums * 1.0) : 0;
+
+  // TH1F * sumHist = sumSummary->getTH1F();
+  // sumHist->SetBinContent(sumHist->FindBin(SUMGOOD), sumRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(ETTSUMGOOD), ettRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(HTTSUMGOOD), httRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(METSUMGOOD), metRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(MHTSUMGOOD), mhtRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(MBHFSUMGOOD), mbhfRatio);
+  // sumHist->SetBinContent(sumHist->FindBin(TOWCOUNTGOOD), towRatio);
 }
 
 void L1TdeStage2CaloLayer2::bookHistograms(
@@ -299,36 +318,51 @@ void L1TdeStage2CaloLayer2::bookHistograms(
   // the index of the first bin in histogram should match value of first enum
   agreementSummary = ibooker.book1D(
     "CaloL2 Object Agreement Summary",
-    "CaloL2 event-by-event object agreement fractions", 5, 1, 6);
+    "CaloL2 event-by-event object agreement fractions", 10, 1, 11);
 
   agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(EVENTGOOD,
 						       "good events");
+  agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(NEVENTS,
+						       "total events");
+  agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(NJETS_S, "total jets");
   agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(JETGOOD_S, "good jets");
+  agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(NEGS_S, "total e/gs");
   agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(EGGOOD_S, "good e/gs");
+  agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(NTAUS_S, "total taus");
   agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUGOOD_S, "good taus");
+  agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(NSUMS_S, "total sums");
   agreementSummary->getTH1F()->GetXaxis()->SetBinLabel(SUMGOOD_S, "good sums");
+
   jetSummary = ibooker.book1D(
-    "Jet Agreement Summary", "Jet Agreement Summary", 3, 1, 4);
+    "Jet Agreement Summary", "Jet Agreement Summary", 4, 1, 5);
+  jetSummary->getTH1F()->GetXaxis()->SetBinLabel(NJETS, "total jets");
   jetSummary->getTH1F()->GetXaxis()->SetBinLabel(JETGOOD, "good jets");
   jetSummary->getTH1F()->GetXaxis()->SetBinLabel(JETPOSOFF,
 						 "jets pos off only");
   jetSummary->getTH1F()->GetXaxis()->SetBinLabel(JETETOFF, "jets Et off only ");
 
   egSummary = ibooker.book1D(
-    "EG Agreement Summary", "EG Agreement Summary", 6, 1, 7);
-  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGGOOD, "good e/gs");
-  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGPOSOFF, "e/gs pos off");
-  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGETOFF, "e/gs Et off");
+    "EG Agreement Summary", "EG Agreement Summary", 8, 1, 9);
+  egSummary->getTH1F()->GetXaxis()->SetBinLabel(NEGS, "total non-iso e/gs");
+  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGGOOD, "good non-iso e/gs");
+  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGPOSOFF,
+						"non-iso e/gs pos off");
+  egSummary->getTH1F()->GetXaxis()->SetBinLabel(EGETOFF, "non-iso e/gs Et off");
+  egSummary->getTH1F()->GetXaxis()->SetBinLabel(NISOEGS, "total iso e/gs");
   egSummary->getTH1F()->GetXaxis()->SetBinLabel(ISOEGGOOD, "good iso e/gs");
   egSummary->getTH1F()->GetXaxis()->SetBinLabel(ISOEGPOSOFF,
 						"iso e/gs pos off");
   egSummary->getTH1F()->GetXaxis()->SetBinLabel(ISOEGETOFF, "iso e/gs Et off");
 
   tauSummary = ibooker.book1D(
-    "Tau Agreement Summary", "Tau Agreement Summary", 6, 1, 7);
-  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUGOOD, "good taus");
-  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUPOSOFF, "taus pos off");
-  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUETOFF, "taus Et off");
+    "Tau Agreement Summary", "Tau Agreement Summary", 8, 1, 9);
+  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(NTAUS, "total taus");
+  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUGOOD, "good non-iso taus");
+  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUPOSOFF,
+						 "non-iso taus pos off");
+  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(TAUETOFF,
+						 "non-iso taus Et off");
+  tauSummary->getTH1F()->GetXaxis()->SetBinLabel(NISOTAUS, "total iso taus");
   tauSummary->getTH1F()->GetXaxis()->SetBinLabel(ISOTAUGOOD, "good iso taus");
   tauSummary->getTH1F()->GetXaxis()->SetBinLabel(ISOTAUPOSOFF,
 						 "iso taus pos off");
@@ -336,13 +370,21 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 						 "iso taus Et off");
 
   sumSummary = ibooker.book1D(
-    "Emergy Sum Agreement Summary", "Sum Agreement Summary", 7, 1, 8);
+    "Emergy Sum Agreement Summary", "Sum Agreement Summary", 14, 1, 15);
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NSUMS, "total sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(SUMGOOD, "good sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NETTSUMS, "total ETT sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(ETTSUMGOOD, "good ETT sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NHTTSUMS, "total HTT sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(HTTSUMGOOD, "good HTT sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NMETSUMS, "total MET sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(METSUMGOOD, "good MET sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NMHTSUMS, "total MHT sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(MHTSUMGOOD, "good MHT sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NMBHFSUMS, "total MBHF sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(MBHFSUMGOOD, "good MBHF sums");
+  sumSummary->getTH1F()->GetXaxis()->SetBinLabel(NTOWCOUNTS,
+						 "total TowCount sums");
   sumSummary->getTH1F()->GetXaxis()->SetBinLabel(TOWCOUNTGOOD,
 						 "good TowCount sums");
 }
@@ -350,7 +392,7 @@ void L1TdeStage2CaloLayer2::analyze (
   const edm::Event& e,
   const edm::EventSetup & c) {
 
-  ++totalEvents;
+  // ++totalEvents;
 
   if (verbose)
     edm::LogInfo("L1TdeStage2CaloLayer2") << "L1TdeStage2CaloLayer2: analyse "
@@ -413,17 +455,21 @@ void L1TdeStage2CaloLayer2::analyze (
 
   if (!compareJets(jetDataCol, jetEmulCol)) {
     eventGood = false;
+    // std::cout << "meh: problem with jets" << std::endl;
   }
 
   if (!compareEGs(egDataCol, egEmulCol)) {
+    // std::cout << "meh: problem with egs" << std::endl;
     eventGood = false;
   }
 
   if (!compareTaus(tauDataCol, tauEmulCol)) {
+    // std::cout << "meh: problem with taus" << std::endl;
     eventGood = false;
   }
 
   if (!compareSums(sumDataCol, sumEmulCol)) {
+    // std::cout << "meh: problem with sums" << std::endl;
     eventGood = false;
   }
 
@@ -435,8 +481,16 @@ void L1TdeStage2CaloLayer2::analyze (
 
   if (eventGood) {
     agreementHist->Fill(EVENTGOOD);
-    ++goodEvents;
+    // std::cout << "meh: event good out of "
+    // 	      << agreementHist->GetBinContent(NEVENTS)
+    // 	      << std::endl;
+  } else {
+    // std::cout << "meh: event bad out of "
+    // 	      << agreementHist->GetBinContent(NEVENTS)
+    // 	      << std::endl;
   }
+
+  agreementHist->Fill(NEVENTS);
 }
 
 // comparison method for jets
@@ -497,6 +551,8 @@ bool L1TdeStage2CaloLayer2::compareJets(
       }
     }
 
+    // summaryHist->Fill(NJETCOLLEVTS);
+    // std::cout << "meh: size issue" << std::endl;
     return false;
   }
 
@@ -527,7 +583,6 @@ bool L1TdeStage2CaloLayer2::compareJets(
       if (eventGood) {
 	summaryHist->Fill(JETGOOD_S);
 	objSummaryHist->Fill(JETGOOD);
-	++goodJets;
       } else {
 	objEtHistData->Fill(dataIt->hwPt());
 	objEtaHistData->Fill(dataIt->hwEta());
@@ -541,18 +596,16 @@ bool L1TdeStage2CaloLayer2::compareJets(
       // if only position agrees
       if (posGood && !etGood) {
 	objSummaryHist->Fill(JETETOFF);
-
-	++etOffJets;
       }
 
       // if only energy agrees
       if (!posGood && etGood) {
 	objSummaryHist->Fill(JETPOSOFF);
-	++posOffJets;
       }
 
       // keep track of jets
-      ++totalJets;
+      summaryHist->Fill(NJETS_S);
+      objSummaryHist->Fill(NJETS);
 
       // increase position of pointers
       ++dataIt;
@@ -651,6 +704,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(
       }
     }
 
+    // summaryHist->Fill(NEGCOLLEVTS);
+    // std::cout << "meh: size issue" << std::endl;
     return false;
   }
 
@@ -685,10 +740,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(
 	summaryHist->Fill(EGGOOD_S);
 
 	if (iso) {
-	  ++goodIsoEGs;
 	  objSummaryHist->Fill(ISOEGGOOD);
 	} else {
-	  ++goodEGs;
 	  objSummaryHist->Fill(EGGOOD);
 	}
 
@@ -716,10 +769,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(
       // if only position agrees
       if (posGood && !etGood) {
 	if (iso) {
-	  ++etOffIsoEGs;
 	  objSummaryHist->Fill(ISOEGETOFF);
 	} else {
-	  ++etOffEGs;
 	  objSummaryHist->Fill(EGETOFF);
 	}
       }
@@ -727,20 +778,19 @@ bool L1TdeStage2CaloLayer2::compareEGs(
       // if only energy agrees
       if (!posGood && etGood) {
 	if (iso) {
-	  ++posOffIsoEGs;
 	  objSummaryHist->Fill(ISOEGPOSOFF);
 	} else {
-	  ++posOffEGs;
 	  objSummaryHist->Fill(EGPOSOFF);
 	}
       }
 
       // keep track of number of objects
       if (iso) {
-	++totalIsoEGs;
+	objSummaryHist->Fill(NISOEGS);
       } else {
-	++totalEGs;
+	objSummaryHist->Fill(NEGS);
       }
+      summaryHist->Fill(NEGS_S);
 
       // increment position of pointers
       ++dataIt;
@@ -839,6 +889,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(
       }
     }
 
+    // summaryHist->Fill(NTAUCOLLEVTS);
+    // std::cout << "meh: size issue" << std::endl;
     return false;
   }
 
@@ -873,10 +925,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(
 	summaryHist->Fill(TAUGOOD_S);
 
 	if (iso) {
-	  ++goodIsoTaus;
 	  objSummaryHist->Fill(ISOTAUGOOD);
 	} else {
-	  ++goodTaus;
 	  objSummaryHist->Fill(TAUGOOD);
 	}
       } else {
@@ -904,10 +954,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(
       // if only position agrees
       if (posGood && !etGood) {
 	if (iso) {
-	  ++etOffIsoTaus;
 	  objSummaryHist->Fill(ISOTAUETOFF);
 	} else {
-	  ++etOffTaus;
 	  objSummaryHist->Fill(TAUETOFF);
 	}
       }
@@ -915,20 +963,20 @@ bool L1TdeStage2CaloLayer2::compareTaus(
       // if only energy agrees
       if (!posGood && etGood) {
 	if (iso) {
-	  ++posOffIsoTaus;
 	  objSummaryHist->Fill(ISOTAUPOSOFF);
 	} else {
-	  ++posOffTaus;
 	  objSummaryHist->Fill(TAUPOSOFF);
 	}
       }
 
       // keep track of number of objects
       if (iso) {
-	++totalIsoTaus;
+	objSummaryHist->Fill(NISOTAUS);
       } else {
-	++totalTaus;
+	objSummaryHist->Fill(NTAUS);
       }
+
+      summaryHist->Fill(NTAUS_S);
 
       // increment position of pointers
       ++dataIt;
@@ -972,15 +1020,17 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // ETT
     if (l1t::EtSum::EtSumType::kTotalEt == dataIt->getType()) {
 
-      ++totalETTSums;
+      objSummaryHist->Fill(NETTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 
 	ettData->getTH1F()->Fill(dataIt->hwPt());
 	ettEmul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: ett issue" << std::endl;
       } else {
-	++goodSums;
-	++goodETTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(ETTSUMGOOD);
@@ -990,15 +1040,17 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // ETTHF
     if (l1t::EtSum::EtSumType::kTotalEtHF == dataIt->getType()) {
 
-      ++totalETTSums;
+      objSummaryHist->Fill(NETTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 
 	ettHFData->getTH1F()->Fill(dataIt->hwPt());
 	ettHFEmul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: etthf issue" << std::endl;
       } else {
-	++goodSums;
-	++goodETTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(ETTSUMGOOD);
@@ -1008,14 +1060,16 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // ETTEM
     if (l1t::EtSum::EtSumType::kTotalEtEm == dataIt->getType()) {
 
-      ++totalETTSums;
+      objSummaryHist->Fill(NETTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	ettEmData->getTH1F()->Fill(dataIt->hwPt());
 	ettEmEmul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: ettem issue" << std::endl;
       } else {
-	++goodSums;
-	++goodETTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(ETTSUMGOOD);
@@ -1025,14 +1079,15 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // HTT
     if (l1t::EtSum::EtSumType::kTotalHt == dataIt->getType()) {
 
-      ++totalHTTSums;
+      objSummaryHist->Fill(NHTTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	httData->getTH1F()->Fill(dataIt->hwPt());
 	httEmul->getTH1F()->Fill(emulIt->hwPt());
+	// std::cout << "meh: htt issue" << std::endl;
       } else {
-	++goodSums;
-	++goodHTTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(HTTSUMGOOD);
@@ -1042,14 +1097,15 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // HTTHF
     if (l1t::EtSum::EtSumType::kTotalHtHF == dataIt->getType()) {
 
-      ++totalHTTSums;
+      objSummaryHist->Fill(NHTTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	httHFData->getTH1F()->Fill(dataIt->hwPt());
 	httHFEmul->getTH1F()->Fill(emulIt->hwPt());
+	// std::cout << "meh: htthf issue" << std::endl;
       } else {
-	++goodSums;
-	++goodHTTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(HTTSUMGOOD);
@@ -1059,7 +1115,9 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // MET
     if (l1t::EtSum::EtSumType::kMissingEt == dataIt->getType()) {
 
-      ++totalMETSums;
+      objSummaryHist->Fill(NMETSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	etGood = false;
 	eventGood = false;
@@ -1071,8 +1129,6 @@ bool L1TdeStage2CaloLayer2::compareSums(
       }
 
       if (etGood && phiGood) {
-	++goodSums;
-	++goodMETSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(METSUMGOOD);
       } else {
@@ -1080,13 +1136,22 @@ bool L1TdeStage2CaloLayer2::compareSums(
 	metPhiData->getTH1F()->Fill(dataIt->hwPhi());
 	metEtEmul->getTH1F()->Fill(emulIt->hwPt());
 	metPhiEmul->getTH1F()->Fill(emulIt->hwPhi());
+
+	// std::cout << "meh: met issue" << std::endl;
+      }
+
+      if (!eventGood) {
+	// std::cout << "meh: met issue" << std::endl;
       }
     }
 
     // METHF
     if (l1t::EtSum::EtSumType::kMissingEtHF == dataIt->getType()) {
 
-      ++totalMETSums;
+      objSummaryHist->Fill(NMETSUMS);
+      summaryHist->Fill(NSUMS_S);
+
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	etGood = false;
 	eventGood = false;
@@ -1098,8 +1163,6 @@ bool L1TdeStage2CaloLayer2::compareSums(
       }
 
       if (etGood && phiGood) {
-	++goodSums;
-	++goodMETSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(METSUMGOOD);
       } else {
@@ -1107,13 +1170,21 @@ bool L1TdeStage2CaloLayer2::compareSums(
 	metHFPhiData->getTH1F()->Fill(dataIt->hwPhi());
 	metHFEtEmul->getTH1F()->Fill(emulIt->hwPt());
 	metHFPhiEmul->getTH1F()->Fill(emulIt->hwPhi());
+
+	// std::cout << "meh: methf issue" << std::endl;
+      }
+
+      if (!eventGood) {
+	// std::cout << "meh: methf issue" << std::endl;
       }
     }
 
     // MHT
     if (l1t::EtSum::EtSumType::kMissingHtHF == dataIt->getType()) {
 
-      ++totalMHTSums;
+      objSummaryHist->Fill(NMHTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	etGood = false;
 	eventGood = false;
@@ -1125,8 +1196,6 @@ bool L1TdeStage2CaloLayer2::compareSums(
       }
 
       if (etGood && phiGood) {
-	++goodSums;
-	++goodMHTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(MHTSUMGOOD);
       } else {
@@ -1134,13 +1203,20 @@ bool L1TdeStage2CaloLayer2::compareSums(
 	mhtPhiData->getTH1F()->Fill(dataIt->hwPhi());
 	mhtEtEmul->getTH1F()->Fill(emulIt->hwPt());
 	mhtPhiEmul->getTH1F()->Fill(emulIt->hwPhi());
+	// std::cout << "meh: mht issue" << std::endl;
+      }
+
+      if (!eventGood) {
+	// std::cout << "meh: mht issue" << std::endl;
       }
     }
 
     // MHTHF
     if (l1t::EtSum::EtSumType::kMissingEt == dataIt->getType()) {
 
-      ++totalMHTSums;
+      objSummaryHist->Fill(NMHTSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	phiGood = false;
 	eventGood = false;
@@ -1152,8 +1228,6 @@ bool L1TdeStage2CaloLayer2::compareSums(
       }
 
       if (etGood && phiGood) {
-	++goodSums;
-	++goodMHTSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(MHTSUMGOOD);
       } else {
@@ -1161,20 +1235,28 @@ bool L1TdeStage2CaloLayer2::compareSums(
 	mhtHFPhiData->getTH1F()->Fill(dataIt->hwPhi());
 	mhtHFEtEmul->getTH1F()->Fill(emulIt->hwPt());
 	mhtHFPhiEmul->getTH1F()->Fill(emulIt->hwPhi());
+
+	// std::cout << "meh: mhthf issue" << std::endl;
+      }
+
+      if (!eventGood) {
+	// std::cout << "meh: mht issue" << std::endl;
       }
     }
 
     // MBHFP0
     if (l1t::EtSum::EtSumType::kMinBiasHFP0 == dataIt->getType()) {
 
-      ++totalMBHFSums;
+      objSummaryHist->Fill(NMBHFSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	mbhfp0Data->getTH1F()->Fill(dataIt->hwPt());
 	mbhfp0Emul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: mbhfp0 issue" << std::endl;
       } else {
-	++goodSums;
-	++goodMBHFSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(MBHFSUMGOOD);
@@ -1184,14 +1266,16 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // MBHFM0
     if (l1t::EtSum::EtSumType::kMinBiasHFM0 == dataIt->getType()) {
 
-      ++totalMBHFSums;
+      objSummaryHist->Fill(NMBHFSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	mbhfm0Data->getTH1F()->Fill(dataIt->hwPt());
 	mbhfm0Emul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: mbhfm0 issue" << std::endl;
       } else {
-	++goodSums;
-	++goodMBHFSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(MBHFSUMGOOD);
@@ -1201,14 +1285,16 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // MBHFP1
     if (l1t::EtSum::EtSumType::kMinBiasHFP1 == dataIt->getType()) {
 
-      ++totalMBHFSums;
+      objSummaryHist->Fill(NMBHFSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	mbhfp1Data->getTH1F()->Fill(dataIt->hwPt());
 	mbhfp1Emul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: mbhfp1 issue" << std::endl;
       } else {
-	++goodSums;
-	++goodMBHFSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(MBHFSUMGOOD);
@@ -1218,14 +1304,16 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // MBHFM1
     if (l1t::EtSum::EtSumType::kMinBiasHFM1 == dataIt->getType()) {
 
-      ++totalMBHFSums;
+      objSummaryHist->Fill(NMBHFSUMS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	mbhfm1Data->getTH1F()->Fill(dataIt->hwPt());
 	mbhfm1Emul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: mbhfm1 issue" << std::endl;
       } else {
-	++goodSums;
-	++goodMBHFSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(MBHFSUMGOOD);
@@ -1235,21 +1323,24 @@ bool L1TdeStage2CaloLayer2::compareSums(
     // TowerCount
     if (l1t::EtSum::EtSumType::kTowerCount == dataIt->getType()) {
 
-      ++totalTowCountSums;
+      objSummaryHist->Fill(NTOWCOUNTS);
+      summaryHist->Fill(NSUMS_S);
+
       if (dataIt->hwPt() != emulIt->hwPt()) {
 	eventGood = false;
 	towCountData->getTH1F()->Fill(dataIt->hwPt());
 	towCountEmul->getTH1F()->Fill(emulIt->hwPt());
+
+	// std::cout << "meh: towcount issue" << std::endl;
       } else {
-	++goodSums;
-	++goodTowCountSums;
 	summaryHist->Fill(SUMGOOD_S);
 	objSummaryHist->Fill(SUMGOOD);
 	objSummaryHist->Fill(TOWCOUNTGOOD);
       }
     }
 
-    ++totalSums;
+    summaryHist->Fill(NSUMS_S);
+    objSummaryHist->Fill(NSUMS);
 
     ++dataIt;
     ++emulIt;
