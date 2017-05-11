@@ -25,11 +25,15 @@ HGCPassive::HGCPassive(const edm::ParameterSet &p) : count_(0), init_(false) {
 
   edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
   LVNames_  = m_Passive.getUntrackedParameter<std::vector<std::string> >("LVNames");
-  
-  for (unsigned int k=0; k<LVNames_.size(); ++k) {
-    produces<edm::PassiveHitContainer>(Form("%sPassiveHits",LVNames_[k].c_str()));
+
 #ifdef EDM_ML_DEBUG
-    std::cout << "Collection name[" << k << "] " << LVNames_[k] << std::endl;
+  unsigned int k(0);
+#endif
+  for (auto name : LVNames_) {
+    produces<edm::PassiveHitContainer>(Form("%sPassiveHits",name.c_str()));
+#ifdef EDM_ML_DEBUG
+    std::cout << "Collection name[" << k << "] " << name << std::endl;
+    ++k;
 #endif
   }
 } 
@@ -54,19 +58,18 @@ void HGCPassive::update(const BeginOfRun * run) {
   } else {
     init_ = true;
     const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
-    std::vector<G4LogicalVolume *>::const_iterator lvcite;
-
-    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      findLV(*lvcite);
+    for (auto lvcite : *lvs) {
+      findLV(lvcite);
     } 
 
 #ifdef EDM_ML_DEBUG
     std::cout << "HGCPassive::Finds " << mapLV_.size() << " logical volumes\n";
-    std::map<G4LogicalVolume*,std::pair<unsigned int, std::string> >::iterator itr;
     unsigned int k(0);
-    for (itr = mapLV_.begin(); itr != mapLV_.end(); ++itr, ++k)
-      std::cout << "Entry[" << k << "] " << itr->first << ": (" 
-		<< (itr->second).first << ", " << (itr->second).second << ")\n";
+    for (auto lvs : mapLV_) {
+      std::cout << "Entry[" << k << "] " << lvs.first << ": (" 
+		<< (lvs.second).first << ", " << (lvs.second).second << ")\n";
+      ++k;
+    }
 #endif
   }
 }
@@ -92,12 +95,12 @@ void HGCPassive::update(const G4Step * aStep) {
       
       G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
       G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();
-      std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator it = (init_) ? mapLV_.find(plv) : findLV(plv);
+      auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
       if (it != mapLV_.end()) {
 	unsigned int copy = (unsigned int)(touchable->GetReplicaNumber(0) + 
 					   1000*touchable->GetReplicaNumber(1));
 	std::pair<G4LogicalVolume*,unsigned int> key(plv,copy);
-	std::map<std::pair<G4LogicalVolume*,unsigned int>,std::pair<double,double>>::iterator itr = store_.find(key);
+	auto itr = store_.find(key);
 	double time = (aStep->GetPostStepPoint()->GetGlobalTime());
 	if (itr == store_.end()) {
 	  store_[key] = std::pair<double,double>(time,0.0);
@@ -125,14 +128,13 @@ void HGCPassive::endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k) {
 #ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
-  std::map<std::pair<G4LogicalVolume*,unsigned int>,std::pair<double,double>>::iterator itr;
-  for (itr = store_.begin(); itr != store_.end(); ++itr) {
-    G4LogicalVolume* lv = (itr->first).first;
-    std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator it = mapLV_.find(lv);
+  for (auto element : store_) {
+    G4LogicalVolume* lv = (element.first).first;
+    auto it = mapLV_.find(lv);
     if (it != mapLV_.end()) {
       if ((it->second).first == k) {
-	PassiveHit hit((it->second).second,(itr->first).second,
-		       (itr->second).second,(itr->second).first);
+	PassiveHit hit((it->second).second,(element.first).second,
+		       (element.second).second,(element.second).first);
 	hgcPH.push_back(hit);
 #ifdef EDM_ML_DEBUG
 	std::cout << "HGCPassive[" << k << "] Hit[" << kount << "] " << hit
@@ -149,7 +151,7 @@ G4VPhysicalVolume * HGCPassive::getTopPV() {
 }
 
 std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator HGCPassive::findLV(G4LogicalVolume * plv) {
-  std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator itr = mapLV_.find(plv);
+  auto itr = mapLV_.find(plv);
   if (itr == mapLV_.end()) {
     std::string name = plv->GetName();
     for (unsigned int k=0; k<LVNames_.size(); ++k) {
