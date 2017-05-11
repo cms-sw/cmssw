@@ -1,11 +1,15 @@
 #include <TROOT.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 
 #include <TString.h>
 #include <TStyle.h>
 #include <TAxis.h>
 #include <TGraph.h>
+#include <TF1.h>
+#include <TH1.h>
 #include <TH2.h>
 #include <TMultiGraph.h>
 #include <TFile.h>
@@ -32,7 +36,8 @@ class GeometryComparisonPlotter
             _module_plot_option,
             _alignment_name,
             _reference_name,
-            _print_only_global;
+            _print_only_global,
+            _make_profile_plots;
     bool _print,
          _legend,
          _write,
@@ -58,6 +63,7 @@ class GeometryComparisonPlotter
 
     // methods
     TString LateXstyle (TString);
+    TString LateXstyleTable (TString);
     TString ExtensionFromPrintOption (TString);
     TLegend * MakeLegend (double x1,
                           double y1,
@@ -68,6 +74,7 @@ class GeometryComparisonPlotter
 public:
 
     static int canvas_index; // to append to the name of the canvases in case of duplication
+    static int canvas_profile_index; // to append to the name of the canvases in case of duplication
 
     // constructor and destructor
     GeometryComparisonPlotter(TString tree_file_name,
@@ -75,7 +82,8 @@ public:
                               TString modulesToPlot="all",
                               TString referenceName="Ideal",
                               TString alignmentName="Alignment",
-                              TString plotOnlyGlobal="false");
+                              TString plotOnlyGlobal="false",
+                              TString makeProfilePlots="false");
     ~GeometryComparisonPlotter ();
 
     // main methods
@@ -84,6 +92,20 @@ public:
                     const vector<float>,
                     const vector<float>
                     );
+                    
+    void MakeTables (const vector<TString>,
+                    const vector<TString>,
+                    const vector<float>,
+                    const vector<float>);
+                 
+    void WriteTable (const vector<TString> x,
+					unsigned int nLevelsTimesSlices,
+					float meanValue[10][24],
+					float RMS[10][24],					
+					const TString nDigits,					
+					const TString tableCaption,
+					const TString tableFileName);
+                 
 
     // option methods
     void SetPrint               (const bool);           // activates the printing of the individual and global pdf
