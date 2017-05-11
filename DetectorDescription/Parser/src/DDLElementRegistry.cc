@@ -18,6 +18,7 @@
 #include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 #include "DetectorDescription/Parser/src/DDLMap.h"
+#include "DetectorDescription/Parser/src/DDLMultiUnionSolid.h"
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
 #include "DetectorDescription/Parser/src/DDLOrb.h"
 #include "DetectorDescription/Parser/src/DDLParallelepiped.h"
@@ -94,6 +95,10 @@ DDLElementRegistry::getElement( const std::string& name )
 	     || name == "IntersectionSolid")
     {
       myret = std::make_shared<DDLBooleanSolid>(this);
+    }
+    else if (name == "MultiUnionSolid" )
+    {
+      myret = std::make_shared<DDLMultiUnionSolid>(this);
     }
     else if (name == "ShapelessSolid")
     {
