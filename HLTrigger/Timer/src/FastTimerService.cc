@@ -576,13 +576,22 @@ FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& descripti
   // fill the modules that actually ran and the total time spent in each od them
   for (unsigned int i = 0; i < path.last; ++i) {
     auto const& module = data.modules[description.modules_and_dependencies_[i]];
-    module_counter_->Fill(i);
-    module_time_thread_total_->Fill(i, ms(module.total.time_thread));
-    module_time_real_total_->Fill(i, ms(module.total.time_real));
-    module_allocated_total_->Fill(i, kB(module.total.allocated));
-    module_deallocated_total_->Fill(i, kB(module.total.deallocated));
+    if (module_counter_)
+      module_counter_->Fill(i);
+
+    if (module_time_thread_total_)
+      module_time_thread_total_->Fill(i, ms(module.total.time_thread));
+
+    if (module_time_real_total_)
+      module_time_real_total_->Fill(i, ms(module.total.time_real));
+
+    if (module_allocated_total_)
+      module_allocated_total_->Fill(i, kB(module.total.allocated));
+
+    if (module_deallocated_total_)
+      module_deallocated_total_->Fill(i, kB(module.total.deallocated));
   }
-  if (path.status)
+  if (module_counter_ and path.status)
     module_counter_->Fill(path.last);
 }
 
