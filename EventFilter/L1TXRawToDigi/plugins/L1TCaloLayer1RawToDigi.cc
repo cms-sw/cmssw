@@ -97,6 +97,7 @@ private:
   std::vector<int> fedIDs;
 
   uint32_t event;
+  uint32_t warnsa;
 
   bool verbose;
 
@@ -126,6 +127,8 @@ L1TCaloLayer1RawToDigi::L1TCaloLayer1RawToDigi(const ParameterSet& iConfig) :
   produces<L1CaloRegionCollection>();
 
   consumes<FEDRawDataCollection>(fedRawDataLabel);
+
+  warnsa = 0;
 
 }
 
@@ -168,7 +171,10 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
       const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
 
       if ( fedRawData.size() == 0 || fedRawDataArray == nullptr ) {
-        LogError("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
+        if (warnsa<5) {
+          warnsa++;
+          LogInfo("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
+        }
         continue;
       }
       
