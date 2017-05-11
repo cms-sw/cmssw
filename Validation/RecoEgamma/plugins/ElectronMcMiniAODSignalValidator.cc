@@ -351,9 +351,9 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
                         okGsfFound = true;
                         
-/*                // DEBUG LINES - KEEP IT !
-                        std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
-                // DEBUG LINES - KEEP IT !  */ 
+                // DEBUG LINES - KEEP IT !
+                        //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
+                // DEBUG LINES - KEEP IT !  /**/ 
                     }
                 }
             }
