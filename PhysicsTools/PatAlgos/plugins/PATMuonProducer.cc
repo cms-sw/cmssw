@@ -121,10 +121,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   }
 
   //for mini-isolation calculation
-  pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
   computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
   miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
-
+  if(computeMiniIso_)
+      pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
 
   // produces vector of muons
   produces<std::vector<Muon> >();
