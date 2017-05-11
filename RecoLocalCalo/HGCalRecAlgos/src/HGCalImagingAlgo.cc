@@ -19,12 +19,16 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     DetId detid = hgrh.detid();
     unsigned int layer = rhtools_.getLayerWithOffset(detid);
     float thickness = -9999.;
-    float sigmaNoise = -9999.;
+    // set sigmaNoise default value 1 to use kappa value directly in case of sensor-independent thresholds
+    float sigmaNoise = 1.;
     if(dependSensor){
       if (layer<= lastLayerFH)
-	thickness = rhtools_.getSiThickness(detid);
+        thickness = rhtools_.getSiThickness(detid);
       double storedThreshold=thresholds[layer-1][layer<=lastLayerFH ? rhtools_.getWafer(detid) : 0];
-      if(hgrh.energy() <  storedThreshold) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
+      sigmaNoise = v_sigmaNoise[layer-1][layer<=lastLayerFH ? rhtools_.getWafer(detid) : 0];
+
+      if(hgrh.energy() <  storedThreshold)
+        continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
     }
     if(!dependSensor && hgrh.energy() < ecut) continue;
 
@@ -103,16 +107,13 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 	double energy  = calculateEnergyWithFraction(current_v[i],fractions[isub]);
 	Point position = calculatePositionWithFraction(current_v[i],fractions[isub]);
 
-	//std::cout << "Fractions*Energies: ";
 	for( unsigned ihit = 0; ihit < fractions[isub].size(); ++ihit ) {
 	  const double fraction = fractions[isub][ihit];
 	  if( fraction > 1e-7 ) {
-	    //std::cout << fraction << "*" << current_v[i][ihit].weight << " ";
 	    effective_hits += fraction;
 	    thisCluster.emplace_back(current_v[i][ihit].data.detid,fraction);
 	  }
 	}
-	//std::cout << std::endl;
 
 	if (verbosity < pINFO)
 	  {
@@ -270,8 +271,8 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     if(dependSensor){
 
       float rho_c = kappa*nd[ds[i]].data.sigmaNoise;
-
       if(nd[ds[i]].data.rho < rho_c ) continue; // set equal to kappa times noise threshold
+
     }
     else if(nd[ds[i]].data.rho*kappa < maxdensity)
       continue;
@@ -280,8 +281,8 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     nd[ds[i]].data.clusterIndex = clusterIndex;
     if (verbosity < pINFO)
       {
-	std::cout << "Adding new cluster with index " << clusterIndex+cluster_offset << std::endl;
-	std::cout << "Cluster center is hit " << ds[i] << std::endl;
+	    std::cout << "Adding new cluster with index " << clusterIndex+cluster_offset << std::endl;
+	    std::cout << "Cluster center is hit " << ds[i] << std::endl;
       }
     clusterIndex++;
   }
@@ -380,7 +381,6 @@ std::vector<unsigned> HGCalImagingAlgo::findLocalMaximaInCluster(const std::vect
   for( unsigned i = 0; i < cluster.size(); ++i ) {
     for( unsigned j = 0; j < cluster.size(); ++j ) {
       if( distance(cluster[i].data,cluster[j].data) < delta_c && i != j) {
-	//std::cout << "hit-to-hit distance = " << distance(cluster[i],cluster[j]) << std::endl;
 	if( cluster[i].data.weight < cluster[j].data.weight ) {
 	  seed[i] = false;
 	  break;
@@ -441,7 +441,7 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
     return;
   }
 
-  //std::cout << "saving seeds" << std::endl;
+  // saving seeds
 
   // create quick seed lookup
   for( unsigned i = 0; i < seeds.size(); ++i ) {
@@ -451,7 +451,7 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
   // initialize clusters to be shared
   // centroids start off at seed positions
   // seeds always have fraction 1.0, to stabilize fit
-  //std::cout << "initializing fit" << std::endl;
+  // initializing fit
   for( unsigned i = 0; i < seeds.size(); ++i ) {
     outclusters[i].resize(incluster.size(),0.0);
     for( unsigned j = 0; j < incluster.size(); ++j ) {
@@ -531,6 +531,7 @@ void HGCalImagingAlgo::computeThreshold() {
   std::vector<double> dummy;
   dummy.resize(maxNumberOfWafersPerLayer, 0);
   thresholds.resize(maxlayer, dummy);
+  v_sigmaNoise.resize(maxlayer, dummy);
   int previouswafer=-999;
 
   for(unsigned icalo=0;icalo<2;++icalo)
@@ -554,6 +555,7 @@ void HGCalImagingAlgo::computeThreshold() {
 	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
 	  float sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
 	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
+      v_sigmaNoise[layer-1][wafer] = sigmaNoise;
 	}
     }
 
@@ -561,9 +563,12 @@ void HGCalImagingAlgo::computeThreshold() {
   for ( unsigned ilayer=lastLayerFH+1;ilayer<=maxlayer;++ilayer)
     {
       float sigmaNoise = 0.001 * noiseMip * dEdXweights[ilayer];
-      std::vector<double> bhDummy;
-      bhDummy.push_back(sigmaNoise*ecut);
-      thresholds[ilayer-1]=bhDummy;
+      std::vector<double> bhDummy_thresholds;
+      std::vector<double> bhDummy_sigmaNoise;
+      bhDummy_thresholds.push_back(sigmaNoise*ecut);
+      bhDummy_sigmaNoise.push_back(sigmaNoise);
+      thresholds[ilayer-1]=bhDummy_thresholds;
+      v_sigmaNoise[ilayer-1]=bhDummy_sigmaNoise;
     }
   initialized=true;
 }
