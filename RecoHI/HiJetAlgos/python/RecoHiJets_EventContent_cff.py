@@ -9,8 +9,14 @@ RecoHiJetsRECO = cms.PSet(
                                             'keep *_akPu3PFJets_*_*',
                                             'keep *_akPu4PFJets_*_*',
                                             'keep *_akPu5PFJets_*_*',
+                                            'keep *_akCs3PFJets_*_*',
+                                            'keep *_akCs4PFJets_*_*',
+                                            'keep *_kt4PFJets_*_*',
                                             'keep *_*HiGenJets_*_*',
-                                            'keep *_PFTowers_*_*'
+                                            'keep *_PFTowers_*_*',
+                                            'keep *_mapEtaEdges_*_*',
+                                            'keep *_mapToRho_*_*',
+                                            'keep *_mapToRhoM_*_*',
 
                                            )
     )
@@ -19,7 +25,10 @@ RecoHiJetsFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_*CaloJets_*_*',
                                            'keep *_*PFJets_*_*',
                                            'keep *_*HiGenJets_*_*',
-                                           'keep *_*PFTowers_*_*'
+                                           'keep *_*PFTowers_*_*',
+                                           'keep *_mapEtaEdges_*_*',
+                                           'keep *_mapToRho_*_*',
+                                           'keep *_mapToRhoM_*_*',
                                            )
     )
 
@@ -28,6 +37,9 @@ RecoHiJetsAOD = cms.PSet(
                                            'keep *_*PFJets_*_*',
                                            'keep *_*HiGenJets_*_*',
                                            'keep *_*PFTowers_*_*',
+                                           'keep *_mapEtaEdges_*_*',
+                                           'keep *_mapToRho_*_*',
+                                           'keep *_mapToRhoM_*_*',
                                            'keep CaloTowersSorted_towerMaker_*_*',
                                            'drop recoCandidatesOwned_caloTowers_*_*',
                                            'keep recoPFCandidates_particleFlowTmp_*_*'
