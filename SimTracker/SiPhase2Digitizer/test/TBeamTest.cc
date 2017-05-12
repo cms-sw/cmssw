@@ -238,7 +238,7 @@ void TBeamTest::bookHistograms(DQMStore::IBooker & ibooker,
   types.push_back("PSS_Modules");    
   ibooker.cd();
 
-  for (auto itype : types) {
+  for (const auto& itype : types) {
 
     std::stringstream folder_name;
    
