@@ -122,6 +122,9 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
 
 };
 
+constexpr int CTPPSPixelDQMSource::NplaneMAX;
+constexpr int CTPPSPixelDQMSource::NROCsMAX;
+
 //----------------------------------------------------------------------------------
 
 using namespace std;
