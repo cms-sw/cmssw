@@ -84,26 +84,32 @@ ALCARECOShallowSequenceAAG = cms.Sequence(ALCARECOShallowEventRunAAG*ALCARECOSha
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
-from CalibTracker.SiStripChannelGain.SiStripGainsPCLWorker_cfi import SiStripGainsPCLWorker                         
-ALCARECOSiStripCalibAAG = SiStripGainsPCLWorker.clone()                                                            
-ALCARECOSiStripCalibAAG.FirstSetOfConstants = cms.untracked.bool(False)   
+from CalibTracker.SiStripChannelGain.computeGain_cff import SiStripCalib
+ALCARECOSiStripCalibAAG = SiStripCalib.clone()
+ALCARECOSiStripCalibAAG.AlgoMode            = cms.untracked.string('PCL')
+ALCARECOSiStripCalibAAG.FirstSetOfConstants = cms.untracked.bool(False)
+ALCARECOSiStripCalibAAG.harvestingMode      = cms.untracked.bool(False)
+ALCARECOSiStripCalibAAG.calibrationMode     = cms.untracked.string('AagBunch')
 ALCARECOSiStripCalibAAG.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAAG')
-ALCARECOSiStripCalibAAG.calibrationMode     = cms.untracked.string('AagBunch')          
-ALCARECOSiStripCalibAAG.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')      
-ALCARECOSiStripCalibAAG.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')             
-ALCARECOSiStripCalibAAG.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')             
-
+ALCARECOSiStripCalibAAG.doStoreOnDB         = cms.bool(False)
+ALCARECOSiStripCalibAAG.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibrationAAG')
+ALCARECOSiStripCalibAAG.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRunAAG')
+ALCARECOSiStripCalibAAG.tracks.label        = cms.untracked.string('ALCARECOShallowTracksAAG')
 # ----------------------------------------------------------------------------
 
+
+# ****************************************************************************
+# ** Conversion for the SiStripGain DQM dir not used for split statistics   **
+# ****************************************************************************
 MEtoEDMConvertSiStripGainsAAG = cms.EDProducer("MEtoEDMConverter",
-                                            Name = cms.untracked.string('MEtoEDMConverter'),
-                                            Verbosity = cms.untracked.int32(1), # 0 provides no output
-                                            # 1 provides basic output
-                                            # 2 provide more detailed output
-                                            Frequency = cms.untracked.int32(50),
-                                            MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAAG'),
-                                            deleteAfterCopy = cms.untracked.bool(True)
-)
+                                               Name = cms.untracked.string('MEtoEDMConverter'),
+                                               Verbosity = cms.untracked.int32(1), # 0 provides no output
+                                               # 1 provides basic output
+                                               # 2 provide more detailed output
+                                               Frequency = cms.untracked.int32(50),
+                                               MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAAG'),
+                                               deleteAfterCopy = cms.untracked.bool(True)
+                                               )
 
 # The actual sequence
 seqALCARECOPromptCalibProdSiStripGainsAAG = cms.Sequence(
