@@ -350,9 +350,10 @@ bool PVFitter::runFitter() {
     TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
 
     //Use our own copy for thread safety
-    TF1 gausx("localGausX","gaus");
-    TF1 gausy("localGausY","gaus");
-    TF1 gausz("localGausZ","gaus");
+    // also do not add to global list of functions
+    TF1 gausx("localGausX","gaus",0.,1.,TF1::EAddToList::kNo);
+    TF1 gausy("localGausY","gaus",0.,1.,TF1::EAddToList::kNo);
+    TF1 gausz("localGausZ","gaus",0.,1.,TF1::EAddToList::kNo);
 
     h1PVx->Fit(&gausx,"QLMN0");
     h1PVy->Fit(&gausy,"QLMN0");
