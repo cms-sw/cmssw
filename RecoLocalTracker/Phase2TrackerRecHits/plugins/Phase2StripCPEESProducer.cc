@@ -54,11 +54,13 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) 
 std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(const TkStripCPERecord & iRecord) {
 
   edm::ESHandle<MagneticField> magfield;
+  edm::ESHandle<TrackerGeometry> pDD;
 
   switch(cpeNum_) {
     case DEFAULT:
       iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-      cpe_ = std::make_shared<Phase2StripCPE>(pset_, *magfield);
+      iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
+      cpe_ = std::make_shared<Phase2StripCPE>(pset_, *magfield,*pDD);
       break;
     case GEOMETRIC:
       cpe_ = std::make_shared<Phase2StripCPEGeometric>(pset_);

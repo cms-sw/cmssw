@@ -35,15 +35,7 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
     return true;
   }
   
-  auto oldSize = result.size();
-  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet, data);
-  for (auto && hit : allHits) {
-    std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
-    if ( diffEst.first)
-      result.add(std::move(hit), diffEst.second);
-  }
-
-  if (result.size()>oldSize) return true;
+  if (recHits(stateOnThisDet,est,data,result.hits,result.distances)) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet, data);
@@ -51,6 +43,59 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
   return inac;
 
 }
+
+bool TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
+                                        RecHitContainer & result, std::vector<float> & diffs) const {
+
+  if unlikely( (!isActive(data)) || isEmpty(data.phase2OTData()) ) return false;
+
+  auto oldSize = result.size();
+
+  int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  const detset & detSet = data.phase2OTData().detSet(index()); 
+  auto begin = &(data.phase2OTData().handle()->data().front());
+  auto reject = [&](auto ci)-> bool { return (!data.phase2OTClustersToSkip().empty()) && data.phase2OTClustersToSkip()[ci-begin];};
+
+  /// in principle we can use the usual 5 sigma cut from the Traj to identify the column.... 
+  // auto const nc = specificGeomDet().specificTopology().ncolumns();
+  auto firstCluster = detSet.begin();
+  while (firstCluster!=detSet.end()) {
+    auto const col = firstCluster->column();
+    auto lastCluster =
+    std::find_if( firstCluster, detSet.end(), [col](const Phase2TrackerCluster1D& hit) { return hit.column() != col; });
+
+    auto rightCluster = 
+      std::find_if( firstCluster, lastCluster, [utraj](const Phase2TrackerCluster1D& hit) { return int(hit.firstStrip()) > utraj; });
+
+    if ( rightCluster != firstCluster) {
+     // there are hits on the left of the utraj
+     auto leftCluster = rightCluster;
+     while ( --leftCluster >=  firstCluster) {
+       if(reject(leftCluster)) continue;
+       Phase2TrackerCluster1DRef cluster = detSet.makeRefTo( data.phase2OTData().handle(), leftCluster);
+       auto hit = buildRecHit( cluster, stateOnThisDet.localParameters() );
+       auto diffEst = est.estimate( stateOnThisDet, *hit); 
+       if ( !diffEst.first ) break; // exit loop on first incompatible hit
+       result.push_back(hit);
+       diffs.push_back(diffEst.second);
+     }
+    }
+    for ( ; rightCluster != lastCluster; rightCluster++) {
+       if(reject(rightCluster)) continue;
+       Phase2TrackerCluster1DRef cluster = detSet.makeRefTo( data.phase2OTData().handle(), rightCluster);
+       auto hit = buildRecHit( cluster, stateOnThisDet.localParameters() );
+       auto diffEst = est.estimate( stateOnThisDet, *hit);
+       if ( !diffEst.first ) break; // exit loop on first incompatible hit
+       result.push_back(hit);
+       diffs.push_back(diffEst.second);
+     }
+     firstCluster = lastCluster;
+   } // loop over columns 
+   return result.size()>oldSize;
+} 
+ 
+
+
 
 TrackingRecHit::RecHitPointer
 TkPhase2OTMeasurementDet::buildRecHit( const Phase2TrackerCluster1DRef & cluster,
@@ -68,8 +113,8 @@ TkPhase2OTMeasurementDet::RecHitContainer
 TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data ) const
 {
   RecHitContainer result;
-  if (isEmpty(data.phase2OTData())== true ) return result;
-  if (isActive(data) == false) return result;
+  if (isEmpty(data.phase2OTData())) return result;
+  if (!isActive(data)) return result;
   const Phase2TrackerCluster1D* begin=0;
   if (0 != data.phase2OTData().handle()->data().size()) {
      begin = &(data.phase2OTData().handle()->data().front());
