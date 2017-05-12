@@ -19,7 +19,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <boost/regex.hpp> 
+#include <regex> 
+
 
 // an empty dummy config data used when we fail to initialize 
 static const HLTConfigData* s_dummyHLTConfigData()
@@ -237,18 +238,18 @@ void HLTConfigProvider::clear()
 
 const std::vector<std::string> HLTConfigProvider::matched(const std::vector<std::string>& inputs, const std::string& pattern) {
   std::vector<std::string> matched;
-  const boost::regex regexp(edm::glob2reg(pattern));
+  const std::regex regexp(edm::glob2reg(pattern));
   const unsigned int n(inputs.size());
   for (unsigned int i=0; i<n; ++i) {
     const std::string& input(inputs[i]);
-    if (boost::regex_match(input,regexp)) matched.push_back(input);
+    if (std::regex_match(input,regexp)) matched.push_back(input);
   }
   return matched;
 }
 
 const std::string HLTConfigProvider::removeVersion(const std::string& trigger) {
-  const boost::regex regexp("_v[0-9]+$");
-  return boost::regex_replace(trigger,regexp,"");
+  const std::regex regexp("_v[0-9]+$");
+  return std::regex_replace(trigger,regexp,"");
 }
 
 const std::vector<std::string> HLTConfigProvider::restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger) {
