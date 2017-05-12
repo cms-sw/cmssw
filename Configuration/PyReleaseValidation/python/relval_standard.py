@@ -17,14 +17,14 @@ workflows[2] = ['', ['ProdTTbar','DIGIPROD1','RECOPROD1']]
 workflows[3] = ['', ['ProdQCD_Pt_3000_3500','DIGIPROD1','RECOPROD1']]
 workflows.addOverride(3,overridesEv5)                                                      #######################################################
 #workflows[1301] = ['', ['ProdMinBias_13','DIGIUP15PROD1','RECOPRODUP15','MINIAODMCUP15']] # Re-add miniaod here, to keep event content scrutinized
-workflows[1301] = ['', ['ProdMinBias_13UP15','DIGIUP15PROD1','RECOPRODUP15']]                  ######################################################## 
-workflows[1302] = ['', ['ProdTTbar_13UP15','DIGIUP15PROD1','RECOPRODUP15']]
-workflows[1303] = ['', ['ProdQCD_Pt_3000_3500_13UP15','DIGIUP15PROD1','RECOPRODUP15']]
-workflows.addOverride(1303,overridesEv5)
+workflows[1301.15] = ['', ['ProdMinBias_13UP15','DIGIUP15PROD1','RECOPRODUP15']]                  ######################################################## 
+workflows[1302.15] = ['', ['ProdTTbar_13UP15','DIGIUP15PROD1','RECOPRODUP15']]
+workflows[1303.15] = ['', ['ProdQCD_Pt_3000_3500_13UP15','DIGIUP15PROD1','RECOPRODUP15']]
+workflows.addOverride(1303.15,overridesEv5)
 
-workflows[1301.17] = ['', ['ProdMinBias_13','DIGIUP17PROD1','RECOPRODUP17']]                  ######################################################## 
-workflows[1302.17] = ['', ['ProdTTbar_13','DIGIUP17PROD1','RECOPRODUP17']]
-workflows[1303.17] = ['', ['ProdQCD_Pt_3000_3500_13','DIGIUP17PROD1','RECOPRODUP17']]
+workflows[1301] = ['', ['ProdMinBias_13','DIGIUP17PROD1','RECOPRODUP17']]                  ######################################################## 
+workflows[1302] = ['', ['ProdTTbar_13','DIGIUP17PROD1','RECOPRODUP17']]
+workflows[1303] = ['', ['ProdQCD_Pt_3000_3500_13','DIGIUP17PROD1','RECOPRODUP17']]
 workflows.addOverride(1303,overridesEv5)
 
 ### data ###
