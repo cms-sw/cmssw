@@ -68,7 +68,7 @@ def _updateOutput( era, outputPSets, commands):
 # mods for HGCAL
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [
-        'keep *_HGCalRecHit_*_*',
+        'keep *_HGCalRecHit*_*_*',
         'keep *_HGCalUncalibRecHit_*_*',
         'keep *_hgcalLayerClusters_*_*'
     ]

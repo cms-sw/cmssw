@@ -52,10 +52,6 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
   std::unique_ptr<hgcal::RecHitTools> tools_;
 
-  const bool isRealistic_ = false;
-  float nSigmaThreshold_;
-
-
 };
 
 #endif
