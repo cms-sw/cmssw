@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_DiJet_MET = cms.EDProducer("SUSY_HLT_DiJet_MET",
+SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), 
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("caloMet"),

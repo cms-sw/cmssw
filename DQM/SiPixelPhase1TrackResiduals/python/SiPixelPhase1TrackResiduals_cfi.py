@@ -24,7 +24,7 @@ SiPixelPhase1TrackResidualsConf = cms.VPSet(
   SiPixelPhase1TrackResidualsResidualsY
 )
 
-SiPixelPhase1TrackResidualsAnalyzer = cms.EDProducer("SiPixelPhase1TrackResiduals",
+SiPixelPhase1TrackResidualsAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackResiduals",
         trajectoryInput = cms.string("generalTracks"),
         Tracks        = cms.InputTag("generalTracks"),
         VertexCut                  = cms.bool(True), # Will not apply the vertex cuts on cosmics

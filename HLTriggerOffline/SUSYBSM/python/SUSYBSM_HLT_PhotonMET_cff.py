@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_PhotonMET_pt36 = cms.EDProducer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt36 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),
@@ -12,7 +12,7 @@ SUSY_HLT_PhotonMET_pt36 = cms.EDProducer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt50 = cms.EDProducer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt50 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),
@@ -24,7 +24,7 @@ SUSY_HLT_PhotonMET_pt50 = cms.EDProducer("SUSY_HLT_PhotonMET",
    metThrOffline = cms.untracked.double(100),
 )
 
-SUSY_HLT_PhotonMET_pt75 = cms.EDProducer("SUSY_HLT_PhotonMET",
+SUSY_HLT_PhotonMET_pt75 = cms.EDAnalyzer("SUSY_HLT_PhotonMET",
    trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
    pfMETCollection = cms.InputTag("pfMet"),
    photonCollection = cms.InputTag("gedPhotons"),

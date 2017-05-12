@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_Mu8_TrkIsoVVL = cms.EDProducer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu8_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -15,7 +15,7 @@ SUSY_HLT_Mu8_TrkIsoVVL_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu8 = cms.EDProducer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu8 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -30,7 +30,7 @@ SUSY_HLT_Mu8_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17_TrkIsoVVL = cms.EDProducer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -45,7 +45,7 @@ SUSY_HLT_Mu17_TrkIsoVVL_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_Mu17 = cms.EDProducer("SUSY_HLT_MuonFakes",
+SUSY_HLT_Mu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
@@ -60,7 +60,7 @@ SUSY_HLT_Mu17_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     efficiency     = cms.vstring()
 )
 
-SUSY_HLT_TkMu17 = cms.EDProducer("SUSY_HLT_MuonFakes",
+SUSY_HLT_TkMu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),

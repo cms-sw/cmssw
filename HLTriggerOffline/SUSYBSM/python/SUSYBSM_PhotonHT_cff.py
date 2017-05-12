@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_PhotonHT = cms.EDProducer("SUSY_HLT_PhotonHT",
+SUSY_HLT_PhotonHT = cms.EDAnalyzer("SUSY_HLT_PhotonHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'),
   pfMETCollection = cms.InputTag("pfMet"),
   photonCollection = cms.InputTag("gedPhotons"),

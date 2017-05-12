@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_MET120_MUON5 = cms.EDProducer("SUSY_HLT_Muon_Hadronic",
+SUSY_HLT_MET120_MUON5 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -31,7 +31,7 @@ SUSY_HLT_MET120_MUON5_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     )
 )
 
-SUSY_HLT_MET50_DIMUON3 = cms.EDProducer("SUSY_HLT_Muon_Hadronic",
+SUSY_HLT_MET50_DIMUON3 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),

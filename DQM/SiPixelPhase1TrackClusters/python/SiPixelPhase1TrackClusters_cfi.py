@@ -157,7 +157,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 )
 
 
-SiPixelPhase1TrackClustersAnalyzer = cms.EDProducer("SiPixelPhase1TrackClusters",
+SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
         tracks = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1TrackClustersConf,

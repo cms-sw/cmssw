@@ -89,7 +89,7 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsProb,
 )
 
-SiPixelPhase1RecHitsAnalyzer = cms.EDProducer("SiPixelPhase1RecHits",
+SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
         src = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry,

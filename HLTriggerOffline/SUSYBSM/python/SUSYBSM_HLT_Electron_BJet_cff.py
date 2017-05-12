@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_Electron_BJet = cms.EDProducer("SUSY_HLT_Electron_BJet",
+SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
