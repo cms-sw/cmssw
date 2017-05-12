@@ -99,6 +99,9 @@ private:
   MonitorElement* nSimHitsPerTrack;
   float etaCut_;
   float ptCut_;
+  float tofUpperCut_;
+  float tofLowerCut_;
+
 
   void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag); 
   unsigned int getSimTrackId(const edm::DetSetVector<PixelDigiSimLink>* simLinks, const DetId& detId, unsigned int& channel);
@@ -146,5 +149,6 @@ private:
   edm::ESHandle<TrackerTopology> tTopoHandle_;
 
   const float GeVperElectron; // 3.7E-09 
+  const float cval;   // cm/ns
 };
 #endif

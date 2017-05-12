@@ -44,7 +44,8 @@
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// // constructors 
+// 
+// constructors 
 //
 Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iConfig) :
   config_(iConfig),
@@ -63,12 +64,16 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   itPixelDigiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(itPixelDigiSimLinkSrc_)),
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
   simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_)),
-  GeVperElectron(3.61E-09) // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
+  GeVperElectron(3.61E-09), // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
+  cval(30.)
 {
   for(auto itag : pSimHitSrc_) simHitTokens_.push_back(consumes< edm::PSimHitContainer >(itag));
 
   etaCut_  = config_.getParameter<double>("EtaCutOff");
   ptCut_  = config_.getParameter<double>("PtCutOff");
+  tofUpperCut_ = config_.getParameter<double>("TOFUpperCutOff");
+  tofLowerCut_ = config_.getParameter<double>("TOFUpperCutOff");
+
   edm::LogInfo("Phase2TrackerValidateDigi") << ">>> Construct Phase2TrackerValidateDigi ";
 }
 
@@ -154,9 +159,9 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
     if (fabs(simTk_eta) < etaCut_ && simTk_pt > ptCut_ ) fillHistogram(SimulatedTrackPhi, SimulatedTrackPhiP, SimulatedTrackPhiS, simTk_phi, simTk_type);
 
     // initialize
-    for (std::map<unsigned int, DigiMEs>::iterator it = layerMEs.begin(); it != layerMEs.end(); it++) {
-      it->second.nDigis = 0;
-      it->second.nHits  = 0;
+    for (auto& it : layerMEs) {
+      it.second.nDigis = 0;
+      it.second.nHits  = 0;
     }
 
     fillSimHitInfo(iEvent, (*simTrkItr), geomHandle);
@@ -164,9 +169,9 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
     
     int nHitCutoff = 2;
     if (pixelFlag_) nHitCutoff = 1;
-    for (std::map<unsigned int, DigiMEs>::iterator it = layerMEs.begin(); it != layerMEs.end(); it++) {
-      DigiMEs& local_mes = it->second;
-      if (it->second.nHits < nHitCutoff) {
+    for (auto& it : layerMEs) {
+      DigiMEs& local_mes = it.second;
+      if (it.second.nHits < nHitCutoff) {
 	if (std::fabs(simTk_eta) < 1.0) local_mes.MissedHitTrackPt->Fill(simTk_pt);
 	if (simTk_pt > ptCut_ && std::fabs(simTk_eta) < 1.0 ) local_mes.MissedHitTrackEta->Fill(simTk_eta);
 	if (std::fabs(simTk_eta) < 1.0 && simTk_pt > ptCut_)  local_mes.MissedHitTrackPhi->Fill(simTk_phi);
@@ -203,9 +208,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
       else layer = tTopo->getOTLayerNumber(rawid);
       if (layer < 0) continue;
 
-      //      std::cout << " Layer " << layer << " SimTrack Id " << id << " Type " << simTrk.type() << " Vertex Id " << simTrk.vertIndex() << " Process Type " <<  (*isim).processType() << " Pt " << simTrk.momentum().pt() << std::endl;
-
-      std::map<unsigned int, DigiMEs>::iterator pos = layerMEs.find(layer);
+      auto pos = layerMEs.find(layer);
       if (pos == layerMEs.end()) continue;
       DigiMEs& local_mes = pos->second;
 
@@ -219,7 +222,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
       if (!geomDet) continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
 
-      if (((*isim).tof() - pdPos.mag()/30.) < -12.5 || ((*isim).tof() - pdPos.mag()/30.) > 12.5) continue;
+      if (((*isim).tof() - pdPos.mag()/cval) < tofLowerCut_ || ((*isim).tof() - pdPos.mag()/cval) > tofUpperCut_) continue;
 
 
       SimulatedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);   
@@ -255,7 +258,6 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
         else  local_mes.MissedDigiTrackPt->Fill(pt);
       }
       if (pt > ptCut_) {
-	//        if (!pixelFlag_ && (std::fabs(eta) > 2.6 || std::fabs(eta) < 0.01) ) std::cout << " Eta " << eta << " Pt " << pt << " layer " << layer << " id " << (*isim).trackId() << " Eloss " << ((*isim).energyLoss()) << " rawid " << rawid << " Event " << iEvent.id().event() << std::endl;
  	local_mes.SimTrackEta->Fill(eta);
         if (digiFlag) local_mes.MatchedTrackEta->Fill(eta);
         else local_mes.MissedDigiTrackEta->Fill(eta);
@@ -273,7 +275,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
 	else local_mes.MatchedSimHitElossP->Fill((*isim).energyLoss()/GeVperElectron);
       } else {
 	local_mes.MissedDigiLocalXposVsYPos->Fill((*isim).localPosition().x(), (*isim).localPosition().y());
-        local_mes.MissedDigiTimeWindow->Fill(std::fabs((*isim).timeOfFlight() - pdPos.mag()/30.));
+        local_mes.MissedDigiTimeWindow->Fill(std::fabs((*isim).timeOfFlight() - pdPos.mag()/cval));
 	if (nColumns <= 2) local_mes.MissedDigiSimHitElossS->Fill((*isim).energyLoss()/GeVperElectron);
 	else local_mes.MissedDigiSimHitElossP->Fill((*isim).energyLoss()/GeVperElectron);
 
@@ -852,7 +854,7 @@ void Phase2TrackerValidateDigi::fillHistogram(MonitorElement* th1, MonitorElemen
 // -- Fill NHit per Layer Histogram
 //
 void Phase2TrackerValidateDigi::fillHitsPerTrack(){
-  for (std::map<unsigned int, DigiMEs>::iterator it = layerMEs.begin(); it != layerMEs.end(); it++) {
+  for (auto it = layerMEs.begin(); it != layerMEs.end(); it++) {
     DigiMEs& local_mes = it->second;
     unsigned int layer = it->first;
     int lval;
