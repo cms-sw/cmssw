@@ -67,7 +67,7 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   GeVperElectron(3.61E-09), // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
   cval(30.)
 {
-  for(auto itag : pSimHitSrc_) simHitTokens_.push_back(consumes< edm::PSimHitContainer >(itag));
+  for(const auto& itag : pSimHitSrc_) simHitTokens_.push_back(consumes< edm::PSimHitContainer >(itag));
 
   etaCut_  = config_.getParameter<double>("EtaCutOff");
   ptCut_  = config_.getParameter<double>("PtCutOff");
@@ -191,7 +191,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
   int totalHits = 0;
   
   unsigned int id =  simTrk.trackId();
-  for (auto& itoken : simHitTokens_) {
+  for (const auto& itoken : simHitTokens_) {
     edm::Handle<edm::PSimHitContainer> simHitHandle;
     iEvent.getByToken(itoken, simHitHandle);
     if (!simHitHandle.isValid()) continue;
@@ -779,7 +779,7 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
       if (ic == bxMap.end()) bxMap[bx] = 1.0;
       else bxMap[bx] += 1.0;
     }
-    for (auto & v : bxMap) {
+    for (const auto& v : bxMap) {
       if (tot_digi) {
 	local_mes.BunchXTimeBin->Fill(v.first, v.second);
 	local_mes.FractionOfOOTDigis->Fill(v.first,v.second/tot_digi);
@@ -809,7 +809,7 @@ void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
       if (ic == bxMap.end()) bxMap[bx] = 1.0;
       else bxMap[bx] += 1.0;
     }
-    for (auto & v : bxMap) {
+    for (const auto& v : bxMap) {
       if (tot_digi) {
 	local_mes.BunchXTimeBin->Fill(v.first, v.second);
 	local_mes.FractionOfOOTDigis->Fill(v.first,v.second/tot_digi);
@@ -854,9 +854,9 @@ void Phase2TrackerValidateDigi::fillHistogram(MonitorElement* th1, MonitorElemen
 // -- Fill NHit per Layer Histogram
 //
 void Phase2TrackerValidateDigi::fillHitsPerTrack(){
-  for (auto it = layerMEs.begin(); it != layerMEs.end(); it++) {
-    DigiMEs& local_mes = it->second;
-    unsigned int layer = it->first;
+  for (const auto& it: layerMEs) {
+    const DigiMEs& local_mes = it.second;
+    unsigned int layer = it.first;
     int lval;
     if (layer < 10) lval = layer;
     else if (layer/100 == 1) lval = 100 - (layer+10);

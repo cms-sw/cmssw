@@ -180,7 +180,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     local_mes.DigiOccupancyP->Fill(occupancy);
   }
   // Fill histograms after loop over digis are complete
-  for (auto & ilayer : layerMEs) {
+  for ( auto& ilayer : layerMEs) {
     DigiMEs& local_mes = ilayer.second;
     local_mes.TotalNumberOfDigisPerLayer->Fill(local_mes.nDigiPerLayer);
     local_mes.NumberOfHitDetectorsPerLayer->Fill(local_mes.nHitDetsPerLayer);
@@ -284,7 +284,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     }
   }
   // Fill histograms after loop over digis are complete
-  for (auto & ilayer : layerMEs) {
+  for (auto& ilayer : layerMEs) {
     DigiMEs& local_mes = ilayer.second;
     local_mes.TotalNumberOfDigisPerLayer->Fill(local_mes.nDigiPerLayer);
     local_mes.NumberOfHitDetectorsPerLayer->Fill(local_mes.nHitDetsPerLayer);
