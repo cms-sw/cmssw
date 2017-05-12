@@ -213,12 +213,8 @@ namespace l1t {
 	// int dBX[3] = {0, 1, 2};         // Hit - track BX values for earliest LCT configuration
 	int dBX[5] = {0, -1, 1, -2, 2}; // Hit - track BX values for 2nd-earliest LCT configuration
 
-	Track_.set_has_neighbor(false);
-	Track_.set_all_neighbor(true);
-
 	conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
+
 	// if (abs(SP_.TBIN() - 3) < 2)
 	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
 	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
@@ -245,8 +241,7 @@ namespace l1t {
 								  conv_vals_SP.at(3), 1) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
+
 	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
@@ -267,8 +262,7 @@ namespace l1t {
 								  conv_vals_SP.at(3), 2) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
+
 	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
@@ -289,8 +283,7 @@ namespace l1t {
 								  conv_vals_SP.at(3), 3) );
 
 	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
-	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
-	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
+
 	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 

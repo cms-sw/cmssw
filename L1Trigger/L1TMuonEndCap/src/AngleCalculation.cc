@@ -409,12 +409,6 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   EMTFHitCollection tmp_hits = track.Hits();
   flatten_container(st_conv_hits, tmp_hits);
   track.set_Hits( tmp_hits );
-  track.set_has_neighbor( false );
-  track.set_all_neighbor( true );
-  for (const auto& hit : tmp_hits) {
-    if (hit.Neighbor() == 1) track.set_has_neighbor( true );
-    if (hit.Neighbor() == 0) track.set_all_neighbor( false );
-  }
 
 }
 

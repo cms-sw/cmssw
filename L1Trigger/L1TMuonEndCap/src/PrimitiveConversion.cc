@@ -497,6 +497,8 @@ void PrimitiveConversion::convert_rpc(
     int phi_loc_int   = emtf::calc_phi_loc_int(glob_phi, conv_hit.Sector());
     int theta_int     = emtf::calc_theta_int(glob_theta, conv_hit.Endcap());
 
+    if (is_neighbor) phi_loc_int -= 3600;  // Shift down 60 degrees
+
     // Use RPC-specific convention in docs/CPPF-EMTF-format_2016_11_01.docx
     // Phi precision is (1/15) degrees, 4x larger than CSC precision of (1/60) degrees
     // Theta precision is (36.5/32) degrees, 4x larger than CSC precision of (36.5/128) degrees

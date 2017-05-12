@@ -6,13 +6,14 @@
 
 #include <cstdint>
 #include <vector>
+#include <cmath>
 
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTF/SP.h"
 
 namespace l1t {
-
+  
   struct EMTFPtLUT {
     uint64_t address;
     uint16_t mode;
@@ -29,33 +30,49 @@ namespace l1t {
     uint16_t bt_ci    [5]; // ^
     uint16_t bt_si    [5]; // ^
   };
-
-
+  
+  
   class EMTFTrack {
   public:
-
-    EMTFTrack() :
-        endcap(-99), sector(-99), sector_idx(-99), mode(-99), mode_inv(-99),
-        rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
-        pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
-        theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-99),
-        gmt_pt(-99), gmt_phi(-99), gmt_eta(-99), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
-        track_num(-99), has_neighbor(-99), all_neighbor(-99), numHits(-99)
-        {};
-
+    
+  EMTFTrack() :
+    endcap(-99), sector(-99), sector_idx(-99), 
+      mode(-99), mode_CSC(0), mode_RPC(0), mode_neighbor(0), mode_inv(-99),
+      rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
+      pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
+      theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-99),
+      gmt_pt(-99), gmt_phi(-99), gmt_eta(-99), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
+      track_num(-99), numHits(-99) 
+      {};
+    
     virtual ~EMTFTrack() {};
-
+    
     typedef unsigned int uint;
-
+    
     void ImportSP( const emtf::SP _SP, int _sector );
     // void ImportPtLUT( int _mode, unsigned long _address );
+    
 
-    void set_Hits(const EMTFHitCollection& bits)   { _Hits = bits;            numHits = _Hits.size();   }
-    void push_Hit(const EMTFHit& bits)             { _Hits.push_back(bits);   numHits = _Hits.size();   }
-    void clear_Hits()                              { _Hits.clear();           numHits = _Hits.size();   }
+    void clear_Hits() { 
+      _Hits.clear();  numHits = 0;
+      mode_CSC = 0;  mode_RPC = 0;  mode_neighbor = 0;
+    }
+    void push_Hit(const EMTFHit& hit) {
+      _Hits.push_back( hit );  
+      numHits = _Hits.size();  
+      mode_CSC      += ( hit.Is_CSC()   ? pow(2, 4 - hit.Station()) : 0 ); 
+      mode_RPC      += ( hit.Is_RPC()   ? pow(2, 4 - hit.Station()) : 0 ); 
+      mode_neighbor += ( hit.Neighbor() ? pow(2, 4 - hit.Station()) : 0 ); 
+    }
+    void set_Hits(const EMTFHitCollection& hits) {
+      clear_Hits();
+      for (const auto& hit : hits)
+	push_Hit( hit );
+    }
+
     void set_HitIdx(const std::vector<uint>& bits) { _HitIdx = bits;          }
-    void push_HitIdx(uint bits)                    { _HitIdx.push_back(bits); }
     void clear_HitIdx()                            { _HitIdx.clear();         }
+    void push_HitIdx(uint bits)                    { _HitIdx.push_back(bits); }
 
     int NumHits              () const { return numHits; }
     EMTFHitCollection Hits   () const { return _Hits;   }
@@ -98,14 +115,15 @@ namespace l1t {
     void set_gmt_charge   (int  bits) { gmt_charge   = bits; }
     void set_gmt_charge_valid (int  bits) { gmt_charge_valid = bits; }
     void set_track_num    (int  bits) { track_num    = bits; }
-    void set_has_neighbor (int  bits) { has_neighbor = bits; }
-    void set_all_neighbor (int  bits) { all_neighbor = bits; }
 
 
     int   Endcap       () const { return endcap      ; }
     int   Sector       () const { return sector      ; }
     int   Sector_idx   () const { return sector_idx  ; }
     int   Mode         () const { return mode        ; }
+    int   Mode_CSC     () const { return mode_CSC    ; }
+    int   Mode_RPC     () const { return mode_RPC    ; }
+    int   Mode_neighbor() const { return mode_neighbor; }
     int   Mode_inv     () const { return mode_inv    ; }
     int   Rank         () const { return rank        ; }
     int   Winner       () const { return winner      ; }
@@ -131,8 +149,6 @@ namespace l1t {
     int   GMT_charge   () const { return gmt_charge  ; }
     int   GMT_charge_valid () const { return gmt_charge_valid; }
     int   Track_num    () const { return track_num   ; }
-    int   Has_neighbor () const { return has_neighbor; }
-    int   All_neighbor () const { return all_neighbor; }
 
 
   private:
@@ -149,6 +165,9 @@ namespace l1t {
     int   sector      ; //  1 -  6.
     int   sector_idx  ; //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
     int   mode        ; //  0 - 15.
+    int   mode_CSC    ; //  0 - 15, CSC-only
+    int   mode_RPC    ; //  0 - 15, RPC-only
+    int   mode_neighbor; // 0 - 15, only neighbor hits
     int   mode_inv    ; // 15 -  0.
     int   rank        ; //  0 - 127  (Range? - AWB 03.03.17)
     int   winner      ; //  0 -  2.  (Range? - AWB 03.03.17)
@@ -174,8 +193,6 @@ namespace l1t {
     int   gmt_charge  ;
     int   gmt_charge_valid;
     int   track_num   ; //  0 - ??.  (Range? - AWB 03.03.17)
-    int   has_neighbor; //  0 or 1.
-    int   all_neighbor; //  0 or 1.
     int   numHits     ; //  1 -  4.
 
   }; // End of class EMTFTrack
