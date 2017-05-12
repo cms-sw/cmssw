@@ -77,6 +77,7 @@ process.l1tEmulatorMonitorPath = cms.Path(
 #process.load("L1Trigger.L1TMuon.hackConditions_cff")
 #process.gmtParams.caloInputsMasked = cms.bool(True) # Disable uGMT calo inputs like in the online configuration
 #process.load("L1Trigger.L1TGlobal.hackConditions_cff")
+process.load("L1Trigger.L1TGlobal.GlobalParameters_cff")
 
 # To get CaloTPGTranscoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
