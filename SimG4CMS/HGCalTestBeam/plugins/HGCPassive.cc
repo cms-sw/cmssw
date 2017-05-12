@@ -29,7 +29,7 @@ HGCPassive::HGCPassive(const edm::ParameterSet &p) : count_(0), init_(false) {
 #ifdef EDM_ML_DEBUG
   unsigned int k(0);
 #endif
-  for (auto name : LVNames_) {
+  for (const auto& name : LVNames_) {
     produces<edm::PassiveHitContainer>(Form("%sPassiveHits",name.c_str()));
 #ifdef EDM_ML_DEBUG
     std::cout << "Collection name[" << k << "] " << name << std::endl;
@@ -65,7 +65,7 @@ void HGCPassive::update(const BeginOfRun * run) {
 #ifdef EDM_ML_DEBUG
     std::cout << "HGCPassive::Finds " << mapLV_.size() << " logical volumes\n";
     unsigned int k(0);
-    for (auto lvs : mapLV_) {
+    for (const auto& lvs : mapLV_) {
       std::cout << "Entry[" << k << "] " << lvs.first << ": (" 
 		<< (lvs.second).first << ", " << (lvs.second).second << ")\n";
       ++k;
@@ -128,7 +128,7 @@ void HGCPassive::endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k) {
 #ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
-  for (auto element : store_) {
+  for (const auto& element : store_) {
     G4LogicalVolume* lv = (element.first).first;
     auto it = mapLV_.find(lv);
     if (it != mapLV_.end()) {
