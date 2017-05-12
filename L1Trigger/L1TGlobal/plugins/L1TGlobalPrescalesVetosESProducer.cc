@@ -52,7 +52,7 @@ using namespace l1t;
 class L1TGlobalPrescalesVetosESProducer : public edm::ESProducer {
 public:
   L1TGlobalPrescalesVetosESProducer(const edm::ParameterSet&);
-  ~L1TGlobalPrescalesVetosESProducer();
+  ~L1TGlobalPrescalesVetosESProducer() override;
 
   typedef std::shared_ptr<L1TGlobalPrescalesVetos> ReturnType;
 
@@ -173,10 +173,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
       for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet)
 	prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
 
-      for (auto it = tRow_prescale.begin(); it != tRow_prescale.end(); ++it) {
-	unsigned int algoBit = it->getRowValue<unsigned int>("algo/prescale-index");
+      for (auto & row : tRow_prescale) {
+	unsigned int algoBit = row.getRowValue<unsigned int>("algo/prescale-index");
 	for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet) {
-	  int prescale = it->getRowValue<unsigned int>(std::to_string(iSet));
+	  int prescale = row.getRowValue<unsigned int>(std::to_string(iSet));
 	  prescales[iSet][algoBit] = prescale;
 	}
       }
@@ -221,9 +221,9 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
     std::vector<l1t::TableRow> tRow_mask_finor = settings_mask_finor["finorMask"].getTableRows();
 
-    for (auto it=tRow_mask_finor.begin(); it!=tRow_mask_finor.end(); it++) {
-      unsigned int algoBit = it->getRowValue<unsigned int>("algo");
-      unsigned int mask    = it->getRowValue<unsigned int>("mask");
+    for (auto & row : tRow_mask_finor) {
+      unsigned int algoBit = row.getRowValue<unsigned int>("algo");
+      unsigned int mask    = row.getRowValue<unsigned int>("mask");
       if (algoBit < m_numberPhysTriggers)
         triggerMasks[algoBit] = mask;
     }
@@ -264,10 +264,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     std::map<string, l1t::Setting> settings_mask_veto = ts_mask_veto.getSettings("uGtProcessor");
     std::vector<l1t::TableRow> tRow_mask_veto = settings_mask_veto["vetoMask"].getTableRows();
 
-    for( auto it=tRow_mask_veto.begin(); it!=tRow_mask_veto.end(); it++ ){
-      unsigned int algoBit = it->getRowValue<unsigned int>("algo");
-      unsigned int veto = it->getRowValue<unsigned int>("veto");
-      if( algoBit < m_numberPhysTriggers ) triggerVetoMasks[algoBit] = int(veto);
+    for(auto & row : tRow_mask_veto){
+      unsigned int algoBit = row.getRowValue<unsigned int>("algo");
+      unsigned int veto    = row.getRowValue<unsigned int>("veto");
+      if (algoBit < m_numberPhysTriggers) triggerVetoMasks[algoBit] = int(veto);
     }
   }
   input_mask_veto.close();
@@ -309,11 +309,11 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     
     int NumAlgoBitsInMask = numCol_mask_algobx - 1;
     if( NumAlgoBitsInMask > 0 ){
-      for( auto it=tRow_mask_algobx.begin(); it!=tRow_mask_algobx.end(); it++ ){
-	int bx = it->getRowValue<unsigned int>("bx/algo");
+      for(auto & row : tRow_mask_algobx){
+	int bx = row.getRowValue<unsigned int>("bx/algo");
 	std::vector<int> maskedBits;
 	for( int iBit=0; iBit<NumAlgoBitsInMask; iBit++ ){
-	  unsigned int maskBit = it->getRowValue<unsigned int>(std::to_string(iBit));
+	  unsigned int maskBit = row.getRowValue<unsigned int>(std::to_string(iBit));
 	  if( int(maskBit)!=m_bx_mask_default ) maskedBits.push_back(iBit);
 	}
 	if( maskedBits.size()>0 ) triggerAlgoBxMaskAlgoTrig[bx] = maskedBits;
@@ -325,8 +325,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
 
   // Set prescales to zero if masked
-  for( unsigned int iSet=0; iSet < prescales.size(); iSet++ ){
-    for( unsigned int iBit=0; iBit < prescales[iSet].size(); iBit++ ){
+  for(auto & prescale : prescales){
+    for( unsigned int iBit=0; iBit < prescale.size(); iBit++ ){
       // Add protection in case prescale table larger than trigger mask size
       if( iBit >= triggerMasks.size() ){
 	    edm::LogWarning("L1TGlobal")
@@ -335,7 +335,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 	      << std::endl;
       }
       else {
-	prescales[iSet][iBit] *= triggerMasks[iBit];
+	prescale[iBit] *= triggerMasks[iBit];
       }
     }
   }
@@ -390,8 +390,8 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
     for( auto& it: m_initialTriggerAlgoBxMaskAlgoTrig ){
       LogDebug("L1TGlobal") << " bx = " << it.first << " : iAlg =";
       std::vector<int> masked = it.second;
-      for( unsigned int iAlg=0; iAlg < masked.size(); iAlg++ ){
-	LogDebug("L1TGlobal") << " " << masked[iAlg];
+      for(int & iAlg : masked){
+	LogDebug("L1TGlobal") << " " << iAlg;
       }
       LogDebug("L1TGlobal") << " " << std::endl;
     }
