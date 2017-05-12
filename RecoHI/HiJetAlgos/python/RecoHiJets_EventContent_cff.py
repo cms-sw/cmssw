@@ -14,9 +14,7 @@ RecoHiJetsRECO = cms.PSet(
                                             'keep *_kt4PFJets_*_*',
                                             'keep *_*HiGenJets_*_*',
                                             'keep *_PFTowers_*_*',
-                                            'keep *_mapEtaEdges_*_*',
-                                            'keep *_mapToRho_*_*',
-                                            'keep *_mapToRhoM_*_*',
+                                            'keep *_hiFJRhoProducer_*_*'
 
                                            )
     )
@@ -26,9 +24,7 @@ RecoHiJetsFEVT = cms.PSet(
                                            'keep *_*PFJets_*_*',
                                            'keep *_*HiGenJets_*_*',
                                            'keep *_*PFTowers_*_*',
-                                           'keep *_mapEtaEdges_*_*',
-                                           'keep *_mapToRho_*_*',
-                                           'keep *_mapToRhoM_*_*',
+                                           'keep *_*hiFJRhoProducer_*_*'
                                            )
     )
 
@@ -37,9 +33,7 @@ RecoHiJetsAOD = cms.PSet(
                                            'keep *_*PFJets_*_*',
                                            'keep *_*HiGenJets_*_*',
                                            'keep *_*PFTowers_*_*',
-                                           'keep *_mapEtaEdges_*_*',
-                                           'keep *_mapToRho_*_*',
-                                           'keep *_mapToRhoM_*_*',
+                                           'keep *_*hiFJRhoProducer_*_*',
                                            'keep CaloTowersSorted_towerMaker_*_*',
                                            'drop recoCandidatesOwned_caloTowers_*_*',
                                            'keep recoPFCandidates_particleFlowTmp_*_*'
