@@ -31,6 +31,7 @@ private:
     static G4VSolid * unionsolid(const DDSolid &);
     static G4VSolid * subtraction(const DDSolid &);
     static G4VSolid * intersection(const DDSolid &);
+    static G4VSolid * multiunion(const DDSolid &);    
     static G4VSolid * shapeless(const DDSolid &);
     static G4VSolid * polycone_rz(const DDSolid &);
     static G4VSolid * polycone_rrz(const DDSolid &);
@@ -52,7 +53,6 @@ private:
 
     friend class testTruncTubs;
     friend class testPseudoTrap;
-
 };
 
 #endif
