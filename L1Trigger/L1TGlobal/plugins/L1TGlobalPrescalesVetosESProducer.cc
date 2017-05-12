@@ -138,13 +138,9 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
       << "\nCould not find prescale file: " << m_prescaleFile
       << "\nDeafulting to a single prescale column, with all prescales set to 1 (unprescaled)";
 
-    for( int col=0; col < 1; col++ ){
-      prescales.push_back(std::vector<int>());
-      for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
-	int inputDefaultPrescale = 1;
-	prescales[col].push_back(inputDefaultPrescale);
-      }
-    }
+    const int inputDefaultPrescale = 1;
+    // by default, fill a single prescale column
+    prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
   }
   else {
     while( !input_prescale.eof() ){
@@ -168,25 +164,18 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     unsigned int numColumns_prescale = 0;
     if( tRow_prescale.size()>0 ){
       std::vector<std::string> firstRow_prescale = tRow_prescale[0].getRow();
-      numColumns_prescale = firstRow_prescale.size();
+      numColumns_prescale = firstRow_prescale.size() - 1;
     }
     
-    int NumPrescaleSets = numColumns_prescale - 1;
-    int NumAlgos_prescale = tRow_prescale.size();
+    if (numColumns_prescale > 0) {
+      // set all prescales to 1 (unprescaled) by default
+      const int inputDefaultPrescale = 1;
+      for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet)
+	prescales.push_back(std::vector<int>(m_numberPhysTriggers, inputDefaultPrescale));
 
-    if( NumPrescaleSets > 0 ){
-      // Fill default prescale set
-      for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	prescales.push_back(std::vector<int>());
-	for( int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
-	  int inputDefaultPrescale = 1;
-	  prescales[iSet].push_back(inputDefaultPrescale);
-	}
-      }
-
-      for( auto it=tRow_prescale.begin(); it!=tRow_prescale.end(); it++ ){
+      for (auto it = tRow_prescale.begin(); it != tRow_prescale.end(); ++it) {
 	unsigned int algoBit = it->getRowValue<unsigned int>("algo/prescale-index");
-	for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	for (unsigned int iSet=0; iSet<numColumns_prescale; ++iSet) {
 	  int prescale = it->getRowValue<unsigned int>(std::to_string(iSet));
 	  prescales[iSet][algoBit] = prescale;
 	}
@@ -202,10 +191,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // finor mask
-  // Setting mask to default 1 (unmask)
-  for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
-    triggerMasks.push_back(1);
-
+  // set all masks to 1 (unmasked) by default
+  triggerMasks.insert(triggerMasks.end(), m_numberPhysTriggers, 1);
   
   std::ifstream input_mask_finor;
   input_mask_finor.open( m_finormaskFile );
@@ -234,10 +221,11 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
     std::vector<l1t::TableRow> tRow_mask_finor = settings_mask_finor["finorMask"].getTableRows();
 
-    for( auto it=tRow_mask_finor.begin(); it!=tRow_mask_finor.end(); it++ ){
+    for (auto it=tRow_mask_finor.begin(); it!=tRow_mask_finor.end(); it++) {
       unsigned int algoBit = it->getRowValue<unsigned int>("algo");
-      unsigned int mask = it->getRowValue<unsigned int>("mask");
-      if( algoBit < m_numberPhysTriggers ) triggerMasks[algoBit] = mask;
+      unsigned int mask    = it->getRowValue<unsigned int>("mask");
+      if (algoBit < m_numberPhysTriggers)
+        triggerMasks[algoBit] = mask;
     }
   }
   input_mask_finor.close();
@@ -247,7 +235,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
   // veto mask
   // Setting veto mask to default 0 (no veto)
-  for( unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++ )
+  for (unsigned int iAlg=0; iAlg < m_numberPhysTriggers; iAlg++)
     triggerVetoMasks.push_back(0);
   
   std::ifstream input_mask_veto;
