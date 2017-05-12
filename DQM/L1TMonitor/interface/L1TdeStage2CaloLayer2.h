@@ -43,20 +43,6 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
  protected:
 
   /**
-   * Method run after processing of a given luminosity block (LS) has finished.
-   *
-   * The implementation of the method is currently used to calculate the
-   * fraction of objects which were in agreement and to update the summary
-   * histograms by converting absolute counts shown there into relative values.
-   *
-   * @param const edm::LuminosityBlock &  Reference to the run object
-   * @param const edm::EventSetup& iEvent Reference to the event object
-   *
-   * @return void
-   */
-  virtual void endLuminosityBlock (const edm::LuminosityBlock&,
-				   const edm::EventSetup&);
-  /**
    * Method to declare or "book" all histograms that will be part of module
    *
    * Histograms that are to be visualised as part of the DQM module should be
@@ -224,7 +210,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   enum problemCauses {
     NEVENTS_P = 1,    // total number of events
     JETCOLLSIZE,      // no. events with different data/emul obj. in jet coll.
-    EGCOLLESIZE,      // no. events with different data/emul obj. in eg coll.
+    EGCOLLSIZE,       // no. events with different data/emul obj. in eg coll.
     TAUCOLLSIZE,      // no. events with different data/emul obj. in tau coll.
     JETMISMATCH,      // no. events failed due to a jet mismatch
     EGMISMATCH,       // no. events failed due to an e/g mismatch
@@ -284,6 +270,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement * tauSummary;
   MonitorElement * egSummary;
   MonitorElement * sumSummary;
+  MonitorElement * problemSummary;
 
   // histograms to store the properties of mismatched jets
   MonitorElement * jetEtData;
@@ -374,7 +361,7 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement * towCountEmul;
 
   bool verbose;
-  bool notProcessed = true;
+
   // use only bx = 0 since it only contains RAW data (needed for emulator)
   const unsigned int currBx = 0;
 };

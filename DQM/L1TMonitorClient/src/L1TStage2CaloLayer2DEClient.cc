@@ -101,19 +101,18 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   TH1F * newHist;
 
   MonitorElement * hlSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/CaloL2 Object Agreement Summary");
+    "L1TEMU/L1TdeStage2CaloLayer2/expert/CaloL2 Object Agreement Summary");
   MonitorElement * jetSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/Jet Agreement Summary");
+    "L1TEMU/L1TdeStage2CaloLayer2/expert/Jet Agreement Summary");
   MonitorElement * egSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/EG Agreement Summary");
+    "L1TEMU/L1TdeStage2CaloLayer2/expert/EG Agreement Summary");
   MonitorElement * tauSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/Tau Agreement Summary");
+    "L1TEMU/L1TdeStage2CaloLayer2/expert/Tau Agreement Summary");
   MonitorElement * sumSummary_ = igetter.get(
-    "L1TEMU/L1TdeStage2CaloLayer2/Emergy Sum Agreement Summary");
+    "L1TEMU/L1TdeStage2CaloLayer2/expert/Emergy Sum Agreement Summary");
 
   // check for existance of object
   if (hlSummary) {
-    std::cout << "meh: hl histogram found." << std::endl;
 
     // reference the histogram in MonitorElement
     hist = hlSummary_->getTH1F();
@@ -192,7 +191,7 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
       goodIsoEgRatio = 0, isoEgPosOffRatio = 0, isoEgEtOffRatio = 0;
 
     hist = egSummary_->getTH1F();
-    newHist = tauSummary->getTH1F();
+    newHist = egSummary->getTH1F();
 
     totalEgs = hist->GetBinContent(1);
     goodEgs  = hist->GetBinContent(2);
