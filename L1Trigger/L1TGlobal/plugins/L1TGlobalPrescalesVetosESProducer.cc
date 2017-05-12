@@ -133,11 +133,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   // Prescales
   std::ifstream input_prescale;
   input_prescale.open( m_prescaleFile );
-  if( !input_prescale ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_prescaleFile
-      << "\nFilling the prescale vectors with prescale 1"
-      << std::endl;
+  if (not m_prescaleFile.empty() and not input_prescale) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find prescale file: " << m_prescaleFile
+      << "\nDeafulting to a single prescale column, with all prescales set to 1 (unprescaled)";
 
     for( int col=0; col < 1; col++ ){
       prescales.push_back(std::vector<int>());
@@ -210,11 +209,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   
   std::ifstream input_mask_finor;
   input_mask_finor.open( m_finormaskFile );
-  if( !input_mask_finor ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_finormaskFile
-      << "\nFilling the finor mask vectors with 1 (unmask)"
-      << std::endl;
+  if (not m_finormaskFile.empty() and not input_mask_finor) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find finor mask file: " << m_finormaskFile
+      << "\nDeafulting the finor mask for all triggers to 1 (unmasked)";
   }
   else {
     while( !input_mask_finor.eof() ){
@@ -254,11 +252,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   
   std::ifstream input_mask_veto;
   input_mask_veto.open( m_vetomaskFile );
-  if( !input_mask_veto ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_vetomaskFile
-      << "\nFilling the veto mask vectors with 1 (unmask)"
-      << std::endl;
+  if (not m_vetomaskFile.empty() and not input_mask_veto) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find veto mask file: " << m_vetomaskFile
+      << "\nDeafulting the veto mask for all triggers to 1 (unmasked)";
   }
   else {
     while( !input_mask_veto.eof() ){
@@ -292,11 +289,10 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
   // Algo bx mask
   std::ifstream input_mask_algobx;
   input_mask_algobx.open( m_algobxmaskFile );
-  if( !input_mask_algobx ){
-    LogTrace("L1TGlobalPrescalesVetosESProducer")
-      << "\nCould not find file: " << m_algobxmaskFile
-      << "\nNot filling map"
-      << std::endl;
+  if (not m_algobxmaskFile.empty() and not input_mask_algobx) {
+    edm::LogError("L1TGlobalPrescalesVetosESProducer")
+      << "\nCould not find bx mask file: " << m_algobxmaskFile
+      << "\nNot filling the bx mask map";
   }
   else {
     while( !input_mask_algobx.eof() ){
