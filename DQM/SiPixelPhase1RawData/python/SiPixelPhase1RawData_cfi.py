@@ -97,7 +97,7 @@ SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1RawDataHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RawDataHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RawDataConf,
         geometry = SiPixelPhase1Geometry
 )

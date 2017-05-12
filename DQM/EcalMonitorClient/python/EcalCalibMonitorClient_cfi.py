@@ -12,7 +12,7 @@ from DQM.EcalMonitorClient.PNIntegrityClient_cfi import ecalPNIntegrityClient
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 from DQM.EcalMonitorClient.CalibrationSummaryClient_cfi import ecalCalibrationSummaryClient
 
-ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
+ecalCalibMonitorClient = cms.EDProducer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("EcalCalib Monitor Client"),
     # workers to be turned on
     workers = cms.untracked.vstring(

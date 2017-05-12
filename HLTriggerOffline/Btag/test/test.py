@@ -83,7 +83,7 @@ process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 )
 
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+process.bTagPostValidation = cms.EDProducer("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = fileini.btag_pathes,
 	histoName	= fileini.btag_modules_string,
 	minTag	= cms.double(0.6),

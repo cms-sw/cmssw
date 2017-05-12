@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-effPlotter_Loose = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Loose = cms.EDProducer("EfficiencyPlotter",
                                   folder = cms.string("Muons/EfficiencyAnalyzer"),
                                   phiMin = cms.double(-3.2),
                                   etaMin = cms.double(-2.5),
@@ -18,7 +18,7 @@ effPlotter_Loose = cms.EDAnalyzer("EfficiencyPlotter",
                                   )
 
 
-effPlotter_Medium = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Medium = cms.EDProducer("EfficiencyPlotter",
                                    folder = cms.string("Muons/EfficiencyAnalyzer"),
                                    phiMin = cms.double(-3.2),
                                    etaMin = cms.double(-2.5),
@@ -36,7 +36,7 @@ effPlotter_Medium = cms.EDAnalyzer("EfficiencyPlotter",
                                    )
 
 
-effPlotter_Tight = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Tight = cms.EDProducer("EfficiencyPlotter",
                                   folder = cms.string("Muons/EfficiencyAnalyzer"),
                                   phiMin = cms.double(-3.2),
                                   etaMin = cms.double(-2.5),
@@ -52,7 +52,7 @@ effPlotter_Tight = cms.EDAnalyzer("EfficiencyPlotter",
                                   vtxMax = cms.double(40.5),
                                   MuonID = cms.string("Tight")
                                   )
-effPlotter_Loose_miniAOD = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Loose_miniAOD = cms.EDProducer("EfficiencyPlotter",
                                           folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                           phiMin = cms.double(-3.2),
                                           etaMin = cms.double(-2.5),
@@ -70,7 +70,7 @@ effPlotter_Loose_miniAOD = cms.EDAnalyzer("EfficiencyPlotter",
                                           )
 
 
-effPlotter_Medium_miniAOD = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Medium_miniAOD = cms.EDProducer("EfficiencyPlotter",
                                            folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                            phiMin = cms.double(-3.2),
                                            etaMin = cms.double(-2.5),
@@ -88,7 +88,7 @@ effPlotter_Medium_miniAOD = cms.EDAnalyzer("EfficiencyPlotter",
                                            )
 
 
-effPlotter_Tight_miniAOD = cms.EDAnalyzer("EfficiencyPlotter",
+effPlotter_Tight_miniAOD = cms.EDProducer("EfficiencyPlotter",
                                           folder = cms.string("Muons_miniAOD/EfficiencyAnalyzer"),
                                           phiMin = cms.double(-3.2),
                                           etaMin = cms.double(-2.5),

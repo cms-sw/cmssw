@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tEfficiencyHarvesting = cms.EDAnalyzer(
+l1tEfficiencyHarvesting = cms.EDProducer(
     "L1TEfficiencyHarvesting",
     verbose=cms.untracked.bool(False),
     plotCfgs=cms.untracked.VPSet(

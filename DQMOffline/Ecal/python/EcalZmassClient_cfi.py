@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalzmassclient = cms.EDAnalyzer('EcalZmassClient',
+ecalzmassclient = cms.EDProducer('EcalZmassClient',
       prefixME = cms.untracked.string('EcalCalibration')
 
 )

@@ -95,7 +95,7 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
                                           ecalselector              = cms.untracked.string('no'),
                                           )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
                                            outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
                                            DQMDirName = cms.string("/") # root directory
                                            )

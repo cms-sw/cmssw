@@ -32,7 +32,7 @@ SiPixelPhase1TrackResidualsAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackResidual
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackResidualsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackResidualsHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackResidualsConf,
         geometry = SiPixelPhase1Geometry
 )

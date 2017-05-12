@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-muonTestSummary = cms.EDAnalyzer("MuonTestSummary",
+muonTestSummary = cms.EDProducer("MuonTestSummary",
                              # tests parameters
                              etaExpected = cms.double(1.),
                              phiExpected = cms.double(1.),

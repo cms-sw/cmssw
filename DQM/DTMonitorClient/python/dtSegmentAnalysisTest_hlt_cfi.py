@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtSegmentTestkHLT = cms.EDAnalyzer("DTSegmentAnalysisTest",
+dtSegmentTestkHLT = cms.EDProducer("DTSegmentAnalysisTest",
                                    detailedAnalysis = cms.untracked.bool(False),
                                    #Perform basic diagnostic in endLumi/EndRun
                                    runOnline = cms.untracked.bool(True),

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcDcsInfoClient = cms.EDAnalyzer("RPCDcsInfoClient",
+rpcDcsInfoClient = cms.EDProducer("RPCDcsInfoClient",
                                   dcsInfoFolder = cms.untracked.string("RPC/DCSInfo")
                                   )

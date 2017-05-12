@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEfficiencySecond = cms.EDAnalyzer("RPCEfficiencySecond",
+rpcEfficiencySecond = cms.EDProducer("RPCEfficiencySecond",
     SaveFile = cms.untracked.bool(False),
     NameFile = cms.untracked.string('/tmp/carrillo/RPCEfficiency.root'),
     debug = cms.untracked.bool(False),

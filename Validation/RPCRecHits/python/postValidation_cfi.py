@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.ClientConfig.genericClientPSetHelper_cff import *
 
-rpcRecHitSimRecoClient = cms.EDAnalyzer("RPCRecHitValidClient",
+rpcRecHitSimRecoClient = cms.EDProducer("RPCRecHitValidClient",
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
 )
 
-rpcRecHitPostValidation = cms.EDAnalyzer("DQMGenericClient",
+rpcRecHitPostValidation = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",),
     #subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",
     #                                "RPC/RPCRecHitV/SimVsDTExt",
@@ -56,7 +56,7 @@ rpcRecHitPostValidation = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-rpcPointVsRecHitPostValidation = cms.EDAnalyzer("DQMGenericClient",
+rpcPointVsRecHitPostValidation = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("RPC/RPCRecHitV/DTVsReco",
                                     "RPC/RPCRecHitV/CSCVsReco"),
 #                                    "RPC/RPCRecHitV/TrackVsReco"),

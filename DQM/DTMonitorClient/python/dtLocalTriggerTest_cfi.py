@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerTest = cms.EDAnalyzer("DTLocalTriggerTest",
+triggerTest = cms.EDProducer("DTLocalTriggerTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment

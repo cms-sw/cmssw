@@ -59,7 +59,7 @@ process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
 # JetMET Certification Module 
 #-----------------------------
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
-process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+process.dataCertificationJetMET = cms.EDProducer('DataCertificationJetMET',
 #
 #--- Always define reference root file by process.DQMStore.referenceFileName
                               refFileName    = cms.untracked.string(""),

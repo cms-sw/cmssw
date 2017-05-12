@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MuonAlignmentAnalyzer
-muonAlignmentSummary = cms.EDAnalyzer("MuonAlignmentSummary",
+muonAlignmentSummary = cms.EDProducer("MuonAlignmentSummary",
     doDT = cms.untracked.bool(True),
     doCSC = cms.untracked.bool(True),
     meanPositionRange = cms.untracked.double(0.5),

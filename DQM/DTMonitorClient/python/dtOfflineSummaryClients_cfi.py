@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-dtOfflineSummaryClients = cms.EDAnalyzer("DTOfflineSummaryClients")
+dtOfflineSummaryClients = cms.EDProducer("DTOfflineSummaryClients")
 
 

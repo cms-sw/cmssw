@@ -164,7 +164,7 @@ SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters"
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackClustersHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )

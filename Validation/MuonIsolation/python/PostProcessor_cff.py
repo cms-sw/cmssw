@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorMuonIsolation = cms.EDAnalyzer(
+postProcessorMuonIsolation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/MuonIsolationV*"),
     efficiency = cms.vstring(""),

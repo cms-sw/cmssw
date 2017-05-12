@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
 
 
-photonOfflineClient = cms.EDAnalyzer("PhotonOfflineClient",
+photonOfflineClient = cms.EDProducer("PhotonOfflineClient",
 
     ComponentName = cms.string('photonOfflineClient'),
     analyzerName = cms.string('gedPhotonAnalyzer'),

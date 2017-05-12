@@ -5,7 +5,7 @@ electronMcFakeHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True),StatOverflowFlag = cms.bool(False)
 )
 
-electronMcFakePostValidator = cms.EDAnalyzer("ElectronMcFakePostValidator",
+electronMcFakePostValidator = cms.EDProducer("ElectronMcFakePostValidator",
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),

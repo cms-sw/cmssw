@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalHitClient = cms.EDAnalyzer("HGCalHitClient", 
+hgcalHitClient = cms.EDProducer("HGCalHitClient", 
                                 DirectoryName = cms.string("HitValidation"),
                                 )

@@ -26,7 +26,7 @@ process.harvester = cms.EDAnalyzer("DummyHarvestingClient",
                                    cumulateRuns = cms.untracked.bool(False),
                                    cumulateLumis = cms.untracked.bool(True))
 
-process.eff = cms.EDAnalyzer("DQMGenericClient",
+process.eff = cms.EDProducer("DQMGenericClient",
                              efficiency = cms.vstring("eff1 \'Eff1\' Bar0 Bar1"),
                              resolution = cms.vstring(),
                              subDirs = cms.untracked.vstring(folder))
