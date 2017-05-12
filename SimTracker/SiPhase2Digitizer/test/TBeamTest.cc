@@ -238,11 +238,11 @@ void TBeamTest::bookHistograms(DQMStore::IBooker & ibooker,
   types.push_back("PSS_Modules");    
   ibooker.cd();
 
-  for (std::vector<std::string>::iterator itype = types.begin(); itype != types.end(); itype++) {
+  for (auto itype : types) {
 
     std::stringstream folder_name;
    
-    folder_name << top_folder <<"/" << (*itype);
+    folder_name << top_folder <<"/" << itype;
 
     edm::LogInfo("TBeamTest")<< " Booking Histograms in : " << folder_name.str();
     ibooker.setCurrentFolder(folder_name.str());
@@ -292,7 +292,7 @@ void TBeamTest::bookHistograms(DQMStore::IBooker & ibooker,
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
-    detMEs.insert(std::make_pair((*itype), local_mes)); 
+    detMEs.insert(std::make_pair(itype, local_mes)); 
   }  
   
 }

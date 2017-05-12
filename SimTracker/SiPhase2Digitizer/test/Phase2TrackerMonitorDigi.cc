@@ -176,7 +176,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       XYOccupancyMap->Fill(gp.x()*10., gp.y()*10, occupancy);
       RZOccupancyMap->Fill(gp.z()*10., std::hypot(gp.x(),gp.y())*10., occupancy);  
       local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
-      //      if (layer == 1) std::cout << " Det Id = " << rawid << " Eta " << gp.eta() << " r " << std::hypot(gp.x(),gp.y())*10. << " z " << gp.z()*10. << " Occupancy " << occupancy << std::endl;
     }
     local_mes.DigiOccupancyP->Fill(occupancy);
   }
@@ -340,7 +339,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 					 ParametersOcc.getParameter<double>("xmax"));
 
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
-   std::cout << " booking RZ Position " << " R = " << Parameters.getParameter<double>("ymax") << " Z " << Parameters.getParameter<double>("xmin") << " " << Parameters.getParameter<double>("xmax") << std::endl;
   RZPositionMap = ibooker.book2D("DigiRPosVsZPos","DigiRPosVsZPos",
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
