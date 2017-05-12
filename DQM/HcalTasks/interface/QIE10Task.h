@@ -59,23 +59,6 @@ class QIE10Task : public hcaldqm::DQTask
 		hcaldqm::Container1D _cADC_EChannel[10][36];
 		hcaldqm::Container1D _cLETDCTime_EChannel[36];
 
-		//	Correlation Plots for 8 vs 10
-		hcaldqm::Container2D _cADCCorrelation10vs8_DChannel[10];
-		hcaldqm::ContainerSingle2D _cADCCorrelation10vs8;
-		hcaldqm::Container2D _cfCCorrelation10vs8_DChannel[10];
-		hcaldqm::ContainerSingle2D _cfCCorrelation10vs8;
-
-		//	Correaltion plots for 10 vs 10 - 2 PMTs only
-		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10_ieta30[10];
-		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10_ieta34[10];
-		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10_ieta30[10];
-		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10_ieta34[10];
-		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10;
-		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10;
-		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10_ieta30[10];
-		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10_ieta34[10];
-		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10;
-
 		//	hcaldqm::Containers overall
 		hcaldqm::ContainerSingleProf1D	_cShapeCut;
 		hcaldqm::ContainerSingle2D		_cLETDCTimevsADC;

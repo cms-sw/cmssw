@@ -100,6 +100,8 @@ class DigiTask : public hcaldqm::DQTask
 		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
+		hcaldqm::Container2D _cADCvsTS_SubdetPM;
+		hcaldqm::Container2D _cADCvsTS_SubdetPM_HF;
 
 		//	Timing
 		//	just filling - no summary!
@@ -123,6 +125,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancy_FEDuTCA;
 		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
 		hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancy_Crate;
+		hcaldqm::Container2D _cOccupancy_CrateSlot;
 		hcaldqm::Container2D _cOccupancy_depth;
 		hcaldqm::Container1D _cOccupancyvsiphi_SubdetPM; // online only
 		hcaldqm::Container1D _cOccupancyvsieta_Subdet;	// online only
@@ -155,6 +159,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
 
 		// QIE10 TDC histograms
+		hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
