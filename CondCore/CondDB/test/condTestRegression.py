@@ -106,19 +106,16 @@ class CondRegressionTester(object):
               print 'SELF: %s [%s]\n' %(self.rel,self.arch)
               print fmt %header
               for result in sorted(self.status.keys()):
-                  params = (result,)+tuple([self.status[result][key] for key in self.status[result].keys()])
+                  params = (result,)+tuple([self.status[result][key] for key in sorted(self.status[result].keys())])
                   print fmt %params
 
           if jsonOut:
               print json.dumps( self.status, sort_keys=True, indent=4 )
 
           overall = True
-          for k,v in self.status.items():
-              # do not take results from 7.1.X into the overall status as this release can not 
-	      # read more recent data until the corresponding boost 1.57 version is backported:
-              if 'CMSSW_7_1_' in k: continue
-
-              if not v : overall = False
+          for result in sorted(self.status.keys()):
+              for result_arch in sorted(self.status[result].keys()):
+                  if not self.status[result][result_arch]: overall = False
 
           return overall
 
@@ -160,10 +157,24 @@ class CondRegressionTester(object):
           if readOrWrite == 'write':
               self.dbList['SELF'] = dbName
 
+          execName = 'test/%s/testReadWritePayloads' %self.arch
+          executable = '%s/%s' %(os.environ['LOCALRT'],execName)
+          if not os.path.exists(executable):
+              print 'Executable %s not found in local release.'
+              executable = None
+              for rel_base_env in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE' ]:
+                  if os.getenv(rel_base_env) and os.path.exists(str(os.environ[rel_base_env])+'/%s' %execName):
+                      executable = str(os.environ[rel_base_env])+'/%s' %execName
+                      break
+
+          if executable is None:
+              raise Exception("Can't find the %s executable." %execName )
+
           # we run in the local environment, but need to make sure that we start "top-level" of the devel area
           # and we assume that the test was already built 
           cmd = 'export SCRAM_ARCH=%s; cd %s/src; eval `scram runtime -sh 2>/dev/null` ; ' % (os.environ['SCRAM_ARCH'],os.environ['CMSSW_BASE'], )
-          cmd += '$LOCALRT/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
+          cmd += "echo 'CMSSW_BASE='$CMSSW_BASE; echo 'RELEASE_BASE='$RELEASE_BASE; echo 'PATH='$PATH; echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH; echo 'LOCALRT='$LOCALRT;"
+          cmd += '%s %s sqlite_file:///%s/%s ' % (executable, readOrWrite, self.dbDir, dbName)
           
           try:
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -205,9 +216,11 @@ class CondRegressionTester(object):
                          status = False
                          print "rel %s reading %s FAILED." % (rel, writer)
                      if writer not in self.status.keys():
-                         self.status[writer] = { '%s [%s]' %(rel,arch):status }
+                         key = '%s [%s]' %(rel,arch)
+                         self.status[writer] = { key : status }
                      else:
                          self.status[writer]['%s [%s]' %(rel,arch)] = status 
+
           # ... and also with this IB/devArea
           for writer in self.dbList.keys(): # for any given rel/arch we check all written DBs
              dbName = self.dbList[writer]
@@ -219,10 +232,9 @@ class CondRegressionTester(object):
                 status = False
                 print "rel %s reading %s FAILED." % (self.rel, writer)
              if writer not in self.status.keys():
-                 self.status[writer] = { 'SELF':status }
+                 self.status[writer] = { 'SELF': status }
              else:
                  self.status[writer]['SELF'] = status 
-
           print '='*80
 
 crt = CondRegressionTester()
