@@ -94,7 +94,17 @@ public:
    */
   BasicTrajectoryState( const FreeTrajectoryState& fts,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
 
 
 
@@ -127,7 +137,17 @@ public:
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			const CartesianTrajectoryError& err,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(par, err),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
 
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
