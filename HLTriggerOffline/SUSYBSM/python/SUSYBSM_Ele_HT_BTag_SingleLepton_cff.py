@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                    electronCollection = cms.InputTag('gedGsfElectrons'),
                                                    muonCollection = cms.InputTag(''),
                                                    pfMetCollection = cms.InputTag('pfMet'),

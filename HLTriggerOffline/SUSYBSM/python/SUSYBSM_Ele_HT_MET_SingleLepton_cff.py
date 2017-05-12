@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-SUSY_HLT_Ele15_HT350_MET50_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT350_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag('gedGsfElectrons'),
                                                   muonCollection = cms.InputTag(''),
                                                   pfMetCollection = cms.InputTag('pfMet'),
@@ -52,7 +52,7 @@ SUSY_HLT_Ele15_HT350_MET50_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGene
                                                                  resolution = cms.vstring('')
                                                                  )
 
-SUSY_HLT_Ele15_HT400_MET50_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT400_MET50_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   electronCollection = cms.InputTag('gedGsfElectrons'),
                                                   muonCollection = cms.InputTag(''),
                                                   pfMetCollection = cms.InputTag('pfMet'),

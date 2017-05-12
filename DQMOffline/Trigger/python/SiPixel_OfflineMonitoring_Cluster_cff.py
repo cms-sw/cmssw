@@ -261,7 +261,7 @@ hltSiPixelPhase1ClustersTriggers = cms.VPSet(
 #   triggerflag.genericTriggerEventFlag4L1bd,
 )
 
-hltSiPixelPhase1ClustersAnalyzer = cms.EDProducer("SiPixelPhase1Clusters",
+hltSiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         pixelSrc    = cms.InputTag("hltSiPixelClusters"),
         stripSrc    = cms.InputTag("hltSiStripRawToClustersFacility"),
         histograms  = hltSiPixelPhase1ClustersConf,

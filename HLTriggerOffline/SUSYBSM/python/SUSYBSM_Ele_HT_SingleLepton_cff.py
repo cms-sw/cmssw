@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-SUSY_HLT_Ele15_HT600_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT600_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
                                               muonCollection = cms.InputTag(''),
                                               pfMetCollection = cms.InputTag('pfMet'),
@@ -51,7 +51,7 @@ SUSY_HLT_Ele15_HT600_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGenericCli
                                                              resolution = cms.vstring('')
                                                              )
 
-SUSY_HLT_Ele15_HT400_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele15_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
                                               muonCollection = cms.InputTag(''),
                                               pfMetCollection = cms.InputTag('pfMet'),
@@ -101,7 +101,7 @@ SUSY_HLT_Ele15_HT400_SingleLepton_POSTPROCESSING = cms.EDProducer('DQMGenericCli
                                                              resolution = cms.vstring('')
                                                              )
 
-SUSY_HLT_Ele50_HT400_SingleLepton = cms.EDProducer('SUSY_HLT_SingleLepton',
+SUSY_HLT_Ele50_HT400_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
                                               muonCollection = cms.InputTag(''),
                                               pfMetCollection = cms.InputTag('pfMet'),
