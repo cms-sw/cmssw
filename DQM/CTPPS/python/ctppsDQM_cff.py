@@ -10,10 +10,8 @@ from DQM.CTPPS.ctppsDiamondDQMSource_cfi import *
 from DQM.CTPPS.ctppsPixelDQMSource_cfi import *
 
 ctppsDQM = cms.Sequence(
-    totemDAQTriggerDQMSource *
-    totemRPDQMSource *
-    ctppsDiamondDQMSource *
-    ctppsPixelDQMSource *
-
-    totemRPDQMHarvester
+    totemDAQTriggerDQMSource
+    + (totemRPDQMSource * totemRPDQMHarvester)
+    + ctppsDiamondDQMSource
+    + ctppsPixelDQMSource
 )
