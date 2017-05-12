@@ -143,7 +143,21 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fCrate,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-
+	_cADCvsTS_SubdetPM.initialize(_name, "ADCvsTS",
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	_cADCvsTS_SubdetPM_HF.initialize(_name, "ADCvsTS",
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	_cLETDCTimevsADC_SubdetPM.initialize(_name, "LETDCTimevsADC",
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cLETDCvsADC_SubdetPM.initialize(_name, "LETDCvsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
@@ -260,7 +274,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				FIBERCH_MIN, false).rawId());
 		}
 	
-		_cShapeCut_FED.initialize(_name, "Shape",
+		_cShapeCut_FED.initialize(_name, "ShapeCut",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
@@ -331,7 +345,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	
+		_cOccupancy_Crate.initialize(_name,
+			 "Occupancy", hashfunctions::fCrate,
+			 new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			 new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+			 new quantity::ValueQuantity(quantity::fN));
+		_cOccupancy_CrateSlot.initialize(_name,
+			 "Occupancy", hashfunctions::fCrateSlot,
+			 new quantity::ElectronicsQuantity(quantity::fFiberuTCA),
+			 new quantity::ElectronicsQuantity(quantity::fFiberCh),
+			 new quantity::ValueQuantity(quantity::fN));
+
 		_cDigiSize_FED.initialize(_name, "DigiSize",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
@@ -373,6 +397,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cSumQvsLS_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
 	_cSumQvsLS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
 	_cDigiSize_Crate.book(ib, _emap, _subsystem);
+	_cADCvsTS_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
+	_cADCvsTS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
 
 	if (_ptype != fOffline) { // hidefed2crate
 		_cShapeCut_FED.book(ib, _emap, _subsystem);
@@ -396,11 +422,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
 	_cTimingCutvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
+	_cOccupancy_Crate.book(ib, _emap, _subsystem);
+	_cOccupancy_CrateSlot.book(ib, _emap, _subsystem);
 	_cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
-
+	_cLETDCTimevsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCvsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCvsTS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCTime_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
@@ -565,6 +593,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
+		if (rawid != 0) {
+			_cOccupancy_Crate.fill(eid);
+			_cOccupancy_CrateSlot.fill(eid);
+		}
 		if (_ptype==fOnline)
 		{
 			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
@@ -599,8 +631,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				if (sumQ>_cutSumQ_HBHE)
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				if (sumQ>_cutSumQ_HBHE) {
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+				}
 			}
 		}
 
@@ -837,6 +871,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
 				if (sumQ>_cutSumQ_HO)
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
 			}
@@ -978,11 +1013,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
 				_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
 				if (digi[i].le_tdc() <50) {
-					_cLETDCTime_SubdetPM.fill(did, i*25. + (digi[i].le_tdc() / 2.));
+					double time = i*25. + (digi[i].le_tdc() / 2.);
+					_cLETDCTime_SubdetPM.fill(did, time);
+					_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 				}
 			}
 
 			if (_ptype != fOffline) { // hidefed2crate
+				_cADCvsTS_SubdetPM_HF.fill(did, (int)i, q);
 				if (sumQ>_cutSumQ_HF)
 					_cShapeCut_FED.fill(eid, (int)i, q);
 			}
