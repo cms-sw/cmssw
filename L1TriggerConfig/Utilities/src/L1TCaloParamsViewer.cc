@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include <iomanip>
@@ -67,7 +67,7 @@ std::string L1TCaloParamsViewer::hash(void *buf, size_t len) const {
 void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<l1t::CaloParams> handle1;
-    evSetup.get<L1TCaloStage2ParamsRcd>().get( handle1 ) ;
+    evSetup.get<L1TCaloParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<l1t::CaloParams> ptr(new l1t::CaloParams(*(handle1.product ())));
 
     l1t::CaloParamsHelper *ptr1 = 0;
