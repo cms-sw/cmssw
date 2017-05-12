@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
