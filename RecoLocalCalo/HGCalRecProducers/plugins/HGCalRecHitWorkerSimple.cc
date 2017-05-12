@@ -127,7 +127,6 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
 
     myrechit.setEnergy(new_E);
     myrechit.setSignalOverSigmaNoise(new_E/sigmaNoiseGeV);
-    std::cout << "myrechit energyoversigmanoise: "  <<myrechit.signalOverSigmaNoise() << std::endl;
     result.push_back(myrechit);
 
     return true;
