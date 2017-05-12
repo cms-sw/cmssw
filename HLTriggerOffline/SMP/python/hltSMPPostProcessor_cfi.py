@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltSMPPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
+hltSMPPostProcessor  = cms.EDProducer("DQMGenericClient",
     subDirs           = cms.untracked.vstring('HLT/SMP/*'),
     verbose           = cms.untracked.uint32(2),
     outputFileName    = cms.untracked.string(''),

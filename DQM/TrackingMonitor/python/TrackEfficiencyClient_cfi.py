@@ -5,7 +5,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-TrackEffClient = cms.EDAnalyzer("TrackEfficiencyClient",
+TrackEffClient = cms.EDProducer("TrackEfficiencyClient",
   
     FolderName = cms.string('Track/Efficiencies'),
     AlgoName = cms.string('CTF'),

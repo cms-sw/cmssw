@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtResolutionAnalysisTest = cms.EDAnalyzer("DTResolutionAnalysisTest",
+dtResolutionAnalysisTest = cms.EDProducer("DTResolutionAnalysisTest",
                                           diagnosticPrescale = cms.untracked.int32(1),
                                           maxGoodMeanValue = cms.untracked.double(0.005),
                                           minBadMeanValue = cms.untracked.double(0.015),

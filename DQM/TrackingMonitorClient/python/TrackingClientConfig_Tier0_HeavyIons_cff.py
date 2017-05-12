@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  TrackingOfflineDQM (for Tier0 Harvesting Step) ####
-trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
+trackingOfflineAnalyser = cms.EDProducer("TrackingOfflineDQM",
     GlobalStatusFilling      = cms.untracked.int32(2),
     UsedWithEDMtoMEConverter = cms.untracked.bool(True),
     TrackRatePSet            = cms.PSet(

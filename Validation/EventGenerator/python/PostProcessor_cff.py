@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorBasicHepMCValidation = cms.EDAnalyzer(
+postProcessorBasicHepMCValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Particles*"),
     efficiency = cms.vstring(""),
@@ -345,7 +345,7 @@ postProcessorBasicHepMCValidation.normalization.extend(["gluonLifeTime nEvt",
                                                         "unknownPDTNumber nEvt",
                                                         "vrtxRadius nEvt"])
 
-postProcessorBasicGenParticleValidation = cms.EDAnalyzer(
+postProcessorBasicGenParticleValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/GenParticles*"),
     efficiency = cms.vstring(""),
@@ -367,7 +367,7 @@ postProcessorBasicGenParticleValidation = cms.EDAnalyzer(
                                           "genJetTotPt nEvt")        
 )    
 
-postProcessorMBUEandQCDValidation = cms.EDAnalyzer(
+postProcessorMBUEandQCDValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/MBUEandQCD*"),
     efficiency = cms.vstring(""),
@@ -452,7 +452,7 @@ postProcessorMBUEandQCDValidation = cms.EDAnalyzer(
                                           "Tracketa nEvt")
 )        
 
-postProcessorWValidation = cms.EDAnalyzer(
+postProcessorWValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/W*"),
     efficiency = cms.vstring(""),
@@ -476,7 +476,7 @@ postProcessorWValidation = cms.EDAnalyzer(
                                           "leadeta nEvt")
 )    
 
-postProcessorDrellYanValidation = cms.EDAnalyzer(
+postProcessorDrellYanValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/DrellYan*"),
     efficiency = cms.vstring(""),
@@ -500,7 +500,7 @@ postProcessorDrellYanValidation = cms.EDAnalyzer(
                                           "seceta nEvt")
 )
 
-postProcessorTauValidation = cms.EDAnalyzer(
+postProcessorTauValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Tau*"),
     efficiency = cms.vstring(""),
@@ -581,7 +581,7 @@ postProcessorTauValidation = cms.EDAnalyzer(
                                           )
     )
 
-postProcessorTTbarValidation = cms.EDAnalyzer(
+postProcessorTTbarValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/TTbar*"),
     efficiency = cms.vstring(""),
@@ -634,7 +634,7 @@ postProcessorTTbarValidation = cms.EDAnalyzer(
                                           )
     )
 
-postProcessorTTbarSpinCorr = cms.EDAnalyzer("DQMGenericClient",
+postProcessorTTbarSpinCorr = cms.EDProducer("DQMGenericClient",
                                               subDirs = cms.untracked.vstring("Generator/TTbarSpinCorr*"),
                                               efficiency = cms.vstring(""),
                                               resolution = cms.vstring(""),
@@ -646,7 +646,7 @@ postProcessorTTbarSpinCorr = cms.EDAnalyzer("DQMGenericClient",
                                               )
 
 
-postProcessorHiggsValidation = cms.EDAnalyzer(
+postProcessorHiggsValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Higgs*"),
     efficiency = cms.vstring(""),
@@ -685,7 +685,7 @@ postProcessorHiggsValidation = cms.EDAnalyzer(
                                          )
     )
 
-postProcessorHplusValidation = cms.EDAnalyzer(
+postProcessorHplusValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Hplus*"),
     efficiency = cms.vstring(""),
@@ -725,7 +725,7 @@ postProcessorHplusValidation = cms.EDAnalyzer(
     )
 
 
-postProcessorBPhysicsValidation = cms.EDAnalyzer(
+postProcessorBPhysicsValidation = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/BPhysics*"),
     efficiency = cms.vstring(""),

@@ -91,7 +91,7 @@ SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficie
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackEfficiencyHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry
 )

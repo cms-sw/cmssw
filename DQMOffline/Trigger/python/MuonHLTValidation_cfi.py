@@ -15,7 +15,7 @@ qTesterMuonHLT = cms.EDAnalyzer("QualityTester",
         #reportThreshold = cms.untracked.string("black")
 )
 
-muonHLTCertSummary = cms.EDAnalyzer("HLTMuonCertSummary",
+muonHLTCertSummary = cms.EDProducer("HLTMuonCertSummary",
     verbose = cms.untracked.bool(False),
 )
 

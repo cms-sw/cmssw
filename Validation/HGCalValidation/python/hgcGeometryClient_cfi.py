@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalGeometryClient = cms.EDAnalyzer("HGCalGeometryClient", 
+hgcalGeometryClient = cms.EDProducer("HGCalGeometryClient", 
                                      DirectoryName = cms.string("Geometry"),
                                      )

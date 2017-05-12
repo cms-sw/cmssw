@@ -14,7 +14,7 @@ SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_Electron_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_Electron_BJet_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

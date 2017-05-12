@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DQMExample_GenericClient = cms.EDAnalyzer("DQMGenericClient",
+DQMExample_GenericClient = cms.EDProducer("DQMGenericClient",
                                           subDirs = cms.untracked.vstring("Physics/TopTest"),
                                           efficiency = cms.vstring(
                                               "myEfficiencyEta 'Efficiency vs Eta' EleEta_leading_HLT_matched EleEta_leading",

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dqmScaleToClient = cms.EDAnalyzer('DQMScaleToClient',
+dqmScaleToClient = cms.EDProducer('DQMScaleToClient',
   outputme = cms.PSet(
     folder = cms.string(''),
     name = cms.string(''),

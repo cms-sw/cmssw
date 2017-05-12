@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-chamberEfficiencyTest = cms.EDAnalyzer("DTChamberEfficiencyTest",
+chamberEfficiencyTest = cms.EDProducer("DTChamberEfficiencyTest",
     runningStandalone = cms.untracked.bool(True),
     #Names of the quality tests: they must match those specified in "qtList"
     XEfficiencyTestName = cms.untracked.string('ChEfficiencyInRangeX'),

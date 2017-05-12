@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  TrackingMonitorAnalyser ####
-TrackingAnalyserCosmic = cms.EDAnalyzer("TrackingAnalyser",
+TrackingAnalyserCosmic = cms.EDProducer("TrackingAnalyser",
     nFEDinfoDir              = cms.string("SiStrip/FEDIntegrity_SM"),                                   
     nFEDinVsLSname           = cms.string("nFEDinVsLS"),
     nFEDinWdataVsLSname      = cms.string("nFEDinWdataVsLS"),

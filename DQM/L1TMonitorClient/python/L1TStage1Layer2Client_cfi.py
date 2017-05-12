@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tStage1Layer2Client = cms.EDAnalyzer("L1TGCTClient",
+l1tStage1Layer2Client = cms.EDProducer("L1TGCTClient",
     prescaleLS = cms.untracked.int32(-1),
     monitorDir = cms.untracked.string('L1T/L1TStage1Layer2'),
     prescaleEvt = cms.untracked.int32(1),

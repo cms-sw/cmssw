@@ -16,5 +16,5 @@ BDHadronTrackMonitoringAnalyze = cms.EDAnalyzer("BDHadronTrackMonitoringAnalyzer
                                 )
 
 
-BDHadronTrackMonitoringHarvest = cms.EDAnalyzer("BDHadronTrackMonitoringHarvester"
+BDHadronTrackMonitoringHarvest = cms.EDProducer("BDHadronTrackMonitoringHarvester"
 								)

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-efficiencyTest = cms.EDAnalyzer("DTEfficiencyTest",
+efficiencyTest = cms.EDProducer("DTEfficiencyTest",
     runningStandalone = cms.untracked.bool(True),
     UnassEfficiencyTestName = cms.untracked.string('UnassEfficiencyInRange'),
     #Names of the quality tests: they must match those specified in "qtList"

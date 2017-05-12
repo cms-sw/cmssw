@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trackingCertificationInfo = cms.EDAnalyzer("TrackingCertificationInfo",
+trackingCertificationInfo = cms.EDProducer("TrackingCertificationInfo",
     TopFolderName = cms.untracked.string("Tracking"),
     checkPixelFEDs = cms.bool(False),
     TrackingGlobalQualityPSets = cms.VPSet(

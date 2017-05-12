@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripGainsPCLHarvester = cms.EDAnalyzer(
+SiStripGainsPCLHarvester = cms.EDProducer(
     "SiStripGainsPCLHarvester",
     Record              = cms.untracked.string('SiStripApvGainRcd'),
     CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module

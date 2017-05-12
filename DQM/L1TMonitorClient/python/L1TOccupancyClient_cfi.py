@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitorClient.L1TOccupancyTestParameters_cff import *
 
-l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
+l1tOccupancyClient = cms.EDProducer("L1TOccupancyClient",
   verbose = cms.bool(False),
   testParams = cms.VPSet(
     #---------------------------------------------
