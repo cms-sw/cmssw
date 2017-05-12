@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.rpcEfficiencySecond = cms.EDAnalyzer("RPCEfficiencySecond",
+process.rpcEfficiencySecond = cms.EDProducer("RPCEfficiencySecond",
     SaveFile = cms.untracked.bool(True),
     NameFile = cms.untracked.string('/tmp/cimmino/RPCEfficiency.root'),
     debug = cms.untracked.bool(False),

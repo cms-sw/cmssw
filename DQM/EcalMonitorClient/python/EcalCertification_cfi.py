@@ -4,7 +4,7 @@ from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalMonitorClient.CertificationClient_cfi import ecalCertificationClient
 
-ecalCertification = cms.EDAnalyzer("EcalDQMonitorClient",
+ecalCertification = cms.EDProducer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("Ecal Certification Client"),
     # workers to be turned on
     workers = cms.untracked.vstring(

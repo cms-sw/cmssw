@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcDaqInfo = cms.EDAnalyzer("RPCDaqInfo",
+rpcDaqInfo = cms.EDProducer("RPCDaqInfo",
                             NumberOfEndcapDisks  = cms.untracked.int32(4)
                             )
 

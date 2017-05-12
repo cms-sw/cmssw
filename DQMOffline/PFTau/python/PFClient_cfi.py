@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfClient = cms.EDAnalyzer("PFClient",
+pfClient = cms.EDProducer("PFClient",
                           FolderNames = cms.vstring("PFJet/CompWithGenJet","PFJet/CompWithCaloJet"),
                           HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_"),
                           CreateEfficiencyPlots = cms.bool(False),
@@ -11,7 +11,7 @@ pfClient = cms.EDAnalyzer("PFClient",
                           )
 
 # need a different Client to store the slices  
-pfClient_JetRes = cms.EDAnalyzer("PFClient_JetRes",
+pfClient_JetRes = cms.EDProducer("PFClient_JetRes",
                                   FolderNames = cms.vstring("PFJet/CompWithGenJet","PFJet/CompWithCaloJet"),
                                   HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_"),
                                   CreateEfficiencyPlots = cms.bool(False),

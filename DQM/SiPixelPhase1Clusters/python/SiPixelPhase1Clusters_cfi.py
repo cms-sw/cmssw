@@ -264,7 +264,7 @@ SiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         triggerflag = SiPixelPhase1ClustersTriggers,
 )
 
-SiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1ClustersHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1ClustersConf,
         geometry = SiPixelPhase1Geometry
 )

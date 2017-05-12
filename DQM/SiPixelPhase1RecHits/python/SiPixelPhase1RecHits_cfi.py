@@ -97,7 +97,7 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
 
 )
 
-SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1RecHitsHarvester = cms.EDProducer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )

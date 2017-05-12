@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make changes for different running scenarios
 #
 
-SiPixelPhase1Summary_Online = cms.EDAnalyzer("SiPixelPhase1Summary",
+SiPixelPhase1Summary_Online = cms.EDProducer("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(True),
     RunOnEndJob = cms.bool(True),
@@ -36,7 +36,7 @@ SiPixelPhase1Summary_Online = cms.EDAnalyzer("SiPixelPhase1Summary",
         )
 )
 
-SiPixelPhase1Summary_Offline = cms.EDAnalyzer("SiPixelPhase1Summary",
+SiPixelPhase1Summary_Offline = cms.EDProducer("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),
@@ -68,7 +68,7 @@ SiPixelPhase1Summary_Offline = cms.EDAnalyzer("SiPixelPhase1Summary",
         )
 )
 
-SiPixelPhase1Summary_Cosmics = cms.EDAnalyzer("SiPixelPhase1Summary",
+SiPixelPhase1Summary_Cosmics = cms.EDProducer("SiPixelPhase1Summary",
     TopFolderName = cms.string('PixelPhase1/Phase1_MechanicalView/'),
     RunOnEndLumi = cms.bool(False),
     RunOnEndJob = cms.bool(True),

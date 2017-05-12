@@ -13,7 +13,7 @@ SUSY_HLT_InclusiveHT_800 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_800_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_800_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT800_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -35,7 +35,7 @@ SUSY_HLT_InclusiveHT_900 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_900_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_900_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT900_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -57,7 +57,7 @@ SUSY_HLT_InclusiveHT_aux125 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux125_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux125_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT125_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -79,7 +79,7 @@ SUSY_HLT_InclusiveHT_aux200 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT200_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -101,7 +101,7 @@ SUSY_HLT_InclusiveHT_aux250 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux250_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux250_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT250_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -123,7 +123,7 @@ SUSY_HLT_InclusiveHT_aux300 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux300_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux300_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT300_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -145,7 +145,7 @@ SUSY_HLT_InclusiveHT_aux350 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT350_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -167,7 +167,7 @@ SUSY_HLT_InclusiveHT_aux400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux400_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux400_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT400_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -189,7 +189,7 @@ SUSY_HLT_InclusiveHT_aux475 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux475_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux475_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT475_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -211,7 +211,7 @@ SUSY_HLT_InclusiveHT_aux600 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING = cms.EDProducer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT600_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

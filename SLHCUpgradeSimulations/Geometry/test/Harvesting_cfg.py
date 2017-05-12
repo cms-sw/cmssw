@@ -62,7 +62,7 @@ process.schedule = cms.Schedule(process.edmtome_step,process.dqmHarvesting,proce
 
 # For some reason a seed harvester isn't included in the standard sequences. If this next processor isn't
 # run then things like efficiencies are just added together instead of recalculated.
-process.postProcessorSeed = cms.EDAnalyzer("DQMGenericClient",
+process.postProcessorSeed = cms.EDProducer("DQMGenericClient",
 	resolution = cms.vstring(),
 	efficiency = cms.vstring("effic \'Efficiency vs #eta\' num_assoc(simToReco)_eta num_simul_eta", 
 		"efficPt \'Efficiency vs p_{T}\' num_assoc(simToReco)_pT num_simul_pT", 

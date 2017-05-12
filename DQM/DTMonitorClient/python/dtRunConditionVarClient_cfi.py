@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtRunConditionVarClient = cms.EDAnalyzer("DTRunConditionVarClient",
+dtRunConditionVarClient = cms.EDProducer("DTRunConditionVarClient",
 
    minRangeVDrift  = cms.untracked.double(-1.),
    maxRangeVDrift  = cms.untracked.double(1.), 

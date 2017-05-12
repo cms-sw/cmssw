@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource",
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.second = cms.EDAnalyzer("RPCEfficiencySecond",
+process.second = cms.EDProducer("RPCEfficiencySecond",
     debug = cms.untracked.bool(False),
     barrel = cms.untracked.bool(True),
     endcap = cms.untracked.bool(True),

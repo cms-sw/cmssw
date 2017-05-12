@@ -42,7 +42,7 @@ process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     useAllHistos             = cms.untracked.bool(False)                         
 )
 
-process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
+process.hcalNoiseRates = cms.EDProducer('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
 
@@ -70,17 +70,17 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = cms.EDProducer("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDAnalyzer("NoiseRatesClient", 
+process.noiseratesClient = cms.EDProducer("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )

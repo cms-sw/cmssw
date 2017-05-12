@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorL1Gen = cms.EDAnalyzer("DQMGenericClient",
+postProcessorL1Gen = cms.EDProducer("DQMGenericClient",
     subDirs = cms.untracked.vstring("L1T/L1TriggerVsGen/"),
     efficiency = cms.vstring(
        "Muon_Eff_Pt 'L1 efficiency vs p_{T}' Muon_Eff_Pt_Nomin Muon_Eff_Pt_Denom", 

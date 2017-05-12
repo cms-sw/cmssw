@@ -4,7 +4,7 @@ from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalMonitorClient.TowerStatusTask_cfi import ecalTowerStatusTask
 
-ecalDcsInfoTask = cms.EDAnalyzer("EcalDQMonitorClient",
+ecalDcsInfoTask = cms.EDProducer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("Ecal DCS Monitor"),
     # tasks to be turned on
     workers = cms.untracked.vstring(

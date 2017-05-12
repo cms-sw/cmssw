@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalOfflineHarvesting = cms.EDAnalyzer(
+hcalOfflineHarvesting = cms.EDProducer(
 	"HcalOfflineHarvesting",
 
 	name = cms.untracked.string("HcalOfflineHarvesting"),

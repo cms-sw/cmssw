@@ -6,7 +6,7 @@ from Validation.RecoMuon.NewPostProcessor_cff import NEWpostProcessorMuonTrack
 NEWpostProcessorMuonTrackHLT = NEWpostProcessorMuonTrack.clone()
 NEWpostProcessorMuonTrackHLT.subDirs = cms.untracked.vstring("HLT/Muon/MuonTrack/*")
 
-NEWpostProcessorMuonTrackHLTComp = cms.EDAnalyzer(
+NEWpostProcessorMuonTrackHLTComp = cms.EDProducer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MuonTrack/"), 
     efficiency = cms.vstring(

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gemDigiHarvesting = cms.EDAnalyzer("MuonGEMDigisHarvestor",
+gemDigiHarvesting = cms.EDProducer("MuonGEMDigisHarvestor",
   dbePath = cms.string("MuonGEMDigisV/GEMDigisTask/"),
   compareDBEPath = cms.string("MuonGEMHitsV/GEMHitsTask/"),
   dbeHistPrefix = cms.string("copad_dcEta"),
