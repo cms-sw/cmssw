@@ -7,14 +7,6 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-//FIXME:just temporary solution for phase2!
-/*
-namespace {
-  const float theRocWidth  = 8.1;
-  const float theRocHeight = 8.1;
-}
-*/
-
 TkPhase2OTMeasurementDet::TkPhase2OTMeasurementDet( const GeomDet* gdet,
 					      Phase2OTMeasurementConditionSet & conditions ) : 
     MeasurementDet (gdet),
@@ -51,22 +43,49 @@ bool TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnT
 
   auto oldSize = result.size();
 
-  int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+
+
   const detset & detSet = data.phase2OTData().detSet(index()); 
   auto begin = &(data.phase2OTData().handle()->data().front());
   auto reject = [&](auto ci)-> bool { return (!data.phase2OTClustersToSkip().empty()) && data.phase2OTClustersToSkip()[ci-begin];};
 
-  /// in principle we can use the usual 5 sigma cut from the Traj to identify the column.... 
-  // auto const nc = specificGeomDet().specificTopology().ncolumns();
+  /// use the usual 5 sigma cut from the Traj to identify the column.... 
   auto firstCluster = detSet.begin();
-  while (firstCluster!=detSet.end()) {
+  auto lastCluster = detSet.end();
+
+  // do not use this as it does not account for APE...
+  // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+  auto le = stateOnThisDet.localError().positionError();
+  LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
+  auto ye = le.yy();
+  if (lape.valid()) {
+    ye+=lape.yy();
+  }
+  // 5 sigma to be on the safe side
+  ye = 5.f*std::sqrt(ye);
+  LocalVector  maxD(0,ye,0);
+  // pixel topology is rectangular: x and y are independent 
+  auto ymin = specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()-maxD);
+  auto ymax = specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()+maxD);
+  int utraj = ymin.x();
+  // do not apply for iteration not cutting on propagation
+  if (est.maxSagitta() >=0 ) {
+    int colMin = ymin.y();
+    int colMax = ymax.y();
+    firstCluster = 
+         std::find_if(firstCluster, detSet.end(), [colMin](const Phase2TrackerCluster1D& hit) { return int(hit.column()) >= colMin; });
+    lastCluster =        	
+         std::find_if(firstCluster, detSet.end(), [colMax](const Phase2TrackerCluster1D& hit) { return int(hit.column()) > colMax; });
+  }
+
+  while (firstCluster!=lastCluster) { // loop on each column
     auto const col = firstCluster->column();
-    auto lastCluster =
-    std::find_if( firstCluster, detSet.end(), [col](const Phase2TrackerCluster1D& hit) { return hit.column() != col; });
-
+    auto endCluster =
+    std::find_if(firstCluster, detSet.end(), [col](const Phase2TrackerCluster1D& hit) { return hit.column() != col; });
+    // find trajectory position in this column
     auto rightCluster = 
-      std::find_if( firstCluster, lastCluster, [utraj](const Phase2TrackerCluster1D& hit) { return int(hit.firstStrip()) > utraj; });
-
+      std::find_if(firstCluster, endCluster, [utraj](const Phase2TrackerCluster1D& hit) { return int(hit.firstStrip()) > utraj; });
+    // search for compatible clusters...
     if ( rightCluster != firstCluster) {
      // there are hits on the left of the utraj
      auto leftCluster = rightCluster;
@@ -80,7 +99,7 @@ bool TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnT
        diffs.push_back(diffEst.second);
      }
     }
-    for ( ; rightCluster != lastCluster; rightCluster++) {
+    for ( ; rightCluster != endCluster; rightCluster++) {
        if(reject(rightCluster)) continue;
        Phase2TrackerCluster1DRef cluster = detSet.makeRefTo( data.phase2OTData().handle(), rightCluster);
        auto hit = buildRecHit( cluster, stateOnThisDet.localParameters() );
@@ -89,7 +108,7 @@ bool TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnT
        result.push_back(hit);
        diffs.push_back(diffEst.second);
      }
-     firstCluster = lastCluster;
+     firstCluster = endCluster;
    } // loop over columns 
    return result.size()>oldSize;
 } 
