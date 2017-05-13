@@ -28,6 +28,7 @@ DDG4SolidConverter::DDG4SolidConverter() {
   convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
   convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
   convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
+  convDispatch_[ddmultiunion]     = DDG4SolidConverter::multiunion;
   convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
   convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
   convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
@@ -359,6 +360,33 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
   return us;	   
 }
 
+#if defined(G4GEOM_USE_USOLIDS)
+
+#include "G4MultiUnion.hh"
+G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
+  G4MultiUnion* munion = new G4MultiUnion( G4String( solid.name().name()));
+  DDMultiUnionSolid ms( solid );
+  std::vector<DDSolid> solids = ms.solids();
+  // FIXME: need to use G4GEOM_USE_USOLIDS
+  if( ms ) {
+    for( auto i : solids ) {
+      G4VSolid* gs = DDG4SolidConverter().convert( solids[i]);
+      G4RotationMatrix rotm = G4RotationMatrix();
+      G4ThreeVector position1 = G4ThreeVector( 0., 0., 1. );
+      G4Transform3D tr1 = G4Transform3D( rotm, position1 );
+      munion->AddNode( gs, tr1 );
+    }
+  }
+  return munion;
+}
+
+#else
+
+G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
+  return nullptr;
+}
+
+#endif // G4GEOM_USE_USOLIDS
 
 #include "G4Trd.hh"
 G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
