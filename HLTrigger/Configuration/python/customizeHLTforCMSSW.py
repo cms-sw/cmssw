@@ -95,7 +95,6 @@ def customiseFor18559(process):
             filt.thrOverE2EE2 = cms.vdouble( cutOverE2EE2 )
     return process
 
-
 # Matching ECAL selective readout in particle flow, need a new input with online Selective Readout Flags
 def customiseFor17794(process):
      for edproducer in producers_by_type(process, "PFRecHitProducer"):
@@ -152,7 +151,6 @@ def customiseFor18330(process):
                     pset.chi2cutoff = cms.double(3.0)
      return process
 
-
 # Add new parameters required by RecoTauBuilderConePlugin
 def customiseFor18429(process):
      for producer in producers_by_type(process, "RecoTauProducer"):
@@ -167,12 +165,16 @@ def customiseFor18429(process):
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
+
+    if (menuType == "GRun2016"):
+        # GRun2016 is a 90X menu
+        process = customiseFor17771(process)
+        process = customiseFor17792(process)
+        process = customiseFor17794(process)
+        process = customiseFor18330(process)
+
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor17771(process)
-    process = customiseFor17792(process)
-    process = customiseFor17794(process)
-    process = customiseFor18330(process)
     process = customiseFor18429(process)
     process = customiseFor18559(process)
 
