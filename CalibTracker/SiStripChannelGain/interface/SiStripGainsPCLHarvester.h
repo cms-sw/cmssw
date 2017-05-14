@@ -26,8 +26,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 // user includes
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
@@ -51,6 +51,7 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
    private:
 
       virtual void checkBookAPVColls(const edm::EventSetup& setup);
+      virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
       virtual void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_);
 
       void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
@@ -92,6 +93,7 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
 
       edm::ESHandle<TrackerGeometry> tkGeom_;
       const TrackerGeometry *bareTkGeomPtr_;  // ugly hack to fill APV colls only once, but checks
+      const TrackerTopology* tTopo_;
 
       std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
       std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 

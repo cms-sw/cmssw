@@ -21,6 +21,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -41,7 +42,8 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps):
   MASKED(0),
   NStripAPVs(0),
   NPixelDets(0),
-  bareTkGeomPtr_(nullptr)
+  bareTkGeomPtr_(nullptr),
+  tTopo_(nullptr)
 {
 
   m_Record                = ps.getUntrackedParameter<std::string> ("Record"             , "SiStripApvGainRcd");
@@ -75,6 +77,7 @@ SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSetup& i
   using namespace edm;
 
   this->checkBookAPVColls(iSetup); // check whether APV colls are booked and do so if not yet done
+  this->checkAndRetrieveTopology(iSetup);
 
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
@@ -155,64 +158,70 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
   ibooker_.setCurrentFolder("AlCaReco/SiStripGainsHarvesting/");
 
 
-  std::vector<MonitorElement*> new_charge_histos;
+  std::vector<APVGain::APVmon> new_charge_histos;
   std::vector<std::pair<std::string,std::string>> cnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"newG2");
   for (unsigned int i=0;i<cnames.size();i++){
-    //std::string name = (cnames[i]).first + stag;
-    new_charge_histos.push_back( ibooker_.book1DD( (cnames[i]).first, (cnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+    MonitorElement* monitor = ibooker_.book1DD( (cnames[i]).first, (cnames[i]).second.c_str(), 100   , 0. , 1000. );
+    int id    = APVGain::subdetectorId((cnames[i]).first.c_str());
+    int side  = APVGain::subdetectorSide((cnames[i]).first.c_str());
+    int plane = APVGain::subdetectorPlane((cnames[i]).first.c_str());
+    new_charge_histos.push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
+  int   MPVbin = 300;
+  float MPVmin = 0.;
+  float MPVmax = 600.;
 
-  MonitorElement* MPV_Vs_EtaTIB  = ibooker_.book2DD("MPV_Vs_EtaTIB" ,"MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 300, 0, 600);
-  MonitorElement* MPV_Vs_EtaTID  = ibooker_.book2DD("MPV_Vs_EtaTID" ,"MPV_Vs_EtaTID" , 50, -3.0, 3.0, 300, 0, 600);
-  MonitorElement* MPV_Vs_EtaTOB  = ibooker_.book2DD("MPV_Vs_EtaTOB" ,"MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 300, 0, 600);
-  MonitorElement* MPV_Vs_EtaTEC  = ibooker_.book2DD("MPV_Vs_EtaTEC" ,"MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 300, 0, 600);
-  MonitorElement* MPV_Vs_EtaTEC1 = ibooker_.book2DD("MPV_Vs_EtaTEC1","MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 300, 0, 600);
-  MonitorElement* MPV_Vs_EtaTEC2 = ibooker_.book2DD("MPV_Vs_EtaTEC2","MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 300, 0, 600);
+  MonitorElement* MPV_Vs_EtaTIB      = ibooker_.book2DD("MPVvsEtaTIB" ,"MPV vs Eta TIB"      ,50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_EtaTID      = ibooker_.book2DD("MPVvsEtaTID" ,"MPV vs Eta TID"      ,50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_EtaTOB      = ibooker_.book2DD("MPVvsEtaTOB" ,"MPV vs Eta TOB"      ,50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_EtaTEC      = ibooker_.book2DD("MPVvsEtaTEC" ,"MPV vs Eta TEC"      ,50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_EtaTECthin  = ibooker_.book2DD("MPVvsEtaTEC1","MPV vs Eta TEC-thin" ,50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_EtaTECthick = ibooker_.book2DD("MPVvsEtaTEC2","MPV vs Eta TEC-thick",50,-3.0,3.0,MPVbin,MPVmin,MPVmax);
 
-  MonitorElement* MPV_Vs_PhiTIB  = ibooker_.book2DD("MPV_Vs_PhiTIB" ,"MPV_Vs_PhiTIB" , 50, -3.4, 3.4, 300, 0, 600);
-  MonitorElement* MPV_Vs_PhiTID  = ibooker_.book2DD("MPV_Vs_PhiTID" ,"MPV_Vs_PhiTID" , 50, -3.4, 3.4, 300, 0, 600);
-  MonitorElement* MPV_Vs_PhiTOB  = ibooker_.book2DD("MPV_Vs_PhiTOB" ,"MPV_Vs_PhiTOB" , 50, -3.4, 3.4, 300, 0, 600);
-  MonitorElement* MPV_Vs_PhiTEC  = ibooker_.book2DD("MPV_Vs_PhiTEC" ,"MPV_Vs_PhiTEC" , 50, -3.4, 3.4, 300, 0, 600);
-  MonitorElement* MPV_Vs_PhiTEC1 = ibooker_.book2DD("MPV_Vs_PhiTEC1","MPV_Vs_PhiTEC1", 50, -3.4, 3.4, 300, 0, 600);
-  MonitorElement* MPV_Vs_PhiTEC2 = ibooker_.book2DD("MPV_Vs_PhiTEC2","MPV_Vs_PhiTEC2", 50, -3.4, 3.4, 300, 0, 600);
+  MonitorElement* MPV_Vs_PhiTIB      = ibooker_.book2DD("MPVvsPhiTIB" ,"MPV vs Phi TIB"      ,50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_PhiTID      = ibooker_.book2DD("MPVvsPhiTID" ,"MPV vs Phi TID"      ,50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_PhiTOB      = ibooker_.book2DD("MPVvsPhiTOB" ,"MPV vs Phi TOB"      ,50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_PhiTEC      = ibooker_.book2DD("MPVvsPhiTEC" ,"MPV vs Phi TEC"      ,50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_PhiTECthin  = ibooker_.book2DD("MPVvsPhiTEC1","MPV vs Phi TEC-thin ",50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPV_Vs_PhiTECthick = ibooker_.book2DD("MPVvsPhiTEC2","MPV vs Phi TEC-thick",50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
 
-  MonitorElement* NoMPV          = ibooker_.book2DD("NoMPV"         ,"NoMPV"         ,350, -350, 350, 240, 0, 120);
+  MonitorElement* NoMPV              = ibooker_.book2DD("NoMPV"         ,"NoMPV"         ,350, -350, 350, 240, 0, 120);
 
-  MonitorElement* Gains          = ibooker_.book1DD("Gains"         ,"Gains"         ,                300, 0, 2);
-  MonitorElement* MPVs           = ibooker_.book1DD("MPVs"          ,"MPVs"          ,                300, 0, 600);
-  MonitorElement* MPVs320        = ibooker_.book1DD("MPVs320"       ,"MPVs320"       ,                300, 0, 600);
-  MonitorElement* MPVs500        = ibooker_.book1DD("MPVs500"       ,"MPVs500"       ,                300, 0, 600);
-  MonitorElement* MPVsTIB        = ibooker_.book1DD("MPVsTIB"       ,"MPVsTIB"       ,                300, 0, 600);
-  MonitorElement* MPVsTID        = ibooker_.book1DD("MPVsTID"       ,"MPVsTID"       ,                300, 0, 600);
-  MonitorElement* MPVsTIDP       = ibooker_.book1DD("MPVsTIDP"      ,"MPVsTIDP"      ,                300, 0, 600);
-  MonitorElement* MPVsTIDM       = ibooker_.book1DD("MPVsTIDM"      ,"MPVsTIDM"      ,                300, 0, 600);
-  MonitorElement* MPVsTOB        = ibooker_.book1DD("MPVsTOB"       ,"MPVsTOB"       ,                300, 0, 600);
-  MonitorElement* MPVsTEC        = ibooker_.book1DD("MPVsTEC"       ,"MPVsTEC"       ,                300, 0, 600);
-  MonitorElement* MPVsTECP       = ibooker_.book1DD("MPVsTECP"      ,"MPVsTECP"      ,                300, 0, 600);
-  MonitorElement* MPVsTECM       = ibooker_.book1DD("MPVsTECM"      ,"MPVsTECM"      ,                300, 0, 600);
-  MonitorElement* MPVsTEC1       = ibooker_.book1DD("MPVsTEC1"      ,"MPVsTEC1"      ,                300, 0, 600);
-  MonitorElement* MPVsTEC2       = ibooker_.book1DD("MPVsTEC2"      ,"MPVsTEC2"      ,                300, 0, 600);
-  MonitorElement* MPVsTECP1      = ibooker_.book1DD("MPVsTECP1"     ,"MPVsTECP1"     ,                300, 0, 600);
-  MonitorElement* MPVsTECP2      = ibooker_.book1DD("MPVsTECP2"     ,"MPVsTECP2"     ,                300, 0, 600);
-  MonitorElement* MPVsTECM1      = ibooker_.book1DD("MPVsTECM1"     ,"MPVsTECM1"     ,                300, 0, 600);
-  MonitorElement* MPVsTECM2      = ibooker_.book1DD("MPVsTECM2"     ,"MPVsTECM2"     ,                300, 0, 600);
+  MonitorElement* Gains              = ibooker_.book1DD("Gains"         ,"Gains"            , 300, 0, 2);
+  MonitorElement* MPVs               = ibooker_.book1DD("MPVs"          ,"MPVs"             , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVs320            = ibooker_.book1DD("MPV_320"       ,"MPV 320 thickness", MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVs500            = ibooker_.book1DD("MPV_500"       ,"MPV 500 thickness", MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTIB            = ibooker_.book1DD("MPV_TIB"       ,"MPV TIB"          , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTID            = ibooker_.book1DD("MPV_TID"       ,"MPV TID"          , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTIDP           = ibooker_.book1DD("MPV_TIDP"      ,"MPV TIDP"         , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTIDM           = ibooker_.book1DD("MPV_TIDM"      ,"MPV TIDM"         , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTOB            = ibooker_.book1DD("MPV_TOB"       ,"MPV TOB"          , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTEC            = ibooker_.book1DD("MPV_TEC"       ,"MPV TEC"          , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECP           = ibooker_.book1DD("MPV_TECP"      ,"MPV TECP"         , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECM           = ibooker_.book1DD("MPV_TECM"      ,"MPV TECM"         , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECthin        = ibooker_.book1DD("MPV_TEC1"      ,"MPV TEC thin"     , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECthick       = ibooker_.book1DD("MPV_TEC2"      ,"MPV TEC thick"    , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECP1          = ibooker_.book1DD("MPV_TECP1"     ,"MPV TECP thin "   , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECP2          = ibooker_.book1DD("MPV_TECP2"     ,"MPV TECP thick"   , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECM1          = ibooker_.book1DD("MPV_TECM1"     ,"MPV TECM thin"    , MPVbin,MPVmin,MPVmax);
+  MonitorElement* MPVsTECM2          = ibooker_.book1DD("MPV_TECM2"     ,"MPV TECM thick"   , MPVbin,MPVmin,MPVmax);
 
-  MonitorElement* MPVError       = ibooker_.book1DD("MPVError"      ,"MPVError"      ,                150, 0, 150);
-  MonitorElement* MPVErrorVsMPV  = ibooker_.book2DD("MPVErrorVsMPV" ,"MPVErrorVsMPV" ,300,    0, 600, 150, 0, 150);
-  MonitorElement* MPVErrorVsEta  = ibooker_.book2DD("MPVErrorVsEta" ,"MPVErrorVsEta" , 50, -3.0, 3.0, 150, 0, 150);
-  MonitorElement* MPVErrorVsPhi  = ibooker_.book2DD("MPVErrorVsPhi" ,"MPVErrorVsPhi" , 50, -3.4, 3.4, 150, 0, 150);
-  MonitorElement* MPVErrorVsN    = ibooker_.book2DD("MPVErrorVsN"   ,"MPVErrorVsN"   ,500,    0,1000, 150, 0, 150);
+  MonitorElement* MPVError           = ibooker_.book1DD("MPVError"      ,"MPV Error"        ,                  150, 0, 150);
+  MonitorElement* MPVErrorVsMPV      = ibooker_.book2DD("MPVErrorVsMPV" ,"MPV Error vs MPV" , 300,    0, 600,  150, 0, 150);
+  MonitorElement* MPVErrorVsEta      = ibooker_.book2DD("MPVErrorVsEta" ,"MPV Error vs Eta" ,  50, -3.0, 3.0,  150, 0, 150);
+  MonitorElement* MPVErrorVsPhi      = ibooker_.book2DD("MPVErrorVsPhi" ,"MPV Error vs Phi" ,  50, -3.4, 3.4,  150, 0, 150);
+  MonitorElement* MPVErrorVsN        = ibooker_.book2DD("MPVErrorVsN"   ,"MPV Error vs N"   , 500,    0, 1000, 150, 0, 150);
 
-  MonitorElement* DiffWRTPrevGainTIB = ibooker_.book1DD("DiffWRTPrevGainTIB" ,"DiffWRTPrevGainTIB" , 250, 0,2);
-  MonitorElement* DiffWRTPrevGainTID = ibooker_.book1DD("DiffWRTPrevGainTID" ,"DiffWRTPrevGainTID" , 250, 0,2);
-  MonitorElement* DiffWRTPrevGainTOB = ibooker_.book1DD("DiffWRTPrevGainTOB" ,"DiffWRTPrevGainTOB" , 250, 0,2);
-  MonitorElement* DiffWRTPrevGainTEC = ibooker_.book1DD("DiffWRTPrevGainTEC" ,"DiffWRTPrevGainTEC" , 250, 0,2);
+  MonitorElement* DiffWRTPrevGainTIB = ibooker_.book1DD("DiffWRTPrevGainTIB" ,"Diff w.r.t. PrevGain TIB" , 250, 0,2);
+  MonitorElement* DiffWRTPrevGainTID = ibooker_.book1DD("DiffWRTPrevGainTID" ,"Diff w.r.t. PrevGain TID" , 250, 0,2);
+  MonitorElement* DiffWRTPrevGainTOB = ibooker_.book1DD("DiffWRTPrevGainTOB" ,"Diff w.r.t. PrevGain TOB" , 250, 0,2);
+  MonitorElement* DiffWRTPrevGainTEC = ibooker_.book1DD("DiffWRTPrevGainTEC" ,"Diff w.r.t. PrevGain TEC" , 250, 0,2);
 
-  MonitorElement* GainVsPrevGainTIB  = ibooker_.book2DD("GainVsPrevGainTIB"  ,"GainVsPrevGainTIB"  , 100, 0,2, 100, 0,2);
-  MonitorElement* GainVsPrevGainTID  = ibooker_.book2DD("GainVsPrevGainTID"  ,"GainVsPrevGainTID"  , 100, 0,2, 100, 0,2);
-  MonitorElement* GainVsPrevGainTOB  = ibooker_.book2DD("GainVsPrevGainTOB"  ,"GainVsPrevGainTOB"  , 100, 0,2, 100, 0,2);
-  MonitorElement* GainVsPrevGainTEC  = ibooker_.book2DD("GainVsPrevGainTEC"  ,"GainVsPrevGainTEC"  , 100, 0,2, 100, 0,2);
+  MonitorElement* GainVsPrevGainTIB  = ibooker_.book2DD("GainVsPrevGainTIB"  ,"Gain vs PrevGain TIB"  , 100, 0,2, 100, 0,2);
+  MonitorElement* GainVsPrevGainTID  = ibooker_.book2DD("GainVsPrevGainTID"  ,"Gain vs PrevGain TID"  , 100, 0,2, 100, 0,2);
+  MonitorElement* GainVsPrevGainTOB  = ibooker_.book2DD("GainVsPrevGainTOB"  ,"Gain vs PrevGain TOB"  , 100, 0,2, 100, 0,2);
+  MonitorElement* GainVsPrevGainTEC  = ibooker_.book2DD("GainVsPrevGainTEC"  ,"Gain vs PrevGain TEC"  , 100, 0,2, 100, 0,2);
 
 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
@@ -235,71 +244,88 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
     double        PreviousGain = APV->PreviousGain;
 
 
-    std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId);
-    TH2S *chvsidx = (Charge_Vs_Index)->getTH2S();
-    int bin = chvsidx->GetXaxis()->FindBin(Index);
-    TH1D* Proj = chvsidx->ProjectionY("proj",bin,bin);
-    for (int binId=0; binId<Proj->GetXaxis()->GetNbins();binId++) {
-      double new_charge = Proj->GetBinCenter(binId) / Gain;
-      if (Proj->GetBinContent(binId)!=0.) {
-        for (unsigned int h=0;h<charge_histos.size();h++) {
-          TH1D* chisto = (charge_histos[h])->getTH1D();
-          chisto->Fill(new_charge,Proj->GetBinContent(binId));
+    if (Gain!=1.) {
+      std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_);
+      TH2S *chvsidx = (Charge_Vs_Index)->getTH2S();
+      int bin = chvsidx->GetXaxis()->FindBin(Index);
+      TH1D* Proj = chvsidx->ProjectionY("proj",bin,bin);
+      for (int binId=0; binId<Proj->GetXaxis()->GetNbins();binId++) {
+        double new_charge = Proj->GetXaxis()->GetBinCenter(binId) / Gain;
+        if (Proj->GetBinContent(binId)!=0.) {
+          for (unsigned int h=0;h<charge_histos.size();h++) {
+            TH1D* chisto = (charge_histos[h])->getTH1D();
+            for (int e=0;e<Proj->GetBinContent(binId);e++) chisto->Fill(new_charge);
+          }
         }
       }
     }
     
 
-    if(SubDet>=3 && FitMPV<0.) NoMPV->Fill(z,R);
-    if(SubDet>=3 && FitMPV>=0.) {
-      if(SubDet==3) MPV_Vs_EtaTIB->Fill(Eta,FitMPV);
-      if(SubDet==4) MPV_Vs_EtaTID->Fill(Eta,FitMPV);
-      if(SubDet==5) MPV_Vs_EtaTOB->Fill(Eta,FitMPV);
-      if(SubDet==6) MPV_Vs_EtaTEC->Fill(Eta,FitMPV);
-      if(SubDet==6 && Thickness<0.04) MPV_Vs_EtaTEC1->Fill(Eta,FitMPV);
-      if(SubDet==6 && Thickness>0.04) MPV_Vs_EtaTEC2->Fill(Eta,FitMPV);
-      if(SubDet==3) MPV_Vs_PhiTIB->Fill(Phi,FitMPV);
-      if(SubDet==4) MPV_Vs_PhiTID->Fill(Phi,FitMPV);
-      if(SubDet==5) MPV_Vs_PhiTOB->Fill(Phi,FitMPV);
-      if(SubDet==6) MPV_Vs_PhiTEC->Fill(Phi,FitMPV);
-      if(SubDet==6 && Thickness<0.04) MPV_Vs_PhiTEC1->Fill(Phi,FitMPV);
-      if(SubDet==6 && Thickness>0.04) MPV_Vs_PhiTEC2->Fill(Phi,FitMPV);
+    if (FitMPV<0.) {  // No fit of MPV
+       if(SubDet>=3) NoMPV->Fill(z,R);
 
-      if(FitMPV>0.) Gains->Fill(Gain);
-      MPVs->Fill(FitMPV);
-      if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
-      if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
-      if(SubDet==3) MPVsTIB->Fill(FitMPV);
-      if(SubDet==4) MPVsTID->Fill(FitMPV);
-      if(SubDet==4 && Eta<0.) MPVsTIDM->Fill(FitMPV);
-      if(SubDet==4 && Eta>0.) MPVsTIDP->Fill(FitMPV);
-      if(SubDet==5) MPVsTOB->Fill(FitMPV);
-      if(SubDet==6) MPVsTEC->Fill(FitMPV);
-      if(SubDet==6 && Eta<0.) MPVsTECM->Fill(FitMPV);
-      if(SubDet==6 && Eta>0.) MPVsTECP->Fill(FitMPV);
-      if(SubDet==6 && Thickness<0.04) MPVsTEC1->Fill(FitMPV);
-      if(SubDet==6 && Thickness>0.04) MPVsTEC2->Fill(FitMPV);
-      if(SubDet==6 && Thickness<0.04 && Eta>0.) MPVsTECP1->Fill(FitMPV);
-      if(SubDet==6 && Thickness>0.04 && Eta>0.) MPVsTECP2->Fill(FitMPV);
-      if(SubDet==6 && Thickness<0.04 && Eta<0.) MPVsTECM1->Fill(FitMPV);
-      if(SubDet==6 && Thickness>0.04 && Eta<0.) MPVsTECM2->Fill(FitMPV);
+    } else {          // Fit of MPV
+       if(FitMPV>0.) Gains->Fill(Gain);
+ 
+       MPVs->Fill(FitMPV);
+       if(Thickness<0.04) MPVs320->Fill(Phi,FitMPV);
+       if(Thickness>0.04) MPVs500->Fill(Phi,FitMPV);
 
-      MPVError->Fill(FitMPVErr);
-      MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);
-      MPVErrorVsEta->Fill(Eta,FitMPVErr);
-      MPVErrorVsPhi->Fill(Phi,FitMPVErr);
-      MPVErrorVsN->Fill(NEntries,FitMPVErr);
+       MPVError->Fill(FitMPVErr);
+       MPVErrorVsMPV->Fill(FitMPV,FitMPVErr);
+       MPVErrorVsEta->Fill(Eta,FitMPVErr);
+       MPVErrorVsPhi->Fill(Phi,FitMPVErr);
+       MPVErrorVsN->Fill(NEntries,FitMPVErr);
+
+       if(SubDet==3) {
+         MPV_Vs_EtaTIB->Fill(Eta,FitMPV);
+         MPV_Vs_PhiTIB->Fill(Phi,FitMPV);
+         MPVsTIB->Fill(FitMPV);
+
+       } else if(SubDet==4) {
+         MPV_Vs_EtaTID->Fill(Eta,FitMPV);
+         MPV_Vs_PhiTID->Fill(Phi,FitMPV);
+         MPVsTID->Fill(FitMPV);
+         if(Eta<0.) MPVsTIDM->Fill(FitMPV);
+         if(Eta>0.) MPVsTIDP->Fill(FitMPV);
+
+       } else if (SubDet==5) {
+         MPV_Vs_EtaTOB->Fill(Eta,FitMPV);
+         MPV_Vs_PhiTOB->Fill(Phi,FitMPV);
+         MPVsTOB->Fill(FitMPV);
+
+       } else if (SubDet==6) {
+         MPV_Vs_EtaTEC->Fill(Eta,FitMPV);
+         MPV_Vs_PhiTEC->Fill(Phi,FitMPV);
+         MPVsTEC->Fill(FitMPV);
+         if(Eta<0.) MPVsTECM->Fill(FitMPV);
+         if(Eta>0.) MPVsTECP->Fill(FitMPV);
+         if(Thickness<0.04) {
+           MPV_Vs_EtaTECthin->Fill(Eta,FitMPV);
+           MPV_Vs_PhiTECthin->Fill(Phi,FitMPV);
+           MPVsTECthin->Fill(FitMPV);
+           if(Eta>0.) MPVsTECP1->Fill(FitMPV);
+           if(Eta<0.) MPVsTECM1->Fill(FitMPV);
+         }
+         if(Thickness>0.04) {
+           MPV_Vs_EtaTECthick->Fill(Eta,FitMPV);
+           MPV_Vs_PhiTECthick->Fill(Phi,FitMPV);
+           MPVsTECthick->Fill(FitMPV);
+           if(Eta>0.) MPVsTECP2->Fill(FitMPV);
+           if(Eta<0.) MPVsTECM2->Fill(FitMPV);
+         }
+       }
     }
 
     if(SubDet==3 && PreviousGain!=0. ) DiffWRTPrevGainTIB->Fill(Gain/PreviousGain);
-    if(SubDet==4 && PreviousGain!=0. ) DiffWRTPrevGainTID->Fill(Gain/PreviousGain);
-    if(SubDet==5 && PreviousGain!=0. ) DiffWRTPrevGainTOB->Fill(Gain/PreviousGain);
-    if(SubDet==6 && PreviousGain!=0. ) DiffWRTPrevGainTEC->Fill(Gain/PreviousGain);
+    else if(SubDet==4 && PreviousGain!=0. ) DiffWRTPrevGainTID->Fill(Gain/PreviousGain);
+    else if(SubDet==5 && PreviousGain!=0. ) DiffWRTPrevGainTOB->Fill(Gain/PreviousGain);
+    else if(SubDet==6 && PreviousGain!=0. ) DiffWRTPrevGainTEC->Fill(Gain/PreviousGain);
 
     if(SubDet==3 ) GainVsPrevGainTIB->Fill(PreviousGain,Gain);
-    if(SubDet==4 ) GainVsPrevGainTID->Fill(PreviousGain,Gain);
-    if(SubDet==5 ) GainVsPrevGainTOB->Fill(PreviousGain,Gain);
-    if(SubDet==6 ) GainVsPrevGainTEC->Fill(PreviousGain,Gain);
+    else if(SubDet==4 ) GainVsPrevGainTID->Fill(PreviousGain,Gain);
+    else if(SubDet==5 ) GainVsPrevGainTOB->Fill(PreviousGain,Gain);
+    else if(SubDet==6 ) GainVsPrevGainTEC->Fill(PreviousGain,Gain);
 
   }
 }
@@ -532,6 +558,15 @@ SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es){
     } // loop on Dets  
   }  //if (!bareTkGeomPtr_) ... 
   bareTkGeomPtr_ = newBareTkGeomPtr;
+}
+
+void
+SiStripGainsPCLHarvester::checkAndRetrieveTopology(const edm::EventSetup& setup) {
+  if( !tTopo_ ) {
+    edm::ESHandle<TrackerTopology> TopoHandle;
+    setup.get<TrackerTopologyRcd>().get( TopoHandle );
+    tTopo_ = TopoHandle.product();
+  }
 }
 
 //********************************************************************************//
