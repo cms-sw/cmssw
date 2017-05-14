@@ -243,8 +243,6 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             d0_par2 = ( 0.5, 4.0 ),
             dz_par2 = ( 0.6, 4.0 )
             ),
-        #FIXME: the cuts on min_nhits and minNumber*Layers are introduced to mitigate
-        #the cluster shape filter cut not working properly yet. To be remove in the future.
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'highPtTripletStep',
             preFilterName = 'highPtTripletStepTight',
