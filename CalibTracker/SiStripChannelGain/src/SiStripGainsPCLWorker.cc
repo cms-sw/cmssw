@@ -1,5 +1,5 @@
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLWorker.h"
-#include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -48,10 +48,6 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
   
   Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
-  Charge_1.insert( Charge_1.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
-  Charge_2.insert( Charge_2.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
-  Charge_3.insert( Charge_3.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
-  Charge_4.insert( Charge_4.begin(), dqm_tag_.size(), std::vector<MonitorElement*>() );
   Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), 0);
   Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), 0);
   Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), 0);
@@ -182,12 +178,16 @@ SiStripGainsPCLWorker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   auto handle25 = connect(gainusedTick  , gainusedTick_token_  , iEvent);
   auto handle26 = connect(trackalgo     , trackalgo_token_     , iEvent);
  
-  processEvent();
+  edm::ESHandle<TrackerTopology> TopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get( TopoHandle );
+  const TrackerTopology* topo = TopoHandle.product();
+
+  processEvent(topo);
 
 }
 
 //********************************************************************************//
-void SiStripGainsPCLWorker::processEvent() {
+void SiStripGainsPCLWorker::processEvent(const TrackerTopology* topo) {
 
   edm::LogInfo("SiStripGainsPCLWorker") << "Processing run " << runnumber 
 					<< " and event " << eventnumber 
@@ -293,20 +293,8 @@ void SiStripGainsPCLWorker::processEvent() {
         if(StripCharge>1024)      StripCharge = 255;
         else if(StripCharge>254)  StripCharge = 254;
         mCharge1 += StripCharge;
-
-        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
-        if(StripCharge>1024)      StripCharge = 255;
-        else if(StripCharge>254)  StripCharge = 254;
         mCharge2 += StripCharge;
-
-        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
-        if(StripCharge>1024)      StripCharge = 255;
-        else if(StripCharge>254)  StripCharge = 254;
         mCharge3 += StripCharge;
-
-        StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
-        if(StripCharge>1024)      StripCharge = 255;
-        else if(StripCharge>254)  StripCharge = 254;
         mCharge4 += StripCharge;
       }
       // Revome gains for monitoring
@@ -314,20 +302,20 @@ void SiStripGainsPCLWorker::processEvent() {
       mCharge3 *= (*gainusedTick)[i];                     // remove G1
       mCharge4 *= ( (*gainused)[i] * (*gainusedTick)[i]); // remove G1 and G2
     } 
-    std::vector<MonitorElement*>& v1 = Charge_1[elepos];
-    std::vector<MonitorElement*> cmon1 = APVGain::FetchMonitor(v1, (*rawid)[i]);
+    std::vector<APVGain::APVmon>& v1 = Charge_1[elepos];
+    std::vector<MonitorElement*> cmon1 = APVGain::FetchMonitor(v1, (*rawid)[i], topo);
     for(unsigned int m=0; m<cmon1.size(); m++) cmon1[m]->Fill(( (double) mCharge1 )/(*path)[i]);
 
-    std::vector<MonitorElement*>& v2 = Charge_2[elepos];
-    std::vector<MonitorElement*> cmon2 = APVGain::FetchMonitor(v2, (*rawid)[i]);
+    std::vector<APVGain::APVmon>& v2 = Charge_2[elepos];
+    std::vector<MonitorElement*> cmon2 = APVGain::FetchMonitor(v2, (*rawid)[i], topo);
     for(unsigned int m=0; m<cmon2.size(); m++) cmon2[m]->Fill(( (double) mCharge2 )/(*path)[i]);
 
-    std::vector<MonitorElement*>& v3 = Charge_3[elepos];
-    std::vector<MonitorElement*> cmon3 = APVGain::FetchMonitor(v3, (*rawid)[i]);
+    std::vector<APVGain::APVmon>& v3 = Charge_3[elepos];
+    std::vector<MonitorElement*> cmon3 = APVGain::FetchMonitor(v3, (*rawid)[i], topo);
     for(unsigned int m=0; m<cmon3.size(); m++) cmon3[m]->Fill(( (double) mCharge3 )/(*path)[i]);
 
-    std::vector<MonitorElement*>& v4 = Charge_4[elepos];
-    std::vector<MonitorElement*> cmon4 = APVGain::FetchMonitor(v4, (*rawid)[i]);
+    std::vector<APVGain::APVmon>& v4 = Charge_4[elepos];
+    std::vector<MonitorElement*> cmon4 = APVGain::FetchMonitor(v4, (*rawid)[i], topo);
     for(unsigned int m=0; m<cmon4.size(); m++) cmon4[m]->Fill(( (double) mCharge4 )/(*path)[i]);
 
 
@@ -538,25 +526,41 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   std::vector<std::pair<std::string,std::string>> hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"");
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
-    Charge_1[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+    MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
+    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
+    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
+    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    Charge_1[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
-    Charge_2[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+    MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
+    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
+    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
+    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    Charge_2[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1");
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
-    Charge_3[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+    MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
+    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
+    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
+    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    Charge_3[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1G2");
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
-    Charge_4[elepos].push_back( ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ) );
+    MonitorElement* monitor = ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
+    int id    = APVGain::subdetectorId((hnames[i]).first.c_str());
+    int side  = APVGain::subdetectorSide((hnames[i]).first.c_str());
+    int plane = APVGain::subdetectorPlane((hnames[i]).first.c_str());
+    Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
 
 }
