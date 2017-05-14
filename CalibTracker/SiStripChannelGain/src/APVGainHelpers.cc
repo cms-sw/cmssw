@@ -1,13 +1,13 @@
 #include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 
 /** Brief Extract from the DetId the subdetector type.
  * Return an integer which is associated to the subdetector type. The integer
- * coding follows:
+ * coding for phase0/phase1 geometry follows:
  *
  *  3 - TIB
  *  4 - TID
@@ -15,8 +15,9 @@
  *  6 - TEC
  */
 int APVGain::subdetectorId(uint32_t det_id) {
-    return (det_id >> 25)&0x7;
+    return DetId(det_id).subdetId();
 };
+
 
 /** Brief Extract from a char * the subdetector type.
  * Return an integer whioch is associated to the subdetector type. The integer
@@ -40,17 +41,20 @@ int APVGain::subdetectorId(const char* tag) {
 };
 
 /** Brief Extract the subdetector side from the Det Id
- *  * Return and integer whose coding is
+ * Return and integer whose coding is
  *   0 - no side description can be applied
  *   1 - for negative side
  *   2 - for positive side
  */
-int APVGain::subdetectorSide(uint32_t det_id) {
+int APVGain::subdetectorSide(uint32_t det_id, const TrackerTopology* topo) {
     int id = APVGain::subdetectorId( det_id );
-    if (id==4) return (int)TIDDetId( det_id ).side();
-    if (id==6) return (int)TECDetId( det_id ).side();
+    if( topo ) {
+        if (id==StripSubdetector::TID) return topo->tidSide( det_id );
+        if (id==StripSubdetector::TEC) return topo->tecSide( det_id );
+    }
     return 0;
 }
+
 
 /** Brief Extract the subdetector side from a char * descriptor
  * Return and integer whose coding is
@@ -70,6 +74,7 @@ int APVGain::subdetectorSide(const char* tag) {
     return 0;
 }
 
+
 /** Brief Extract the detector plane position from a DetId.
  * Return an integer that represent the detector plane where the module sits.
  * For the barrel detectors (TIB and TOB) the detector plane is the layer, e.g.
@@ -77,12 +82,14 @@ int APVGain::subdetectorSide(const char* tag) {
  * detectors the detector plane is the wheel number with a sign in front to 
  * tell in which side the wheel is sitting.
  */
-int APVGain::subdetectorPlane(uint32_t det_id) {
-    if( APVGain::subdetectorId(det_id)==3 )      return TIBDetId( det_id ).layer();
-    else if( APVGain::subdetectorId(det_id)==4 ) return (2*(int)TIDDetId( det_id ).side()-3)*(int)TIDDetId( det_id ).wheel();
-    else if( APVGain::subdetectorId(det_id)==5 ) return TOBDetId( det_id ).layer();
-    else if( APVGain::subdetectorId(det_id)==6 ) return (2*(int)TECDetId( det_id ).side()-3)*(int)TECDetId( det_id ).wheel();
-    return 0;
+int APVGain::subdetectorPlane(uint32_t det_id, const TrackerTopology* topo) {
+  if( topo ) {
+    if( APVGain::subdetectorId(det_id)==StripSubdetector::TIB )      return topo->tibLayer(det_id);
+    else if( APVGain::subdetectorId(det_id)==StripSubdetector::TID ) return (2*topo->tidSide(det_id)-3)*topo->tidWheel(det_id);
+    else if( APVGain::subdetectorId(det_id)==StripSubdetector::TOB ) return topo->tobLayer(det_id);
+    else if( APVGain::subdetectorId(det_id)==StripSubdetector::TEC ) return (2*topo->tecSide(det_id)-3)*topo->tecWheel(det_id);
+  }
+  return 0;
 };
 
 /** Brief Extract from a char * the subdetector type.
@@ -105,21 +112,26 @@ int APVGain::subdetectorPlane(const char* tag) {
 
 /** Brief Fetch the Monitor Element corresponding to a DetId.
  *  */
-std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<MonitorElement*> histos, uint32_t det_id) {
+std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> histos, uint32_t det_id, 
+                                                                                        const TrackerTopology* topo) {
     std::vector<MonitorElement*> found = std::vector<MonitorElement*>();
-    std::vector<MonitorElement*>::iterator it= histos.begin();
+    int sId    = APVGain::subdetectorId((uint32_t)det_id);
+    int sPlane = APVGain::subdetectorPlane((uint32_t)det_id, topo);
+    int sSide  = APVGain::subdetectorSide((uint32_t)det_id, topo);
+    std::vector<APVGain::APVmon>::iterator it= histos.begin();
+    
     while (it!=histos.end()) {
-        std::string tag = (*it)->getName();
-        int sId    = APVGain::subdetectorId((uint32_t)det_id);
-        int sPlane = APVGain::subdetectorPlane((uint32_t)det_id);
-        int sSide  = APVGain::subdetectorSide((uint32_t)det_id);
+        //std::string tag = (*it)->getName();
+        int subdetectorId    = (*it).subdetectorId;
+        int subdetectorSide  = (*it).subdetectorSide;
+        int subdetectorPlane = (*it).subdetectorPlane;
 
-        bool match = (APVGain::subdetectorId(tag.c_str())==0 || APVGain::subdetectorId(tag.c_str())==sId) &&
-                     (APVGain::subdetectorPlane(tag.c_str())==0 || APVGain::subdetectorPlane(tag.c_str())==sPlane) &&
-                     (APVGain::subdetectorSide(tag.c_str())==0 || APVGain::subdetectorSide(tag.c_str())==sSide);
+        bool match = (subdetectorId==0    || subdetectorId==sId) &&
+                     (subdetectorPlane==0 || subdetectorPlane==sPlane) &&
+                     (subdetectorSide==0  || subdetectorSide==sSide);
 
         if (match) {
-            found.push_back(*it);
+            found.push_back((*it).monitor);
         }
         it++;
     }

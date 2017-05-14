@@ -27,11 +27,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -65,6 +63,7 @@
 
 /// user includes
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
+#include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 
 // System includes
 #include <unordered_map>
@@ -86,7 +85,7 @@ private:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
     
-    void processEvent(); //what really does the job
+    void processEvent(const TrackerTopology* topo); //what really does the job
     virtual void checkBookAPVColls(const edm::EventSetup& setup);
 
     std::vector<std::string> dqm_tag_;
@@ -94,10 +93,10 @@ private:
     int statCollectionFromMode(const char* tag) const;
 
     std::vector<MonitorElement*>  Charge_Vs_Index;           /*!< Charge per cm for each detector id */
-    std::vector< std::vector<MonitorElement*> > Charge_1;    /*!< Charge per cm per layer / wheel */
-    std::vector< std::vector<MonitorElement*> > Charge_2;    /*!< Charge per cm per layer / wheel without G2 */
-    std::vector< std::vector<MonitorElement*> > Charge_3;    /*!< Charge per cm per layer / wheel without G1 */
-    std::vector< std::vector<MonitorElement*> > Charge_4;    /*!< Charge per cm per layer / wheel without G1 and G1*/
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_1;   /*!< Charge per cm per layer / wheel */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_2;   /*!< Charge per cm per layer / wheel without G2 */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_3;   /*!< Charge per cm per layer / wheel without G1 */
+    std::array< std::vector<APVGain::APVmon>,7 > Charge_4;   /*!< Charge per cm per layer / wheel without G1 and G1*/
 
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTIB;   /*!< Charge vs pathlength in TIB */
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTOB;   /*!< Charge vs pathlength in TOB */
