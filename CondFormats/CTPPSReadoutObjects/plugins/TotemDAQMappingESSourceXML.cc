@@ -240,18 +240,18 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
     if (range.startEventID()==edm::EventID(1, 0, 1))
       range = edm::EventRange(edm::EventID(1, 0, 0), range.endEventID());
 
-    if (edm::contains(bl.validityRange, iosv.eventID()))
+    if (edm::contains(range, iosv.eventID()))
     {
       currentBlockValid = true;
       currentBlock = idx;
   
-      const IOVSyncValue begin(bl.validityRange.startEventID());
-      const IOVSyncValue end(bl.validityRange.endEventID());
+      const IOVSyncValue begin(range.startEventID());
+      const IOVSyncValue end(range.endEventID());
       oValidity = edm::ValidityInterval(begin, end);
       
       LogVerbatim("TotemDAQMappingESSourceXML")
         << "    block found: index=" << currentBlock
-        << ", interval=(" << bl.validityRange.startEventID() << " - " << bl.validityRange.endEventID() << ")";
+        << ", interval=(" << range.startEventID() << " - " << range.endEventID() << ")";
 
       return;
     }
