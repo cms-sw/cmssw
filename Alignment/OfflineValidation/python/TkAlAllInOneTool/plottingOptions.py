@@ -5,7 +5,7 @@ import globalDictionaries
 import configTemplates
 
 from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
-from helperFunctions import getCommandOutput2, replaceByMap
+from helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
 from offlineValidation import OfflineValidation
 from primaryVertexValidation import PrimaryVertexValidation
 from TkAlExceptions import AllInOneError
@@ -173,6 +173,7 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
     validationclass = ZMuMuValidation
     def __init__(self, config):
         super(PlottingOptionsZMuMu, self).__init__(config, "zmumu")
+        self.general["switchONfit"] = cppboolstring(self.general["switchONfit"], "switchONfit")
 
 class PlottingOptionsOffline(BasePlottingOptions):
     defaults = {
@@ -188,6 +189,9 @@ class PlottingOptionsOffline(BasePlottingOptions):
     validationclass = OfflineValidation
     def __init__(self, config):
         super(PlottingOptionsOffline, self).__init__(config, "offline")
+        for name in "usefit", "bigtext":
+            self.general[name] = cppboolstring(self.general[name], name)
+
 
 class PlottingOptionsPrimaryVertex(BasePlottingOptions):
     defaults = {
@@ -214,6 +218,8 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
     validationclass = PrimaryVertexValidation
     def __init__(self, config):
         super(PlottingOptionsPrimaryVertex, self).__init__(config, "primaryvertex")
+        for name in "autoLimits", "doMaps", "stdResiduals":
+            self.general[name] = cppboolstring(self.general[name], name)
 
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {

@@ -2,7 +2,7 @@ import os
 import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
-from helperFunctions import replaceByMap, getCommandOutput2
+from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring
 from TkAlExceptions import AllInOneError
 
 
@@ -70,6 +70,10 @@ class GeometryComparison(GenericValidation):
             raise AllInOneError(msg)
         self.copyImages = copyImages
 
+        for name in "useDefaultRange", "plotOnlyGlobal", "plotPng":
+            self.general[name] = cppboolstring(self.general[name], name)
+
+
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
@@ -122,7 +126,7 @@ class GeometryComparison(GenericValidation):
         for common in self.__compares:
             repMap.update({
                            "levels": self.__compares[common][0],
-                           "dbOutput": self.__compares[common][1]
+                           "dbOutput": pythonboolstring(self.__compares[common][1], "dbOutput")
                            })
             if self.__compares[common][1].split()[0] == "true":
                 repMap["dbOutputService"] = configTemplates.dbOutputTemplate
