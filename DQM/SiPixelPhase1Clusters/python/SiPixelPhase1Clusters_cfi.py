@@ -181,12 +181,12 @@ SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
   xlabel = "Charge (electrons)",
   specs = VPSet(
     Specification(PerReadout).groupBy("PXBarrel/Shell/Sector").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save()
 
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
-                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
-                             .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
+    #Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
+    #                         .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
+    #Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
+    #                         .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
   )
 )
 
