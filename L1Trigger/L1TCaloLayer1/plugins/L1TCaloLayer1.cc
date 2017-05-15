@@ -81,10 +81,9 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   std::string hcalTPSourceLabel;
   
-  // towers ( x sides) x phi.  in case of hf no separation by side.
-  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > ecalLUT;
-  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > hcalLUT;
-  std::vector< std::vector< std::vector< uint32_t > > > hfLUT;
+  std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > ecalLUT;
+  std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > hcalLUT;
+  std::vector< std::array< std::array<uint32_t, nEtBins>, nHfEtaBins > > hfLUT;
 
   std::vector< unsigned int > ePhiMap;
   std::vector< unsigned int > hPhiMap;
@@ -312,10 +311,12 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
-    // towers ( x sides) x phi.  in case of hf no separation by side.
-    ecalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
-    hcalLUT.push_back(std::vector< std::vector< std::vector< uint32_t > > >(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256))));
-    hfLUT.push_back(std::vector< std::vector< uint32_t > >(12, std::vector< uint32_t >(256)));
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> eCalLayer1EtaSideEtArray;
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> hCalLayer1EtaSideEtArray;
+    std::array< std::array<uint32_t, nEtBins>, nHfEtaBins > hfLayer1EtaEtArray;
+    ecalLUT.push_back(eCalLayer1EtaSideEtArray);
+    hcalLUT.push_back(hCalLayer1EtaSideEtArray);
+    hfLUT.push_back(hfLayer1EtaEtArray);
   }
   for(uint32_t twr = 0; twr < twrList.size(); twr++) {
     // Map goes minus 1 .. 72 plus 1 .. 72 -> 0 .. 143
