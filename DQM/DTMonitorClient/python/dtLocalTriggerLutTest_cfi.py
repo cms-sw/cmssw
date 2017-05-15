@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 triggerLutTest = DQMEDHarvester("DTLocalTriggerLutTest",
     # prescale factor (in luminosity blocks) to perform client analysis
