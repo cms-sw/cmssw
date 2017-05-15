@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #
 # This object is used to make changes for different running scenarios
 #
 
 #Client:
-sipixelEDAClient = cms.EDProducer("SiPixelEDAClient",
+sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -33,9 +34,9 @@ sipixelQTesterHI = sipixelQTester.clone(
 )
 
 #DataCertification:
-sipixelDaqInfo = cms.EDProducer("SiPixelDaqInfo")
-sipixelDcsInfo = cms.EDProducer("SiPixelDcsInfo")
-sipixelCertification = cms.EDProducer("SiPixelCertification")
+sipixelDaqInfo = DQMEDHarvester("SiPixelDaqInfo")
+sipixelDcsInfo = DQMEDHarvester("SiPixelDcsInfo")
+sipixelCertification = DQMEDHarvester("SiPixelCertification")
 
 #Predefined Sequences:
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)

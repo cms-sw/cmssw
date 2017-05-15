@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dataIntegrityTest = cms.EDProducer("DTDataIntegrityTest",
+dataIntegrityTest = DQMEDHarvester("DTDataIntegrityTest",
                                    diagnosticPrescale = cms.untracked.int32(1)
 )
 

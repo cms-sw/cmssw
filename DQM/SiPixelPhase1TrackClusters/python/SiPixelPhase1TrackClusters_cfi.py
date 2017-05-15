@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
@@ -164,7 +165,7 @@ SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters"
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackClustersHarvester = cms.EDProducer("SiPixelPhase1Harvester",
+SiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )

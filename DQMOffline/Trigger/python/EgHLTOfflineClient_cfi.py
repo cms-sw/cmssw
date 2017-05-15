@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 
-egHLTOffDQMClient = cms.EDProducer("EgHLTOfflineClient",
+egHLTOffDQMClient = DQMEDHarvester("EgHLTOfflineClient",
                                  egHLTOffFiltersToMon,
                                  DQMDirName=cms.string("HLT/EgOffline"),
                                  hltTag = cms.string("HLT"),

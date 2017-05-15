@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-rpcDCSSummary = cms.EDProducer("RPCDCSSummary", 
+rpcDCSSummary = DQMEDHarvester("RPCDCSSummary", 
                                NumberOfEndcapDisks  = cms.untracked.int32(4),
                                )

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 import os
 import sys
@@ -94,33 +95,33 @@ process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = config.runNumber
 
-process.calotowersClient = cms.EDProducer("CaloTowersClient", 
+process.calotowersClient = DQMEDHarvester("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDProducer("NoiseRatesClient", 
+process.noiseratesClient = DQMEDHarvester("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDProducer("HcalRecHitsClient", 
+process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
 ##########
-process.calotowersDQMClient = cms.EDProducer("CaloTowersDQMClient",
+process.calotowersDQMClient = DQMEDHarvester("CaloTowersDQMClient",
       outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
 #     outputFile = cms.untracked.string(''),
       DQMDirName = cms.string("/") # root directory
 )
-process.hcalNoiseRatesClient = cms.EDProducer("HcalNoiseRatesClient", 
+process.hcalNoiseRatesClient = DQMEDHarvester("HcalNoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
 #     outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory
 )
-process.hcalRecHitsDQMClient = cms.EDProducer("HcalRecHitsDQMClient", 
+process.hcalRecHitsDQMClient = DQMEDHarvester("HcalRecHitsDQMClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
 #    outputFile = cms.untracked.string(''),
      DQMDirName = cms.string("/") # root directory

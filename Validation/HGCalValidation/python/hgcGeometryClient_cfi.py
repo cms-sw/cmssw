@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hgcalGeometryClient = cms.EDProducer("HGCalGeometryClient", 
+hgcalGeometryClient = DQMEDHarvester("HGCalGeometryClient", 
                                      DirectoryName = cms.string("Geometry"),
                                      )

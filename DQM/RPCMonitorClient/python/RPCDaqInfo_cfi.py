@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-rpcDaqInfo = cms.EDProducer("RPCDaqInfo",
+rpcDaqInfo = DQMEDHarvester("RPCDaqInfo",
                             NumberOfEndcapDisks  = cms.untracked.int32(4)
                             )
 

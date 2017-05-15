@@ -8,9 +8,10 @@
 #note: output and verbose must be disabled for integration,
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
-myMuonPostVal = cms.EDProducer("DQMGenericClient",
+myMuonPostVal = DQMEDHarvester("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), #set this to zero!
     outputFileName = cms.untracked.string(''),# set this to empty!
     #outputFileName= cms.untracked.string('MuonPostProcessor.root'),
@@ -23,7 +24,7 @@ myMuonPostVal = cms.EDProducer("DQMGenericClient",
 )
 
 
-myEgammaPostVal = cms.EDProducer("DQMGenericClient",
+myEgammaPostVal = DQMEDHarvester("DQMGenericClient",
     #outputFileName= cms.untracked.string('EgammaPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -33,7 +34,7 @@ myEgammaPostVal = cms.EDProducer("DQMGenericClient",
     )
 )
 
-myTauPostVal = cms.EDProducer("DQMGenericClient",
+myTauPostVal = DQMEDHarvester("DQMGenericClient",
     #outputFileName= cms.untracked.string('TauPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -44,7 +45,7 @@ myTauPostVal = cms.EDProducer("DQMGenericClient",
 )
 
 
-myTopPostVal = cms.EDProducer("DQMGenericClient",
+myTopPostVal = DQMEDHarvester("DQMGenericClient",
     #outputFileName= cms.untracked.string('TopPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    

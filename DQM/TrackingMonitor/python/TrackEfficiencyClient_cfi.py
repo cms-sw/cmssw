@@ -4,8 +4,9 @@
 #
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-TrackEffClient = cms.EDProducer("TrackEfficiencyClient",
+TrackEffClient = DQMEDHarvester("TrackEfficiencyClient",
   
     FolderName = cms.string('Track/Efficiencies'),
     AlgoName = cms.string('CTF'),
