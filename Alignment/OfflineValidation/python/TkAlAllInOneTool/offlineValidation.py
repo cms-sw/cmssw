@@ -2,7 +2,7 @@ import os
 import configTemplates
 import globalDictionaries
 from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
-from helperFunctions import replaceByMap, addIndex
+from helperFunctions import replaceByMap, addIndex, pythonboolstring
 from presentation import SubsectionFromList, SubsectionOnePage
 from TkAlExceptions import AllInOneError
 
@@ -30,6 +30,9 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
 
     def __init__(self, valName, alignment, config):
         super(OfflineValidation, self).__init__(valName, alignment, config)
+
+        for name in "offlineModuleLevelHistsTransient", "offlineModuleLevelProfiles", "stripYResiduals":
+            self.general[name] = pythonboolstring(self.general[name], name)
 
         for option in self.deprecateddefaults:
             if self.general[option]:

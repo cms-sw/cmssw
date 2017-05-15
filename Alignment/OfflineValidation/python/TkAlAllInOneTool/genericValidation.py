@@ -5,7 +5,7 @@ import json
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
-from helperFunctions import replaceByMap, addIndex, getCommandOutput2
+from helperFunctions import replaceByMap, addIndex, getCommandOutput2, boolfromstring, pythonboolstring
 from TkAlExceptions import AllInOneError
 
 class ValidationMetaClass(ABCMeta):
@@ -43,7 +43,7 @@ class GenericValidation(object):
                 "cmssw":        os.environ['CMSSW_BASE'],
                 "parallelJobs": "1",
                 "jobid":        "",
-                "needsproxy":   "0",
+                "needsproxy":   "false",
                }
     needpackages = {"Alignment/OfflineValidation"}
     optionals = {"jobmode"}
@@ -64,7 +64,7 @@ class GenericValidation(object):
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
         self.NJobs = int(self.general["parallelJobs"])
-        self.needsproxy = bool(int(self.general["needsproxy"]))
+        self.needsproxy = boolfromstring(self.general["needsproxy"], "needsproxy")
 
         # limit maximum number of parallel jobs to 40
         # (each output file is approximately 20MB)
@@ -386,6 +386,8 @@ class GenericValidationData(GenericValidation):
                 msg = "In section [%s:%s]: "%(self.valType, self.name)
                 msg += str( e )
                 raise AllInOneError( msg )
+
+        self.general["usepixelqualityflag"] = pythonboolstring(self.general["usepixelqualityflag"], "usepixelqualityflag")
 
     def getRepMap(self, alignment = None):
         result = super(GenericValidationData, self).getRepMap(alignment)

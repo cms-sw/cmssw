@@ -1,7 +1,7 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ValidationWithPlots
+from genericValidation import GenericValidationData, ValidationWithPlots, pythonboolstring
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
@@ -20,6 +20,9 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
     valType = "primaryvertex"
     def __init__(self, valName, alignment, config):
         super(PrimaryVertexValidation, self).__init__(valName, alignment, config)
+
+        for name in "doBPix", "doFPix":
+            self.general[name] = pythonboolstring(self.general[name], name)
 
         if self.general["pvvalidationreference"].startswith("/store"):
             self.general["pvvalidationreference"] = "root://eoscms//eos/cms" + self.general["pvvalidationreference"]
