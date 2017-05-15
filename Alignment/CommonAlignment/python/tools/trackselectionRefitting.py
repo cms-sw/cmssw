@@ -12,7 +12,7 @@ def getSequence(process, collection,
                 cosmicsZeroTesla = True,
                 momentumConstraint = None,
                 cosmicTrackSplitting = False,
-                used0cut = True):
+                use_d0cut = True):
     """This function returns a cms.Sequence containing as last element the
     module 'FinalTrackRefitter', which can be used as cms.InputTag for
     subsequent processing steps.
@@ -42,6 +42,7 @@ def getSequence(process, collection,
                             to provide here the name of the constraint module.
     - `cosmicTrackSplitting`: If set to 'True' cosmic tracks are split before the
                               second track refitter.
+    - `use_d0cut`: If 'True' (default), apply a cut |d0| < 50.
     """
 
     ###################################################
@@ -150,10 +151,7 @@ def getSequence(process, collection,
         if cosmicTrackSplitting:
             options["TrackSplitting"] = {}
             options["TrackSplitting"]["TrackSplitting"] = {}
-            #options["TrackFitter"]["HitFilteredTracks"].update({
-            #    "TrajectoryInEvent": True,
-            #    })
-        if not used0cut:
+        if not use_d0cut:
             options["TrackSelector"]["Alignment"].update({
                     "d0Min": -99999.0,
                     "d0Max": 99999.0,
@@ -237,7 +235,6 @@ def getSequence(process, collection,
     elif cosmicTrackSplitting:
         mods = [("TrackRefitter", "First", {"method": "load",
                                             "clone": True}),
-                #("TrackHitFilter", "Tracker", {"method": "load"}),
                 ("TrackSelector", "Alignment", {"method": "load"}),
                 ("TrackSplitting", "TrackSplitting", {"method": "load"}),
                 ("TrackFitter", "HitFilteredTracks", {"method": "import"}),
