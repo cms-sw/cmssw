@@ -43,7 +43,7 @@ process.p = cms.Path(
                     )
 
 #----------------------------------------
-process.post=DQMEDProducer("EmDQMPostProcessor",
+process.post=DQMEDHarvester("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
                             noPhiPlots = cms.untracked.bool(False),
