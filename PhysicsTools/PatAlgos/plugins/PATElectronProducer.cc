@@ -175,6 +175,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
   miniIsoParamsE_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsE");
   miniIsoParamsB_ = iConfig.getParameter<std::vector<double> >("miniIsoParamsB");
+  if(computeMiniIso_ && (miniIsoParamsE_.size() != 9 || miniIsoParamsB_.size() != 9)){
+      throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
+  }
   if(computeMiniIso_)
       pcToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
 
