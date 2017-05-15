@@ -108,23 +108,23 @@ void HGCalClusteringImpl::triggerCellReshuffling( const edm::PtrVector<l1t::HGCa
                                                   std::array< std::array<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>, kLayers_>,kNSides_> & reshuffledTriggerCells 
     ){
 
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc){
-        int endcap = (*tc)->zside() == -1 ? 0 : 1 ;
-        HGCalDetId tcDetId( (*tc)->detId() );
+    for( const auto& tc : triggerCellsPtrs ){
+        int endcap = tc->zside() == -1 ? 0 : 1 ;
+        HGCalDetId tcDetId( tc->detId() );
         int subdet = tcDetId.subdetId();
         int layer = -1;
         
         if( subdet == HGCEE ){ 
-            layer = (*tc)->layer();
+            layer = tc->layer();
         }
         else if( subdet == HGCHEF ){
-            layer = (*tc)->layer() + kLayersEE_;
+            layer = tc->layer() + kLayersEE_;
         }
         else if( subdet == HGCHEB ){
             edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented";            
         }
         
-        reshuffledTriggerCells[endcap][layer-1].emplace_back(*tc);
+        reshuffledTriggerCells[endcap][layer-1].emplace_back(tc);
         
     }
 
