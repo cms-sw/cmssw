@@ -921,6 +921,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		{
 			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
 			_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
+			_cMsnData_depthlike.fill(tid);
 			if (_ptype != fOffline) { // hidefed2crate
 				if (eid.isVMEid())
 					_cMsnData_ElectronicsVME.fill(eid);
