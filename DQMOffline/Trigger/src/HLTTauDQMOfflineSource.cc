@@ -64,10 +64,10 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
     if(hltMenuChanged) {
       // Find all paths to monitor
       std::vector<std::string> foundPaths;
-      boost::smatch what;
+      std::smatch what;
       LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
       for(const std::string& pathName: HLTCP_.triggerNames()) {
-        if(boost::regex_search(pathName, what, pathRegex_)) {
+        if(std::regex_search(pathName, what, pathRegex_)) {
           LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
           foundPaths.emplace_back(pathName);
         }
