@@ -87,6 +87,8 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if(mod.empty()) { continue; }
         DetId detId = mod.id();
 
+        //--The following will be used when we make a theshold for the clusters.
+        //--Keeping this for features that may be implemented later.
         // -- clusters on this det
         //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
         //int nClusterCount=0;
