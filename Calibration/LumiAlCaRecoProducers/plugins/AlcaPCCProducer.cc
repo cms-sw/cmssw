@@ -88,11 +88,11 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         DetId detId = mod.id();
 
         // -- clusters on this det
-        edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-        int nClusterCount=0;
-        for (di = mod.begin(); di != mod.end(); ++di) {
-            nClusterCount++;
-        }
+        //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
+        //int nClusterCount=0;
+        //for (di = mod.begin(); di != mod.end(); ++di) {
+        //    nClusterCount++;
+        //}
         int nCluster = mod.size();
         thePCCob->increment(detId(), bx, nCluster);
     }
