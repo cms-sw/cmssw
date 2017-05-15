@@ -159,3 +159,34 @@ def cache(function):
             return newfunction(*args, **kwargs)
     newfunction.__name__ = function.__name__
     return newfunction
+
+def boolfromstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool
+    """
+    #try as a string, not case sensitive
+    if string.lower() == "true": return True
+    if string.lower() == "false": return False
+    #try as a number
+    try:
+        return str(bool(int(string)))
+    except ValueError:
+        pass
+    #out of options
+    raise ValueError("{} has to be true or false!".format(name))
+    
+
+def pythonboolstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool string for a python template
+    """
+    return str(boolfromstring(string, name))
+
+def cppboolstring(string, name):
+    """
+    Takes a string from the configuration file
+    and makes it into a bool string for a C++ template
+    """
+    return pythonboolstring(string, name).lower()
