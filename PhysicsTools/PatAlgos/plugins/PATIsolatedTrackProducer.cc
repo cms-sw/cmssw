@@ -81,7 +81,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::StreamID stream, edm::Event& iE
         for(pat::PackedCandidateCollection::const_iterator pf_it2 = pc->begin(); pf_it2 != pc->end(); pf_it2++){
             if(pf_it == pf_it2)
                 continue;
-            int id = abs(pf_it2->pdgId());
+            int id = std::abs(pf_it2->pdgId());
             bool fromPV = (pf_it2->fromPV()>1 || fabs(pf_it2->dz()) < dZ_cut);
             float pt = pf_it2->p4().pt();
             float dr = deltaR(pf_it->p4(), pf_it2->p4());
@@ -97,7 +97,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::StreamID stream, edm::Event& iE
                 if(id==130)
                     nhiso += pt;
                 // photon iso
-                if(id==130)
+                if(id==22)
                     phiso += pt;
             }
             // same for mini isolation

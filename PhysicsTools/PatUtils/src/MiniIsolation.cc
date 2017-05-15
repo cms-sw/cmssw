@@ -12,7 +12,7 @@ namespace pat{
 // For nh, ph, pu, only include particles with pT > ptthresh
 // Some documentation can be found here: https://hypernews.cern.ch/HyperNews/CMS/get/susy/1991.html
 PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
-                                 const LorentzVector &p4, float mindr, float maxdr,
+                                 const math::XYZTLorentzVector &p4, float mindr, float maxdr,
                                  float kt_scale, float ptthresh, float deadcone_ch,
                                  float deadcone_pu, float deadcone_ph, float deadcone_nh,
                                  float dZ_cut)
@@ -20,14 +20,14 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
     
     float chiso=0, nhiso=0, phiso=0, puiso=0;
     float drcut = std::max(mindr, std::min(maxdr, float(kt_scale/p4.pt())));
-    for(pat::PackedCandidateCollection::const_iterator pf_it = pfcands->begin(); pf_it != pfcands->end(); pf_it++){
-        float dr = deltaR(p4, pf_it->p4());
+    for(auto const & pc : *pfcands){
+        float dr = deltaR(p4, pc.p4());
         if(dr>drcut)
             continue;
-        float pt = pf_it->p4().pt();
-        int id = pf_it->pdgId();
-        if(abs(id)==211){
-            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < dZ_cut);
+        float pt = pc.p4().pt();
+        int id = pc.pdgId();
+        if(std::abs(id)==211){
+            bool fromPV = (pc.fromPV()>1 || fabs(pc.dz()) < dZ_cut);
             if(fromPV && dr > deadcone_ch){
                 // if charged hadron and from primary vertex, add to charged hadron isolation
                 chiso += pt;
@@ -37,10 +37,10 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
             }
         }
         // if neutral hadron, add to neutral hadron isolation
-        if(abs(id)==130 && pt>ptthresh && dr>deadcone_nh)
+        if(std::abs(id)==130 && pt>ptthresh && dr>deadcone_nh)
             nhiso += pt;
         // if photon, add to photon isolation
-        if(abs(id)==22 && pt>ptthresh && dr>deadcone_ph)
+        if(std::abs(id)==22 && pt>ptthresh && dr>deadcone_ph)
             phiso += pt;
                 
     }
