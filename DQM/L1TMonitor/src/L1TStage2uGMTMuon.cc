@@ -3,13 +3,22 @@
 
 L1TStage2uGMTMuon::L1TStage2uGMTMuon(const edm::ParameterSet& ps)
     : ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
-      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      titlePrefix(ps.getUntrackedParameter<std::string>("titlePrefix", "")),
-      verbose(ps.getUntrackedParameter<bool>("verbose", false))
+      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
+      titlePrefix(ps.getUntrackedParameter<std::string>("titlePrefix")),
+      verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
 }
 
 L1TStage2uGMTMuon::~L1TStage2uGMTMuon() {}
+
+void L1TStage2uGMTMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muonProducer");
+  desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
+  desc.addUntracked<std::string>("titlePrefix", "")->setComment("Prefix text for the histogram titles.");
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("l1tStage2uGMTMuon", desc);
+}
 
 void L1TStage2uGMTMuon::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 

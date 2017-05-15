@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
@@ -18,6 +20,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
 
   L1TStage2RegionalMuonCandComp(const edm::ParameterSet& ps);
   virtual ~L1TStage2RegionalMuonCandComp();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
