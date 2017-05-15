@@ -234,6 +234,12 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
   {
     const auto &bl = configuration[idx];
 
+    edm::EventRange range = bl.validityRange;
+
+    // event id "1:min" has a special meaning and is translated to a truly minimal event id (1:0:0)
+    if (range.startEventID()==edm::EventID(1, 0, 1))
+      range = edm::EventRange(edm::EventID(1, 0, 0), range.endEventID());
+
     if (edm::contains(bl.validityRange, iosv.eventID()))
     {
       currentBlockValid = true;
