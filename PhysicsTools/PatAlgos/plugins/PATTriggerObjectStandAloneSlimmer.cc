@@ -66,18 +66,20 @@ void PATTriggerObjectStandAloneSlimmer::produce( edm::StreamID, edm::Event & iEv
 
     if (packFilterLabels_) {
         std::set<std::string> allLabels;
-        for (const auto & obj : *slimmed) {
-            for (const std::string & label : obj.filterLabels()) {
+        for (auto & obj : *slimmed) {
+	        obj.packFilterLabels();
+/*            for (const std::string & label : obj.filterLabels()) {
                 allLabels.insert(label);
-            }
+            }*/
         }
+/*
         auto newlabels = std::make_unique<std::vector<std::string>>();
         newlabels->reserve(allLabels.size());
         newlabels->insert(newlabels->end(), allLabels.begin(), allLabels.end());
         for (TriggerObjectStandAlone & obj : *slimmed) {
             obj.packFilterLabels(*newlabels);
         }
-        iEvent.put(std::move(newlabels), "filterLabels");
+        iEvent.put(std::move(newlabels), "filterLabels");*/
 
     }
     if (packP4_) {
