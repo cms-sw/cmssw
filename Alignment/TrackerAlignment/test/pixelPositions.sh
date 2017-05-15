@@ -13,26 +13,50 @@
 #PLOTMILLEPEDEDIR=
 CONFIG_TEMPLATE="$CMSSW_BASE/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 PLOTMILLEPEDEDIR="$CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
+if [[ ! -d ${CONFIG_TEMPLATE} ]]
+then
+    CONFIG_TEMPLATE="${CMSSW_RELEASE_BASE}/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
+fi
+if [[ ! -d ${PLOTMILLEPEDEDIR} ]]
+then
+    PLOTMILLEPEDEDIR="${CMSSW_RELEASE_BASE}/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
+fi
+
+if [[ ${#} -gt 0 ]]
+then
+    EXECUTION_DIR="${1}/"
+else
+    EXECUTION_DIR="$(pwd)/"
+fi
+
 echo Using template $CONFIG_TEMPLATE 
 echo and plotting macros from $PLOTMILLEPEDEDIR
+echo "Running in ${EXECUTION_DIR}"
 echo 
 
-RUN_NUMBERS=(273000)
+RUN_NUMBERS=(272011 273000)
 
 # First conditions to check
 # (if ALIGNMENT_TAG1 and DB_PATH_TAG1 are empty takes content from GLOBALTAG1)
 # also symbolic Global Tags are allowed
 GLOBALTAG1="auto:run2_data"
-#GLOBALTAG1="80X_dataRun2_Prompt_v8"
+# GLOBALTAG1="90X_dataRun2_Express_v4"
 ALIGNMENT_TAG1="TrackerAlignment_2009_v1_express"
 DB_PATH_TAG1="frontier://FrontierProd/CMS_CONDITIONS"
 
 # Second conditions to check
 # also symbolic Global Tags are allowed
 GLOBALTAG2="auto:run2_data"
-#GLOBALTAG2="80X_dataRun2_Prompt_v8"
+# GLOBALTAG2="90X_dataRun2_Express_v4"
 ALIGNMENT_TAG2="SiPixelAli_PCL_v0_prompt"
+# ALIGNMENT_TAG2="SiPixelAli_PCL_v0_p"
 DB_PATH_TAG2="frontier://FrontierPrep/CMS_CONDITIONS"
+
+if [[ ! -d ${EXECUTION_DIR} ]]
+then
+    mkdir ${EXECUTION_DIR}
+fi
+cd ${EXECUTION_DIR}
 
 for RUN in $RUN_NUMBERS ; do
     echo "============================================================"
@@ -80,10 +104,15 @@ EOF
 
     rm ${CONFIG1}_tmp* 
     cmsRun $CONFIG1
+    return_code=${?}
+    if [[ ${return_code} -ne 0 ]]
+    then
+	exit ${return_code}
+    fi
     rm remove_me.db
 
     if [ -e $TREEFILE2 ] ; then
-	echo "Removing old file " $TREEFILE2
+	echo "Removing old file" $TREEFILE2
 	rm $TREEFILE2
     fi
     sed -e "s/RUNNUMBER/${RUN}/g" $CONFIG_TEMPLATE > ${CONFIG2}_tmp 
@@ -110,10 +139,26 @@ EOF
 
     rm ${CONFIG2}_tmp*
     cmsRun $CONFIG2
+    return_code=${?}
+    if [[ ${return_code} -ne 0 ]]
+    then
+	exit ${return_code}
+    fi
     rm remove_me.db
 
     HEREIAM=$(pwd)
-    cd $PLOTMILLEPEDEDIR
+    PLOTDIR=${HEREIAM}/PixelBaryCentrePlottingTools
+    if [[ ! -d ${PLOTDIR} ]]
+    then
+       mkdir ${PLOTDIR}
+       cp -r $PLOTMILLEPEDEDIR/* ${PLOTDIR}
+    fi
+    cd ${PLOTDIR}
     root -b -q -l allMillePede.C "pixelPositionChange.C+(\"${HEREIAM}/$TREEFILE1\", \"${HEREIAM}/$TREEFILE2\")"
+    return_code=${?}
+    if [[ ${return_code} -ne 0 ]]
+    then
+	exit ${return_code}
+    fi
     cd $HEREIAM
 done
