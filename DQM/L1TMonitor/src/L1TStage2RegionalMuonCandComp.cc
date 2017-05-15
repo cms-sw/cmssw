@@ -4,16 +4,29 @@
 L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::ParameterSet& ps)
     : muonToken1(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("regionalMuonCollection1"))),
       muonToken2(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("regionalMuonCollection2"))),
-      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      muonColl1Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection1Title", "Regional muon collection 1")),
-      muonColl2Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection2Title", "Regional muon collection 2")),
-      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle", "Summary")),
-      ignoreBadTrkAddr(ps.getUntrackedParameter<bool>("ignoreBadTrackAddress", false)),
-      verbose(ps.getUntrackedParameter<bool>("verbose", false))
+      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
+      muonColl1Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection1Title")),
+      muonColl2Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection2Title")),
+      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle")),
+      ignoreBadTrkAddr(ps.getUntrackedParameter<bool>("ignoreBadTrackAddress")),
+      verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
 }
 
 L1TStage2RegionalMuonCandComp::~L1TStage2RegionalMuonCandComp() {}
+
+void L1TStage2RegionalMuonCandComp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("regionalMuonCollection1")->setComment("L1T RegionalMuonCand collection 1");
+  desc.add<edm::InputTag>("regionalMuonCollection2")->setComment("L1T RegionalMuonCand collection 2");
+  desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
+  desc.addUntracked<std::string>("regionalMuonCollection1Title", "Regional muon collection 1")->setComment("Histogram title for first collection.");
+  desc.addUntracked<std::string>("regionalMuonCollection2Title", "Regional muon collection 2")->setComment("Histogram title for second collection.");
+  desc.addUntracked<std::string>("summaryTitle", "Summary")->setComment("Title of summary histogram.");
+  desc.addUntracked<bool>("ignoreBadTrackAddress", false)->setComment("Ignore muon track address mismatches.");
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("l1tStage2RegionalMuonCandComp", desc);
+}
 
 void L1TStage2RegionalMuonCandComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 

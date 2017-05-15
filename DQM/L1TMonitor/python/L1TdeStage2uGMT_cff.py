@@ -2,16 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 # fills histograms with all uGMT emulated muons
 # uGMT input muon histograms from track finders are not filled since they are identical to the data DQM plots
-l1tStage2uGMTEmul = cms.EDAnalyzer(
-    "L1TStage2uGMT",
-    bmtfProducer = cms.InputTag("gmtStage2Digis", "BMTF"), # not used for emulator DQM
-    omtfProducer = cms.InputTag("gmtStage2Digis", "OMTF"), # not used for emulator DQM
-    emtfProducer = cms.InputTag("gmtStage2Digis", "EMTF"), # not used for emulator DQM
-    muonProducer = cms.InputTag("valGmtStage2Digis"),
-    monitorDir = cms.untracked.string("L1TEMU/L1TdeStage2uGMT"),
-    emulator = cms.untracked.bool(True),
-    verbose = cms.untracked.bool(False),
-)
+from DQM.L1TMonitor.L1TStage2uGMT_cfi import *
+l1tStage2uGMTEmul = l1tStage2uGMT.clone()
+l1tStage2uGMTEmul.muonProducer = cms.InputTag("valGmtStage2Digis")
+l1tStage2uGMTEmul.monitorDir = cms.untracked.string("L1TEMU/L1TdeStage2uGMT")
+l1tStage2uGMTEmul.emulator = cms.untracked.bool(True)
 
 # the uGMT intermediate muon DQM modules
 l1tStage2uGMTIntermediateBMTFEmul = cms.EDAnalyzer(
@@ -67,3 +62,13 @@ l1tdeStage2uGMT = cms.EDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# sequences
+l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(
+    l1tStage2uGMTEmul +
+    l1tStage2uGMTIntermediateBMTFEmul +
+    l1tStage2uGMTIntermediateOMTFNegEmul +
+    l1tStage2uGMTIntermediateOMTFPosEmul +
+    l1tStage2uGMTIntermediateEMTFNegEmul +
+    l1tStage2uGMTIntermediateEMTFPosEmul +
+    l1tdeStage2uGMT
+)
