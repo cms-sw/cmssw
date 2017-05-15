@@ -55,24 +55,12 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
-# zero suppression DQM module running before the fat event filter
-from DQM.L1TMonitor.L1TStage2uGMT_cfi import l1tStage2uGMTZeroSupp
-process.l1tStage2uGMTZeroSupp.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts")
-# customise path for zero suppression module analysing only fat events
-process.l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
-process.l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
-
 process.l1tMonitorPath = cms.Path(
     process.l1tStage2Unpack +
     process.l1tStage2OnlineDQM +
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2uGMTZeroSuppFatEvts +
-    process.l1tStage2uGMTMuonVsuGMTMuonCopy1 +
-    process.l1tStage2uGMTMuonVsuGMTMuonCopy2 +
-    process.l1tStage2uGMTMuonVsuGMTMuonCopy3 +
-    process.l1tStage2uGMTMuonVsuGMTMuonCopy4 +
-    process.l1tStage2uGMTMuonVsuGMTMuonCopy5
+    process.l1tStage2OnlineDQMValidationEvents
 )
 
 # Remove DQM Modules

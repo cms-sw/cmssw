@@ -2,32 +2,30 @@
 
 #include <sstream>
 
+const unsigned int L1TMP7ZeroSupp::maxMasks_ = 16;
 
 L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
     : fedDataToken_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawData"))),
-      zsEnabled_(ps.getUntrackedParameter<bool>("zsEnabled", true)),
+      zsEnabled_(ps.getUntrackedParameter<bool>("zsEnabled")),
       fedIds_(ps.getParameter<std::vector<int>>("fedIds")),
-      slinkHeaderSize_(ps.getUntrackedParameter<int>("lenSlinkHeader", 8)),
-      slinkTrailerSize_(ps.getUntrackedParameter<int>("lenSlinkTrailer", 8)),
-      amc13HeaderSize_(ps.getUntrackedParameter<int>("lenAMC13Header", 8)),
-      amc13TrailerSize_(ps.getUntrackedParameter<int>("lenAMC13Trailer", 8)),
-      amcHeaderSize_(ps.getUntrackedParameter<int>("lenAMCHeader", 8)),
-      amcTrailerSize_(ps.getUntrackedParameter<int>("lenAMCTrailer", 0)),
-      zsFlagMask_(ps.getUntrackedParameter<int>("zsFlagMask", 0x1)),
-      maxFedReadoutSize_(ps.getUntrackedParameter<int>("maxFEDReadoutSize", 10000)),
-      monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-      maxMasks_(16)
+      slinkHeaderSize_(ps.getUntrackedParameter<int>("lenSlinkHeader")),
+      slinkTrailerSize_(ps.getUntrackedParameter<int>("lenSlinkTrailer")),
+      amc13HeaderSize_(ps.getUntrackedParameter<int>("lenAMC13Header")),
+      amc13TrailerSize_(ps.getUntrackedParameter<int>("lenAMC13Trailer")),
+      amcHeaderSize_(ps.getUntrackedParameter<int>("lenAMCHeader")),
+      amcTrailerSize_(ps.getUntrackedParameter<int>("lenAMCTrailer")),
+      zsFlagMask_(ps.getUntrackedParameter<int>("zsFlagMask")),
+      maxFedReadoutSize_(ps.getUntrackedParameter<int>("maxFEDReadoutSize")),
+      monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir")),
+      verbose_(ps.getUntrackedParameter<bool>("verbose"))
 {
   std::vector<int> zeroMask(6, 0);
   masks_.reserve(maxMasks_);
-  std::stringstream ss;
   for (unsigned int i = 0; i < maxMasks_; ++i) {
-    ss.str("");
-    ss << "maskCapId" << i;
-    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(ss.str().c_str(), zeroMask));
+    std::string maskCapIdStr{"maskCapId"+std::to_string(i)};
+    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr.c_str(), zeroMask));
     // which masks are defined?
-    if (ps.exists(ss.str().c_str())) {
+    if (ps.exists(maskCapIdStr.c_str())) {
       definedMaskCapIds_.push_back(i);
     }
   }
@@ -45,6 +43,27 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
 }
 
 L1TMP7ZeroSupp::~L1TMP7ZeroSupp() {}
+
+void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawData");
+  desc.add<std::vector<int>>("fedIds")->setComment("FED ids to analyze.");
+  desc.addUntracked<bool>("zsEnabled", true)->setComment("MP7 zero suppression is enabled.");
+  desc.addUntracked<int>("lenSlinkHeader", 8)->setComment("Number of Slink header bytes.");
+  desc.addUntracked<int>("lenSlinkTrailer", 8)->setComment("Number of Slink trailer bytes.");
+  desc.addUntracked<int>("lenAMC13Header", 8)->setComment("Number of AMC13 header bytes.");
+  desc.addUntracked<int>("lenAMC13Trailer", 8)->setComment("Number of AMC13 trailer bytes.");
+  desc.addUntracked<int>("lenAMCHeader", 8)->setComment("Number of AMC header bytes.");
+  desc.addUntracked<int>("lenAMCTrailer", 0)->setComment("Number of AMC trailer bytes.");
+  desc.addUntracked<int>("zsFlagMask", 0x1)->setComment("Zero suppression flag mask.");
+  desc.addUntracked<int>("maxFEDReadoutSize", 10000)->setComment("Maximal FED readout size histogram x-axis value.");
+  for (unsigned int i = 0; i < maxMasks_; ++i) {
+    desc.addOptionalUntracked<std::vector<int>>(("maskCapId"+std::to_string(i)).c_str())->setComment(("ZS mask for caption id "+std::to_string(i)+".").c_str());
+  }
+  desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("l1tMP7ZeroSupp", desc);
+}
 
 void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
