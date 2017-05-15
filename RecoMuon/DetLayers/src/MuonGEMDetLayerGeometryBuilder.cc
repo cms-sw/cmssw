@@ -31,19 +31,19 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
       
     for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {      
-      for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
 
-	vector<int> rolls, rings, chambers; 
-	for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
-	for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++ )
-	  chambers.push_back(chamber);
-	for(int roll = GEMDetId::minRollId; roll <= GEMDetId::maxRollId; ++roll)
-	  rolls.push_back(roll);
+      vector<int> rolls, rings, chambers, layers;
+      // only need to make superChambers
+      for(int layer = GEMDetId::minLayerId; layer < 1; ++layer) layers.push_back(layer);
+      for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
+      for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++ )
+	chambers.push_back(chamber);
+      for(int roll = GEMDetId::minRollId; roll <= GEMDetId::maxRollId; ++roll)
+	rolls.push_back(roll);
 	
-	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
+      MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layers, chambers, rolls, geo);          
 
-	if (ringLayer) result[iendcap].push_back(ringLayer);
-      }
+      if (ringLayer) result[iendcap].push_back(ringLayer);
     }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
@@ -53,7 +53,7 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 
 MuRingForwardDoubleLayer* 
 MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int station,
-					   int layer,
+					   vector<int>& layers,
 					   vector<int>& chambers,
 					   vector<int>& rolls,
 					   const GEMGeometry& geo) {
@@ -65,12 +65,13 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 
   for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
 
-    for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
+    for (vector<int>::iterator layer = layers.begin(); layer!=layers.end(); layer++) {    
+      for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
 
       vector<const GeomDet*> frontDets, backDets;
       
       for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
-          GEMDetId gemId(endcap,(*ring), station,layer,(*chamber), (*roll));
+	GEMDetId gemId(endcap,(*ring), station,(*layer),(*chamber), (*roll));
 
  	  const GeomDet* geomDet = geo.idToDet(gemId);
 	  
@@ -105,7 +106,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
         LogTrace(metname) << "New back ring with " << backDets.size()
                           << " chambers at z="<< backRings.back()->position().z();
       }
-
+      }
     }
 
   }
