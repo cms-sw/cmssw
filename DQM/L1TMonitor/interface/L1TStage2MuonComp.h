@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 class L1TStage2MuonComp : public DQMEDAnalyzer {
@@ -18,6 +20,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
 
   L1TStage2MuonComp(const edm::ParameterSet& ps);
   virtual ~L1TStage2MuonComp();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
@@ -28,7 +31,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
 
  private:  
 
-  enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, PHIBAD, CHARGEBAD, CHARGEVALBAD, QUALBAD, ISOBAD, IDXBAD};
+  enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, PHIBAD, ETAATVTXBAD, PHIATVTXBAD, CHARGEBAD, CHARGEVALBAD, QUALBAD, ISOBAD, IDXBAD};
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken2;
@@ -45,6 +48,8 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   MonitorElement* muColl1hwPt;
   MonitorElement* muColl1hwEta;
   MonitorElement* muColl1hwPhi;
+  MonitorElement* muColl1hwEtaAtVtx;
+  MonitorElement* muColl1hwPhiAtVtx;
   MonitorElement* muColl1hwCharge;
   MonitorElement* muColl1hwChargeValid;
   MonitorElement* muColl1hwQual;
@@ -56,6 +61,8 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   MonitorElement* muColl2hwPt;
   MonitorElement* muColl2hwEta;
   MonitorElement* muColl2hwPhi;
+  MonitorElement* muColl2hwEtaAtVtx;
+  MonitorElement* muColl2hwPhiAtVtx;
   MonitorElement* muColl2hwCharge;
   MonitorElement* muColl2hwChargeValid;
   MonitorElement* muColl2hwQual;

@@ -23,6 +23,7 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").saveAll(),
     Specification().groupBy("PXForward/PXDisk").saveAll(),
+    StandardSpecification2DProfile
   )
 )
 
@@ -44,6 +45,7 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
  #                  .saveAll(),
  #   #StandardSpecificationInclusive_Num,
     StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
 
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    

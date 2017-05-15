@@ -8,6 +8,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         # 'Geometry/CMSCommonData/data/cms.xml',            # Phase-1 Muon
+        'Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml',
         'Geometry/CMSCommonData/data/cms/2023/v1/cms.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMother.xml',
@@ -209,17 +210,14 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
         'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
         'Geometry/MuonCommonData/data/design/muonYoke.xml',
-        # 'Geometry/MuonCommonData/data/mf/2015/v1/mf.xml',           # Phase-1 Muon
-        # 'Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml',         # Phase-1 Muon
         'Geometry/MuonCommonData/data/mf/2023/v1/mf.xml',        # Phase-2 Muon
-        'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',      # Phase-2 Muon
-        'Geometry/MuonCommonData/data/PhaseII/gemf.xml',      # Phase-2 Muon
-        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
-        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',    # Phase-2 Muon
+        'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml', # Phase-2 Muon
+        'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/gem21/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/csc/2015/v1/csc.xml',
-        # 'Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml',     # Phase-1 Muon
         'Geometry/MuonCommonData/data/mfshield/2023/v1/mfshield.xml',  # Phase-2 Muon
-        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/me0.xml',   # Phase-2 Muon
+        'Geometry/MuonCommonData/data/me0/TDR_BaseLine/me0.xml',  # Phase-2 Muon
         # --- Muon ------------------------------------------------------------
 
         'Geometry/ForwardCommonData/data/forward.xml',
@@ -252,8 +250,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalSimData/data/hffibrebundle.xml',
 
         # --- Muon ------------------------------------------------------------
-        # 'Geometry/MuonCommonData/data/muonNumbering/2015/v1/muonNumbering.xml',    # Phase-1 Muon
-        'Geometry/MuonCommonData/data/PhaseII/muonNumbering.xml', # Phase-2 Muon
+        'Geometry/MuonCommonData/data/muonNumbering/TP_BaseLine/muonNumbering.xml', # Phase-2 Muon
         # 'Geometry/MuonSimData/data/muonSens.xml',               # Phase-1 Muon
         'Geometry/MuonSimData/data/PhaseII/muonSens.xml',         # Phase-2 Muon
         'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',

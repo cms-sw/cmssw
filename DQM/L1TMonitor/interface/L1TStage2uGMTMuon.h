@@ -10,7 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class L1TStage2uGMTMuon : public DQMEDAnalyzer {
 
@@ -18,6 +19,7 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
 
   L1TStage2uGMTMuon(const edm::ParameterSet& ps);
   virtual ~L1TStage2uGMTMuon();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
 
@@ -38,6 +40,8 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonhwPt;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
+  MonitorElement* ugmtMuonhwEtaAtVtx;
+  MonitorElement* ugmtMuonhwPhiAtVtx;
   MonitorElement* ugmtMuonhwCharge;
   MonitorElement* ugmtMuonhwChargeValid;
   MonitorElement* ugmtMuonhwQual;
@@ -45,15 +49,22 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonPt;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
+  MonitorElement* ugmtMuonEtaAtVtx;
+  MonitorElement* ugmtMuonPhiAtVtx;
   MonitorElement* ugmtMuonCharge;
 
   MonitorElement* ugmtMuonPtvsEta;
   MonitorElement* ugmtMuonPtvsPhi;
   MonitorElement* ugmtMuonPhivsEta;
+  MonitorElement* ugmtMuonPtvsEtaAtVtx;
+  MonitorElement* ugmtMuonPtvsPhiAtVtx;
+  MonitorElement* ugmtMuonPhiAtVtxvsEtaAtVtx;
 
   MonitorElement* ugmtMuonBXvshwPt;
   MonitorElement* ugmtMuonBXvshwEta;
   MonitorElement* ugmtMuonBXvshwPhi;
+  MonitorElement* ugmtMuonBXvshwEtaAtVtx;
+  MonitorElement* ugmtMuonBXvshwPhiAtVtx;
   MonitorElement* ugmtMuonBXvshwCharge;
   MonitorElement* ugmtMuonBXvshwChargeValid;
   MonitorElement* ugmtMuonBXvshwQual;

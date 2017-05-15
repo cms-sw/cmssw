@@ -198,6 +198,19 @@ namespace cond {
       }
       return ret;
     }
+
+    template <> inline cond::Hash Session::storePayload<std::string>( const std::string& payload, const boost::posix_time::ptime& creationTime ){
+
+      std::string payloadObjectType("std::string");
+      cond::Hash ret;
+      try{
+        ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime );
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+        throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload");
+      }
+      return ret;
+    }
     
     template <typename T> inline std::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
       cond::Binary payloadData;

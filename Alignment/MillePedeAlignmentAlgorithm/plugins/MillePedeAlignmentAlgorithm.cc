@@ -1179,8 +1179,8 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable*> &alis) const
 {
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    AlignmentParameters *params = (*iAli)->alignmentParameters();
+  for (const auto& iAli: alis) {
+    AlignmentParameters *params = iAli->alignmentParameters();
     if (!params) {
       throw cms::Exception("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::buildUserVariables"
                                         << "No parameters for alignable";
@@ -1195,7 +1195,8 @@ void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable
         //std::cout << "\nAfter: " << userVars->parameter()[iPar] << std::endl;
       }
     } else { // Nothing yet or erase wrong type:
-      userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(*iAli));
+      userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(iAli),
+                                        thePedeLabels->alignableTracker()->objectIdProvider().typeToName(iAli->alignableObjectId()));
       params->setUserVariables(userVars);
     }
   }
