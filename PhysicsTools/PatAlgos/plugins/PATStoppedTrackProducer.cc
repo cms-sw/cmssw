@@ -201,7 +201,7 @@ void pat::PATStoppedTrackProducer::GetIsolation(LorentzVector p4,
         for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
             if(pf_it - pc->begin() == pc_idx)  //don't count itself
                 continue;
-            int id = abs(pf_it->pdgId());
+            int id = std::abs(pf_it->pdgId());
             bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < dZ_cut);
             float pt = pf_it->p4().pt();
             float dr = deltaR(p4, pf_it->p4());
@@ -217,7 +217,7 @@ void pat::PATStoppedTrackProducer::GetIsolation(LorentzVector p4,
                 if(id==130)
                     nhiso += pt;
                 // photon iso
-                if(id==130)
+                if(id==22)
                     phiso += pt;
             }
             // same for mini isolation
