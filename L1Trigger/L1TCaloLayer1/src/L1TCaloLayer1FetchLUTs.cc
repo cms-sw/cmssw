@@ -24,10 +24,12 @@
 #include "L1TCaloLayer1FetchLUTs.hh"
 #include "UCTLogging.hh"
 
+using namespace l1tcalo;
+
 bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup, 
-			    std::vector< std::vector< std::vector< std::vector < uint32_t > > > > &eLUT,
-			    std::vector< std::vector< std::vector< std::vector < uint32_t > > > > &hLUT,
-                            std::vector< std::vector< std::vector< uint32_t > > > &hfLUT,
+			    std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > &eLUT,
+			    std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > &hLUT,
+                            std::vector< std::array< std::array<uint32_t, nEtBins>, nHfEtaBins > > &hfLUT,
                             std::vector<unsigned int> &ePhiMap,
                             std::vector<unsigned int> &hPhiMap,
                             std::vector<unsigned int> &hfPhiMap,
@@ -149,10 +151,10 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make ECal LUT
   for(uint32_t phiBin=0; phiBin<numEcalPhiBins; phiBin++) {
-    std::vector< std::vector< std::vector< uint32_t > > > phiLUT(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256)));
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT; 
     eLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 28; etaBin++) {
-      for(uint32_t fb = 0; fb < 2; fb++) {
+    for(uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
+      for(uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for(uint32_t ecalInput = 0; ecalInput <= 0xFF; ecalInput++) {
 	  uint32_t value = ecalInput;
 	  if(useECALLUT) {
@@ -189,9 +191,9 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make HCal LUT
   for(uint32_t phiBin=0; phiBin<numHcalPhiBins; phiBin++) {
-    std::vector< std::vector< std::vector< uint32_t > > > phiLUT(28, std::vector< std::vector< uint32_t > >(2, std::vector< uint32_t >(256)));
+    std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT; 
     hLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 28; etaBin++) {
+    for(uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       int caloEta = etaBin+1;
       int iPhi = 3;
       auto pos = std::find(hcalScalePhiBins.begin(), hcalScalePhiBins.end(), phiBin);
@@ -206,7 +208,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           iPhi = (index-18)*4+1;
         }
       }
-      for(uint32_t fb = 0; fb < 2; fb++) {
+      for(uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for(uint32_t hcalInput = 0; hcalInput <= 0xFF; hcalInput++) {
           uint32_t value = hcalInput;
           if(useHCALLUT) {
@@ -244,9 +246,9 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // Make HF LUT
   for(uint32_t phiBin=0; phiBin<numHFPhiBins; phiBin++) {
-    std::vector< std::vector< uint32_t > > phiLUT(12, std::vector< uint32_t >(256));
+    std::array< std::array<uint32_t, nEtBins>, nHfEtaBins> phiLUT; 
     hfLUT.push_back(phiLUT);
-    for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
+    for(uint32_t etaBin = 0; etaBin < nHfEtaBins; etaBin++) {
       int caloEta = etaBin+30;
       int iPhi = 3;
       auto pos = std::find(hfScalePhiBins.begin(), hfScalePhiBins.end(), phiBin);
@@ -261,7 +263,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
         }
         if (iPhi < 0) iPhi = 71;
       }
-      for(uint32_t etCode = 0; etCode < 256; etCode++) {
+      for(uint32_t etCode = 0; etCode < nEtBins; etCode++) {
         uint32_t value = etCode;
         if(useHFLUT) {
           
