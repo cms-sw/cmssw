@@ -29,8 +29,8 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = "L1T2016EMU"
-process.dqmSaver.tag = "L1T2016EMU"
+process.dqmEnv.subSystemFolder = "L1TEMU"
+process.dqmSaver.tag = "L1TEMU"
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
 
 process.dqmEndPath = cms.EndPath(
@@ -65,11 +65,14 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2Emulator_cff")
 
 process.l1tEmulatorMonitorPath = cms.Path(
-    process.hltFatEventFilter +
-#    process.selfFatEventFilter +
     process.l1tStage2Unpack  +
     process.Stage2L1HardwareValidation +
-    process.l1tStage2EmulatorOnlineDQM 
+    process.l1tStage2EmulatorOnlineDQM +
+    process.hltFatEventFilter +
+#    process.selfFatEventFilter +
+    process.l1tStage2UnpackValidationEvents  +
+    process.Stage2L1HardwareValidationForValidationEvents +
+    process.l1tStage2EmulatorOnlineDQMValidationEvents
     )
 
 # To get L1 conditions that are not in GlobalTag / O2O yet

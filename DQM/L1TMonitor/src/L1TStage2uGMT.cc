@@ -3,9 +3,9 @@
 
 L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
     : ugmtMuonToken(consumes<l1t::MuonBxCollection>(ps.getParameter<edm::InputTag>("muonProducer"))),
-      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      emul(ps.getUntrackedParameter<bool>("emulator", false)),
-      verbose(ps.getUntrackedParameter<bool>("verbose", false))
+      monitorDir(ps.getUntrackedParameter<std::string>("monitorDir")),
+      emul(ps.getUntrackedParameter<bool>("emulator")),
+      verbose(ps.getUntrackedParameter<bool>("verbose"))
 {
   if (!emul) {
     ugmtBMTFToken = consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfProducer"));
@@ -15,6 +15,18 @@ L1TStage2uGMT::L1TStage2uGMT(const edm::ParameterSet& ps)
 }
 
 L1TStage2uGMT::~L1TStage2uGMT() {}
+
+void L1TStage2uGMT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muonProducer")->setComment("uGMT output muons.");;
+  desc.add<edm::InputTag>("bmtfProducer")->setComment("RegionalMuonCands from BMTF.");
+  desc.add<edm::InputTag>("omtfProducer")->setComment("RegionalMuonCands from OMTF.");
+  desc.add<edm::InputTag>("emtfProducer")->setComment("RegionalMuonCands from EMTF.");
+  desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
+  desc.addUntracked<bool>("emulator", false)->setComment("Create histograms for muonProducer input only. xmtfProducer inputs are ignored.");
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("l1tStage2uGMT", desc);
+}
 
 void L1TStage2uGMT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
