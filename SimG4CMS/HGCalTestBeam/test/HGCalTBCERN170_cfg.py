@@ -110,6 +110,13 @@ process.HGCalTBAnalyzer.UseBH     = True
 process.HGCalTBAnalyzer.UseBeam   = True
 process.HGCalTBAnalyzer.ZFrontEE  = 1110.0
 process.HGCalTBAnalyzer.ZFrontFH  = 1148.3
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+		HGCPassive = cms.PSet(
+			LVNames = cms.untracked.vstring('HGCalEE','HGCalHE','HGCalAH')
+			),
+		type = cms.string('HGCPassive'),
+		)
+				       )
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
