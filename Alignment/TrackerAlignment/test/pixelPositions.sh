@@ -38,17 +38,17 @@ for RUN in $RUN_NUMBERS ; do
     echo "============================================================"
     echo " Run $RUN: $GLOBALTAG1 / $ALIGNMENT_TAG1 (=1) vs $GLOBALTAG2 / $ALIGNMENT_TAG2 (=2)" 
     echo "============================================================"
-    CONFIG1=alignment_forGeomComp_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r$RUN.py
-    TREEFILE1=treeFile_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r${RUN}.root
+    CONFIG1=alignment_forGeomComp_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r${RUN}_1.py
+    TREEFILE1=treeFile_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r${RUN}_1.root
     TREEFILE1=`echo ${TREEFILE1//"auto:"/"auto_"}`
-    LOGFILE1=alignment_${GLOBALTAG1}_${ALIGNMENT_TAG1}r${RUN}
+    LOGFILE1=alignment_${GLOBALTAG1}_${ALIGNMENT_TAG1}r${RUN}_1
     LOGFILE1=`echo ${LOGFILE1//"auto:"/"auto_"}`
     #echo $TREEFILE1 $LOGFILE1
 
-    CONFIG2=alignment_forGeomComp_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r$RUN.py
-    TREEFILE2=treeFile_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r${RUN}.root
+    CONFIG2=alignment_forGeomComp_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r${RUN}_2.py
+    TREEFILE2=treeFile_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r${RUN}_2.root
     TREEFILE2=`echo ${TREEFILE2//"auto:"/"auto_"}`
-    LOGFILE2=alignment_${GLOBALTAG2}_${ALIGNMENT_TAG2}r${RUN}
+    LOGFILE2=alignment_${GLOBALTAG2}_${ALIGNMENT_TAG2}r${RUN}_2
     LOGFILE2=`echo ${LOGFILE2//"auto:"/"auto_"}`
     #echo $TREEFILE2 $LOGFILE2
 
