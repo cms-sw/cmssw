@@ -17,7 +17,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathSummaryPlotter.h"
 
-#include <boost/regex.hpp>
+#include <regex>
 
 //
 // class declaration
@@ -41,7 +41,7 @@ private:
     edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
 
     // For path plotters
-    const boost::regex pathRegex_;
+    const std::regex pathRegex_;
     const int nPtBins_, nEtaBins_, nPhiBins_;
     const double ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_;
     const std::string dqmBaseFolder_;
