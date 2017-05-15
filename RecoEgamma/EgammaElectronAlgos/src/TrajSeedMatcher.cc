@@ -18,6 +18,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
+constexpr float TrajSeedMatcher::kElectronMass_;
+
 TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset):
   cacheIDMagField_(0),
   minNrHits_(pset.getParameter<std::vector<unsigned int> >("minNrHits")),
