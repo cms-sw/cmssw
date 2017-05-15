@@ -4,19 +4,18 @@ process = cms.Process("BSworkflow")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      #"/store/express/Run2015A/StreamExpress/ALCARECO/TkAlMinBias-Express-v1/000/246/959/00000/14174DF2-490A-E511-9862-02163E0143E9.root",
-	  '/store/data/Run2016G/ZeroBias/ALCARECO/TkAlMinBias-PromptReco-v1/000/278/822/00000/0846B306-6F64-E611-A280-02163E011C84.root'
+      "/store/express/Run2015A/StreamExpress/ALCARECO/TkAlMinBias-Express-v1/000/246/959/00000/14174DF2-490A-E511-9862-02163E0143E9.root",
     )
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(1000),
+    reportEvery = cms.untracked.int32(10000),
 )
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1) 
 )
 
 process.options = cms.untracked.PSet(
@@ -57,7 +56,7 @@ process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayers
 process.load("RecoVertex.BeamSpotProducer.d0_phi_analyzer_cff")
 
 process.d0_phi_analyzer.BeamFitter.WriteAscii                = True
-process.d0_phi_analyzer.BeamFitter.AsciiFileName             = 'BeamFit_NewAlignWorkflow_alcareco_TEST.txt'
+process.d0_phi_analyzer.BeamFitter.AsciiFileName             = 'BeamFit_LumiBased_NewAlignWorkflow_alcareco.txt'
 process.d0_phi_analyzer.BeamFitter.AppendRunToFileName       = False
 process.d0_phi_analyzer.BeamFitter.InputBeamWidth            = -1
 process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter    = 1.0
@@ -66,7 +65,7 @@ process.d0_phi_analyzer.BeamFitter.MinimumInputTracks        = 50
 process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers        = -1
 process.d0_phi_analyzer.BeamFitter.MinimumPt                 = 1.0
 process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers        = 6
-process.d0_phi_analyzer.BeamFitter.OutputFileName            = 'BeamFit_NewAlignWorkflow_alcareco_TEST.root'
+process.d0_phi_analyzer.BeamFitter.OutputFileName            = 'BeamFit_LumiBased_Workflow_alcareco.root' 
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm            = cms.untracked.vstring()
 process.d0_phi_analyzer.BeamFitter.TrackCollection           = 'TrackRefitter'
 process.d0_phi_analyzer.BeamFitter.SaveFitResults            = True
@@ -82,7 +81,7 @@ process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi   = 1
 process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 1
 
 
-process.p = cms.Path(#process.offlineBeamSpot                        +
-                     #process.TrackRefitter                          +
-                     #process.offlinePrimaryVerticesFromRefittedTrks +
+process.p = cms.Path(process.offlineBeamSpot                        + 
+                     process.TrackRefitter                          + 
+                     process.offlinePrimaryVerticesFromRefittedTrks +
                      process.d0_phi_analyzer)
