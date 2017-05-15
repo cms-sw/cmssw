@@ -2,13 +2,10 @@
 #define PhysicsTools_PatUtils_PFIsolation_h
 
 /*
-
-  Defines a MiniIsolation struct and a function to
-  compute MiniIsolation given a 4-vector and a collection
-  of packed PF candidates
+  Defines a function to compute MiniIsolation given a 4-vector and a collection
+  of packed PF candidates.
 
   Mini-Isolation reference: https://hypernews.cern.ch/HyperNews/CMS/get/susy/1991.html
-    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
