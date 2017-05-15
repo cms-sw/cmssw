@@ -530,7 +530,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   
   bool first = true;
   unsigned int n=0;
-  for (auto p : readoutLCTs()) {
+  for (const auto& p : readoutLCTs()) {
     if (debug_gem_matching and first){
       std::cout << "========================================================================" << std::endl;
       std::cout << "Counting the final LCTs" << std::endl;
@@ -977,8 +977,8 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
 void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
   auto superChamber(gem_g->superChamber(id));
-  for (auto ch : superChamber->chambers()) {
-    for (auto roll : ch->etaPartitions()) {
+  for (const auto& ch : superChamber->chambers()) {
+    for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
@@ -994,7 +994,7 @@ void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
 
 void CSCMotherboardME21GEM::retrieveGEMCoPads()
 {
-  for (auto copad: gemCoPadV){
+  for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.first()));  
     coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.second()));  
@@ -1021,7 +1021,7 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
     if (!iscopad) std::cout << "N(pads) BX " << bx << " : " << in_pads.size() << std::endl;
     else          std::cout << "N(copads) BX " << bx << " : " << in_pads.size() << std::endl;
     if (hasPads){
-      for (auto pad : in_pads){
+      for (const auto& pad : in_pads){
 	if (DetId(pad.first).subdetId() != MuonSubdetId::GEM or DetId(pad.first).det() != DetId::Muon) {
 	  continue;
 	}
