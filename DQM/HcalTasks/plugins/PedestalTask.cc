@@ -173,7 +173,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cOccupancyEAvsLS_Subdet.initialize(_name, "OccupancyEAvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
 	_cNBadMeanvsLS_Subdet.initialize(_name, "NBadMeanvsLS", 
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),

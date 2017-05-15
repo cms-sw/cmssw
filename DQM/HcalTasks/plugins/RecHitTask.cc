@@ -97,7 +97,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
 
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fdepth,
@@ -164,7 +164,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
 	}
 
 	// FED-based plots
