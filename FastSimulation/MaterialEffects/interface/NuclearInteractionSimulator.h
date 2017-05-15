@@ -78,7 +78,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   std::vector<double> theLengthRatio;
   std::vector< std::vector<double> > theRatios;
 
-  std::vector< std::vector<TFile*> > theFiles;
+  TFile* theFile;
   std::vector< std::vector<TTree*> > theTrees;
   std::vector< std::vector<TBranch*> > theBranches;
   std::vector< std::vector<NUEvent*> > theNUEvents;
