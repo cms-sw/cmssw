@@ -235,12 +235,12 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
         auto index = std::distance(hfScalePhiBins.begin(),pos);
         if (index<18) {
           caloEta*=-1;
-          iPhi = index*4+1;
+          iPhi = index*4-1;
         }
         else {
-          iPhi = (index-18)*4+1;
+          iPhi = (index-18)*4-1;
         }
-        if (abs(caloEta) == 41 && iPhi<3) iPhi = 3;
+        if (iPhi < 0) iPhi = 71;
       }
       for(uint32_t etCode = 0; etCode < 256; etCode++) {
         uint32_t value = etCode;
