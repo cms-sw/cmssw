@@ -1,4 +1,3 @@
-
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +59,7 @@ void Phase2StripCPE::fillParam() {
        if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_off) m_off = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
      }
    }
-   LogDebug("LookingForFirstPahse2OT") << " Chosen offset: " << m_off;
+   LogDebug("LookingForFirstPhase2OT") << " Chosen offset: " << m_off;
 
    m_Params.resize(dus.size()-m_off);
    // very very minimal, for sure it will need to expand...
