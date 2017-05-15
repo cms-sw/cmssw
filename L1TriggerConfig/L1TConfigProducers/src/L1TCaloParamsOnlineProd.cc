@@ -34,10 +34,6 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "layer1ECalScaleETBins",
     "layer1HCalScaleETBins",
     "layer1HFScaleETBins"
-    // Optional params
-    //"layer1ECalScalePhiBins",
-    //"layer1HCalScalePhiBins",
-    //"layer1HFScalePhiBins"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -136,9 +132,6 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   }
 
   paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
-  //paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
-  //paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
-  //paramsHelper.setEtSumXPUSLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
