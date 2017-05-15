@@ -24,6 +24,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -46,7 +47,7 @@ class GEMHitAssociator {
    // Destructor
    ~GEMHitAssociator(){}
 
-   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit) const;
+   std::vector<SimHitIdpr> associateRecHit(const GEMRecHit * gemrechit) const;
 
  private:
     
