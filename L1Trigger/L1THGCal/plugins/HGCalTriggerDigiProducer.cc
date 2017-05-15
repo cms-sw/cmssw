@@ -13,7 +13,6 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendProcessor.h"
 
-#include <sstream>
 #include <memory>
 
 class HGCalTriggerDigiProducer : public edm::stream::EDProducer<> {  
@@ -94,19 +93,13 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // loop on modules containing hits and call front-end processing
   // we produce one output trigger digi per module in the FE
   fe_output->reserve(hit_modules_ee.size() + hit_modules_fh.size());
-  std::stringstream output;
   for( const auto& module_hits : hit_modules_ee ) {        
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(module_hits.second,HGCHEDigiCollection(),HGCHEDigiCollection());
     codec_->encode(digi);
     digi.setDetId( DetId(module_hits.first) );
-    codec_->print(digi,output);
-    edm::LogInfo("HGCalTriggerDigiProducer")
-      << output.str();
     codec_->unSetDataPayload(); 
-    output.str(std::string());
-    output.clear();
   } //end loop on EE modules
   for( const auto& module_hits : hit_modules_fh ) {        
     fe_output->push_back(l1t::HGCFETriggerDigi());
@@ -114,12 +107,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     codec_->setDataPayload(HGCEEDigiCollection(),module_hits.second,HGCHEDigiCollection());
     codec_->encode(digi);
     digi.setDetId( DetId(module_hits.first) );
-    codec_->print(digi,output);
-    edm::LogInfo("HGCalTriggerDigiProducer")
-      << output.str();
     codec_->unSetDataPayload();
-    output.str(std::string());
-    output.clear();
   } //end loop on FH modules
 
 
