@@ -274,9 +274,10 @@ bool TriggerObjectStandAlone::checkIfPathsAreUnpacked(bool throwIfPacked) const 
    if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger path names. Before accessing path names you must call unpackPathNames with an edm::TriggerNames object. You can get the latter from the edm::Event or fwlite::Event and the TriggerResults\n");
    return unpacked;
 }
-bool TriggerObjectStandAlone::checkIfFiltersAreUnpacked(bool throwIfPacked) const {
+bool TriggerObjectStandAlone::checkIfFiltersAreUnpacked(bool unpack) const {
    bool unpacked = filterLabelIndices_.empty();
-   if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger filter labels. Before accessing filter labels you must call unpackFilterLabels with the proper std::vector<std::string> object from the event.\n");
+   if(!unpacked and unpack) { unpackFilterLabels();   return true;}
+   //if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger filter labels. Before accessing filter labels you must call unpackFilterLabels with the proper std::vector<std::string> object from the event.\n");
    return unpacked;
 }
 
@@ -327,7 +328,7 @@ void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) {
     pathNames_.swap(paths);
 }
 
-void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &names) {
+void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &names) const {
     if (!filterLabelIndices_.empty()) {
         throw cms::Exception("RuntimeError", "Error, trying to pack filter labels for an already packed TriggerObjectStandAlone");
     }
@@ -343,7 +344,7 @@ void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &n
         } else {
             unmatched.push_back(std::move(filterLabels_[i]));
             static std::atomic<int> _warn(0);
-            if (++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index" << std::endl;
+            edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index" << std::endl;
         }
     }
     std::sort(indices.begin(), indices.end()); // try reduce enthropy
@@ -351,7 +352,11 @@ void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &n
     filterLabels_.swap(unmatched);
 }
 
-void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> &labels) {
+void TriggerObjectStandAlone::unpackFilterLabels() const {
+  unpackFilterLabels(*allLabels(psetId_));
+}
+
+void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> &labels) const {
     if (filterLabelIndices_.empty()) return;
 
     std::vector<std::string> mylabels(filterLabels_);
@@ -381,25 +386,31 @@ namespace {
   [[cms::thread_safe]] static AllLabelsMap allLabelsMap;
 }
 
-
-std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::TriggerResults const& triggerResults,
+/*std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::TriggerResults const& triggerResults,
 						edm::ProcessHistory const &history,std::string const& processName) {
+triggerResults.parameterSetID()
+}*/
+
+std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid) const{
 
       // If TriggerNames was already created and cached here in the map,
       // then look it up and return that one
       AllLabelsMap::const_iterator iter =
-         allLabelsMap.find(triggerResults.parameterSetID());
+         allLabelsMap.find(psetid);
       if (iter != allLabelsMap.end()) {
          return &iter->second;
       }
 
       // Look for the parameter set containing the trigger names in the parameter
       // set registry using the ID from TriggerResults as the key used to find it.
+    //  edm::ProcessConfiguration config;
+     // history.getConfigurationForProcess(processName,config); 
+	
+      //if (0!=(pset=psetRegistry->getMapped(config.parameterSetID()))) {
+
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
       edm::ParameterSet const* pset=0;
-      edm::ProcessConfiguration config;
-      history.getConfigurationForProcess(processName,config); 	
-      if (0!=(pset=psetRegistry->getMapped(config.parameterSetID()))) {
+      if (0!=(pset=psetRegistry->getMapped(psetid ))) {
    	using namespace std;
 	using namespace edm;
    	using namespace trigger;
@@ -407,31 +418,28 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Trigger
    	const ParameterSet& HLTPSet(pset->getParameterSet("@trigger_paths"));
    	auto   triggerNames= HLTPSet.getParameter<vector<string> >("@trigger_paths");
 
-   	const unsigned int n(triggerNames.size());
-   	std::vector<std::string> allModules;
+ 	const unsigned int n(triggerNames.size());
+	std::set<std::string> saveTags;
    	for (unsigned int i=0;i!=n; ++i) {
-     	if (pset->existsAs<vector<string> >(triggerNames[i],true)) {
+     	    if (pset->existsAs<vector<string> >(triggerNames[i],true)) {
        		auto modules = pset->getParameter<vector<string> >(triggerNames[i]);
-       		allModules.insert(allModules.end(), modules.begin(), modules.end());
+		for(size_t m=0; m < modules.size(); m++){
+		    auto module=modules[m];
+		    auto moduleStrip=module.front()!='-' ? module : module.substr(1);
+ 
+		    if (pset->exists(moduleStrip)) {
+			auto modulePSet= pset->getParameterSet(moduleStrip);
+			if (modulePSet.existsAs<bool>("saveTags",true) and 
+			    modulePSet.getParameter<bool>("saveTags") ) {
+			    saveTags.insert(module);
+			}
+		    }	
+		}
      	    }
    	}
-   /*
-   saveTagsModules_.reserve(n);
-   vector<string> labels;
-   for (unsigned int i=0;i!=n; ++i) {
-     labels.clear();
-     const vector<string>& modules(moduleLabels(i));
-     const unsigned int m(modules.size());
-     labels.reserve(m);
-     for (unsigned int j=0;j!=m; ++j) {
-       const string& label(modules[j]);
-       if (saveTags(label)) labels.push_back(label);
-     }
-     saveTagsModules_.push_back(labels);
-   }
-   */
+   	std::vector<std::string> allModules(saveTags.begin(),saveTags.end());
          std::pair<AllLabelsMap::iterator, bool> ret =
-               allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(triggerResults.parameterSetID(), allModules));
+               allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(psetid, allModules));
          return &(ret.first->second);
       }
       return 0;
