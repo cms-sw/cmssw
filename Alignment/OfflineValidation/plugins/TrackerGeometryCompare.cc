@@ -299,7 +299,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 		}
 	}
 	else{
-		std::cout << "Error: Module list not found! Please verify that given list exists!" << std::endl;
+		edm::LogInfo("TrackerGeometryCompare") << "Error: Module list not found! Please verify that given list exists!";
 	} 
 	
 	//declare alignments
@@ -382,15 +382,12 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<PTrackerParametersRcd>().get( ptp );
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	
-	edm::ESHandle<Alignments> globalPositionRcd;
-	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
-	
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo ); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
-												  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+												  AlignTransform());
 	}
 	referenceTracker = new AlignableTracker(&(*theRefTracker), tTopo);
 	//referenceTracker->setSurfaceDeformation(surfDef1, true) ; 
@@ -413,7 +410,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	  _inputTree11->SetBranchAddress("dpar", &p_inputDpar1);
 
 	  unsigned int nEntries11 = _inputTree11->GetEntries();
-	  edm::LogInfo("TrackerGeometryCompare") << " nentries11 = " << nEntries11 << std::endl ; 
+	  edm::LogInfo("TrackerGeometryCompare") << " nentries11 = " << nEntries11; 
 	  for (unsigned int iEntry = 0; iEntry < nEntries11; ++iEntry) {
             _inputTree11->GetEntry(iEntry) ; 
 
@@ -431,7 +428,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
-												  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+												  AlignTransform());
 	}
 	currentTracker = new AlignableTracker(&(*theCurTracker), tTopo);
 	
@@ -445,7 +442,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	  _inputTree12->SetBranchAddress("dpar",  &p_inputDpar2);
 
 	  unsigned int nEntries12 = _inputTree12->GetEntries();
-	  edm::LogInfo("TrackerGeometryCompare") << " nentries12 = " << nEntries12 << std::endl ; 
+	  edm::LogInfo("TrackerGeometryCompare") << " nentries12 = " << nEntries12; 
 	  for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
             _inputTree12->GetEntry(iEntry) ; 
 	    
@@ -695,13 +692,13 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	align::RotationType rot = align::toMatrix( dOmega );
 	align::GlobalVector theR = _TrackerCommonT;
 	
-	std::cout << "what we get from overlaying the pixels..." << theR << ", " << rot << std::endl;
+	edm::LogInfo("TrackerGeometryCompare") << "what we get from overlaying the pixels..." << theR << ", " << rot;
 	
 	//transform to the Tracker System
 	align::PositionType trackerCM = currentTracker->globalPosition();
 	align::GlobalVector cmDiff( trackerCM.x()-_TrackerCommonCM.x(), trackerCM.y()-_TrackerCommonCM.y(), trackerCM.z()-_TrackerCommonCM.z() );
 	
-	std::cout << "Pixel CM: " << _TrackerCommonCM << ", tracker CM: " << trackerCM << std::endl;
+	edm::LogInfo("TrackerGeometryCompare") <<  "Pixel CM: " << _TrackerCommonCM << ", tracker CM: " << trackerCM;
 	
 	//adjust translational difference factoring in different rotational CM
 	//needed because rotateInGlobalFrame is about CM of alignable, not Tracker
@@ -713,7 +710,7 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	TrackerCommonTR(1) = theRprime.x(); TrackerCommonTR(2) = theRprime.y(); TrackerCommonTR(3) = theRprime.z();
 	TrackerCommonTR(4) = _TrackerCommonR.x(); TrackerCommonTR(5) = _TrackerCommonR.y(); TrackerCommonTR(6) = _TrackerCommonR.z();
 	
-	std::cout << "and after the transformation: " << TrackerCommonTR << std::endl;
+	edm::LogInfo("TrackerGeometryCompare") <<  "and after the transformation: " << TrackerCommonTR;
 	
 	align::moveAlignable(currentTracker, TrackerCommonTR );
 	
@@ -1059,7 +1056,7 @@ void TrackerGeometryCompare::fillIdentifiers( int subdetlevel, int rawid, const 
 		}
 		default:
 		{
-			std::cout << "Error: bad subdetid!!" << std::endl;
+			edm::LogInfo("TrackerGeometryCompare") <<  "Error: bad subdetid!!";
 			break;
 		}
 			
