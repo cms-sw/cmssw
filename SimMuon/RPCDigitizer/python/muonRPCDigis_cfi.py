@@ -19,6 +19,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
+        BX_range = cms.int32(5),	
         timeJitter = cms.double(1.0),
         IRPC_time_resolution = cms.double(0.1),
         IRPC_electronics_jitter = cms.double(0.025),
@@ -46,20 +47,24 @@ _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
         deltatimeAdjacentStrip = cms.double(3.0),
         linkGateWidth = cms.double(20.0),
         Rate = cms.double(0.0),
-        timeResolution = cms.double(2.5),
+        timeResolution = cms.double(1.5),
         averageClusterSize = cms.double(1.5),
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
-        timeJitter = cms.double(1.0),
-        IRPC_time_resolution = cms.double(0.1),
-        IRPC_electronics_jitter = cms.double(0.025)
+        BX_range = cms.int32(5),
+        timeJitter = cms.double(0.1),
+        sigmaY = cms.double(2.), # resolution of 2 cm
+        do_Y_coordinate = cms.bool(False),
+        digitizeElectrons = cms.bool(True),
+        IRPC_time_resolution = cms.double(1.5),# intrinsic time resolution of 1.5 ns
+        IRPC_electronics_jitter = cms.double(0.1)# resolution of 100 ps
     ),
     doBkgNoise = cms.bool(False), #False - no noise and bkg simulation
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-    digiModel = cms.string('RPCSimAverageNoiseEffCls'),
+    digiModel = cms.string('RPCSimModelTiming'),
     digiIRPCModelConfig = cms.PSet(
         signalPropagationSpeed = cms.double(0.66),
         timingRPCOffset = cms.double(50.0),
@@ -69,19 +74,22 @@ _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
         deltatimeAdjacentStrip = cms.double(3.0),
         linkGateWidth = cms.double(20.0),
         Rate = cms.double(0.0),
-        timeResolution = cms.double(2.5),
+        timeResolution = cms.double(1.0),
         averageClusterSize = cms.double(1.5),
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
-        timeJitter = cms.double(1.0),
+        BX_range = cms.int32(5),
+        timeJitter = cms.double(0.1),
         IRPC_time_resolution = cms.double(1),# resolution of 1 ns
         IRPC_electronics_jitter = cms.double(0.1),# resolution of 100 ps
         sigmaY = cms.double(2.), # resolution of 2 cm
-        do_Y_coordinate = cms.bool(True)
+        do_Y_coordinate = cms.bool(True),
+        digitizeElectrons = cms.bool(True),
     ),
     digiIRPCModel = cms.string('RPCSimModelTiming')
 )
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( simMuonRPCDigis, _simMuonRPCDigisPhaseII )
+

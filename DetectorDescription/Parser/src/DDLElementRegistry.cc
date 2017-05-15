@@ -18,10 +18,12 @@
 #include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 #include "DetectorDescription/Parser/src/DDLMap.h"
+#include "DetectorDescription/Parser/src/DDLMultiUnionSolid.h"
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
 #include "DetectorDescription/Parser/src/DDLOrb.h"
 #include "DetectorDescription/Parser/src/DDLParallelepiped.h"
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
+#include "DetectorDescription/Parser/src/DDLPgonGenerator.h"
 #include "DetectorDescription/Parser/src/DDLPosPart.h"
 #include "DetectorDescription/Parser/src/DDLPseudoTrap.h"
 #include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
@@ -94,6 +96,10 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = std::make_shared<DDLBooleanSolid>(this);
     }
+    else if (name == "MultiUnionSolid" )
+    {
+      myret = std::make_shared<DDLMultiUnionSolid>(this);
+    }
     else if (name == "ShapelessSolid")
     {
       myret = std::make_shared<DDLShapelessSolid>(this);
@@ -118,6 +124,8 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = std::make_shared<DDLParallelepiped>(this);
     }
+    else if (name == "ExtrudedPolygon")
+      myret = std::make_shared<DDLPgonGenerator>(this);
 
     //  LogicalParts, Positioners, Materials, Rotations, Reflections
     //  and Specific (Specified?) Parameters
@@ -180,8 +188,8 @@ DDLElementRegistry::getElement( const std::string& name )
     //  All elements which simply accumulate attributes which are then used
     //  by one of the above elements.
     else if (name == "MaterialFraction"
-	     || name == "RZPoint" || name == "PartSelector"
-	     || name == "Parameter" || name == "ZSection"
+	     || name == "RZPoint" || name == "XYPoint" || name == "PartSelector"
+	     || name == "Parameter" || name == "ZSection" || name == "ZXYSection"
 	     || name == "Translation" 
 	     || name == "rSolid" || name == "rMaterial" 
 	     || name == "rParent" || name == "rChild"

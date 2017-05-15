@@ -22,6 +22,7 @@ class PrimaryVertexAssignment {
   PrimaryVertexAssignment(const edm::ParameterSet& iConfig):
    maxDzSigForPrimaryAssignment_(iConfig.getParameter<double>("maxDzSigForPrimaryAssignment")),
    maxDzForPrimaryAssignment_(iConfig.getParameter<double>("maxDzForPrimaryAssignment")),
+   maxDzErrorForPrimaryAssignment_(iConfig.getParameter<double>("maxDzErrorForPrimaryAssignment")),
    maxJetDeltaR_(iConfig.getParameter<double>("maxJetDeltaR")),
    minJetPt_(iConfig.getParameter<double>("minJetPt")),
    maxDistanceToJetAxis_(iConfig.getParameter<double>("maxDistanceToJetAxis")),
@@ -73,6 +74,7 @@ class PrimaryVertexAssignment {
  private  :
     double    maxDzSigForPrimaryAssignment_;
     double    maxDzForPrimaryAssignment_;
+    double    maxDzErrorForPrimaryAssignment_;
     double    maxJetDeltaR_;
     double    minJetPt_;
     double    maxDistanceToJetAxis_;

@@ -14,7 +14,7 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
     StandardSpecificationTrend,
     StandardSpecificationTrend2D,
     StandardSpecificationPixelmapProfile,# ROC level map
-    #StandardSpecification2DProfile, # module level map
+    StandardSpecification2DProfile, # module level map
     StandardSpecifications1D
   )
 )

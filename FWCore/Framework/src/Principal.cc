@@ -114,7 +114,8 @@ namespace edm {
     reader_(),
     branchType_(bt),
     historyAppender_(historyAppender),
-    cacheIdentifier_(nextIdentifier())
+    cacheIdentifier_(nextIdentifier()),
+    atEndTransition_(false)
   {
     productResolvers_.resize(reg->getNextIndexValue(bt));
     //Now that these have been set, we can create the list of Branches we need.
@@ -306,12 +307,25 @@ namespace edm {
   }
 
   void
+  Principal::setAtEndTransition(bool iAtEnd) {
+    atEndTransition_ = iAtEnd;
+  }
+  
+  void
   Principal::deleteProduct(BranchID const& id) const {
     auto phb = getExistingProduct(id);
     assert(nullptr != phb);
     phb->unsafe_deleteProduct();
   }
   
+  void
+  Principal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
+      iResolver->setupUnscheduled(iConfigure);
+    });
+  }
+  
+
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist,
@@ -319,6 +333,7 @@ namespace edm {
                            DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_=nextIdentifier();
+    atEndTransition_=false;
     if(reader) {
       reader_ = reader;
     }

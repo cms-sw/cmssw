@@ -40,10 +40,6 @@ _muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
 muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxSagitta = cms.double(-1.)
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
-    MaxChi2 = 400
-))
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(muonSeededMeasurementEstimatorForInOut, MaxChi2 = 400.0, MaxSagitta = 2)
 
@@ -57,7 +53,6 @@ _tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForOutInBase, Mi
 muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
     MaxSagitta = cms.double(-1.) 
 )
-trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForOutIn, _muonSeededMeasurementEstimatorForOutInBase)
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -154,7 +149,7 @@ muonSeededTracksOutInClassifier.mva.min3DLayers = [1,2,2]
 muonSeededTracksOutInClassifier.mva.maxLostLayers = [4,3,2]
 
 
-# For Phase1PU70
+# For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='muonSeededTracksInOut',
@@ -236,18 +231,18 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 muonSeededStepCoreInOut = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
 )
-muonSeededStepCore = cms.Sequence(
-    muonSeededStepCoreInOut +
+muonSeededStepCoreOutIn = cms.Sequence(
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+muonSeededStepCore = cms.Sequence(
+    muonSeededStepCoreInOut +
+    muonSeededStepCoreOutIn
+)
 #Phase2 : just muon Seed InOut is used in this moment
-trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+#trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
 muonSeededStepExtraInOut = cms.Sequence(
     muonSeededTracksInOutClassifier
 )
-trackingPhase1PU70.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
-    muonSeededTracksInOutSelector
-))
 trackingPhase2PU140.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
     muonSeededTracksInOutSelector
 ))
@@ -255,12 +250,9 @@ muonSeededStepExtra = cms.Sequence(
     muonSeededStepExtraInOut +
     muonSeededTracksOutInClassifier
 )
-trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
+trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
     muonSeededStepExtraInOut +
     muonSeededTracksOutInSelector
-))
-trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
-    muonSeededStepExtraInOut
 ))
 
 muonSeededStep = cms.Sequence(

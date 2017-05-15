@@ -16,6 +16,7 @@ def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
 neutronKeys = ['2023D12','2023D13','2023D14','2023D15','2023D16','2023D17']
+neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 #just define all of them
 
@@ -50,7 +51,7 @@ for year in upgradeKeys:
                 workflows[numWF+upgradeSteps['Timing']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['Timing']]
 
             # special workflows for neutron bkg sim
-            if upgradeDatasetFromFragment[frag]=="ZMM_14" and any(nkey in key for nkey in neutronKeys):
+            if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in neutronFrags) and any(nkey in key for nkey in neutronKeys):
                 workflows[numWF+upgradeSteps['Neutron']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['Neutron']]
 
             # special workflows for tracker
