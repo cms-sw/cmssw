@@ -397,8 +397,8 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
 
     const bool isEven(me1bId.chamber()%2==0);
     const int region((theEndcap == 1) ? 1: -1);
-    const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
-    const GEMChamber* gemChamber(gem_g->chamber(gem_id));
+    const GEMDetId gem_id(region, 1, theStation, 0, me1bId.chamber(), 0);
+    const GEMSuperChamber* gemChamber(gem_g->superChamber(gem_id));
 
     // initialize depending on whether even or odd     
     maxDeltaBXPad_ = isEven ? maxDeltaBXPadEven_ : maxDeltaBXPadOdd_;
@@ -430,7 +430,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     // pick any roll
-    auto randRoll(gemChamber->etaPartition(2));
+    auto randRoll(gemChamber->chamber(1)->etaPartition(2));
 
     // ME1a
     auto nStripsME1a(keyLayerGeometryME1a->numberOfStrips());
@@ -1927,7 +1927,10 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   const int highPad(mymap[clct.getKeyStrip()].second);
   const bool debug(false);
   if (debug) std::cout << "lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
-  for (auto p: pads){
+  for (const auto& p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll((p.second).pad());
     if (debug) std::cout << "padRoll " << padRoll << std::endl;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
@@ -1949,6 +1952,9 @@ CSCMotherboardME11GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   const bool debug(false);
   if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", rolls " << alctRoll.first << " " << alctRoll.second << std::endl;
   for (auto p: pads){
+    if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
+      continue;
+    }
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
     // only pads in overlap are good for ME1A
