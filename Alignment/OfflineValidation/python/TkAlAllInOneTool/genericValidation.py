@@ -513,7 +513,7 @@ class GenericValidationData_CTSR(GenericValidationData):
             "ValidationSequence": self.ValidationSequence,
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
             "cosmics0T": str(self.cosmics0T),
-            "used0cut": str("Cosmics" not in self.general["trackcollection"]),  #use it for collisions only
+            "use_d0cut": str("Cosmics" not in self.general["trackcollection"]),  #use it for collisions only
         })
         return result
     @property
