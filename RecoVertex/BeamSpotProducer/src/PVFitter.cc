@@ -127,7 +127,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 		      if (sumPt < minSumPt_) continue;
           }
           catch (...) {
-              edm::LogWarning("") << "Needed track collection not found. Skipping cut on sumPt.";
+              edm::LogInfo("") << "Needed track collection not found. Skipping cut on sumPt.";
           }
  
           hPVx->Fill( pv->x(), pv->z() );
