@@ -6,6 +6,7 @@
 *   Jan Kašpar (jan.kaspar@cern.ch)
 *   Marcin Borratynski (mborratynski@gmail.com)
 *   Seyed Mohsen Etesami (setesami@cern.ch)
+*   Laurent Forthomme
 ****************************************************************************/
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -71,7 +72,7 @@ public:
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML();
 
-  edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
+  edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
 
 private:
   unsigned int verbosity;
@@ -110,15 +111,15 @@ private:
   enum ParseType { pMapping, pMask };
 
   /// parses XML file
-  void ParseXML(ParseType, const string &file, const boost::shared_ptr<TotemDAQMapping>&, const boost::shared_ptr<TotemAnalysisMask>&);
+  void ParseXML(ParseType, const string &file, const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
 
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeRP(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
-    const boost::shared_ptr<TotemDAQMapping>&, const boost::shared_ptr<TotemAnalysisMask>&);
+    const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
 
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeDiamond(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
-    const boost::shared_ptr<TotemDAQMapping>&, const boost::shared_ptr<TotemAnalysisMask>&);
+    const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
 
 private:
   /// adds the path prefix, if needed
@@ -273,13 +274,13 @@ string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn)
 
 //----------------------------------------------------------------------------------------------------
 
-edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnalysisMask> >
+edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> >
   TotemDAQMappingESSourceXML::produce( const TotemReadoutRcd & )
 {
   assert(currentBlockValid);
 
-  boost::shared_ptr<TotemDAQMapping> mapping(new TotemDAQMapping());
-  boost::shared_ptr<TotemAnalysisMask> mask(new TotemAnalysisMask());
+  std::shared_ptr<TotemDAQMapping> mapping(new TotemDAQMapping());
+  std::shared_ptr<TotemAnalysisMask> mask(new TotemAnalysisMask());
 
   // initialize Xerces
   try
@@ -311,7 +312,7 @@ edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnal
 //----------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
-  const boost::shared_ptr<TotemDAQMapping> &mapping, const boost::shared_ptr<TotemAnalysisMask> &mask)
+  const std::shared_ptr<TotemDAQMapping> &mapping, const std::shared_ptr<TotemAnalysisMask> &mask)
 {
   unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
   parser->parse(file.c_str());
@@ -336,8 +337,8 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
 //-----------------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
-  unsigned int parentID, const boost::shared_ptr<TotemDAQMapping>& mapping,
-  const boost::shared_ptr<TotemAnalysisMask>& mask)
+  unsigned int parentID, const std::shared_ptr<TotemDAQMapping>& mapping,
+  const std::shared_ptr<TotemAnalysisMask>& mask)
 {
 #ifdef DEBUG
   printf(">> TotemDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", XMLString::transcode(parent->getNodeName()),
@@ -470,8 +471,8 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 //----------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
-  unsigned int parentID, const boost::shared_ptr<TotemDAQMapping>& mapping,
-  const boost::shared_ptr<TotemAnalysisMask>& mask)
+  unsigned int parentID, const std::shared_ptr<TotemDAQMapping>& mapping,
+  const std::shared_ptr<TotemAnalysisMask>& mask)
 {
 
 #ifdef DEBUG
