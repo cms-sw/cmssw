@@ -123,10 +123,11 @@ void PVFitter::readEvent(const edm::Event& iEvent)
               {
                 const auto pt = (*iTrack)->pt();
                 sumPt += pt;
-		      }
-		      if (sumPt < minSumPt_) continue;
+              }
+              if (sumPt < minSumPt_) continue;
           }
-          catch (...) {
+          catch (...)
+          {
               edm::LogInfo("") << "Needed track collection not found. Skipping cut on sumPt.";
           }
  
@@ -146,7 +147,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           //
           // copy PV to store
           //
-	  int bx = iEvent.bunchCrossing();
+          int bx = iEvent.bunchCrossing();
           BeamSpotFitPVData pvData;
           pvData.bunchCrossing = bx;
           pvData.position[0] = pv->x();
@@ -160,15 +161,15 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
 
-	  if(ftree_ != 0){
-	    theBeamSpotTreeData_.run(iEvent.id().run());
-	    theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
-	    theBeamSpotTreeData_.bunchCrossing(bx);
-	    theBeamSpotTreeData_.pvData(pvData);
-	    ftree_->Fill();
-	  }
+      if(ftree_ != 0){
+        theBeamSpotTreeData_.run(iEvent.id().run());
+        theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
+        theBeamSpotTreeData_.bunchCrossing(bx);
+        theBeamSpotTreeData_.pvData(pvData);
+        ftree_->Fill();
+      }
 
-	  if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
+      if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
 
       }
 
