@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("emdqm")
 
@@ -42,7 +43,7 @@ process.p = cms.Path(
                     )
 
 #----------------------------------------
-process.post=cms.EDProducer("EmDQMPostProcessor",
+process.post=DQMEDProducer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
                             noPhiPlots = cms.untracked.bool(False),

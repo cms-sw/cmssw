@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMServices.ClientConfig.genericClientPSetHelper_cff import *
 
-rpcRecHitSimRecoClient = cms.EDProducer("RPCRecHitValidClient",
+rpcRecHitSimRecoClient = DQMEDHarvester("RPCRecHitValidClient",
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
 )
 
-rpcRecHitPostValidation = cms.EDProducer("DQMGenericClient",
+rpcRecHitPostValidation = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",),
     #subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",
     #                                "RPC/RPCRecHitV/SimVsDTExt",
@@ -56,7 +57,7 @@ rpcRecHitPostValidation = cms.EDProducer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-rpcPointVsRecHitPostValidation = cms.EDProducer("DQMGenericClient",
+rpcPointVsRecHitPostValidation = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("RPC/RPCRecHitV/DTVsReco",
                                     "RPC/RPCRecHitV/CSCVsReco"),
 #                                    "RPC/RPCRecHitV/TrackVsReco"),
