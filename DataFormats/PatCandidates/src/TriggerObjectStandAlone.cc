@@ -342,7 +342,7 @@ void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &n
             indices.push_back(match - start);
         } else {
             static std::atomic<int> _warn(0);
-            if(++_warm < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
+            if(++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
             unmatched.push_back(std::move(filterLabels_[i]));
         }
     }
