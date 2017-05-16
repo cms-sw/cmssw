@@ -123,6 +123,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     break;
   case ddextrudedpolygon:
     solid = new DDI::ExtrudedPolygon( dummy, dummy, dummy, dummy, dummy, dummy );
+    break;
   default:
     throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
   }
