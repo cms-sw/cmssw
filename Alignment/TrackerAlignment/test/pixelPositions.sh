@@ -107,6 +107,7 @@ EOF
     return_code=${?}
     if [[ ${return_code} -ne 0 ]]
     then
+	echo "The command 'cmsRun ${CONFIG1}' failed. Please check the log file."
 	exit ${return_code}
     fi
     rm remove_me.db
@@ -142,6 +143,7 @@ EOF
     return_code=${?}
     if [[ ${return_code} -ne 0 ]]
     then
+	echo "The command 'cmsRun ${CONFIG2}' failed. Please check the log file."
 	exit ${return_code}
     fi
     rm remove_me.db
@@ -158,6 +160,7 @@ EOF
     return_code=${?}
     if [[ ${return_code} -ne 0 ]]
     then
+	echo "Running 'allMillePede.C' failed."
 	exit ${return_code}
     fi
     cd $HEREIAM
