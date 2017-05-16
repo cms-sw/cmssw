@@ -341,9 +341,9 @@ void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &n
         if (match != fail && *match == filterLabels_[i]) {
             indices.push_back(match - start);
         } else {
-            unmatched.push_back(std::move(filterLabels_[i]));
             static std::atomic<int> _warn(0);
-            edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
+            if(++_warm < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
+            unmatched.push_back(std::move(filterLabels_[i]));
         }
     }
     std::sort(indices.begin(), indices.end()); // try reduce enthropy
@@ -373,6 +373,10 @@ void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> 
     filterLabelIndices_.clear();
     filterLabels_.swap(mylabels);
 }
+void TriggerObjectStandAlone::packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res)  {
+   packFilterLabels(*allLabels(psetId_,event,res));
+}
+
 
 void TriggerObjectStandAlone::packP4() {
     setP4(reco::Particle::PolarLorentzVector(
@@ -391,11 +395,6 @@ namespace {
   typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
   [[cms::thread_safe]] static AllLabelsMap allLabelsMap;
 }
-
-/*std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::TriggerResults const& triggerResults,
-						edm::ProcessHistory const &history,std::string const& processName) {
-triggerResults.parameterSetID()
-}*/
 
 std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid, const edm::EventBase &event,const edm::TriggerResults &res) const {
 
@@ -426,7 +425,6 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 
  	const unsigned int n(triggerNames.size());
 	std::set<std::string> saveTags;
-	saveTags.insert(""); // avoid complaints on empty module labels
    	for (unsigned int i=0;i!=n; ++i) {
      	    if (pset->existsAs<vector<string> >(triggerNames.triggerName(i),true)) {
        		auto modules = pset->getParameter<vector<string> >(triggerNames.triggerName(i));
@@ -438,7 +436,7 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 			auto modulePSet= pset->getParameterSet(moduleStrip);
 			if (modulePSet.existsAs<bool>("saveTags",true) and 
 			    modulePSet.getParameter<bool>("saveTags") ) {
-			    saveTags.insert(module);
+			    saveTags.insert(moduleStrip);
 			}
 		    }	
 		}
