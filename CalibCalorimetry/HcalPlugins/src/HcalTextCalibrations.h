@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
 
@@ -50,6 +50,36 @@ public:
   ~HcalTextCalibrations ();
 
   void produce () {};
+
+  template<class T>
+  class CheckGetObject {
+    public:
+      CheckGetObject(const HcalTopology* topo) {}
+      std::unique_ptr<T> operator()(std::istream& inStream){
+        auto result = makeResult();
+        if(!HcalDbASCIIIO::getObject(inStream, &*result)) result.reset(nullptr);
+        return result;
+      }
+    protected:
+      virtual std::unique_ptr<T> makeResult(){ return std::make_unique<T>(); }
+  };
+  template<class T>
+  class CheckGetObjectTopo : public CheckGetObject<T> {
+    public:
+      CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo), topo_(topo) {}
+    protected:
+      std::unique_ptr<T> makeResult() override { return std::make_unique<T>(topo_); }
+    private:
+      const HcalTopology* topo_;
+  };
+  template<class T>
+  class CheckCreateObject {
+    public:
+      CheckCreateObject(const HcalTopology* topo) {}
+      std::unique_ptr<T> operator()(std::istream& inStream){
+        return HcalDbASCIIIO::createObject<T>(inStream);
+      }
+  };
   
 protected:
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -93,4 +123,5 @@ protected:
 private:
   std::map <std::string, std::string> mInputs;
 };
+
 

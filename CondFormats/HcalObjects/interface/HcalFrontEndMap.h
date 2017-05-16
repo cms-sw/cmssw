@@ -3,6 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <set>
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
@@ -13,10 +14,29 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
-// 
+
+//forward declaration
+namespace HcalFrontEndMapAddons {
+  class Helper;
+}
+ 
 class HcalFrontEndMap {
 public:
-  HcalFrontEndMap();
+
+  class PrecisionItem { 
+   public:
+    PrecisionItem () {mId = mRM = 0; mRBX = "";}
+    PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
+      : mId (fId), mRM (fRM), mRBX (fRBX) {}
+    uint32_t    mId;
+    int         mRM;
+    std::string mRBX;
+    
+    COND_SERIALIZABLE;
+  };
+
+  HcalFrontEndMap() {}
+  HcalFrontEndMap(const HcalFrontEndMapAddons::Helper& helper);
   ~HcalFrontEndMap();
 
   // swap function
@@ -29,9 +49,6 @@ public:
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   HcalFrontEndMap(HcalFrontEndMap&& other);
 #endif
-
-  /// load a new entry
-  bool loadObject(DetId fId, int rm, std::string rbx);
 
   /// brief lookup the RM associated with the given logical id
   //return Null item if no such mapping
@@ -48,32 +65,36 @@ public:
   std::vector <int>         allRMs() const;
   std::vector <std::string> allRBXs() const;
 
-  // sorting
-  void sortById () const;
-  void sort() {}
-  
-  class PrecisionItem { 
-  public:
-    PrecisionItem () {mId = mRM = 0; mRBX = "";}
-    PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
-      : mId (fId), mRM (fRM), mRBX (fRBX) {}
-    uint32_t    mId;
-    int         mRM;
-    std::string mRBX;
-    
-    COND_SERIALIZABLE;
-  };
-protected:
   const PrecisionItem* findById (uint32_t fId) const;
+
+  // sorting
+  void sortById ();
+  void initialize();
+  
+protected:
   
   std::vector<PrecisionItem> mPItems;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<std::vector<const PrecisionItem*>*> mPItemsById COND_TRANSIENT;
-#else
-  mutable std::vector<const PrecisionItem*>* mPItemsById COND_TRANSIENT;
-#endif
+  std::vector<const PrecisionItem*> mPItemsById COND_TRANSIENT;
 
   COND_SERIALIZABLE;
 };
+
+namespace HcalFrontEndMapAddons {
+  class LessById {
+   public: 
+    bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId < b->mId;}
+    bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) {return a.mId < b.mId;}
+    bool equal (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId == b->mId;}
+    bool good (const HcalFrontEndMap::PrecisionItem& a) {return a.mId;}
+  };
+  class Helper {
+   public:
+    Helper();
+    /// load a new entry
+    bool loadObject(DetId fId, int rm, std::string rbx);
+    
+    std::set<HcalFrontEndMap::PrecisionItem,LessById> mPItems;
+  };
+}
 
 #endif
