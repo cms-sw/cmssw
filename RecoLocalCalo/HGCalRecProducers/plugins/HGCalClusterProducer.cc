@@ -57,7 +57,7 @@ DEFINE_FWK_MODULE(HGCalClusterProducer);
 HGCalClusterProducer::HGCalClusterProducer(const edm::ParameterSet &ps) :
   algoId(reco::CaloCluster::undefined),
   doSharing(ps.getParameter<bool>("doSharing")),
-  detector(ps.getParameter<std::string >("detector")),              //one of EE, EF or "both"
+  detector(ps.getParameter<std::string >("detector")), // one of EE, FH, BH or "all"
   verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   double ecut = ps.getParameter<double>("ecut");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
