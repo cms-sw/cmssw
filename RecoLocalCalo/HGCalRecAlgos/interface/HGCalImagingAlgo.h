@@ -30,7 +30,7 @@ std::vector<size_t> sorted_indices(const std::vector<T> &v) {
 
         // initialize original index locations
         std::vector<size_t> idx(v.size());
-        for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+        std::iota (std::begin(idx), std::end(idx), 0);
 
         // sort indices based on comparing values in v
         std::sort(idx.begin(), idx.end(),
@@ -83,8 +83,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         minpos(2*(maxlayer+1),{
                 {0.0f,0.0f}
         }),
-        maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-        zees(2*(maxlayer+1),0.)
+        maxpos(2*(maxlayer+1),{ {0.0f,0.0f} })
 {
 }
 
@@ -116,8 +115,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         minpos(2*(maxlayer+1),{
                 {0.0f,0.0f}
         }),
-        maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
-        zees(2*(maxlayer+1),0.)
+        maxpos(2*(maxlayer+1),{ {0.0f,0.0f} })
 {
 }
 
@@ -283,7 +281,6 @@ std::vector<std::vector<KDNode> > points;   //a vector of vectors of hexels, one
 
 std::vector<std::array<float,2> > minpos;
 std::vector<std::array<float,2> > maxpos;
-std::vector<float> zees;
 
 
 //these functions should be in a helper class.
