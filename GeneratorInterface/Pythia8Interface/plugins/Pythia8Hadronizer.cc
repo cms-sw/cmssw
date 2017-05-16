@@ -157,6 +157,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 
     int nISRveto;
     int nFSRveto;
+    int nFSRvetoBB4L;
 
     int NHooks;
 
@@ -171,7 +172,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fMultiUserHook(new MultiUserHook), fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
-  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), fPTFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), fPTFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0), nFSRvetoBB4L(0),
   NHooks(0)
 {
 
@@ -627,6 +628,10 @@ void Pythia8Hadronizer::statistics()
     edm::LogPrint("Pythia8Interface")
       << "Number of FSR vetoed = " << nFSRveto;
   }
+  if(fPowhegHooksBB4L) {
+    edm::LogInfo("Pythia8Interface") << "\n"
+      << "BB4L: Number of FSR vetoed = " << nFSRvetoBB4L;
+  }
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
@@ -661,6 +666,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   if (fEmissionVetoHook) {
     nISRveto += fEmissionVetoHook->getNISRveto();
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+  if (fPowhegHooksBB4L) {
+    nFSRvetoBB4L += fPowhegHooksBB4L->getNFSRveto();
   }
   
   return true;
