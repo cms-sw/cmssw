@@ -1,3 +1,5 @@
+# documentation: https://twiki.cern.ch/twiki/bin/view/CMS/AlCaDBPCL#Drop_box_metadata_management
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("myprocess")
@@ -48,8 +50,12 @@ SiStripApvGainRcdAfterAbortGap_prep_str = encodeJsonInString("SiStripApvGainRcdA
 SiPixelAliRcd_prod_str = encodeJsonInString("SiPixelAliRcd_prod.json")
 SiPixelAliRcd_prep_str = encodeJsonInString("SiPixelAliRcd_prep.json")
 
+# given a set of .json files in the current dir, ProduceDropBoxMetadata produces a sqlite containign the payload with the prod/and/prep metadata
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
-                                  write = cms.untracked.bool(True),
+                                  # set to True if you want to write out a sqlite.db translating the json's into a payload
+                                  write = cms.untracked.bool(False),
+
+                                  # toWrite holds a list of Pset's, one for each workflow you want to produce DropBoxMetadata for; you need to have 2 .json files for each PSet
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -89,10 +95,12 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcdAfterAbortGap_prep_str),
                                                                ),
                                                       ),
+                                  # this boolean will read the content of whichever payload is available and print its content to stoutput
                                   read = cms.untracked.bool(True),
-                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap') # same strings as fType
-                                  )
 
+                                  # toRead lists of record naemes to be sought inside the DropBoxMetadataRcd payload avaialble to the ProduceDropBoxMetadata; for instance, if write is True, you're reading back the metadata you've just entered in the payload from the .json files
+                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap') # same strings as fType
+                                  )
 
 process.p = cms.Path(process.mywriter)
 
@@ -116,14 +124,16 @@ if process.mywriter.write:
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '80X_dataRun2_Express_Queue'
 
-process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
-#process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
+#process.GlobalTag.connect   = 'frontier://PromptProd/CMS_CONDITIONS'
+#process.GlobalTag.connect   = 'sqlite_file:/data/franzoni/92x/CMSSW_9_2_X_2017-05-16-1100_metadata/src/CondFormats/Common/test/last-iov-DropBoxMetadata_v5.1_express.db'
 
-readsqlite = False
+# Set to True if you want to read a DropBoxMetadata payload from a local sqlite
+# specify the name of the sqlitefile.db and the tag name; the payload loaded will be for run 300000
+readsqlite = True
 if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-                 tag = cms.string("DropBoxMetadata"),
-                 connect = cms.string("sqlite_file:DropBoxMetadata.db")
+                 tag = cms.string("DropBoxMetadata_v5.1_express"),
+                 connect = cms.string("sqlite_file:last-iov-DropBoxMetadata_v5.1_express.db")
                 )
         )
