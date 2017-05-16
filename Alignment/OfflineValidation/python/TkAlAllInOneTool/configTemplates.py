@@ -153,10 +153,8 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
-process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
-reportEvery = cms.untracked.int32(1000) # every 1000th only
-))
+process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.statistics.append('cout')
 """
 
