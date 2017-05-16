@@ -368,60 +368,40 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
              parseExternal(condition,chipNr);
 	     	    
           }      
-          //parse MuonWithOverlapRemoval
-          else if(condition.getType() == esConditionType::SingleMuonWithOverlapRemoval  ||
-	          condition.getType() == esConditionType::DoubleMuonWithOverlapRemoval  ||
-	          condition.getType() == esConditionType::TripleMuonWithOverlapRemoval  ||
-	          condition.getType() == esConditionType::QuadMuonWithOverlapRemoval) {
+          else if(condition.getType() == esConditionType::SingleEgammaOvRm  ||
+		  condition.getType() == esConditionType::DoubleEgammaOvRm  ||
+		  condition.getType() == esConditionType::TripleEgammaOvRm  ||
+		  condition.getType() == esConditionType::QuadEgammaOvRm  ||
+		  condition.getType() == esConditionType::SingleTauOvRm  ||
+		  condition.getType() == esConditionType::DoubleTauOvRm  ||
+		  condition.getType() == esConditionType::TripleTauOvRm  ||
+		  condition.getType() == esConditionType::QuadTauOvRm  ||
+		  condition.getType() == esConditionType::SingleJetOvRm  ||
+		  condition.getType() == esConditionType::DoubleJetOvRm  ||
+		  condition.getType() == esConditionType::TripleJetOvRm  ||
+		  condition.getType() == esConditionType::QuadJetOvRm) {
 
              edm::LogError("TriggerMenuParser") << std::endl
-                << "SingleMuonWithOverlapRemoval" << std::endl
-	        << "DoubleMuonWithOverlapRemoval" << std::endl
-	        << "TripleMuonWithOverlapRemoval" << std::endl
-	        << "QuadMuonWithOverlapRemoval" << std::endl
-                << "The above conditions types WithOverlapRemoval are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
-             //parseMuon(condition,chipNr,false);
-
-          } 
-          //parse CaloWithOverlapRemoval
-          else if(condition.getType() == esConditionType::SingleEgammaWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::DoubleEgammaWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::TripleEgammaWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::QuadEgammaWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::SingleTauWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::DoubleTauWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::TripleTauWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::QuadTauWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::SingleJetWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::DoubleJetWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::TripleJetWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::QuadJetWithOverlapRemoval) {
-
-             edm::LogError("TriggerMenuParser") << std::endl
-                << "SingleEgammaWithOverlapRemoval" << std::endl
-	        << "DoubleEgammaWithOverlapRemoval" << std::endl
-	        << "TripleEgammaWithOverlapRemoval" << std::endl
-	        << "QuadEgammaWithOverlapRemoval" << std::endl
-	        << "SingleTauWithOverlapRemoval" << std::endl
-	        << "DoubleTauWithOverlapRemoval" << std::endl
-	        << "TripleTauWithOverlapRemoval" << std::endl
-	        << "QuadTauWithOverlapRemoval" << std::endl
-	        << "SingleJetWithOverlapRemoval" << std::endl
-	        << "DoubleJetWithOverlapRemoval" << std::endl
-	        << "TripleJetWithOverlapRemoval" << std::endl
-	        << "QuadJetWithOverlapRemoval" << std::endl
-                << "The above conditions types WithOverlapRemoval are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
-             //parseCalo(condition,chipNr,false); 
+		<< "SingleEgammaOvRm" << std::endl
+	        << "DoubleEgammaOvRm" << std::endl
+	        << "TripleEgammaOvRm" << std::endl
+	        << "QuadEgammaOvRm" << std::endl
+	        << "SingleTauOvRm" << std::endl
+	        << "DoubleTauOvRm" << std::endl
+	        << "TripleTauOvRm" << std::endl
+	        << "QuadTauOvRm" << std::endl
+	        << "SingleJetOvRm" << std::endl
+	        << "DoubleJetOvRm" << std::endl
+	        << "TripleJetOvRm" << std::endl
+	        << "QuadJetOvRm" << std::endl
+                << "The above conditions types OvRm are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
 
           } 
           //parse CorrelationWithOverlapRemoval
-          else if(condition.getType() == esConditionType::MuonMuonCorrelationWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::MuonEsumCorrelationWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::CaloMuonCorrelationWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::CaloCaloCorrelationWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::CaloEsumCorrelationWithOverlapRemoval  || 
-                  condition.getType() == esConditionType::InvariantMassWithOverlapRemoval) {
-		    
+          else if(condition.getType() == esConditionType::CaloCaloCorrelationOvRm  ||
+                  condition.getType() == esConditionType::InvariantMassOvRm  ||
+                  condition.getType() == esConditionType::TransverseMassOvRm) {
+
              parseCorrelationWithOverlapRemoval(condition,chipNr);
 
           } 
@@ -1148,7 +1128,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 	       upperThresholdInd = cut.getMaximum().index;
 	       break;
 
-	     case esCutType::Index:
+	     case esCutType::Slice:
 	       lowerIndexInd = int(cut.getMinimum().value);
 	       upperIndexInd = int(cut.getMaximum().value);
 	       break;
@@ -1383,7 +1363,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 	   upperThresholdInd = cut.getMaximum().index;
 	   break;
 
-	 case esCutType::Index:
+	 case esCutType::Slice:
 	   lowerIndexInd = int(cut.getMinimum().value);
 	   upperIndexInd = int(cut.getMaximum().value);
 	   break;
@@ -1691,7 +1671,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 	       lowerThresholdInd = cut.getMinimum().index;
 	       upperThresholdInd = cut.getMaximum().index;
 	       break;
-	     case esCutType::Index:
+	     case esCutType::Slice:
 	       lowerIndexInd = int(cut.getMinimum().value);
 	       upperIndexInd = int(cut.getMaximum().value);
 	       break;
@@ -1959,7 +1939,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 	    lowerThresholdInd = cut.getMinimum().index;
 	    upperThresholdInd = cut.getMaximum().index;
 	    break;
-	  case esCutType::Index:
+	  case esCutType::Slice:
 	    lowerIndexInd = int(cut.getMinimum().value);
 	    upperIndexInd = int(cut.getMaximum().value);
 	    break;
@@ -3075,19 +3055,19 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
 	     corrParameter.precMassCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x8; 
 	   }
-	  if(cut.getCutType() == esCutType::OverlapRemovalDeltaEta) {
+	  if(cut.getCutType() == esCutType::OvRmDeltaEta) {
 	     //std::cout << "OverlapRemovalDeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minOverlapRemovalEtaCutValue = (long long)(minV * pow(10.,cut.getMinimum().index)); 
 	     corrParameter.maxOverlapRemovalEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 
 	     corrParameter.precOverlapRemovalEtaCut     = cut.getMinimum().index;	     
 	     cutType = cutType | 0x10;
-	  } else if (cut.getCutType() == esCutType::OverlapRemovalDeltaPhi) {
+	  } else if (cut.getCutType() == esCutType::OvRmDeltaPhi) {
 	     //std::cout << "OverlapRemovalDeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minOverlapRemovalPhiCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
 	     corrParameter.maxOverlapRemovalPhiCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
 	     corrParameter.precOverlapRemovalPhiCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x20;
-	  } else if (cut.getCutType() == esCutType::OverlapRemovalDeltaR) {
+	  } else if (cut.getCutType() == esCutType::OvRmDeltaR) {
 	     //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
 	     corrParameter.minOverlapRemovalDRCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
 	     corrParameter.maxOverlapRemovalDRCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
