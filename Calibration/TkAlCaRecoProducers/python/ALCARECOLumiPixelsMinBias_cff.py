@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOVertexPixelZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+ALCARECOLumiPixelsMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, # choose logical OR between Triggerbits
-    eventSetupPathsKey='VertexPixelZeroBias',
+    eventSetupPathsKey='LumiPixelsMinBias',
     throw = False # tolerate triggers stated above, but not available
 )
 
 # Sequence #
-seqALCARECOLumiPixelsMinBias = cms.Sequence(ALCARECOVertexPixelZeroBiasHLT)
+seqALCARECOLumiPixelsMinBias = cms.Sequence(ALCARECOLumiPixelsMinBiasHLT)

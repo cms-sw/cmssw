@@ -4,6 +4,12 @@ import FWCore.ParameterSet.Config as cms
 #AlCaReco filtering for HCAL pedestal:
 #------------------------------------------------
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+hcalCalibPedestalHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    eventSetupPathsKey='HcalCalPedestal',
+    throw = False #dont throw except on unknown path name 
+)
+
 import EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi
 hcalCalibPedestal = EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi.hcalCalibTypeFilter.clone(
     #  InputLabel = cms.string('rawDataCollector'),
@@ -65,7 +71,8 @@ horecoPedestal.dropZSmarkedPassed = cms.bool(False)
 
 hcalLocalRecoSequencePedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*horecoPedestal) 
 
-seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
+seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestalHLT*
+                                          hcalCalibPedestal*
                                           hcalDigiAlCaPedestal*
                                           qie10Digis*
                                           gtDigisAlCaPedestal*
