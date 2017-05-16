@@ -1,17 +1,17 @@
-#ifndef L1Trigger_L1TGlobal_CaloCondition_h
-#define L1Trigger_L1TGlobal_CaloCondition_h
+#ifndef L1Trigger_L1TGlobal_CorrWithOverlapRemovalCondition_h
+#define L1Trigger_L1TGlobal_CorrWithOverlapRemovalCondition_h
 
 /**
- * \class CaloCondition
+ * \class CorrWithOverlapRemovalCondition
  * 
  * 
- * Description: evaluation of a CondCalo condition.
+ * Description: evaluation of a correlation with overlap removal condition.
  * 
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- *          Vladimir Rekovic - extend for indexing
+ * \author: Vladimir Rekovic
+ *
  * 
  *
  */
@@ -23,10 +23,11 @@
 // user include files
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 // forward declarations
 class GlobalCondition;
-class CaloTemplate;
+class CorrelationWithOverlapRemovalTemplate;
 
 namespace l1t {
 
@@ -35,30 +36,32 @@ class L1Candidate;
 class GlobalBoard;
 
 // class declaration
-class CaloCondition : public ConditionEvaluation
+class CorrWithOverlapRemovalCondition : public ConditionEvaluation
 {
 
 public:
 
     /// constructors
     ///     default
-    CaloCondition();
+    CorrWithOverlapRemovalCondition();
 
     ///     from base template condition (from event setup usually)
-    CaloCondition(const GlobalCondition*, const GlobalBoard*,
-            const int nrL1EG,
-            const int nrL1Jet,
-            const int nrL1Tau,
-            const int ifCaloEtaNumberBits);
+    CorrWithOverlapRemovalCondition(const GlobalCondition*,
+                  const GlobalCondition*,
+		  const GlobalCondition*, 
+		  const GlobalCondition*, 
+                  const GlobalBoard*
+
+            );
 
     // copy constructor
-    CaloCondition(const CaloCondition&);
+    CorrWithOverlapRemovalCondition(const CorrWithOverlapRemovalCondition&);
 
     // destructor
-    virtual ~CaloCondition();
+    virtual ~CorrWithOverlapRemovalCondition();
 
     // assign operator
-    CaloCondition& operator=(const CaloCondition&);
+    CorrWithOverlapRemovalCondition& operator=(const CorrWithOverlapRemovalCondition&);
 
 public:
 
@@ -71,11 +74,11 @@ public:
 public:
 
     ///   get / set the pointer to a Condition
-    inline const CaloTemplate* gtCaloTemplate() const {
-        return m_gtCaloTemplate;
+    inline const CorrelationWithOverlapRemovalTemplate* gtCorrelationWithOverlapRemovalTemplate() const {
+        return m_gtCorrelationWithOverlapRemovalTemplate;
     }
 
-    void setGtCaloTemplate(const CaloTemplate*);
+    void setGtCorrelationWithOverlapRemovalTemplate(const CorrelationWithOverlapRemovalTemplate*);
 
     ///   get / set the pointer to uGt GlobalBoard
     inline const GlobalBoard* getuGtB() const {
@@ -83,12 +86,15 @@ public:
     }
 
     void setuGtB(const GlobalBoard*);
+    
+    void setScales(const GlobalScales*);  
 
-
+/*   //BLW Comment out for now
     ///   get / set the number of bits for eta of calorimeter objects
     inline const int gtIfCaloEtaNumberBits() const {
         return m_ifCaloEtaNumberBits;
     }
+
 
     void setGtIfCaloEtaNumberBits(const int&);
 
@@ -98,32 +104,44 @@ public:
     }
 
     void setGtCorrParDeltaPhiNrBins(const int&);
-
+*/
 private:
 
     ///  copy function for copy constructor and operator=
-    void copy(const CaloCondition& cp);
+    void copy(const CorrWithOverlapRemovalCondition& cp);
 
-    /// load calo candidates
+    /// load  candidates
     const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, const unsigned int index) const;
+    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const;
 
 private:
 
-    /// pointer to a CaloTemplate
-    const CaloTemplate* m_gtCaloTemplate;
+    /// pointer to a CorrelationWithOverlapRemovalTemplate
+    const CorrelationWithOverlapRemovalTemplate* m_gtCorrelationWithOverlapRemovalTemplate;
+
+
+    // pointer to subconditions
+    const GlobalCondition* m_gtCond0;
+    const GlobalCondition* m_gtCond1;
+    const GlobalCondition* m_gtCond2; // used for overlap removal
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_uGtB;
+    
+    const GlobalScales* m_gtScales;
 
+
+/*   //BLW comment out for now
     /// number of bits for eta of calorimeter objects
     int m_ifCaloEtaNumberBits;
 
     // maximum number of bins for the delta phi scales
     unsigned int m_corrParDeltaPhiNrBins;
+*/
+
 
 };
 
