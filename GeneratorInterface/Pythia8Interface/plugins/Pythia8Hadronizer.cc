@@ -657,6 +657,11 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
       event()->weights().push_back(wgt);
     }
   }
+
+  if (fEmissionVetoHook) {
+    nISRveto += fEmissionVetoHook->getNISRveto();
+    nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
   
   return true;
 
