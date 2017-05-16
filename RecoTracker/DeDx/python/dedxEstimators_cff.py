@@ -4,7 +4,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     tracks                     = cms.InputTag("generalTracks"),
 
     minTrackHits       = cms.uint32(0),
-    minTrackPt         = cms.double(15),
+    minTrackPt         = cms.double(10),
     maxTrackEta        = cms.double(5.0),
 
     useStrip           = cms.bool(True),
