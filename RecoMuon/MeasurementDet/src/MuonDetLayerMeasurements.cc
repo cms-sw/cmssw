@@ -165,7 +165,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 	}
 	
 	// Get the GEMRecHits not used in GEMSegment
-	for (int layer = 1; layer < 3; ++layer){
+	for (int layer = 1; layer <= GEMDetId::maxLayerId; ++layer){
 	  for(int roll = 1; roll <= GEMDetId::maxRollId; ++roll){
 	    GEMRecHitCollection::range range = theGEMRecHits->get( GEMDetId(chamberId.region(),1,chamberId.station(),layer,chamberId.chamber(),roll) );
 	    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
