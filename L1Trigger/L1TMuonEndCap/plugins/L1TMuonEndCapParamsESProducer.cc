@@ -41,10 +41,7 @@ L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::Paramete
 
    data_.SetPtAssignVersion(iConfig.getParameter<int>("PtAssignVersion"));
    data_.SetFirmwareVersion(iConfig.getParameter<int>("firmwareVersion"));
-   data_.SetSt1PhiMatchWindow(iConfig.getParameter<int>("St1MatchWindow"));
-   data_.SetSt2PhiMatchWindow(iConfig.getParameter<int>("St2MatchWindow"));
-   data_.SetSt3PhiMatchWindow(iConfig.getParameter<int>("St3MatchWindow"));
-   data_.SetSt4PhiMatchWindow(iConfig.getParameter<int>("St4MatchWindow"));
+   data_.SetPcLutVersion   (iConfig.getParameter<int>("pcLutVersion"));
       
 }
 

@@ -110,7 +110,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
     data.SetFirmwareVersion( fw_sinceEpoch );
     data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
-    data.SetSt2PhiMatchWindow( pclut_sinceEpoch ); /// data.SetPcLUTversion(); KK: need to add such function to the EndCapParamsHelper class
+    data.SetPcLutVersion   ( pclut_sinceEpoch );
 
     std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
 
