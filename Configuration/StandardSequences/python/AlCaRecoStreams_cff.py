@@ -335,7 +335,7 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 
 ALCARECOStreamSiStripCalMinBiasAfterAbortGap = cms.FilteredStream(
         responsible = 'Alessandro Di Mattia',
-        name = 'SiStripCalMinBiasAfterAbortGap',
+        name = 'SiStripCalMinBiasAAG',
         paths  = (pathALCARECOSiStripCalMinBiasAfterAbortGap),
         content = OutALCARECOSiStripCalMinBiasAfterAbortGap.outputCommands,
         selectEvents = OutALCARECOSiStripCalMinBiasAfterAbortGap.SelectEvents,
@@ -497,7 +497,7 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 
 ALCARECOStreamHcalCalIterativePhiSym = cms.FilteredStream(
     responsible = 'Natalia Lychkovskaya',
-    name = 'ALCARECOHcalCalIterativePhiSym',
+    name = 'HcalCalIterativePhiSym',
     paths  = (pathALCARECOHcalCalIterativePhiSym),
     content = OutALCARECOHcalCalIterativePhiSym.outputCommands,
     selectEvents = OutALCARECOHcalCalIterativePhiSym.SelectEvents,
@@ -717,7 +717,7 @@ ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 
 ALCARECOStreamPromptCalibProdSiStripGainsAfterAbortGap = cms.FilteredStream(
         responsible = 'Alessandro Di Mattia',
-        name = 'PromptCalibProdSiStripGainsAfterAbortGap',
+        name = 'PromptCalibProdSiStripGainsAAG',
         paths  = (pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap),
         content = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.SelectEvents,

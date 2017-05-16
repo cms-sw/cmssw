@@ -236,7 +236,7 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 
 ALCARECOStreamSiStripCalMinBiasAfterAbortGap = cms.FilteredStream(
         responsible = 'Alessandro Di Mattia',
-        name = 'SiStripCalMinBiasAfterAbortGap',
+        name = 'SiStripCalMinBiasAAG',
         paths  = (pathALCARECOSiStripCalMinBiasAfterAbortGap),
         content = OutALCARECOSiStripCalMinBiasAfterAbortGap.outputCommands,
         selectEvents = OutALCARECOSiStripCalMinBiasAfterAbortGap.SelectEvents,
@@ -518,7 +518,7 @@ ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 
 ALCARECOStreamPromptCalibProdSiStripGainsAfterAbortGap = cms.FilteredStream(
         responsible = 'Alessandro Di Mattia',
-        name = 'PromptCalibProdSiStripGainsAfterAbortGap',
+        name = 'PromptCalibProdSiStripGainsAAG',
         paths  = (pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap),
         content = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiStripGainsAfterAbortGap.SelectEvents,
