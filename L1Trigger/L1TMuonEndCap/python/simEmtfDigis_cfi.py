@@ -44,7 +44,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         DuplicateTheta  = cms.bool(True),
         FixZonePhi      = cms.bool(True),
         UseNewZones     = cms.bool(False),
-        FixME11Edges    = cms.bool(False),
+        FixME11Edges    = cms.bool(True),  ## Status in FW? - AWB 16.05.17
     ),
 
     # Sector processor pattern-recognition parameters

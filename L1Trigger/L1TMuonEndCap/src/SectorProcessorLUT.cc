@@ -23,7 +23,8 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
 
   std::string coord_lut_dir = "";
   if (pc_lut_version == 0)
-    coord_lut_dir = "ph_lut_v1";
+    // coord_lut_dir = "ph_lut_v1";
+    coord_lut_dir = "ph_lut_v2";  // 2017 default, need to O2O - AWB 17.05.17
 
   //std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
   std::string coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/" + coord_lut_dir + "/";
