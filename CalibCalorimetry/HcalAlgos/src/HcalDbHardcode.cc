@@ -6,6 +6,7 @@
 #include <cmath> 
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
@@ -423,27 +424,30 @@ HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
 #define EMAP_NHTRSHO 4
 #define EMAP_NHSETSHO 3
 
-void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
+std::unique_ptr<HcalDcsMap> HcalDbHardcode::makeHardcodeDcsMap() {
+  HcalDcsMapAddons::Helper dcs_map_helper;
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
 			  HcalDcsDetId(HcalDcsForward, -1, 1, HcalDcsDetId::DYN8, 1));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2), 
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2), 
 			  HcalDcsDetId(HcalDcsForward, -1, 7, HcalDcsDetId::HV, 1));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1), 
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1), 
 			  HcalDcsDetId(HcalDcsBarrel, -1, 18, HcalDcsDetId::HV, 3));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4), 
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4), 
 			  HcalDcsDetId(HcalDcsOuter, -2, 2, HcalDcsDetId::HV, 4));
-  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2), 
+  dcs_map_helper.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2), 
 			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
+  return std::make_unique<HcalDcsMap>(dcs_map_helper);
 }
 
-void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells) {
+std::unique_ptr<HcalElectronicsMap> HcalDbHardcode::makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) {
   static const int kUTCAMask = 0x4000000; //set bit 26 for uTCA version
   static const int kLinearIndexMax = 0x7FFFF; //19 bits
   static const int kTriggerBitMask = 0x02000000; //2^25
   uint32_t counter = 0;
   uint32_t counterTrig = 0;
+  HcalElectronicsMapAddons::Helper emapHelper;
   for(const auto& fId : cells){
     if(fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
        fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
@@ -456,7 +460,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector
       uint32_t raw = counter;
       raw |= kUTCAMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2chId(elId,fId);
+      emapHelper.mapEId2chId(elId,fId);
     }
     else if(fId.genericSubdet() == HcalGenericDetId::HcalGenTriggerTower){
       ++counterTrig;
@@ -464,14 +468,14 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector
       uint32_t raw = counterTrig;
       raw |= kUTCAMask | kTriggerBitMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2tId(elId,fId);
+      emapHelper.mapEId2tId(elId,fId);
     }
   }
-  emap.sort();
+  return std::make_unique<HcalElectronicsMap>(emapHelper);
 }
 
-void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) {
-
+std::unique_ptr<HcalFrontEndMap> HcalDbHardcode::makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) {
+  HcalFrontEndMapAddons::Helper emapHelper;
   std::stringstream mystream;
   std::string detector[5] = {"XX","HB","HE","HO","HF"};
   for (const auto& fId : cells) {
@@ -498,7 +502,7 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 	mystream << tempbuff;
 	rbx = mystream.str();
 	mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       } else if (subdet == HcalForward) {
 	det = detector[subdet];
 	int  hfphi(0);
@@ -514,7 +518,7 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 	mystream << tempbuff;
 	rbx = mystream.str();
 	mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       } else if (subdet == HcalOuter) {
 	det = detector[subdet];
 	int ring(0), sector(0);
@@ -532,11 +536,11 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
         mystream << tempbuff;
 	rbx = mystream.str();
         mystream.str("");
-	emap.loadObject(id,irm,rbx);
+	emapHelper.loadObject(id,irm,rbx);
       }
     }
   }
-  emap.sort();
+  return std::make_unique<HcalFrontEndMap>(emapHelper);
 }
 
 int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* topo){
@@ -610,14 +614,15 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
 }
 
-void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
+std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharacteristics () {
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
   // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
+  HcalSiPMCharacteristicsAddons::Helper sipmHelper;
   for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
     auto& ps = theSiPMCharacteristics_[ip];
-    sipm.loadObject(ip+1,
+    sipmHelper.loadObject(ip+1,
       ps.getParameter<int>("pixels"),
       ps.getParameter<double>("nonlin1"),
       ps.getParameter<double>("nonlin2"),
@@ -626,6 +631,7 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
       0,0
     );
   }
+  return std::make_unique<HcalSiPMCharacteristics>(sipmHelper);
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
