@@ -30,7 +30,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    from L1Trigger.L1TGlobal.GlobalParameters_cff import *
+    from L1Trigger.L1TGlobal.StableParameters_cff import *
 #    from L1Trigger.L1TGlobal.GlobalParameters_cff import *
     from L1Trigger.L1TGlobal.PrescalesVetos_cff import *
 #   from L1Trigger.L1TGlobal.TriggerMenu_cff import *
