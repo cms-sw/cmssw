@@ -35,7 +35,8 @@ namespace pat {
     virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
     const edm::EDGetTokenT<TriggerObjectStandAloneCollection> srcToken_;
-   
+    const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+ 
     bool packFilterLabels_, packP4_;
  
   };
@@ -48,6 +49,7 @@ using namespace pat;
 
 PATTriggerObjectStandAloneSlimmer::PATTriggerObjectStandAloneSlimmer( const edm::ParameterSet & iConfig ) : 
     srcToken_( consumes<TriggerObjectStandAloneCollection>( iConfig.getParameter<edm::InputTag>( "src" ) ) ),
+    triggerResultsToken_( consumes< edm::TriggerResults >( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ) ),
     packFilterLabels_( iConfig.getParameter<bool>("packFilterLabels") ),
     packP4_( iConfig.getParameter<bool>("packP4") )
 {
@@ -61,25 +63,16 @@ void PATTriggerObjectStandAloneSlimmer::produce( edm::StreamID, edm::Event & iEv
 {
     edm::Handle<TriggerObjectStandAloneCollection> src;
     iEvent.getByToken( srcToken_, src );
+    edm::Handle< edm::TriggerResults > triggerResults;
+    iEvent.getByToken( triggerResultsToken_, triggerResults );
 
     auto slimmed = std::make_unique<TriggerObjectStandAloneCollection>(*src);
 
     if (packFilterLabels_) {
         std::set<std::string> allLabels;
         for (auto & obj : *slimmed) {
-	        obj.packFilterLabels();
-/*            for (const std::string & label : obj.filterLabels()) {
-                allLabels.insert(label);
-            }*/
+	        obj.packFilterLabels(iEvent,*triggerResults);
         }
-/*
-        auto newlabels = std::make_unique<std::vector<std::string>>();
-        newlabels->reserve(allLabels.size());
-        newlabels->insert(newlabels->end(), allLabels.begin(), allLabels.end());
-        for (TriggerObjectStandAlone & obj : *slimmed) {
-            obj.packFilterLabels(*newlabels);
-        }
-        iEvent.put(std::move(newlabels), "filterLabels");*/
 
     }
     if (packP4_) {

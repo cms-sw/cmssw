@@ -24,6 +24,7 @@
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/EventBase.h"
 namespace edm { class TriggerNames; }
 
 namespace pat {
@@ -35,8 +36,8 @@ namespace pat {
       /// although they refer only to HLT objects.
 
       /// Vector of labels of all HLT filters or names of L1 conditions the trigger objects has been used in
-      mutable std::vector< std::string > filterLabels_;
-      mutable std::vector< uint16_t >    filterLabelIndices_; 
+      std::vector< std::string > filterLabels_;
+      std::vector< uint16_t >    filterLabelIndices_; 
 
       /// Vector of names of all HLT paths or L1 algorithms the trigger objects has been used in
       std::vector< std::string > pathNames_;  
@@ -53,7 +54,6 @@ namespace pat {
       std::vector< bool > pathL3FilterAccepted_;
 
       edm::ParameterSetID  psetId_;
-      std::string processName_;
 
       /// Constants
 
@@ -83,8 +83,7 @@ namespace pat {
       /// Check if trigger names have been packed by calling packPathNames() and not yet unpacked
       bool checkIfPathsAreUnpacked(bool throwIfPacked=true) const ;
       /// Check if trigger names have been packed by calling packFilterLabels() and not yet unpacked
-      /// if unpack is true does the unpacking now if needed
-      bool checkIfFiltersAreUnpacked(bool unpack=true) const ;
+      bool checkIfFiltersAreUnpacked(bool  throwIfPacked=true) const ;
 
     public:
 
@@ -156,33 +155,30 @@ namespace pat {
       /// Calls 'hasCollection(...)' (method override)
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
 
-      ///set the HLT process name used to fill the object
-      void setProcessName(std::string const& processName){processName_=processName;}
       ///set the psetid of the trigger process
       void setPSetID(const edm::ParameterSetID &psetId){psetId_=psetId;}
       
       const edm::ParameterSetID &psetID() const {return psetId_;}
 
 
-      void packFilterLabels() {packFilterLabels(*allLabels(psetId_));}
+      void packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res)  {packFilterLabels(*allLabels(psetId_,event,res));}
       ///  pack trigger names into indices 
       void packPathNames(const edm::TriggerNames &names) ;
       ///  unpack trigger names into indices 
       void unpackPathNames(const edm::TriggerNames &names) ;
       ///  pack filter labels into indices; note that the labels must be sorted!
-      void packFilterLabels(const std::vector<std::string> &labels) const ;
-      ///  unpack filter labels into indices
-      void unpackFilterLabels(const std::vector<std::string> &labels) const ;
-
-      void unpackFilterLabels() const ;
-
+      void packFilterLabels(const std::vector<std::string> &labels)  ;
+      ///  unpack filter labels from indices
+      void unpackFilterLabels(const std::vector<std::string> &labels)  ;
+      ///  unpack filter labels from indices
+      void unpackFilterLabels(const edm::EventBase & event,const edm::TriggerResults &res)  ;
+      /// unpack both filter labels and trigger names
+      void unpackNamesAndLabels(const edm::EventBase & event,const edm::TriggerResults &res);
 
       /// reduce the precision on the 4-vector
       void packP4();
 
-//      std::vector<std::string> const* allLabels(edm::TriggerResults const& triggerResults,
-  //                                              edm::ProcessHistory const &history,std::string const& processName="HLT") ;
-      std::vector<std::string> const* allLabels(edm::ParameterSetID const& psetid) const ;
+      std::vector<std::string> const* allLabels(edm::ParameterSetID const& psetid,const edm::EventBase & event,const edm::TriggerResults &res) const ;
 
   };
 

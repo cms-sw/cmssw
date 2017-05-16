@@ -1024,10 +1024,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
   for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
-        obj.setProcessName(nameProcess_);
         obj.setPSetID(config.parameterSetID());
 	if(packPathNames_)      obj.packPathNames(names);
-	if(packLabels_)      obj.packFilterLabels();
+	if(packLabels_)      obj.packFilterLabels(iEvent,*handleTriggerResults);
   }
   
   // Put (finally) stand-alone trigger objects to event
