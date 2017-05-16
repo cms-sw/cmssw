@@ -168,7 +168,7 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
       const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
 
       if ( fedRawData.size() == 0 || fedRawDataArray == nullptr ) {
-        LogError("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
+        LogDebug("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
         continue;
       }
       
