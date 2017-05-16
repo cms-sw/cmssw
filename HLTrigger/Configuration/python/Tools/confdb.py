@@ -264,6 +264,9 @@ modifyHLTforEras(%(process)s)
     # if requested, run the L1 emulator
     self.runL1Emulator()
 
+    # add process.load("setup_cff")
+    self.loadSetupCff()
+
     if self.config.fragment:
       self.data += """
 # dummyfy hltGetConditions in cff's
@@ -278,9 +281,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
-
-      # add process.load("setup_cff")
-      self.loadSetupCff()
 
       # select specific Eras 
       self.addEras()
