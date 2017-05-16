@@ -33,7 +33,7 @@ public:
 			  const std::string&);
   void loadGeometryHexagon(const DDFilteredView&, HGCalParameters&,
 			   const std::string&, const DDCompactView*,
-			   const std::string&, const std::string&);
+			   const std::string&, const std::string&, int);
   void loadSpecParsSquare(const DDFilteredView&, HGCalParameters&);
   void loadSpecParsHexagon(const DDFilteredView&, HGCalParameters&,
 			   const DDCompactView*, const std::string&, 
