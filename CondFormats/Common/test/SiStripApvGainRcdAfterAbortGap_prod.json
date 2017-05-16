@@ -1,8 +1,8 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
     "destinationTags": {
-        "SiStripApvGainAfterAbortGap_PCL_v0_prompt": {},
-        "SiStripApvGainAfterAbortGap_PCL_v0_hlt": {}
+        "SiStripApvGainAfterAbortGap_PCL_v0_hlt": {}, 
+        "SiStripApvGainAfterAbortGap_PCL_v0_prompt": {}
     }, 
     "inputTag": "SiStripApvGainAfterAbortGap_pcl", 
     "since": null, 
