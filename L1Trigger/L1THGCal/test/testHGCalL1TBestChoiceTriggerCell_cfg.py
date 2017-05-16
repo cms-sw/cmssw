@@ -109,6 +109,7 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 ## define trigger emulator without trigger cell selection
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellBestChoiceCodec')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
@@ -120,6 +121,8 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 
 ## define trigger emulator with trigger cell selection
+process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.CodecName = cms.string('HGCalTriggerCellBestChoiceCodec')
+process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.NData = cms.uint32(12)
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
 cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
                                  FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec,
