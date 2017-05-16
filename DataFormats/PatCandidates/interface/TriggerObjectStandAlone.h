@@ -161,7 +161,7 @@ namespace pat {
       const edm::ParameterSetID &psetID() const {return psetId_;}
 
 
-      void packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res)  {packFilterLabels(*allLabels(psetId_,event,res));}
+      void packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res);
       ///  pack trigger names into indices 
       void packPathNames(const edm::TriggerNames &names) ;
       ///  unpack trigger names into indices 
