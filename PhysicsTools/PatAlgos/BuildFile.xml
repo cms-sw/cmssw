@@ -21,9 +21,6 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoTracker/DeDx"/>
-<use   name="TrackingTools/TrackAssociator"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="MagneticField/Engine"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="clhep"/>
