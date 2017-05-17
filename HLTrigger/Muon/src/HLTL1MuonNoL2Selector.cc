@@ -34,10 +34,11 @@ HLTL1MuonNoL2Selector::HLTL1MuonNoL2Selector(const edm::ParameterSet& iConfig) :
   theL1MinPt_(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta_(iConfig.getParameter<double>("L1MaxEta")),
   theL1MinQuality_(iConfig.getParameter<unsigned int>("L1MinQuality")),
+  centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") ),
   theL2CandTag_     (iConfig.getParameter< edm::InputTag > ("L2CandTag")),
   theL2CandToken_   (consumes<reco::RecoChargedCandidateCollection>(theL2CandTag_)),
-  theL1CandTag_   (iConfig.getParameter<InputTag > ("L1CandTag")),
-  theL1CandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(theL1CandTag_)),
+  //  theL1CandTag_   (iConfig.getParameter<InputTag > ("L1CandTag")),
+  //  theL1CandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(theL1CandTag_)),
   seedMapTag_( iConfig.getParameter<InputTag >("SeedMapTag") ),
   seedMapToken_(consumes<SeedMap>(seedMapTag_))
 {
@@ -59,6 +60,7 @@ HLTL1MuonNoL2Selector::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);
+  desc.add<bool>("CentralBxOnly", true);
   descriptions.add("hltL1MuonNoL2Selector",desc);
 }
 
@@ -87,19 +89,23 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
   edm::Handle<SeedMap> seedMapHandle;
   iEvent.getByToken(seedMapToken_, seedMapHandle);
   
-  std::vector<l1t::MuonRef> firedL1Muons_;
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1Cands;
-  iEvent.getByToken(theL1CandToken_, L1Cands);
-  L1Cands->getObjects(trigger::TriggerL1Mu, firedL1Muons_);
+//  std::vector<l1t::MuonRef> firedL1Muons_;
+//  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1Cands;
+//  iEvent.getByToken(theL1CandToken_, L1Cands);
+//  L1Cands->getObjects(trigger::TriggerL1Mu, firedL1Muons_);
       
   for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
-    if (ibx != 0) continue;
+    if (centralBxOnly_ && (ibx != 0)) continue;
     for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
       l1t::MuonRef l1muon(muColl, distance(muColl->begin(muColl->getFirstBX()),it) );
       
-      // only select L1's that fired: 
-      if(find(firedL1Muons_.begin(), firedL1Muons_.end(), l1muon) == firedL1Muons_.end()) continue;
-      
+      unsigned int quality = it->hwQual();
+      float pt    =  it->pt();
+      float eta   =  it->eta();
+
+      if ( pt < theL1MinPt_ || fabs(eta) > theL1MaxEta_ ) continue;
+      if ( quality <= theL1MinQuality_ ) continue;
+
       // Loop over L2's to find whether the L1 fired this L2. 
       bool isTriggeredByL1=false;
       for (auto const & cand : *L2cands) {
@@ -107,7 +113,7 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
 	const edm::RefVector<L2MuonTrajectorySeedCollection>& seeds = (*seedMapHandle)[l2muon->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
 	for(auto const & seed : seeds){
 	  // Check if the L2 was seeded by a triggered L1, in such case skip the loop. 
-	  if(find(firedL1Muons_.begin(), firedL1Muons_.end(), seed->l1tParticle()) != firedL1Muons_.end()){
+	  if(seed->l1tParticle()==l1muon) {
 	    isTriggeredByL1 = true;
 	    break;
 	  }
