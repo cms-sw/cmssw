@@ -5,6 +5,8 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -78,6 +80,7 @@ protected:
 public:
   explicit VirtualJetProducer(const edm::ParameterSet& iConfig);
   virtual ~VirtualJetProducer();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   // typedefs
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
@@ -178,7 +181,12 @@ protected:
   bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
   bool                  doFastJetNonUniform_;       // choice of eta-dependent PU calculation
   double                voronoiRfact_;              // negative to calculate rho using active area (ghosts); otherwise calculates Voronoi area with this effective scale factor
-  
+
+  double                rhoEtaMax;                  // Eta range of jets to be considered for Rho calculation; Should be at most (jet acceptance - jet radius)
+  double                ghostEtaMax;              // default Ghost_EtaMax should be 5
+  int                   activeAreaRepeats;        // default Active_Area_Repeats 1
+  double                ghostArea;                // default GhostArea 0.01
+
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   std::string           puSubtractorName_;
