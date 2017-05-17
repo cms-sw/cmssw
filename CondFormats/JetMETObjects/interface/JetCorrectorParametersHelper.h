@@ -30,6 +30,7 @@ class JetCorrectorParametersHelper
     void initTransientMaps();
     void init(const JetCorrectorParameters::Definitions& mDefinitions,
               const std::vector<JetCorrectorParameters::Record>& mRecords);
+    void checkMiddleBinUniformity(const std::vector<JetCorrectorParameters::Record>& mRecords)                const;
     void binIndexChecks(unsigned N, const std::vector<float>& fX)                                             const;
     bool binBoundChecks(unsigned dim, const float& value, const float& min, const float& max)                 const;
     int  binIndexN(const std::vector<float>& fX, const std::vector<JetCorrectorParameters::Record>& mRecords) const;

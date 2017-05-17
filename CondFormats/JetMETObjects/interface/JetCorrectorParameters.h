@@ -123,6 +123,7 @@ class JetCorrectorParameters
 
   COND_SERIALIZABLE;
 };
+std::ostream& operator<<(std::ostream& out, const JetCorrectorParameters::Record& fBin);
 
 
 class JetCorrectorParametersCollection {
