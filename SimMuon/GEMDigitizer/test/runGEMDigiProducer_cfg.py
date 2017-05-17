@@ -1,14 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GEMDIGI")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("GEMDIGI", eras.Phase2C2)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -28,7 +30,7 @@ process.options = cms.untracked.PSet(
 )
 
 # customization of the process.pdigi sequence to add the GEM digitizer 
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
+from SimMuon.Configuration.customizeMuonDigi import customize_digi_addGEM_muon_only
 process = customize_digi_addGEM_muon_only(process) 
 
 ### Fix RPC Digitization ###
