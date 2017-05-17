@@ -1,6 +1,7 @@
 #ifndef TRACKSPLITPLOT_H
 #define TRACKSPLITPLOT_H
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -66,21 +67,24 @@ Table Of Contents
 
 #include "trackSplitPlot.h"
 
+ofstream devnull("/dev/null");
+template<typename T> T identity(T t) {return t;}
+
 //===================
 //0. Track Split Plot
 //===================
 
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,TString yvar,
                         Bool_t relative = false,Bool_t resolution = false,Bool_t pull = false,
-                        TString saveas = "");
+                        TString saveas = "", ostream& summaryfile=devnull);
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString var,
-                        Bool_t relative = false,Bool_t pull = false,TString saveas = "");
+                        Bool_t relative = false,Bool_t pull = false,TString saveas = "", ostream& summaryfile=devnull);
 TCanvas *trackSplitPlot(TString file,TString xvar,TString yvar,Bool_t profile = false,
                         Bool_t relative = false,Bool_t resolution = false,Bool_t pull = false,
-                        TString saveas = "");
+                        TString saveas = "", ostream& summaryfile=devnull);
 TCanvas *trackSplitPlot(TString file,TString var,
                         Bool_t relative = false,Bool_t pull = false,
-                        TString saveas = "");
+                        TString saveas = "", ostream& summaryfile=devnull);
 void placeholder(TString saveas = "",Bool_t wide = false);
 void saveplot(TCanvas *c1,TString saveas);
 void deleteCanvas(TObject *canvas);
@@ -165,7 +169,10 @@ void makePlots(TString file,TString directory);
 
 TString fancyname(TString variable);
 TString units(TString variable,Char_t axis);
+TString plainunits(TString variable,Char_t axis);
+TString latexunits(TString variable,Char_t axis);
 TString axislabel(TString variable, Char_t axis, Bool_t relative = false, Bool_t resolution = false, Bool_t pull = false);
+TString latexlabel(TString variable, Char_t axis, Bool_t relative = false, Bool_t resolution = false, Bool_t pull = false);
 void setAxisLabels(TH1 *p, PlotType type,TString xvar,TString yvar,Bool_t relative,Bool_t pull);
 void setAxisLabels(TMultiGraph *p, PlotType type,TString xvar,TString yvar,Bool_t relative,Bool_t pull);
 TString nPart(Int_t part,TString string,TString delimit = ";",Bool_t removerest = true);

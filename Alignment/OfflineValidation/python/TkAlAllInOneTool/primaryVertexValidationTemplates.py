@@ -1,16 +1,6 @@
 PrimaryVertexValidationTemplate="""
-import FWCore.ParameterSet.Config as cms
-import sys
- 
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
-
-process = cms.Process("PrimaryVertexValidation") 
-
-###################################################################
-# Event source and run selection
-###################################################################
-.oO[datasetDefinition]Oo.
 
 ###################################################################
 #  Runs and events
@@ -31,42 +21,11 @@ else:
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='.oO[lumilist]Oo.').getVLuminosityBlockRange()
 
-###################################################################
-# Messages
-###################################################################
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
 ####################################################################
 # Produce the Transient Track Record in the event
 ####################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-####################################################################
-# Get the Magnetic Field
-####################################################################
-process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
-
-###################################################################
-# Geometry load
-###################################################################
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-
-####################################################################
-# Get the BeamSpot
-####################################################################
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
-####################################################################
-# Get the GlogalTag
-####################################################################
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '.oO[GlobalTag]Oo.', '')
-
-.oO[condLoad]Oo.
-     
 ####################################################################
 # Load and Configure event selection
 ####################################################################
@@ -95,34 +54,6 @@ if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
 else:
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
-
-####################################################################
-# Load and Configure Measurement Tracker Event 
-# (would be needed in case NavigationSchool is set != from null
-####################################################################
-#process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-#process.MeasurementTrackerEvent.pixelClusterProducer = '.oO[TrackCollection]Oo.'
-#process.MeasurementTrackerEvent.stripClusterProducer = '.oO[TrackCollection]Oo.'
-#process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-#process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
-
-####################################################################
-# Load and Configure TrackRefitter
-####################################################################
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.TrackRefitter.src = ".oO[TrackCollection]Oo."
-process.TrackRefitter.TrajectoryInEvent = True
-process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = ".oO[ttrhbuilder]Oo."
-
-####################################################################
-# Output file
-####################################################################
-process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string(".oO[outputFile]Oo.")
-                                  )                                    
 
 ####################################################################
 # Deterministic annealing clustering
@@ -207,15 +138,15 @@ else:
                                                                        )
                                            )
 
+"""
+
 ####################################################################
-# Path
 ####################################################################
+PVValidationPath="""
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
-                     #process.MeasurementTrackerEvent*
                      process.TrackRefitter*
                      process.PVValidation)
-
 """
 
 ####################################################################
@@ -244,7 +175,7 @@ rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
@@ -351,12 +282,12 @@ root -x -b -q TkAlPrimaryVertexValidationPlot.C++
 
 for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo.                                                                                                                               
+    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done 
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[datadir]Oo.
+    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """
@@ -368,9 +299,6 @@ PrimaryVertexPlotTemplate="""
 /****************************************
 This can be run directly in root, or you
  can run ./TkAlMerge.sh in this directory
-It can be run as is, or adjusted to fit
- for misalignments or to only make
- certain plots
 ****************************************/
 
 #include "Alignment/OfflineValidation/macros/FitPVResiduals.C"
@@ -397,7 +325,7 @@ void TkAlPrimaryVertexValidationPlot()
                       .oO[w_dzEtaNormMax]Oo.       // width of dz  vs Eta (norm)
 		      );
 
- .oO[PrimaryVertexPlotInstantiation]Oo.
+ .oO[PlottingInstantiation]Oo.
   FitPVResiduals("",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """
