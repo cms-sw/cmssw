@@ -43,7 +43,7 @@ class L1TUtmCondition
     // ctor
     L1TUtmCondition()
       : name_(), type_(-9999),
-        objects_(), cuts_() { };
+        objects_(), cuts_(), version(0) { };
 
     // dtor
     virtual ~L1TUtmCondition() { };

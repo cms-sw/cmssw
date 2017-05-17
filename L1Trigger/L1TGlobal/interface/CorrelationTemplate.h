@@ -66,25 +66,29 @@ public:
     /// typedef for correlation parameters
     struct CorrelationParameter
     {
-	
+
 	//Cut values in hardware
 	long long minEtaCutValue;
-	long long maxEtaCutValue; 
+	long long maxEtaCutValue;
 	unsigned int precEtaCut;
 
 	long long minPhiCutValue;
-	long long maxPhiCutValue; 
+	long long maxPhiCutValue;
 	unsigned int precPhiCut;
 
 	long long minDRCutValue;
 	long long maxDRCutValue;
-	unsigned int precDRCut; 
+	unsigned int precDRCut;
 
 	long long minMassCutValue;
 	long long maxMassCutValue;
-	unsigned int precMassCut; 
+	unsigned int precMassCut;
 
-        //Requirement on charge of legs (currently only Mu-Mu).	
+        long long minTBPTCutValue;
+        long long maxTBPTCutValue;
+        unsigned int precTBPTCut;
+
+        //Requirement on charge of legs (currently only Mu-Mu).
 	unsigned int chargeCorrelation;
 
 	int corrCutType;
