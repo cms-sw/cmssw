@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+
+TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEE")
+TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("reducedEcalRecHitsEB")
+TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","hbhereco")
+TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","horeco")
 
 stoppedTracks = cms.EDProducer("PATStoppedTrackProducer",
+    TrackAssociatorParameterBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
     lostTracks = cms.InputTag("lostTracks"),
     generalTracks = cms.InputTag("generalTracks"),
@@ -18,4 +25,5 @@ stoppedTracks = cms.EDProducer("PATStoppedTrackProducer",
     # absIso_cut = cms.double(999999.0),
     # relIso_cut = cms.double(999999.0),
     # miniRelIso_cut = cms.double(999999.0),
+
 )

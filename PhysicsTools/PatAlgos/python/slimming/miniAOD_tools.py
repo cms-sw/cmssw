@@ -325,6 +325,8 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsPuppi.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyPuppi")
     del process.slimmedMETsPuppi.caloMET
 
+    # add DetIdAssociatorRecords to EventSetup (for stoppedTracks)
+    process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
 
 def miniAOD_customizeMC(process):
