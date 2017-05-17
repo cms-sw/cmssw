@@ -11,13 +11,12 @@ See comments in the file GetterOfProducts.h.
 */
 
 #include <functional>
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm {
-
-  class BranchDescription;
-  class EDConsumerBase;
 
   template<typename T>
   class WillGetIfMatch {
