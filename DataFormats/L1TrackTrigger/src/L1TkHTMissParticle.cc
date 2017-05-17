@@ -12,7 +12,7 @@ L1TkHTMissParticle::L1TkHTMissParticle(
 	const edm::RefProd< L1TkJetParticleCollection >& jetCollRef,
         const edm::Ref< L1TkPrimaryVertexCollection >& avtxRef,
         int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
+   : L1Candidate(p4 ),
      EtTot_( etTotal ),
      jetCollectionRef_( jetCollRef ),
      vtxRef_( avtxRef ),

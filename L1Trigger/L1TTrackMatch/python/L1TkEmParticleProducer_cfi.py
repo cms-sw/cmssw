@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
         label = cms.string("EG"), 	# labels the collection of L1TkEmParticleProducer that is produced
 					# (not really needed actually)
-        L1EGammaInputTag = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),      # input L1EG collection
+        L1EGammaInputTag = cms.InputTag("simCaloStage2Digis",""),
                                                 # When the standard sequences are used :
                                                 #   - for the Run-1 algo, use ("l1extraParticles","NonIsolated")
                                                 #     or ("l1extraParticles","Isolated")

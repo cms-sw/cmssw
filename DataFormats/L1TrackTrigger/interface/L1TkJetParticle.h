@@ -7,7 +7,7 @@
 // Class  :     L1TkJetParticle
 // 
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/L1Trigger/interface/Jet.h"
@@ -18,7 +18,7 @@
 
 namespace l1t {
   
-  class L1TkJetParticle : public reco::LeafCandidate
+  class L1TkJetParticle : public L1Candidate
     {
       
     public:

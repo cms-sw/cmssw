@@ -1,0 +1,30 @@
+<environment>
+  <library   file="L1TkElectronAnalyzer.cc" name="L1TkElectronAnalyzer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/PluginManager"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Utilities"/>
+    <use   name="FWCore/ServiceRegistry"/>
+    <use   name="DataFormats/L1Trigger"/>
+    <use   name="CommonTools/UtilAlgos"/>
+    <use   name="L1TrackTrigger/L1TTrackMatch"/>    
+    <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use   name="root"/>
+    <flags   CXXFLAGS="-g -O0"/>
+  </library>
+  <library   file="PrintL1TkObjects.cc" name="PrintL1TkObjects">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/PluginManager"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Utilities"/>
+    <use   name="FWCore/ServiceRegistry"/>
+    <use   name="DataFormats/L1Trigger"/>
+    <use   name="CommonTools/UtilAlgos"/>
+    <use   name="L1TrackTrigger/L1TTrackMatch"/>    
+    <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use   name="root"/>
+    <flags   CXXFLAGS="-g -O0"/>
+  </library>
+</environment>

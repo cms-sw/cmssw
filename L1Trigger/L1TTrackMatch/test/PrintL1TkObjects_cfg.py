@@ -21,12 +21,15 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(2)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/NoPU_90X_upgrade2023_realistic_v9-v1/70000/44C2F01A-DE26-E711-A085-FA163E0162D6.root'),
+    fileNames = cms.untracked.vstring(
+        '/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/NoPU_90X_upgrade2023_realistic_v9-v1/70000/44C2F01A-DE26-E711-A085-FA163E0162D6.root',
+        '/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/NoPU_90X_upgrade2023_realistic_v9-v1/70000/70829AD5-1526-E711-B695-FA163E5613EB.root'
+    ),
 #    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_1_0_pre3/RelValSingleElectronPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D11-v1/10000/10597704-722E-E711-A2CD-0CC47A78A436.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -37,20 +40,6 @@ process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
-# Output definition
-
-process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
-        filterName = cms.untracked.string('')
-    ),
-    eventAutoFlushCompressedSize = cms.untracked.int32(10485760),
-    fileName = cms.untracked.string('file:test.root'),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    splitLevel = cms.untracked.int32(0)
-)
-
-process.FEVTDEBUGHLToutput.outputCommands.append('keep  *_*_*_*')
 # Additional output definition
 
 #process.Timing = cms.Service("Timing")
@@ -164,25 +153,57 @@ process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
 process.L1TrackTrigger_step = cms.Path(process.L1TrackletTracks)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 # ---------------------------------------------------------------------------
 
 # Now we produce L1TkEmParticles and L1TkElectrons
 
 
-# ----  "electrons" from L1Tracks. Inclusive electrons :
-
 process.load("L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi")
 process.L1TkElectrons.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
-process.pElectrons = cms.Path( process.L1TkElectrons )
+process.pL1TkElectrons = cms.Path( process.L1TkElectrons )
+
+process.load("L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi")
+process.L1TkPhotons.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
+process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
+
+process.load("L1Trigger.L1TTrackMatch.L1TkJetProducer_cfi")
+process.L1TkJets.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
+process.pL1TkJets = cms.Path( process.L1TkJets)
+
+process.load("L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi")
+process.L1TkPrimaryVertex.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
+process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
+
+process.load("L1Trigger.L1TTrackMatch.L1TkEtMissProducer_cfi")
+process.L1TkEtMiss.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
+process.pL1TrkMET = cms.Path( process.L1TkEtMiss )
+
+process.load("L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi")
+process.L1TkHTMissVtx.L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks" )
+process.pL1TkHTMissVtx = cms.Path( process.L1TkHTMissVtx)
+
+process.pL1TkObjects = cms.Path(process.L1TkElectrons + process.L1TkPhotons + process.L1TkJets + process.L1TkPrimaryVertex + process.L1TkEtMiss + process.L1TkHTMissVtx)
+
+
+process.printTkObj = cms.EDAnalyzer( 'PrintL1TkObjects' ,
+    L1TkVtxInputTag         = cms.InputTag("L1TkPrimaryVertex",""),
+    L1TkEtMissInputTag    = cms.InputTag("L1TkEtMiss","MET"),
+    L1TkJetsInputTag      = cms.InputTag("L1TkJets","Central"),
+    L1TkHTMInputTag       = cms.InputTag("L1TkHTMissVtx", ""),
+    L1TkPhotonsInputTag   = cms.InputTag("L1TkPhotons" "EG"),
+    L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG")
+)
+process.pPrintObject = cms.Path(process.printTkObj)
+# root file with histograms produced by the analyzer
+
+# ---------------------------------------------------------------------------
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.pDumpED = cms.Path(process.dumpED)
-# ---------------------------------------------------------------------------
 
 
-
-process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step,process.pElectrons,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step,process.pL1TkObjects,process.pPrintObject)
+#process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step)
 
 
 

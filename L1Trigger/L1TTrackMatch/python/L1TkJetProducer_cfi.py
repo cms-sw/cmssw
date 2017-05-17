@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 L1TkJets = cms.EDProducer("L1TkJetProducer",
         #L1CentralJetInputTag = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCen8x8"),
-        L1CentralJetInputTag = cms.InputTag("L1CalibFilterTowerJetProducer","CalibratedTowerJets"),    # new L1Jets
+        L1CentralJetInputTag = cms.InputTag("simCaloStage2Digis",""),    # new L1Jets
      	L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
         TRK_ZMAX = cms.double(25.),         # max track z0 [cm]
         TRK_CHI2MAX = cms.double(100.),     # max track chi2

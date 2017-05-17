@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 L1TkHTMissCalo = cms.EDProducer("L1TkHTMissProducer",
-     L1TkJetInputTag = cms.InputTag("L1TkJets","Central"),
+     L1TkJetInputTag = cms.InputTag("L1TkJets" "Central"),
      JET_ETAMAX = cms.double(2.2),          # maximum eta of jets for HT
      JET_PTMIN = cms.double(15.0),          # minimum pt of jets for HT [GeV]
      DoVtxConstrain = cms.bool(False),      # turn on/off applying any vertex constraint

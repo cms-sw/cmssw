@@ -14,7 +14,7 @@ L1TkEtMissParticle::L1TkEtMissParticle(
         const double& etTotalPU,
         const edm::Ref< L1TkPrimaryVertexCollection >& avtxRef,
         int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
+   : L1Candidate( p4 ),
      type_( type ),
      etTot_( etTotal ),
      etMissPU_ ( etMissPU ),

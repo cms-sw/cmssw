@@ -17,7 +17,7 @@ L1TkEmParticle::L1TkEmParticle()
 L1TkEmParticle::L1TkEmParticle( const LorentzVector& p4,
          const edm::Ref< l1t::EGammaBxCollection >& egRef,
 	 float tkisol )
-   : LeafCandidate( ( char ) 0, p4 ),
+   : L1Candidate( p4 ),
      egRef_ ( egRef ),
      TrkIsol_ ( tkisol ) 
 {

@@ -17,7 +17,7 @@
 // system include files
         
 // user include files
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
@@ -26,7 +26,7 @@
 
 namespace l1t {
 
-  class L1TkEtMissParticle : public reco::LeafCandidate
+  class L1TkEtMissParticle : public L1Candidate
     { 
     public:
       

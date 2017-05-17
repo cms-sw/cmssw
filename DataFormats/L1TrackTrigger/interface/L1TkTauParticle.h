@@ -7,7 +7,6 @@
 // Class  :     L1TkTauParticle
 //
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
@@ -21,7 +20,7 @@
 
 namespace l1t {
          
-   class L1TkTauParticle : public reco::LeafCandidate
+   class L1TkTauParticle : public L1Candidate
    {     
          
       public:

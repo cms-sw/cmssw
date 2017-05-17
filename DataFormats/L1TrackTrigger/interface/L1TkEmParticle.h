@@ -7,7 +7,7 @@
 // Class  :     L1TkEmParticle
 // 
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -17,7 +17,7 @@
 
 namespace l1t {
          
-   class L1TkEmParticle : public reco::LeafCandidate
+   class L1TkEmParticle : public L1Candidate
    {     
          
       public:

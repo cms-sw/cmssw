@@ -52,31 +52,30 @@
  <class name="edm::Wrapper<std::vector<L1TkPrimaryVertex> >"/>
   <class name="edm::Ref<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex> >"/>
 
-  <class name="l1t::L1TkEtMissParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="3277669495"/>
+  <class name="l1t::L1TkEtMissParticle" ClassVersion="14">
+   <version ClassVersion="14" checksum="399486037"/>
   </class>
   <class name="std::vector<l1t::L1TkEtMissParticle>"/>
  <class name="edm::Wrapper<l1t::L1TkEtMissParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkEtMissParticle> >"/>
 
-  <class name="l1t::L1TkEmParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="1290666254"/>
+  <class name="l1t::L1TkEmParticle" ClassVersion="14">
+   <version ClassVersion="14" checksum="725108714"/>
   </class>
   <class name="std::vector<l1t::L1TkEmParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkEmParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkEmParticle>,l1t::L1TkEmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkEmParticle>,l1t::L1TkEmParticle> >"/>
 
-  <class name="l1t::L1TkElectronParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="233957435"/>
+  <class name="l1t::L1TkElectronParticle" ClassVersion="14">
+   <version ClassVersion="14" checksum="1208575695"/>
   </class>
   <class name="edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ > >"/>
   <class name="std::vector<l1t::L1TkElectronParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkElectronParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkElectronParticle>,l1t::L1TkElectronParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkElectronParticle>,l1t::L1TkElectronParticle> >"/>
 
-  <class name="l1t::L1TkJetParticle" ClassVersion="12">
-   <version ClassVersion="12" checksum="4142308388"/>
-   <version ClassVersion="12" checksum="3351458416"/>
+  <class name="l1t::L1TkJetParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="3035102634"/>
   </class>
   <class name="std::vector<l1t::L1TkJetParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkJetParticle> >"/>
@@ -84,8 +83,8 @@
 
   <class name="edm::RefProd< std::vector<l1t::L1TkJetParticle> >"/>
   
-  <class name="l1t::L1TkHTMissParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="1372312490"/>
+  <class name="l1t::L1TkHTMissParticle" ClassVersion="14">
+   <version ClassVersion="14" checksum="3858597526"/>
   </class>
   <class name="std::vector<l1t::L1TkHTMissParticle>"/>
   <class name="edm::Wrapper<l1t::L1TkHTMissParticle>"/>
@@ -101,8 +100,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TkMuonParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle> >"/>
 -->
-  <class name="l1t::L1TkTauParticle" ClassVersion="12">
-   <version ClassVersion="12" checksum="431862713"/>
+  <class name="l1t::L1TkTauParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="3745919721"/>
   </class>
   <class name="std::vector<l1t::L1TkTauParticle>"/>
   <class name="edm::Wrapper<std::vector<l1t::L1TkTauParticle> >"/>

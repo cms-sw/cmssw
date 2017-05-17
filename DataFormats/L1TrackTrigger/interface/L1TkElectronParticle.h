@@ -7,7 +7,6 @@
 // Class  :     L1TkEmParticle
 // 
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 

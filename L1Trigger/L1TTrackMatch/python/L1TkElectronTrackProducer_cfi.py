@@ -27,6 +27,8 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
 	DRmax = cms.double( 0.2 ),
 	DeltaZ = cms.double( 0.6 )    # in cm. Used for tracks to be used isolation calculation
 )
+L1TkIsoElectrons = L1TkElectrons.clone()
+L1TkIsoElectrons.IsoCut = cms.double( 0.10 )
 # for  LowPt Electron
 L1TkElectronsLoose = L1TkElectrons.clone()
 L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)

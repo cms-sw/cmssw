@@ -20,7 +20,7 @@ L1TkTauParticle::L1TkTauParticle( const LorentzVector& p4,
          const edm::Ptr< L1TTTrackType >& trkPtr2,
          const edm::Ptr< L1TTTrackType >& trkPtr3,
 	 float tkisol )
-   : LeafCandidate( ( char ) 0, p4 ),
+   : L1Candidate( p4 ),
      tauCaloRef_ ( tauCaloRef ) ,
      trkPtr_ ( trkPtr ) ,
      trkPtr2_ ( trkPtr2 ) ,

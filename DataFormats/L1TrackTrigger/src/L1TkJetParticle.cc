@@ -18,7 +18,7 @@ L1TkJetParticle::L1TkJetParticle( const LorentzVector& p4,
 				  const edm::Ref< JetBxCollection >& jetRef,
 				  const std::vector< edm::Ptr< L1TTTrackType > >& trkPtrs,
 				  float jetvtx )
-: LeafCandidate( ( char ) 0, p4 ),
+: L1Candidate( p4 ),
   jetRef_ ( jetRef ),
   trkPtrs_ ( trkPtrs ),
   JetVtx_ ( jetvtx )
