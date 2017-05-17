@@ -1,3 +1,7 @@
+
+#include "Pythia8/UserHooks.h"
+#include "Pythia8/Event.h"
+
 class ResonanceDecayFilterHook : public Pythia8::UserHooks {
 
 public:  

@@ -1,5 +1,7 @@
 //to allow combining multiple user hooks
 
+#include "Pythia8/UserHooks.h"
+
 class MultiUserHook : public Pythia8::UserHooks {
 
 public:  
