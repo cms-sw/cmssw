@@ -118,11 +118,11 @@ ElectronNHitSeedProducer::ElectronNHitSeedProducer( const edm::ParameterSet& pse
 void ElectronNHitSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("initialSeeds",edm::InputTag());
+  desc.add<edm::InputTag>("initialSeeds",edm::InputTag("hltElePixelSeedsCombined"));
   desc.add<edm::InputTag>("vertices",edm::InputTag());
-  desc.add<edm::InputTag>("beamSpot",edm::InputTag()); 
-  desc.add<edm::InputTag>("measTkEvt",edm::InputTag());
-  desc.add<std::vector<edm::InputTag> >("superClusters");
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("hltOnlineBeamSpot")); 
+  desc.add<edm::InputTag>("measTkEvt",edm::InputTag("hltSiStripClusters"));
+  desc.add<std::vector<edm::InputTag> >("superClusters",std::vector<edm::InputTag>{edm::InputTag{"hltEgammaSuperClustersToPixelMatch"}});
   desc.add<edm::ParameterSetDescription>("matcherConfig",TrajSeedMatcher::makePSetDescription());
   
   descriptions.add("electronNHitSeedProducer",desc);
