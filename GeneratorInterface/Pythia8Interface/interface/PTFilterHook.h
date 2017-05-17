@@ -1,3 +1,6 @@
+
+#include "Pythia8/UserHooks.h"
+
 class PTFilterHook : public Pythia8::UserHooks {
 
 public:  
