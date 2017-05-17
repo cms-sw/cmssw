@@ -42,7 +42,9 @@ namespace l1t {
            egHOverEEndcap=30,
 	   etSumPUS=31,
 	   etSumBypassPUSFlag=32,
-	   NUM_CALOPARAMNODES=33
+	   egBypassExtHoE=33,
+	   egIsolation2=34,
+	   NUM_CALOPARAMNODES=35
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -126,6 +128,7 @@ namespace l1t {
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
     unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
+    unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
     int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
     int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
@@ -138,6 +141,7 @@ namespace l1t {
 
     std::string egIsolationType() const { return pnode_[egIsolation].type_; }
     l1t::LUT* egIsolationLUT() { return &pnode_[egIsolation].LUT_; }
+    l1t::LUT* egIsolationLUT2() { return &pnode_[egIsolation2].LUT_; }
     std::string egCalibrationType() const { return pnode_[egCalibration].type_; }
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
     l1t::LUT* egCalibrationLUT() { return &pnode_[egCalibration].LUT_; }
@@ -164,6 +168,10 @@ namespace l1t {
       pnode_[egBypassEGVetosFlag].uparams_.resize(1);
       pnode_[egBypassEGVetosFlag].uparams_[0] = flag; 
     }
+    void setEgBypassExtHOverE(unsigned flag) {
+      pnode_[egBypassExtHoE].uparams_.resize(1);
+      pnode_[egBypassExtHoE].uparams_[0] = flag;
+    }
     void setEgHOverEcutBarrel(int cut) { 
       pnode_[egHOverEBarrel].iparams_.resize(1);
       pnode_[egHOverEBarrel].iparams_[0] = cut; 
@@ -180,6 +188,7 @@ namespace l1t {
     void setEgPUSParams(const std::vector<double> & params) { pnode_[egPUS].dparams_ = params; }
     void setEgIsolationType(std::string type) { pnode_[egIsolation].type_ = type; }
     void setEgIsolationLUT(const l1t::LUT & lut) { pnode_[egIsolation].LUT_ = lut; }
+    void setEgIsolationLUT2(const l1t::LUT & lut) { pnode_[egIsolation2].LUT_ = lut; }
     void setEgCalibrationType(std::string type) { pnode_[egCalibration].type_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = params; }
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }

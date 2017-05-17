@@ -114,6 +114,7 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setEgMinPtHOverEIsolation(conf.getParameter<int>("egMinPtHOverEIsolation"));
   m_params_helper.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
   m_params_helper.setEgBypassEGVetos(conf.getParameter<unsigned>("egBypassEGVetos"));
+  m_params_helper.setEgBypassExtHOverE(conf.getParameter<unsigned>("egBypassExtHOverE"));
 
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
@@ -140,6 +141,10 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<LUT> egIsoLUT( new LUT(egIsoLUTStream) );
   m_params_helper.setEgIsolationLUT(*egIsoLUT);
+  edm::FileInPath egIsoLUTFile2 = conf.getParameter<edm::FileInPath>("egIsoLUTFile2");
+  std::ifstream egIsoLUTStream2(egIsoLUTFile2.fullPath());
+  auto egIsoLUT2 = std::make_shared<LUT>(egIsoLUTStream2);
+  m_params_helper.setEgIsolationLUT2(*egIsoLUT2);
 
   //edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
   //std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
