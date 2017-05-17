@@ -1,23 +1,39 @@
 #include <string>
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/StoppedTrack.h"
-#include "DataFormats/PatCandidates/interface/PFIsolation.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
-#include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include "DataFormats/DetId/interface/DetId.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/StoppedTrack.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace pat {
 
@@ -50,6 +66,9 @@ namespace pat {
             const float absIso_cut;  // save if ANY of absIso, relIso, or miniRelIso pass the cuts 
             const float relIso_cut;
             const float miniRelIso_cut;
+
+            TrackDetectorAssociator trackAssociator_;
+            TrackAssociatorParameters trackAssocParameters_;
     };
 }
 
@@ -69,6 +88,13 @@ pat::PATStoppedTrackProducer::PATStoppedTrackProducer(const edm::ParameterSet& i
   relIso_cut(iConfig.getParameter<double>("relIso_cut")),
   miniRelIso_cut(iConfig.getParameter<double>("miniRelIso_cut"))
 {
+    // TrackAssociator parameters
+    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+    edm::ConsumesCollector iC = consumesCollector();
+    trackAssocParameters_.loadParameters( parameters, iC );
+
+    trackAssociator_.useDefaultPropagator();
+
     produces< pat::StoppedTrackCollection > ();
 }
 
@@ -99,8 +125,16 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     edm::Handle<reco::DeDxHitInfoAss> gt2dedxHitInfo;
     iEvent.getByToken(gt2dedxHitInfo_, gt2dedxHitInfo);
 
-    auto outPtrP = std::make_unique<std::vector<pat::StoppedTrack>>();
+    edm::ESHandle<HcalChannelQuality> hcalQ_h;
+    iSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalQ_h);
+    const HcalChannelQuality *hcalQ = hcalQ_h.product();
     
+    edm::ESHandle<EcalChannelStatus> ecalS_h;
+    iSetup.get<EcalChannelStatusRcd>().get(ecalS_h);
+    const EcalChannelStatus *ecalS = ecalS_h.product();
+
+    auto outPtrP = std::make_unique<std::vector<pat::StoppedTrack>>();
+
     //add general tracks
     for(unsigned int igt=0; igt<generalTracks->size(); igt++){
         const reco::Track &gentk = (*gt_h)[igt];
@@ -174,16 +208,42 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
               miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut))
             continue;
 
+        if(pfCandInd==-2)
+            continue;
+
         const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
         float dEdxPixel = GetDeDx(hitInfo, true, false);
+        // float dEdxPixel = 0.;
         float dEdxStrip = (*gt2dedx)[tkref].dEdx(); // estimated strip dEdx is already stored in AOD
+        // float dEdxStrip = 0;
 
         int trackQuality = gentk.qualityMask();
+
+        // get the associated ecal/hcal detectors
+        edm::ESHandle<MagneticField> bField;
+        iSetup.get<IdealMagneticFieldRecord>().get(bField);
+        FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(gentk,&*bField);
+        TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssocParameters_, &initialState);
+
+        // convert to specific hcal DetIds and fill status vectors
+        std::vector<HcalDetId> crossedHcalIds;
+        std::vector<HcalChannelStatus> crossedHcalStatus;
+        for(auto const & did : info.crossedHcalIds){
+            crossedHcalIds.push_back(HcalDetId(did));
+            crossedHcalStatus.push_back(*(hcalQ->getValues(did.rawId())));
+        }
+        // fill ecal status vector
+        std::vector<EcalChannelStatusCode> crossedEcalStatus;
+        for(auto const & did : info.crossedEcalIds){
+            crossedEcalStatus.push_back(*(ecalS->find(did.rawId())));
+        }
 
         outPtrP->push_back(pat::StoppedTrack(isolationDR03, miniIso, p4,
                                              charge, pdgId, dz, dxy, dzError, dxyError,
                                              gentk.hitPattern(), dEdxStrip, dEdxPixel, trackQuality, 
-                                             refToCand));
+                                             info.crossedEcalIds, crossedHcalIds,
+                                             crossedEcalStatus, crossedHcalStatus, refToCand));
+                                             // std::vector<DetId>(), std::vector<DetId>(), refToCand));
 
     }
 

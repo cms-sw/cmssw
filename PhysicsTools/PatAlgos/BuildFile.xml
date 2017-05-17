@@ -10,6 +10,7 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/DetId"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
@@ -20,6 +21,11 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoTracker/DeDx"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="MagneticField/Engine"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/EcalObjects"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
