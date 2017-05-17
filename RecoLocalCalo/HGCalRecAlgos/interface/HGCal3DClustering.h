@@ -67,7 +67,7 @@ private:
   //max number of layers
   static const unsigned int maxlayer = HGCalImagingAlgo::maxlayer;
 
-  float radius;
+  std::vector<double> radii;
   uint32_t minClusters;
   struct ClusterRef {
     int ind;
