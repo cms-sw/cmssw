@@ -59,27 +59,17 @@ def load_ME0_digitizers(process):
 
 # Add simMuonGEMDigis to the list of modules served by RandomNumberGeneratorService
 def customize_random_GEMDigi(process):
-    process.RandomNumberGeneratorService.simMuonGEMDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')
-    )
+    from IOMC.RandomEngine.IOMC_cff import RandomNumberGeneratorService as rndsv
+    process.RandomNumberGeneratorService.simMuonGEMDigis = rndsv.simMuonGEMDigis
     return process
 
 
 # Add simMuonME0PseudoDigis to the list of modules served by RandomNumberGeneratorService
 def customize_random_ME0Digi(process):
-    process.RandomNumberGeneratorService.simMuonME0PseudoDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')
-    )
-    process.RandomNumberGeneratorService.simMuonME0PseudoReDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')
-    )
-    process.RandomNumberGeneratorService.simMuonME0Digis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')
-    )
+    from IOMC.RandomEngine.IOMC_cff import RandomNumberGeneratorService as rndsv
+    process.RandomNumberGeneratorService.simMuonME0Digis = rndsv.simMuonME0Digis
+    process.RandomNumberGeneratorService.simMuonME0PseudoDigis = rndsv.simMuonME0PseudoDigis
+    process.RandomNumberGeneratorService.simMuonME0PseudoReDigis = rndsv.simMuonME0PseudoReDigis
     return process
 
 
