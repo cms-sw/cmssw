@@ -19,6 +19,8 @@ Implementation:
 
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -170,6 +172,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
 {
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterNoCuts");
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterWithCuts");
+   produces<l1extra::L1EmParticleCollection>("L1EGCollectionWithCuts");
    
    // Get tower mapping
    if (useTowerMap) {
@@ -353,6 +356,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    // Cluster containters
    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterNoCuts (new l1slhc::L1EGCrystalClusterCollection );
    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterWithCuts( new l1slhc::L1EGCrystalClusterCollection );
+   std::unique_ptr<l1extra::L1EmParticleCollection> L1EGCollectionWithCuts( new l1extra::L1EmParticleCollection );
    
    // Clustering algorithm
    while(true)
@@ -674,12 +678,14 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          // Optional min. Et cut
          if ( cluster.pt() >= EtminForStore ) {
             L1EGXtalClusterWithCuts->push_back(cluster);
+            L1EGCollectionWithCuts->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
          }
       }
    }
 
    iEvent.put(std::move(L1EGXtalClusterNoCuts),"L1EGXtalClusterNoCuts");
    iEvent.put(std::move(L1EGXtalClusterWithCuts), "L1EGXtalClusterWithCuts" );
+   iEvent.put(std::move(L1EGCollectionWithCuts), "L1EGCollectionWithCuts" );
 }
 
 bool
