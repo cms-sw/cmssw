@@ -19,6 +19,8 @@ Implementation:
 
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
