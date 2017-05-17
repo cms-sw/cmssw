@@ -31,6 +31,7 @@
 // forward declarations
 
 namespace edm {
+  class ConfigurationDescriptions;
   namespace stream {
     
     template<typename T, typename M, typename B>
