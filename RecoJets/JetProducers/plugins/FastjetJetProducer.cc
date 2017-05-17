@@ -77,10 +77,10 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
 	rFilt_ = iConfig.getParameter<double>("rFilt");
 	nFilt_ = iConfig.getParameter<int>("nFilt");
 	useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
+        if ( useDynamicFiltering_ ) rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
 	rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
 
 	useTrimming_ = iConfig.getParameter<bool>("useTrimming");
-	//rFilt_ = iConfig.getParameter<double>("rFilt"); 	//// duplicate parameter
 	trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
 
 	usePruning_ = iConfig.getParameter<bool>("usePruning");
@@ -125,11 +125,43 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
 			correctShape_
 	   ) useExplicitGhosts_ = true;
 
+	////// adding exceptions
+	
+	if ( ( useMassDropTagger_ ) && ( ( muCut_ == -1 ) || ( yCut_ == -1 ) ) ) 
+		throw cms::Exception("useMassDropTagger") << "Parameters muCut and/or yCut for Mass Drop are not defined." << std::endl;
+	
+	if ( ( useFiltering_ ) && ( ( rFilt_ == -1 ) || ( nFilt_ == -1 ) ) ) {
+		throw cms::Exception("useFiltering") << "Parameters rFilt and/or nFilt for Filtering are not defined." << std::endl;
+		if ( ( useDynamicFiltering_ ) && ( rFiltFactor_ == -1 ) ) 
+			throw cms::Exception("useDynamicFiltering") << "Parameters rFiltFactor for DynamicFiltering is not defined." << std::endl;
+	}
+
+	if ( ( useTrimming_ ) && ( ( rFilt_ == -1 ) || ( trimPtFracMin_ == -1 ) ) ) 
+		throw cms::Exception("useTrimming") << "Parameters rFilt and/or trimPtFracMin for Trimming are not defined." << std::endl;
+	
+	if ( ( usePruning_ ) && ( ( zCut_ == -1 ) || ( RcutFactor_ == -1 )  || ( nFilt_ == -1 )) ) 
+		throw cms::Exception("usePruning") << "Parameters zCut and/or RcutFactor and/or nFilt for Pruning are not defined." << std::endl;
+	
+	if ( ( useCMSBoostedTauSeedingAlgorithm_ ) && ( ( subjetPtMin_ == -1 ) || ( maxDepth_ == -1 ) ||
+				( muMin_ == -1 )  || ( muMax_ == -1 ) ||
+				( yMin_ == -1 )  || ( yMax_ == -1 ) ||
+				( dRMin_ == -1 )  || ( dRMax_ == -1 ) ) )
+		throw cms::Exception("useCMSBoostedTauSeedingAlgorithm") << "Parameters subjetPtMin, muMin, muMax, yMin, yMax, dRmin, dRmax, maxDepth for CMSBoostedTauSeedingAlgorithm are not defined." << std::endl;
+
 	if ( useConstituentSubtraction_ && ( fjAreaDefinition_.get() == 0 ) ) 
 		throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
 
+	if ( ( useConstituentSubtraction_ ) && ( ( csRho_EtaMax_ == -1 ) || ( csRParam_ == -1 ) ) ) 
+		throw cms::Exception("useConstituentSubtraction") << "Parameters csRho_EtaMax and/or csRParam for ConstituentSubtraction are not defined." << std::endl;
+	
 	if ( useSoftDrop_ && usePruning_ ) 
-		throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;  /// Can't use these together
+		throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;  
+
+	if ( ( useSoftDrop_ ) && ( ( zCut_ == -1 ) || ( beta_ == -1 )  || ( R0_ == -1 )) ) 
+		throw cms::Exception("useSoftDrop") << "Parameters zCut and/or beta and/or R0 for SoftDrop are not defined." << std::endl;
+	
+	if ( ( correctShape_ ) && ( ( gridMaxRapidity_ == -1 ) || ( gridSpacing_ == -1 )) ) 
+		throw cms::Exception("correctShape") << "Parameters gridMaxRapidity and/or gridSpacing for SoftDrop are not defined." << std::endl;
   
 }
 
