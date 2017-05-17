@@ -57,7 +57,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_projectionMode(this, "Projection", 0l, 0l, 2l),
    m_cell2DMode(this, "Cell2DMode", 1l, 1l, 2l),
-   m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,200l),
+   m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,1200l),
    m_showOverlay(this,"Draw scales", true)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
