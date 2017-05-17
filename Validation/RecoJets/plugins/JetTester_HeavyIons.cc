@@ -737,7 +737,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   if(cbin.isValid()){
     hibin = *cbin;
   }
-  else  edm::LogWarning("JetTester_HeavyIons") << "invalid collection: centralityBin " << std::endl;
+  //else  edm::LogWarning("JetTester_HeavyIons") << "invalid collection: centralityBin " << std::endl;
 
   bool isCentral = false;
   bool ismidCentral = false;
