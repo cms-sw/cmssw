@@ -179,7 +179,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 		   segment!=seg_range.second; ++segment){
 		for (auto seg : segment->recHits()){
 		  const GEMRecHit * segrechit = dynamic_cast<const GEMRecHit *>(seg);
-		  if (segrechit == gemRecHit){
+		  if (*segrechit == *gemRecHit){
 		    isUsed = true;
 		    break;
 		  }
