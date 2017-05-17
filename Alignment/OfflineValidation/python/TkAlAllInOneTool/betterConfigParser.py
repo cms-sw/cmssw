@@ -155,8 +155,12 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             self.add_section(internal_section)
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
+        if not self.has_option(internal_section, "scriptsdir"):
+            self.set(internal_section, "scriptsdir", None)
+            #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
 
         general["workdir"] = self.get(internal_section, "workdir")
+        general["scriptsdir"] = self.get(internal_section, "scriptsdir")
         for folder in "workdir", "datadir", "logdir", "eosdir":
             general[folder] = os.path.expandvars(general[folder])
 
