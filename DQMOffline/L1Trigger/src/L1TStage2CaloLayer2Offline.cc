@@ -121,7 +121,7 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
     return;
   }
   if (!l1EtSums.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
+    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
     return;
   }
 
@@ -247,7 +247,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
   if (!l1Jets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
+    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
     return;
   }
 
