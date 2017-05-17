@@ -60,23 +60,19 @@ bool L1TMuonOverlapParamsESProducer::readConnectionsXML(const XMLConfigReader & 
 bool L1TMuonOverlapParamsESProducer::readPatternsXML(XMLConfigReader & aReader){
 
   l1t::LUT chargeLUT;
-  aReader.readLUT(&chargeLUT,params,"iCharge");
-  params.setChargeLUT(chargeLUT);
-
   l1t::LUT etaLUT;
-  aReader.readLUT(&etaLUT,params, "iEta");
-  params.setEtaLUT(etaLUT);
-
   l1t::LUT ptLUT;
-  aReader.readLUT(&ptLUT,params, "iPt");
-  params.setPtLUT(ptLUT);
-
   l1t::LUT meanDistPhiLUT;
-  aReader.readLUT(&meanDistPhiLUT,params, "meanDistPhi");
-  params.setMeanDistPhiLUT(meanDistPhiLUT);
-  
   l1t::LUT pdfLUT;
-  aReader.readLUT(&pdfLUT,params, "pdf");
+
+  std::vector<l1t::LUT*> luts={ &chargeLUT, &etaLUT, &ptLUT, &meanDistPhiLUT, &pdfLUT};
+  std::vector<std::string> types= {"iCharge", "iEta", "iPt", "meanDistPhi", "pdf"};
+  aReader.readLUTs(luts,params,types);
+
+  params.setChargeLUT(chargeLUT);
+  params.setEtaLUT(etaLUT);
+  params.setPtLUT(ptLUT);
+  params.setMeanDistPhiLUT(meanDistPhiLUT);
   params.setPdfLUT(pdfLUT);
   
   return true;  
