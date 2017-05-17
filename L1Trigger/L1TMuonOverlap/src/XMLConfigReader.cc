@@ -58,64 +58,70 @@ XMLConfigReader::~XMLConfigReader()
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig, const std::string & type){
-
-  std::stringstream strStream;
-  int totalInWidth = 7;//Number of bits used to address LUT
-  int outWidth = 6;//Number of bits used to store LUT value
-
-  if(type=="iCharge") outWidth = 1;
-  if(type=="iEta") outWidth = 2;
-  if(type=="iPt") outWidth = 9;
-  if(type=="meanDistPhi"){
-    outWidth = 11;
-    totalInWidth = 14;
-  }
-  if(type=="pdf"){
-    outWidth = 6;
-    totalInWidth = 21;
-  }
-  
-  ///Prepare the header 
-  strStream <<"#<header> V1 "<<totalInWidth<<" "<<outWidth<<" </header> "<<std::endl;
+void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapParams & aConfig, const std::vector<std::string> & types){
 
   ///Fill payload string  
   auto const & aGPs = readPatterns(aConfig);
 
-  unsigned int in = 0;
-  int out = 0;
-  for(auto it: aGPs){
-    if(type=="iCharge") out = it->key().theCharge==-1 ? 0:1;
-    if(type=="iEta") out = it->key().theEtaCode;
-    if(type=="iPt") out = it->key().thePtCode;
+  for ( unsigned int i=0; i< luts.size(); i++ ) {
+    l1t::LUT* lut=luts[i];
+    const std::string &type=types[i];
+    
+    std::stringstream strStream;
+    int totalInWidth = 7;//Number of bits used to address LUT
+    int outWidth = 6;//Number of bits used to store LUT value
+    
+    if(type=="iCharge") outWidth = 1;
+    if(type=="iEta") outWidth = 2;
+    if(type=="iPt") outWidth = 9;
     if(type=="meanDistPhi"){
-      for(unsigned int iLayer = 0;iLayer<(unsigned) aConfig.nLayers();++iLayer){
-	for(unsigned int iRefLayer=0;iRefLayer<(unsigned) aConfig.nRefLayers();++iRefLayer){
-	  out = (1<<(outWidth-1)) + it->meanDistPhiValue(iLayer,iRefLayer);
-	  strStream<<in<<" "<<out<<std::endl;
-	  ++in;
-	}
-      }
+      outWidth = 11;
+      totalInWidth = 14;
     }
     if(type=="pdf"){
-      for(unsigned int iLayer = 0;iLayer<(unsigned)aConfig.nLayers();++iLayer){
-	for(unsigned int iRefLayer=0;iRefLayer<(unsigned)aConfig.nRefLayers();++iRefLayer){
-	  for(unsigned int iPdf=0;iPdf<exp2(aConfig.nPdfAddrBits());++iPdf){
-	    out = it->pdfValue(iLayer,iRefLayer,iPdf);
+      outWidth = 6;
+      totalInWidth = 21;
+    }
+    
+    ///Prepare the header 
+    strStream <<"#<header> V1 "<<totalInWidth<<" "<<outWidth<<" </header> "<<std::endl;
+    
+    
+    unsigned int in = 0;
+    int out = 0;
+    for(auto it: aGPs){
+      if(type=="iCharge") out = it->key().theCharge==-1 ? 0:1;
+      if(type=="iEta") out = it->key().theEtaCode;
+      if(type=="iPt") out = it->key().thePtCode;
+      if(type=="meanDistPhi"){
+	for(unsigned int iLayer = 0;iLayer<(unsigned) aConfig.nLayers();++iLayer){
+	  for(unsigned int iRefLayer=0;iRefLayer<(unsigned) aConfig.nRefLayers();++iRefLayer){
+	    out = (1<<(outWidth-1)) + it->meanDistPhiValue(iLayer,iRefLayer);
 	    strStream<<in<<" "<<out<<std::endl;
 	    ++in;
 	  }
 	}
       }
+      if(type=="pdf"){
+	for(unsigned int iLayer = 0;iLayer<(unsigned)aConfig.nLayers();++iLayer){
+	  for(unsigned int iRefLayer=0;iRefLayer<(unsigned)aConfig.nRefLayers();++iRefLayer){
+	    for(unsigned int iPdf=0;iPdf<exp2(aConfig.nPdfAddrBits());++iPdf){
+	      out = it->pdfValue(iLayer,iRefLayer,iPdf);
+	      strStream<<in<<" "<<out<<std::endl;
+	      ++in;
+	    }
+	  }
+	}
+      }
+      if(type!="meanDistPhi" && type!="pdf"){
+	strStream<<in<<" "<<out<<std::endl;
+	++in;
+      }
     }
-    if(type!="meanDistPhi" && type!="pdf"){
-      strStream<<in<<" "<<out<<std::endl;
-      ++in;
-    }
+    
+    ///Read the data into LUT
+    lut->read(strStream);
   }
-
-  ///Read the data into LUT
-  lut->read(strStream);
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -163,7 +169,6 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
     parser.setDoNamespaces(false);
-    
     
     parser.parse(patternsFile.c_str()); 
     xercesc::DOMDocument* doc = parser.getDocument();
