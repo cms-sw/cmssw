@@ -1,6 +1,8 @@
 #ifndef DATAFORMATS_CALOTOWERS_CALOTOWERFWD_H
 #define DATAFORMATS_CALOTOWERS_CALOTOWERFWD_H 1
 
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -9,7 +11,6 @@
 #include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
 
-class CaloTower;
 typedef edm::Ptr<CaloTower> CaloTowerPtr;
 typedef edm::FwdPtr<CaloTower> CaloTowerFwdPtr;
 typedef edm::SortedCollection<CaloTower> CaloTowerCollection;
