@@ -30,7 +30,7 @@ namespace pat {
         StoppedTrack() :
           LeafCandidate(0, LorentzVector(0,0,0,0)),
           pfIsolationDR03_(pat::PFIsolation()),
-          miniIsolation_(pat::PFIsolation()),
+          miniIsolation_(pat::PFIsolation()), sumCaloJetEtDR03_(0.),
           dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           crossedEcalIds_(std::vector<DetId>()), crossedHcalIds_(std::vector<HcalDetId>()),
@@ -38,7 +38,7 @@ namespace pat {
           crossedHcalStatus_(std::vector<HcalChannelStatus>()), 
           packedCandRef_(PackedCandidateRef()) {}
 
-        explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso,
+        explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float sumCaloJetEt,
                               const LorentzVector &p4, int charge, int id,
                               float dz, float dxy, float dzError, float dxyError,
                               const reco::HitPattern &hp, float dEdxS, float dEdxP, int tkQual,
@@ -48,7 +48,7 @@ namespace pat {
                               const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
           pfIsolationDR03_(iso),
-          miniIsolation_(miniiso),
+          miniIsolation_(miniiso), sumCaloJetEtDR03_(sumCaloJetEt),
           dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
           trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
           hitPattern_(hp), crossedEcalIds_(ecalid), crossedHcalIds_(hcalid),
@@ -60,6 +60,8 @@ namespace pat {
         const PFIsolation& pfIsolationDR03() const  { return pfIsolationDR03_; }
 
         const PFIsolation& miniPFIsolation() const { return miniIsolation_; }
+
+        float sumCaloJetEtDR03() const { return sumCaloJetEtDR03_; }
 
         float dz() const { return dz_; }
         float dzError() const { return dzError_; }
@@ -78,17 +80,18 @@ namespace pat {
         float dEdxStrip() const { return dEdxStrip_; }
         float dEdxPixel() const { return dEdxPixel_; }
 
-        const std::vector<DetId>& crossedEcalIds() const { return crossedEcalIds_; }
+        const std::vector<DetId>&     crossedEcalIds() const { return crossedEcalIds_; }
         const std::vector<HcalDetId>& crossedHcalIds() const { return crossedHcalIds_; }
 
         const std::vector<EcalChannelStatusCode>& crossedEcalStatus() const { return crossedEcalStatus_; }
-        const std::vector<HcalChannelStatus>& crossedHcalStatus() const { return crossedHcalStatus_; }
+        const std::vector<HcalChannelStatus>&     crossedHcalStatus() const { return crossedHcalStatus_; }
 
         const PackedCandidateRef& packedCandRef() const { return packedCandRef_; }
 
       protected:
         PFIsolation pfIsolationDR03_;
         PFIsolation miniIsolation_;
+        float sumCaloJetEtDR03_;
         float dz_, dxy_, dzError_, dxyError_;        
         int trackQuality_;
         float dEdxStrip_, dEdxPixel_; //in MeV/mm

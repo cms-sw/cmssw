@@ -13,10 +13,11 @@
 #include "DataFormats/PatCandidates/interface/PFIsolation.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -45,10 +46,14 @@ namespace pat {
             virtual void produce(edm::Event&, const edm::EventSetup&);
         
             // compute iso/miniiso
-        void GetIsolation(LorentzVector p4, const pat::PackedCandidateCollection* pc, int pc_idx,
+        void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,
                           pat::PFIsolation &iso, pat::PFIsolation &miniiso);
 
-        float GetDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip);
+        float getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip);
+
+        TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
+
+        float getSumCaloJetEt(const LorentzVector&, const reco::CaloJetCollection*, float);
 
         private: 
             
@@ -57,6 +62,7 @@ namespace pat {
             const edm::EDGetTokenT<reco::TrackCollection>    gt_;
             const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > gt2pc_;
             const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > gt2lt_;
+            const edm::EDGetTokenT<reco::CaloJetCollection> caloJets_;
             const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedx_;
             const edm::EDGetTokenT<reco::DeDxHitInfoAss> gt2dedxHitInfo_;
             const float pT_cut;  // only save cands with pT>pT_cut
@@ -78,6 +84,7 @@ pat::PATStoppedTrackProducer::PATStoppedTrackProducer(const edm::ParameterSet& i
   gt_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
   gt2pc_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
   gt2lt_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))),
+  caloJets_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("caloJets"))),
   gt2dedx_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxInfo"))),
   gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
   pT_cut(iConfig.getParameter<double>("pT_cut")),
@@ -118,6 +125,9 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
     edm::Handle<edm::Association<pat::PackedCandidateCollection> > gt2lt;
     iEvent.getByToken(gt2lt_, gt2lt);
+
+    edm::Handle<reco::CaloJetCollection> caloJets;
+    iEvent.getByToken(caloJets_, caloJets);
 
     edm::Handle<edm::ValueMap<reco::DeDxData> > gt2dedx;
     iEvent.getByToken(gt2dedx_, gt2dedx);
@@ -200,7 +210,7 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
         // get the isolation of the track
         pat::PFIsolation isolationDR03;
         pat::PFIsolation miniIso;
-        GetIsolation(p4, pc, pfCandInd, isolationDR03, miniIso);
+        getIsolation(p4, pc, pfCandInd, isolationDR03, miniIso);
         
         // isolation cut
         if( !(isolationDR03.chargedHadronIso() < absIso_cut ||
@@ -208,42 +218,35 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
               miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut))
             continue;
 
-        if(pfCandInd==-2)
-            continue;
+        float sumCaloJetEt = getSumCaloJetEt(p4, caloJets.product(), 0.3);
 
         const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
-        float dEdxPixel = GetDeDx(hitInfo, true, false);
-        // float dEdxPixel = 0.;
+        float dEdxPixel = getDeDx(hitInfo, true, false);
         float dEdxStrip = (*gt2dedx)[tkref].dEdx(); // estimated strip dEdx is already stored in AOD
-        // float dEdxStrip = 0;
 
         int trackQuality = gentk.qualityMask();
 
         // get the associated ecal/hcal detectors
-        edm::ESHandle<MagneticField> bField;
-        iSetup.get<IdealMagneticFieldRecord>().get(bField);
-        FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(gentk,&*bField);
-        TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssocParameters_, &initialState);
+        TrackDetMatchInfo trackDetInfo = getTrackDetMatchInfo(iEvent, iSetup, gentk);
 
         // convert to specific hcal DetIds and fill status vectors
         std::vector<HcalDetId> crossedHcalIds;
         std::vector<HcalChannelStatus> crossedHcalStatus;
-        for(auto const & did : info.crossedHcalIds){
+        for(auto const & did : trackDetInfo.crossedHcalIds){
             crossedHcalIds.push_back(HcalDetId(did));
             crossedHcalStatus.push_back(*(hcalQ->getValues(did.rawId())));
         }
         // fill ecal status vector
         std::vector<EcalChannelStatusCode> crossedEcalStatus;
-        for(auto const & did : info.crossedEcalIds){
+        for(auto const & did : trackDetInfo.crossedEcalIds){
             crossedEcalStatus.push_back(*(ecalS->find(did.rawId())));
         }
 
-        outPtrP->push_back(pat::StoppedTrack(isolationDR03, miniIso, p4,
+        outPtrP->push_back(pat::StoppedTrack(isolationDR03, miniIso, sumCaloJetEt, p4,
                                              charge, pdgId, dz, dxy, dzError, dxyError,
                                              gentk.hitPattern(), dEdxStrip, dEdxPixel, trackQuality, 
-                                             info.crossedEcalIds, crossedHcalIds,
+                                             trackDetInfo.crossedEcalIds, crossedHcalIds,
                                              crossedEcalStatus, crossedHcalStatus, refToCand));
-                                             // std::vector<DetId>(), std::vector<DetId>(), refToCand));
 
     }
 
@@ -251,7 +254,7 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 }
 
 
-void pat::PATStoppedTrackProducer::GetIsolation(LorentzVector p4, 
+void pat::PATStoppedTrackProducer::getIsolation(const LorentzVector& p4, 
                                                 const pat::PackedCandidateCollection *pc, int pc_idx,
                                                 pat::PFIsolation &iso, pat::PFIsolation &miniiso)
 {
@@ -299,7 +302,7 @@ void pat::PATStoppedTrackProducer::GetIsolation(LorentzVector p4,
 }
 
 // get the estimated DeDx in either the pixels or strips (or both)
-float pat::PATStoppedTrackProducer::GetDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip)
+float pat::PATStoppedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip)
 {
     if(hitInfo == NULL){
         return -1;
@@ -345,6 +348,30 @@ float pat::PATStoppedTrackProducer::GetDeDx(const reco::DeDxHitInfo *hitInfo, bo
 
     return result;
 }
+
+TrackDetMatchInfo pat::PATStoppedTrackProducer::getTrackDetMatchInfo(const edm::Event& iEvent, 
+                                                                     const edm::EventSetup& iSetup,
+                                                                     const reco::Track& track)
+{
+    edm::ESHandle<MagneticField> bField;
+    iSetup.get<IdealMagneticFieldRecord>().get(bField);
+    FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track,&*bField);
+
+    return trackAssociator_.associate(iEvent, iSetup, trackAssocParameters_, &initialState);
+}
+
+float pat::PATStoppedTrackProducer::getSumCaloJetEt(const LorentzVector& p4, const reco::CaloJetCollection* caloJets,
+                                                    float dR)
+{
+    float sum = 0;
+    for(auto const & caloJet : *caloJets){
+        if(deltaR(caloJet.p4(), p4) < dR){
+            sum += caloJet.et();
+        }
+    }
+    return sum;
+}
+
 
 using pat::PATStoppedTrackProducer;
 #include "FWCore/Framework/interface/MakerMacros.h"
