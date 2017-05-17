@@ -143,7 +143,7 @@ void CentralityDQM::analyze(const edm::Event& iEvent,
   if(cent.isValid()){
   int hibin = -999;
   if(cbin.isValid()) hibin = *cbin;
-  else edm::LogWarning("CentralityDQM") << "invalid collection: centralityBin " << std::endl;
+  //else edm::LogWarning("CentralityDQM") << "invalid collection: centralityBin " << std::endl;
 
   //  std::cout<<  " ------------------------------------- "  << hibin << std::endl;
 
