@@ -1,48 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# PSet of mixObjects that only keeps muon collections (and SimTracks with SimVertices)
-mixObjects_dt_csc_rpc =  cms.PSet(
-    mixCH = cms.PSet(
-        crossingFrames = cms.untracked.vstring(),
-        input = cms.VInputTag(),
-        type = cms.string('PCaloHit'),
-        subdets = cms.vstring()
-    ),
-    mixHepMC = cms.PSet(
-        input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
-        makeCrossingFrame = cms.untracked.bool(True),
-        type = cms.string('HepMCProduct')
-    ),
-    mixVertices = cms.PSet(
-        input = cms.VInputTag(cms.InputTag("g4SimHits")),
-        makeCrossingFrame = cms.untracked.bool(True),
-        type = cms.string('SimVertex')
-    ),
-    mixSH = cms.PSet(
-        crossingFrames = cms.untracked.vstring(
-            'MuonCSCHits',
-            'MuonDTHits',
-            'MuonRPCHits'
-            ),
-        input = cms.VInputTag(
-            cms.InputTag("g4SimHits","MuonCSCHits"),
-            cms.InputTag("g4SimHits","MuonDTHits"),
-            cms.InputTag("g4SimHits","MuonRPCHits")),
-        type = cms.string('PSimHit'),
-        subdets = cms.vstring(
-            'MuonCSCHits',
-            'MuonDTHits',
-            'MuonRPCHits'
-            )
-    ),
-    mixTracks = cms.PSet(
-        input = cms.VInputTag(cms.InputTag("g4SimHits")),
-        makeCrossingFrame = cms.untracked.bool(True),
-        type = cms.string('SimTrack')
-    )
-)
-
-
 # Customize process.mix to be used for running muon (DT, CSC, RPC) digi only.
 #  - remove non-muon digitizers that are now run as part of mixing process
 #  - delete all the digitizers' aliases.
@@ -51,7 +8,24 @@ def customize_mix_muon_only(process):
     process.mix.digitizers = digitizers = cms.PSet()
     digi_aliases = filter(lambda n: 'Digi' in n, process.aliases.keys())
     for a in digi_aliases: process.__delattr__(a)
-    process.mix.mixObjects = mixObjects_dt_csc_rpc
+    from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
+    process.mix.mixObjects = theMixObjects
+    process.mix.mixObjects.mixCH = cms.PSet()
+    process.mix.mixObjects.mixSH.crossingFrames = cms.untracked.vstring(
+        'MuonCSCHits',
+        'MuonDTHits',
+        'MuonRPCHits'
+    )
+    process.mix.mixObjects.mixSH.input = cms.VInputTag(
+        cms.InputTag("g4SimHits","MuonCSCHits"),
+        cms.InputTag("g4SimHits","MuonDTHits"),
+        cms.InputTag("g4SimHits","MuonRPCHits")
+    )
+    process.mix.mixObjects.mixSH.subdets = cms.vstring(
+        'MuonCSCHits',
+        'MuonDTHits',
+        'MuonRPCHits'
+    )
     return process
 
 
@@ -240,7 +214,7 @@ def customize_digi_addGEM(process):
 
 
 # customize the full digitization sequence pdigi by adding GEMs
-def customize_digi_addGEM_addGEM(process):
+def customize_digi_addGEM_addME0(process):
     process = load_GEM_digitizers(process)
     process = load_ME0_digitizers(process)
     process = customize_random_GEMDigi(process)
@@ -269,8 +243,7 @@ def append_GEMDigi_event(process):
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
-            getattr(process,b).outputCommands.append('keep *_g4SimHits_Muon*_*')
-            getattr(process,b).outputCommands.append('keep *_*Muon*_*_*')
+            getattr(process,b).outputCommands.extend(['keep *_g4SimHits_Muon*_*', 'keep *_*Muon*_*_*'])
 
     return process
 
