@@ -167,15 +167,16 @@ AlignmentProducerBase::processEvent(const edm::Event& event,
 
   initBeamSpot(event); // must happen every event and before incrementing 'nevent_'
 
+  ++nevent_;  // must happen before the check below;
+              // otherwise subsequent checks fail for "EmptySource"
+
   if (!alignmentAlgo_->processesEvents()) {
-    edm::LogWarning("BadConfig")
+    edm::LogInfo("Alignment")
       << "@SUB=AlignmentProducerBase::processEvent"
       << "Skipping event. The current configuration of the alignment algorithm "
       << "does not need to process any events.";
     return false;
   }
-
-  ++nevent_;
 
   // reading in survey records
   readInSurveyRcds(setup);
@@ -904,11 +905,6 @@ AlignmentProducerBase::addSurveyInfo(Alignable* ali)
 bool
 AlignmentProducerBase::finish()
 {
-  if (isDuringLoop_) {
-    throw cms::Exception("LogicError")
-      << "@SUB=AlignmentProducerBase::finish\n"
-      << "Trying to finish before terminating event processing.";
-  }
 
   for (const auto& monitor: monitors_) monitor->endOfJob();
 

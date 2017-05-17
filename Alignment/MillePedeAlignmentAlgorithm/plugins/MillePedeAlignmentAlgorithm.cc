@@ -344,7 +344,7 @@ bool MillePedeAlignmentAlgorithm::processesEvents()
 //_____________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::storeAlignments()
 {
-  if (isMode(myPedeRunBit)) {
+  if (isMode(myPedeReadBit)) {
     if (runAtPCL_) {
 
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),

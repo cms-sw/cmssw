@@ -2,6 +2,7 @@
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/FWLite"/>
