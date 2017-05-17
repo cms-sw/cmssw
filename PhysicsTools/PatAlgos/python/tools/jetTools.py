@@ -549,7 +549,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         if hasattr(btag,btagDiscr): 
             newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
             if hasattr(process, newDiscr):
-                print 'skipping %s as it has already been loaded in the process' % newDiscr #check that we did not create this producer before, if so skip
                 pass 
             elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
                 addToProcessAndTask(

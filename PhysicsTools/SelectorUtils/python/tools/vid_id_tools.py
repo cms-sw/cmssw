@@ -177,7 +177,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
     #    
-    sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
+#    sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
 def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True,task=None):
     if not hasattr(process,'egmPhotonIDs'):
