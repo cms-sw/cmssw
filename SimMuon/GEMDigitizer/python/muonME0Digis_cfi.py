@@ -8,7 +8,6 @@ me0DigiCommonParameters = cms.PSet(
     timeResolution = cms.double(5),
     timeJitter = cms.double(1.0),
     averageShapingTime = cms.double(50.0),
-    #clsParametrization = cms.vdouble(0.455091, 0.865613, 0.945891, 0.973286, 0.986234, 0.991686, 0.996865, 0.998501, 1.),
     averageEfficiency = cms.double(0.98),
     averageNoiseRate = cms.double(0.001), #intrinsic noise
     bxwidth = cms.int32(25),
