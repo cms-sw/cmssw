@@ -270,3 +270,32 @@ def customize_digi_noME0safety(process):
 def customize_digi_noRPCbkg(process):
     process.simMuonRPCDigis.doBkgNoise = False
     return process
+
+# adding re-digi costumisation - to be used for dedicated trigger studies
+def customise_rpcRedigi(process):
+    process.load('Configuration.StandardSequences.Digi_cff')
+    process.simMuonRPCReDigis = process.simMuonRPCDigis.clone()
+    process.simMuonRPCReDigis.digiModelConfig = process.simMuonRPCDigis.digiModelConfig.clone(
+        IRPC_time_resolution = cms.double(1.5),
+        IRPC_electronics_jitter = cms.double(0.1),
+        timingRPCOffset = cms.double(50.0),
+        Nbxing = cms.int32(799),
+        BX_range = cms.int32(400),
+        linkGateWidth = cms.double(1.0),
+    )
+    process.simMuonRPCReDigis.digiIRPCModelConfig = process.simMuonRPCReDigis.digiModelConfig.clone(
+        IRPC_time_resolution = cms.double(1.0),
+        IRPC_electronics_jitter = cms.double(0.1),
+        timeResolution = cms.double(1.0),
+    )
+    process.RandomNumberGeneratorService.simMuonRPCReDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(13579),
+        engineName = cms.untracked.string('TRandom3')
+    )
+    process.rpcRecHits.rpcDigiLabel = cms.InputTag("simMuonRPCReDigis")
+    process.validationMuonRPCDigis.rpcDigiTag = cms.untracked.InputTag("simMuonRPCReDigis")
+    process.reconstruction_step.replace(
+        process.rpcRecHits,
+        cms.Sequence(process.simMuonRPCReDigis+process.rpcRecHits)
+    )
+    return process
