@@ -27,6 +27,7 @@
 namespace edm {
   class Run;
   class EventSetup;
+  class LuminosityBlock;
   namespace stream {
     //********************************
     // CallGlobal
