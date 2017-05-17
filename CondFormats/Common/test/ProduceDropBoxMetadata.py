@@ -57,7 +57,7 @@ EcalPedestalsRcd_prep_str = encodeJsonInString("EcalPedestal_prep.json")
 # given a set of .json files in the current dir, ProduceDropBoxMetadata produces a sqlite containign the payload with the prod/and/prep metadata
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                   # set to True if you want to write out a sqlite.db translating the json's into a payload
-                                  write = cms.untracked.bool(True),
+                                  write = cms.untracked.bool(False),
 
                                   # toWrite holds a list of Pset's, one for each workflow you want to produce DropBoxMetadata for; you need to have 2 .json files for each PSet
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
@@ -106,7 +106,7 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                ),
                                                       ),
                                   # this boolean will read the content of whichever payload is available and print its content to stoutput
-                                  read = cms.untracked.bool(False),
+                                  read = cms.untracked.bool(True),
 
                                   # toRead lists of record naemes to be sought inside the DropBoxMetadataRcd payload avaialble to the ProduceDropBoxMetadata; for instance, if write is True, you're reading back the metadata you've just entered in the payload from the .json files
                                   toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','EcalPedestalsRcd','SiStripApvGainRcdAfterAbortGap') # same strings as fType
@@ -139,11 +139,11 @@ process.GlobalTag.globaltag = '91X_dataRun2_Express_Queue'
 
 # Set to True if you want to read a DropBoxMetadata payload from a local sqlite
 # specify the name of the sqlitefile.db and the tag name; the payload loaded will be for run 300000
-readsqlite = False
+readsqlite = True
 if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
                  tag = cms.string("DropBoxMetadata"),
-                 connect = cms.string("sqlite_file:DropBoxMetadata_Wed.db")
+                 connect = cms.string("sqlite_file:DropBoxMetadata_wECAL.db")
                 )
         )
