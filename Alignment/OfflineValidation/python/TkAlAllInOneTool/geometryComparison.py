@@ -2,7 +2,7 @@ import os
 import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
-from helperFunctions import replaceByMap, getCommandOutput2
+from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring
 from TkAlExceptions import AllInOneError
 
 
@@ -10,6 +10,35 @@ class GeometryComparison(GenericValidation):
     """
     Object representing a geometry comparison job.
     """
+    defaults = {
+        "3DSubdetector1":"1",
+        "3DSubdetector2":"2",
+        "3DTranslationalScaleFactor":"50",
+        "modulesToPlot":"all",
+        "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
+        "useDefaultRange":"false",
+        "plotOnlyGlobal":"false",
+        "plotPng":"true",
+        "makeProfilePlots":"true",
+        "dx_min":"-99999",
+        "dx_max":"-99999",
+        "dy_min":"-99999",
+        "dy_max":"-99999",
+        "dz_min":"-99999",
+        "dz_max":"-99999",
+        "dr_min":"-99999",
+        "dr_max":"-99999",
+        "rdphi_min":"-99999",
+        "rdphi_max":"-99999",
+        "dalpha_min":"-99999",
+        "dalpha_max":"-99999",
+        "dbeta_min":"-99999",
+        "dbeta_max":"-99999",
+        "dgamma_min":"-99999",
+        "dgamma_max":"-99999",
+        }
+    mandatories = {"levels", "dbOutput"}
+    valType = "compare"
     def __init__( self, valName, alignment, referenceAlignment,
                   config, copyImages = True):
         """
@@ -25,37 +54,7 @@ class GeometryComparison(GenericValidation):
         - `copyImages`: Boolean which indicates whether png- and pdf-files
                         should be copied back from the batch farm
         """
-	defaults = {
-	    "3DSubdetector1":"1",
-	    "3DSubdetector2":"2",
-	    "3DTranslationalScaleFactor":"50",
-	    "modulesToPlot":"all",
-	    "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
-	    "useDefaultRange":"false",
-	    "plotOnlyGlobal":"false",
-	    "plotPng":"true",
-	    "makeProfilePlots":"true",
-	    "dx_min":"-99999",
-	    "dx_max":"-99999",
-	    "dy_min":"-99999",
-	    "dy_max":"-99999",
-	    "dz_min":"-99999",
-	    "dz_max":"-99999",
-	    "dr_min":"-99999",
-	    "dr_max":"-99999",
-	    "rdphi_min":"-99999",
-	    "rdphi_max":"-99999",
-	    "dalpha_min":"-99999",
-	    "dalpha_max":"-99999",
-	    "dbeta_min":"-99999",
-	    "dbeta_max":"-99999",
-	    "dgamma_min":"-99999",
-	    "dgamma_max":"-99999",
-            }
-        mandatories = ["levels", "dbOutput"]
-        GenericValidation.__init__(self, valName, alignment, config, 
-				   "compare", addDefaults=defaults, 
-				   addMandatories = mandatories)
+        super(GeometryComparison, self).__init__(valName, alignment, config)
         self.referenceAlignment = referenceAlignment
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
@@ -63,6 +62,7 @@ class GeometryComparison(GenericValidation):
 
         allCompares = config.getCompares()
         self.__compares = {}
+        self.__filesToCompare = {}
         if valName in allCompares:
             self.__compares[valName] = allCompares[valName]
         else:
@@ -71,10 +71,14 @@ class GeometryComparison(GenericValidation):
             raise AllInOneError(msg)
         self.copyImages = copyImages
 
+        for name in "useDefaultRange", "plotOnlyGlobal", "plotPng":
+            self.general[name] = cppboolstring(self.general[name], name)
+
+
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
-        repMap = GenericValidation.getRepMap( self, alignment )
+        repMap = super(GeometryComparison, self).getRepMap( alignment )
         referenceName  = "IDEAL"
         referenceTitle = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
@@ -92,7 +96,7 @@ class GeometryComparison(GenericValidation):
                                           #  if not compared to IDEAL
             "reference": referenceName,
             "referenceTitle": referenceTitle,
-	    "alignmentTitle": self.alignmentToValidate.title,
+            "alignmentTitle": self.alignmentToValidate.title,
             "moduleListBase": os.path.basename(repMap["moduleList"]),
             })
         if not referenceName == "IDEAL":
@@ -100,6 +104,10 @@ class GeometryComparison(GenericValidation):
                                            "ROOTGeometry.root")
         repMap["name"] += "_vs_.oO[reference]Oo."
         return repMap
+
+    @property
+    def filesToCompare(self):
+        return self.__filesToCompare
 
     def createConfiguration(self, path ):
         # self.__compares
@@ -119,7 +127,7 @@ class GeometryComparison(GenericValidation):
         for common in self.__compares:
             repMap.update({
                            "levels": self.__compares[common][0],
-                           "dbOutput": self.__compares[common][1]
+                           "dbOutput": pythonboolstring(self.__compares[common][1], "dbOutput")
                            })
             if self.__compares[common][1].split()[0] == "true":
                 repMap["dbOutputService"] = configTemplates.dbOutputTemplate
@@ -130,21 +138,21 @@ class GeometryComparison(GenericValidation):
             cfgs[cfgName] = configTemplates.compareTemplate
             repMaps[cfgName] = repMap
 
-            cfgSchedule.append( cfgName )  
-        GenericValidation.createConfiguration(self, cfgs, path, cfgSchedule, repMaps = repMaps)
+            cfgSchedule.append( cfgName )
+        super(GeometryComparison, self).createConfiguration(cfgs, path, cfgSchedule, repMaps = repMaps)
 
     def createScript(self, path):
         repMap = self.getRepMap()
         repMap["runComparisonScripts"] = ""
         scriptName = replaceByMap(("TkAlGeomCompare.%s..oO[name]Oo..sh"
                                    %self.name), repMap)
-        
+
         y_ranges = ""
         plottedDifferences = ["dx","dy","dz","dr","rdphi","dalpha","dbeta","dgamma"]
         for diff in plottedDifferences:
-			y_ranges += ","+repMap["%s_min"%diff]
-			y_ranges += ","+repMap["%s_max"%diff]
-			
+                        y_ranges += ","+repMap["%s_min"%diff]
+                        y_ranges += ","+repMap["%s_max"%diff]
+
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
                 repMap["outputFile"] = (".oO[name]Oo..Comparison_common"+name+".root")
@@ -159,8 +167,8 @@ class GeometryComparison(GenericValidation):
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
                      "./\",\".oO[modulesToPlot]Oo.\",\".oO[alignmentName]Oo.\",\".oO[reference]Oo.\",.oO[useDefaultRange]Oo.,.oO[plotOnlyGlobal]Oo.,.oO[plotPng]Oo.,.oO[makeProfilePlots]Oo."+y_ranges+")'\n"
-		     "rfcp "+path+"/TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C .\n"
-		     "root -l -b -q TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C+\n")
+                     "rfcp "+path+"/TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C .\n"
+                     "root -l -b -q TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C+\n")
                 if  self.copyImages:
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
@@ -176,37 +184,37 @@ class GeometryComparison(GenericValidation):
                    ### At the moment translations are images with suffix _1 and _2, rotations _3 and _4
                    ### The numeration depends on the order of the MakePlots(x, y) commands in comparisonScript.C
                    ### If comparisonScript.C is changed, check if the following lines need to be changed as well
-                   
+
                    if repMap["plotPng"] == "true":
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_1*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_2*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
-	                   
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_3*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_4*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-	                        
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_1*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_2*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_3*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_4*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+
                    else:
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_1*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
-	                   
-	                   repMap["runComparisonScripts"] += \
-	                       ("find . -maxdepth 1 -name \"*_2*\" "
-	                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
-	                        "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
-                   
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_1*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Translations/\" \n")
+
+                           repMap["runComparisonScripts"] += \
+                               ("find . -maxdepth 1 -name \"*_2*\" "
+                                "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                                "/.oO[name]Oo..Comparison_common"+name+"_Images/Rotations/\" \n")
+
                    repMap["runComparisonScripts"] += \
                        ("find . -maxdepth 1 -name "
                         "\"*.tex\" -print | xargs -I {} bash -c"
@@ -223,7 +231,7 @@ class GeometryComparison(GenericValidation):
                         " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]]\n"
+                       ("if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]]\n"
                         "then\n"
                         "    rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name
                         +"_ArrowPlots\n"
@@ -247,7 +255,7 @@ class GeometryComparison(GenericValidation):
                         "-maxdepth 1 -name \"*.png\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
-		   repMap["runComparisonScripts"] += \
+                   repMap["runComparisonScripts"] += \
                        ("find . "
                         "-maxdepth 1 -name \".oO[common]Oo._.oO[name]Oo..Visualization_rotated.gif\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
@@ -258,7 +266,7 @@ class GeometryComparison(GenericValidation):
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
                 resultingFile = "root://eoscms//eos/cms" + resultingFile   #needs to be AFTER abspath so that it doesn't eat the //
-                self.filesToCompare[ name ] = resultingFile
+                self.__filesToCompare[ name ] = resultingFile
 
             else:
                 raise AllInOneError("Need to have DetUnit in levels!")
@@ -295,9 +303,9 @@ class GeometryComparison(GenericValidation):
 
         #~ print configTemplates.scriptTemplate
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap )}
-	files = {replaceByMap("TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C", repMap ): replaceByMap(configTemplates.visualizationTrackerTemplate, repMap )}
-	self.createFiles(files, path)
-        return GenericValidation.createScript(self, scripts, path)
+        files = {replaceByMap("TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo..C", repMap ): replaceByMap(configTemplates.visualizationTrackerTemplate, repMap )}
+        self.createFiles(files, path)
+        return super(GeometryComparison, self).createScript(scripts, path)
 
     def createCrabCfg(self, path):
         msg = ("Parallelization not supported for geometry comparison. Please "
