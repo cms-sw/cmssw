@@ -33,6 +33,10 @@ BeamSpotObjectsRcdByRun_prep_str = encodeJsonInString("BeamSpotObjectsRcdByRun_p
 BeamSpotObjectsRcdByLumi_prod_str = encodeJsonInString("BeamSpotObjectsRcdByLumi_prod.json")
 BeamSpotObjectsRcdByLumi_prep_str = encodeJsonInString("BeamSpotObjectsRcdByLumi_prep.json")
 
+# beamspot High Perf by lumi
+BeamSpotObjectsRcdHPByLumi_prod_str = encodeJsonInString("BeamSpotObjectsRcdHPbyLumi_prod.json")
+BeamSpotObjectsRcdHPByLumi_prep_str = encodeJsonInString("BeamSpotObjectsRcdHPbyLumi_prep.json")
+
 #SiStripBadStripRcd
 SiStripBadStripRcd_prod_str = encodeJsonInString("SiStripBadStripRcd_prod.json")
 SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
@@ -72,6 +76,12 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaData        = cms.untracked.string(BeamSpotObjectsRcdByLumi_prod_str),
                                                                prepMetaData        = cms.untracked.string(BeamSpotObjectsRcdByLumi_prep_str),
                                                                ),
+                                                      cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdHPByLumi'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(BeamSpotObjectsRcdHPByLumi_prod_str),
+                                                               prepMetaData        = cms.untracked.string(BeamSpotObjectsRcdHPByLumi_prep_str),
+                                                               ),
                                                       cms.PSet(record              = cms.untracked.string('SiStripBadStripRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -109,7 +119,7 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                   read = cms.untracked.bool(True),
 
                                   # toRead lists of record naemes to be sought inside the DropBoxMetadataRcd payload avaialble to the ProduceDropBoxMetadata; for instance, if write is True, you're reading back the metadata you've just entered in the payload from the .json files
-                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','EcalPedestalsRcd','SiStripApvGainRcdAfterAbortGap') # same strings as fType
+                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','BeamSpotObjectsRcdHPByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap','EcalPedestalsRcd') # same strings as fType
                                   )
 
 process.p = cms.Path(process.mywriter)
@@ -144,6 +154,6 @@ if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
                  tag = cms.string("DropBoxMetadata"),
-                 connect = cms.string("sqlite_file:DropBoxMetadata_wECAL.db")
+                 connect = cms.string("sqlite_file:DropBoxMetadata_adBSHP.db")
                 )
         )
