@@ -149,6 +149,9 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		QIE11DataFrame frame = static_cast<QIE11DataFrame>((*cqie11)[i]);
 		DetId did = frame.detid();
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		if (!eid.rawId()) {
+		  continue;
+		}
 		int fakecrate = -1;
 		if (eid.crateId() == 34) fakecrate = 0;
 		int index = fakecrate * 12 + (eid.slot() - 10) - 1;
