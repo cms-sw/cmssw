@@ -350,7 +350,8 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 	      //because we are using two different containers, we have to make sure that we don't unflag the
 	      // hit when it finds *itself* closer than delta_c
 	      if(dist < delta_c && dist != 0. && found[j].data.clusterIndex==ci){
-	        //this is not an isolated hit since dist != 0
+	        // in this case it is not an isolated hit
+            // the dist!=0 is because the hit being looked at is also inside the search box and at dist==0
 	        flag_isolated = false;
 	      }
 	    }
