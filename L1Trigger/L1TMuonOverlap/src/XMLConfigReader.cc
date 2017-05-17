@@ -170,7 +170,6 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
     parser.setDoNamespaces(false);
     
-    std::cout << "reading " << patternsFile << std::endl;
     parser.parse(patternsFile.c_str()); 
     xercesc::DOMDocument* doc = parser.getDocument();
     assert(doc);
