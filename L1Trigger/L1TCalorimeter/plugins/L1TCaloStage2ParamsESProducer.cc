@@ -244,8 +244,12 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
   std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
   std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
-  m_params_helper.setEtSumBypassPUS(conf.getParameter<unsigned>("etSumBypassPUS"));
-  m_params_helper.setEtSumPUSType(conf.getParameter<std::string>("etSumPUSType"));
+  m_params_helper.setEtSumBypassMetPUS(conf.getParameter<unsigned>("etSumBypassMetPUS"));
+  m_params_helper.setEtSumBypassEttPUS(conf.getParameter<unsigned>("etSumBypassEttPUS"));
+  m_params_helper.setEtSumBypassEcalSumPUS(conf.getParameter<unsigned>("etSumBypassEcalSumPUS"));
+  m_params_helper.setEtSumMetPUSType(conf.getParameter<std::string>("etSumMetPUSType"));
+  m_params_helper.setEtSumEttPUSType(conf.getParameter<std::string>("etSumEttPUSType"));
+  m_params_helper.setEtSumEcalSumPUSType(conf.getParameter<std::string>("etSumEcalSumPUSType"));
   m_params_helper.setEtSumXCalibrationType(conf.getParameter<std::string>("etSumXCalibrationType"));
   m_params_helper.setEtSumYCalibrationType(conf.getParameter<std::string>("etSumYCalibrationType"));
   m_params_helper.setEtSumEttCalibrationType(conf.getParameter<std::string>("etSumEttCalibrationType"));
@@ -263,10 +267,21 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
     edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
   }
   
-  edm::FileInPath etSumPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumPUSLUTFile");
-  std::ifstream etSumPUSLUTStream(etSumPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumPUSLUT( new LUT(etSumPUSLUTStream) );
-  m_params_helper.setEtSumPUSLUT(*etSumPUSLUT);
+  edm::FileInPath etSumMetPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumMetPUSLUTFile");
+  std::ifstream etSumMetPUSLUTStream(etSumMetPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumMetPUSLUT( new LUT(etSumMetPUSLUTStream) );
+  m_params_helper.setEtSumMetPUSLUT(*etSumMetPUSLUT);
+
+  edm::FileInPath etSumEttPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEttPUSLUTFile");
+  std::ifstream etSumEttPUSLUTStream(etSumEttPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumEttPUSLUT( new LUT(etSumEttPUSLUTStream) );
+  m_params_helper.setEtSumEttPUSLUT(*etSumEttPUSLUT);
+  
+  edm::FileInPath etSumEcalSumPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumPUSLUTFile");
+  std::ifstream etSumEcalSumPUSLUTStream(etSumEcalSumPUSLUTFile.fullPath());
+  std::shared_ptr<LUT> etSumEcalSumPUSLUT( new LUT(etSumEcalSumPUSLUTStream) );
+  m_params_helper.setEtSumEcalSumPUSLUT(*etSumEcalSumPUSLUT);
+  
 
   edm::FileInPath etSumXCalibrationLUTFile = conf.getParameter<edm::FileInPath>("etSumXCalibrationLUTFile");
   std::ifstream etSumXCalibrationLUTStream(etSumXCalibrationLUTFile.fullPath());
