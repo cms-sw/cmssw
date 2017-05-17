@@ -44,11 +44,13 @@ SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
 #SiStripApvGainRcd
 SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
 SiStripApvGainRcd_multirun_prod_str = encodeJsonInString("SiStripApvGainRcd_multirun_prod.json") 
-SiStripApvGainRcdAfterAbortGap_prod_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prod.json")
+SiStripApvGainRcdAfterAbortGap_prod_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prod.json") # can be removed, once 92x deployed
+SiStripApvGainRcdAAG_prod_str = encodeJsonInString("SiStripApvGainRcdAAG_prod.json") # will take over
 
 SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
 SiStripApvGainRcd_multirun_prep_str = encodeJsonInString("SiStripApvGainRcd_multirun_prep.json")
-SiStripApvGainRcdAfterAbortGap_prep_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prep.json")
+SiStripApvGainRcdAfterAbortGap_prep_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prep.json") # can be removed, once 92x deployed
+SiStripApvGainRcdAAG_prep_str = encodeJsonInString("SiStripApvGainRcdAAG_prep.json") # will take over
 
 #SiPixelAli
 SiPixelAliRcd_prod_str = encodeJsonInString("SiPixelAliRcd_prod.json")
@@ -102,11 +104,17 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaData        = cms.untracked.string(SiPixelAliRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelAliRcd_prep_str),
                                                                ),
-                                                      cms.PSet(record              = cms.untracked.string('SiStripApvGainRcdAfterAbortGap'),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripApvGainRcdAfterAbortGap'), # can be removed, once 92x deployed...
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripApvGainRcdAfterAbortGap_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcdAfterAbortGap_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripApvGainRcdAAG'), # ... will take over
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiStripApvGainRcdAAG_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripApvGainRcdAAG_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('EcalPedestalsRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
@@ -119,7 +127,7 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                   read = cms.untracked.bool(True),
 
                                   # toRead lists of record naemes to be sought inside the DropBoxMetadataRcd payload avaialble to the ProduceDropBoxMetadata; for instance, if write is True, you're reading back the metadata you've just entered in the payload from the .json files
-                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','BeamSpotObjectsRcdHPByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap','EcalPedestalsRcd') # same strings as fType
+                                  toRead = cms.untracked.vstring('BeamSpotObjectsRcdByRun','BeamSpotObjectsRcdByLumi','BeamSpotObjectsRcdHPByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap','SiStripApvGainRcdAAG','EcalPedestalsRcd') # same strings as fType
                                   )
 
 process.p = cms.Path(process.mywriter)
@@ -127,7 +135,7 @@ process.p = cms.Path(process.mywriter)
 if process.mywriter.write:
 
     from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = "sqlite_file:DropBoxMetadata_Wed.db"
+    CondDB.connect = "sqlite_file:DropBoxMetadata_addAAG.db"
 
     process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                               CondDB,
@@ -154,6 +162,6 @@ if readsqlite:
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("DropBoxMetadataRcd"),
                  tag = cms.string("DropBoxMetadata"),
-                 connect = cms.string("sqlite_file:DropBoxMetadata_adBSHP.db")
+                 connect = cms.string("sqlite_file:DropBoxMetadata_addAAG.db")
                 )
         )
