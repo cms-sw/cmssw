@@ -282,11 +282,11 @@ def customise_rpcRedigi(process):
         Nbxing = cms.int32(799),
         BX_range = cms.int32(400),
         linkGateWidth = cms.double(1.0),
+        Gate = cms.double(1.0),
     )
     process.simMuonRPCReDigis.digiIRPCModelConfig = process.simMuonRPCReDigis.digiModelConfig.clone(
         IRPC_time_resolution = cms.double(1.0),
-        IRPC_electronics_jitter = cms.double(0.1),
-        timeResolution = cms.double(1.0),
+        do_Y_coordinate = cms.bool(True),
     )
     process.RandomNumberGeneratorService.simMuonRPCReDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(13579),
