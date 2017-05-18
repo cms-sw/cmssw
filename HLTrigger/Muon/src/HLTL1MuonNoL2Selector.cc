@@ -37,8 +37,6 @@ HLTL1MuonNoL2Selector::HLTL1MuonNoL2Selector(const edm::ParameterSet& iConfig) :
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") ),
   theL2CandTag_     (iConfig.getParameter< edm::InputTag > ("L2CandTag")),
   theL2CandToken_   (consumes<reco::RecoChargedCandidateCollection>(theL2CandTag_)),
-  //  theL1CandTag_   (iConfig.getParameter<InputTag > ("L1CandTag")),
-  //  theL1CandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(theL1CandTag_)),
   seedMapTag_( iConfig.getParameter<InputTag >("SeedMapTag") ),
   seedMapToken_(consumes<SeedMap>(seedMapTag_))
 {
@@ -78,9 +76,6 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
   edm::Handle<RecoChargedCandidateCollection> L2cands;
   iEvent.getByToken(theL2CandToken_,L2cands);
   
-  // get the L2 to L1 map object for this event
-  //  HLTMuonL2ToL1TMap mapL2ToL1(theL1CandToken_, seedMapToken_, iEvent);
-
   // Muon particles 
   edm::Handle<MuonBxCollection> muColl;
   iEvent.getByToken(muCollToken_, muColl);
@@ -89,11 +84,6 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
   edm::Handle<SeedMap> seedMapHandle;
   iEvent.getByToken(seedMapToken_, seedMapHandle);
   
-//  std::vector<l1t::MuonRef> firedL1Muons_;
-//  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1Cands;
-//  iEvent.getByToken(theL1CandToken_, L1Cands);
-//  L1Cands->getObjects(trigger::TriggerL1Mu, firedL1Muons_);
-      
   for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
     if (centralBxOnly_ && (ibx != 0)) continue;
     for (auto it = muColl->begin(ibx); it != muColl->end(ibx); it++){
@@ -103,8 +93,7 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
       float pt    =  it->pt();
       float eta   =  it->eta();
 
-      if ( pt < theL1MinPt_ || fabs(eta) > theL1MaxEta_ ) continue;
-      if ( quality <= theL1MinQuality_ ) continue;
+      if ( pt < theL1MinPt_ || fabs(eta) > theL1MaxEta_  || quality <= theL1MinQuality_) continue;
 
       // Loop over L2's to find whether the L1 fired this L2. 
       bool isTriggeredByL1=false;
@@ -121,10 +110,9 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
 	if (!isTriggeredByL1) {
 	  output->push_back( ibx, *it);
 	}
-      }	
+      }
     }
   } // loop over L1
   
   iEvent.put(std::move(output));
 }
-

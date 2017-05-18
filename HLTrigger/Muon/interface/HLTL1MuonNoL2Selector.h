@@ -58,8 +58,6 @@ class HLTL1MuonNoL2Selector : public edm::global::EDProducer<> {
   edm::EDGetTokenT<l1t::MuonBxCollection> muCollToken_;
   edm::InputTag                                          theL2CandTag_;   
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theL2CandToken_;
-  //  edm::InputTag                                          theL1CandTag_; 
-  //  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CandToken_; 
   edm::InputTag             seedMapTag_;
   edm::EDGetTokenT<SeedMap> seedMapToken_;
   
