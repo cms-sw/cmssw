@@ -319,53 +319,23 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
           {
             if (gemId.station() == 1) tof_mu_bx0_ge11->Fill(partTof);
             if (gemId.station() == 3) tof_mu_bx0_ge21->Fill(partTof);
-            MuCluster.insert(std::pair<int, int>(strip, particletype));
+            MuCluster.emplace(strip, particletype);
           }
         else if (abs(particletype) == 11)
         {
           if (gemId.station() == 1) tof_elec_bx0_ge11->Fill(partTof);
           if (gemId.station() == 3) tof_elec_bx0_ge21->Fill(partTof);
-          ElecCluster.insert(std::pair<int, int>(strip, particletype));
+          ElecCluster.emplace(strip, particletype);
         }
         else
           continue;
       }
     }
 
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (ElecCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = ElecCluster.begin(); it != ElecCluster.end(); ++it)
-      {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
-      {
-        if (abs(it->second) == 13)
-        {
-          muonFired.push_back(it->first);
-        }
-      }
-    }
+     // add electron and muon hits to cluster
+    for (const auto& p : MuCluster) myCluster.emplace(p);
+    for (const auto& p : ElecCluster) myCluster.emplace(p);
+    for (const auto& p : MuCluster)  if (abs(p.second) == 13) muonFired.emplace_back(p.first);
 
     if (myCluster.size() != 0)
     {
