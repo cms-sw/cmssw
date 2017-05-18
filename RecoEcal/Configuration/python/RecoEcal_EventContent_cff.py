@@ -23,6 +23,7 @@ RecoEcalFEVT = cms.PSet(
         'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
         # Particle Flow superclusters
         'keep *_particleFlowSuperClusterECAL_*_*',
+        'keep *_particleFlowSuperClusterOOTECAL_*_*',
 	# DROP statements
 	'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
         'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
@@ -49,6 +50,7 @@ RecoEcalRECO = cms.PSet(
         'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
         # Particle Flow superclusters
         'keep *_particleFlowSuperClusterECAL_*_*',
+        'keep *_particleFlowSuperClusterOOTECAL_*_*',
 	# DROP statements
         'drop recoClusterShapes_*_*_*', 
         'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*',
@@ -76,7 +78,9 @@ RecoEcalAOD = cms.PSet(
         'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
         # Particle Flow superclusters (only SuperCluster and CaloCluster outputs, not association map from PFClusters)
         'keep recoSuperClusters_particleFlowSuperClusterECAL_*_*',
-        'keep recoCaloClusters_particleFlowSuperClusterECAL_*_*'
+        'keep recoCaloClusters_particleFlowSuperClusterECAL_*_*',
+        'keep recoSuperClusters_particleFlowSuperClusterOOTECAL_*_*',
+        'keep recoCaloClusters_particleFlowSuperClusterOOTECAL_*_*',
         )
 )
 
