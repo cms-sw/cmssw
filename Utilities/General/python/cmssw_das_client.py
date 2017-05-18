@@ -1,9 +1,25 @@
 from commands import getstatusoutput
 from json import loads
-from das_client import get_value as das_get_value
 
+#Copied from das_client.py
 def get_value(data, filters, base=10):
-  return das_get_value(data, filters, base)
+  """Filter data from a row for given list of filters"""
+  for ftr in filters:
+    if  ftr.find('>') != -1 or ftr.find('<') != -1 or ftr.find('=') != -1:
+      continue
+    row = dict(data)
+    values = []
+    keys = ftr.split('.')
+    for key in keys:
+      val = [v for v in extract_value(row, key, base)]
+      if  key == keys[-1]: # we collect all values at last key
+        values += [json.dumps(i) for i in val]
+      else:
+        row = val
+      if  len(values) == 1:
+        yield values[0]
+      else:
+        yield values
 
 def get_data(query, limit=None, threshold=None, idx=None, host=None):
   cmd_opts = "--format=json"
