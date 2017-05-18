@@ -7,11 +7,11 @@ import json
 if __name__ == "__main__":
     # the input file is in text format, formatted as the outout of cmsRun ProduceDropBoxMetadata.py
     # the inoput file holds metadata for a list of workflows, prod/prep for each
-    filenameinput = "1.log"
+    filenameinput = "last-iov-DropBoxMetadata_v5.1_express.db-f422b9d9589e65175b255acc01700f9103842a6e.log"
 
     # the .json files will be produced inside the specified directory
     # each .json file is the complete metadata for either prod or prep
-    dirnameoutput = 'out_sqlite_v3'
+    dirnameoutput = 'last-iov-DropBoxMetadata_v5.1_express'
     
     filehandler = open(filenameinput, 'r')
     lines = filehandler.readlines()
