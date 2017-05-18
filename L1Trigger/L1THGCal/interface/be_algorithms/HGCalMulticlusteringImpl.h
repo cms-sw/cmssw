@@ -22,7 +22,7 @@ public:
 private:
     
     double dr_;
-
+    double ptC3dThreshold_;
 };
 
 #endif
