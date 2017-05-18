@@ -55,6 +55,7 @@ class QIE11Task : public hcaldqm::DQTask
 		//	filters
 		hcaldqm::filter::HashFilter _filter_C34;
 		hcaldqm::filter::HashFilter _filter_slot[2];
+		hcaldqm::filter::HashFilter _filter_timingChannels[4];
 
 		//	Electronics Maps/Hashes
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
@@ -74,6 +75,11 @@ class QIE11Task : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D		_cLETDCTimevsADC;
 		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
+
+		// Timing
+		hcaldqm::Container2D _cTimingRatio_vs_LS[4];
+		hcaldqm::Container2D _cTDCTime_vs_LS[4];
+
 };
 
 #endif

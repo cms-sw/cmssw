@@ -59,7 +59,8 @@ namespace hcaldqm
 			ffC_generic_400000 = 44,
 			fQIE10ADC_16 = 45,
 			fDualAnodeAsymmetry = 46,
-			nValueQuantityType = 47,
+			fTimingRatio = 47,
+			nValueQuantityType = 48,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -108,7 +109,8 @@ namespace hcaldqm
 			{fState,"State"},
 			{fDataSize,"FED Data Size (kB)"},
 			{fTime_ns_250,"Time (ns)"},
-			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"}
+			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"},
+			{fTimingRatio, "q_{SOI+1}/q_{SOI}"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -157,7 +159,8 @@ namespace hcaldqm
 			{fADC_256,-0.5},
 			{ffC_generic_10000,0.},
 			{ffC_generic_400000,0.},	
-			{fDualAnodeAsymmetry,-1.},		
+			{fDualAnodeAsymmetry,-1.},	
+			{fTimingRatio,0.},	
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -206,7 +209,8 @@ namespace hcaldqm
 			{fADC_256,255.5},
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,400000},	
-			{fDualAnodeAsymmetry,1.}		
+			{fDualAnodeAsymmetry,1.},
+			{fTimingRatio,2.},	
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -254,7 +258,8 @@ namespace hcaldqm
 			{fADC_256,256},
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,10000},	
-			{fDualAnodeAsymmetry,40},	
+			{fDualAnodeAsymmetry,40},
+			{fTimingRatio,100},
 		};
 		class ValueQuantity : public Quantity
 		{
