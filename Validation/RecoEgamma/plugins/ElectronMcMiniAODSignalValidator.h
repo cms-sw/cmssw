@@ -101,18 +101,18 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
     MonitorElement *h1_ele_fbrem_mAOD_endcaps;
 
 	// -- pflow over pT
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_endcaps;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_endcaps;
-	MonitorElement *h1_ele_photonRelativeIso_mAOD;
-	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
 
-	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
     MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp; 
 };
 
