@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(500)
     )
 
 # Input source
@@ -79,12 +79,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(50.01),
-        MinPt = cms.double(49.99),
-        PartID = cms.vint32(11),
+        MaxPt = cms.double(200.00),
+        MinPt = cms.double(5.0),
+        PartID = cms.vint32(22),
         MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.5),
+        MinEta = cms.double(1.47),
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
@@ -117,7 +117,7 @@ process.schedule = cms.Schedule( process.generation_step, process.genfiltersumma
                                  process.digi2raw_step,
                                  process.ntuple_step,
                                  process.endjob_step, 
-                                 process.FEVTDEBUGoutput_step
+#                                 process.FEVTDEBUGoutput_step
                                  )
 
 # filter all path with the production filter sequence
