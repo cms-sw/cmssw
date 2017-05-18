@@ -147,10 +147,8 @@ process.hcalOnlineHarvesting.subsystem = cms.untracked.string(subsystem)
 #	Phase 1 upgrade modifiers
 #-------------------------------------
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-recHitTask_phase1 = process.recHitTask.clone()
-recHitTask_phase1.hfPreRecHitsAvailable = cms.untracked.bool(True)
-recHitTask_phase1.tagPreHF = cms.untracked.InputTag("hfprereco")
-run2_HF_2017.toReplaceWith(process.recHitTask, recHitTask_phase1)
+run2_HF_2017.toModify(process.recHitTask, hfPreRecHitsAvailable=cms.untracked.bool(True))
+run2_HF_2017.toModify(process.recHitTask, tagPreHF=cms.untracked.InputTag("hfprereco"))
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
