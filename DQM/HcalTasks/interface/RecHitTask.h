@@ -43,9 +43,12 @@ class RecHitTask : public hcaldqm::DQTask
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
-		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
-		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
+		edm::InputTag		_tagPreHF;
+		bool _hfPreRecHitsAvailable;
+		edm::EDGetTokenT<HBHERecHitCollection>	_tokHBHE;
+		edm::EDGetTokenT<HORecHitCollection>	_tokHO;
 		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
+		edm::EDGetTokenT<HFRecHitCollection>	_tokPreHF;
 
 		double _cutE_HBHE, _cutE_HO, _cutE_HF;
 		double _thresh_unihf;

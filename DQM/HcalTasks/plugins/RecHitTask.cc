@@ -14,10 +14,14 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		edm::InputTag("horeco"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 		edm::InputTag("hfreco"));
+	_tagPreHF = ps.getUntrackedParameter<edm::InputTag>("tagPreHF",
+		edm::InputTag(""));
+	_hfPreRecHitsAvailable = ps.getUntrackedParameter<bool>("hfPreRecHitsAvailable", false);
 
 	_tokHBHE = consumes<HBHERecHitCollection>(_tagHBHE);
 	_tokHO = consumes<HORecHitCollection>(_tagHO);
 	_tokHF = consumes<HFRecHitCollection>(_tagHF);
+	_tokPreHF = consumes<HFPreRecHitCollection>(_tagPreHF);
 
 	_cutE_HBHE = ps.getUntrackedParameter<double>("cutE_HBHE", 5);
 	_cutE_HO = ps.getUntrackedParameter<double>("cutE_HO", 5);
@@ -398,6 +402,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	if (!(e.getByToken(_tokHF, chf)))
 		_logger.dqmthrow("Collection HFRecHitCollection not available "
 			+ _tagHF.label() + " " + _tagHF.instance());
+
+	edm::Handle<HFPreRecHitCollection> cprehf;
+	if (_hfPreRecHitsAvailable) {
+		if (!(e.getByToken(_tokPreHF, cprehf)))
+			_logger.dqmthrow("Collection HFPreRecHitCollection not available "
+				+ _tagPreHF.label() + " " + _tagPreHF.instance());
+	}
 
 	//	extract some info per event
 	int bx = e.bunchCrossing();
