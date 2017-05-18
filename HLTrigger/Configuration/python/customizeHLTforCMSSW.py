@@ -168,8 +168,8 @@ def customiseFor18429(process):
 # Updating FatjetJetProducer with fillDescriptions
 def customiseFor18832(process):
     for producer in producers_by_type(process, "FastjetJetProducer"):
-        if not hasattr(producer, "doOutputJets"): producer.doOutputJets = cms.bool(False)
-        if not hasattr(producer, "sumRecHits"): producer.sumRecHits = cms.bool(False)
+        if hasattr(producer, "doOutputJets"): del producer.doOutputJets
+        if hasattr(producer, "sumRecHits"): del producer.sumRecHits
     return process
 
 # CMSSW version specific customizations
