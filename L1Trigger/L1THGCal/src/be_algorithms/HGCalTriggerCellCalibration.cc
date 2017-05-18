@@ -11,7 +11,7 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     
 
     for(auto corr : thickCorr_){
-        if(corr == 0){
+        if(corr <= 0){
             edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero";
         }
     }
