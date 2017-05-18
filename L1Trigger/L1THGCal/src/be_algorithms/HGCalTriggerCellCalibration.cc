@@ -33,7 +33,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
     }
 
     /* correct the charge amplitude for the sensor thickness */
-    double trgCellMipP = amplitude * thickCorr_.at( cellThickness-1 );
+    double trgCellMipP = amplitude / thickCorr_.at( cellThickness-1 );
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
     /* setting pT [mip] */

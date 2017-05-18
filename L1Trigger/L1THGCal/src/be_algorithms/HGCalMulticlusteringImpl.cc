@@ -3,9 +3,11 @@
 
 
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
-    dr_(conf.getParameter<double>("dR_multicluster"))
+    dr_(conf.getParameter<double>("dR_multicluster")),
+    ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
+    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << ptC3dThreshold_;
 }
 
 
@@ -66,7 +68,9 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     /* making the collection of multiclusters */
     multiclusters.resize(0, multiclustersTmp.size());
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-        multiclusters.set( 0, i, multiclustersTmp.at(i) );
+        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+            multiclusters.set( 0, i, multiclustersTmp.at(i) );
+        }
     }
     
 }
