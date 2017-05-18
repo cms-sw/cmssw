@@ -292,7 +292,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         const EcalSampleMask *sampleMask_ = sampleMaskHand_.product();                
         
         // intelligence for recHit computation
-        //EcalUncalibratedRecHit uncalibRecHit;
         float offsetTime = 0;
         
         const EcalPedestals::Item * aped = 0;
@@ -421,7 +420,6 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                                                                 timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-                    //uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                     uncalibRecHit.setJitterError( std::hypot(crh.timeError, EBtimeConstantTerm_ / clockToNsConstant) );
 
                     // consider flagging as kOutOfTime only if above noise
@@ -495,40 +493,8 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
 	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
 
-        // put the recHit in the collection
-        //result.push_back( uncalibRecHit );
     }
 }
-
-/*
-const SampleMatrix &EcalUncalibRecHitWorkerMultiFit::noisecor(bool barrel, int gain) const {
-  if (barrel) {
-    if (gain==6) {
-      return noisecorEBg6;
-    }
-    else if (gain==1) {
-      return noisecorEBg1;
-    }
-    else {
-      return noisecorEBg12;
-    }    
-  }
-  else {
-    if (gain==6) {
-      return noisecorEEg6;
-    }
-    else if (gain==1) {
-      return noisecorEEg1;
-    }
-    else {
-      return noisecorEEg12;
-    }        
-  }
-  
-  return noisecorEBg12;
-  
-}
-*/
 
 edm::ParameterSetDescription 
 EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
