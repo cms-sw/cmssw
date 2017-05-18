@@ -173,6 +173,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
+	_cOccupancy_Crate.initialize(_name,
+		 "Occupancy", hashfunctions::fCrate,
+		 new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		 new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+		 new quantity::ValueQuantity(quantity::fN),0);
+	_cOccupancy_CrateSlot.initialize(_name,
+		 "Occupancy", hashfunctions::fCrateSlot,
+		 new quantity::ElectronicsQuantity(quantity::fFiberuTCA),
+		 new quantity::ElectronicsQuantity(quantity::fFiberCh),
+		 new quantity::ValueQuantity(quantity::fN),0);
+
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
 	{
@@ -345,16 +356,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-		_cOccupancy_Crate.initialize(_name,
-			 "Occupancy", hashfunctions::fCrate,
-			 new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			 new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-			 new quantity::ValueQuantity(quantity::fN));
-		_cOccupancy_CrateSlot.initialize(_name,
-			 "Occupancy", hashfunctions::fCrateSlot,
-			 new quantity::ElectronicsQuantity(quantity::fFiberuTCA),
-			 new quantity::ElectronicsQuantity(quantity::fFiberCh),
-			 new quantity::ValueQuantity(quantity::fN));
 
 		_cDigiSize_FED.initialize(_name, "DigiSize",
 			hcaldqm::hashfunctions::fFED,
