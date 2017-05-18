@@ -118,18 +118,19 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      GEMDetId roId = GEMDetId(re, id.ring(), st, la, chamber, digiItr->roll());
-      Short_t nroll = roId.roll();  
-      LogDebug("GEMCoPadDigiValidation")<<"roId : "<<roId;
-      const GeomDet* gdet = GEMGeometry_->idToDet(roId);
+      // GEM copads are stored per super chamber!
+      GEMDetId schId = GEMDetId(re, id.ring(), st, 0, chamber, 0);
+      Short_t nroll = (*digiItr).roll();
+      LogDebug("GEMCoPadDigiValidation")<<"schId : "<<schId;
+      const GeomDet* gdet = GEMGeometry_->idToDet(schId);
       if ( gdet == nullptr) {
-        edm::LogError("GEMCoPadDigiValidation")<<roId<<" : This part can not load from GEMGeometry // Original"<<id<<" station : "<<st;
-        edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
+        edm::LogError("GEMCoPadDigiValidation")<<schId<<" : This detId cannot be loaded from GEMGeometry // Original"<<id<<" station : "<<st;
+        edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit. ";
         continue; 
       }
       const BoundPlane & surface = gdet->surface();
-      const GEMEtaPartition * roll = GEMGeometry_->etaPartition(roId);
-      LogDebug("GEMCoPadDigiValidation")<<" roll's n pad : "<<roll->npads();
+      const GEMSuperChamber * superChamber = GEMGeometry_->superChamber(schId);
+      LogDebug("GEMCoPadDigiValidation")<<" #pads in this partition : "<< superChamber->chamber(1)->etaPartition(1)->npads();
 
       Short_t pad1 = (Short_t) digiItr->pad(1);
       Short_t pad2 = (Short_t) digiItr->pad(2);
@@ -142,8 +143,8 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       if ( bx1 < (Short_t)minBXGEM_ || bx1 > (Short_t)maxBXGEM_) continue;
       if ( bx2 < (Short_t)minBXGEM_ || bx2 > (Short_t)maxBXGEM_) continue;
 
-      LocalPoint lp1 = roll->centreOfPad(pad1);
-      LocalPoint lp2 = roll->centreOfPad(pad2);
+      LocalPoint lp1 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad1);
+      LocalPoint lp2 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad2);
 
       GlobalPoint gp1 = surface.toGlobal(lp1);
       GlobalPoint gp2 = surface.toGlobal(lp2);
@@ -160,7 +161,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       if ( re == -1 ) region_num = 0 ; 
       else if (re == 1 ) region_num = 1; 
       else {
-        edm::LogError("GEMCoPadDIGIValidation")<<"region : "<<re<<std::endl;
+        edm::LogError("GEMCoPadDigiValidation")<<"region : "<<re<<std::endl;
       }
       int binX = (chamber-1)*2+(la-1);
       int binY = nroll;
