@@ -85,10 +85,10 @@ namespace l1t {
 
          // Initialise indices
          unsigned int i = 0;
-         unsigned int muonCnt = 0;
 
          // Loop over multiple BX and then number of muons filling muon collection
          for (int bx = firstBX; bx <= lastBX; ++bx) {
+            unsigned int muonCnt = 0;
             for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2, ++muonCnt) {
                uint32_t raw_data_00_31 = payload[i++];
                uint32_t raw_data_32_63 = payload[i++];        
