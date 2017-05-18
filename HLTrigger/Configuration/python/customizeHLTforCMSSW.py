@@ -165,6 +165,13 @@ def customiseFor18429(process):
 
      return process
 
+# Updating FatjetJetProducer with fillDescriptions
+def customiseFor18832(process):
+    for producer in producers_by_type(process, "FastjetJetProducer"):
+        if not hasattr(producer, "doOutputJets"): producer.doOutputJets = cms.bool(False)
+        if not hasattr(producer, "sumRecHits"): producer.sumRecHits = cms.bool(False)
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
@@ -175,5 +182,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor18330(process)
     process = customiseFor18429(process)
     process = customiseFor18559(process)
+    process = customiseFor18832(process)
 
     return process
