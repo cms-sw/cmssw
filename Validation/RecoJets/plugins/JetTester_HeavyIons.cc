@@ -729,10 +729,8 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   
   edm::Handle<int> cbin;
   mEvent.getByToken(centralityBinToken, cbin);
-  if (!cent.isValid()){
-    edm::LogError("JetTester_HeavyIons") << "invalid collection: centrality " << std::endl;
-    return;
-  }
+  if (!cent.isValid()) return;
+  
   int hibin = -999;
   if(cbin.isValid()){
     hibin = *cbin;
