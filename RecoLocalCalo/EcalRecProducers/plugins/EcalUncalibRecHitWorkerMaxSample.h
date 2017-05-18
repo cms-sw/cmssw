@@ -1,7 +1,7 @@
 #ifndef RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitWorkerMaxSample_hh
 #define RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitWorkerMaxSample_hh
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMaxSampleAlgo.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -14,7 +14,7 @@ namespace edm {
 	class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
  public:
   EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
