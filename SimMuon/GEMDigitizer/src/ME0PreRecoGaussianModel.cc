@@ -181,8 +181,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateElectronBkg_) {
       // Extract / Calculate the Average Electron Rate 
       // for the given global Y coord from Parametrization
-      double averageElectronRatePerRoll = eleBkg[0] * rSqrtR*  TMath::Exp(eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
-      
+      double averageElectronRatePerRoll =  eleBkg[0] * rSqrtR* std::exp( eleBkg[1]/rSqrtR) + eleBkg[2]/rSqrtR + eleBkg[3]/(sqrt(yy_glob));
       // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
       averageElectronRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
 
@@ -232,9 +231,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
     if (simulateNeutralBkg_) {
       // Extract / Calculate the Average Neutral Rate 
       // for the given global Y coord from Parametrization
-      double averageNeutralRatePerRoll = neuBkg[0] * yy_glob* TMath::Exp(neuBkg[1]/rSqrtR) + neuBkg[2]/rSqrtR + neuBkg[3]/(sqrt(yy_glob));
-
-      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
+      double averageNeutralRatePerRoll = neuBkg[0] * yy_glob* std::exp( neuBkg[1]/rSqrtR) + 
+	neuBkg[2]/rSqrtR + neuBkg[3]/(sqrt(yy_glob));
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
       averageNeutralRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll

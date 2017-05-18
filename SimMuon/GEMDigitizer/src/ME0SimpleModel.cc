@@ -1,3 +1,6 @@
+#include "CLHEP/Units/defs.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimMuon/GEMDigitizer/interface/ME0SimpleModel.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
@@ -9,13 +12,7 @@
 #include <cmath>
 #include <utility>
 #include <map>
-#include "TMath.h"       /* exp */
 
-namespace
-{
-  // "magic" parameter for cosmics
-  const double COSMIC_PAR(37.62);
-}
 
 ME0SimpleModel::ME0SimpleModel(const edm::ParameterSet& config) :
 ME0DigiModel(config)
@@ -39,12 +36,11 @@ ME0DigiModel(config)
 , referenceInstLumi_(config.getParameter<double> ("referenceInstLumi"))
 {
   //initialise parameters from the fit:
-  //params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
+  //params for charged background model for ME0 
   ME0ElecBkgParam0 = 0.00171409;
   ME0ElecBkgParam1 = 4900.56;
   ME0ElecBkgParam2 = 710909;
   ME0ElecBkgParam3 = -4327.25;
-
   //params for neutral background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
   ME0NeuBkgParam0 = 0.00386257;
   ME0NeuBkgParam1 = 6344.65;
@@ -84,7 +80,7 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
     if (std::abs(hit->particleType()) != 13) //consider all non muon particles with me0 efficiency to electrons
     {
       if (partMom <= 1.95e-03)
-        elecEff = 1.7e-05 * TMath::Exp(2.1 * partMom * 1000.);
+        elecEff = 1.7e-05 * std::exp(2.1 * partMom * 1000.);
       if (partMom > 1.95e-03 && partMom < 10.e-03)
         elecEff = 1.34 * log(7.96e-01 * partMom * 1000. - 5.75e-01)
             / (1.34 + log(7.96e-01 * partMom * 1000. - 5.75e-01));
@@ -99,8 +95,8 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx, engine));
     for  (auto & digi : cluster)
     {
-      detectorHitMap_.insert(DetectorHitMap::value_type(digi,&*(hit)));
-      strips_.insert(digi);
+      detectorHitMap_.emplace(DetectorHitMap::value_type(digi,&*(hit)));
+      strips_.emplace(digi);
     }
   }
 }
@@ -123,21 +119,18 @@ int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   {
     throw cms::Exception("Geometry") << "ME0SimpleModel::getSimHitBx() - this ME0 id is from barrel, which cannot happen: " << roll->id() << "\n";
   }
-  const double cspeed = 299792458;   // signal propagation speed in vacuum in [m/s]
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips/2.;
   LocalPoint middleOfRoll = roll->centreOfStrip(middleStrip);
   GlobalPoint globMiddleRol = roll->toGlobal(middleOfRoll);
   double muRadius = sqrt(globMiddleRol.x()*globMiddleRol.x() + globMiddleRol.y()*globMiddleRol.y() +globMiddleRol.z()*globMiddleRol.z());
-  double timeCalibrationOffset_ = (muRadius *1e+9)/(cspeed*1e+2); //[ns]
-
+  double timeCalibrationOffset_ = (muRadius*CLHEP::ns*CLHEP::cm)/(CLHEP::c_light); //[cm/ns]
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 
   // signal propagation speed in material in [cm/ns]
-  double signalPropagationSpeedTrue = signalPropagationSpeed_ * cspeed * 1e-7;  // 1e+2 * 1e-9;
-
+  double signalPropagationSpeedTrue = signalPropagationSpeed_ * CLHEP::c_light/(CLHEP::ns*CLHEP::cm);
   // average time for the signal to propagate from the SimHit to the top of a strip
   const float averagePropagationTime(distanceFromEdge / signalPropagationSpeedTrue);
   // random Gaussian time correction due to the finite timing resolution of the detector
@@ -145,7 +138,7 @@ int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const float simhitTime(tof + averageShapingTime_ + randomResolutionTime + averagePropagationTime + randomJitterTime);
   float referenceTime = 0.;
   referenceTime = timeCalibrationOffset_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_;
-  const float timeDifference(cosmics_ ? (simhitTime - referenceTime) / COSMIC_PAR : simhitTime - referenceTime);
+  const float timeDifference(simhitTime - referenceTime);
   // assign the bunch crossing
   bx = static_cast<int> (std::round((timeDifference) / bxwidth_));
 
@@ -153,7 +146,7 @@ int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const bool debug(false);
   if (debug)
   {
-    std::cout << "checktime " << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime
+    LogDebug("ME0SimpleModel")<<  "checktime " << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime 
         << "\trefT =  " << referenceTime << "\ttof = " << tof << "\tavePropT =  " << averagePropagationTime
         << "\taveRefPropT = " << halfStripLength / signalPropagationSpeedTrue << std::endl;
   }
@@ -194,12 +187,10 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
   }
   else
   {
-    averageNeutralNoiseRatePerRoll = ME0NeuBkgParam0 * rollRadius* TMath::Exp(ME0NeuBkgParam1/rSqrtR) + ME0NeuBkgParam2/rSqrtR + ME0NeuBkgParam3/(sqrt(rollRadius));
-
+    averageNeutralNoiseRatePerRoll = ME0NeuBkgParam0 * rollRadius* std::exp(ME0NeuBkgParam1/rSqrtR) + ME0NeuBkgParam2/rSqrtR + ME0NeuBkgParam3/(sqrt(rollRadius));
     //simulate electron background for ME0
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* TMath::Exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
-
+      averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* std::exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;  
   }
@@ -210,14 +201,13 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     const double aveIntrinsicNoisePerStrip(averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9);
     for(int j = 0; j < nstrips; ++j)
     {
-      CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoisePerStrip);
+      CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoisePerStrip); 
       const int n_intrHits(randPoissonQ.fire());
     
       for (int k = 0; k < n_intrHits; k++ )
       {
         const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
-        std::pair<int, int> digi(k+1,time_hit);
-        strips_.insert(digi);
+	strips_.emplace(k+1,time_hit);
       }
     }
   }//end simulate intrinsic noise
@@ -235,30 +225,29 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     {
       std::vector < std::pair<int, int> > cluster_;
       cluster_.clear();
-      cluster_.push_back(std::pair<int, int>(centralStrip, time_hit));
+      cluster_.emplace_back(std::pair<int, int>(centralStrip, time_hit));
       int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
       if (clusterSize == 2)
       {
         if(CLHEP::RandFlat::shoot(engine) < 0.5)
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-            cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
+            cluster_.emplace_back(std::pair<int, int>(centralStrip - 1, time_hit));
         }
         else
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-            cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
+            cluster_.emplace_back(std::pair<int, int>(centralStrip + 1, time_hit));
         }
       }
       for (auto & digi : cluster_)
       {
-        strips_.insert(digi);
+	strips_.emplace(digi);
       }
     } //end doNoiseCLS_
     else
     {
-      std::pair<int, int> digi(centralStrip, time_hit);
-      strips_.insert(digi);
+      strips_.emplace(centralStrip, time_hit);
     }
   }
   return;
@@ -282,7 +271,8 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
   // Add central digi to cluster vector
   std::vector < std::pair<int, int> > cluster_;
   cluster_.clear();
-  cluster_.push_back(std::pair<int, int>(centralStrip, bx));
+  //cluster_.push_back(std::pair<int, int>(centralStrip, bx));
+  cluster_.emplace_back(std::pair<int, int>(centralStrip, bx));
 
   //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
@@ -291,12 +281,14 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
     if (deltaX <= 0)
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-        cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
-    }
+        //cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
+	cluster_.emplace_back(std::pair<int, int>(centralStrip - 1, bx));
+	}
     else
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
+        //cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
+	cluster_.emplace_back(std::pair<int, int>(centralStrip + 1, bx));
     }
   }
   return cluster_;
