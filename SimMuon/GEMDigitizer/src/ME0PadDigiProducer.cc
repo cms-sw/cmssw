@@ -63,8 +63,7 @@ void ME0PadDigiProducer::buildPads(const ME0DigiCollection &det_digis, ME0PadDig
     for (auto d = digis.first; d != digis.second; ++d)
     {
       int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
-      auto pad = std::make_pair(pad_num, d->bx());
-      proto_pads.insert(pad);
+      proto_pads.emplace(pad_num, d->bx());
     }
 
     // fill the output collections
