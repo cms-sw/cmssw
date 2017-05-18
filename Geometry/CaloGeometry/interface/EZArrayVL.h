@@ -68,7 +68,7 @@ class EZArrayVL
 
       bool empty()         const { return ( 0 == size() ) ;  }
 
-      size_type size()     const { return ( m_end - m_begin ) ; }
+      size_type size()     const { return ( m_size ) ; }
 
       size_type capacity() const { return size() ; }
 
