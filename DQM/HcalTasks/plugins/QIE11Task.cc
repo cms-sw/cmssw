@@ -44,9 +44,9 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 
 	std::vector<std::pair<int, int> > timingChannels;
 	timingChannels.push_back(std::pair<int, int>(28, 63));
-	timingChannels.push_back(std::pair<int, int>(28, 64));
+	timingChannels.push_back(std::pair<int, int>(28, 65));
 	timingChannels.push_back(std::pair<int, int>(20, 63));
-	timingChannels.push_back(std::pair<int, int>(20, 64));
+	timingChannels.push_back(std::pair<int, int>(20, 65));
 	for (int iChan = 0; iChan < 4; ++iChan) {
 		std::vector<uint32_t> vhashTimingChannel;
 		for (int depth = 1; depth <= 7; ++depth) {
