@@ -795,15 +795,12 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   edm::Handle<int> cbin;
   mEvent.getByToken(centralityBinToken, cbin);
   
-  if (!cent.isValid()){
-    edm::LogError("JetAnalyzer_HeavyIons") << "invalid collection: centrality " << std::endl;
-    return;
-  }
+  if (!cent.isValid()) return;
+  
   int hibin = -999;
   if(cbin.isValid()){
     hibin = *cbin;
   }
-  //else  edm::LogWarning("JetAnalyzer_HeavyIons") << "invalid collection: centralityBin " << std::endl;
   
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
 
