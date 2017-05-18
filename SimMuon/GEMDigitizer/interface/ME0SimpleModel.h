@@ -1,6 +1,7 @@
 #ifndef SimMuon_GEMDigitizer_ME0SimpleModel_h
 #define SimMuon_GEMDigitizer_ME0SimpleModel_h
 
+
 /** 
  * \class ME0SimpleModel
  *
@@ -11,7 +12,7 @@
  */
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
-
+#include <vector>
 class ME0Geometry;
 
 namespace CLHEP
@@ -60,14 +61,12 @@ private:
   double instLumi_;
   double rateFact_;
   double referenceInstLumi_;
-
-//params for charged background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
+  //params for charged background model for ME0 
   double ME0ElecBkgParam0;
   double ME0ElecBkgParam1;
   double ME0ElecBkgParam2;
   double ME0ElecBkgParam3;
-
-//params for neutral background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
+  //params for neutral background model for ME0 
   double ME0NeuBkgParam0;
   double ME0NeuBkgParam1;
   double ME0NeuBkgParam2;

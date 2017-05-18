@@ -104,8 +104,9 @@ ME0DigiSimLinkReader::ME0DigiSimLinkReader(const edm::ParameterSet& pset) :
   , me0DigiSimLinkToken_(consumes < edm::DetSetVector<ME0DigiSimLink> > (pset.getParameter < edm::InputTag > ("me0DigiSimLinkToken")))
   , debug_(pset.getParameter<bool>("debugFlag"))
 {
+ 
+  usesResource("TFileService");
   edm::Service < TFileService > fs;
-
   hProces = fs->make < TH1F > ("hProces", "Process type for all the simHits", 20, 0, 20);
   hAllSimHitsType = fs->make < TH1F > ("hAllSimHitsType", "pdgId for All simHits", 500, 0, 500);
   hParticleTypes = fs->make < TH1F > ("hParticleTypes", "pdgId for digitized simHits", 500, 0, 500);
@@ -287,12 +288,12 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
           if (abs(particletype) == 13)
           {
             tof_mu_bx0->Fill(partTof);
-            MuCluster.insert(std::pair<int, int>(strip, particletype));
+            MuCluster.emplace(std::pair<int, int>(strip, particletype));
           }
           else if (abs(particletype) == 11)
           {
             if (me0Id.station() == 1) tof_elec_bx0->Fill(partTof);
-            ElecCluster.insert(std::pair<int, int>(strip, particletype));
+            ElecCluster.emplace(std::pair<int, int>(strip, particletype));
           }
         else
           continue;
@@ -304,7 +305,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     {
       for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
       {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
+        myCluster.emplace(std::pair<int, int>(it->first, it->second));
       }
     }
 
@@ -312,7 +313,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     {
       for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
       {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
+        myCluster.emplace(std::pair<int, int>(it->first, it->second));
       }
     }
 
@@ -320,7 +321,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     {
       for (std::map<int, int>::iterator it = ElecCluster.begin(); it != ElecCluster.end(); ++it)
       {
-        myCluster.insert(std::pair<int, int>(it->first, it->second));
+        myCluster.emplace(std::pair<int, int>(it->first, it->second));
       }
     }
 
@@ -330,7 +331,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       {
         if (abs(it->second) == 13)
         {
-          muonFired.push_back(it->first);
+          muonFired.emplace_back(it->first);
         }
       }
     }
@@ -344,7 +345,7 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       std::vector<std::vector<int> > tempCluster;
       for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
       {
-        allFired.push_back(it->first);
+        allFired.emplace_back(it->first);
       }
 
       int clusterInd = 0;
@@ -353,8 +354,8 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         std::cout << "kk\t" << kk << std::endl;
         int myDelta = 0;
         std::vector<int> prazen;
-        tempCluster.push_back(prazen);
-        (tempCluster[clusterInd]).push_back(allFired[kk]);
+        tempCluster.emplace_back(prazen);
+        (tempCluster[clusterInd]).emplace_back(allFired[kk]);
         unsigned int i = kk;
         std::cout << "i\t" << i << "\tpush kk\t" << allFired[kk] << "\tclusterInd\t" << clusterInd << std::endl;
         for (; i < allFired.size(); i++)
@@ -364,8 +365,8 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
             myDelta = allFired[i + 1] - allFired[i];
             if (myDelta == 1)
             {
-              tempCluster[clusterInd].push_back(allFired[i + 1]);
-              std::cout << "i\t" << i << "\ti+1\t" << i + 1 << "\tpush i+1\t" << allFired[i + 1] << std::endl;
+              tempCluster[clusterInd].emplace_back(allFired[i + 1]);
+	      std::cout << "i\t" << i << "\ti+1\t" << i + 1 << "\tpush i+1\t" << allFired[i + 1] << std::endl;
             }
             else
               break;

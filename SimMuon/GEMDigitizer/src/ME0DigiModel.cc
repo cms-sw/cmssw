@@ -4,7 +4,7 @@
 void 
 ME0DigiModel::fillDigis(int rollDetId, ME0DigiCollection& digis)
 {
-  for (auto d: strips_)
+  for (const auto &d: strips_)
   {
     if (d.second == -999) continue;
 
@@ -49,7 +49,7 @@ ME0DigiModel::addLinks(unsigned int strip, int bx)
     totalCharge += charge;
   }
 
-  for(auto &charge: simTrackChargeMap)
+  for(const auto &charge: simTrackChargeMap)
   {
     const int simTrackId(charge.first);
     auto link(StripDigiSimLink(strip, simTrackId, eventIdMap[simTrackId], charge.second/totalCharge));
@@ -61,10 +61,8 @@ void ME0DigiModel::addLinksWithPartId(unsigned int strip, int bx)
 {
  
   std::pair<unsigned int, int > digi(strip, bx);
-  std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr 
-     = detectorHitMap_.equal_range(digi);
-
-  for( DetectorHitMap::iterator hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr)
+  auto channelHitItr = detectorHitMap_.equal_range(digi);
+  for(auto hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr)
   {
     const PSimHit * hit = (hitItr->second);
     // might be zero for unit tests and such

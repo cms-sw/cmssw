@@ -59,7 +59,6 @@ private:
 
   TH1F *hProces; 
 
-//  TH2F *hNstripEtaParts;
   TH1F *hNstripEtaPart1;
   TH1F *hNstripEtaPart2;
   TH1F *hNstripEtaPart3;
@@ -93,10 +92,11 @@ ME0DigiReader::ME0DigiReader(const edm::ParameterSet& pset) :
   me0StripDigiSimLinkToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(pset.getParameter<edm::InputTag>("me0StripDigiSimLinkToken")))
   , debug_(pset.getParameter<bool>("debugFlag"))
 {
+  usesResource("TFileService");
   edm::Service < TFileService > fs; 
 
   hProces = fs->make < TH1F > ("hProces", "Process type for all the simHits", 20, 0, 20);
-//  hNstripEtaParts = fs->make <TH2F> ("NstripEtaParts", "Nstrips in each EtaPartition ", 40, 0.5, 10.5, 770, 1, 770);
+
   hNstripEtaPart1 = fs->make <TH1F> ("NstripEtaPart1", "Nstrips in EtaPartition 1", 770, 1, 770);
   hNstripEtaPart2 = fs->make <TH1F> ("NstripEtaPart2", "Nstrips in EtaPartition 2", 770, 1, 770);
   hNstripEtaPart3 = fs->make <TH1F> ("NstripEtaPart3", "Nstrips in EtaPartition 3", 770, 1, 770);
@@ -106,7 +106,7 @@ ME0DigiReader::ME0DigiReader(const edm::ParameterSet& pset) :
   hNstripEtaPart7 = fs->make <TH1F> ("NstripEtaPart7", "Nstrips in EtaPartition 7", 770, 1, 770);
   hNstripEtaPart8 = fs->make <TH1F> ("NstripEtaPart8", "Nstrips in EtaPartition 8", 770, 1, 770);
   hBx = fs->make <TH1F> ("hBx", "bx from digi - for all #eta partiotions", 9, -5.5, 3.5 );
-  hRadiusEtaPartVsNdigi = fs->make <TH2F> ("hRadiusEtaPartVsNdigi", "Radius Eta Partition vs Ndigi", 2500, 0., 250., 200, 0., 20. );//MM 
+  hRadiusEtaPartVsNdigi = fs->make <TH2F> ("hRadiusEtaPartVsNdigi", "Radius Eta Partition vs Ndigi", 2500, 0., 250., 200, 0., 20. ); 
   hRadiusEtaPartVsNdigiOvTrArea = fs->make <TH2F> ("hRadiusEtaPartVsNdigiOvTrArea", "Ndigi/TrArea vs Radius Eta Partition", 2500, 0., 250., 1000, 0., 0.1 );
   hRadiusEtaPart = fs->make <TH1F> ("hRadiusEtaPart", "Radius Eta Partition", 200, 0., 200. );
   hdeltaXEntryPointVsCentreStrip = fs->make <TH1F> ("deltaX", "delta X Residuals", 200, -10., 10. );
@@ -131,7 +131,6 @@ void ME0DigiReader::beginJob() {
 
 void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
-//  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   edm::ESHandle<ME0Geometry> pDD;
   eventSetup.get<MuonGeometryRecord>().get( pDD );
@@ -161,9 +160,6 @@ void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     const ME0DetId& id = (*detUnitIt).first;
     const ME0EtaPartition* roll = pDD->etaPartition(id);
 
-    // ME0DetId print-out
-//    cout<<"--------------"<<endl;
-//      cout<<"id: "<<id.rawId()<<" etaPartition id.roll() = "<<id.roll()<<endl;
       
     int ndigi = 0;
     double trArea(0.0);
@@ -183,24 +179,20 @@ void ME0DigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     trStripArea = (roll->pitch()) * striplength;
     trArea = trStripArea * nstrips;
 
-if(id.roll() == 1) { countRoll1++;}
-if(id.roll() == 2) { countRoll2++;}
-if(id.roll() == 3) { countRoll3++;}
-if(id.roll() == 4) { countRoll4++;}
-if(id.roll() == 5) { countRoll5++;}
-if(id.roll() == 6) { countRoll6++;}
-if(id.roll() == 7) { countRoll7++;}
-if(id.roll() == 8) { countRoll8++;}
+    if(id.roll() == 1) { countRoll1++;}
+    if(id.roll() == 2) { countRoll2++;}
+    if(id.roll() == 3) { countRoll3++;}
+    if(id.roll() == 4) { countRoll4++;}
+    if(id.roll() == 5) { countRoll5++;}
+    if(id.roll() == 6) { countRoll6++;}
+    if(id.roll() == 7) { countRoll7++;}
+    if(id.roll() == 8) { countRoll8++;}
 
     // Loop over the digis of this DetUnit
     const ME0DigiCollection::Range& range = (*detUnitIt).second;
     for (ME0DigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
     {
-/*
-      for(int i = 0; i < id.roll(); i++){
-	hNstripEtaParts->Fill(id.roll(), digiIt->strip());
-      }
-*/
+
       if(id.roll() == 1) {hNstripEtaPart1->Fill(digiIt->strip()); ndigi1++;}
       if(id.roll() == 2) {hNstripEtaPart2->Fill(digiIt->strip()); ndigi2++;}
       if(id.roll() == 3) {hNstripEtaPart3->Fill(digiIt->strip()); ndigi3++;}
@@ -246,8 +238,8 @@ if(id.roll() == 8) { countRoll8++;}
       }
     }// for digis in roll
 
-    hRadiusEtaPartVsNdigi->Fill(rollRadius, ndigi);//MM
-    hRadiusEtaPartVsNdigiOvTrArea->Fill(rollRadius,ndigi/trArea);//MM
+    hRadiusEtaPartVsNdigi->Fill(rollRadius, ndigi);
+    hRadiusEtaPartVsNdigiOvTrArea->Fill(rollRadius,ndigi/trArea);
     hRadiusEtaPart->Fill(rollRadius);
 
     if(id.roll() == 1) {ndigiVsArea1 = ndigiVsArea1 + ndigi1*1./trArea; rollRadius1 = rollRadius;}
@@ -261,37 +253,22 @@ if(id.roll() == 8) { countRoll8++;}
 
   }// for eta partitions (rolls)
 
-std::cout << "roll 1 numbers = " <<  countRoll1 << "\tndigi = " << ndigi1 << std::endl;
-std::cout << "roll 2 numbers = " <<  countRoll2 << "\tndigi = " << ndigi2 << std::endl;
-std::cout << "roll 3 numbers = " <<  countRoll3 << "\tndigi = " << ndigi3 << std::endl;
-std::cout << "roll 4 numbers = " <<  countRoll4 << "\tndigi = " << ndigi4 << std::endl;
-std::cout << "roll 5 numbers = " <<  countRoll5 << "\tndigi = " << ndigi5 << std::endl;
-std::cout << "roll 6 numbers = " <<  countRoll6 << "\tndigi = " << ndigi6 << std::endl;
-std::cout << "roll 7 numbers = " <<  countRoll7 << "\tndigi = " << ndigi7 << std::endl;
-std::cout << "roll 8 numbers = " <<  countRoll8 << "\tndigi = " << ndigi8 << std::endl;
+  std::cout << "roll 1 numbers = " <<  countRoll1 << "\tndigi = " << ndigi1 << std::endl;
+  std::cout << "roll 2 numbers = " <<  countRoll2 << "\tndigi = " << ndigi2 << std::endl;
+  std::cout << "roll 3 numbers = " <<  countRoll3 << "\tndigi = " << ndigi3 << std::endl;
+  std::cout << "roll 4 numbers = " <<  countRoll4 << "\tndigi = " << ndigi4 << std::endl;
+  std::cout << "roll 5 numbers = " <<  countRoll5 << "\tndigi = " << ndigi5 << std::endl;
+  std::cout << "roll 6 numbers = " <<  countRoll6 << "\tndigi = " << ndigi6 << std::endl;
+  std::cout << "roll 7 numbers = " <<  countRoll7 << "\tndigi = " << ndigi7 << std::endl;
+  std::cout << "roll 8 numbers = " <<  countRoll8 << "\tndigi = " << ndigi8 << std::endl;
 
-/*
-  for (edm::DetSetVector<StripDigiSimLink>::const_iterator itlink = thelinkDigis->begin(); itlink != thelinkDigis->end(); itlink++)
-  {
-    for(edm::DetSet<StripDigiSimLink>::const_iterator link_iter=itlink->data.begin();link_iter != itlink->data.end();++link_iter)
-    {
-      int detid = itlink->detId();
-      int ev = link_iter->eventId().event();
-      float frac =  link_iter->fraction();
-      int strip = link_iter->channel();
-      int trkid = link_iter->SimTrackId();
-      int bx = link_iter->eventId().bunchCrossing();
-      cout<<"DetUnit: "<<ME0DetId(detid)<<"  Event ID: "<<ev<<"  trkId: "<<trkid<<"  Strip: "<<strip<<"  Bx: "<<bx<<"  frac: "<<frac<<endl;
-    }
-  }
-*/
   numbEvents++;
 }
 
 void ME0DigiReader::endJob() {
   std::cout << "number of events = " << numbEvents << std::endl;
   std::cout << "--------------" << std::endl;
-//  hRadiusEtaPartVsNdigiOvTrArea->GetXProjections();
+  //  hRadiusEtaPartVsNdigiOvTrArea->GetXProjections();
 
   std::vector<double> myRadii, myRates;
 
