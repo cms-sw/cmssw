@@ -23,7 +23,7 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
     //recomp
     pfSumChargedHadronPtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumChargedHadronPtTmp" ) ) ; // iConfig 
     pfSumNeutralHadronEtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumNeutralHadronEtTmp" ) ) ; // iConfig 
-    pfSumPhotonEtTmp_         = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumPhotonEtTmp" ) ) ;        // iConfig 
+    pfSumPhotonEtTmp_ = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumPhotonEtTmp" ) ) ; // iConfig 
     
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
