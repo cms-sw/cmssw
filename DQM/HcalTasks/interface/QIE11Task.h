@@ -76,6 +76,10 @@ class QIE11Task : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
 
+		// Timing
+		hcaldqm::Container2D _cTimingRatio_vs_LS[4];
+		hcaldqm::Container2D _cTDCTime_vs_LS[4];
+
 };
 
 #endif

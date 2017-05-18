@@ -117,6 +117,18 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	if (_ptype != fOffline) {
+	  for (int iChan = 0; iChan < 4; ++iChan) {
+	    _cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatio_vs_LS",
+						  hcaldqm::hashfunctions::fdepth,
+						  new hcaldqm::quantity::LumiSection(_maxLS),
+						  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
+						  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	    _cTDCTime_vs_LS[iChan].initialize(_name, "TDCTime_vs_LS",
+					      hcaldqm::hashfunctions::fdepth,
+					      new hcaldqm::quantity::LumiSection(_maxLS),
+					      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+					      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	  }
 		unsigned int itr = 0;
 		std::map<std::pair<unsigned int, unsigned int>, unsigned int> itr_map;
 		for(unsigned int crate = 34; crate <= 34; ++crate) {
@@ -143,6 +155,13 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cLETDCTimevsADC.book(ib, _subsystem);
 	_cLETDC.book(ib, _subsystem);
 	_cADC.book(ib, _subsystem);
+	for (int iChan = 0; iChan < 4; ++iChan) {
+		char aux[100];
+		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
+		std::cout << "[debug] aux = " << aux << std::endl;
+		_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+		_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+	}
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap, _filter_C34);
 }
@@ -215,6 +234,39 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 
 			_cADC.fill(eid, frame[j].adc());
 
+		}
+
+		// Timing channels for phase scan
+		for (int iChan = 0; iChan < 4; ++iChan) {
+			if (!_filter_timingChannels[iChan].filter(HcalDetId(did))) {
+				int isoi = -1;
+				for (int j = 0; j < frame.samples(); ++j) {
+					if (frame[j].tdc() < 50) {
+						_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), _currentLS, j*25. + (frame[j].tdc() / 2.));
+					}
+					if (frame[j].soi()) {
+						isoi = j;
+					}
+				}
+				double qsoi = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi);
+				double qsoiPlus1 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, frame, isoi+1);
+				double ratio = 0.;
+				if (qsoi > 0) {
+					ratio = qsoiPlus1 / qsoi;
+					if (ratio > 2.) {
+						ratio = 2.;
+					} else if (ratio < 0.) {
+						ratio = 0.;
+					}
+				} else {
+					if (qsoiPlus1 > 0.) { // X/0, set to 2.
+						ratio = 2.;
+					} else { // 0/0, set to 0.
+						ratio = 0.;
+					}
+				}
+				_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), _currentLS, ratio);
+			}
 		}
 	}
 }
