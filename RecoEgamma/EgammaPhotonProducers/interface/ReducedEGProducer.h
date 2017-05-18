@@ -57,6 +57,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
+ const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
  const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
@@ -78,6 +79,8 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  //names for output collections
  const std::string outPhotons_;
  const std::string outPhotonCores_;
+ const std::string outOOTPhotons_;
+ const std::string outOOTPhotonCores_;
  const std::string outGsfElectrons_;
  const std::string outGsfElectronCores_;
  const std::string outConversions_;
@@ -98,6 +101,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
  const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
  const StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
+ const StringCutObjectSelector<reco::Photon> keepOOTPhotonSel_;
+ const StringCutObjectSelector<reco::Photon> slimRelinkOOTPhotonSel_; 
+ const StringCutObjectSelector<reco::Photon> relinkOOTPhotonSel_;
  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
