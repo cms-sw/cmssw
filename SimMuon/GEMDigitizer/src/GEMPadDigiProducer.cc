@@ -72,7 +72,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
     // emulateDeadTime(proto_pads)
   
     // fill the output collections
-    for (auto & d: proto_pads)
+    for (const auto& d: proto_pads)
     {
       GEMPadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);

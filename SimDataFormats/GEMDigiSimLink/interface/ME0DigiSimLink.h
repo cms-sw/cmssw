@@ -1,7 +1,7 @@
 #ifndef ME0OBJECTS_ME0DIGISIMLINK_H
 #define ME0OBJECTS_ME0DIGISIMLINK_H
 
-#include <map>
+#include <utility>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"

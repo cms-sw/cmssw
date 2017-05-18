@@ -268,7 +268,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
             cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
         }
       }
-      for (auto & digi : cluster_)
+      for (const auto& digi : cluster_)
       {
         strips_.insert(digi);
       }
