@@ -9,8 +9,11 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     dEdX_weights_ = beCodecConfig.getParameter<std::vector<double>>("dEdXweights");
     thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
     
-    if(thickCorr_.at(0)==0 || thickCorr_.at(1)==0 || thickCorr_.at(2)==0){
-        edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero";
+
+    for(auto corr : thickCorr_){
+        if(corr == 0){
+            edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero";
+        }
     }
 }
 
