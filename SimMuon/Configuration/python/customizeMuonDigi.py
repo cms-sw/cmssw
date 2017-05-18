@@ -261,16 +261,12 @@ def customise_rpcRedigi(process):
     process.simMuonRPCReDigis.digiModelConfig = process.simMuonRPCDigis.digiModelConfig.clone(
         IRPC_time_resolution = cms.double(1.5),
         IRPC_electronics_jitter = cms.double(0.1),
-        timingRPCOffset = cms.double(50.0),
-        Nbxing = cms.int32(799),
-        BX_range = cms.int32(400),
-        linkGateWidth = cms.double(1.0),
-        Gate = cms.double(1.0),
     )
     process.simMuonRPCReDigis.digiIRPCModelConfig = process.simMuonRPCReDigis.digiModelConfig.clone(
         IRPC_time_resolution = cms.double(1.0),
         do_Y_coordinate = cms.bool(True),
     )
+    process.simMuonRPCReDigis.digiModel = cms.string('RPCSimModelTiming')
     process.RandomNumberGeneratorService.simMuonRPCReDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(13579),
         engineName = cms.untracked.string('TRandom3')
