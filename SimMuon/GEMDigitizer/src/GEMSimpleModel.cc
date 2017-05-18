@@ -77,17 +77,17 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
   theGemDigiSimLinks_ = GEMDigiSimLinks(roll->id().rawId());
   bool digiMuon = false;
   bool digiElec = false;
-  for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
+  for (const auto& hit : simHits)
   {
-    if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
+    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
       continue;
     double elecEff = 0.;
-    double partMom = hit->pabs();
+    double partMom = hit.pabs();
     double checkMuonEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
     double checkElecEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
-    if (std::abs(hit->particleType()) == 13 && checkMuonEff < averageEfficiency_)
+    if (std::abs(hit.particleType()) == 13 && checkMuonEff < averageEfficiency_)
       digiMuon = true;
-    if (std::abs(hit->particleType()) != 13) //consider all non muon particles with gem efficiency to electrons
+    if (std::abs(hit.particleType()) != 13) //consider all non muon particles with gem efficiency to electrons
     {
       if (partMom <= 1.95e-03)
         elecEff = 1.7e-05 * TMath::Exp(2.1 * partMom * 1000.);
@@ -101,12 +101,12 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
     }
    if (!(digiMuon || digiElec))
       continue;
-    const int bx(getSimHitBx(&(*hit), engine));
-    const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx, engine));
-    for  (auto & digi : cluster)
+    const int bx(getSimHitBx(&hit, engine));
+    const std::vector<std::pair<int, int> >& cluster(simulateClustering(roll, &hit, bx, engine));
+    for (const auto & digi : cluster)
     {
-      detectorHitMap_.insert(DetectorHitMap::value_type(digi,&*(hit)));
-      strips_.insert(digi);
+      detectorHitMap_.emplace(digi,&hit);
+      strips_.emplace(digi);
     }
   }
 }
@@ -132,8 +132,8 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const double cspeed = 299792458;   // signal propagation speed in vacuum in [m/s]
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips/2.;
-  LocalPoint middleOfRoll = roll->centreOfStrip(middleStrip);
-  GlobalPoint globMiddleRol = roll->toGlobal(middleOfRoll);
+  const LocalPoint& middleOfRoll = roll->centreOfStrip(middleStrip);
+  const GlobalPoint& globMiddleRol = roll->toGlobal(middleOfRoll);
   double muRadius = sqrt(globMiddleRol.x()*globMiddleRol.x() + globMiddleRol.y()*globMiddleRol.y() +globMiddleRol.z()*globMiddleRol.z());
   double timeCalibrationOffset_ = (muRadius *1e+9)/(cspeed*1e+2); //[ns]
 
@@ -170,7 +170,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 {
   if (!doBkgNoise_)
     return;
-  const GEMDetId gemId(roll->id());
+  const GEMDetId& gemId(roll->id());
   const int nstrips(roll->nstrips());
   double trArea(0.0);
   double trStripArea(0.0);
@@ -236,7 +236,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 	{
         const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
         std::pair<int, int> digi(k+1,time_hit);
-        strips_.insert(digi);
+        strips_.emplace(digi);
       }
     }
   }//end simulate intrinsic noise
@@ -253,30 +253,29 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
     {
       std::vector < std::pair<int, int> > cluster_;
       cluster_.clear();
-      cluster_.push_back(std::pair<int, int>(centralStrip, time_hit));
+      cluster_.emplace_back(centralStrip, time_hit);
       int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
       if (clusterSize == 2)
       {
         if(CLHEP::RandFlat::shoot(engine) < 0.5)
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-            cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
+            cluster_.emplace_back(centralStrip - 1, time_hit);
         }
         else
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-            cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
+            cluster_.emplace_back(centralStrip + 1, time_hit);
         }
       }
       for (const auto& digi : cluster_)
       {
-        strips_.insert(digi);
+        strips_.emplace(digi);
       }
     } //end doNoiseCLS_
     else
     {
-      std::pair<int, int> digi(centralStrip, time_hit);
-      strips_.insert(digi);
+      strips_.emplace(centralStrip, time_hit);
     }
   }
   return;
@@ -294,14 +293,14 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     centralStrip = topology.channel(hit_position) + 1;
   else
     centralStrip = topology.channel(hit_position);
-  GlobalPoint pointSimHit = roll->toGlobal(hit_position);
-  GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
+  const GlobalPoint& pointSimHit = roll->toGlobal(hit_position);
+  const GlobalPoint& pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
   double deltaX = pointSimHit.x() - pointDigiHit.x();
 
   // Add central digi to cluster vector
   std::vector < std::pair<int, int> > cluster_;
   cluster_.clear();
-  cluster_.push_back(std::pair<int, int>(centralStrip, bx));
+  cluster_.emplace_back(centralStrip, bx);
 
   //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
@@ -310,12 +309,12 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     if (deltaX <= 0)
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-        cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
+        cluster_.emplace_back(centralStrip - 1, bx);
     }
     else
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
+        cluster_.emplace_back(centralStrip + 1, bx);
     }
   }
   return cluster_;

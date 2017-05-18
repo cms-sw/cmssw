@@ -97,8 +97,7 @@ for (const auto & hit: simHits)
   int res = 1;
   if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
     
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
-  digi_.insert(digi);
+  digi_.emplace(x,y,ex,ey,corr,tof,pdgid,res);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
 					      << " loc y = "<<std::setw(8)<<entry.y()<<" [cm] time = "<<std::setw(8)<<hit.timeOfFlight()<<" [ns] pdgid = "<<std::showpos<<std::setw(4)<<pdgid;
@@ -218,11 +217,15 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	else             pdgid = 11;  // positron
 	if (ex == 0) ex = error_u;//errors cannot be zero
 	if (ey == 0) ey = error_v;
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
-	digi_.insert(digi);
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+
+	digi_.emplace(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()
+							 <<"] =====> electron hit in "<<roll->id()
+							 <<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
-							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand
+							 <<" time = "<<time<<" [ns]"; 
       }
     } // end if electron bkg
 
@@ -269,11 +272,15 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
 	if (ex == 0) ex = error_u;//errors cannot be zero
 	if (ey == 0) ey = error_v;
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
-	digi_.insert(digi);
-	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
+
+	digi_.emplace(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
+
+	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()
+							 <<"] ======> neutral hit in "<<roll->id()
+							 <<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
-							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand<<" time = "<<time<<" [ns]"; 
+							 <<" at loc x = "<<xx_rand<<" loc y = "<<yy_rand
+							 <<" time = "<<time<<" [ns]"; 
       }
       
     } // end if neutral bkg

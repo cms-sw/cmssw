@@ -67,17 +67,17 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
   theME0DigiSimLinks_ = ME0DigiSimLinks(roll->id().rawId());
   bool digiMuon = false;
   bool digiElec = false;
-  for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
+  for (const auto& hit : simHits)
   {
-    if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
+    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
       continue;
     double elecEff = 0.;
-    double partMom = hit->pabs();
+    double partMom = hit.pabs();
     double checkMuonEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
     double checkElecEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
-    if (std::abs(hit->particleType()) == 13 && checkMuonEff < averageEfficiency_)
+    if (std::abs(hit.particleType()) == 13 && checkMuonEff < averageEfficiency_)
       digiMuon = true;
-    if (std::abs(hit->particleType()) != 13) //consider all non muon particles with me0 efficiency to electrons
+    if (std::abs(hit.particleType()) != 13) //consider all non muon particles with me0 efficiency to electrons
     {
       if (partMom <= 1.95e-03)
         elecEff = 1.7e-05 * std::exp(2.1 * partMom * 1000.);
@@ -91,11 +91,11 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
     }
    if (!(digiMuon || digiElec))
       continue;
-    const int bx(getSimHitBx(&(*hit), engine));
-    const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx, engine));
-    for  (auto & digi : cluster)
+    const int bx(getSimHitBx(&hit, engine));
+    const std::vector<std::pair<int, int> >& cluster(simulateClustering(roll, &hit, bx, engine));
+    for (const auto & digi : cluster)
     {
-      detectorHitMap_.emplace(digi,&*(hit));
+      detectorHitMap_.emplace(digi,&hit);
       strips_.emplace(digi);
     }
   }
@@ -104,11 +104,11 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
 int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* engine)
 {
   int bx = -999;
-  const LocalPoint simHitPos(simhit->localPosition());
+  const LocalPoint& simHitPos(simhit->localPosition());
   const float tof(simhit->timeOfFlight());
   // random Gaussian time correction due to electronics jitter
   float randomJitterTime = CLHEP::RandGaussQ::shoot(engine, 0., timeJitter_);
-  const ME0DetId id(simhit->detUnitId());
+  const ME0DetId& id(simhit->detUnitId());
   const ME0EtaPartition* roll(geometry_->etaPartition(id));
   if (!roll)
   {
@@ -121,8 +121,8 @@ int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   }
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips/2.;
-  LocalPoint middleOfRoll = roll->centreOfStrip(middleStrip);
-  GlobalPoint globMiddleRol = roll->toGlobal(middleOfRoll);
+  const LocalPoint& middleOfRoll = roll->centreOfStrip(middleStrip);
+  const GlobalPoint& globMiddleRol = roll->toGlobal(middleOfRoll);
   double muRadius = sqrt(globMiddleRol.x()*globMiddleRol.x() + globMiddleRol.y()*globMiddleRol.y() +globMiddleRol.z()*globMiddleRol.z());
   double timeCalibrationOffset_ = (muRadius*CLHEP::ns*CLHEP::cm)/(CLHEP::c_light); //[cm/ns]
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
@@ -264,8 +264,8 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
     centralStrip = topology.channel(hit_position) + 1;
   else
     centralStrip = topology.channel(hit_position);
-  GlobalPoint pointSimHit = roll->toGlobal(hit_position);
-  GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
+  const GlobalPoint& pointSimHit = roll->toGlobal(hit_position);
+  const GlobalPoint& pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
   double deltaX = pointSimHit.x() - pointDigiHit.x();
 
   // Add central digi to cluster vector
