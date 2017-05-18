@@ -11,8 +11,9 @@
  * \modified by Roumyana Hadjiiska
  */
 
-#include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
 #include <vector>
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
+
 class ME0Geometry;
 
 namespace CLHEP

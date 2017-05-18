@@ -95,7 +95,7 @@ void ME0SimpleModel::simulateSignal(const ME0EtaPartition* roll, const edm::PSim
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx, engine));
     for  (auto & digi : cluster)
     {
-      detectorHitMap_.emplace(DetectorHitMap::value_type(digi,&*(hit)));
+      detectorHitMap_.emplace(digi,&*(hit));
       strips_.emplace(digi);
     }
   }
@@ -225,22 +225,22 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     {
       std::vector < std::pair<int, int> > cluster_;
       cluster_.clear();
-      cluster_.emplace_back(std::pair<int, int>(centralStrip, time_hit));
+      cluster_.emplace_back(centralStrip, time_hit);
       int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
       if (clusterSize == 2)
       {
         if(CLHEP::RandFlat::shoot(engine) < 0.5)
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-            cluster_.emplace_back(std::pair<int, int>(centralStrip - 1, time_hit));
+            cluster_.emplace_back(centralStrip - 1, time_hit);
         }
         else
         {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-            cluster_.emplace_back(std::pair<int, int>(centralStrip + 1, time_hit));
+            cluster_.emplace_back(centralStrip + 1, time_hit);
         }
       }
-      for (auto & digi : cluster_)
+      for (const auto& digi : cluster_)
       {
 	strips_.emplace(digi);
       }
@@ -271,8 +271,7 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
   // Add central digi to cluster vector
   std::vector < std::pair<int, int> > cluster_;
   cluster_.clear();
-  //cluster_.push_back(std::pair<int, int>(centralStrip, bx));
-  cluster_.emplace_back(std::pair<int, int>(centralStrip, bx));
+  cluster_.emplace_back(centralStrip, bx);
 
   //simulate cross talk
   int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
@@ -281,14 +280,12 @@ std::vector<std::pair<int, int> > ME0SimpleModel::simulateClustering(const ME0Et
     if (deltaX <= 0)
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-        //cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
-	cluster_.emplace_back(std::pair<int, int>(centralStrip - 1, bx));
+	cluster_.emplace_back(centralStrip - 1, bx);
 	}
     else
     {
       if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-        //cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
-	cluster_.emplace_back(std::pair<int, int>(centralStrip + 1, bx));
+	cluster_.emplace_back(centralStrip + 1, bx);
     }
   }
   return cluster_;

@@ -288,12 +288,12 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
           if (abs(particletype) == 13)
           {
             tof_mu_bx0->Fill(partTof);
-            MuCluster.emplace(std::pair<int, int>(strip, particletype));
+            MuCluster.emplace(strip, particletype);
           }
           else if (abs(particletype) == 11)
           {
             if (me0Id.station() == 1) tof_elec_bx0->Fill(partTof);
-            ElecCluster.emplace(std::pair<int, int>(strip, particletype));
+            ElecCluster.emplace(strip, particletype);
           }
         else
           continue;
@@ -301,40 +301,10 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       }
     }
 
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.emplace(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = MuCluster.begin(); it != MuCluster.end(); ++it)
-      {
-        myCluster.emplace(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (ElecCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = ElecCluster.begin(); it != ElecCluster.end(); ++it)
-      {
-        myCluster.emplace(std::pair<int, int>(it->first, it->second));
-      }
-    }
-
-    if (MuCluster.size() != 0)
-    {
-      for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
-      {
-        if (abs(it->second) == 13)
-        {
-          muonFired.emplace_back(it->first);
-        }
-      }
-    }
+    // add electron and muon hitsto cluster
+    for (const auto& p : MuCluster) myCluster.emplace(p);
+    for (const auto& p : ElecCluster) myCluster.emplace(p);
+    for (const auto& p : MuCluster)  if (abs(p.second) == 13) muonFired.emplace_back(p.first);
 
     if (myCluster.size() != 0)
     {
@@ -343,9 +313,9 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 
       std::vector<int> allFired;
       std::vector<std::vector<int> > tempCluster;
-      for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
+      for (const auto& p : myCluster)
       {
-        allFired.emplace_back(it->first);
+        allFired.emplace_back(p.first);
       }
 
       int clusterInd = 0;
