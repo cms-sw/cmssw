@@ -33,7 +33,13 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
     }
 
     /* correct the charge amplitude for the sensor thickness */
-    double trgCellMipP = amplitude / thickCorr_.at( cellThickness-1 );
+    double trgCellMipP = 0.;
+    if( thickCorr_.at( cellThickness-1 ) > 0 ){
+        trgCellMipP = amplitude / thickCorr_.at( cellThickness-1 ); 
+    }else{
+        edm::LogWarning("DivisionByZero") << "WARNING: the cell-thickness correction factor is zero";
+    }
+     
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
     /* setting pT [mip] */
