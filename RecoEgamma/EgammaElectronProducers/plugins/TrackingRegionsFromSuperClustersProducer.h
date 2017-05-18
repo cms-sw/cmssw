@@ -183,9 +183,9 @@ fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("useZInVertex", false);
   desc.add<bool>("precise", true);
   desc.add<std::string>("whereToUseMeasTracker","kNever");
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag());
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>("vertices", edm::InputTag());
-  desc.add<std::vector<edm::InputTag> >("superClusters", std::vector<edm::InputTag>());
+  desc.add<std::vector<edm::InputTag> >("superClusters", std::vector<edm::InputTag>{edm::InputTag{"hltEgammaSuperClustersToPixelMatch"}});
   desc.add<edm::InputTag>("measurementTrackerEvent",edm::InputTag()); 
   
   edm::ParameterSetDescription descRegion;
