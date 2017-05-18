@@ -93,7 +93,7 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
       float pt    =  it->pt();
       float eta   =  it->eta();
 
-      if ( pt < theL1MinPt_ || fabs(eta) > theL1MaxEta_  || quality <= theL1MinQuality_) continue;
+      if ( pt < theL1MinPt_ || std::abs(eta) > theL1MaxEta_  || quality <= theL1MinQuality_) continue;
 
       // Loop over L2's to find whether the L1 fired this L2. 
       bool isTriggeredByL1=false;
