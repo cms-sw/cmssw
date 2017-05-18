@@ -220,7 +220,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     edm::Handle <edm::ValueMap <float> > pfSumNeutralHadronEtTmp;
     edm::Handle <edm::ValueMap <float> > pfSumPhotonEtTmp;/**/
   
-  //recomp
+    //recomp
     iEvent.getByToken( pfSumChargedHadronPtTmp_ , pfSumChargedHadronPtTmp);
     iEvent.getByToken( pfSumNeutralHadronEtTmp_ , pfSumNeutralHadronEtTmp);
     iEvent.getByToken( pfSumPhotonEtTmp_ , pfSumPhotonEtTmp);/**/
