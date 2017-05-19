@@ -151,8 +151,6 @@ void ELdestControl::attachTime()    { if (d) d->attachTime();   }
 void ELdestControl::separateEpilogue()  { if (d) d->separateEpilogue(); }
 void ELdestControl::attachEpilogue()    { if (d) d->attachEpilogue();   }
 
-void ELdestControl::noTerminationSummary()  {if (d) d->noTerminationSummary(); }
-
 ELdestControl & ELdestControl::setPreamble( const ELstring & preamble )  {
   if (d) d->preamble = preamble;
   return  * this;
@@ -203,20 +201,6 @@ ELdestControl & ELdestControl::setNewline( const ELstring & newline )  {
 
 // *** Active methods invoked by the framework ***
 
-void ELdestControl::summary( )  {
-  if (d) d->summary( );
-}
-
-void ELdestControl::summaryForJobReport( std::map<std::string, double> & sm)  {
-  if (d) d->summaryForJobReport(sm);
-}
-
-
-ELdestControl & ELdestControl::clearSummary()  {
-  if (d) d->clearSummary();
-  return  * this;
-}
-
 
 ELdestControl & ELdestControl::wipe()  {
   if (d) d->wipe();
@@ -238,25 +222,11 @@ bool ELdestControl::log( edm::ErrorObj & msg )  {
   }
 }
 
-void ELdestControl::summarization( const ELstring & title
-                                 , const ELstring & sumLines
-                                 )  {
-  if (d) d->summarization ( title, sumLines );
-}
-
 ELstring ELdestControl::getNewline() const  {
   if (d) {
     return d->getNewline();
   } else {
     return ELstring();
-  }
-}
-
-std::map<ELextendedID , StatsCount> ELdestControl::statisticsMap() const {
-  if (d) {
-    return d->statisticsMap();
-  } else {
-    return std::map<ELextendedID , StatsCount>();
   }
 }
 

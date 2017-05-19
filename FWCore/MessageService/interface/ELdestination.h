@@ -66,10 +66,6 @@ public:
 public:
   virtual bool log( const edm::ErrorObj & msg );
 
-  virtual void summarization(
-    		const edm::ELstring & title,
-   		const edm::ELstring & sumLines );
-
   virtual ELstring getNewline() const;
 
   virtual void finish();
@@ -77,7 +73,6 @@ public:
   // -----  Methods invoked through the ELdestControl handle:
   //
 protected:
-  virtual void clearSummary();
   virtual void wipe();
   virtual void zero();
   virtual void filterModule( ELstring const & moduleName );
@@ -86,12 +81,7 @@ protected:
   virtual void respondToModule( ELstring const & moduleName );
   virtual bool thisShouldBeIgnored(const ELstring & s) const;
 
-  virtual void summary( );
-  virtual void summaryForJobReport(std::map<std::string, double> & sm);
-
   virtual void setTableLimit( int n );
-
-  virtual std::map<ELextendedID,StatsCount> statisticsMap() const;
 
   virtual void changeFile (std::ostream & os);
   virtual void changeFile (const ELstring & filename);
@@ -109,7 +99,6 @@ private:
   virtual void useFullContext();         virtual void useContext();
   virtual void separateTime();           virtual void attachTime();
   virtual void separateEpilogue();       virtual void attachEpilogue();
-  virtual void noTerminationSummary();
   virtual int  setLineLength(int len);	 virtual int  getLineLength() const;
 
   // -----  Data affected by methods of the ELdestControl handle:
