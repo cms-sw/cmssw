@@ -95,7 +95,6 @@ public:
   // ---  furnish/recall destinations:
   //
   ELdestControl attach( const ELdestination & sink );
-  ELdestControl attach( const ELdestination & sink, const ELstring & name );
 
   // ---  handle severity information:
   //

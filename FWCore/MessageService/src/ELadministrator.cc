@@ -132,15 +132,6 @@ ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
 }  // attach()
 
-ELdestControl ELadministrator::attach(  const ELdestination & sink,
-                                        const ELstring & name )     {
-  std::shared_ptr<ELdestination> dest(sink.clone());
-  attachedDestinations_[name] = dest;
-  sinks_.push_back( dest );
-  return ELdestControl( dest );
-} // attach()
-
-
 ELseverityLevel  ELadministrator::checkSeverity()  {
 
   const ELseverityLevel  retval( highSeverity_ );
