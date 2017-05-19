@@ -233,10 +233,10 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		// Timing channels for phase scan
 		for (int iChan = 0; iChan < 4; ++iChan) {
 			if (!_filter_timingChannels[iChan].filter(HcalDetId(did))) {
-				// For local runs, determine the lumisection from orbitNumber
+				// For local runs, hack something in for lumisection
 				int ls = _currentLS;
 				if (_ptype == fLocal) {
-					ls = (e.orbitNumber() >> 18);
+					ls = (int)(e.id().event() / 20);
 				}
 				int isoi = -1;
 				for (int j = 0; j < frame.samples(); ++j) {
