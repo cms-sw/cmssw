@@ -145,32 +145,6 @@ void ELdestination::excludeModule( ELstring const & moduleName )  {
 
 void ELdestination::summary( )  { }
 
-void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
-
-  edm::ErrorObj msg( ELwarning, noSummaryMsg );
-  msg << noSummaryMsg << " " << hereMsg << dest.getNewline() << title;
-  dest.log( msg );
-
-}  // summary()
-
-
-void ELdestination::summary( std::ostream & os, const ELstring & title )  {
-
-  os << "%MSG" << ELwarning.getSymbol() << " "
-       << noSummaryMsg << " " << hereMsg << std::endl
-     << title << std::endl;
-
-}  // summary()
-
-
-void ELdestination::summary( ELstring & s, const ELstring & title )  {
-
-  s = ELstring("%MSG") + ELwarning.getSymbol() + " "
-      + noSummaryMsg + " " + hereMsg + "\n"
-    + title + "\n";
-
-}  // summary()
-
 void ELdestination::summaryForJobReport(std::map<std::string, double> &) { }
 
 void ELdestination::finish() {  }

@@ -87,9 +87,6 @@ protected:
   virtual void respondToModule( ELstring const & moduleName );
   virtual bool thisShouldBeIgnored(const ELstring & s) const;
 
-  virtual void summary( ELdestControl & dest, const ELstring & title="" );
-  virtual void summary( std::ostream  & os  , const ELstring & title="" );
-  virtual void summary( ELstring      & s   , const ELstring & title="" );
   virtual void summary( );
   virtual void summaryForJobReport(std::map<std::string, double> & sm);
 
