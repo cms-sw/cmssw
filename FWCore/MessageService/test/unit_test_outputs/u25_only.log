@@ -112,3 +112,5 @@ Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                    1                   1
 Error               20000               20000
+
+dropped waiting message count 0

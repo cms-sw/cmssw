@@ -84,7 +84,7 @@ public:
   static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
 
 
-  void summary( );
+  void summary( unsigned long overfullWaitCount );
   void noTerminationSummary();
   void summaryForJobReport (std::map<std::string, double> & sm);
   virtual void wipe() override;

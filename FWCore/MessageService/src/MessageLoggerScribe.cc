@@ -991,7 +991,7 @@ void
   MessageLoggerScribe::triggerStatisticsSummaries() {
     assert (statisticsDestControls.size() == statisticsResets.size());
     for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-      statisticsDestControls[i]->summary( );
+      statisticsDestControls[i]->summary( 0 );
       if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
     }
 }
