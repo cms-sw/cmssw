@@ -256,6 +256,8 @@ void CATopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 	desc.add<unsigned int>("maxProblematicHcalCells",	9999999 );
 	desc.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
 	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	vector<double>  puCentersDefault;
+	desc.add<vector<double>>("puCenters", 	puCentersDefault);
 	/////////////////////
 	descriptions.addDefault(desc);
 
