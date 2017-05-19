@@ -1,4 +1,5 @@
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/EncodedEventId"/>
 <use   name="boost"/>
 
