@@ -145,6 +145,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	maxInputs_      	= iConfig.getParameter<unsigned int>("maxInputs");
 	writeCompound_ 		= iConfig.getParameter<bool>	("writeCompound"); 	// Check to see if we are writing compound jets for substructure and jet grooming
 	doFastJetNonUniform_ 	= iConfig.getParameter<bool>   	("doFastJetNonUniform");
+	puCenters_ 		= iConfig.getParameter<vector<double> >("puCenters");
 	puWidth_ 		= iConfig.getParameter<double>	("puWidth");
 	nExclude_ 		= iConfig.getParameter<unsigned int>("nExclude");
 	useDeterministicSeed_ 	= iConfig.getParameter<bool>	("useDeterministicSeed");
@@ -227,6 +228,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 		}
 		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
 	} 
+
+	if( ( doFastJetNonUniform_ ) && ( puCenters_.size() == 0 ) ) 
+		throw cms::Exception("doFastJetNonUniform") << "Parameter puCenters for doFastJetNonUniform is not defined." << std::endl;
 
 	// make the "produces" statements
 	makeProduces( moduleLabel_, jetCollInstanceName_ );
@@ -881,6 +885,8 @@ void VirtualJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 	desc.add<unsigned int>("maxProblematicHcalCells",	9999999 );
 	desc.add<unsigned int>("maxRecoveredEcalCells",	9999999 );
 	desc.add<unsigned int>("maxRecoveredHcalCells",	9999999 );
+	vector<double>  puCentersDefault;
+	desc.add<vector<double>>("puCenters", 	puCentersDefault);
 	descriptions.addDefault(desc);
 }
 
