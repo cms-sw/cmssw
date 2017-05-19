@@ -13,7 +13,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
@@ -39,10 +38,9 @@ namespace edm {
     
     ThreadSafeLogMessageLoggerScribe::ThreadSafeLogMessageLoggerScribe()
     : admin_p   ( new ELadministrator() )
-    , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
+    , early_dest( admin_p->attach(std::make_shared<ELoutput>(std::cerr, false)) )
     , file_ps   ( )
     , job_pset_p( )
-    , extern_dests( )
     , clean_slate_configuration( true )
     , active( true )
     , purge_mode (false)						// changeLog 32
@@ -70,7 +68,6 @@ namespace edm {
       }
       
       admin_p->finish();
-      assert( extern_dests.empty() );  // nothing to do
     }
     
     void
@@ -119,30 +116,6 @@ namespace edm {
         case MessageLoggerQ::CONFIGURE:  {			// changelog 17
           job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(operand)); // propagate_const<T> has no reset() function
           configure_errorlog();
-          break;
-        }
-        case MessageLoggerQ::EXTERN_DEST: {
-          try {
-            extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-            configure_external_dests();
-          }
-          catch(cms::Exception& e)				// change log 21
-          {
-            std::cerr << "ThreadSafeLogMessageLoggerScribe caught a cms::Exception "
-            << "during extern dest configuration:\n"
-            << e.what() << "\n"
-            << "This is a serious problem, and the extern dest "
-            << "will not be produced.\n"
-            << "However, the rest of the logger continues to run.\n";
-          }
-          catch(...)						// change log 21
-          {
-            std::cerr << "ThreadSafeLogMessageLoggerScribe caught unkonwn exception type\n"
-            << "during extern dest configuration. "
-            << "This is a serious problem, and the extern dest "
-            << "will not be produced.\n"
-            << "The rest of the logger will attempt to continue to run.\n";
-          }
           break;
         }
         case MessageLoggerQ::SUMMARIZE: {
@@ -261,9 +234,6 @@ namespace edm {
                                                       100);
       configure_ordinary_destinations();				// Change Log 16
       configure_statistics();					// Change Log 16
-      
-      configure_external_dests();
-      
     }  // ThreadSafeLogMessageLoggerScribe::configure_errorlog()
     
     
@@ -619,7 +589,7 @@ namespace edm {
         // attach the current destination, keeping a control handle to it:
         ELdestControl dest_ctrl;
         if( actual_filename == "cout" )  {
-          dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+          dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(std::cout) );
           stream_ps["cout"] = &std::cout;
         }
         else if( actual_filename == "cerr" )  {
@@ -630,7 +600,7 @@ namespace edm {
         else  {
           auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
           file_ps.push_back(os_sp);
-          dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
+          dest_ctrl = admin_p->attach( std::make_shared<ELoutput>(*os_sp) );
           stream_ps[actual_filename] = os_sp.get();
         }
         
@@ -766,7 +736,7 @@ namespace edm {
         if (statistics_destination_is_real)	{			// change log 24
                                                   // attach the statistics destination, keeping a control handle to it:
           ELdestControl dest_ctrl;
-          dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
+          dest_ctrl = admin_p->attach( std::make_shared<ELstatistics>(*os_p) );
           statisticsDestControls.push_back(dest_ctrl);
           bool reset = getAparameter<bool>(stat_pset, "reset", false);
           statisticsResets.push_back(reset);
@@ -782,29 +752,6 @@ namespace edm {
       }  // for [it = statistics.begin() to end()]
       
     } // configure_statistics
-    
-    void
-    ThreadSafeLogMessageLoggerScribe::configure_external_dests()
-    {
-      if( ! job_pset_p )
-      {
-        //  extern_dests.clear();
-        //  change log 12, removed by change log 13
-        return;
-      }
-      
-      for( auto& dest : extern_dests)
-      {
-        ELdestination *  dest_p = dest->dest_p().get();
-        ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
-        
-        // configure the newly-attached destination:
-        configure_dest( dest_ctrl, dest->name() );
-        delete dest;  // dispose of our (copy of the) NamedDestination
-      }
-      extern_dests.clear();
-      
-    }  // ThreadSafeLogMessageLoggerScribe::configure_external_dests
     
     void
     ThreadSafeLogMessageLoggerScribe::parseCategories (std::string const & s,
