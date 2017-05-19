@@ -18,17 +18,23 @@ namespace hcaldqm
 
             //  uTCA Crate is split in half
             uint16_t slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
-			return std::make_pair<uint16_t const, uint16_t const>((uint16_t const)constants::fed2crate_map.at(fed),
+            std::pair<uint16_t, uint16_t> crate_slot = std::make_pair<uint16_t, uint16_t>(0,0);
+            if (constants::fed2crate_map.find(fed) != constants::fed2crate_map.end()) {
+            	crate_slot = std::make_pair<uint16_t const, uint16_t const>((uint16_t const)constants::fed2crate_map.at(fed),
                 (uint16_t const)slot);
+            }
+			return crate_slot;
 		}
 
 	  uint16_t crate2fed(int crate, int slot)
 		{
 			//	 for the details see Constants.h
-			int fed = constants::crate2fed_map.at(crate);
-			if (slot > 6 && (20 <= crate && crate <= 37))  //needed to handle dual fed readout
-			  ++fed;
-			
+			int fed = 0;
+			if (constants::crate2fed_map.find(crate) != constants::crate2fed_map.end()) {
+				fed = constants::crate2fed_map.at(crate);
+				if (slot > 6 && (20 <= crate && crate <= 37))  //needed to handle dual fed readout
+				  ++fed;
+			}
 			return fed;
 		}
 
