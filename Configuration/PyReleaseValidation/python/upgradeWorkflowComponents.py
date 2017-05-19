@@ -33,25 +33,32 @@ upgradeKeys[2023] = [
 # pre-generation of WF numbers
 numWFStart={
     2017: 10000,
-    2023: 20400,#GB: since the WF numbers are appended from this and I want to skip this one I increased this number to the new actual one 
+    2023: 20000,
 }
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
 # temporary measure to keep other WF numbers the same
 numWFConflict = [[11000,11200],[11400,19800],[20000,20400],[20800,23200],[23600,24000],[24400,26200],[26600,27000],[50000,51000]]
 numWFAll={
-    2017: [numWFStart[2017]],
-    2023: [numWFStart[2023]]
+    2017: [],
+    2023: []
 }
 
+
 for year in upgradeKeys:
-    for i in range(1,len(upgradeKeys[year])):
-        numWFtmp = numWFAll[year][i-1] + numWFSkip
-        for conflict in numWFConflict:
-	    if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
-                numWFtmp = conflict[1]
-                break
+    i=0
+    for j in range(0,len(upgradeKeys[year])):
+	skipIt=True
+	while skipIt:
+	    skipIt=False
+	    numWFtmp = numWFStart[year] + i*numWFSkip
+	    for conflict in numWFConflict:
+	        if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+		    skipIt=True
+		    break
+	    i=i+1
         numWFAll[year].append(numWFtmp)
+    
 
 # steps for baseline and for variations
 upgradeSteps={}
@@ -227,8 +234,6 @@ upgradeProperties[2023]['2023D16PU'] = deepcopy(upgradeProperties[2023]['2023D16
 upgradeProperties[2023]['2023D16PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D17PU'] = deepcopy(upgradeProperties[2023]['2023D17'])
 upgradeProperties[2023]['2023D17PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D18PU'] = deepcopy(upgradeProperties[2023]['2023D18'])
-upgradeProperties[2023]['2023D18PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 

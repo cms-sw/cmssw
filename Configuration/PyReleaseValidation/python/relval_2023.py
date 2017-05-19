@@ -19,5 +19,6 @@ numWFIB.extend([24034.1]) #2023D11 special tracking workflow
 numWFIB.extend([26234.0,26234.2]) #2023D14
 numWFIB.extend([27034.0,27034.2]) #2023D16
 numWFIB.extend([27434.0,27434.2]) #2023D17
+numWFIB.extend([23234.0,23234.2]) #2023D18
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
