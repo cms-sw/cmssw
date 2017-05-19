@@ -63,14 +63,6 @@ public:
   // ---  Methods invoked by the ELadministrator:
   //
 public:
-  virtual
-  ELoutput *
-  clone() const;
-  // Used by attach() to put the destination on the ELadministrators list
-                //-| There is a note in Design Notes about semantics
-                //-| of copying a destination onto the list:  ofstream
-                //-| ownership is passed to the new copy.
-
   virtual bool log( const edm::ErrorObj & msg );
 
   // ---  Methods invoked through the ELdestControl handle:

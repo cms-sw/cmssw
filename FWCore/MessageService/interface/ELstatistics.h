@@ -68,9 +68,6 @@ public:
   // -----  Methods invoked by the ELadministrator:
   //
 public:
-  virtual
-  ELstatistics *
-  clone() const override;
     // Used by attach() to put the destination on the ELadministrators list
 		//-| There is a note in Design Notes about semantics
 		//-| of copying a destination onto the list:  ofstream
