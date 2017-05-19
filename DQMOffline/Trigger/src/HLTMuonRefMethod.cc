@@ -127,29 +127,48 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     
     for (unsigned int iEff = 0; iEff != efficiency_.size(); ++iEff){
       string eff = efficiency_[iEff];
-      
+
       // Getting reference trigger efficiency
       MonitorElement* refEff = igetter.get(subDir + "/" + refTriggers_ + "/" + refEff_[iEff]);
 
       if (!refEff) continue;
 
-
+      
       // looping over all reference triggers 
       for (vstring::const_iterator iTrigger = hltTriggers_.begin();
     	   iTrigger != hltTriggers_.end(); ++iTrigger){
     	string trig = *iTrigger;
-
 	MonitorElement* trigEff = igetter.get(subDir + "/" + trig + "/" + eff );
 	if (!trigEff) continue;
-
-	TH1D* hRef  = refEff  -> getTProfile() -> ProjectionX();
-	TH1D* hTrig = trigEff -> getTProfile() -> ProjectionX();
-
-	TH1D* hEff = (TH1D*) hTrig->Clone( ("eff_" + eff + "_ref").c_str() );
+	TH1* hRef  = refEff  -> getTH1();
+	TH1* hTrig = trigEff -> getTH1();
+	TH1* hEff = (TH1*) hTrig->Clone( ("eff_" + eff + "_ref").c_str() );
 	hEff->SetTitle("Efficiency obtained with reference method");
-	hEff->Multiply(hRef);
-	ibooker.cd(subDir + "/" + trig);
-	ibooker.book1DD( hEff->GetName(), hEff);
+	TClass* myHistClass = hTrig->IsA();
+	TString histClassName = myHistClass->GetName();
+	
+	if (histClassName == "TH1F"){
+	  for (int bin = 0; bin < hEff->GetNbinsX(); ++bin){
+	    hEff->SetBinContent(bin+1, hEff->GetBinContent(bin+1)*hRef->GetBinContent(bin+1));
+	    hEff->SetBinError  (bin+1, hEff->GetBinContent(bin+1)*hRef->GetBinError(bin+1)+hEff->GetBinError(bin+1)*hRef->GetBinContent(bin+1));
+	  }
+	  ibooker.cd(subDir + "/" + trig);
+	  ibooker.book1D(  hEff->GetName(), (TH1F*) hEff);
+	
+	}
+	else if (histClassName == "TH2F"){
+	  for (int i = 0; i < hRef->GetXaxis()->GetNbins(); ++i){
+	    for (int j = 0; j < hRef->GetYaxis()->GetNbins(); ++j){
+	      int bin = hEff->GetBin(i+1,j+1);
+	      hEff -> SetBinContent( bin, hRef->GetBinContent(i+1,j+1) * hTrig->GetBinContent(i+1) );
+	    }
+	  }
+	  ibooker.cd(subDir + "/" + trig);
+	  ibooker.book2D(  hEff->GetName(), (TH2F*) hEff);
+	}
+	else{ 
+	  LogInfo ("HLTMuonRefMethod") << "Histo class type << " << histClassName << " not implemented";
+	}
 
 	delete hEff;
 	
