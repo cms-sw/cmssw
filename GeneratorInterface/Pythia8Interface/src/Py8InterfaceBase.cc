@@ -72,6 +72,9 @@ bool Py8InterfaceBase::readSettings( int )
    
    //add settings for powheg resonance scale calculation
    fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:onlyDistance1",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:useScaleResonanceInstead",false);
    
    fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
    fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
