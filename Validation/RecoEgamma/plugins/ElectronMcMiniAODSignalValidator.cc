@@ -14,26 +14,26 @@ typedef edm::Ptr<pat::Electron> PatElectronPtr;
 
 ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
 {
-    mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection")); // prunedGenParticles
-    electronToken_     = consumes<pat::ElectronCollection>      (iConfig.getParameter<edm::InputTag>("electrons"));         // slimmedElectrons
+   mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection")); // prunedGenParticles
+   electronToken_     = consumes<pat::ElectronCollection>      (iConfig.getParameter<edm::InputTag>("electrons"));         // slimmedElectrons
 
    edm::ParameterSet histosSet = iConfig.getParameter<edm::ParameterSet>("histosCfg") ;
    edm::ParameterSet isolationSet = iConfig.getParameter<edm::ParameterSet>("isolationCfg") ;
 
-    //recomp
-    pfSumChargedHadronPtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumChargedHadronPtTmp" ) ) ; // iConfig 
-    pfSumNeutralHadronEtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumNeutralHadronEtTmp" ) ) ; // iConfig 
-    pfSumPhotonEtTmp_ = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumPhotonEtTmp" ) ) ; // iConfig 
+   //recomp
+   pfSumChargedHadronPtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumChargedHadronPtTmp" ) ) ; // iConfig 
+   pfSumNeutralHadronEtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumNeutralHadronEtTmp" ) ) ; // iConfig 
+   pfSumPhotonEtTmp_ = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumPhotonEtTmp" ) ) ; // iConfig 
     
-  maxPt_ = iConfig.getParameter<double>("MaxPt");
-  maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
-  deltaR_ = iConfig.getParameter<double>("DeltaR");
-  deltaR2_ = deltaR_ * deltaR_;
-  matchingIDs_ = iConfig.getParameter<std::vector<int> >("MatchingID");
-  matchingMotherIDs_ = iConfig.getParameter<std::vector<int> >("MatchingMotherID");
-  outputInternalPath_ = iConfig.getParameter<std::string>("OutputFolderName") ;
+   maxPt_ = iConfig.getParameter<double>("MaxPt");
+   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
+   deltaR_ = iConfig.getParameter<double>("DeltaR");
+   deltaR2_ = deltaR_ * deltaR_;
+   matchingIDs_ = iConfig.getParameter<std::vector<int> >("MatchingID");
+   matchingMotherIDs_ = iConfig.getParameter<std::vector<int> >("MatchingMotherID");
+   outputInternalPath_ = iConfig.getParameter<std::string>("OutputFolderName") ;
 
-  // histos bining and limits
+   // histos bining and limits
 
    xyz_nbin=histosSet.getParameter<int>("Nbinxyz");
 
