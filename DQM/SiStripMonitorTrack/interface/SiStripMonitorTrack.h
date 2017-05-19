@@ -95,18 +95,18 @@ private:
   void trackStudyFromTrack(
     edm::Handle<reco::TrackCollection >   trackCollectionHandle,
     const edm::DetSetVector<SiStripDigi>& digilist,
-    const edm::Event&                     ev, 
+    const edm::Event&                     ev,
     const edm::EventSetup&                es);
   void trackStudyFromTrajectory(
-    edm::Handle<reco::TrackCollection >   trackCollectionHandle, 
+    edm::Handle<reco::TrackCollection >   trackCollectionHandle,
     const edm::DetSetVector<SiStripDigi>& digilist,
-    const edm::Event&                     ev, 
+    const edm::Event&                     ev,
     const edm::EventSetup&                es);
   void trajectoryStudy(
-    const reco::Track&                    track, 
+    const reco::Track&                    track,
     const edm::DetSetVector<SiStripDigi>& digilist,
-    const edm::Event&                     ev, 
-    const edm::EventSetup&                es, 
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es,
     bool                                  track_ok);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   bool trackFilter(const reco::Track& track);
@@ -134,10 +134,10 @@ private:
     const edm::DetSetVector<SiStripDigi>& digilist
   );
   template <class T> void RecHitInfo(
-    const T*                              tkrecHit, 
-          LocalVector                     LV, 
+    const T*                              tkrecHit,
+          LocalVector                     LV,
     const edm::DetSetVector<SiStripDigi>& digilist,
-    const edm::Event&                     ev, 
+    const edm::Event&                     ev,
     const edm::EventSetup&                es,
     bool ok
   );
@@ -269,7 +269,6 @@ private:
   bool ring_flag;
   bool TkHistoMap_On_;
   bool clchCMoriginTkHmap_On_;
-  bool Digi_On_;
 
   std::string TrackProducer_;
   std::string TrackLabel_;

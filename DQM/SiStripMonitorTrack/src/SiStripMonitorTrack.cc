@@ -34,14 +34,12 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_        = conf.getParameter<bool>("Mod_On");
   Trend_On_      = conf.getParameter<bool>("Trend_On");
   TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
-  Digi_On_       = conf.getParameter<bool>("Digi_On");
 
   TrackProducer_ = conf_.getParameter<std::string>("TrackProducer");
   TrackLabel_    = conf_.getParameter<std::string>("TrackLabel");
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
-  if (Digi_On_)
 	digiToken_ = consumes<edm::DetSetVector<SiStripDigi>> (  conf.getParameter<edm::InputTag>("ADCDigi_src") );
   clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
   trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
@@ -207,9 +205,9 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
         std::string ring_id = hidmanager.getSubdetid(detid, tTopo, true);
         std::map<std::string, RingMEs>::iterator iRingME  = RingMEsMap.find(ring_id);
         if(iRingME==RingMEsMap.end()){
-	  std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
-	  folder_organizer.setLayerFolder(detid, tTopo, det_ring_pair.second, true);
-	  bookRingMEs(ibooker , detid, ring_id);
+          std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
+          folder_organizer.setLayerFolder(detid, tTopo, det_ring_pair.second, true);
+          bookRingMEs(ibooker , detid, ring_id);
         }
       }
 
@@ -870,7 +868,8 @@ using namespace reco;
   // digis list
   edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
   ev.getByToken( digiToken_, digihandle );
-  auto& digilist  = *(digihandle.product());
+  edm::DetSetVector<SiStripDigi> dummy;
+  auto& digilist  = digihandle.isValid()? *(digihandle.product()) : dummy;
 
   if (trackCollectionHandle.isValid()){
     trackStudyFromTrajectory(trackCollectionHandle,digilist,ev, es);
@@ -1079,10 +1078,9 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   const SiStripQuality* stripQuality = qualityHandle.product();
 
   edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
-  if (Digi_On_)
-    ev.getByToken( digiToken_, digihandle );
-  const edm::DetSetVector<SiStripDigi> dummy;
-  auto digilist = ( digihandle.isValid() ? *digihandle : dummy );
+  ev.getByToken( digiToken_, digihandle );
+  edm::DetSetVector<SiStripDigi> dummy;
+  auto& digilist = digihandle.isValid()? *(digihandle.product()) : dummy;
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > siStripClusterHandle;
   ev.getByToken( clusterToken_, siStripClusterHandle);
