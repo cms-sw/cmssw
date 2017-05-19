@@ -73,7 +73,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt() * calibSF_, 
                                                multiclustersTmp.at(i).eta(), 
                                                multiclustersTmp.at(i).phi(), 
-                                               multiclustersTmp.at(i).p4().M() );
+                                               0. );
         // overwriting the 4p with the calibrated 4p     
         multiclustersTmp.at(i).setP4( calibP4 );
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
