@@ -111,6 +111,7 @@ private:
   std::atomic<int>  count;			// changeLog 9
   std::atomic<bool> m_messageBeingSent;
   tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
+  size_t m_waitingThreshold;
   
 };  // ThreadSafeLogMessageLoggerScribe
 
