@@ -28,7 +28,7 @@ namespace l1t {
   private:
     CaloParamsHelper* params_;
     int32_t towEtMetThresh_;
-    int32_t towEtEttThresh_;
+    int32_t towEtSumEtThresh_;
     int32_t towEtEcalSumThresh_;
     int32_t metEtaMax_;
     int32_t metEtaMaxHF_;
