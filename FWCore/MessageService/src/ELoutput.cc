@@ -304,13 +304,6 @@ ELoutput::~ELoutput()  {
 // Methods invoked by the ELadministrator:
 // ----------------------------------------------------------------------
 
-ELoutput *
-ELoutput::clone() const  {
-
-  return new ELoutput( *this );
-
-} // clone()
-
 //#define THRESHTRACE
 //#define ELoutputTRACE_LOG
 

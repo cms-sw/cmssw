@@ -64,7 +64,6 @@ public:
   // -----  Methods invoked by the ELadministrator:
   //
 public:
-  virtual ELdestination * clone() const = 0;
   virtual bool log( const edm::ErrorObj & msg );
 
   virtual void summarization(
