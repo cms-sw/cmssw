@@ -259,7 +259,7 @@ namespace hcaldqm
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,10000},	
 			{fDualAnodeAsymmetry,40},
-			{fTimingRatio,100},
+			{fTimingRatio,40},
 		};
 		class ValueQuantity : public Quantity
 		{
