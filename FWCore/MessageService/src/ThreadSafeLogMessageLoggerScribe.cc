@@ -47,6 +47,7 @@ namespace edm {
     , count (false)							// changeLog 32
     , m_messageBeingSent(false)
     , m_waitingThreshold(100)
+    , m_tooManyWaitingMessagesCount(0)
     {
     }
     
