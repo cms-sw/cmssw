@@ -30,7 +30,8 @@ namespace pat {
         StoppedTrack() :
           LeafCandidate(0, LorentzVector(0,0,0,0)),
           pfIsolationDR03_(pat::PFIsolation()),
-          miniIsolation_(pat::PFIsolation()), sumCaloJetEtDR03_(0.),
+          miniIsolation_(pat::PFIsolation()), 
+          matchedCaloJetEmEnergy_(0.), matchedCaloJetHadEnergy_(0.),
           dz_(0.), dxy_(0.), dzError_(0.), dxyError_(0.), trackQuality_(0),
           dEdxStrip_(0), dEdxPixel_(0), hitPattern_(reco::HitPattern()),
           crossedEcalIds_(std::vector<DetId>()), crossedHcalIds_(std::vector<HcalDetId>()),
@@ -38,7 +39,7 @@ namespace pat {
           crossedHcalStatus_(std::vector<HcalChannelStatus>()), 
           packedCandRef_(PackedCandidateRef()) {}
 
-        explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float sumCaloJetEt,
+        explicit StoppedTrack(const PFIsolation &iso, const PFIsolation &miniiso, float caloJetEm, float caloJetHad,
                               const LorentzVector &p4, int charge, int id,
                               float dz, float dxy, float dzError, float dxyError,
                               const reco::HitPattern &hp, float dEdxS, float dEdxP, int tkQual,
@@ -47,8 +48,8 @@ namespace pat {
                               const std::vector<HcalChannelStatus> & hcalst, 
                               const PackedCandidateRef &pcref) :
           LeafCandidate(charge, p4, Point(0.,0.,0.), id),
-          pfIsolationDR03_(iso),
-          miniIsolation_(miniiso), sumCaloJetEtDR03_(sumCaloJetEt),
+          pfIsolationDR03_(iso), miniIsolation_(miniiso), 
+          matchedCaloJetEmEnergy_(caloJetEm), matchedCaloJetHadEnergy_(caloJetHad),
           dz_(dz), dxy_(dxy), dzError_(dzError), dxyError_(dxyError),
           trackQuality_(tkQual), dEdxStrip_(dEdxS), dEdxPixel_(dEdxP), 
           hitPattern_(hp), crossedEcalIds_(ecalid), crossedHcalIds_(hcalid),
@@ -61,7 +62,8 @@ namespace pat {
 
         const PFIsolation& miniPFIsolation() const { return miniIsolation_; }
 
-        float sumCaloJetEtDR03() const { return sumCaloJetEtDR03_; }
+        float matchedCaloJetEmEnergy() const { return matchedCaloJetEmEnergy_; }
+        float matchedCaloJetHadEnergy() const { return matchedCaloJetHadEnergy_; }
 
         float dz() const { return dz_; }
         float dzError() const { return dzError_; }
@@ -91,7 +93,8 @@ namespace pat {
       protected:
         PFIsolation pfIsolationDR03_;
         PFIsolation miniIsolation_;
-        float sumCaloJetEtDR03_;
+        float matchedCaloJetEmEnergy_;  //energy of nearest calojet within a given dR;
+        float matchedCaloJetHadEnergy_;
         float dz_, dxy_, dzError_, dxyError_;        
         int trackQuality_;
         float dEdxStrip_, dEdxPixel_; //in MeV/mm
@@ -107,12 +110,8 @@ namespace pat {
 
     };
 
-}
+    typedef std::vector<StoppedTrack> StoppedTrackCollection;
 
-namespace pat {
-    typedef std::vector<StoppedTrack>  StoppedTrackCollection;
-    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 }
-
 
 #endif

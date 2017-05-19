@@ -40,6 +40,8 @@ namespace pat {
 
     class PATStoppedTrackProducer : public edm::EDProducer {
         public:
+            typedef pat::StoppedTrack::LorentzVector LorentzVector;
+
             explicit PATStoppedTrackProducer(const edm::ParameterSet&);
             ~PATStoppedTrackProducer();
 
@@ -53,10 +55,9 @@ namespace pat {
 
         TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
 
-        float getSumCaloJetEt(const LorentzVector&, const reco::CaloJetCollection*, float);
+        void getCaloJetEnergy(const LorentzVector&, const reco::CaloJetCollection*, float&, float&);
 
-        private: 
-            
+        private:             
             const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;
             const edm::EDGetTokenT<pat::PackedCandidateCollection>    lt_;
             const edm::EDGetTokenT<reco::TrackCollection>    gt_;
@@ -65,13 +66,14 @@ namespace pat {
             const edm::EDGetTokenT<reco::CaloJetCollection> caloJets_;
             const edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > gt2dedx_;
             const edm::EDGetTokenT<reco::DeDxHitInfoAss> gt2dedxHitInfo_;
-            const float pT_cut;  // only save cands with pT>pT_cut
-            const float dR_cut;  // isolation radius
-            const float dZ_cut;  // save if either from PV or |dz|<dZ_cut
-            const std::vector<double> miniIsoParams;
-            const float absIso_cut;  // save if ANY of absIso, relIso, or miniRelIso pass the cuts 
-            const float relIso_cut;
-            const float miniRelIso_cut;
+            const float pT_cut_;  // only save cands with pT>pT_cut_
+            const float pfIsolation_DR_;  // isolation radius
+            const float pfIsolation_DZ_;  // used in determining if pfcand is from PV or PU
+            const std::vector<double> miniIsoParams_;
+            const float absIso_cut_;  // save if ANY of absIso, relIso, or miniRelIso pass the cuts 
+            const float relIso_cut_;
+            const float miniRelIso_cut_;
+            const float caloJet_DR_;  // save energy of nearest calojet within caloJet_DR_
 
             TrackDetectorAssociator trackAssociator_;
             TrackAssociatorParameters trackAssocParameters_;
@@ -87,13 +89,14 @@ pat::PATStoppedTrackProducer::PATStoppedTrackProducer(const edm::ParameterSet& i
   caloJets_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("caloJets"))),
   gt2dedx_(consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("dEdxInfo"))),
   gt2dedxHitInfo_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dEdxHitInfo"))),
-  pT_cut(iConfig.getParameter<double>("pT_cut")),
-  dR_cut(iConfig.getParameter<double>("dR_cut")),
-  dZ_cut(iConfig.getParameter<double>("dZ_cut")),
-  miniIsoParams(iConfig.getParameter<std::vector<double> >("miniIsoParams")),
-  absIso_cut(iConfig.getParameter<double>("absIso_cut")),
-  relIso_cut(iConfig.getParameter<double>("relIso_cut")),
-  miniRelIso_cut(iConfig.getParameter<double>("miniRelIso_cut"))
+  pT_cut_(iConfig.getParameter<double>("pT_cut")),
+  pfIsolation_DR_(iConfig.getParameter<double>("pfIsolation_DR")),
+  pfIsolation_DZ_(iConfig.getParameter<double>("pfIsolation_DZ")),
+  miniIsoParams_(iConfig.getParameter<std::vector<double> >("miniIsoParams")),
+  absIso_cut_(iConfig.getParameter<double>("absIso_cut")),
+  relIso_cut_(iConfig.getParameter<double>("relIso_cut")),
+  miniRelIso_cut_(iConfig.getParameter<double>("miniRelIso_cut")),
+  caloJet_DR_(iConfig.getParameter<double>("caloJet_DR"))
 {
     // TrackAssociator parameters
     edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -168,41 +171,24 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
         float dz, dxy, dzError, dxyError;
         int pfCandInd; //to avoid counting packedPFCands in their own isolation
 
+        // get the four-momentum and charge
         if(isInPackedCands && pcref.get()->charge() != 0){
             p4 = pcref.get()->p4();
-            pdgId = pcref.get()->pdgId();
             charge = pcref.get()->charge();
-            dz = pcref.get()->dz();
-            dxy = pcref.get()->dxy();
-            dzError = pcref.get()->dzError();
-            dxyError = pcref.get()->dxyError();
-            refToCand = pcref;
             pfCandInd = pcref.key();
         }else if(isInLostTracks){
             p4 = ltref.get()->p4();
-            pdgId = 0;
             charge = ltref.get()->charge();
-            dz = ltref.get()->dz();
-            dxy = ltref.get()->dxy();
-            dzError = ltref.get()->dzError();
-            dxyError = ltref.get()->dxyError();
-            refToCand = ltref;
             pfCandInd = -1;
         }else{
             double m = 0.13957018; //assume pion mass
             double E = sqrt(m*m + gentk.p()*gentk.p());
             p4.SetPxPyPzE(gentk.px(), gentk.py(), gentk.pz(), E);
-            pdgId = 0;
             charge = gentk.charge();
-            dz = gentk.dz();
-            dxy = gentk.dxy();
-            dzError = gentk.dzError();
-            dxyError = gentk.dxyError();
-            refToCand = pat::PackedCandidateRef();
             pfCandInd = -1;
         }
 
-        if(p4.pt() < pT_cut)
+        if(p4.pt() < pT_cut_)
             continue;
         if(charge == 0)
             continue;
@@ -213,12 +199,37 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
         getIsolation(p4, pc, pfCandInd, isolationDR03, miniIso);
         
         // isolation cut
-        if( !(isolationDR03.chargedHadronIso() < absIso_cut ||
-              isolationDR03.chargedHadronIso()/p4.pt() < relIso_cut ||
-              miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut))
+        if( !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
+              isolationDR03.chargedHadronIso()/p4.pt() < relIso_cut_ ||
+              miniIso.chargedHadronIso()/p4.pt() < miniRelIso_cut_))
             continue;
 
-        float sumCaloJetEt = getSumCaloJetEt(p4, caloJets.product(), 0.3);
+        // get the rest after the pt/iso cuts. Saves some runtime
+        if(isInPackedCands && pcref.get()->charge() != 0){
+            pdgId = pcref.get()->pdgId();
+            dz = pcref.get()->dz();
+            dxy = pcref.get()->dxy();
+            dzError = pcref.get()->dzError();
+            dxyError = pcref.get()->dxyError();
+            refToCand = pcref;
+        }else if(isInLostTracks){
+            pdgId = 0;
+            dz = ltref.get()->dz();
+            dxy = ltref.get()->dxy();
+            dzError = ltref.get()->dzError();
+            dxyError = ltref.get()->dxyError();
+            refToCand = ltref;
+        }else{
+            pdgId = 0;
+            dz = gentk.dz();
+            dxy = gentk.dxy();
+            dzError = gentk.dzError();
+            dxyError = gentk.dxyError();
+            refToCand = pat::PackedCandidateRef();  //NULL reference
+        }
+
+        float caloJetEm, caloJetHad;
+        getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
         const reco::DeDxHitInfo* hitInfo = (*gt2dedxHitInfo)[tkref].get();
         float dEdxPixel = getDeDx(hitInfo, true, false);
@@ -229,7 +240,7 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
         // get the associated ecal/hcal detectors
         TrackDetMatchInfo trackDetInfo = getTrackDetMatchInfo(iEvent, iSetup, gentk);
 
-        // convert to specific hcal DetIds and fill status vectors
+        // convert to specific hcal DetIds and fill status vector
         std::vector<HcalDetId> crossedHcalIds;
         std::vector<HcalChannelStatus> crossedHcalStatus;
         for(auto const & did : trackDetInfo.crossedHcalIds){
@@ -242,7 +253,7 @@ void pat::PATStoppedTrackProducer::produce(edm::Event& iEvent, const edm::EventS
             crossedEcalStatus.push_back(*(ecalS->find(did.rawId())));
         }
 
-        outPtrP->push_back(pat::StoppedTrack(isolationDR03, miniIso, sumCaloJetEt, p4,
+        outPtrP->push_back(pat::StoppedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, p4,
                                              charge, pdgId, dz, dxy, dzError, dxyError,
                                              gentk.hitPattern(), dEdxStrip, dEdxPixel, trackQuality, 
                                              trackDetInfo.crossedEcalIds, crossedHcalIds,
@@ -260,16 +271,16 @@ void pat::PATStoppedTrackProducer::getIsolation(const LorentzVector& p4,
 {
         float chiso=0, nhiso=0, phiso=0, puiso=0;   // standard isolation
         float chmiso=0, nhmiso=0, phmiso=0, pumiso=0;  // mini isolation
-        float miniDR = std::max(miniIsoParams[0], std::min(miniIsoParams[1], miniIsoParams[2]/p4.pt()));
+        float miniDR = std::max(miniIsoParams_[0], std::min(miniIsoParams_[1], miniIsoParams_[2]/p4.pt()));
         for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
             if(pf_it - pc->begin() == pc_idx)  //don't count itself
                 continue;
             int id = std::abs(pf_it->pdgId());
-            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < dZ_cut);
+            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
             float pt = pf_it->p4().pt();
             float dr = deltaR(p4, pf_it->p4());
 
-            if(dr < dR_cut){
+            if(dr < pfIsolation_DR_){
                 // charged cands from PV get added to trackIso
                 if(id==211 && fromPV)
                     chiso += pt;
@@ -357,19 +368,33 @@ TrackDetMatchInfo pat::PATStoppedTrackProducer::getTrackDetMatchInfo(const edm::
     iSetup.get<IdealMagneticFieldRecord>().get(bField);
     FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track,&*bField);
 
+    // can't use the associate() using reco::Track directly, since 
+    // track->extra() is non-null but segfaults when trying to use it
     return trackAssociator_.associate(iEvent, iSetup, trackAssocParameters_, &initialState);
 }
 
-float pat::PATStoppedTrackProducer::getSumCaloJetEt(const LorentzVector& p4, const reco::CaloJetCollection* caloJets,
-                                                    float dR)
+void pat::PATStoppedTrackProducer::getCaloJetEnergy(const LorentzVector& p4, const reco::CaloJetCollection* cJets,
+                                                     float &caloJetEm, float& caloJetHad)
 {
-    float sum = 0;
-    for(auto const & caloJet : *caloJets){
-        if(deltaR(caloJet.p4(), p4) < dR){
-            sum += caloJet.et();
+    float nearestDR = 1.0;
+    int ind = -1;
+    for(unsigned int i=0; i<cJets->size(); i++){
+        float dR = deltaR(cJets->at(i).p4(), p4);
+        if(dR < caloJet_DR_ && dR < nearestDR){
+            nearestDR = dR;
+            ind = i;
         }
     }
-    return sum;
+
+    if(ind==-1){
+        caloJetEm = 0;
+        caloJetHad = 0;
+    }else{
+        caloJetEm = cJets->at(ind).emEnergyInEB() + cJets->at(ind).emEnergyInEE() + cJets->at(ind).emEnergyInHF();
+        caloJetHad = cJets->at(ind).hadEnergyInHB() + cJets->at(ind).hadEnergyInHE() + 
+            cJets->at(ind).hadEnergyInHF() + cJets->at(ind).hadEnergyInHO();
+    }
+
 }
 
 
