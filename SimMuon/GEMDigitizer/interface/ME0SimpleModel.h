@@ -49,7 +49,6 @@ private:
   double timeJitter_;
   double averageNoiseRate_;
   double signalPropagationSpeed_;
-  bool cosmics_;
   int bxwidth_;
   int minBunch_;
   int maxBunch_;
@@ -63,16 +62,15 @@ private:
   double rateFact_;
   double referenceInstLumi_;
   //params for charged background model for ME0 
-  double ME0ElecBkgParam0;
-  double ME0ElecBkgParam1;
-  double ME0ElecBkgParam2;
-  double ME0ElecBkgParam3;
+  double ME0ElecBkgParam0_;
+  double ME0ElecBkgParam1_;
+  double ME0ElecBkgParam2_;
+  double ME0ElecBkgParam3_;
   //params for neutral background model for ME0 
-  double ME0NeuBkgParam0;
-  double ME0NeuBkgParam1;
-  double ME0NeuBkgParam2;
-  double ME0NeuBkgParam3;
-
+  double ME0NeuBkgParam0_;
+  double ME0NeuBkgParam1_;
+  double ME0NeuBkgParam2_;
+  double ME0NeuBkgParam3_;
 };
 #endif
 

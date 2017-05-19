@@ -22,7 +22,6 @@ ME0DigiModel(config)
 , timeJitter_(config.getParameter<double> ("timeJitter"))
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
 , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
-, cosmics_(config.getParameter<bool> ("cosmics"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
@@ -34,18 +33,15 @@ ME0DigiModel(config)
 , instLumi_(config.getParameter<double> ("instLumi"))
 , rateFact_(config.getParameter<double> ("rateFact"))
 , referenceInstLumi_(config.getParameter<double> ("referenceInstLumi"))
+, ME0ElecBkgParam0_(config.getParameter<double> ("ME0ElecBkgParam0"))
+, ME0ElecBkgParam1_(config.getParameter<double> ("ME0ElecBkgParam1"))
+, ME0ElecBkgParam2_(config.getParameter<double> ("ME0ElecBkgParam2"))
+, ME0ElecBkgParam3_(config.getParameter<double> ("ME0ElecBkgParam3"))
+, ME0NeuBkgParam0_(config.getParameter<double> ("ME0NeuBkgParam0"))
+, ME0NeuBkgParam1_(config.getParameter<double> ("ME0NeuBkgParam1"))
+, ME0NeuBkgParam2_(config.getParameter<double> ("ME0NeuBkgParam2"))
+, ME0NeuBkgParam3_(config.getParameter<double> ("ME0NeuBkgParam3"))
 {
-  //initialise parameters from the fit:
-  //params for charged background model for ME0 
-  ME0ElecBkgParam0 = 0.00171409;
-  ME0ElecBkgParam1 = 4900.56;
-  ME0ElecBkgParam2 = 710909;
-  ME0ElecBkgParam3 = -4327.25;
-  //params for neutral background model for ME0 at L=5x10^{34}cm^{-2}s^{-1}
-  ME0NeuBkgParam0 = 0.00386257;
-  ME0NeuBkgParam1 = 6344.65;
-  ME0NeuBkgParam2 = 16627700;
-  ME0NeuBkgParam3 = -102098;
 }
 
 ME0SimpleModel::~ME0SimpleModel()
@@ -187,10 +183,10 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
   }
   else
   {
-    averageNeutralNoiseRatePerRoll = ME0NeuBkgParam0 * rollRadius* std::exp(ME0NeuBkgParam1/rSqrtR) + ME0NeuBkgParam2/rSqrtR + ME0NeuBkgParam3/(sqrt(rollRadius));
+    averageNeutralNoiseRatePerRoll = ME0NeuBkgParam0_ * rollRadius* std::exp(ME0NeuBkgParam1_/rSqrtR) + ME0NeuBkgParam2_/rSqrtR + ME0NeuBkgParam3_/(sqrt(rollRadius));
     //simulate electron background for ME0
     if (simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = ME0ElecBkgParam0 * rSqrtR* std::exp(ME0ElecBkgParam1/rSqrtR) + ME0ElecBkgParam2/rSqrtR + ME0ElecBkgParam3/(sqrt(rollRadius));
+      averageNoiseElectronRatePerRoll = ME0ElecBkgParam0_ * rSqrtR* std::exp(ME0ElecBkgParam1_/rSqrtR) + ME0ElecBkgParam2_/rSqrtR + ME0ElecBkgParam3_/(sqrt(rollRadius));
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
     averageNoiseRatePerRoll *= instLumi_*rateFact_*1.0/referenceInstLumi_;  
   }
@@ -201,10 +197,9 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     const double aveIntrinsicNoisePerStrip(averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9);
     for(int j = 0; j < nstrips; ++j)
     {
-      CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoisePerStrip); 
-      const int n_intrHits(randPoissonQ.fire());
+      int randPoissonQ = CLHEP::RandPoissonQ::shoot(engine, aveIntrinsicNoisePerStrip); 
     
-      for (int k = 0; k < n_intrHits; k++ )
+      for (int k = 0; k < randPoissonQ; k++ )
       {
         const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
 	strips_.emplace(k+1,time_hit);
@@ -214,10 +209,9 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
 
   //simulate bkg contribution
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
-  CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
-  const int n_hits(randPoissonQ.fire());
+  int randPoissonQ = CLHEP::RandPoissonQ::shoot(engine, averageNoise);
 
-  for (int i = 0; i < n_hits; ++i)
+  for (int i = 0; i < randPoissonQ; ++i)
   {
     const int centralStrip(static_cast<int> (CLHEP::RandFlat::shoot(engine, 1, nstrips)));
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
