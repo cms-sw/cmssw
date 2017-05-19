@@ -6,8 +6,6 @@
 <use name="DataFormats/CTPPSReco"/>
 
 <use name="Geometry/VeryForwardGeometryBuilder"/>
-<use name="Geometry/VeryForwardGeometry"/>
-
 <use name="CondFormats/CTPPSReadoutObjects"/>
 
 <use name="DataFormats/CTPPSDetId"/>
