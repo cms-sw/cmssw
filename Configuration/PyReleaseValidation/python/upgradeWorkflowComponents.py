@@ -28,8 +28,6 @@ upgradeKeys[2023] = [
     '2023D16PU',
     '2023D17',
     '2023D17PU',
-    '2023D18',
-    '2023D18PU'
 ]
 
 # pre-generation of WF numbers
@@ -40,7 +38,7 @@ numWFStart={
 numWFSkip=200
 # first two sets are the former D3 WF (now removed as redundant)
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11000,11200],[11400,19800],[20000,20400],[20800,24000],[24400,26200],[26600,27000],[50000,51000]]
+numWFConflict = [[11000,11200],[11400,19800],[20000,20400],[20800,23200],[23600,24000],[24400,26200],[26600,27000],[50000,51000]]
 numWFAll={
     2017: [numWFStart[2017]],
     2023: [numWFStart[2023]]
