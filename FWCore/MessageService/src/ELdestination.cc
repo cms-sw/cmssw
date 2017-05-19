@@ -88,20 +88,9 @@ bool ELdestination::log( const edm::ErrorObj &)  { return false; }
 // and all the no-op methods will issue an ELwarning2 at their own destination.
 
 
-static const ELstring noSummarizationMsg = "No summarization()";
-static const ELstring noSummaryMsg = "No summary()";
-static const ELstring noClearSummaryMsg = "No clearSummary()";
 static const ELstring hereMsg = "available via this destination";
 static const ELstring noosMsg = "No ostream";
 static const ELstring notELoutputMsg = "This destination is not an ELoutput";
-
-void ELdestination::clearSummary()  {
-
-  edm::ErrorObj msg( ELwarning, noClearSummaryMsg );
-  msg << hereMsg;
-  log( msg );
-
-}  // clearSummary()
 
 
 void ELdestination::wipe()  { limits.wipe(); }
@@ -143,28 +132,10 @@ void ELdestination::excludeModule( ELstring const & moduleName )  {
   ignoreModule(moduleName);
 }
 
-void ELdestination::summary( )  { }
-
-void ELdestination::summaryForJobReport(std::map<std::string, double> &) { }
-
 void ELdestination::finish() {  }
 
 void ELdestination::setTableLimit( int n )  { limits.setTableLimit( n ); }
 
-
-void ELdestination::summarization(
-  const ELstring & title
-, const ELstring & /*sumLines*/ )  {
-
-  edm::ErrorObj  msg( ELwarning, noSummarizationMsg );
-  msg << hereMsg << newline << title;
-  log( msg );
-
-}
-
-std::map<ELextendedID , StatsCount> ELdestination::statisticsMap() const {
-  return std::map<ELextendedID , StatsCount> ();
-}
 
 void ELdestination::changeFile (std::ostream & /*unused*/) {
   edm::ErrorObj  msg( ELwarning, noosMsg );
@@ -214,8 +185,6 @@ void ELdestination::attachTime()    { ; }
 
 void ELdestination::separateEpilogue()  { ; }
 void ELdestination::attachEpilogue()    { ; }
-
-void ELdestination::noTerminationSummary()  { ; }
 
 ELstring ELdestination::getNewline() const  { return newline; }
 

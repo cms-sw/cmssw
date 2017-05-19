@@ -84,20 +84,21 @@ public:
   static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
 
 
+  void summary( );
+  void noTerminationSummary();
+  void summaryForJobReport (std::map<std::string, double> & sm);
+  virtual void wipe() override;
+
   // -----  Methods invoked through the ELdestControl handle:
   //
 protected:
-  virtual void clearSummary() override;
+  void clearSummary();
 
-  virtual void wipe() override;
   virtual void zero() override;
 
-  virtual void summary( ) override;
-  void noTerminationSummary();
 
-  virtual std::map<ELextendedID,StatsCount> statisticsMap() const override;
+  std::map<ELextendedID,StatsCount> statisticsMap() const;
 
-  virtual void summaryForJobReport (std::map<std::string, double> & sm) override;
   
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
