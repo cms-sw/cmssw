@@ -406,11 +406,13 @@ void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
 }  // summary()
 
-void  ELstatistics::summary( )  {
+void  ELstatistics::summary(unsigned long overfullWaitCount )  {
 
   termStream << "\n=============================================\n\n"
-  	     << "MessageLogger Summary" << std::endl << formSummary(stats) 
-             << std::flush;
+  	     << "MessageLogger Summary" << std::endl
+         << formSummary(stats) <<std::endl
+         << "dropped waiting message count "<<overfullWaitCount
+         << std::endl << std::flush;
   updatedStats = false;
 
 }  // summary()

@@ -110,6 +110,7 @@ private:
   std::atomic<bool> m_messageBeingSent;
   tbb::concurrent_queue<ErrorObj*> m_waitingMessages;
   size_t m_waitingThreshold;
+  std::atomic<unsigned long> m_tooManyWaitingMessagesCount;
   
 };  // ThreadSafeLogMessageLoggerScribe
 
