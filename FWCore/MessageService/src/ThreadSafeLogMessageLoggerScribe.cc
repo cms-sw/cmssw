@@ -200,6 +200,8 @@ namespace edm {
         if(m_waitingMessages.unsafe_size() < m_waitingThreshold) {
           obj.release();
           m_waitingMessages.push(errorobj_p);
+        } else {
+          ++m_tooManyWaitingMessagesCount;
         }
       }
     }
@@ -775,7 +777,7 @@ namespace edm {
     ThreadSafeLogMessageLoggerScribe::triggerStatisticsSummaries() {
       assert (statisticsDestControls.size() == statisticsResets.size());
       for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
-        statisticsDestControls[i]->summary( );
+        statisticsDestControls[i]->summary(m_tooManyWaitingMessagesCount.load() );
         if (statisticsResets[i]) statisticsDestControls[i]->wipe( );
       }
     }
