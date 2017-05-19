@@ -47,8 +47,6 @@ numWFAll={
 for year in upgradeKeys:
     for i in range(1,len(upgradeKeys[year])):
         numWFtmp = numWFAll[year][i-1] + numWFSkip
-	print numWFAll[year][i-1]
-	print numWFtmp
         for conflict in numWFConflict:
 	    if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
                 numWFtmp = conflict[1]
