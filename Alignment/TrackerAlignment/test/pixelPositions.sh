@@ -34,23 +34,29 @@ echo and plotting macros from $PLOTMILLEPEDEDIR
 echo "Running in ${EXECUTION_DIR}"
 echo 
 
-RUN_NUMBERS=(272011 273000)
+#run of CRUZET-2017 (Phase-I geometry)
+RUN_NUMBERS=(290784)
 
 # First conditions to check
 # (if ALIGNMENT_TAG1 and DB_PATH_TAG1 are empty takes content from GLOBALTAG1)
 # also symbolic Global Tags are allowed
-GLOBALTAG1="auto:run2_data"
-# GLOBALTAG1="90X_dataRun2_Express_v4"
-ALIGNMENT_TAG1="TrackerAlignment_2009_v1_express"
-DB_PATH_TAG1="frontier://FrontierProd/CMS_CONDITIONS"
+GLOBALTAG1="90X_dataRun2_Express_v4"
+ALIGNMENT_TAG1="TrackerAlignment_mp2387"
+# Note: Prep DB used here
+#DB_PATH_TAG1="frontier://FrontierProd/CMS_CONDITIONS"
+DB_PATH_TAG1="frontier://FrontierPrep/CMS_CONDITIONS"
+
 
 # Second conditions to check
 # also symbolic Global Tags are allowed
-GLOBALTAG2="auto:run2_data"
-# GLOBALTAG2="90X_dataRun2_Express_v4"
-ALIGNMENT_TAG2="SiPixelAli_PCL_v0_prompt"
-# ALIGNMENT_TAG2="SiPixelAli_PCL_v0_p"
-DB_PATH_TAG2="frontier://FrontierPrep/CMS_CONDITIONS"
+# EOY-2016 follows
+#GLOBALTAG2="auto:run2_data"
+#ALIGNMENT_TAG2="TrackerAlignment_v19_offline"
+#DB_PATH_TAG2="frontier://FrontierProd/CMS_CONDITIONS"
+GLOBALTAG2="90X_dataRun2_Express_v4"
+ALIGNMENT_TAG2="Alignments"
+DB_PATH_TAG2="sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2387/jobData/jobm/alignments_MP.db"
+
 
 if [[ ! -d ${EXECUTION_DIR} ]]
 then
