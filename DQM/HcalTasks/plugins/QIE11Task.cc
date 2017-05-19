@@ -233,10 +233,15 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		// Timing channels for phase scan
 		for (int iChan = 0; iChan < 4; ++iChan) {
 			if (!_filter_timingChannels[iChan].filter(HcalDetId(did))) {
+				// For local runs, determine the lumisection from orbitNumber
+				int ls = _currentLS;
+				if (_ptype == fLocal) {
+					ls = (e.orbitNumber() >> 18);
+				}
 				int isoi = -1;
 				for (int j = 0; j < frame.samples(); ++j) {
 					if (frame[j].tdc() < 50) {
-						_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), _currentLS, j*25. + (frame[j].tdc() / 2.));
+						_cTDCTime_vs_LS[iChan].fill(HcalDetId(did), ls, j*25. + (frame[j].tdc() / 2.));
 					}
 					if (frame[j].soi()) {
 						isoi = j;
@@ -260,7 +265,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 						ratio = 0.;
 					}
 				}
-				_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), _currentLS, ratio);
+				_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), ls, ratio);
 			}
 		}
 	}
